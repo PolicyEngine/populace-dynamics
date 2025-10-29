@@ -48,6 +48,8 @@ jobs:
         run: |
           cd jupyterbook
           myst build --html
+        env:
+          BASE_URL: /social-security-model
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
