@@ -1,0 +1,31 @@
+version: 1
+project:
+  title: 'Building an Open-Source Social Security Dynamic Microsimulation Model'
+  authors:
+    - name: Max Ghenis
+    - name: Ben Ogorek
+    - name: John Sabelhaus
+  copyright: '2025'
+  github: PolicyEngine/social-security-model
+  bibliography:
+    - references.bib
+  toc:
+    - file: intro.md
+    - file: literature-review.md
+    - file: existing-models.md
+    - file: data-sources.md
+    - file: calibration-targets.md
+    - file: methodology.md
+    - file: infrastructure.md
+    - file: team.md
+    - file: roadmap.md
+    - file: bibliography.md
+site:
+  template: book-theme
+  options:
+    logo: policyengine.png
+    favicon: policyengine.png
+    repository_url: https://github.com/PolicyEngine/social-security-model
+    nav_links:
+      - title: GitHub
+        url: https://github.com/PolicyEngine/social-security-model
