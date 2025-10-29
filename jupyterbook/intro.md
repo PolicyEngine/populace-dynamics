@@ -2,98 +2,44 @@
 
 ## Executive Summary
 
-This document outlines a plan to develop the first open-source, publicly available Social Security dynamic microsimulation model - a tool that would democratize access to sophisticated policy analysis previously available only through proprietary models like DynaSim (Urban Institute) and CBOLT (Congressional Budget Office).
+This document outlines a plan to develop the first open-source, publicly available Social Security dynamic microsimulation model. Such a tool would democratize access to sophisticated policy analysis previously available only through proprietary models like DynaSim (Urban Institute) {cite}`favreault2015` and CBOLT (Congressional Budget Office) {cite}`cbo2018`. The model will leverage PolicyEngine's existing Social Security rules implementation while creating a synthetic longitudinal panel dataset that tracks individuals across their lifetimes. This approach combines machine learning techniques, specifically quantile regression forests {cite}`meinshausen2006`, with traditional microsimulation calibration methods {cite}`deville1992` to produce accurate, transparent, and reproducible Social Security policy analysis.
 
-The model will leverage PolicyEngine's existing Social Security rules implementation while creating a synthetic longitudinal panel dataset that tracks individuals across their lifetimes. This approach combines cutting-edge machine learning techniques (quantile regression forests) with traditional microsimulation calibration methods to produce accurate, transparent, and reproducible Social Security policy analysis.
-
-**This is not an untested approach.** PolicyEngine has already proven this methodology works: the Enhanced CPS (eCPS) is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts, matching proprietary models that rely on restricted IRS data. This project extends that proven methodology from cross-sectional to longitudinal analysis.
+This is not an untested approach. PolicyEngine has already proven this methodology works through the Enhanced CPS (eCPS), the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts. This project extends that proven methodology from cross-sectional to longitudinal analysis.
 
 ## The Opportunity
 
-Social Security is the largest single program in the U.S. federal budget, with over $1.4 trillion in annual benefits paid to more than 67 million Americans. Yet public access to sophisticated modeling tools for analyzing Social Security reforms remains severely limited:
+Social Security is the largest single program in the U.S. federal budget. According to the Congressional Budget Office, Social Security spending totaled approximately $1.5 trillion in fiscal year 2024, representing about 21 percent of total federal expenditures {cite}`cbo2024longterm`. The program provides monthly benefits to about 67 million Americans, including retired workers, disabled workers, survivors, and dependents {cite}`ssa2024facts`. Despite its fiscal magnitude and centrality to retirement security, public access to sophisticated modeling tools for analyzing Social Security reforms remains severely limited.
 
-### The Problem: Proprietary Data Dependence
+### The Problem: Restricted Access to Modeling Tools
 
-- **DynaSim** (Urban Institute): Proprietary, expensive, limited public access
-- **CBOLT** (Congressional Budget Office): Internal CBO use only, not publicly available
-- **MINT** (Social Security Administration): Some public access but limited customization
-- **Cato Institute**: Reportedly building something, but scope and availability unclear
+The current landscape of Social Security microsimulation models presents significant barriers to transparent policy analysis. DynaSim, developed by the Urban Institute, is proprietary and expensive, with limited public access {cite}`favreault2015`. CBOLT, the Congressional Budget Office's long-term model, is used exclusively for internal CBO analysis and not available to external researchers {cite}`cbo2018`. MINT, the Social Security Administration's Modeling Income in the Near Term model, provides some public access through restricted datasets available to approved researchers, but the underlying code and methodology remain largely inaccessible {cite}`ssa2024mint` {cite}`smith2010mint`. While the Cato Institute is reportedly developing a Social Security model, details about its scope, methodology, and public availability remain unclear.
 
-A gap exists for an open-source model that provides:
-- Full transparency in methodology and assumptions
-- Free public access via web interface and Python API
-- Individual-level detail for distributional analysis
-- Lifetime earnings trajectories for cohort analysis
-- Integration with PolicyEngine's existing tax and benefit modeling
+This restricted landscape creates a critical gap for policy researchers, advocates, and policymakers who need tools that provide full transparency in methodology and assumptions, free public access via web interface and Python API, individual-level detail for distributional analysis, lifetime earnings trajectories for cohort analysis, and integration with comprehensive tax and benefit modeling.
 
-### We've Done This Before: The Enhanced CPS Precedent
+### A Proven Approach: The Enhanced CPS Precedent
 
-**The analogous problem in cross-sectional modeling**: All major U.S. tax-benefit microsimulation models (Tax Policy Center, Penn Wharton Budget Model, Tax Foundation, etc.) rely on the IRS Public Use File (PUF), which:
-- Cannot be publicly shared due to privacy restrictions
-- Limits reproducibility of research
-- Requires adding CPS non-filers, creating hybrid datasets
-- Creates barrier to entry for new researchers
+PolicyEngine has already demonstrated that fully public, synthetic data can match the accuracy of restricted administrative data for microsimulation purposes. The analogous problem exists in cross-sectional tax-benefit modeling: all major U.S. microsimulation models, including those from the Tax Policy Center, Penn Wharton Budget Model, and Tax Foundation, rely on the IRS Public Use File (PUF). This reliance creates fundamental challenges. The PUF cannot be publicly shared due to privacy restrictions, limiting reproducibility of research. Most models require adding CPS non-filers to the PUF, creating hybrid datasets with complex integration challenges. The restricted nature of the PUF creates barriers to entry for new researchers and prevents independent verification of published results.
 
-**PolicyEngine's solution**: The Enhanced CPS (eCPS) is **the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts**. We:
-- Start with fully public CPS data
-- Use machine learning to impute PUF-like detail in a privacy-safe way
-- Apply gradient descent calibration to administrative targets
-- Achieve comparable (often superior) accuracy to PUF-based models
-- Enable full reproducibility and transparency
+PolicyEngine addressed this reproducibility crisis by developing the Enhanced CPS (eCPS), which is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite}`ghenis2024`. The eCPS construction process begins with fully public CPS data, uses machine learning to impute PUF-like detail in a privacy-safe manner through quantile regression forests, applies gradient descent calibration to over 7,000 administrative targets from IRS Statistics of Income and other sources, and achieves comparable or superior accuracy to PUF-based models while enabling full reproducibility and transparency.
 
-**The proof**: PolicyEngine-US produces revenue estimates, distributional analysis, and reform impacts that match or exceed proprietary models, while being fully open-source.
+The validation results demonstrate that this approach works. PolicyEngine-US produces revenue estimates, distributional analysis, and reform impacts that match or exceed proprietary models, and the entire methodology is open-source and fully documented. The eCPS uses a two-stage process: first, quantile regression forests impute missing or underreported variables from public data sources; second, gradient descent optimization reweights the dataset to match thousands of administrative targets simultaneously.
 
-**The same approach for longitudinal modeling**: Just as eCPS proves we can build accurate cross-sectional files without restricted data, this project will prove we can build accurate longitudinal panels without administrative earnings records. The methodology is directly analogous:
-- **eCPS**: CPS + ML imputation from PUF + calibration → accurate tax modeling
-- **This project**: CPS + ML imputation from PSID + calibration → accurate Social Security modeling
+This project applies the same methodological framework to longitudinal Social Security modeling. Just as eCPS proves we can build accurate cross-sectional files without restricted data, this project will demonstrate that we can build accurate longitudinal panels without administrative earnings records. The methodology is directly analogous: eCPS combines CPS data, machine learning imputation from the PUF, and calibration to produce accurate tax modeling; this project will combine CPS data, machine learning imputation from the Panel Study of Income Dynamics (PSID), and calibration to produce accurate Social Security modeling.
 
-We're not proposing an untested approach - we're extending a proven methodology from cross-sectional to longitudinal analysis.
+We are not proposing an untested approach. Rather, we are extending a proven methodology that has already gained credibility through real-world validation and use in policy analysis. The infrastructure (microimpute, microcalibrate), the validation framework, and the team expertise all derive from the successful eCPS development.
 
 ## Key Innovation: From Cross-Sectional to Longitudinal
 
-PolicyEngine-US already implements Social Security rules comprehensively, allowing individual-level benefit calculations given earnings history and demographic information. The core modeling challenge is **not** the policy rules themselves, but rather creating realistic synthetic panel data that captures:
+PolicyEngine-US already implements Social Security rules comprehensively, allowing individual-level benefit calculations given earnings history and demographic information. The core modeling challenge is not the policy rules themselves, but rather creating realistic synthetic panel data that captures lifetime earnings trajectories, demographic transitions such as marriage, divorce, childbearing, disability, and mortality, cross-sectional consistency with current population distributions, longitudinal consistency with realistic earnings mobility and life-cycle patterns, and calibration to external targets including SSA actuarial projections, historical data, and survey panels.
 
-1. **Lifetime earnings trajectories**: How do earnings evolve from age 18 to retirement?
-2. **Demographic transitions**: Marriage, divorce, childbearing, disability, mortality
-3. **Cross-sectional consistency**: Matching current population distributions
-4. **Longitudinal consistency**: Realistic earnings mobility and life-cycle patterns
-5. **Calibration to external targets**: SSA actuarial projections, historical data, survey panels
-
-This is fundamentally a **data generation problem** that requires:
-- Machine learning for imputation (quantile regression forests)
-- Statistical matching to longitudinal surveys (PSID, SIPP)
-- Gradient descent reweighting for calibration targets
-- Validation against administrative data where available
+This is fundamentally a data generation problem that requires machine learning for imputation through quantile regression forests, statistical matching to longitudinal surveys such as PSID and SIPP, gradient descent reweighting for calibration to thousands of targets, and validation against administrative data where available. The technical approach leverages the same tools (microimpute, microcalibrate) that produced the Enhanced CPS, but extends them from cross-sectional to longitudinal dimensions.
 
 ## Significance
 
-This would be a landmark contribution to open policy analysis:
+This model would represent a landmark contribution to open policy analysis. It would be the first open-source dynamic Social Security microsimulation model, enabling researchers, advocates, and policymakers to analyze reforms without proprietary tools. Integration with PolicyEngine's web application will provide public access through an intuitive interface, while a Python package will offer programmatic access for detailed research. Full reproducibility through open-source code and comprehensive documentation will allow independent verification and extension. The model will support individual-level analysis with full distributional impacts, tracking effects across entire lifecycles and multiple generations.
 
-- **First** open-source dynamic Social Security microsimulation model
-- Enables researchers, advocates, and policymakers to analyze reforms without proprietary tools
-- Integrates with PolicyEngine's web app for public access
-- Provides Python package for programmatic access
-- Full reproducibility through open-source code and documentation
-- Can model reforms at individual level with full distributional impacts
-- Tracks effects across entire lifecycles and multiple generations
-
-The model will support analysis of:
-- Benefit formula changes
-- Retirement age adjustments
-- Tax base modifications
-- Means-testing proposals
-- Progressive indexing
-- Minimum benefit proposals
-- Effects on poverty, inequality, and adequacy across demographic groups
+The model will support rigorous analysis of benefit formula changes, retirement age adjustments, tax base modifications, means-testing proposals, progressive indexing mechanisms, minimum benefit proposals, and effects on poverty, inequality, and retirement adequacy across demographic groups. By removing cost and access barriers, the model will democratize sophisticated Social Security policy analysis.
 
 ## This Document
 
-The remainder of this planning document covers:
-
-- **Literature Review**: Academic research on Social Security microsimulation
-- **Existing Models**: Detailed comparison of DynaSim, CBOLT, MINT, and other tools
-- **Data Sources**: Survey data (PSID, SIPP, CPS) and calibration targets
-- **Methodology**: Technical approach to synthetic panel construction
-- **Infrastructure**: PolicyEngine tools (microimpute, microcalibrate, enhanced CPS)
-- **Team**: Expertise of Max Ghenis, Ben Ogorek, and John Sabelhaus
-- **Roadmap**: Milestones and development timeline
+The remainder of this planning document provides comprehensive detail on the technical approach and development plan. The Literature Review chapter examines academic research on Social Security microsimulation and dynamic modeling methodologies. The Existing Models chapter provides detailed comparison of DynaSim, CBOLT, MINT, and other tools, including their construction methodologies and how our approach differs. The Data Sources chapter describes survey data including PSID, SIPP, and CPS, as well as calibration targets from SSA administrative data. The Methodology chapter presents the technical approach to synthetic panel construction, including quantile regression forest imputation, demographic transition modeling, and gradient descent calibration. The Infrastructure chapter describes PolicyEngine tools including microimpute, microcalibrate, and the Enhanced CPS, demonstrating how proven tools will be extended to longitudinal analysis. The Team chapter introduces the expertise of Max Ghenis, Ben Ogorek, and John Sabelhaus. Finally, the Roadmap chapter outlines development milestones and the timeline for model construction and validation.

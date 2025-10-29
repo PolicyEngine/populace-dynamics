@@ -487,32 +487,23 @@ Comprehensive validation at multiple levels:
 
 ## Why This Approach Will Work: The Enhanced CPS Precedent
 
-**A natural skepticism**: Can fully synthetic data really match the quality of administrative records?
-
-**The evidence**: PolicyEngine has already proven this works for cross-sectional analysis.
+A natural skepticism arises: can fully synthetic data really match the quality of administrative records? PolicyEngine has already answered this question affirmatively through cross-sectional analysis.
 
 ### The Enhanced CPS Achievement
 
-PolicyEngine's Enhanced CPS (eCPS) is **the only publicly available microdata file** that produces accurate tax-benefit microsimulation results:
+PolicyEngine's Enhanced CPS (eCPS) is the only publicly available microdata file that produces accurate tax-benefit microsimulation results {cite}`ghenis2024`. This achievement directly validates the synthetic data approach we propose to extend to longitudinal analysis.
 
-**The Challenge**:
-- All major tax models (Tax Policy Center, PWBM, Tax Foundation) use IRS PUF
-- PUF cannot be publicly shared (privacy restrictions)
-- Creates reproducibility crisis: can't verify others' results
+**The Challenge in Cross-Sectional Modeling**:
+All major tax models including Tax Policy Center, Penn Wharton Budget Model, and Tax Foundation rely on the IRS Public Use File. The PUF cannot be publicly shared due to privacy restrictions, creating a reproducibility crisis where researchers cannot verify others' results or independently analyze tax policy proposals.
 
 **Our Solution**:
-- Start with public CPS data
-- Use ML to impute PUF-like detail (microimpute)
-- Calibrate to IRS targets (microcalibrate)
-- Achieve accuracy matching proprietary models
+PolicyEngine developed the Enhanced CPS through a rigorous two-stage methodology. Stage 1 uses quantile regression forests to impute missing or underreported variables from multiple public data sources (PUF via privacy-safe methods, SIPP, SCF, ACS) onto the CPS base. The CPS is cloned to create two copies: one filling missing variables and one replacing existing variables with more accurate imputed values. These copies are concatenated to create the Extended CPS with doubled sample size. Stage 2 applies gradient descent optimization to reweight the Extended CPS, matching over 7,000 administrative targets from IRS Statistics of Income, Census, CBO, and other sources. The optimization uses PyTorch with Adam optimizer, dropout regularization, and log-transformed weights to ensure positivity.
 
 **Validation Results**:
-- ✓ Revenue estimates match Joint Committee on Taxation
-- ✓ Distributional analysis matches Tax Policy Center
-- ✓ Individual calculations validate against actual returns
-- ✓ Used by Congressional offices for real policy analysis
+Revenue estimates match Joint Committee on Taxation estimates for major tax reforms. Distributional analysis matches Tax Policy Center's published tables across income deciles. Individual-level calculations validate against actual tax returns where available. Congressional offices use PolicyEngine for actual policy analysis, demonstrating real-world credibility and accuracy. The proof is clear: synthetic data combined with modern machine learning and calibration to thousands of targets produces accuracy comparable to administrative data.
 
-**The Proof**: Synthetic data + modern ML + calibration = accuracy comparable to administrative data
+**The Technical Parallel**:
+The eCPS methodology directly informs this project. Both employ quantile regression forests for distributional imputation, gradient descent optimization for multi-target calibration, validation against administrative aggregates, and full public reproducibility. The eCPS imputes cross-sectional income detail; this project will impute longitudinal earnings histories. The eCPS calibrates to 7,000+ IRS and Census targets; this project will calibrate to SSA and Census targets. The technical challenges are analogous, and we have already solved them for the cross-sectional case.
 
 ### Direct Parallel to This Project
 

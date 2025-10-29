@@ -154,27 +154,41 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Repository**: https://github.com/PolicyEngine/policyengine-us-data
 
-**Critical Context**: The Enhanced CPS is **the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts**. This achievement provides direct proof that our approach works:
+**Critical Context**: The Enhanced CPS is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite}`ghenis2024`. This achievement provides direct proof that our synthetic data approach works.
 
 **The Cross-Sectional Challenge (Solved)**:
 - All major tax models rely on IRS PUF (cannot be shared publicly)
 - This creates reproducibility crisis in tax policy research
-- PolicyEngine solved this with eCPS using the exact methodology we'll extend to longitudinal analysis
+- PolicyEngine solved this with eCPS using the exact methodology we will extend to longitudinal analysis
 
-**eCPS Construction Process**:
-1. Download CPS ASEC from IPUMS (fully public)
-2. Impute missing income components using microimpute (ML-based)
-3. Correct benefit underreporting
-4. Construct tax units from households
-5. **Calibrate to IRS and other administrative data using microcalibrate**
-6. Validate against multiple benchmarks
-7. Package for PolicyEngine use
+**eCPS Construction Process** (Two-Stage Methodology):
+
+**Stage 1: Variable Imputation**
+1. Download CPS ASEC, PUF, SIPP, SCF, and ACS from public sources
+2. Age all datasets to target year using population growth factors and income indices
+3. Clone the aged CPS dataset to create two copies:
+   - Copy 1: Fills missing variables (mortgage interest, charitable contributions, capital gains)
+   - Copy 2: Replaces existing variables with more accurate PUF values
+4. Train quantile regression forests on aged PUF using seven demographic predictors
+5. Apply QRF to both CPS copies, sampling from conditional distributions
+6. Impute additional variables from SIPP (tip income), SCF (auto loans, wealth), and ACS (property taxes)
+7. Concatenate both copies to create Extended CPS (doubled sample size ~400,000 individuals)
+
+**Stage 2: Gradient Descent Reweighting**
+1. Construct loss matrix containing households' contributions to over 7,000 calibration targets
+2. Define targets from six sources: IRS SOI, Census, CBO/Treasury, JCT, Healthcare, and other administrative data
+3. Use PyTorch-based gradient descent optimization with Adam optimizer
+4. Apply dropout regularization to prevent overfitting
+5. Optimize log-transformed weights to ensure positivity
+6. Iterate until convergence: targets matched within tolerance
+7. Produce Enhanced CPS with calibrated weights
 
 **Validation Results** (why this matters):
 - Revenue estimates match Joint Committee on Taxation
 - Distributional tables match Tax Policy Center
 - Individual calculations validate against tax returns
-- **Proof**: Synthetic data + ML + calibration = accuracy comparable to restricted admin data
+- Congressional offices use PolicyEngine for actual policy analysis
+- **Proof**: Synthetic data + QRF + 7,000+ targets + gradient descent calibration = accuracy comparable to restricted admin data
 
 **Our Use**:
 - **Starting point for our synthetic panel**
