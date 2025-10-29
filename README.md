@@ -29,11 +29,12 @@ Or view chapters directly:
 - [Introduction](jupyterbook/intro.md) - Overview and significance
 - [Literature Review](jupyterbook/literature-review.md) - Academic foundations
 - [Existing Models](jupyterbook/existing-models.md) - Comparison to DynaSim, MINT, CBOLT
+- [Technical Specifications](jupyterbook/technical-specifications.md) - Variables, transitions, behavioral responses
 - [Data Sources](jupyterbook/data-sources.md) - CPS, PSID, SIPP, SSA data
 - [Calibration Targets](jupyterbook/calibration-targets.md) - Validation approach
 - [Methodology](jupyterbook/methodology.md) - Technical approach
 - [Infrastructure](jupyterbook/infrastructure.md) - Tools and architecture
-- [Team](jupyterbook/team.md) - Max Ghenis, Ben Ogorek, John Sabelhaus
+- [Team](jupyterbook/team.md) - Proposed team leadership
 - [Roadmap](jupyterbook/roadmap.md) - Development timeline
 
 ## Why This Will Work: The Enhanced CPS Precedent
