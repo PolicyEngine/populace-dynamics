@@ -1,5 +1,11 @@
 # Building an Open-Source Social Security Dynamic Microsimulation Model
 
+::::{note}
+**DRAFT PLANNING DOCUMENT**
+
+This document outlines a proposed project for developing an open-source Social Security dynamic microsimulation model. It represents a planning and design phase, not a completed implementation.
+::::
+
 ## Executive Summary
 
 This document outlines a plan to develop the first open-source, publicly available Social Security dynamic microsimulation model. Such a tool would democratize access to sophisticated policy analysis previously available only through proprietary models like DynaSim {cite:p}`favreault2015` and CBOLT {cite:p}`cbo2018`. The model will leverage PolicyEngine's existing Social Security rules implementation while creating a synthetic longitudinal panel dataset that tracks individuals across their lifetimes. This approach combines machine learning techniques, specifically quantile regression forests {cite:p}`meinshausen2006`, with traditional microsimulation calibration methods {cite:p}`deville1992` to produce accurate, transparent, and reproducible Social Security policy analysis.
