@@ -13,6 +13,8 @@ This project develops a comprehensive dynamic microsimulation model for Social S
 
 This would be the first open-source Social Security model comparable to proprietary tools like DynaSim (Urban Institute) and CBOLT (Congressional Budget Office), democratizing access to sophisticated lifetime benefit analysis.
 
+**This approach is proven.** PolicyEngine's Enhanced CPS is the only publicly available microdata file that produces accurate tax-benefit microsimulation impacts, matching models that use restricted IRS data. This project extends that proven methodology from cross-sectional to longitudinal analysis.
+
 ## Documentation
 
 Full planning documentation available as a Jupyter Book:
@@ -33,6 +35,20 @@ Or view chapters directly:
 - [Infrastructure](jupyterbook/infrastructure.md) - Tools and architecture
 - [Team](jupyterbook/team.md) - Max Ghenis, Ben Ogorek, John Sabelhaus
 - [Roadmap](jupyterbook/roadmap.md) - Development timeline
+
+## Why This Will Work: The Enhanced CPS Precedent
+
+The same challenge exists in cross-sectional tax modeling: all major models (Tax Policy Center, Penn Wharton, Tax Foundation) rely on the IRS Public Use File, which cannot be publicly shared.
+
+PolicyEngine solved this with the **Enhanced CPS (eCPS)** - the only publicly available microdata producing accurate tax-benefit impacts:
+- CPS base + ML imputation + calibration
+- Matches Joint Committee on Taxation revenue estimates
+- Matches Tax Policy Center distributional tables
+- Fully transparent and reproducible
+
+This project applies the same proven methodology to longitudinal analysis:
+- **eCPS**: CPS + ML + calibration → accurate tax modeling ✓
+- **This project**: CPS + QRF + calibration → accurate Social Security modeling
 
 ## Key Innovation
 

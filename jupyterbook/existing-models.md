@@ -334,6 +334,43 @@ The choice between real/matched data (MINT), semi-synthetic (DynaSim), and fully
 
 **Our position**: We sacrifice MINT's administrative data advantage (which isn't publicly accessible anyway) to gain full transparency and reproducibility while maintaining comparable or superior methodology to DynaSim.
 
+### The Enhanced CPS Precedent: Proof of Concept
+
+**We've already proven this approach works for cross-sectional analysis.**
+
+The same challenge exists in tax-benefit microsimulation: all major models (Tax Policy Center, PWBM, Tax Foundation) rely on the IRS Public Use File (PUF), which cannot be publicly shared. This creates a reproducibility crisis in tax policy research.
+
+PolicyEngine solved this with the **Enhanced CPS (eCPS)**:
+- **Only publicly available microdata** that produces accurate tax-benefit impacts
+- CPS base + ML imputation from PUF (privacy-safe) + calibration to IRS targets
+- Matches or exceeds accuracy of PUF-based models
+- Fully reproducible and transparent
+
+**Revenue estimates**: PolicyEngine matches Joint Committee on Taxation and Treasury estimates for major tax reforms
+
+**Distributional analysis**: Matches Tax Policy Center's distributional tables
+
+**Individual calculations**: Validates against actual tax returns
+
+**The parallel**:
+
+| Challenge | Cross-Sectional (Solved) | Longitudinal (This Project) |
+|-----------|-------------------------|----------------------------|
+| **Gold standard data** | IRS PUF (restricted) | SSA earnings records (restricted) |
+| **Common approach** | Use PUF, can't share | Use admin data, can't share |
+| **Our approach** | eCPS: CPS + ML + calibration | Synthetic panel: CPS + QRF + calibration |
+| **Result** | Accurate & reproducible ✓ | Accurate & reproducible (goal) |
+
+**Why this matters**: Skeptics might ask "Can synthetic data really match admin data quality?" The answer: **We already proved it with eCPS**. This project extends the same proven methodology from cross-sectional to longitudinal analysis.
+
+The eCPS took 2+ years of development and validation. We now have:
+- Proven ML imputation methods (microimpute)
+- Proven calibration methods (microcalibrate)
+- Proven validation framework
+- Credibility from accurate cross-sectional results
+
+This project applies those same tools to the longitudinal dimension, significantly de-risking the approach.
+
 ## Comparison Summary
 
 | Feature | DynaSim | MINT | CBOLT | PWBM | Our Model |

@@ -4,6 +4,8 @@
 
 This chapter outlines the development plan for building the open-source Social Security dynamic microsimulation model. We break the project into phases with clear milestones, deliverables, and timelines.
 
+**Key de-risking factor**: This project extends PolicyEngine's proven Enhanced CPS methodology (the only publicly available microdata producing accurate tax-benefit impacts) from cross-sectional to longitudinal analysis. The core tools (microimpute, microcalibrate), infrastructure (eCPS pipeline), and team expertise are already proven.
+
 ## Project Phases
 
 ### Phase 1: Foundation and Proof of Concept (Months 1-3)
@@ -283,23 +285,31 @@ Throughout the project:
 
 ## Risk Management
 
+**Overall risk assessment**: Significantly lower than typical research project due to Enhanced CPS precedent.
+
+PolicyEngine has already proven that public data + ML imputation + calibration can match restricted administrative data quality. We're extending a proven methodology, not testing a new one.
+
 ### Technical Risks
 
 **Risk**: Imputation quality insufficient for policy analysis
 
 **Mitigation**:
+- Enhanced CPS precedent: same tools (microimpute) already validated
 - Extensive validation in Phase 2
 - Multiple imputation for uncertainty
 - Sensitivity analysis
 - Conservative claims about precision
+- **Evidence**: eCPS achieves revenue estimate accuracy matching Joint Committee on Taxation
 
 **Risk**: Calibration fails to converge or conflicts arise
 
 **Mitigation**:
-- Proven gradient descent methods
+- **Enhanced CPS precedent**: microcalibrate already handles 100+ simultaneous targets
+- Proven gradient descent methods in production for 2+ years
 - Hierarchical target prioritization
 - Relaxed tolerances where needed
 - Alternative calibration methods if necessary
+- **Evidence**: eCPS successfully calibrates to IRS, Census, and SSA targets simultaneously
 
 **Risk**: Computational performance inadequate
 

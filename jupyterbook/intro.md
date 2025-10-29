@@ -6,9 +6,13 @@ This document outlines a plan to develop the first open-source, publicly availab
 
 The model will leverage PolicyEngine's existing Social Security rules implementation while creating a synthetic longitudinal panel dataset that tracks individuals across their lifetimes. This approach combines cutting-edge machine learning techniques (quantile regression forests) with traditional microsimulation calibration methods to produce accurate, transparent, and reproducible Social Security policy analysis.
 
+**This is not an untested approach.** PolicyEngine has already proven this methodology works: the Enhanced CPS (eCPS) is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts, matching proprietary models that rely on restricted IRS data. This project extends that proven methodology from cross-sectional to longitudinal analysis.
+
 ## The Opportunity
 
 Social Security is the largest single program in the U.S. federal budget, with over $1.4 trillion in annual benefits paid to more than 67 million Americans. Yet public access to sophisticated modeling tools for analyzing Social Security reforms remains severely limited:
+
+### The Problem: Proprietary Data Dependence
 
 - **DynaSim** (Urban Institute): Proprietary, expensive, limited public access
 - **CBOLT** (Congressional Budget Office): Internal CBO use only, not publicly available
@@ -21,6 +25,29 @@ A gap exists for an open-source model that provides:
 - Individual-level detail for distributional analysis
 - Lifetime earnings trajectories for cohort analysis
 - Integration with PolicyEngine's existing tax and benefit modeling
+
+### We've Done This Before: The Enhanced CPS Precedent
+
+**The analogous problem in cross-sectional modeling**: All major U.S. tax-benefit microsimulation models (Tax Policy Center, Penn Wharton Budget Model, Tax Foundation, etc.) rely on the IRS Public Use File (PUF), which:
+- Cannot be publicly shared due to privacy restrictions
+- Limits reproducibility of research
+- Requires adding CPS non-filers, creating hybrid datasets
+- Creates barrier to entry for new researchers
+
+**PolicyEngine's solution**: The Enhanced CPS (eCPS) is **the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts**. We:
+- Start with fully public CPS data
+- Use machine learning to impute PUF-like detail in a privacy-safe way
+- Apply gradient descent calibration to administrative targets
+- Achieve comparable (often superior) accuracy to PUF-based models
+- Enable full reproducibility and transparency
+
+**The proof**: PolicyEngine-US produces revenue estimates, distributional analysis, and reform impacts that match or exceed proprietary models, while being fully open-source.
+
+**The same approach for longitudinal modeling**: Just as eCPS proves we can build accurate cross-sectional files without restricted data, this project will prove we can build accurate longitudinal panels without administrative earnings records. The methodology is directly analogous:
+- **eCPS**: CPS + ML imputation from PUF + calibration → accurate tax modeling
+- **This project**: CPS + ML imputation from PSID + calibration → accurate Social Security modeling
+
+We're not proposing an untested approach - we're extending a proven methodology from cross-sectional to longitudinal analysis.
 
 ## Key Innovation: From Cross-Sectional to Longitudinal
 
