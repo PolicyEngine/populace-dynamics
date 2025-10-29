@@ -14,6 +14,7 @@ project:
     - file: intro.md
     - file: literature-review.md
     - file: existing-models.md
+    - file: technical-specifications.md
     - file: data-sources.md
     - file: calibration-targets.md
     - file: methodology.md
