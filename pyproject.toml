@@ -44,8 +44,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "jupyterbook>=2.0.0",
-    "myst-nb>=1.0.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.7.0",

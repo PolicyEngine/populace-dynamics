@@ -31,9 +31,18 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python dependencies
         run: |
           pip install -e ".[dev]"
+
+      - name: Install MyST
+        run: |
+          npm install -g mystmd
 
       - name: Build Jupyter Book
         run: |
