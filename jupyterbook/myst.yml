@@ -29,7 +29,3 @@ site:
     nav_links:
       - title: GitHub
         url: https://github.com/PolicyEngine/social-security-model
-  actions:
-    - title: Download PDF
-      url: /download.pdf
-      static: true
