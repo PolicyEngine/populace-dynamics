@@ -8,7 +8,7 @@ This chapter reviews the academic and policy literature on Social Security micro
 
 ### Orcutt's Vision
 
-The field of dynamic microsimulation traces back to Guy Orcutt's pioneering work in the 1950s and 1960s {cite}`orcutt1961`. Orcutt envisioned models that could:
+The field of dynamic microsimulation traces back to Guy Orcutt's pioneering work in the 1950s and 1960s {cite:p}`orcutt1961`. Orcutt envisioned models that could:
 
 - Simulate individual and household behavior over time
 - Capture heterogeneity across the population
@@ -20,75 +20,75 @@ His vision remains the blueprint for modern dynamic microsimulation models.
 
 ### Key Methodological Papers
 
-**Aging and Transition Models**: {cite}`harding1996` provides comprehensive overview of dynamic microsimulation methodology, with particular attention to aging processes and demographic transitions crucial for Social Security modeling.
+**Aging and Transition Models**: {cite:p}`harding1996` provides comprehensive overview of dynamic microsimulation methodology, with particular attention to aging processes and demographic transitions crucial for Social Security modeling.
 
-**Alignment and Calibration**: {cite}`li2013` discusses statistical matching and alignment techniques for ensuring microsimulation outputs match aggregate targets, addressing the challenge of drift in long-run projections. Traditional alignment adjusts transition probabilities iteratively (used in DynaSim), while modern calibration approaches use optimization (gradient descent reweighting as in our approach).
+**Alignment and Calibration**: {cite:p}`li2013` discusses statistical matching and alignment techniques for ensuring microsimulation outputs match aggregate targets, addressing the challenge of drift in long-run projections. Traditional alignment adjusts transition probabilities iteratively (used in DynaSim), while modern calibration approaches use optimization (gradient descent reweighting as in our approach).
 
-**Behavioral Responses**: {cite}`van2013` examines incorporation of behavioral responses in microsimulation models, particularly relevant for labor supply effects of Social Security reforms.
+**Behavioral Responses**: {cite:p}`van2013` examines incorporation of behavioral responses in microsimulation models, particularly relevant for labor supply effects of Social Security reforms.
 
 ## Social Security-Specific Modeling Literature
 
 ### Lifetime Earnings Imputation
 
-**Earnings Dynamics**: {cite}`haider2006` demonstrates importance of modeling earnings profiles over full lifecycle, showing that cross-sectional earnings significantly misrepresent lifetime patterns relevant for Social Security benefits.
+**Earnings Dynamics**: {cite:p}`haider2006` demonstrates importance of modeling earnings profiles over full lifecycle, showing that cross-sectional earnings significantly misrepresent lifetime patterns relevant for Social Security benefits.
 
-**Statistical Matching Approaches**: {cite}`rupp2005` describes SSA's approach to statistical matching of survey data to administrative earnings records, informing our methodology for validating synthetic earnings histories.
+**Statistical Matching Approaches**: {cite:p}`rupp2005` describes SSA's approach to statistical matching of survey data to administrative earnings records, informing our methodology for validating synthetic earnings histories.
 
-**Quantile Regression Methods**: {cite}`machado2019` reviews quantile regression forests and their application to distributional imputation, directly applicable to our earnings trajectory modeling.
+**Quantile Regression Methods**: {cite:p}`machado2019` reviews quantile regression forests and their application to distributional imputation, directly applicable to our earnings trajectory modeling.
 
 ### Panel Data Construction
 
-**PSID Applications**: {cite}`gouskova2010` documents PSID wealth imputations and demonstrates successful application of machine learning methods to create synthetic panel data with realistic longitudinal properties.
+**PSID Applications**: {cite:p}`gouskova2010` documents PSID wealth imputations and demonstrates successful application of machine learning methods to create synthetic panel data with realistic longitudinal properties.
 
-**SIPP-Based Analysis**: {cite}`scholz2008` uses SIPP panels to analyze retirement wealth and demonstrates value of panel structure for understanding Social Security outcomes.
+**SIPP-Based Analysis**: {cite:p}`scholz2008` uses SIPP panels to analyze retirement wealth and demonstrates value of panel structure for understanding Social Security outcomes.
 
-**Synthetic Panel Methods**: {cite}`deville2011` reviews calibration techniques for synthetic panels, including gradient descent reweighting methods we plan to employ.
+**Synthetic Panel Methods**: {cite:p}`deville2011` reviews calibration techniques for synthetic panels, including gradient descent reweighting methods we plan to employ.
 
 ## Validation and Accuracy
 
 ### Model Validation Strategies
 
-**External Benchmarking**: {cite}`toder2002` emphasizes importance of validating microsimulation outputs against external administrative data and aggregate statistics.
+**External Benchmarking**: {cite:p}`toder2002` emphasizes importance of validating microsimulation outputs against external administrative data and aggregate statistics.
 
-**Sensitivity Analysis**: {cite}`bourguignon2006` discusses systematic sensitivity analysis for microsimulation models, crucial for understanding uncertainty in Social Security projections.
+**Sensitivity Analysis**: {cite:p}`bourguignon2006` discusses systematic sensitivity analysis for microsimulation models, crucial for understanding uncertainty in Social Security projections.
 
-**Forecast Evaluation**: {cite}`favreaux2016` evaluates MINT projections against realized outcomes, providing lessons for our validation strategy.
+**Forecast Evaluation**: {cite:p}`favreaux2016` evaluates MINT projections against realized outcomes, providing lessons for our validation strategy.
 
 ## Machine Learning Applications
 
 ### Imputation Methods
 
-**Random Forests**: {cite}`stekhoven2012` demonstrates random forest imputation (missForest) outperforms traditional methods for complex multivariate imputation.
+**Random Forests**: {cite:p}`stekhoven2012` demonstrates random forest imputation (missForest) outperforms traditional methods for complex multivariate imputation.
 
-**Quantile Regression Forests**: {cite}`meinshausen2006` introduces quantile regression forests, enabling prediction of full conditional distributions rather than just means - essential for capturing earnings heterogeneity.
+**Quantile Regression Forests**: {cite:p}`meinshausen2006` introduces quantile regression forests, enabling prediction of full conditional distributions rather than just means - essential for capturing earnings heterogeneity.
 
-**Deep Learning**: Recent work by {cite}`wang2023` explores deep learning for longitudinal imputation, though applicability to our context requires further investigation.
+**Deep Learning**: Recent work by {cite:p}`wang2023` explores deep learning for longitudinal imputation, though applicability to our context requires further investigation.
 
 ### Reweighting and Calibration
 
-**Gradient Descent Optimization**: {cite}`deville1992` introduces calibration estimators using distance minimization, foundational for our reweighting approach.
+**Gradient Descent Optimization**: {cite:p}`deville1992` introduces calibration estimators using distance minimization, foundational for our reweighting approach.
 
-**L0 Regularization**: Recent applications of L0 regularization to sample selection {cite}`ghenis2024` enable discrete reweighting while maintaining population targets.
+**L0 Regularization**: Recent applications of L0 regularization to sample selection {cite:p}`ghenis2024` enable discrete reweighting while maintaining population targets.
 
 ## Distributional Analysis
 
 ### Inequality and Progressivity
 
-**Benefit Progressivity**: {cite}`liebman2002` analyzes Social Security progressivity across lifetime earnings distribution, establishing analytical framework we will replicate.
+**Benefit Progressivity**: {cite:p}`liebman2002` analyzes Social Security progressivity across lifetime earnings distribution, establishing analytical framework we will replicate.
 
-**Racial and Ethnic Disparities**: {cite}`whitman2011` documents differential Social Security outcomes by race/ethnicity through differential mortality and earnings, highlighting need for demographic detail in our model.
+**Racial and Ethnic Disparities**: {cite:p}`whitman2011` documents differential Social Security outcomes by race/ethnicity through differential mortality and earnings, highlighting need for demographic detail in our model.
 
-**Gender Equity**: {cite}`tamborini2013` examines gender equity in Social Security, demonstrating importance of modeling spousal and survivor benefits accurately.
+**Gender Equity**: {cite:p}`tamborini2013` examines gender equity in Social Security, demonstrating importance of modeling spousal and survivor benefits accurately.
 
 ## Policy Applications
 
 ### Reform Analysis
 
-**Personal Accounts**: {cite}`gustman2000` uses dynamic microsimulation to analyze privatization proposals, demonstrating distributional analysis capabilities we aim to replicate.
+**Personal Accounts**: {cite:p}`gustman2000` uses dynamic microsimulation to analyze privatization proposals, demonstrating distributional analysis capabilities we aim to replicate.
 
-**Progressive Indexing**: {cite}`diamond2003` proposes progressive indexing of benefits, requiring microsimulation with lifetime earnings for proper evaluation.
+**Progressive Indexing**: {cite:p}`diamond2003` proposes progressive indexing of benefits, requiring microsimulation with lifetime earnings for proper evaluation.
 
-**Longevity Indexing**: {cite}`auerbach2017` analyzes automatic adjustment mechanisms, demonstrating value of long-run microsimulation for evaluating dynamic reforms.
+**Longevity Indexing**: {cite:p}`auerbach2017` analyzes automatic adjustment mechanisms, demonstrating value of long-run microsimulation for evaluating dynamic reforms.
 
 ## Gaps and Opportunities
 

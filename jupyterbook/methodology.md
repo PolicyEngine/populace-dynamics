@@ -32,7 +32,7 @@ See the [Existing Models](existing-models.md#panel-construction-methodology-comp
 
 ### Starting Point: Enhanced CPS
 
-We begin with PolicyEngine's Enhanced CPS (eCPS), which already improves upon raw CPS through:
+We begin with PolicyEngine's Enhanced CPS (ECPS), which already improves upon raw CPS through:
 
 **Income Imputation**: Filling missing income components using `microimpute`
 
@@ -491,7 +491,7 @@ A natural skepticism arises: can fully synthetic data really match the quality o
 
 ### The Enhanced CPS Achievement
 
-PolicyEngine's Enhanced CPS (eCPS) is the only publicly available microdata file that produces accurate tax-benefit microsimulation results {cite}`ghenis2024`. This achievement directly validates the synthetic data approach we propose to extend to longitudinal analysis.
+PolicyEngine's Enhanced CPS (ECPS) is the only publicly available microdata file that produces accurate tax-benefit microsimulation results {cite:p}`ghenis2024`. This achievement directly validates the synthetic data approach we propose to extend to longitudinal analysis.
 
 **The Challenge in Cross-Sectional Modeling**:
 All major tax models including Tax Policy Center, Penn Wharton Budget Model, and Tax Foundation rely on the IRS Public Use File. The PUF cannot be publicly shared due to privacy restrictions, creating a reproducibility crisis where researchers cannot verify others' results or independently analyze tax policy proposals.
@@ -503,7 +503,7 @@ PolicyEngine developed the Enhanced CPS through a rigorous two-stage methodology
 Revenue estimates match Joint Committee on Taxation estimates for major tax reforms. Distributional analysis matches Tax Policy Center's published tables across income deciles. Individual-level calculations validate against actual tax returns where available. Congressional offices use PolicyEngine for actual policy analysis, demonstrating real-world credibility and accuracy. The proof is clear: synthetic data combined with modern machine learning and calibration to thousands of targets produces accuracy comparable to administrative data.
 
 **The Technical Parallel**:
-The eCPS methodology directly informs this project. Both employ quantile regression forests for distributional imputation, gradient descent optimization for multi-target calibration, validation against administrative aggregates, and full public reproducibility. The eCPS imputes cross-sectional income detail; this project will impute longitudinal earnings histories. The eCPS calibrates to 7,000+ IRS and Census targets; this project will calibrate to SSA and Census targets. The technical challenges are analogous, and we have already solved them for the cross-sectional case.
+The ECPS methodology directly informs this project. Both employ quantile regression forests for distributional imputation, gradient descent optimization for multi-target calibration, validation against administrative aggregates, and full public reproducibility. The ECPS imputes cross-sectional income detail; this project will impute longitudinal earnings histories. The ECPS calibrates to 7,000+ IRS and Census targets; this project will calibrate to SSA and Census targets. The technical challenges are analogous, and we have already solved them for the cross-sectional case.
 
 ### Direct Parallel to This Project
 
@@ -521,7 +521,7 @@ The eCPS methodology directly informs this project. Both employ quantile regress
 
 ### Risk Mitigation
 
-**eCPS development** (2+ years) taught us:
+**ECPS development** (2+ years) taught us:
 - Which ML methods work for survey imputation
 - How to calibrate to hundreds of targets simultaneously
 - Validation strategies that build credibility
@@ -530,16 +530,16 @@ The eCPS methodology directly informs this project. Both employ quantile regress
 **Advantages for this project**:
 - Tools already built and tested (microimpute, microcalibrate)
 - Team experienced in this exact methodology
-- Credibility from eCPS success reduces skepticism
+- Credibility from ECPS success reduces skepticism
 - Know what validation evidence is needed
 
-**The harder problem**: Longitudinal imputation is actually somewhat easier than eCPS cross-sectional imputation:
+**The harder problem**: Longitudinal imputation is actually somewhat easier than ECPS cross-sectional imputation:
 - PSID has true panel structure (gold standard for training)
 - Earnings dynamics well-studied in economics literature
 - Strong age-earnings patterns provide structure
 - Can validate against published PSID mobility matrices
 
-In contrast, eCPS had to impute hundreds of detailed income components with complex interactions, all in a single year. Lifetime earnings trajectories have cleaner structure and better training data.
+In contrast, ECPS had to impute hundreds of detailed income components with complex interactions, all in a single year. Lifetime earnings trajectories have cleaner structure and better training data.
 
 ### What Could Go Wrong?
 
@@ -547,10 +547,10 @@ In contrast, eCPS had to impute hundreds of detailed income components with comp
 
 1. **"QRF imputation produces unrealistic earnings histories"**
    - Mitigation: Validate against PSID hold-out sample before applying to CPS
-   - Precedent: eCPS imputation validated extensively before production use
+   - Precedent: ECPS imputation validated extensively before production use
 
 2. **"Calibration can't match all targets simultaneously"**
-   - Mitigation: eCPS already handles 100+ simultaneous targets
+   - Mitigation: ECPS already handles 100+ simultaneous targets
    - Tool: microcalibrate proven on harder problem (cross-sectional detail)
 
 3. **"Synthetic panel too different from MINT/DynaSim"**
@@ -559,9 +559,9 @@ In contrast, eCPS had to impute hundreds of detailed income components with comp
 
 4. **"Computational burden too high"**
    - Mitigation: Pre-generate panel once, reuse for many policies
-   - eCPS generation ~8 hours; similar expected here
+   - ECPS generation ~8 hours; similar expected here
 
-**Success probability**: Given eCPS precedent, strong team, and proven tools, success is highly likely.
+**Success probability**: Given ECPS precedent, strong team, and proven tools, success is highly likely.
 
 ## Summary: Methodological Innovation
 

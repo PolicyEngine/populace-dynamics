@@ -154,14 +154,14 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Repository**: https://github.com/PolicyEngine/policyengine-us-data
 
-**Critical Context**: The Enhanced CPS is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite}`ghenis2024`. This achievement provides direct proof that our synthetic data approach works.
+**Critical Context**: The Enhanced CPS is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite:p}`ghenis2024`. This achievement provides direct proof that our synthetic data approach works.
 
 **The Cross-Sectional Challenge (Solved)**:
 - All major tax models rely on IRS PUF (cannot be shared publicly)
 - This creates reproducibility crisis in tax policy research
-- PolicyEngine solved this with eCPS using the exact methodology we will extend to longitudinal analysis
+- PolicyEngine solved this with ECPS using the exact methodology we will extend to longitudinal analysis
 
-**eCPS Construction Process** (Two-Stage Methodology):
+**ECPS Construction Process** (Two-Stage Methodology):
 
 **Stage 1: Variable Imputation**
 1. Download CPS ASEC, PUF, SIPP, SCF, and ACS from public sources
@@ -192,7 +192,7 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Our Use**:
 - **Starting point for our synthetic panel**
-- **Proven methodology**: Same tools (microimpute, microcalibrate) that produced eCPS
+- **Proven methodology**: Same tools (microimpute, microcalibrate) that produced ECPS
 - **De-risked approach**: Not experimental - extending proven cross-sectional methods to longitudinal
 - High-quality cross-sectional base
 - Already integrated with PolicyEngine-US
@@ -210,7 +210,7 @@ panel_subset = synthetic_panel[selected_indices]
 - Add longitudinal weights (new: multi-year calibration)
 - Maintain compatibility with existing PolicyEngine code
 
-**The Precedent**: If eCPS can match IRS data quality without PUF access, our synthetic panel can match SSA data quality without administrative earnings access. Same methodology, different dimension.
+**The Precedent**: If ECPS can match IRS data quality without PUF access, our synthetic panel can match SSA data quality without administrative earnings access. Same methodology, different dimension.
 
 ### PolicyEngine-Core: Microsimulation Engine
 
