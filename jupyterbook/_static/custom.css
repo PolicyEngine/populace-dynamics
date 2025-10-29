@@ -1,0 +1,126 @@
+/* PolicyEngine Jupyter Book Custom Styling */
+
+/* PolicyEngine blue color scheme */
+:root {
+    --policyengine-blue: #2C6496;
+    --policyengine-blue-dark: #1f4a73;
+}
+
+/* Table styling with PolicyEngine blue hover */
+table tr:hover {
+    background-color: var(--policyengine-blue) !important;
+    color: white !important;
+}
+
+table tr:hover td {
+    background-color: var(--policyengine-blue) !important;
+    color: white !important;
+}
+
+/* Link styling */
+a {
+    color: var(--policyengine-blue);
+}
+
+a:hover {
+    color: var(--policyengine-blue-dark);
+}
+
+/* Button styling for any download/action buttons */
+.btn, button, .button {
+    background-color: var(--policyengine-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 10px 0;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn:hover, button:hover, .button:hover {
+    background-color: var(--policyengine-blue-dark);
+    color: white;
+    text-decoration: none;
+}
+
+/* Code block improvements */
+pre {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+}
+
+code {
+    background-color: #f6f8fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 85%;
+}
+
+/* Heading improvements */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 {
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 0.3em;
+}
+
+/* Blockquote styling */
+blockquote {
+    border-left: 4px solid var(--policyengine-blue);
+    padding-left: 16px;
+    color: #6a737d;
+    margin: 16px 0;
+}
+
+/* Table improvements */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+
+th {
+    background-color: var(--policyengine-blue);
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+/* Citation/reference styling */
+.citation {
+    color: var(--policyengine-blue);
+}
+
+/* Admonition/callout boxes */
+.admonition {
+    padding: 12px;
+    margin: 16px 0;
+    border-left: 4px solid var(--policyengine-blue);
+    background-color: #f6f8fa;
+}
+
+.admonition-title {
+    font-weight: 600;
+    color: var(--policyengine-blue);
+}
