@@ -22,7 +22,7 @@ His vision remains the blueprint for modern dynamic microsimulation models.
 
 **Aging and Transition Models**: {cite}`harding1996` provides comprehensive overview of dynamic microsimulation methodology, with particular attention to aging processes and demographic transitions crucial for Social Security modeling.
 
-**Alignment and Calibration**: {cite}`li2013` discusses statistical matching and alignment techniques for ensuring microsimulation outputs match aggregate targets, addressing the challenge of drift in long-run projections.
+**Alignment and Calibration**: {cite}`li2013` discusses statistical matching and alignment techniques for ensuring microsimulation outputs match aggregate targets, addressing the challenge of drift in long-run projections. Traditional alignment adjusts transition probabilities iteratively (used in DynaSim), while modern calibration approaches use optimization (gradient descent reweighting as in our approach).
 
 **Behavioral Responses**: {cite}`van2013` examines incorporation of behavioral responses in microsimulation models, particularly relevant for labor supply effects of Social Security reforms.
 

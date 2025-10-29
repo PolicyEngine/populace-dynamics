@@ -190,6 +190,150 @@ According to the project brief, Cato Institute is reportedly developing a Social
 
 Our model would distinguish itself through guaranteed open-source access, public web interface, and integration with PolicyEngine's broader capabilities.
 
+## Panel Construction Methodology Comparison
+
+Understanding the technical approaches used by existing models helps position our methodology and clarify our design choices. This section draws on published technical documentation where available {cite}`favreault2014` {cite}`smith2010` {cite}`butrica2006`.
+
+### DynaSim's Approach
+
+**Starting Data**: SIPP panels (Survey of Income and Program Participation)
+
+**Panel Construction**:
+- Begins with SIPP cross-section (~50,000 households)
+- Statistical matching to administrative earnings records where possible (restricted access)
+- For non-matched individuals: Impute earnings using regression-based methods
+- Use transition probability matrices to age population forward
+- Estimate transition models (marriage, divorce, death, disability) from historical SIPP panels
+- Alignment: Adjust weights periodically to match aggregate totals
+
+**Calibration Method**:
+- **Alignment technique**: Adjust transition probabilities to hit aggregate targets
+- Example: If too few marriages projected, increase marriage probabilities proportionally
+- Calibrate to Census population projections, SSA aggregates, economic forecasts
+- Iterative adjustment process, not optimization-based
+
+**Strengths**:
+- Real survey base with observed characteristics
+- Decades of refinement
+- Extensive validation
+
+**Limitations**:
+- SIPP sample smaller than CPS
+- Alignment can distort individual-level heterogeneity
+- Transition models may not capture full earnings dynamics
+- Not fully synthetic (depends on which SIPP cohort used)
+
+### MINT's Approach
+
+**Starting Data**: SIPP matched to SSA administrative records (Master Earnings File)
+
+**Panel Construction**:
+- **Older cohorts**: Actual administrative earnings histories (gold standard)
+- **Younger cohorts**: Project forward using statistical models
+- Earnings projection: Quantile regression models by age, education, gender {cite}`butrica2006`
+  - Note: MINT pioneered quantile regression for distributional earnings projection
+  - Our QRF approach extends this with machine learning and full distribution prediction
+- Demographic transitions: Discrete-time hazard models from PSID/SIPP
+- Match Survey of Consumer Finances for wealth detail
+
+**Calibration Method**:
+- Relies heavily on administrative data (less need for calibration)
+- Younger cohort projections aligned to SSA Trustees assumptions
+- Wealth distributions calibrated to SCF
+- Benefit calculations: Direct application of SSA rules to actual/projected earnings
+
+**Strengths**:
+- Real earnings histories for older cohorts (unmatched accuracy)
+- Official SSA data access
+- Strong validation base
+
+**Limitations**:
+- Restricted access (not publicly available)
+- SIPP sample size smaller than CPS
+- Younger cohort projections still model-dependent
+- Cannot replicate without administrative data access
+
+### CBOLT's Approach
+
+**Starting Data**: Representative agent / stylized household types
+
+**Panel Construction**:
+- Less granular than DynaSim/MINT
+- Representative households by age, income, family structure
+- Aggregate earnings profiles rather than individual histories
+- Focus on macro consistency over distributional detail
+
+**Calibration Method**:
+- Calibrate to National Income and Product Accounts (NIPA)
+- Match aggregate labor force participation, earnings
+- Demographic projections from Census
+- Less individual-level calibration, more aggregate consistency
+
+**Strengths**:
+- Computationally efficient
+- Macroeconomic consistency
+- Integrated with broader fiscal model
+
+**Limitations**:
+- Limited distributional detail
+- Cannot analyze impacts on specific demographic subgroups
+- Less suitable for micro-level reform analysis
+
+### Our Approach: Fully Synthetic Panel
+
+**Starting Data**: CPS ASEC (~200,000 individuals)
+
+**Panel Construction**:
+- **Fully synthetic**: No administrative data matching required
+- **Quantile regression forests**: Predict full conditional distribution of earnings at each age
+- Training: PSID longitudinal data (public use files)
+- Generate complete lifetime earnings histories for entire CPS sample
+- Demographic transitions: Hazard models estimated on PSID
+
+**Calibration Method**:
+- **Gradient descent reweighting**: Optimization-based approach
+- Minimize distance from original CPS weights
+- Subject to: Match all target variables (earnings distributions, beneficiary counts, etc.)
+- Can handle hundreds of simultaneous targets
+- Mathematically principled, computationally efficient
+
+**Comparison to Other Methods**:
+
+| Aspect | DynaSim | MINT | CBOLT | Our Model |
+|--------|---------|------|-------|-----------|
+| **Base Data** | SIPP | SIPP+Admin | Rep. Agents | CPS |
+| **Sample Size** | ~50k | ~50k | ~100s | ~200k |
+| **Panel Type** | Semi-synthetic | Real+Projected | Stylized | Fully Synthetic |
+| **Earnings History** | Regression | Admin+Projection | Aggregate | QRF Imputation |
+| **Training Data** | SIPP panels | Admin data | Macro data | PSID |
+| **Calibration** | Alignment | Less needed | Aggregate | Gradient descent |
+| **Public Replicability** | No | No | No | **Yes** |
+
+**Why Fully Synthetic?**
+
+The choice between real/matched data (MINT), semi-synthetic (DynaSim), and fully synthetic (our approach) involves fundamental trade-offs {cite}`caldwell2017`:
+
+1. **No administrative data required**: Entire methodology reproducible with public data
+2. **Larger sample**: CPS sample 4x SIPP, enables state/demographic detail
+3. **QRF advantages**: Captures full distribution, not just means; non-parametric flexibility
+4. **Modern optimization**: Gradient descent superior to iterative alignment
+5. **Open source**: Anyone can validate, modify, extend
+
+**Trade-offs**:
+
+**Advantages over DynaSim/MINT**:
+- Fully reproducible (no restricted data)
+- Larger sample enables more detailed analysis
+- Modern ML methods (QRF) vs. traditional regression
+- Optimization-based calibration vs. ad-hoc alignment
+
+**Disadvantages vs. MINT**:
+- No actual administrative earnings (MINT has real histories for older cohorts)
+- Imputation uncertainty (though we quantify via multiple imputation)
+- Requires careful validation since everything is synthetic
+
+**Our position**: We sacrifice MINT's administrative data advantage (which isn't publicly accessible anyway) to gain full transparency and reproducibility while maintaining comparable or superior methodology to DynaSim.
+
 ## Comparison Summary
 
 | Feature | DynaSim | MINT | CBOLT | PWBM | Our Model |

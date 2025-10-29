@@ -18,6 +18,16 @@ This synthesis produces a synthetic panel with:
 - External validity (from calibration): matches administrative aggregates
 - Computational efficiency (from pre-generation): fast policy analysis
 
+### How This Differs from Existing Models
+
+**vs. DynaSim**: We use larger CPS base (vs. SIPP), QRF imputation (vs. traditional regression), and optimization-based calibration (vs. iterative alignment). Fully reproducible with public data.
+
+**vs. MINT**: We construct fully synthetic panel (vs. matched administrative data). Trade-off: MINT has actual earnings for older cohorts, but isn't publicly replicable. Our approach sacrifices that accuracy for full transparency.
+
+**vs. CBOLT**: We maintain individual-level detail (vs. representative agents), enabling distributional analysis.
+
+See the [Existing Models](existing-models.md#panel-construction-methodology-comparison) chapter for detailed comparison of panel construction and calibration methods.
+
 ## Phase 1: Base Year Cross-Section
 
 ### Starting Point: Enhanced CPS
