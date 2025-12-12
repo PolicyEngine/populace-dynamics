@@ -225,12 +225,22 @@ For longitudinal projections, we calibrate at multiple time points:
 
 We reserve some variables as validation checks (not calibration targets):
 
-- Wealth distributions
-- Program participation rates (SNAP, SSI, etc.)
-- Poverty rates
-- Income inequality measures
+- Wealth distributions (from Survey of Consumer Finances)
+- Program participation rates (SNAP, SSI, Medicaid)
+- Poverty rates (official and Supplemental Poverty Measure)
+- Income inequality measures (Gini, percentile ratios)
+- Replacement rates by lifetime earnings quintile
 
-These test whether our model produces realistic outcomes for variables not directly calibrated.
+**Why validation, not calibration?** Survey-based measures like poverty rates suffer from income underreporting—the very problem our methodology corrects. Calibrating to flawed poverty estimates would embed those errors. Instead, we calibrate to administrative data (SSA, IRS) and then *check* whether our corrected income distributions produce more accurate poverty estimates than raw surveys.
+
+**Survey of Consumer Finances (SCF) Wealth Validation:**
+The SCF provides the gold standard for U.S. household wealth data. We validate that our synthetic panel produces realistic:
+- Net worth distributions by age and lifetime earnings
+- Retirement account balances (401(k), IRA)
+- Housing wealth and homeownership rates
+- Pension coverage (DB and DC)
+
+Wealth affects Social Security claiming behavior (wealthier households can afford to delay) and retirement adequacy. While we don't calibrate to SCF targets, validating against them ensures comprehensive retirement security analysis.
 
 ## Data Sources for Targets
 

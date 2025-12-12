@@ -40,6 +40,41 @@ PolicyEngine-US already implements Social Security rules comprehensively, allowi
 
 This is fundamentally a data generation problem that requires machine learning for imputation through quantile regression forests, statistical matching to longitudinal surveys such as PSID and SIPP, gradient descent reweighting for calibration to thousands of targets, and validation against administrative data where available. The technical approach leverages the same tools (microimpute, microcalibrate) that produced the Enhanced CPS, but extends them from cross-sectional to longitudinal dimensions.
 
+### No Access Barriers: 100% Public Data
+
+A critical advantage of this approach is that **all data sources are publicly available**:
+
+- **PSID** (Panel Study of Income Dynamics): Publicly downloadable from the University of Michigan. No application or approval process required for the main dataset.
+- **CPS** (Current Population Survey): Freely available from Census Bureau. The Enhanced CPS builds entirely on public CPS microdata.
+- **SSA calibration targets**: Published annually in the SSA Annual Statistical Supplement, available at ssa.gov.
+- **Mortality data**: Life tables from SSA actuaries and National Vital Statistics are public.
+
+Unlike DynaSim (requires Urban Institute contracts) or MINT (restricted access), anyone can replicate and extend this model from day one.
+
+### What Already Exists
+
+This project is not starting from scratch. PolicyEngine has already built and validated the core infrastructure:
+
+| Component | Status | What It Does |
+|-----------|--------|--------------|
+| **Enhanced CPS (ECPS)** | ✓ Exists | Base population dataset with imputed income, calibrated to 7,000+ targets |
+| **microimpute** | ✓ Exists | QRF imputation library, proven in ECPS development |
+| **microcalibrate** | ✓ Exists | Gradient descent reweighting, handles thousands of simultaneous targets |
+| **PolicyEngine-US rules** | ✓ Exists | 50+ federal/state programs including Social Security, SSI, SNAP, Medicaid, taxes |
+| **Longitudinal earnings histories** | **New** | Training QRF on PSID to impute 35-year trajectories—this is the core new work |
+
+**PolicyEngine-US already implements:**
+
+- **Social Security** (OASI, SSDI) - retirement and disability benefits
+- **SSI** (Supplemental Security Income) - means-tested aged/disabled benefits
+- **SNAP** (food stamps), **Medicaid**, housing assistance
+- **EITC, CTC**, and all federal income taxes
+- State income taxes for all 50 states
+
+Once we generate synthetic earnings histories and attach them to the ECPS population, calculating benefits across all these programs is automatic—we simply run the panel through PolicyEngine-US's existing rules engine. This means safety net interactions (how Social Security changes affect SNAP eligibility, SSI benefits, etc.) are included from the start, not as future extensions.
+
+**The actual new development is narrow:** Train QRF models on public PSID data to impute earnings histories, then calibrate to public SSA statistics. Everything else—the base dataset, the imputation tools, the calibration framework, the benefit rules—already exists and is production-tested.
+
 ## Significance
 
 This model would represent a landmark contribution to open policy analysis. It would be the first open-source dynamic Social Security microsimulation model, enabling researchers, advocates, and policymakers to analyze reforms without proprietary tools. Integration with PolicyEngine's web application will provide public access through an intuitive interface, while a Python package will offer programmatic access for detailed research. Full reproducibility through open-source code and comprehensive documentation will allow independent verification and extension. The model will support individual-level analysis with full distributional impacts, tracking effects across entire lifecycles and multiple generations.
