@@ -390,6 +390,46 @@ After initial launch:
 - Integrate with PolicyEngine's long-term roadmap
 - Pursue academic partnerships for improvements
 
+## Open Questions for Planning
+
+The following questions require further discussion among the project team before finalizing timeline and resource estimates:
+
+### Timeline Considerations
+
+**Phase sequencing:**
+- Can phases be parallelized with multiple contributors?
+- Which phases have hard dependencies vs. can overlap?
+- What is the minimum viable scope for an initial release?
+
+**Development approach:**
+- How much can AI-assisted development accelerate traditional timelines?
+- Should we pursue a rapid proof-of-concept before detailed planning?
+- What is the right balance between speed and validation rigor?
+
+### Resource Considerations
+
+**Team structure:**
+- What mix of domain expertise vs. engineering capacity is needed?
+- Can existing PolicyEngine infrastructure reduce engineering needs?
+- What role should advisory vs. hands-on contributors play?
+
+**Funding strategy:**
+- Should we seek a planning grant before full project funding?
+- What is the right scope for an initial funding request?
+- How do we balance ambition with fundability?
+
+### Scope Considerations
+
+**Core vs. extensions:**
+- What constitutes the minimum viable model?
+- Which features are essential for credibility vs. nice-to-have?
+- How do we prioritize validation breadth vs. depth?
+
+**Integration with PolicyEngine:**
+- How much of this is "new" vs. connecting existing pieces?
+- SSI, SNAP, Medicaid, etc. already exist in PolicyEngine-US—how does this change scope?
+- Can we leverage Enhanced CPS infrastructure more directly?
+
 ## Summary
 
 This roadmap provides a realistic path to creating a valuable public good that democratizes access to sophisticated Social Security policy analysis.
