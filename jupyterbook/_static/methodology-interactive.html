@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Security Model - Methodology Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* PolicyEngine Design System - app-v2 tokens */
+    :root {
+      /* Primary (Teal) */
+      --teal-50: #E6FFFA;
+      --teal-100: #B2F5EA;
+      --teal-200: #81E6D9;
+      --teal-300: #4FD1C5;
+      --teal-400: #38B2AC;
+      --teal-500: #319795;
+      --teal-600: #2C7A7B;
+      --teal-700: #285E61;
+      --teal-800: #234E52;
+      --teal-900: #1D4044;
+
+      /* Gray Scale */
+      --gray-50: #F9FAFB;
+      --gray-100: #F2F4F7;
+      --gray-200: #E2E8F0;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #344054;
+      --gray-800: #1F2937;
+      --gray-900: #101828;
+
+      /* Blue */
+      --blue-500: #0EA5E9;
+      --blue-700: #026AA2;
+
+      /* Semantic */
+      --success: #22C55E;
+      --warning: #FEC601;
+      --error: #EF4444;
+
+      /* Background & Text */
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F5F9FF;
+      --text-primary: #000000;
+      --text-secondary: #5A5A5A;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      color: var(--text-primary);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .logo {
+      height: 40px;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .key-insight {
+      background: var(--teal-50);
+      border-left: 4px solid var(--teal-500);
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem auto;
+      max-width: 800px;
+    }
+
+    .key-insight h3 {
+      color: var(--teal-700);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .key-insight p {
+      color: var(--gray-700);
+      line-height: 1.7;
+    }
+
+    .key-insight strong {
+      color: var(--teal-700);
+    }
+
+    .section-label {
+      text-align: center;
+      color: var(--gray-500);
+      margin: 2.5rem 0 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    /* Pipeline visualization */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin: 2rem 0;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .pipeline-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .pipeline-node {
+      background: var(--bg-primary);
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      min-width: 160px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .pipeline-node:hover {
+      border-color: var(--teal-500);
+      box-shadow: 0 4px 12px rgba(49, 151, 149, 0.15);
+    }
+
+    .pipeline-node.active {
+      border-color: var(--teal-500);
+      background: var(--teal-50);
+    }
+
+    .pipeline-node.data-source {
+      border-color: var(--blue-500);
+      border-style: dashed;
+    }
+    .pipeline-node.data-source:hover,
+    .pipeline-node.data-source.active {
+      background: #F0F9FF;
+      border-color: var(--blue-700);
+      border-style: solid;
+    }
+
+    .pipeline-node.existing::after {
+      content: '✓ EXISTS';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--teal-500);
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .node-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .node-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.125rem;
+    }
+
+    .node-subtitle {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Arrows */
+    .arrow {
+      color: var(--gray-400);
+      font-size: 1.25rem;
+      font-weight: 300;
+    }
+
+    .arrow-down {
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--gray-400);
+    }
+
+    /* Detail panel */
+    .detail-panel {
+      background: var(--bg-primary);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-top: 1.5rem;
+      min-height: 240px;
+    }
+
+    .detail-panel h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .detail-panel p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+    }
+
+    .detail-panel ul {
+      margin: 0.75rem 0;
+      padding-left: 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .detail-panel strong {
+      color: var(--text-primary);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-right: 0.375rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .tag.public {
+      background: var(--blue-500);
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--blue-700);
+    }
+
+    .tag.existing {
+      background: rgba(49, 151, 149, 0.1);
+      color: var(--teal-700);
+    }
+
+    .tag.new {
+      background: rgba(254, 198, 1, 0.15);
+      color: #92600e;
+    }
+
+    .tag.default {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    .code-block {
+      background: var(--gray-900);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8125rem;
+      color: var(--gray-300);
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    .code-block .comment { color: var(--gray-500); }
+    .code-block .keyword { color: #c792ea; }
+    .code-block .function { color: var(--teal-300); }
+    .code-block .string { color: #c3e88d; }
+
+    /* Stats section */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin: 2.5rem 0;
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--teal-500);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      margin-top: 0.375rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    footer p {
+      color: var(--gray-500);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--teal-600);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.75rem; }
+      .pipeline-row { flex-direction: column; }
+      .arrow { transform: rotate(90deg); }
+      .container { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="https://raw.githubusercontent.com/PolicyEngine/policyengine-app/master/src/images/logos/policyengine/teal.png" alt="PolicyEngine" class="logo">
+      <h1>Social Security Microsimulation</h1>
+      <p class="subtitle">An open-source dynamic model extending PolicyEngine's proven Enhanced CPS methodology from cross-sectional to longitudinal analysis</p>
+    </header>
+
+    <div class="key-insight">
+      <h3>Key Insight</h3>
+      <p><strong>This isn't starting from scratch.</strong> PolicyEngine already has the tools (microimpute, microcalibrate), the infrastructure (Enhanced CPS), and the rules engine (SSI, SNAP, Medicaid, Social Security). We're connecting existing pieces with longitudinal earnings histories.</p>
+    </div>
+
+    <p class="section-label">Click any component to learn more</p>
+
+    <!-- Pipeline visualization -->
+    <div class="pipeline">
+      <div class="pipeline-row">
+        <div class="pipeline-node data-source" data-detail="psid" onclick="showDetail('psid')">
+          <div class="node-icon">📊</div>
+          <div class="node-title">PSID</div>
+          <div class="node-subtitle">Panel data</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node existing" data-detail="microimpute" onclick="showDetail('microimpute')">
+          <div class="node-icon">🌲</div>
+          <div class="node-title">microimpute</div>
+          <div class="node-subtitle">QRF training</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node data-source" data-detail="cps" onclick="showDetail('cps')">
+          <div class="node-icon">👥</div>
+          <div class="node-title">CPS / ECPS</div>
+          <div class="node-subtitle">Base population</div>
+        </div>
+      </div>
+
+      <div class="arrow-down">↓</div>
+
+      <div class="pipeline-row">
+        <div class="pipeline-node" data-detail="imputation" onclick="showDetail('imputation')">
+          <div class="node-icon">📈</div>
+          <div class="node-title">Earnings Histories</div>
+          <div class="node-subtitle">35-year trajectories</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node data-source" data-detail="ssa" onclick="showDetail('ssa')">
+          <div class="node-icon">🏛️</div>
+          <div class="node-title">SSA Targets</div>
+          <div class="node-subtitle">Public statistics</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node existing" data-detail="microcalibrate" onclick="showDetail('microcalibrate')">
+          <div class="node-icon">⚖️</div>
+          <div class="node-title">microcalibrate</div>
+          <div class="node-subtitle">Gradient descent</div>
+        </div>
+      </div>
+
+      <div class="arrow-down">↓</div>
+
+      <div class="pipeline-row">
+        <div class="pipeline-node" data-detail="panel" onclick="showDetail('panel')">
+          <div class="node-icon">🗃️</div>
+          <div class="node-title">Synthetic Panel</div>
+          <div class="node-subtitle">Calibrated histories</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node existing" data-detail="policyengine" onclick="showDetail('policyengine')">
+          <div class="node-icon">⚙️</div>
+          <div class="node-title">PolicyEngine-US</div>
+          <div class="node-subtitle">Rules engine</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="pipeline-node" data-detail="benefits" onclick="showDetail('benefits')">
+          <div class="node-icon">💰</div>
+          <div class="node-title">Benefits</div>
+          <div class="node-subtitle">SS, SSI, SNAP, etc.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="detail-panel" id="detail-panel">
+      <h2><span>👆</span> Select a component above</h2>
+      <p>Click on any node in the pipeline to see detailed information about that component, including whether it already exists, what data it uses, and how it connects to the overall system.</p>
+      <div>
+        <span class="tag existing">✓ Existing tool</span>
+        <span class="tag public">Public data</span>
+        <span class="tag new">New development</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Public data sources</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Existing PE tools</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">50+</div>
+        <div class="stat-label">Programs in PE-US</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">7,000+</div>
+        <div class="stat-label">ECPS calibration targets</div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Part of the <a href="https://policyengine.org" target="_blank">PolicyEngine</a> ecosystem</p>
+    </footer>
+  </div>
+
+  <script>
+    const details = {
+      psid: {
+        icon: '📊',
+        title: 'Panel Study of Income Dynamics (PSID)',
+        content: `
+          <p>The PSID is the world's longest-running household panel study, tracking families since 1968. It provides the <strong>longitudinal earnings trajectories</strong> we need to train our imputation models.</p>
+          <p>Key features for this project:</p>
+          <ul>
+            <li>~9,000 families with multi-generational data</li>
+            <li>Annual earnings from 1968-present</li>
+            <li>Demographic transitions (marriage, divorce, fertility)</li>
+            <li>Disability and health information</li>
+          </ul>
+          <div>
+            <span class="tag public">Public data</span>
+            <span class="tag default">Free access</span>
+            <span class="tag default">No application needed</span>
+          </div>
+        `
+      },
+      microimpute: {
+        icon: '🌲',
+        title: 'microimpute',
+        content: `
+          <p>PolicyEngine's machine learning imputation library, already proven in the Enhanced CPS. Uses <strong>Quantile Regression Forests (QRF)</strong> to impute missing variables while preserving distributional properties.</p>
+          <div class="code-block">
+<span class="keyword">from</span> microimpute <span class="keyword">import</span> QRFImputer
+
+<span class="comment"># Train on PSID earnings trajectories</span>
+imputer = QRFImputer()
+imputer.<span class="function">fit</span>(psid_earnings, features=[<span class="string">'age'</span>, <span class="string">'education'</span>, <span class="string">'sex'</span>])
+
+<span class="comment"># Apply to CPS population</span>
+cps_with_histories = imputer.<span class="function">transform</span>(cps_data)
+          </div>
+          <div style="margin-top: 1rem;">
+            <span class="tag existing">✓ Already exists</span>
+            <span class="tag default">Battle-tested in ECPS</span>
+          </div>
+        `
+      },
+      cps: {
+        icon: '👥',
+        title: 'Current Population Survey / Enhanced CPS',
+        content: `
+          <p>The CPS Annual Social and Economic Supplement provides our <strong>base population</strong>—~200,000 individuals with demographics, income, and program participation.</p>
+          <p>The <strong>Enhanced CPS</strong> (ECPS) goes further: it imputes underreported income and calibrates to IRS, Census, and SSA targets. This proven methodology is what we're extending to longitudinal data.</p>
+          <div style="margin-top: 1rem;">
+            <span class="tag public">Public data</span>
+            <span class="tag existing">ECPS proven accurate</span>
+            <span class="tag default">Matches JCT estimates</span>
+          </div>
+        `
+      },
+      imputation: {
+        icon: '📈',
+        title: 'Earnings History Imputation',
+        content: `
+          <p>The <strong>core new development</strong>: using QRF models trained on PSID to generate 35-year earnings histories for each CPS individual. This creates the longitudinal dimension needed for Social Security analysis.</p>
+          <p>Key outputs:</p>
+          <ul>
+            <li>Year-by-year earnings from age 18-70</li>
+            <li>Covered quarters for eligibility</li>
+            <li>AIME (Average Indexed Monthly Earnings)</li>
+            <li>Multiple imputations for uncertainty</li>
+          </ul>
+          <div>
+            <span class="tag new">New development</span>
+            <span class="tag default">Builds on proven tools</span>
+          </div>
+        `
+      },
+      ssa: {
+        icon: '🏛️',
+        title: 'SSA Calibration Targets',
+        content: `
+          <p>Publicly available statistics from the Social Security Administration that we calibrate to:</p>
+          <ul>
+            <li>Age-earnings profiles by cohort</li>
+            <li>Beneficiary counts by type</li>
+            <li>Average benefits by demographic</li>
+            <li>Earnings mobility matrices</li>
+            <li>Differential mortality by income</li>
+          </ul>
+          <div>
+            <span class="tag public">Public data</span>
+            <span class="tag default">Published annually</span>
+            <span class="tag default">ssa.gov</span>
+          </div>
+        `
+      },
+      microcalibrate: {
+        icon: '⚖️',
+        title: 'microcalibrate',
+        content: `
+          <p>PolicyEngine's gradient descent reweighting library. Adjusts sample weights to match hundreds of targets simultaneously while minimizing deviation from original weights.</p>
+          <div class="code-block">
+<span class="keyword">from</span> microcalibrate <span class="keyword">import</span> Calibrator
+
+calibrator = Calibrator(
+    targets=ssa_targets,  <span class="comment"># 100+ demographic/economic targets</span>
+    priorities={<span class="string">'beneficiary_counts'</span>: 1.0, ...}
+)
+calibrated_panel = calibrator.<span class="function">fit_transform</span>(synthetic_panel)
+          </div>
+          <div style="margin-top: 1rem;">
+            <span class="tag existing">✓ Already exists</span>
+            <span class="tag default">Handles 7,000+ targets in ECPS</span>
+          </div>
+        `
+      },
+      panel: {
+        icon: '🗃️',
+        title: 'Calibrated Synthetic Panel',
+        content: `
+          <p>The final dataset: a representative sample of Americans with complete earnings histories, demographic characteristics, and sample weights calibrated to SSA statistics.</p>
+          <p>This is the <strong>deliverable</strong>—a dataset that can be used for any Social Security analysis, comparable to what DynaSim or MINT produce internally.</p>
+          <div style="margin-top: 1rem;">
+            <span class="tag new">New deliverable</span>
+            <span class="tag default">Open source</span>
+            <span class="tag default">Reproducible</span>
+          </div>
+        `
+      },
+      policyengine: {
+        icon: '⚙️',
+        title: 'PolicyEngine-US Rules Engine',
+        content: `
+          <p>PolicyEngine-US already implements <strong>50+ federal and state programs</strong>, including:</p>
+          <ul>
+            <li><strong>Social Security</strong> (OASI, SSDI)</li>
+            <li><strong>SSI</strong> (Supplemental Security Income)</li>
+            <li><strong>SNAP</strong> (food stamps)</li>
+            <li><strong>Medicaid</strong></li>
+            <li><strong>EITC, CTC</strong>, and all federal taxes</li>
+          </ul>
+          <p>Once we have earnings histories, <strong>benefit calculation is automatic</strong>—we just run the panel through PolicyEngine.</p>
+          <div style="margin-top: 1rem;">
+            <span class="tag existing">✓ Already exists</span>
+            <span class="tag default">Production quality</span>
+            <span class="tag default">policyengine.org</span>
+          </div>
+        `
+      },
+      benefits: {
+        icon: '💰',
+        title: 'Comprehensive Benefits Output',
+        content: `
+          <p>The end result: for each individual in the synthetic panel, we can calculate:</p>
+          <ul>
+            <li>Social Security retirement benefits (PIA, claiming age adjustments)</li>
+            <li>SSI eligibility and benefits</li>
+            <li>SNAP, Medicaid, housing assistance</li>
+            <li>Federal and state taxes</li>
+            <li>Net government transfers</li>
+          </ul>
+          <p>This enables analysis of <strong>any Social Security reform</strong> and its interaction with the broader safety net.</p>
+          <div style="margin-top: 1rem;">
+            <span class="tag default">Reform analysis</span>
+            <span class="tag default">Distributional impacts</span>
+            <span class="tag default">Safety net interactions</span>
+          </div>
+        `
+      }
+    };
+
+    function showDetail(key) {
+      const detail = details[key];
+      const panel = document.getElementById('detail-panel');
+
+      // Update active state
+      document.querySelectorAll('.pipeline-node').forEach(node => {
+        node.classList.remove('active');
+      });
+      document.querySelector(`[data-detail="${key}"]`).classList.add('active');
+
+      // Update panel content
+      panel.innerHTML = `
+        <h2><span>${detail.icon}</span> ${detail.title}</h2>
+        ${detail.content}
+      `;
+
+      // Smooth scroll to panel on mobile
+      if (window.innerWidth < 768) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  </script>
+</body>
+</html>
