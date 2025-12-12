@@ -90,6 +90,38 @@ His vision remains the blueprint for modern dynamic microsimulation models.
 
 **Longevity Indexing**: {cite:p}`auerbach2017` analyzes automatic adjustment mechanisms, demonstrating value of long-run microsimulation for evaluating dynamic reforms.
 
+## Earnings Dynamics Literature
+
+A rich literature documents earnings dynamics over the life cycle, providing essential empirical foundations for our imputation methodology.
+
+### Lifecycle Earnings Patterns
+
+**Age-Earnings Profiles**: Classic work by Mincer established the human capital framework for understanding how earnings vary with age and experience. Subsequent research has refined these profiles by education, occupation, and demographic characteristics. Understanding these profiles is essential for imputing plausible earnings histories.
+
+**Earnings Volatility**: Research distinguishes between permanent and transitory earnings shocks. Permanent shocks reflect changes in underlying earning capacity, while transitory shocks represent temporary fluctuations. Our QRF approach must capture both components to generate realistic earnings trajectories.
+
+**Cohort Effects**: Earnings profiles differ across birth cohorts due to secular wage growth, educational expansion, and structural economic changes. Our imputation methodology incorporates cohort effects to ensure historical earnings reflect the economic context of each generation.
+
+### Intergenerational Mobility
+
+**Transmission of Earnings**: Research on intergenerational earnings mobility shows substantial persistence across generations, with correlations around 0.4-0.5 in the U.S. While not directly relevant for individual benefit calculations, this literature informs our understanding of family structure and spousal earnings correlations.
+
+**Geographic Variation**: The Opportunity Insights project has documented substantial geographic variation in economic mobility. This research provides valuable validation targets for our synthetic panel, particularly for understanding regional differences in earnings trajectories.
+
+## International Perspectives
+
+Dynamic pension microsimulation is an active area internationally, with lessons applicable to U.S. Social Security modeling.
+
+### European Models
+
+**EUROMOD**: The European Union's tax-benefit microsimulation model demonstrates successful cross-country harmonization of microsimulation methods. While primarily static, EUROMOD's approach to handling diverse national systems informs our integration with PolicyEngine's multi-country framework.
+
+**SimPaths**: The Centre for Microsimulation and Policy Analysis's open-source dynamic model (available at github.com/centreformicrosimulation/SimPaths) represents a promising approach to transparent dynamic microsimulation, though focused on UK context.
+
+### Lessons for U.S. Modeling
+
+International experience highlights the value of open-source development for building research communities, calibration to administrative data for credibility, modular design enabling extension and modification, and comprehensive documentation for reproducibility.
+
 ## Gaps and Opportunities
 
 The literature reveals several gaps our model can address:
@@ -99,6 +131,7 @@ The literature reveals several gaps our model can address:
 3. **Integration**: Most models are standalone; ours integrates with broader tax-benefit analysis
 4. **Transparency**: Proprietary models lack full transparency in assumptions and code
 5. **Reproducibility**: Published results often cannot be replicated due to data/code restrictions
+6. **Modern Methods**: Existing models predate modern ML techniques like QRF that improve distributional imputation
 
 ## Methodological Synthesis
 

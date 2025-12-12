@@ -19,6 +19,11 @@ keywords = [
     "policy-analysis",
     "retirement",
     "dynamic-modeling",
+    "oasdi",
+    "policyengine",
+    "tax-benefit",
+    "quantile-regression",
+    "calibration",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -70,6 +75,8 @@ Homepage = "https://github.com/PolicyEngine/social-security-model"
 Documentation = "https://policyengine.github.io/social-security-model"
 Repository = "https://github.com/PolicyEngine/social-security-model"
 Issues = "https://github.com/PolicyEngine/social-security-model/issues"
+Changelog = "https://github.com/PolicyEngine/social-security-model/releases"
+PolicyEngine = "https://policyengine.org"
 
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
@@ -86,6 +93,19 @@ include = '\.pyi?$'
 [tool.ruff]
 line-length = 79
 target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
