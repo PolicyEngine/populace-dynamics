@@ -28,7 +28,7 @@ Despite its analytical power, DynaSim faces significant access and transparency 
 
 **Website**: https://www.ssa.gov/policy/about/mint.html
 
-The Modeling Income in the Near Term (MINT) model is the Social Security Administration's microsimulation model for projecting retirement income {cite:p}`smith2010mint` {cite:p}`ssa2024mint`. Developed through collaboration between SSA and the Urban Institute, with contributions from the Brookings Institution and RAND Corporation, MINT has evolved through multiple versions, with MINT8 representing the current iteration.
+The Modeling Income in the Near Term (MINT) model is the Social Security Administration's microsimulation model for projecting retirement income {cite:p}`smith2010mint,ssa2024mint`. Developed through collaboration between SSA and the Urban Institute, with contributions from the Brookings Institution and RAND Corporation, MINT has evolved through multiple versions, with MINT8 representing the current iteration.
 
 ### Key Features and Methodology
 
@@ -46,7 +46,7 @@ However, public access remains limited. While SSA makes restricted datasets avai
 
 **Website**: https://www.cbo.gov/topics/economy/long-term-model
 
-The Congressional Budget Office Long-Term Model (CBOLT) serves as CBO's primary analytical tool for making long-term projections of the economy and federal budget {cite:p}`cbo2018` {cite:p}`cbo2004`. These projections extend beyond CBO's standard 10-year budget window and underlie recurring CBO publications including The Long-Term Budget Outlook and Social Security Policy Options.
+The Congressional Budget Office Long-Term Model (CBOLT) serves as CBO's primary analytical tool for making long-term projections of the economy and federal budget {cite:p}`cbo2018,cbo2004`. These projections extend beyond CBO's standard 10-year budget window and underlie recurring CBO publications including The Long-Term Budget Outlook and Social Security Policy Options.
 
 ### Model Structure and Capabilities
 
@@ -183,7 +183,7 @@ Most international models face similar access challenges to U.S. models, with Si
 
 ## Panel Construction Methodology Comparison
 
-Understanding the technical approaches used by existing models provides essential context for positioning our methodology and clarifying our design choices. This section draws on published technical documentation {cite:p}`favreault2014` {cite:p}`smith2010mint` {cite:p}`butrica2006` to examine how different models construct longitudinal panels and calibrate to external targets.
+Understanding the technical approaches used by existing models provides essential context for positioning our methodology and clarifying our design choices. This section draws on published technical documentation {cite:p}`favreault2014,smith2010mint,butrica2006` to examine how different models construct longitudinal panels and calibrate to external targets.
 
 ### DynaSim's Approach
 
@@ -207,7 +207,7 @@ MINT's access to real earnings histories for older cohorts provides unmatched ac
 
 ### CBOLT's Approach
 
-CBOLT employs a different methodological framework than DynaSim or MINT, focusing on representative agents and stylized household types rather than individual-level microsimulation {cite:p}`cbo2018` {cite:p}`cbo2004`. The panel construction uses representative households categorized by age, income, and family structure, with aggregate earnings profiles rather than individual histories. This approach prioritizes macroeconomic consistency over distributional detail.
+CBOLT employs a different methodological framework than DynaSim or MINT, focusing on representative agents and stylized household types rather than individual-level microsimulation {cite:p}`cbo2018,cbo2004`. The panel construction uses representative households categorized by age, income, and family structure, with aggregate earnings profiles rather than individual histories. This approach prioritizes macroeconomic consistency over distributional detail.
 
 The calibration methodology emphasizes alignment to National Income and Product Accounts (NIPA), matching aggregate labor force participation and earnings patterns. Demographic projections derive from Census estimates. The model performs less individual-level calibration than DynaSim or MINT, focusing instead on aggregate fiscal consistency and integration with CBO's broader budget model.
 
