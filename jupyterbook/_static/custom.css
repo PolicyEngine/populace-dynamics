@@ -1,126 +1,438 @@
-/* PolicyEngine Jupyter Book Custom Styling */
+/* PolicyEngine Jupyter Book Custom Styling
+ * Based on PolicyEngine App V2 Design System
+ * Primary: Teal (#319795), Font: Inter
+ */
 
-/* PolicyEngine blue color scheme */
+/* Import Inter and JetBrains Mono fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ========================================
+   CSS Custom Properties (Design Tokens)
+   ======================================== */
 :root {
-    --policyengine-blue: #2C6496;
-    --policyengine-blue-dark: #1f4a73;
+    /* Primary Teal Color Scale */
+    --pe-primary-50: #E6FFFA;
+    --pe-primary-100: #B2F5EA;
+    --pe-primary-200: #81E6D9;
+    --pe-primary-300: #4FD1C5;
+    --pe-primary-400: #38B2AC;
+    --pe-primary-500: #319795;  /* Main teal */
+    --pe-primary-600: #2C7A7B;
+    --pe-primary-700: #285E61;
+    --pe-primary-800: #234E52;
+    --pe-primary-900: #1D4044;
+
+    /* Gray Scale */
+    --pe-gray-50: #F9FAFB;
+    --pe-gray-100: #F2F4F7;
+    --pe-gray-200: #E2E8F0;
+    --pe-gray-300: #D1D5DB;
+    --pe-gray-400: #9CA3AF;
+    --pe-gray-500: #6B7280;
+    --pe-gray-600: #4B5563;
+    --pe-gray-700: #344054;
+    --pe-gray-800: #1F2937;
+    --pe-gray-900: #101828;
+
+    /* Semantic Colors */
+    --pe-success: #22C55E;
+    --pe-warning: #FEC601;
+    --pe-error: #EF4444;
+    --pe-info: #1890FF;
+
+    /* Typography */
+    --pe-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --pe-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+    /* Spacing */
+    --pe-space-xs: 4px;
+    --pe-space-sm: 8px;
+    --pe-space-md: 12px;
+    --pe-space-lg: 16px;
+    --pe-space-xl: 20px;
+    --pe-space-2xl: 24px;
+    --pe-space-3xl: 32px;
+
+    /* Border Radius */
+    --pe-radius-sm: 4px;
+    --pe-radius-md: 6px;
+    --pe-radius-lg: 8px;
+    --pe-radius-xl: 12px;
+
+    /* Shadows */
+    --pe-shadow-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    --pe-shadow-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1);
+    --pe-shadow-md: 0px 4px 6px -1px rgba(16, 24, 40, 0.1);
+    --pe-shadow-lg: 0px 10px 15px -3px rgba(16, 24, 40, 0.1);
 }
 
-/* Table styling with PolicyEngine blue hover */
-table tr:hover {
-    background-color: var(--policyengine-blue) !important;
-    color: white !important;
+/* ========================================
+   Global Typography
+   ======================================== */
+body, html {
+    font-family: var(--pe-font-family);
+    color: var(--pe-gray-900);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-table tr:hover td {
-    background-color: var(--policyengine-blue) !important;
-    color: white !important;
-}
-
-/* Link styling */
-a {
-    color: var(--policyengine-blue);
-}
-
-a:hover {
-    color: var(--policyengine-blue-dark);
-}
-
-/* Button styling for any download/action buttons */
-.btn, button, .button {
-    background-color: var(--policyengine-blue);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin: 10px 0;
-    display: inline-block;
-    text-decoration: none;
-}
-
-.btn:hover, button:hover, .button:hover {
-    background-color: var(--policyengine-blue-dark);
-    color: white;
-    text-decoration: none;
-}
-
-/* Code block improvements */
-pre {
-    background-color: #f6f8fa;
-    border-radius: 6px;
-    padding: 16px;
-    overflow: auto;
-}
-
-code {
-    background-color: #f6f8fa;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 85%;
-}
-
-/* Heading improvements */
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 24px;
-    margin-bottom: 16px;
+    font-family: var(--pe-font-family);
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1.3;
+    margin-top: var(--pe-space-3xl);
+    margin-bottom: var(--pe-space-lg);
+    color: var(--pe-gray-900);
 }
 
 h1 {
-    border-bottom: 1px solid #e1e4e8;
-    padding-bottom: 0.3em;
+    font-size: 2rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--pe-primary-500);
+    padding-bottom: var(--pe-space-md);
 }
 
 h2 {
-    border-bottom: 1px solid #e1e4e8;
-    padding-bottom: 0.3em;
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--pe-gray-200);
+    padding-bottom: var(--pe-space-sm);
 }
 
-/* Blockquote styling */
-blockquote {
-    border-left: 4px solid var(--policyengine-blue);
-    padding-left: 16px;
-    color: #6a737d;
-    margin: 16px 0;
+h3 {
+    font-size: 1.25rem;
+    color: var(--pe-primary-700);
 }
 
-/* Table improvements */
+h4 {
+    font-size: 1.125rem;
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: var(--pe-space-lg);
+    color: var(--pe-gray-700);
+}
+
+/* ========================================
+   Links
+   ======================================== */
+a {
+    color: var(--pe-primary-500);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--pe-primary-700);
+    text-decoration: underline;
+}
+
+/* Navigation links */
+nav a {
+    font-weight: 500;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn, button, .button,
+input[type="submit"], input[type="button"] {
+    font-family: var(--pe-font-family);
+    background-color: var(--pe-primary-500);
+    color: white;
+    border: none;
+    padding: var(--pe-space-sm) var(--pe-space-lg);
+    border-radius: var(--pe-radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    margin: var(--pe-space-sm) 0;
+    display: inline-block;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: var(--pe-shadow-xs);
+}
+
+.btn:hover, button:hover, .button:hover,
+input[type="submit"]:hover, input[type="button"]:hover {
+    background-color: var(--pe-primary-600);
+    color: white;
+    text-decoration: none;
+    box-shadow: var(--pe-shadow-sm);
+    transform: translateY(-1px);
+}
+
+.btn:active, button:active, .button:active {
+    background-color: var(--pe-primary-700);
+    transform: translateY(0);
+}
+
+/* ========================================
+   Code Blocks
+   ======================================== */
+pre {
+    font-family: var(--pe-font-mono);
+    background-color: var(--pe-gray-50);
+    border: 1px solid var(--pe-gray-200);
+    border-radius: var(--pe-radius-lg);
+    padding: var(--pe-space-lg);
+    overflow: auto;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+code {
+    font-family: var(--pe-font-mono);
+    background-color: var(--pe-primary-50);
+    color: var(--pe-primary-700);
+    padding: 2px 6px;
+    border-radius: var(--pe-radius-sm);
+    font-size: 0.875em;
+}
+
+pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+/* ========================================
+   Tables
+   ======================================== */
 table {
     border-collapse: collapse;
     width: 100%;
-    margin: 16px 0;
+    margin: var(--pe-space-2xl) 0;
+    font-size: 14px;
+    box-shadow: var(--pe-shadow-xs);
+    border-radius: var(--pe-radius-lg);
+    overflow: hidden;
 }
 
 th {
-    background-color: var(--policyengine-blue);
+    background-color: var(--pe-primary-500);
     color: white;
-    padding: 12px;
+    padding: var(--pe-space-md) var(--pe-space-lg);
     text-align: left;
     font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 td {
-    padding: 12px;
-    border-bottom: 1px solid #e1e4e8;
+    padding: var(--pe-space-md) var(--pe-space-lg);
+    border-bottom: 1px solid var(--pe-gray-200);
+    color: var(--pe-gray-700);
 }
 
-/* Citation/reference styling */
-.citation {
-    color: var(--policyengine-blue);
+tr:last-child td {
+    border-bottom: none;
 }
 
-/* Admonition/callout boxes */
+tbody tr:hover {
+    background-color: var(--pe-primary-50) !important;
+}
+
+tbody tr:hover td {
+    color: var(--pe-gray-900) !important;
+    background-color: var(--pe-primary-50) !important;
+}
+
+/* Alternating row colors */
+tbody tr:nth-child(even) {
+    background-color: var(--pe-gray-50);
+}
+
+/* ========================================
+   Blockquotes
+   ======================================== */
+blockquote {
+    border-left: 4px solid var(--pe-primary-500);
+    padding: var(--pe-space-md) var(--pe-space-xl);
+    margin: var(--pe-space-2xl) 0;
+    background-color: var(--pe-gray-50);
+    border-radius: 0 var(--pe-radius-md) var(--pe-radius-md) 0;
+    color: var(--pe-gray-600);
+    font-style: italic;
+}
+
+blockquote p {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   Admonitions / Callout Boxes
+   ======================================== */
 .admonition {
-    padding: 12px;
-    margin: 16px 0;
-    border-left: 4px solid var(--policyengine-blue);
-    background-color: #f6f8fa;
+    padding: var(--pe-space-lg);
+    margin: var(--pe-space-2xl) 0;
+    border-left: 4px solid var(--pe-primary-500);
+    background-color: var(--pe-primary-50);
+    border-radius: 0 var(--pe-radius-lg) var(--pe-radius-lg) 0;
+    box-shadow: var(--pe-shadow-xs);
 }
 
 .admonition-title {
     font-weight: 600;
-    color: var(--policyengine-blue);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--pe-primary-700);
+    margin-bottom: var(--pe-space-sm);
+}
+
+/* Note admonition */
+.admonition.note {
+    border-left-color: var(--pe-info);
+    background-color: #EFF6FF;
+}
+.admonition.note .admonition-title {
+    color: var(--pe-info);
+}
+
+/* Warning admonition */
+.admonition.warning {
+    border-left-color: var(--pe-warning);
+    background-color: #FFFBEB;
+}
+.admonition.warning .admonition-title {
+    color: #B45309;
+}
+
+/* Danger/Error admonition */
+.admonition.danger, .admonition.error {
+    border-left-color: var(--pe-error);
+    background-color: #FEF2F2;
+}
+.admonition.danger .admonition-title,
+.admonition.error .admonition-title {
+    color: var(--pe-error);
+}
+
+/* Tip/Success admonition */
+.admonition.tip, .admonition.success {
+    border-left-color: var(--pe-success);
+    background-color: #F0FDF4;
+}
+.admonition.tip .admonition-title,
+.admonition.success .admonition-title {
+    color: var(--pe-success);
+}
+
+/* ========================================
+   Citations & References
+   ======================================== */
+.citation, .reference {
+    color: var(--pe-primary-600);
+    font-weight: 500;
+}
+
+.citation:hover, .reference:hover {
+    color: var(--pe-primary-700);
+}
+
+/* Bibliography entries */
+.bibliography dt {
+    font-weight: 600;
+    color: var(--pe-primary-700);
+}
+
+.bibliography dd {
+    margin-bottom: var(--pe-space-lg);
+    padding-left: var(--pe-space-xl);
+    color: var(--pe-gray-600);
+}
+
+/* ========================================
+   Lists
+   ======================================== */
+ul, ol {
+    margin-bottom: var(--pe-space-lg);
+    padding-left: var(--pe-space-2xl);
+}
+
+li {
+    margin-bottom: var(--pe-space-sm);
+    color: var(--pe-gray-700);
+}
+
+li::marker {
+    color: var(--pe-primary-500);
+}
+
+/* ========================================
+   Sidebar / Navigation Enhancements
+   ======================================== */
+.sidebar, nav.toc {
+    font-family: var(--pe-font-family);
+}
+
+nav.toc a {
+    color: var(--pe-gray-600);
+    padding: var(--pe-space-sm) var(--pe-space-md);
+    border-radius: var(--pe-radius-sm);
+    display: block;
+    transition: all 0.2s ease;
+}
+
+nav.toc a:hover {
+    background-color: var(--pe-primary-50);
+    color: var(--pe-primary-600);
+    text-decoration: none;
+}
+
+nav.toc a.active {
+    background-color: var(--pe-primary-100);
+    color: var(--pe-primary-700);
+    font-weight: 600;
+}
+
+/* ========================================
+   Mermaid Diagram Styling
+   ======================================== */
+.mermaid {
+    background-color: var(--pe-gray-50);
+    padding: var(--pe-space-lg);
+    border-radius: var(--pe-radius-lg);
+    margin: var(--pe-space-2xl) 0;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+footer {
+    border-top: 1px solid var(--pe-gray-200);
+    padding-top: var(--pe-space-2xl);
+    margin-top: var(--pe-space-3xl);
+    color: var(--pe-gray-500);
+    font-size: 14px;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.text-primary {
+    color: var(--pe-primary-500);
+}
+
+.bg-primary {
+    background-color: var(--pe-primary-500);
+}
+
+.text-muted {
+    color: var(--pe-gray-500);
+}
+
+/* Draft Notice Banner */
+.draft-notice {
+    background: linear-gradient(135deg, var(--pe-primary-500), var(--pe-primary-600));
+    color: white;
+    padding: var(--pe-space-md) var(--pe-space-lg);
+    border-radius: var(--pe-radius-md);
+    margin-bottom: var(--pe-space-2xl);
+    font-weight: 500;
+    text-align: center;
 }
