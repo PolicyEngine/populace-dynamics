@@ -8,6 +8,43 @@ Building a dynamic Social Security microsimulation model requires sophisticated 
 
 Our model builds on PolicyEngine's existing open-source infrastructure:
 
+```{mermaid}
+flowchart LR
+    subgraph core["Core Libraries"]
+        MI["microimpute<br/>QRF Imputation"]
+        MC["microcalibrate<br/>Gradient Descent"]
+        L0["L0<br/>Sparse Selection"]
+    end
+
+    subgraph data["Data Layer"]
+        ECPS["Enhanced CPS<br/>(Cross-sectional)"]
+        SSM["Social Security Model<br/>(Longitudinal)"]
+    end
+
+    subgraph rules["Policy Rules"]
+        PEUS["PolicyEngine-US<br/>Tax & Benefit Rules"]
+    end
+
+    subgraph interface["User Interface"]
+        API["PolicyEngine-API"]
+        APP["PolicyEngine-App"]
+        PY["policyengine.py"]
+    end
+
+    MI --> ECPS
+    MC --> ECPS
+    MI --> SSM
+    MC --> SSM
+    L0 --> SSM
+    ECPS --> PEUS
+    SSM --> PEUS
+    PEUS --> API
+    API --> APP
+    API --> PY
+
+    style SSM fill:#e1f5fe
+```
+
 **PolicyEngine-US**: Tax and benefit rules engine (includes Social Security)
 
 **PolicyEngine-US-Data**: Enhanced CPS construction and microdata processing
@@ -198,7 +235,7 @@ panel_subset = synthetic_panel[selected_indices]
 - Already integrated with PolicyEngine-US
 
 **Key Features**:
-- ~200,000 individuals (CPS sample)
+- Large representative sample
 - Comprehensive income detail
 - Tax unit structure
 - Survey weights

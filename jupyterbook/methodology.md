@@ -4,6 +4,42 @@
 
 This chapter describes our technical approach to building a synthetic longitudinal panel dataset suitable for dynamic Social Security microsimulation. The core challenge is creating realistic lifetime earnings trajectories and demographic transitions while maintaining cross-sectional accuracy and computational feasibility.
 
+## Methodology Flow
+
+The following diagram illustrates the high-level data flow through our synthetic panel construction process:
+
+```{mermaid}
+flowchart TD
+    subgraph inputs["Input Data Sources"]
+        CPS["CPS ASEC<br/>(Cross-sectional)"]
+        PSID["PSID<br/>(Longitudinal)"]
+        SSA["SSA Statistics<br/>(Calibration targets)"]
+    end
+
+    subgraph processing["Panel Construction"]
+        QRF["Train QRF Models<br/>on PSID"]
+        IMPUTE["Impute Earnings<br/>Histories to CPS"]
+        DEMO["Model Demographic<br/>Transitions"]
+        CAL["Gradient Descent<br/>Calibration"]
+    end
+
+    subgraph outputs["Outputs"]
+        PANEL["Synthetic<br/>Longitudinal Panel"]
+        PE["PolicyEngine-US<br/>Benefit Calculations"]
+        WEB["Web Interface<br/>& API"]
+    end
+
+    PSID --> QRF
+    QRF --> IMPUTE
+    CPS --> IMPUTE
+    IMPUTE --> DEMO
+    DEMO --> CAL
+    SSA --> CAL
+    CAL --> PANEL
+    PANEL --> PE
+    PE --> WEB
+```
+
 ## Conceptual Framework
 
 Our methodology combines three complementary approaches:
@@ -13,14 +49,14 @@ Our methodology combines three complementary approaches:
 3. **Gradient Descent Calibration**: Reweighting to match external targets
 
 This synthesis produces a synthetic panel with:
-- Large sample size (from CPS): ~200,000 individuals
+- Representative sample from public survey data (size TBD during proof of concept)
 - Longitudinal dynamics (from PSID): realistic earnings trajectories
 - External validity (from calibration): matches administrative aggregates
 - Computational efficiency (from pre-generation): fast policy analysis
 
 ### How This Differs from Existing Models
 
-**vs. DynaSim**: We use larger CPS base (vs. SIPP), QRF imputation (vs. traditional regression), and optimization-based calibration (vs. iterative alignment). Fully reproducible with public data.
+**vs. DynaSim**: We use public survey base (vs. SIPP with restricted access), QRF imputation (vs. traditional regression), and optimization-based calibration (vs. iterative alignment). Fully reproducible with public data.
 
 **vs. MINT**: We construct fully synthetic panel (vs. matched administrative data). Trade-off: MINT has actual earnings for older cohorts, but isn't publicly replicable. Our approach sacrifices that accuracy for full transparency.
 
@@ -30,9 +66,9 @@ See the [Existing Models](existing-models.md#panel-construction-methodology-comp
 
 ## Phase 1: Base Year Cross-Section
 
-### Starting Point: Enhanced CPS
+### Starting Point: Base Cross-Section
 
-We begin with PolicyEngine's Enhanced CPS (ECPS), which already improves upon raw CPS through:
+We will evaluate options for the base cross-sectional dataset during the proof of concept phase. One option is PolicyEngine's Enhanced CPS (ECPS), which improves upon raw CPS through:
 
 **Income Imputation**: Filling missing income components using `microimpute`
 
@@ -118,6 +154,34 @@ For each CPS individual at age A with current earnings E:
    - Smooth unrealistic year-to-year jumps
    - Respect Social Security maximum taxable earnings
 4. Generate multiple imputations for uncertainty quantification
+
+**Example Implementation**:
+
+```python
+from microimpute import QuantileRegressionForest
+import numpy as np
+
+# Train QRF model for earnings at age 35
+qrf_age35 = QuantileRegressionForest(n_estimators=100)
+qrf_age35.fit(
+    X=psid_data[["current_earnings", "education", "sex", "race", "birth_year"]],
+    y=psid_data["earnings_age_35"]
+)
+
+# Predict conditional quantiles for CPS sample
+quantiles = [0.1, 0.25, 0.5, 0.75, 0.9]
+predictions = qrf_age35.predict_quantiles(cps_features, quantiles=quantiles)
+
+# Sample from conditional distribution for each individual
+def sample_earnings(row, predictions, quantiles):
+    """Sample earnings from predicted conditional distribution."""
+    u = np.random.uniform()  # Random quantile
+    return np.interp(u, quantiles, predictions.loc[row.name])
+
+cps_data["earnings_age_35"] = cps_data.apply(
+    lambda row: sample_earnings(row, predictions, quantiles), axis=1
+)
+```
 
 ### Year-by-Year Training Strategy
 
@@ -270,7 +334,7 @@ After imputation and projection, we calibrate the full synthetic panel.
 
 ### Reweighting Framework
 
-We have ~200,000 individuals with CPS survey weights w_i. We want new weights w_i* that:
+We have N individuals with survey weights w_i. We want new weights w_i* that:
 
 **Minimize**:
 ```
@@ -302,6 +366,45 @@ Where X_ik is characteristic k of individual i, T_k is target k
 - Computationally efficient (scales to large datasets)
 - Transparent and interpretable
 - Proven in PolicyEngine's enhanced CPS construction
+
+**Example Implementation**:
+
+```python
+from microcalibrate import GradientDescentCalibrator
+import pandas as pd
+
+# Define calibration targets
+targets = {
+    "population_total": 330_000_000,
+    "ss_beneficiaries_65_69": 12_200_000,
+    "ss_beneficiaries_70_74": 11_800_000,
+    "mean_earnings_age_35_male": 65_000,
+    "mean_earnings_age_35_female": 52_000,
+}
+
+# Create target matrix from synthetic panel
+X = pd.DataFrame({
+    "population_total": 1,
+    "ss_beneficiaries_65_69": (panel["age"] >= 65) & (panel["age"] < 70) & panel["ss_recipient"],
+    "ss_beneficiaries_70_74": (panel["age"] >= 70) & (panel["age"] < 75) & panel["ss_recipient"],
+    # ... additional targets
+})
+
+# Calibrate weights
+calibrator = GradientDescentCalibrator(
+    loss="chi_squared",  # Minimize chi-squared distance from original weights
+    max_iterations=1000,
+    tolerance=0.01  # Match targets within 1%
+)
+
+calibrated_weights = calibrator.fit(
+    X=X,
+    targets=pd.Series(targets),
+    initial_weights=panel["original_weight"]
+)
+
+panel["calibrated_weight"] = calibrated_weights
+```
 
 ### L0 Regularization for Sample Selection
 
