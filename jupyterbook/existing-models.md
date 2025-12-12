@@ -6,6 +6,8 @@ Several organizations have developed sophisticated dynamic microsimulation model
 
 ## DynaSim (Urban Institute)
 
+**Website**: https://www.urban.org/policy-centers/cross-center-initiatives/program-retirement-policy/projects/dynasim
+
 The Dynamic Simulation of Income Model (DynaSim), developed by the Urban Institute, represents a comprehensive dynamic microsimulation model for retirement policy analysis {cite:p}`favreault2015`. First developed in the 1970s and continuously updated through multiple versions (currently DynaSim4), it is widely considered the gold standard for non-governmental Social Security modeling.
 
 ### Key Features and Methodology
@@ -24,6 +26,8 @@ Despite its analytical power, DynaSim faces significant access and transparency 
 
 ## MINT (SSA Modeling Income in the Near Term)
 
+**Website**: https://www.ssa.gov/policy/about/mint.html
+
 The Modeling Income in the Near Term (MINT) model is the Social Security Administration's microsimulation model for projecting retirement income {cite:p}`smith2010mint` {cite:p}`ssa2024mint`. Developed through collaboration between SSA and the Urban Institute, with contributions from the Brookings Institution and RAND Corporation, MINT has evolved through multiple versions, with MINT8 representing the current iteration.
 
 ### Key Features and Methodology
@@ -40,6 +44,8 @@ However, public access remains limited. While SSA makes restricted datasets avai
 
 ## CBOLT (Congressional Budget Office Long-Term Model)
 
+**Website**: https://www.cbo.gov/topics/economy/long-term-model
+
 The Congressional Budget Office Long-Term Model (CBOLT) serves as CBO's primary analytical tool for making long-term projections of the economy and federal budget {cite:p}`cbo2018` {cite:p}`cbo2004`. These projections extend beyond CBO's standard 10-year budget window and underlie recurring CBO publications including The Long-Term Budget Outlook and Social Security Policy Options.
 
 ### Model Structure and Capabilities
@@ -52,21 +58,33 @@ The model emphasizes integration with broader fiscal modeling and macroeconomic 
 
 CBOLT's integration with CBO's broader analytical framework ensures macroeconomic consistency and fiscal coherence. The model carries the authority of official CBO analysis. However, access is restricted to internal CBO use only, with no availability for external researchers. Public documentation of methods remains limited compared to academic models. The level of distributional detail is less granular than DynaSim or MINT, as CBOLT emphasizes aggregate fiscal projections over individual-level heterogeneity. External researchers cannot replicate CBO analyses independently, limiting reproducibility and transparency.
 
-## Other Models
+## Penn Wharton Budget Model (PWBM)
 
-### Penn Wharton Budget Model (PWBM)
+**Website**: https://budgetmodel.wharton.upenn.edu/
 
-**Description**: Micro-founded dynamic general equilibrium model with Social Security detail
+**Social Security Module**: https://budgetmodel.wharton.upenn.edu/social-security
 
-**Strengths**:
-- Some public access via web interface
-- Integration with broader budget analysis
-- Macroeconomic feedbacks
+The Penn Wharton Budget Model provides a comprehensive framework for analyzing Social Security policy through a combination of detailed microsimulation and dynamic macroeconomic modeling. Developed at the University of Pennsylvania's Wharton School, PWBM has emerged as a prominent tool for analyzing federal budget and policy proposals.
 
-**Limitations**:
-- Less distributional detail than DynaSim
-- Closed-source implementation
-- Limited ability to customize assumptions
+### Key Features and Methodology
+
+**Microsimulation Component**: PWBM uses detailed microsimulation (PWBMsim) that projects individual-level data on earnings histories, family structures, and demographics including differences in fertility and mortality by marriage, income, race, and education. The model simulates more than 60 demographic and economic variables.
+
+**Dynamic OLG Model**: The dynamic component uses an overlapping-generations (OLG) framework where forward-looking households maximize welfare by adjusting labor supply and savings in response to policy changes. This captures behavioral responses to Social Security reforms including retirement timing and savings decisions.
+
+**Integration Approach**: PWBM integrates its static microsimulation with dynamic behavioral modeling by running the OLG model in both static and dynamic modes, then layering the differences onto the microsimulation results.
+
+**Social Security Policy Simulator**: The model includes a dedicated Social Security module that can analyze reforms including payroll tax rate changes, taxable maximum adjustments, COLA modifications, progressive benefit reductions, and retirement age increases.
+
+### Strengths and Impact
+
+PWBM provides public access via web interface for policy analysis, enabling researchers and policymakers to analyze specific Social Security reform proposals. The model's integration with broader budget analysis allows examination of Social Security in the context of overall fiscal policy. The dynamic behavioral modeling captures macroeconomic feedbacks and household responses that static models miss.
+
+### Limitations
+
+Despite its analytical sophistication, PWBM has accessibility constraints. The underlying code and microsimulation data are not open-source, limiting transparency and independent verification. The model provides less granular distributional detail than DynaSim's individual-level microsimulation. Users cannot easily modify underlying assumptions or extend the model's capabilities. The web interface offers limited customization compared to direct model access.
+
+## Other U.S. Models
 
 ### Academic Models
 
@@ -78,19 +96,90 @@ Various researchers have developed specialized models:
 
 These models provide deep insights into specific questions but lack the comprehensive scope needed for general policy analysis.
 
-## Cato Institute's Reported Model
+### PSG Models (Martin Holmer)
 
-According to the project brief, Cato Institute is reportedly developing a Social Security model. Based on public information:
+**Description**: Suite of proprietary C++ dynamic microsimulation models that simulate payroll taxes, Social Security benefits, and employer-sponsored pension benefits.
 
-**Known Details**: Limited public documentation available
+**Key Features**:
+- Lifetime benefit projections combining Social Security with DB pensions
+- Developed for federal agencies and non-profits
+- Not publicly available
 
-**Scope**: Unclear if it will match DynaSim/MINT scope
+**Note**: Martin Holmer later developed Tax-Calculator (2015-2019), an open-source Python tax microsimulation model that is independent of PolicyEngine.
 
-**Access**: Unknown if it will be publicly accessible or open-source
+## Cato Institute Social Security Model
 
-**Status**: Development stage unknown
+The Cato Institute has developed an open-source Social Security microsimulation model available at https://github.com/kchanwong/social_security_cato_model. This R-based model represents a distinctive methodological approach to Social Security projections and policy analysis.
 
-Our model would distinguish itself through guaranteed open-source access, public web interface, and integration with PolicyEngine's broader capabilities.
+### Key Features and Methodology
+
+**Core Approach**: The Cato model uses inverse transform sampling based on SSA assumptions rather than regression methods. This approach enables direct simulation of individual outcomes without relying on predictive statistical models, fundamentally differing from SSA's MINT 8 system.
+
+**Data Sources**: The model integrates multiple data sources including Current Population Survey ASEC microdata via IPUMS, Social Security Trustees Reports and Statistical Supplements (2023+), 2024 Survey of Income and Program Participation, and 2007 Social Security Public Use Files microdata.
+
+**Sample Structure**: Initial sample comprises 10,000 households from 2007 ASEC, with projection period spanning 2007-2100. The model tracks household IDs, personal IDs, and simplified family relationships.
+
+### Demographic and Economic Components
+
+**Demographic Simulation**:
+- Mortality modeling using SSA life tables with probabilistic sampling
+- Fertility projections calibrated to national vital statistics for ages 14-45
+- Marriage/divorce dynamics based on age, income, and SSA cohort estimates
+
+**Economic Modeling**:
+- Employment transition matrices differentiated by age, year, and sex
+- Income growth tied to Average Wage Index (AWI)
+- Income distribution matching to SSA quantiles
+
+### Analytical Capabilities
+
+The Cato model generates standard Social Security metrics including 75-year balances, actuarial sustainability measures, Trust Fund ratios, and insolvency dates. It can score policy reforms including retirement age adjustments, benefit formula changes, and indexing modifications.
+
+### Strengths
+
+- **Open Source**: Licensed under AGPL-3.0, ensuring public access and transparency
+- **Reproducible**: Uses `set.seed(2025)` for replication
+- **Methodological Innovation**: Inverse transform sampling approach offers an alternative to regression-based methods
+- **Comprehensive Scope**: Covers demographic and economic transitions with calibration to official SSA projections
+
+### Limitations
+
+The developers acknowledge several constraints:
+- Fertility modeling doesn't reflect income/education patterns
+- Marriage matching uses simplified age-income distance metrics
+- Constant divorce rates assumed across populations
+- Limited family structure complexity
+- **Technology Stack**: Implemented in R (100%), which may limit accessibility for Python-focused researchers
+- **No Web Interface**: Lacks user-friendly interface for non-technical users
+- **No API**: No programmatic access layer for integration with other tools
+
+### Contact and Access
+
+Repository contact: socialsecurity@cato.org
+
+### Comparison to Our Model
+
+**Complementary Strengths**: The Cato model's inverse transform sampling methodology offers a valuable alternative approach to our QRF-based imputation. Their focus on R implementation may appeal to different user communities.
+
+**Our Distinctive Features**: Our model would distinguish itself through:
+- Integration with PolicyEngine's comprehensive tax-benefit microsimulation
+- Public web interface for non-technical users
+- Python API for programmatic access
+- Potentially larger sample size depending on base dataset selection
+- Modern machine learning methods (QRF) with proven cross-sectional success
+- Full integration with PolicyEngine's existing infrastructure and user base
+
+Both models advance the open-source Social Security modeling ecosystem, with different methodological approaches and target audiences.
+
+## International Models
+
+Dynamic pension microsimulation modeling is an active area internationally. Notable examples include:
+
+- **SimPaths** (UK/Europe): Open-source framework developed by the Centre for Microsimulation and Policy Analysis at the University of Essex. Available at https://github.com/centreformicrosimulation/SimPaths under EUPL-1.2 license.
+- **PENSIM2** (UK): Department for Work and Pensions' proprietary model with 100-year projections. More information at https://www.gov.uk/government/organisations/department-for-work-pensions
+- **MISSAR** (Argentina): Open-source LIAM2-based model. Available at https://github.com/leonardo-calcagno/MISSAR
+
+Most international models face similar access challenges to U.S. models, with SimPaths representing a notable exception as fully open-source and publicly available.
 
 ## Panel Construction Methodology Comparison
 
@@ -126,16 +215,16 @@ CBOLT's representative agent framework offers computational efficiency and ensur
 
 ### Our Approach: Fully Synthetic Panel
 
-Our proposed methodology begins with CPS ASEC data containing approximately 200,000 individuals, substantially larger than SIPP-based models. The approach is fully synthetic, requiring no administrative data matching, which ensures complete public replicability. We employ quantile regression forests (QRF) to predict the full conditional distribution of earnings at each age, extending MINT's quantile regression innovation with modern machine learning methods {cite:p}`meinshausen2006`. Training uses PSID longitudinal data from public use files, allowing anyone to replicate the methodology. The process generates complete lifetime earnings histories for the entire CPS sample. Demographic transitions use hazard models estimated on PSID, similar to MINT and DynaSim but applied to a larger CPS base.
+Our proposed methodology begins with a public cross-sectional survey dataset (base dataset to be determined during proof of concept phase). The approach is fully synthetic, requiring no administrative data matching, which ensures complete public replicability. We employ quantile regression forests (QRF) to predict the full conditional distribution of earnings at each age, extending MINT's quantile regression innovation with modern machine learning methods {cite:p}`meinshausen2006`. Training uses PSID longitudinal data from public use files, allowing anyone to replicate the methodology. The process generates complete lifetime earnings histories for the entire sample. Demographic transitions use hazard models estimated on PSID, similar to MINT and DynaSim.
 
-The calibration methodology employs gradient descent reweighting, an optimization-based approach that minimizes distance from original CPS weights subject to matching all target variables including earnings distributions and beneficiary counts {cite:p}`deville1992`. This method can handle hundreds or thousands of simultaneous targets, as demonstrated in the Enhanced CPS construction {cite:p}`ghenis2024`. The approach is mathematically principled, ensuring the solution minimizes a well-defined objective function, and computationally efficient, converging rapidly even with large datasets and many targets.
+The calibration methodology employs gradient descent reweighting, an optimization-based approach that minimizes distance from original survey weights subject to matching all target variables including earnings distributions and beneficiary counts {cite:p}`deville1992`. This method can handle hundreds or thousands of simultaneous targets, as demonstrated in the Enhanced CPS construction {cite:p}`ghenis2024`. The approach is mathematically principled, ensuring the solution minimizes a well-defined objective function, and computationally efficient, converging rapidly even with large datasets and many targets.
 
 **Comparison to Other Methods**:
 
 | Aspect | DynaSim | MINT | CBOLT | Our Model |
 |--------|---------|------|-------|-----------|
-| **Base Data** | SIPP | SIPP+Admin | Rep. Agents | CPS |
-| **Sample Size** | ~50k | ~50k | ~100s | ~200k |
+| **Base Data** | SIPP | SIPP+Admin | Rep. Agents | TBD (Public Survey) |
+| **Sample Size** | ~50k | ~50k | ~100s | TBD |
 | **Panel Type** | Semi-synthetic | Real+Projected | Stylized | Fully Synthetic |
 | **Earnings History** | Regression | Admin+Projection | Aggregate | QRF Imputation |
 | **Training Data** | SIPP panels | Admin data | Macro data | PSID |
@@ -147,7 +236,7 @@ The calibration methodology employs gradient descent reweighting, an optimizatio
 The choice between real/matched data (MINT), semi-synthetic (DynaSim), and fully synthetic (our approach) involves fundamental trade-offs {cite:p}`caldwell2017`:
 
 1. **No administrative data required**: Entire methodology reproducible with public data
-2. **Larger sample**: CPS sample 4x SIPP, enables state/demographic detail
+2. **Flexible base dataset**: Can select optimal public survey for sample size and detail
 3. **QRF advantages**: Captures full distribution, not just means; non-parametric flexibility
 4. **Modern optimization**: Gradient descent superior to iterative alignment
 5. **Open source**: Anyone can validate, modify, extend
@@ -156,7 +245,7 @@ The choice between real/matched data (MINT), semi-synthetic (DynaSim), and fully
 
 **Advantages over DynaSim/MINT**:
 - Fully reproducible (no restricted data)
-- Larger sample enables more detailed analysis
+- Flexible base dataset selection for optimal analysis
 - Modern ML methods (QRF) vs. traditional regression
 - Optimization-based calibration vs. ad-hoc alignment
 
@@ -181,18 +270,20 @@ The ECPS development required over two years of intensive development and valida
 
 ## Comparison Summary
 
-| Feature | DynaSim | MINT | CBOLT | PWBM | Our Model |
-|---------|---------|------|-------|------|-----------|
-| **Public Access** | Paid only | Limited | None | Web only | Free & Full |
-| **Open Source** | No | No | No | No | **Yes** |
-| **Web Interface** | No | No | No | Basic | **Full** |
-| **Python API** | No | No | No | No | **Yes** |
-| **Code Transparency** | Low | Medium | Low | Low | **Full** |
-| **Reproducibility** | Limited | Limited | None | Limited | **Full** |
-| **Integration** | Standalone | Standalone | Internal | Standalone | **PolicyEngine** |
-| **Individual Detail** | High | High | Medium | Medium | **High** |
-| **Customization** | Low | Low | None | Low | **High** |
-| **Cost** | High | Free* | N/A | Free | **Free** |
+| Feature | DynaSim | MINT | CBOLT | PWBM | Cato | Our Model |
+|---------|---------|------|-------|------|------|-----------|
+| **Public Access** | Paid only | Limited | None | Web only | Free & Full | Free & Full |
+| **Open Source** | No | No | No | No | **Yes** | **Yes** |
+| **Web Interface** | No | No | No | Basic | No | **Full** |
+| **Python API** | No | No | No | No | No | **Yes** |
+| **Code Transparency** | Low | Medium | Low | Low | **Full** | **Full** |
+| **Reproducibility** | Limited | Limited | None | Limited | **Full** | **Full** |
+| **Integration** | Standalone | Standalone | Internal | Standalone | Standalone | **PolicyEngine** |
+| **Individual Detail** | High | High | Medium | Medium | Medium | **High** |
+| **Customization** | Low | Low | None | Low | High | **High** |
+| **Cost** | High | Free* | N/A | Free | **Free** | **Free** |
+| **Sample Size** | ~50k | ~50k | ~100s | ~50k | ~10k | **TBD** |
+| **Language** | Various | SAS | Internal | Various | R | **Python** |
 
 *MINT restricted datasets available to approved researchers
 

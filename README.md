@@ -62,7 +62,7 @@ PolicyEngine-US already captures Social Security rules comprehensively. The main
 
 ## Methodology Summary
 
-1. **Start with Enhanced CPS**: ~200,000 individuals, high-quality cross-section
+1. **Select Base Dataset**: Evaluate options (CPS ASEC, SIPP, or Enhanced CPS) for cross-sectional starting point
 2. **Impute Earnings Histories**: Quantile regression forests trained on PSID
 3. **Model Demographics**: Hazard models for transitions (marriage, disability, mortality)
 4. **Calibrate**: Gradient descent reweighting to match SSA targets
@@ -159,11 +159,15 @@ View at http://localhost:3004
 
 ## Related Projects
 
+### PolicyEngine Infrastructure
 - [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us) - US tax-benefit microsimulation
 - [PolicyEngine-US-Data](https://github.com/PolicyEngine/policyengine-us-data) - Enhanced CPS
 - [microimpute](https://github.com/PolicyEngine/microimpute) - ML imputation
 - [microcalibrate](https://github.com/PolicyEngine/microcalibrate) - Survey calibration
 - [L0](https://github.com/PolicyEngine/L0) - Sparse reweighting
+
+### Other Open-Source Social Security Models
+- [Cato Institute Social Security Model](https://github.com/kchanwong/social_security_cato_model) - R-based microsimulation using inverse transform sampling methodology
 
 ## Citation
 

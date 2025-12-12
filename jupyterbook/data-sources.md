@@ -210,7 +210,7 @@ While we cannot directly access individual-level administrative data, we use pub
 
 Our data integration follows a hierarchical structure:
 
-1. **Base Population**: CPS ASEC for current cross-section (N~200,000)
+1. **Base Population**: Public cross-sectional survey (to be determined during proof of concept)
 2. **Longitudinal Structure**: PSID for earnings trajectories and transitions
 3. **Validation**: SIPP for program participation; administrative aggregates
 4. **Calibration**: SSA statistics for alignment

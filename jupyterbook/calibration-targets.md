@@ -95,8 +95,16 @@ These targets ensure our population structure matches Census/SSA projections:
 
 **Earnings Mobility**:
 - Transition matrices between earnings quintiles over 5-year periods
-- Source: PSID, SSA cohort earnings studies
-- Priority: **Critical** (lifetime earnings trajectories)
+- Intergenerational mobility patterns by geography
+- Source: PSID, SSA cohort earnings studies, Opportunity Insights (http://www.equality-of-opportunity.org/data/)
+- Priority: **Critical** (lifetime earnings trajectories, geographic variation)
+
+**Opportunity Insights Mobility Data**:
+The Equality of Opportunity Project provides essential data for validating earnings mobility patterns:
+- Intergenerational income mobility by commuting zone and county
+- Earnings outcomes by parental income percentile
+- Geographic variation in upward mobility
+- Can validate modeled earnings trajectories against observed mobility patterns
 
 **Earnings Growth Profiles**:
 - Age-earnings profiles by cohort and education
@@ -114,9 +122,17 @@ These targets ensure our population structure matches Census/SSA projections:
 
 **Mortality Rates**:
 - Age-specific death rates by sex
-- Differential mortality by earnings level
-- Source: SSA actuarial life tables, National Vital Statistics
-- Priority: **Critical** (survivor benefits, projection accuracy)
+- Differential mortality by earnings level and geography
+- Source: SSA actuarial life tables, National Vital Statistics, Opportunity Insights (https://opportunityinsights.org/paper/lifeexpectancy/)
+- Priority: **Critical** (survivor benefits, projection accuracy, inequality analysis)
+
+**Opportunity Insights Life Expectancy Data**:
+The Opportunity Insights life expectancy dataset provides critical granularity for modeling differential mortality:
+- Life expectancy by income percentile at national, state, county, and commuting zone levels
+- Temporal trends (2001-2014) showing diverging life expectancy by income
+- Geographic variation revealing localities with smaller or narrowing gaps
+- Enables validation of mortality differentials across the earnings distribution
+- Essential for accurate lifetime benefit projections and distributional analysis
 
 **Disability Incidence**:
 - Disability onset rates by age and sex

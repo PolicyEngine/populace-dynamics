@@ -70,7 +70,7 @@ This chapter outlines the development plan for building the open-source Social S
 
 #### Deliverables
 - [ ] Production-ready earnings imputation pipeline
-- [ ] Complete earnings histories for CPS (~200,000 individuals)
+- [ ] Complete earnings histories for base dataset
 - [ ] Comprehensive validation report
 - [ ] Documentation of QRF methodology
 - [ ] Published validation notebook
