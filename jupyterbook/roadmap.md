@@ -2,31 +2,31 @@
 
 ## Overview
 
-This chapter outlines the development plan for building the open-source Social Security dynamic microsimulation model. We break the project into phases with clear milestones, deliverables, and timelines.
+This chapter outlines the development plan for building the open-source Social Security dynamic microsimulation model. We break the project into phases with clear milestones and deliverables.
 
 **Key de-risking factor**: This project extends PolicyEngine's proven Enhanced CPS methodology (the only publicly available microdata producing accurate tax-benefit impacts) from cross-sectional to longitudinal analysis. The core tools (microimpute, microcalibrate), infrastructure (ECPS pipeline), and team expertise are already proven.
 
 ## Project Phases
 
-### Phase 1: Foundation and Proof of Concept (Months 1-3)
+### Phase 1: Foundation and Proof of Concept
 
 **Goal**: Demonstrate feasibility of core methodology with simplified prototype
 
 #### Milestones
 
-**M1.1: Data Preparation** (Month 1)
+**M1.1: Data Preparation**
 - Download and clean CPS ASEC (most recent year)
 - Download and harmonize PSID (1968-present)
 - Extract SSA calibration targets
 - Document data sources and preparation
 
-**M1.2: Basic Earnings Imputation** (Month 2)
+**M1.2: Basic Earnings Imputation**
 - Train simple quantile regression forest on PSID
 - Impute 10-year earnings history to subset of CPS
 - Validate age-earnings profiles
 - Compare to SSA earnings statistics
 
-**M1.3: Simple Calibration** (Month 3)
+**M1.3: Simple Calibration**
 - Implement gradient descent reweighting
 - Calibrate to 20-30 key targets
 - Validate beneficiary counts
@@ -44,25 +44,25 @@ This chapter outlines the development plan for building the open-source Social S
 - Calibration matches target variables (±2%)
 - Proof of concept demonstrates feasibility
 
-### Phase 2: Full Earnings History Imputation (Months 4-6)
+### Phase 2: Full Earnings History Imputation
 
 **Goal**: Complete lifetime earnings imputation with comprehensive validation
 
 #### Milestones
 
-**M2.1: Year-by-Year QRF Models** (Month 4)
+**M2.1: Year-by-Year QRF Models**
 - Train QRF for each age 18-70
 - Implement cohort-specific adjustments
 - Handle edge cases (zero earnings, gaps)
 - Validate on PSID hold-out sample
 
-**M2.2: Earnings History Generation** (Month 5)
+**M2.2: Earnings History Generation**
 - Impute full histories to entire CPS sample
 - Implement consistency checks
 - Generate multiple imputations
 - Calculate AIME distributions
 
-**M2.3: Earnings Validation** (Month 6)
+**M2.3: Earnings Validation**
 - Compare distributions to SSA statistics
 - Validate earnings mobility matrices
 - Check correlation structure
@@ -81,25 +81,25 @@ This chapter outlines the development plan for building the open-source Social S
 - Earnings mobility matches PSID (±5 percentage points)
 - Multiple imputation uncertainty well-calibrated
 
-### Phase 3: Demographic Transitions (Months 7-9)
+### Phase 3: Demographic Transitions
 
 **Goal**: Model marriage, divorce, fertility, disability, mortality
 
 #### Milestones
 
-**M3.1: Marital Transitions** (Month 7)
+**M3.1: Marital Transitions**
 - Estimate marriage/divorce hazard models from PSID
 - Implement spousal matching algorithm
 - Validate marital status distributions
 - Test integration with earnings
 
-**M3.2: Fertility and Family** (Month 8)
+**M3.2: Fertility and Family**
 - Estimate fertility models from PSID/NVSS
 - Assign children to families
 - Validate fertility patterns
 - Model dependent benefits
 
-**M3.3: Disability and Mortality** (Month 9)
+**M3.3: Disability and Mortality**
 - Implement disability onset models
 - Incorporate differential mortality
 - Validate against SSA statistics
@@ -118,25 +118,25 @@ This chapter outlines the development plan for building the open-source Social S
 - Disability prevalence matches SSA (±2%)
 - Mortality rates match SSA life tables (±1%)
 
-### Phase 4: Social Security Benefit Calculation (Months 10-12)
+### Phase 4: Social Security Benefit Calculation
 
 **Goal**: Integrate with PolicyEngine-US for complete benefit modeling
 
 #### Milestones
 
-**M4.1: PolicyEngine Integration** (Month 10)
+**M4.1: PolicyEngine Integration**
 - Format synthetic panel for PolicyEngine
 - Test benefit calculations on sample
 - Verify all benefit types
 - Validate against SSA calculators
 
-**M4.2: Comprehensive Validation** (Month 11)
+**M4.2: Comprehensive Validation**
 - Compare beneficiary counts to SSA
 - Validate average benefits by type
 - Check benefit distributions
 - Test edge cases and special provisions
 
-**M4.3: Reform Modeling** (Month 12)
+**M4.3: Reform Modeling**
 - Implement several example reforms
 - Compare to published analyses where available
 - Document reform specification process
@@ -155,25 +155,25 @@ This chapter outlines the development plan for building the open-source Social S
 - Benefit distributions match SSA percentiles (±5%)
 - Example reforms produce plausible results
 
-### Phase 5: Forward Projection and Calibration (Months 13-15)
+### Phase 5: Forward Projection and Calibration
 
 **Goal**: Project population forward with continued calibration
 
 #### Milestones
 
-**M5.1: Projection Framework** (Month 13)
+**M5.1: Projection Framework**
 - Implement forward aging
 - Project earnings using profiles + shocks
 - Simulate demographic transitions
 - Add new birth cohorts
 
-**M5.2: Dynamic Calibration** (Month 14)
+**M5.2: Dynamic Calibration**
 - Implement multi-year calibration
 - Align to SSA Trustees projections
 - Prevent drift in long-run projections
 - Validate 10-year and 30-year projections
 
-**M5.3: Uncertainty Quantification** (Month 15)
+**M5.3: Uncertainty Quantification**
 - Multiple imputation inference
 - Scenario analysis
 - Sensitivity to key assumptions
@@ -192,25 +192,25 @@ This chapter outlines the development plan for building the open-source Social S
 - Uncertainty quantification well-calibrated
 - Projections robust to reasonable assumption changes
 
-### Phase 6: Web Interface and API (Months 16-18)
+### Phase 6: Web Interface and API
 
 **Goal**: Deploy public-facing tools for model access
 
 #### Milestones
 
-**M6.1: API Development** (Month 16)
+**M6.1: API Development**
 - Design API endpoints for dynamic analysis
 - Implement cohort analysis
 - Add lifetime benefit calculations
 - Support reform comparisons
 
-**M6.2: Web Interface** (Month 17)
+**M6.2: Web Interface**
 - Design user interface for Social Security analysis
 - Implement lifetime profile visualizations
 - Create distributional analysis dashboards
 - Build reform comparison tools
 
-**M6.3: Documentation and Launch** (Month 18)
+**M6.3: Documentation and Launch**
 - Complete user documentation
 - Create tutorials and examples
 - Prepare launch materials
@@ -256,32 +256,6 @@ Throughout the project:
 - Review community contributions
 - Present at conferences
 - Engage with policy stakeholders
-
-## Resource Requirements
-
-### Personnel
-
-**Full-Time Effort** (approximate person-months over 18 months):
-- Max Ghenis: 12 months (60% time)
-- Ben Ogorek: 9 months (50% time)
-- John Sabelhaus: 6 months (30% time)
-
-**Total**: 27 person-months (~1.5 FTE)
-
-### Computing Resources
-- Cloud compute for panel generation: ~$5,000
-- Cloud storage for datasets: ~$1,000/year
-- API hosting: ~$2,000/year (incremental to existing PolicyEngine)
-
-### Data Acquisition
-- All primary data sources are free/public
-- No proprietary data purchases required
-
-### Total Budget Estimate
-- Personnel (at market rates): $250,000-350,000
-- Computing and infrastructure: $8,000
-- Travel (conferences, meetings): $10,000
-- **Total**: ~$270,000-370,000
 
 ## Risk Management
 
@@ -334,16 +308,6 @@ PolicyEngine has already proven that public data + ML imputation + calibration c
 - Use multiple data sources
 - Focus on stable, core targets
 - Document assumptions and sensitivity
-
-### Timeline Risks
-
-**Risk**: Development takes longer than planned
-
-**Mitigation**:
-- Phased approach allows useful outputs early
-- Proof of concept validates feasibility
-- Experienced team with track record
-- Flexible scope (can reduce features if needed)
 
 ## Success Metrics
 
@@ -404,50 +368,6 @@ PolicyEngine has already proven that public data + ML imputation + calibration c
 - Can allocate planned time
 - Coordination and communication effective
 
-### Prerequisites
-
-**Before Phase 1**:
-- Funding secured
-- Team committed
-- Infrastructure access arranged
-
-**Before Phase 6**:
-- API infrastructure capacity verified
-- Web hosting arranged
-- Documentation platform ready
-
-## Alternative Scenarios
-
-### Accelerated Timeline (12 months)
-
-If additional resources available:
-- Parallel development of phases
-- Additional engineering support
-- Compressed timeline feasible
-
-**Trade-offs**: Less thorough validation, simpler initial version
-
-### Extended Timeline (24 months)
-
-If timeline flexibility needed:
-- More comprehensive validation
-- Additional data sources
-- Behavioral response modeling
-- Richer demographic detail
-
-**Trade-offs**: Delayed public access, higher cost
-
-### Minimum Viable Product (9 months)
-
-If resources constrained:
-- Focus on Phases 1-4 only
-- Simplified earnings imputation
-- Fewer calibration targets
-- Limited projection horizon (10 years)
-- API only (no custom web interface)
-
-**Trade-offs**: Less accurate, fewer features, but still valuable
-
 ## Maintenance and Updates
 
 After initial launch:
@@ -472,11 +392,9 @@ After initial launch:
 
 ## Summary
 
-**Timeline**: 18 months to full public launch
+This roadmap provides a realistic path to creating a valuable public good that democratizes access to sophisticated Social Security policy analysis.
 
 **Phases**: Six phases from proof of concept to web deployment
-
-**Resources**: ~1.5 FTE, modest computing costs
 
 **Deliverables**: Open-source model, API, web interface, documentation
 
@@ -485,5 +403,3 @@ After initial launch:
 **Risk**: Manageable with experienced team and proven methods
 
 **Success**: Clear metrics for accuracy, performance, and adoption
-
-This roadmap provides a realistic path to creating a valuable public good that democratizes access to sophisticated Social Security policy analysis.
