@@ -390,6 +390,81 @@ After initial launch:
 - Integrate with PolicyEngine's long-term roadmap
 - Pursue academic partnerships for improvements
 
+## Proposed Timeline and Resources
+
+::::{note}
+This section presents one proposal for timeline and resources. These estimates require discussion among the project team and may need revision based on different assumptions about development approach and team structure.
+::::
+
+### Proposed Timeline: 18 Months
+
+**Phase 1: Foundation and Proof of Concept** (Months 1-3)
+- M1.1: Data Preparation (Month 1)
+- M1.2: Basic Earnings Imputation (Month 2)
+- M1.3: Simple Calibration (Month 3)
+
+**Phase 2: Full Earnings History Imputation** (Months 4-6)
+- M2.1: Year-by-Year QRF Models (Month 4)
+- M2.2: Earnings History Generation (Month 5)
+- M2.3: Earnings Validation (Month 6)
+
+**Phase 3: Demographic Transitions** (Months 7-9)
+- M3.1: Marital Transitions (Month 7)
+- M3.2: Fertility and Family (Month 8)
+- M3.3: Disability and Mortality (Month 9)
+
+**Phase 4: Social Security Benefit Calculation** (Months 10-12)
+- M4.1: PolicyEngine Integration (Month 10)
+- M4.2: Comprehensive Validation (Month 11)
+- M4.3: Reform Modeling (Month 12)
+
+**Phase 5: Forward Projection and Calibration** (Months 13-15)
+- M5.1: Projection Framework (Month 13)
+- M5.2: Dynamic Calibration (Month 14)
+- M5.3: Uncertainty Quantification (Month 15)
+
+**Phase 6: Web Interface and API** (Months 16-18)
+- M6.1: API Development (Month 16)
+- M6.2: Web Interface (Month 17)
+- M6.3: Documentation and Launch (Month 18)
+
+### Proposed Personnel
+
+**Full-Time Effort** (approximate person-months over 18 months):
+- Max Ghenis: 12 months (60% time)
+- Ben Ogorek: 9 months (50% time)
+- John Sabelhaus: 6 months (30% time)
+
+**Total**: 27 person-months (~1.5 FTE)
+
+### Proposed Budget
+
+**Computing Resources:**
+- Cloud compute for panel generation: ~$5,000
+- Cloud storage for datasets: ~$1,000/year
+- API hosting: ~$2,000/year (incremental to existing PolicyEngine)
+
+**Data Acquisition:**
+- All primary data sources are free/public
+- No proprietary data purchases required
+
+**Total Budget Estimate:**
+- Personnel (at market rates): $250,000-350,000
+- Computing and infrastructure: $8,000
+- Travel (conferences, meetings): $10,000
+- **Total**: ~$270,000-370,000
+
+### Alternative Scenarios
+
+**Accelerated Timeline (12 months):**
+If additional resources available—parallel development of phases, additional engineering support. Trade-offs: Less thorough validation, simpler initial version.
+
+**Extended Timeline (24 months):**
+If timeline flexibility needed—more comprehensive validation, additional data sources, behavioral response modeling, richer demographic detail. Trade-offs: Delayed public access, higher cost.
+
+**Minimum Viable Product (9 months):**
+If resources constrained—focus on Phases 1-4 only, simplified earnings imputation, fewer calibration targets, limited projection horizon (10 years), API only. Trade-offs: Less accurate, fewer features, but still valuable.
+
 ## Open Questions for Planning
 
 The following questions require further discussion among the project team before finalizing timeline and resource estimates:
