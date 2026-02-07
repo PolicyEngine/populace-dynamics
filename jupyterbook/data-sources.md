@@ -166,6 +166,30 @@ While we cannot directly access individual-level administrative data, we use pub
 
 ## Supplementary Data Sources
 
+### Survey of Consumer Finances (SCF)
+
+**Description**: Federal Reserve triennial survey providing the gold standard for U.S. household wealth data, with oversampling of high-wealth households.
+
+**Key Features**:
+- Comprehensive wealth measurement (financial assets, housing, pensions, debt)
+- Oversamples high-net-worth households for accurate tail measurement
+- ~6,000 households per wave, triennial since 1989
+- Detailed retirement account data (401(k), IRA, DB pensions)
+
+**Why Wealth Matters for Social Security Analysis** (per Sabelhaus feedback):
+- Benefit claiming decisions: wealthier households can afford to delay claiming to age 70 for higher benefits
+- Replacement rates: Social Security replaces a higher share of consumption for wealth-poor households
+- Means-testing proposals: require wealth data to evaluate
+- Comprehensive retirement adequacy: Social Security + pensions + savings + housing
+
+**Our Use**:
+- Validation of wealth distributions by age and lifetime earnings quintile
+- Impute wealth statistically using random forest matching on age, earnings history, education, and marital status (parallel to earnings history imputation from PSID)
+- Validate that imputed wealth distributions match SCF aggregates (net worth, financial assets, pension coverage)
+- Enable analysis of reforms that interact with wealth (means-testing, claiming behavior)
+
+**Note**: We treat wealth as a validation target rather than a calibration target initially, checking whether our synthetic panel with imputed wealth produces realistic distributions without forcing weights to match SCF. This is because survey-based wealth measures have their own measurement challenges. Full wealth accumulation modeling is an extension beyond the core Phase 1–5 deliverables.
+
 ### Health and Retirement Study (HRS)
 
 **Description**: Longitudinal study of Americans over age 50, with detailed wealth and health data.
@@ -180,6 +204,7 @@ While we cannot directly access individual-level administrative data, we use pub
 - Validation of retirement age distributions
 - Wealth holdings near retirement
 - Disability onset patterns
+- Retirement claiming behavior by AIME quintile
 
 ### American Time Use Survey (ATUS)
 
@@ -206,22 +231,33 @@ While we cannot directly access individual-level administrative data, we use pub
 
 ## Data Integration Strategy
 
-### Hierarchical Approach
+### Multi-Survey Fusion Approach
+
+Rather than treating each survey in isolation, we pursue a multi-survey fusion strategy that harmonizes variables across CPS, PSID, and PUF into a unified analytical dataset. This involves:
+
+1. **Common variable schema**: Map each survey's variable names and coding schemes to a shared set of definitions (e.g., CPS `PEARNVAL` → `earnings`, PSID `ER65349` → `earnings`, PUF `E00200` → `wages_and_salaries`)
+2. **Cross-survey imputation**: Where one survey has variables that another lacks, use conditional models trained on the richer survey to impute into the target. For example, impute PSID-style longitudinal dynamics into CPS observations, or PUF-style detailed income components into the base population.
+3. **Fusion via normalizing flows or QRF**: Train conditional models on the stacked, harmonized data with masking for missing variables. The model learns to generate complete records by conditioning on whichever variables are observed for each survey source.
+
+### Hierarchical Structure
 
 Our data integration follows a hierarchical structure:
 
-1. **Base Population**: Public cross-sectional survey (to be determined during proof of concept)
-2. **Longitudinal Structure**: PSID for earnings trajectories and transitions
-3. **Validation**: SIPP for program participation; administrative aggregates
-4. **Calibration**: SSA statistics for alignment
+1. **Base Population**: Enhanced CPS (primary candidate—see below) providing large sample with calibrated cross-sectional income
+2. **Longitudinal Structure**: PSID for earnings trajectories and transition dynamics
+3. **Income Detail**: PUF for tax return variables and high-income tail corrections
+4. **Validation**: SIPP for program participation; administrative aggregates
+5. **Calibration**: SSA statistics for alignment
 
 ### Statistical Matching
 
 We employ statistical matching techniques to combine strengths:
 
 - **CPS-PSID match**: Impute longitudinal structure to CPS using PSID patterns
+- **CPS-PUF match**: Transfer detailed income and tax variables from PUF to improve income measurement
 - **Constrained matching**: Preserve CPS cross-sectional distributions
 - **Quantile regression forests**: Predict conditional distributions, not just means
+- **Normalizing flows**: Conditional MAF as alternative for variables with zero-inflation or complex multimodal structure
 - **Multiple imputation**: Propagate uncertainty from matching process
 
 ## Data Availability and Reproducibility

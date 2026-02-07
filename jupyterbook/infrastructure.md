@@ -191,63 +191,17 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Repository**: https://github.com/PolicyEngine/policyengine-us-data
 
-**Critical Context**: The Enhanced CPS is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite:p}`ghenis2024`. This achievement provides direct proof that our synthetic data approach works.
-
-**The Cross-Sectional Challenge (Solved)**:
-- All major tax models rely on IRS PUF (cannot be shared publicly)
-- This creates reproducibility crisis in tax policy research
-- PolicyEngine solved this with ECPS using the exact methodology we will extend to longitudinal analysis
-
-**ECPS Construction Process** (Two-Stage Methodology):
-
-**Stage 1: Variable Imputation**
-1. Download CPS ASEC, PUF, SIPP, SCF, and ACS from public sources
-2. Age all datasets to target year using population growth factors and income indices
-3. Clone the aged CPS dataset to create two copies:
-   - Copy 1: Fills missing variables (mortgage interest, charitable contributions, capital gains)
-   - Copy 2: Replaces existing variables with more accurate PUF values
-4. Train quantile regression forests on aged PUF using seven demographic predictors
-5. Apply QRF to both CPS copies, sampling from conditional distributions
-6. Impute additional variables from SIPP (tip income), SCF (auto loans, wealth), and ACS (property taxes)
-7. Concatenate both copies to create Extended CPS (doubled sample size ~400,000 individuals)
-
-**Stage 2: Gradient Descent Reweighting**
-1. Construct loss matrix containing households' contributions to over 7,000 calibration targets
-2. Define targets from six sources: IRS SOI, Census, CBO/Treasury, JCT, Healthcare, and other administrative data
-3. Use PyTorch-based gradient descent optimization with Adam optimizer
-4. Apply dropout regularization to prevent overfitting
-5. Optimize log-transformed weights to ensure positivity
-6. Iterate until convergence: targets matched within tolerance
-7. Produce Enhanced CPS with calibrated weights
-
-**Validation Results** (why this matters):
-- Revenue estimates match Joint Committee on Taxation
-- Distributional tables match Tax Policy Center
-- Individual calculations validate against tax returns
-- Congressional offices use PolicyEngine for actual policy analysis
-- **Proof**: Synthetic data + QRF + 7,000+ targets + gradient descent calibration = accuracy comparable to restricted admin data
+The Enhanced CPS uses QRF imputation and gradient descent calibration to ~2,800 administrative targets {cite:p}`ghenis2024`. This project extends the same methodology to longitudinal earnings histories.
 
 **Our Use**:
-- **Starting point for our synthetic panel**
-- **Proven methodology**: Same tools (microimpute, microcalibrate) that produced ECPS
-- **De-risked approach**: Not experimental - extending proven cross-sectional methods to longitudinal
-- High-quality cross-sectional base
+- Base cross-sectional population
+- Proven methodology (microimpute, microcalibrate)
 - Already integrated with PolicyEngine-US
 
-**Key Features**:
-- Large representative sample
-- Comprehensive income detail
-- Tax unit structure
-- Survey weights
-- Extensively validated against IRS Statistics of Income
-
-**Extending for Dynamic Model**:
-- Add earnings history variables (new: QRF imputation from PSID)
-- Add demographic transition tracking (new: hazard models)
-- Add longitudinal weights (new: multi-year calibration)
-- Maintain compatibility with existing PolicyEngine code
-
-**The Precedent**: If ECPS can match IRS data quality without PUF access, our synthetic panel can match SSA data quality without administrative earnings access. Same methodology, different dimension.
+**Extensions for Dynamic Model**:
+- Add earnings history variables (QRF from PSID)
+- Add demographic transitions (hazard models)
+- Add longitudinal calibration targets
 
 ### PolicyEngine-Core: Microsimulation Engine
 
@@ -340,24 +294,19 @@ panel_subset = synthetic_panel[selected_indices]
 - Partial reading (don't need to load entire dataset)
 - Metadata support
 
-**Structure**:
+**Structure** (aligned with the 4-table output schema defined in [Technical Specifications](technical-specifications.md#output-dataset-structure)):
 ```
 synthetic_panel.h5
-├── demographics/
-│   ├── age
-│   ├── sex
-│   ├── education
-│   └── ...
-├── earnings/
-│   ├── year_1985
-│   ├── year_1986
-│   └── ...
-├── benefits/
-│   ├── social_security_retirement
-│   └── ...
+├── person/            # One row per individual (demographics, status)
+├── earnings/          # One row per person-year (covered earnings, QC)
+├── relationship/      # Family network (marriages, parent-child)
+├── event/             # Life events (disability, death, claiming)
+├── computed/          # Derived variables (AIME, PIA, eligibility)
 └── weights/
     └── calibrated_weight
 ```
+
+For distribution, CSV or Parquet files (one per table) provide maximum accessibility. For production analysis, HDF5 or a SQL database provides better query performance.
 
 ### Version Control
 
@@ -625,7 +574,7 @@ Like this document:
 We leverage a rich ecosystem of open-source tools:
 
 **Core Tools** (PolicyEngine-developed):
-- `microimpute`: ML imputation
+- `microimpute`: ML imputation (QRF)
 - `microcalibrate`: Gradient descent calibration
 - `policyengine-us-data`: Enhanced CPS construction
 - `policyengine-core`: Microsimulation engine
@@ -636,11 +585,19 @@ We leverage a rich ecosystem of open-source tools:
 - Social Security rules already implemented
 - Infrastructure for web/API deployment
 
+**Additional Methodological Approaches** (To evaluate during proof of concept):
+- **Zero-inflated quantile deep neural networks (ZI-QDNN)**: Primary candidate for earnings imputation, with dedicated zero-inflation head and conditional quantile output; early experiments show 3× better trajectory coverage than recurrent alternatives on survey panel data
+- **Normalizing flows**: Conditional Masked Autoregressive Flows (MAF) as alternative for joint multi-year imputation, particularly where cross-year correlation structure matters
+- **Multi-survey fusion**: Harmonize CPS, PSID, and PUF into unified datasets using common variable schemas and masked imputation for cross-survey variables
+- **Sparse calibration**: IPF (raking), entropy balancing, and L0/L1/L2 sparse reweighting as alternatives to gradient descent for different calibration tasks
+- **Demographic transition models**: Discrete-time hazard models for disability onset/recovery (using SSA DI incidence rates), mortality (using SSA period life tables), and marriage/divorce (using CPS/ACS-based rates)
+- **Hierarchical household synthesis**: Two-pass household/person generation preserving family structure, tax unit composition, and spousal earnings correlations
+
 **Extensions** (To develop):
-- Earnings history imputation
-- Demographic transition modeling
-- Longitudinal calibration
-- Dynamic analysis capabilities
+- Full earnings history imputation (ZI-QDNN primary, with QRF and normalizing flows as alternatives)
+- Spousal matching and assortative mating
+- Forward projection with multi-year calibration
+- Dynamic analysis API and web interface
 
 This infrastructure foundation accelerates development while ensuring quality, reproducibility, and accessibility.
 

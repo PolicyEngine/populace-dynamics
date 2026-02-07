@@ -66,9 +66,16 @@ See the [Existing Models](existing-models.md#panel-construction-methodology-comp
 
 ## Phase 1: Base Year Cross-Section
 
-### Starting Point: Base Cross-Section
+### Starting Point: Enhanced CPS
 
-We will evaluate options for the base cross-sectional dataset during the proof of concept phase. One option is PolicyEngine's Enhanced CPS (ECPS), which improves upon raw CPS through:
+We will use PolicyEngine's Enhanced CPS (ECPS) as the base cross-sectional dataset. This decision reflects strong reviewer consensus (Sabelhaus, Fichtner, Ghenis self-review) and several practical advantages:
+
+1. **Proven methodology**: ECPS has already solved the cross-sectional income underreporting problem using the same tools we will apply longitudinally
+2. **Integration**: Seamless connection to PolicyEngine-US's existing tax-benefit calculations
+3. **Credibility**: Builds on demonstrated success rather than restarting from scratch
+4. **Sample size**: ~200,000 individuals provides adequate statistical power for national and state-level analysis
+
+The ECPS improves upon raw CPS through:
 
 **Income Imputation**: Filling missing income components using `microimpute`
 
@@ -76,9 +83,9 @@ We will evaluate options for the base cross-sectional dataset during the proof o
 
 **Tax Unit Construction**: Creating tax filing units from household structure
 
-**Calibration**: Reweighting to match IRS totals and other administrative data
+**Calibration**: Reweighting to match ~2,800 IRS, Census, and SSA administrative targets
 
-This provides a high-quality cross-sectional base representing the current population.
+The proof-of-concept phase will validate that ECPS + longitudinal imputation works, rather than re-litigating which base dataset to use. If computational constraints arise with the full ~200,000 sample, we can use L0 regularization to select a representative subsample (e.g., 100,000 individuals) that maintains target accuracy.
 
 ### Adding Historical Variables
 
@@ -112,16 +119,35 @@ Social Security benefits depend on 35 highest years of earnings, but CPS only ob
   - Cohort effects
   - Realistic variance
 
-### Quantile Regression Forest Approach
+### Imputation approach: Quantile deep neural networks
 
-We use quantile regression forests (QRF) to predict conditional distributions of past/future earnings:
+Our primary approach uses **zero-inflated quantile deep neural networks (ZI-QDNN)** to predict conditional distributions of past/future earnings. The proof of concept will also evaluate quantile regression forests (QRF) and normalizing flows (Conditional MAF) as alternatives, but early experiments on survey panel data suggest ZI-QDNN outperforms both for this problem.
 
-**Why QRF**:
-- Predicts full conditional distribution, not just mean
-- Non-parametric (captures complex non-linearities)
-- Handles high-dimensional predictors
-- Preserves heterogeneity across distribution
-- Proven performance for distributional imputation
+**Why ZI-QDNN**:
+- **Handles zero-inflation natively**: A dedicated logistic head learns P(zero earnings | features) separately from the continuous earnings distribution. This is critical because many person-years have zero earnings (labor force non-participation, unemployment, disability), and standard quantile methods struggle with point masses at zero.
+- **Predicts full conditional distribution**: The quantile head outputs conditional quantiles (5th through 95th) for non-zero values, preserving heterogeneity.
+- **Faster than alternatives**: In head-to-head experiments on SIPP panel data, ZI-QDNN achieved 3× better trajectory coverage than GRU-based recurrent models while training 2× faster and generating 1.4× faster.
+- **Log-space stability**: The quantile head operates in log-space for numerical stability with the wide range of earnings values (from near-zero to hundreds of thousands).
+- **Simpler architecture than normalizing flows**: Shared hidden layers with two output heads (zero classification + conditional quantiles) rather than the invertible transformations required by MAF, making training more stable and faster.
+
+**Architecture**:
+```
+Input (features) → Shared hidden layers (3 × 128 ReLU)
+                        ├→ Zero head: Linear → P(zero | features)
+                        └→ Quantile head: Linear → ReLU → Linear → τ quantiles (log-space)
+```
+
+The loss function combines binary cross-entropy for the zero head with pinball (quantile) loss for the non-zero conditional distribution. At generation time, the model first samples whether a value is zero, then (if non-zero) samples from the learned conditional quantile distribution.
+
+**Why this matters for Social Security**: The zero-inflation structure directly maps to the core modeling challenge. Workers move in and out of the labor force—years with zero covered earnings are common and critical for AIME calculation (since AIME uses the 35 highest years, zero-earnings years only matter if they crowd out higher-earnings years). Getting the zero/non-zero pattern right is arguably more important than getting the exact earnings level right in non-zero years.
+
+**Comparison to QRF** (still evaluated in proof of concept):
+- QRF is more interpretable (feature importance, quantile predictions are inspectable)
+- QRF is non-parametric and proven for distributional imputation in the Enhanced CPS
+- QRF may perform better with smaller training data (PSID has ~10,000 families vs. millions for typical deep learning)
+- The proof of concept will compare both on held-out PSID data; if PSID sample size is limiting, QRF may still win despite ZI-QDNN's architectural advantages
+
+**Normalizing flows** (also evaluated): Conditional MAF can learn full joint distributions across multiple target variables simultaneously, which could enable imputing 5–10 years of earnings jointly rather than one year at a time. This may improve correlation structure across years at the cost of training complexity.
 
 **Training Data**: PSID (1968-present)
 
@@ -248,10 +274,12 @@ Social Security spousal and survivor benefits require accurate marital history m
 - Simulate transitions year-by-year
 - Match to marital status distribution at each age (calibration target)
 
-**Spousal Matching**:
-- When marriage occurs, match to appropriate spouse
-- Use assortative mating patterns from CPS and PSID
-- Match on age, education, earnings (with realistic noise)
+**Spousal Matching** (per Sabelhaus feedback, this deserves more methodological detail):
+- When marriage occurs, match to appropriate spouse using a distance-based matching algorithm on age, education, and earnings
+- Incorporate assortative mating patterns from CPS married couples and PSID marital transitions
+- Preserve spousal earnings correlation (which drives household Social Security wealth)
+- Consider a hierarchical synthesis approach: generate household structures top-down (household composition first, then person-level attributes conditional on household type), which naturally preserves realistic family structure and avoids impossible combinations
+- Validate matched couple characteristics against CPS distributions of age gaps, educational homogamy, and dual-earner patterns
 
 ### Fertility
 
@@ -265,13 +293,22 @@ Children affect earnings (especially for women) and dependency benefits.
 
 ### Disability
 
-SSDI is a major component of Social Security spending.
+SSDI is a major component of Social Security spending (~$150B annually, 8.5 million beneficiaries).
 
 **Approach**:
-- Estimate disability onset hazard from PSID and HRS
+- Estimate disability onset hazard calibrated to SSA DI incidence rates, which range from ~0.2% at age 25 to ~1.5% at age 60, with higher rates for men than women
 - Predictors: age, sex, occupation, prior earnings, health status
-- Recovery rates (low but non-zero)
-- Match to SSA disability incidence and prevalence rates
+- Recovery rates declining with disability duration: approximately 10% in year 1, 5% in year 2, declining to ~3% for longer durations, calibrated to SSA DI termination data
+- Age effects on recovery (younger workers more likely to recover)
+- Match to SSA disability incidence, prevalence, and termination rates by age and sex
+
+**Additional nuance** (per Sabelhaus and Fichtner feedback):
+- Model pre-disability earnings decline (3–5 years of declining earnings before formal SSDI receipt, well-documented in literature)
+- Distinguish between disability onset and SSDI award (not all disabled workers receive benefits—application and award rates vary by age and severity)
+- Model interaction between disability and early retirement claiming (some disabled workers claim retirement benefits at 62 rather than applying for SSDI)
+- Track the 24-month waiting period before Medicare eligibility for SSDI recipients
+
+These refinements are important for policy analysis of disability-related reforms and their interaction with retirement benefit claiming.
 
 ### Mortality
 
@@ -279,12 +316,19 @@ Accurate mortality modeling is essential for:
 - Survivor benefits
 - Lifetime benefit calculations
 - Long-run projections
+- Distributional analysis (differential mortality by income creates regressive lifetime benefit patterns)
 
 **Approach**:
-- Use SSA cohort life tables as base
-- Adjust for differential mortality by earnings/education (well-documented in literature)
-- Implement mortality improvements over time per SSA assumptions
-- Validate against population counts by age
+- Use SSA period life tables as base, providing age-sex-specific mortality probabilities (qx values) for ages 0–119
+- Adjust for differential mortality by earnings quintile and education, drawing on Opportunity Insights life expectancy data showing that the top 1% of earners live ~15 years longer than the bottom 1%
+- Implement mortality improvements over time per SSA Trustees intermediate assumptions
+- Validate against population counts by age and overall life expectancy
+
+**Policy importance** (per Sabelhaus feedback):
+Life expectancy gaps between high and low earners have widened substantially in recent decades. This means higher earners receive benefits over more years, generating higher lifetime returns despite the progressive benefit formula. This differential mortality effect is critical for evaluating:
+- Retirement age increases (disproportionately affect shorter-lived lower-income workers)
+- Lifetime progressivity of the system (may be less progressive than the benefit formula suggests)
+- Racial equity (Black men have lower life expectancy → fewer years of benefits)
 
 ## Phase 4: Forward Projection
 
@@ -406,20 +450,27 @@ calibrated_weights = calibrator.fit(
 panel["calibrated_weight"] = calibrated_weights
 ```
 
-### L0 Regularization for Sample Selection
+### Alternative and complementary calibration methods
 
-Optional extension: Instead of reweighting, select subset of observations with 0/1 weights.
+Beyond gradient descent, several additional calibration approaches may prove useful for different aspects of the longitudinal calibration problem:
 
-**Motivation**:
-- Computational efficiency (smaller dataset)
-- Interpretability (which observations most informative)
+**Iterative Proportional Fitting (IPF/raking)**: Well-established method for matching categorical marginal distributions. May be useful for demographic calibration (age-sex-education distributions) where targets are expressed as cell counts.
+
+**Entropy balancing**: Minimizes entropy distance from original weights while exactly matching moment conditions. Produces smoother weight distributions than unconstrained gradient descent and has strong theoretical properties.
+
+**Sparse L0/L1 reweighting**: Instead of adjusting all weights continuously, select a representative subset of observations using L0 regularization.
+
+**Motivation for sparse methods**:
+- Computational efficiency (smaller dataset for web deployment)
+- Interpretability (which observations are most informative)
+- Avoids extreme weight adjustments that can degrade distributional properties
 
 **Method**:
-- L0 regularization via gradient descent
+- L0 regularization via gradient descent or iterative reweighted L1
 - Selects subset that best matches all targets
-- Can combine with continuous reweighting
+- Can combine with continuous reweighting (sparse selection first, then fine-tune)
 
-See PolicyEngine's L0 package for implementation details.
+The proof of concept will evaluate which calibration methods perform best for cross-sectional targets (where gradient descent is proven) versus longitudinal targets (where the loss surface may be more complex and alternative methods could improve convergence).
 
 ### Multi-Year Calibration
 
@@ -588,85 +639,7 @@ Comprehensive validation at multiple levels:
 - Compare to CBO cost estimates where available
 - Compare to academic studies using MINT
 
-## Why This Approach Will Work: The Enhanced CPS Precedent
-
-A natural skepticism arises: can fully synthetic data really match the quality of administrative records? PolicyEngine has already answered this question affirmatively through cross-sectional analysis.
-
-### The Enhanced CPS Achievement
-
-PolicyEngine's Enhanced CPS (ECPS) is the only publicly available microdata file that produces accurate tax-benefit microsimulation results {cite:p}`ghenis2024`. This achievement directly validates the synthetic data approach we propose to extend to longitudinal analysis.
-
-**The Challenge in Cross-Sectional Modeling**:
-All major tax models including Tax Policy Center, Penn Wharton Budget Model, and Tax Foundation rely on the IRS Public Use File. The PUF cannot be publicly shared due to privacy restrictions, creating a reproducibility crisis where researchers cannot verify others' results or independently analyze tax policy proposals.
-
-**Our Solution**:
-PolicyEngine developed the Enhanced CPS through a rigorous two-stage methodology. Stage 1 uses quantile regression forests to impute missing or underreported variables from multiple public data sources (PUF via privacy-safe methods, SIPP, SCF, ACS) onto the CPS base. The CPS is cloned to create two copies: one filling missing variables and one replacing existing variables with more accurate imputed values. These copies are concatenated to create the Extended CPS with doubled sample size. Stage 2 applies gradient descent optimization to reweight the Extended CPS, matching over 7,000 administrative targets from IRS Statistics of Income, Census, CBO, and other sources. The optimization uses PyTorch with Adam optimizer, dropout regularization, and log-transformed weights to ensure positivity.
-
-**Validation Results**:
-Revenue estimates match Joint Committee on Taxation estimates for major tax reforms. Distributional analysis matches Tax Policy Center's published tables across income deciles. Individual-level calculations validate against actual tax returns where available. Congressional offices use PolicyEngine for actual policy analysis, demonstrating real-world credibility and accuracy. The proof is clear: synthetic data combined with modern machine learning and calibration to thousands of targets produces accuracy comparable to administrative data.
-
-**The Technical Parallel**:
-The ECPS methodology directly informs this project. Both employ quantile regression forests for distributional imputation, gradient descent optimization for multi-target calibration, validation against administrative aggregates, and full public reproducibility. The ECPS imputes cross-sectional income detail; this project will impute longitudinal earnings histories. The ECPS calibrates to 7,000+ IRS and Census targets; this project will calibrate to SSA and Census targets. The technical challenges are analogous, and we have already solved them for the cross-sectional case.
-
-### Direct Parallel to This Project
-
-| Dimension | Enhanced CPS (Proven) | This Project |
-|-----------|----------------------|--------------|
-| **Data dimension** | Cross-sectional (income) | Longitudinal (earnings history) |
-| **Restricted gold standard** | IRS PUF | SSA earnings records |
-| **Public data source** | CPS | CPS + PSID |
-| **ML imputation** | microimpute | QRF (enhanced microimpute) |
-| **Calibration** | microcalibrate (gradient descent) | microcalibrate (gradient descent) |
-| **Validation targets** | IRS Statistics of Income | SSA statistics |
-| **Status** | ✓ Validated, in production | Proposed |
-
-**Key insight**: This is not an untested approach. We're extending a proven methodology from one dimension (current income) to another (lifetime earnings).
-
-### Risk Mitigation
-
-**ECPS development** (2+ years) taught us:
-- Which ML methods work for survey imputation
-- How to calibrate to hundreds of targets simultaneously
-- Validation strategies that build credibility
-- Common pitfalls and how to avoid them
-
-**Advantages for this project**:
-- Tools already built and tested (microimpute, microcalibrate)
-- Team experienced in this exact methodology
-- Credibility from ECPS success reduces skepticism
-- Know what validation evidence is needed
-
-**The harder problem**: Longitudinal imputation is actually somewhat easier than ECPS cross-sectional imputation:
-- PSID has true panel structure (gold standard for training)
-- Earnings dynamics well-studied in economics literature
-- Strong age-earnings patterns provide structure
-- Can validate against published PSID mobility matrices
-
-In contrast, ECPS had to impute hundreds of detailed income components with complex interactions, all in a single year. Lifetime earnings trajectories have cleaner structure and better training data.
-
-### What Could Go Wrong?
-
-**Potential failure modes** (and why they're unlikely):
-
-1. **"QRF imputation produces unrealistic earnings histories"**
-   - Mitigation: Validate against PSID hold-out sample before applying to CPS
-   - Precedent: ECPS imputation validated extensively before production use
-
-2. **"Calibration can't match all targets simultaneously"**
-   - Mitigation: ECPS already handles 100+ simultaneous targets
-   - Tool: microcalibrate proven on harder problem (cross-sectional detail)
-
-3. **"Synthetic panel too different from MINT/DynaSim"**
-   - Mitigation: Extensive validation against published results
-   - Note: MINT/DynaSim also synthetic for younger cohorts
-
-4. **"Computational burden too high"**
-   - Mitigation: Pre-generate panel once, reuse for many policies
-   - ECPS generation ~8 hours; similar expected here
-
-**Success probability**: Given ECPS precedent, strong team, and proven tools, success is highly likely.
-
-## Summary: Methodological Innovation
+## Summary
 
 Our approach advances the state of practice by:
 
