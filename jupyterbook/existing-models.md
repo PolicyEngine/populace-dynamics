@@ -215,7 +215,7 @@ CBOLT's representative agent framework offers computational efficiency and ensur
 
 ### Our Approach: Fully Synthetic Panel
 
-Our proposed methodology begins with a public cross-sectional survey dataset (base dataset to be determined during proof of concept phase). The approach is fully synthetic, requiring no administrative data matching, which ensures complete public replicability. We employ quantile regression forests (QRF) to predict the full conditional distribution of earnings at each age, extending MINT's quantile regression innovation with modern machine learning methods {cite:p}`meinshausen2006`. Training uses PSID longitudinal data from public use files, allowing anyone to replicate the methodology. The process generates complete lifetime earnings histories for the entire sample. Demographic transitions use hazard models estimated on PSID, similar to MINT and DynaSim.
+Our proposed methodology begins with PolicyEngine's Enhanced CPS, a public cross-sectional dataset that has already been imputed and calibrated to ~2,800 administrative targets. The approach is fully synthetic, requiring no administrative data matching, which ensures complete public replicability. We employ quantile regression forests (QRF) to predict the full conditional distribution of earnings at each age, extending MINT's quantile regression innovation with modern machine learning methods {cite:p}`meinshausen2006`. Training uses PSID longitudinal data from public use files, allowing anyone to replicate the methodology. The process generates complete lifetime earnings histories for the entire sample. Demographic transitions use hazard models estimated on PSID, similar to MINT and DynaSim.
 
 The calibration methodology employs gradient descent reweighting, an optimization-based approach that minimizes distance from original survey weights subject to matching all target variables including earnings distributions and beneficiary counts {cite:p}`deville1992`. This method can handle hundreds or thousands of simultaneous targets, as demonstrated in the Enhanced CPS construction {cite:p}`ghenis2024`. The approach is mathematically principled, ensuring the solution minimizes a well-defined objective function, and computationally efficient, converging rapidly even with large datasets and many targets.
 
@@ -223,10 +223,10 @@ The calibration methodology employs gradient descent reweighting, an optimizatio
 
 | Aspect | DynaSim | MINT | CBOLT | Our Model |
 |--------|---------|------|-------|-----------|
-| **Base Data** | SIPP | SIPP+Admin | Rep. Agents | TBD (Public Survey) |
-| **Sample Size** | ~50k | ~50k | ~100s | TBD |
+| **Base Data** | SIPP | SIPP+Admin | Rep. Agents | Enhanced CPS |
+| **Sample Size** | ~50k | ~50k | ~100s | ~200k |
 | **Panel Type** | Semi-synthetic | Real+Projected | Stylized | Fully Synthetic |
-| **Earnings History** | Regression | Admin+Projection | Aggregate | QRF Imputation |
+| **Earnings History** | Regression | Admin+Projection | Aggregate | ZI-QDNN/QRF Imputation |
 | **Training Data** | SIPP panels | Admin data | Macro data | PSID |
 | **Calibration** | Alignment | Less needed | Aggregate | Gradient descent |
 | **Public Replicability** | No | No | No | **Yes** |
@@ -254,19 +254,11 @@ The choice between real/matched data (MINT), semi-synthetic (DynaSim), and fully
 - Imputation uncertainty (though we quantify via multiple imputation)
 - Requires careful validation since everything is synthetic
 
-**Our position**: We sacrifice MINT's administrative data advantage (which isn't publicly accessible anyway) to gain full transparency and reproducibility while maintaining comparable or superior methodology to DynaSim.
+**Our position**: We sacrifice MINT's administrative data advantage (which isn't publicly accessible anyway) to gain full transparency and reproducibility.
 
-### The Enhanced CPS Precedent: Validation of the Synthetic Data Approach
+### Precedent: Enhanced CPS
 
-PolicyEngine has already demonstrated that this methodological approach works for cross-sectional analysis. The same reproducibility challenge exists in tax-benefit microsimulation: all major models including Tax Policy Center, Penn Wharton Budget Model, and Tax Foundation rely on the IRS Public Use File (PUF), which cannot be publicly shared due to privacy restrictions. This creates a fundamental reproducibility crisis in tax policy research.
-
-PolicyEngine addressed this crisis by developing the Enhanced CPS (ECPS), which is the only publicly available cross-sectional microdata file that produces accurate tax-benefit microsimulation impacts {cite:p}`ghenis2024`. The ECPS construction employs a two-stage methodology. First, quantile regression forests impute missing or underreported variables from the PUF onto the CPS base, creating the Extended CPS with doubled sample size. Second, gradient descent optimization reweights the dataset to match over 7,000 administrative targets from IRS Statistics of Income, Census, and other sources. This approach achieves accuracy comparable or superior to PUF-based models while maintaining full reproducibility and transparency.
-
-Validation demonstrates the effectiveness of this approach. PolicyEngine-US revenue estimates match Joint Committee on Taxation and Treasury estimates for major tax reforms. Distributional analysis matches Tax Policy Center's published tables. Individual-level calculations validate against actual tax returns where available. Congressional offices use PolicyEngine for actual policy analysis, demonstrating real-world credibility.
-
-The parallel to this project is direct. In cross-sectional tax modeling, the gold standard restricted data is the IRS PUF, the common approach uses the PUF but cannot share results publicly, and our ECPS approach combines CPS, machine learning imputation, and calibration to achieve accurate and reproducible results. In longitudinal Social Security modeling, the gold standard restricted data is SSA earnings records, the common approach uses administrative data but cannot share results publicly, and our synthetic panel approach will combine CPS, QRF imputation from PSID, and calibration to achieve accurate and reproducible results.
-
-The ECPS development required over two years of intensive development and validation. This investment produced proven machine learning imputation methods implemented in microimpute, proven calibration methods implemented in microcalibrate, a validated framework for assessing accuracy against administrative targets, and credibility from accurate cross-sectional results that match or exceed proprietary models. This project applies those same tools to the longitudinal dimension, significantly reducing methodological risk. The infrastructure exists, the methods are proven, and the team has experience executing this exact type of project.
+PolicyEngine's Enhanced CPS demonstrates this synthetic data approach works for cross-sectional analysis {cite:p}`ghenis2024`. The ECPS uses QRF imputation and gradient descent calibration to ~2,800 administrative targets, producing results comparable to PUF-based models. This project applies the same tools (microimpute, microcalibrate) to longitudinal earnings histories.
 
 ## Comparison Summary
 
@@ -282,7 +274,7 @@ The ECPS development required over two years of intensive development and valida
 | **Individual Detail** | High | High | Medium | Medium | Medium | **High** |
 | **Customization** | Low | Low | None | Low | High | **High** |
 | **Cost** | High | Free* | N/A | Free | **Free** | **Free** |
-| **Sample Size** | ~50k | ~50k | ~100s | ~50k | ~10k | **TBD** |
+| **Sample Size** | ~50k | ~50k | ~100s | ~50k | ~10k | **~200k** |
 | **Language** | Various | SAS | Internal | Various | R | **Python** |
 
 *MINT restricted datasets available to approved researchers

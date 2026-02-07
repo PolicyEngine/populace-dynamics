@@ -221,6 +221,25 @@ For longitudinal projections, we calibrate at multiple time points:
 
 **Annual Re-Calibration**: For near-term projections (10 years)
 
+### Retirement claiming behavior targets
+
+**Claiming Age Distribution** (per Sabelhaus feedback):
+From SSA administrative data:
+- Share claiming at age 62, 63, 64, Full Retirement Age, and 70
+- Claiming patterns by AIME quintile (higher earners delay more)
+- Spouse vs. own benefit claiming patterns
+- Disability-to-retirement conversions at FRA
+- Source: SSA Annual Statistical Supplement, Trustees Reports
+- Priority: **High** (essential for validating behavioral assumptions and reform analysis)
+
+**Lifetime Benefit Distribution Targets**:
+From published MINT analyses:
+- Distribution of lifetime Social Security benefits by birth cohort
+- Lifetime benefits as share of lifetime earnings (replacement rates) by quintile
+- Internal rates of return on Social Security contributions by demographic group
+- Source: SSA MINT published analyses, academic studies
+- Priority: **Medium** (validation of full lifecycle simulation)
+
 ### Validation Against Non-Target Variables
 
 We reserve some variables as validation checks (not calibration targets):
@@ -230,17 +249,19 @@ We reserve some variables as validation checks (not calibration targets):
 - Poverty rates (official and Supplemental Poverty Measure)
 - Income inequality measures (Gini, percentile ratios)
 - Replacement rates by lifetime earnings quintile
+- Family structure outcomes (share receiving spouse vs. own benefits, widow(er) beneficiaries)
 
 **Why validation, not calibration?** Survey-based measures like poverty rates suffer from income underreporting—the very problem our methodology corrects. Calibrating to flawed poverty estimates would embed those errors. Instead, we calibrate to administrative data (SSA, IRS) and then *check* whether our corrected income distributions produce more accurate poverty estimates than raw surveys.
 
-**Survey of Consumer Finances (SCF) Wealth Validation:**
+**Survey of Consumer Finances (SCF) Wealth Validation** (per Sabelhaus feedback):
 The SCF provides the gold standard for U.S. household wealth data. We validate that our synthetic panel produces realistic:
-- Net worth distributions by age and lifetime earnings
-- Retirement account balances (401(k), IRA)
-- Housing wealth and homeownership rates
-- Pension coverage (DB and DC)
+- Net worth distributions by age and lifetime earnings quintile
+- Financial asset holdings by age group ($0-$10k, $10k-$50k, $50k-$250k, $250k+)
+- Retirement account balances (401(k), IRA) by age and income
+- Housing wealth and homeownership rates by age and income
+- Pension coverage (DB and DC) by age and employer type
 
-Wealth affects Social Security claiming behavior (wealthier households can afford to delay) and retirement adequacy. While we don't calibrate to SCF targets, validating against them ensures comprehensive retirement security analysis.
+Wealth affects Social Security claiming behavior (wealthier households can afford to delay) and retirement adequacy. While we don't calibrate to SCF targets in the initial model, validating against them ensures comprehensive retirement security analysis and positions the model for future wealth integration.
 
 ## Data Sources for Targets
 

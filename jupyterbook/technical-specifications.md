@@ -88,9 +88,9 @@ The incremental approach allows starting with a validated basic model and adding
 
 Much policy analysis involving dynamic microsimulation begins with a macro model, usually an Overlapping Generations (OLG) framework, with highly simplified budget constraints solved under assumptions of consistent agent expectations and asymptotic elimination of government debt. The micro processes, particularly individual earnings distributions, are then calibrated to match the macro processes from the OLG model.
 
-### Limitations of the OLG Approach
+### Limitations of the OLG approach for this project
 
-OLG models represent sophisticated mental exercises but have little proven predictive capability. According to OLG logic, the U.S. economy should have collapsed under rising government debt long ago, yet this has not occurred. The assumptions required to generate tractable solutions, including infinite horizons, representative agents within cohorts, and perfect foresight of policy changes, are far from realistic. The calibration of micro models to OLG macro outcomes may introduce biases and unrealistic constraints on distributional analysis.
+OLG models provide internally consistent frameworks for analyzing intertemporal policy trade-offs, and PWBM and other groups have demonstrated their value for fiscal analysis. However, for our distributional microsimulation goals, OLG frameworks involve trade-offs. The assumptions required for tractable solutions—representative agents within cohorts, perfect foresight, and equilibrium convergence—limit the heterogeneity that microsimulation is designed to capture. Calibrating micro processes to match OLG macro outcomes may constrain the distributional detail that is our primary value-add relative to existing models.
 
 ### Alternative Approaches
 
@@ -102,8 +102,99 @@ The most direct approach starts by following the money through the fiscal system
 
 This approach aligns with PolicyEngine's existing strength in detailed tax and transfer modeling while avoiding contentious assumptions about long-run macroeconomic equilibria.
 
+## Output dataset structure
+
+The synthetic longitudinal panel should be organized as a relational dataset with four linked tables. This structure captures all data elements required for benefit calculation across all beneficiary types, maintains family relationships for auxiliary and survivor benefits, and supports both current-year and forward-projection analysis.
+
+### Table overview
+
+| Table | Grain | Key field(s) | Est. rows (200K sample) |
+|-------|-------|-------------|------------------------|
+| **PERSON** | One per individual | `person_id` | 200,000 |
+| **EARNINGS** | One per person-year | `(person_id, year)` | 4,000,000+ |
+| **RELATIONSHIP** | One per relationship | `relationship_id` | 600,000–1,000,000 |
+| **EVENT** | One per event | `event_id` | 400,000–800,000 |
+
+All tables link via `person_id`. Relationships link `person_id` to `related_person_id`.
+
+### PERSON table (individual demographics)
+
+One row per individual, capturing status as of the base year (December 31, 2025):
+
+**Core demographics**: `person_id`, `sample_weight`, `date_of_birth`, `sex`, `race_ethnicity`, `education`, `state_of_residence`
+
+**Vital status**: `vital_status` (alive/deceased), `date_of_death`
+
+**Disability**: `disability_status`, `disability_onset_date`, `disabled_before_22` (for adult disabled child benefits), `current_disability`
+
+**Work history summary**: `total_qc_earned` (quarters of coverage), `fully_insured`, `disability_insured`, `first_year_earnings`, `last_year_earnings`
+
+**Current benefit status**: `receiving_benefits`, `benefit_type` (RET/DIS/SPO/WID/YWI/DWI/CHI/PAR/DIV), `benefit_start_date`, `monthly_benefit_amount`
+
+### EARNINGS table (annual earnings history)
+
+One row per person-year of work, providing the complete earnings history needed for AIME calculation:
+
+**Core fields**: `person_id`, `year`, `covered_earnings` (capped at taxable maximum), `medicare_earnings` (uncapped)
+
+**Employment detail**: `employment_type` (wage/self-employed/government), `qc_earned_year` (0–4)
+
+**Indexing**: `indexed_earnings` (computed: earnings indexed to age 60 using AWI), `awi_year` (National Average Wage Index for the year)
+
+Years with zero earnings have no row (absence implies zero). This keeps the table compact and makes work history gaps visible.
+
+### RELATIONSHIP table (family network)
+
+One row per relationship, capturing all family linkages needed for auxiliary and survivor benefits:
+
+**Core fields**: `relationship_id`, `person_id`, `related_person_id`, `relationship_type` (SPO/DIV/CHI/PAR)
+
+**Marriage detail**: `relationship_start`, `relationship_end`, `end_reason` (divorce/death), `marriage_duration_months` (for the 10-year rule governing divorced spouse benefits), `marriage_number`
+
+**Other**: `biological_relationship` (biological/adopted/step), `dependency_status` (for parent benefits)
+
+Each marriage has two rows (one per spouse). Parent-child relationships have `person_id` as parent, `related_person_id` as child.
+
+### EVENT table (time-varying events)
+
+One row per life event affecting benefit eligibility:
+
+**Core fields**: `event_id`, `person_id`, `event_type` (DTH/DIS/CLM/RMR/FRA/SUS/RSM), `event_date`, `age_at_event`
+
+**Benefit events**: `benefit_type_claimed`, `event_value` (benefit amount), `related_person_id` (for survivor claims)
+
+### Computed variables for benefit calculation
+
+Derived from the base tables for each individual:
+
+**Earnings-based**: `aime`, `pia_base`, `pia_with_cola`, `highest_35_years_sum`, `years_covered_work`, `years_zero_earnings`
+
+**Eligibility**: `full_retirement_age`, `eligible_retirement`, `eligible_disability`, `eligible_survivor`
+
+**Family-based** (require joining through RELATIONSHIP): `spouse_pia`, `ex_spouse_pia`, `deceased_spouse_pia`, `spousal_benefit_amt`, `survivor_benefit_amt`, `family_maximum`, `dual_entitlement_amt`
+
+### Mapping to PolicyEngine-US variables
+
+The 4-table structure maps to PolicyEngine's entity hierarchy:
+
+| Dataset table | PolicyEngine entity | Key variables |
+|--------------|-------------------|---------------|
+| PERSON | `person` | Demographics, disability, benefit status |
+| EARNINGS | `person` (time-series) | `employment_income`, `self_employment_income` |
+| RELATIONSHIP | `tax_unit`, `spm_unit`, `family`, `household` | Family structure, filing status |
+| EVENT | `person` (time-series) | Claiming decisions, disability onset |
+
+For PolicyEngine integration, the 4-table structure will be flattened into the entity-based format that PolicyEngine-Core expects, with earnings histories stored as person-level arrays and family relationships encoded through entity membership. The benefit calculations themselves (AIME, PIA, spousal benefits, family maximum) then run through PolicyEngine-US's existing Social Security implementation.
+
+### Implementation priority
+
+1. **PERSON + EARNINGS** tables first (sufficient for retired worker benefits—the largest beneficiary category)
+2. **RELATIONSHIP** table next (enables spousal, survivor, and child benefits)
+3. **EVENT** table last (enables detailed longitudinal analysis and projection)
+4. **Computed variables** derived as needed for validation and PolicyEngine integration
+
 ## Summary
 
-The technical specifications outlined here provide a roadmap for model development. We start with clearly defined variables and transition equations needed for Social Security analysis. Historical simulation creates and validates the base longitudinal file. Forward projections incorporate calibration to address the jump-off problem. Behavioral responses, even if simple, ensure realism. Incremental capabilities allow starting with core Social Security analysis and expanding over time. The approach to micro-macro interactions emphasizes following fiscal flows rather than imposing questionable OLG structure.
+The technical specifications outlined here provide a roadmap for model development. We start with clearly defined variables and transition equations needed for Social Security analysis. Historical simulation creates and validates the base longitudinal file. Forward projections incorporate calibration to address the jump-off problem. Behavioral responses, even if simple, ensure realism. Incremental capabilities allow starting with core Social Security analysis and expanding over time. The approach to micro-macro interactions emphasizes following fiscal flows rather than imposing questionable OLG structure. The output dataset structure provides a concrete specification for the synthetic panel, organized to support all benefit types through linked relational tables.
 
 These specifications, developed through decades of experience with dynamic microsimulation, provide a sound foundation for building an open-source model that serves both research and policy analysis needs.

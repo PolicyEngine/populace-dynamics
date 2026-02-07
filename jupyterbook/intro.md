@@ -33,7 +33,7 @@ PolicyEngine-US already implements Social Security rules (OASI, SSDI), SSI, SNAP
 | **microimpute** | ✓ Exists | QRF imputation library |
 | **microcalibrate** | ✓ Exists | Gradient descent reweighting |
 | **PolicyEngine-US** | ✓ Exists | Benefit rules for SS, SSI, SNAP, Medicaid, taxes |
-| **Earnings histories** | **New** | QRF trained on PSID to impute 35-year trajectories |
+| **Earnings histories** | **New** | ZI-QDNN/QRF trained on PSID to impute 35-year trajectories |
 
 ### Data Sources (All Public)
 
@@ -43,9 +43,21 @@ PolicyEngine-US already implements Social Security rules (OASI, SSDI), SSI, SNAP
 
 Once earnings histories are attached to the ECPS population, benefit calculations across all programs run through the existing PolicyEngine-US rules engine—including interactions between Social Security and means-tested programs.
 
-## Intended Use Cases
+## Key policy questions this model will answer
 
-The model would support analysis of benefit formula changes, retirement age adjustments, tax base modifications, means-testing proposals, and progressive indexing. Users could examine distributional effects by income, age, race, and gender. Access via web interface and Python API; open-source code enables independent verification.
+The model would support analysis of Social Security reforms that are actively debated but difficult to evaluate without dynamic microsimulation:
+
+**Raising the retirement age**: Proposals to increase the Full Retirement Age to 68 or 70 disproportionately affect workers with shorter life expectancy—lower-income workers, those in physically demanding jobs, and Black men. This model can quantify lifetime benefit losses by demographic group, lifetime earnings quintile, and occupation, revealing distributional effects that aggregate models miss.
+
+**Progressive benefit formula changes**: Progressive indexing proposals would reduce benefits for higher earners while maintaining them for lower earners, but implementation requires defining "higher earners" based on lifetime earnings. This model can simulate exact distributional effects across the entire lifetime earnings distribution under different threshold and indexing formula definitions.
+
+**Payroll tax base changes**: Proposals to raise or eliminate the taxable maximum ($168,600 in 2024) affect high earners disproportionately. The model can show effects on both revenue and future benefit entitlements, including interactions with benefit taxation thresholds.
+
+**Effects on women and families**: Social Security spousal and survivor benefits create complex incentives. This model provides individual-level analysis of how benefit rules affect lifetime benefits for divorced women, widows, and single mothers—populations often underserved by existing aggregate models.
+
+**Racial equity analysis**: Differential mortality creates racial disparities in lifetime Social Security returns. Black men have lower life expectancy, receiving benefits over fewer years despite paying taxes at the same rate. This model can quantify these effects and simulate reforms to address them, such as adjusting benefit formulas or retirement ages to account for differential mortality.
+
+Users could examine distributional effects by income, age, race, and gender. Access via web interface and Python API; open-source code enables independent verification.
 
 ## Document Overview
 
