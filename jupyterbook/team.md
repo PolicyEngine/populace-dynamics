@@ -22,7 +22,7 @@ For this project, Ogorek would contribute expertise in quantile regression fores
 
 ### John Sabelhaus
 
-John Sabelhaus is a Senior Fellow at the Wisconsin Center for Financial Security. He previously served in senior research positions at the Federal Reserve Board and the Congressional Budget Office, where he was Chief of Long Term Modeling and oversaw development of integrated micro/macro models of Social Security and Medicare. His research focuses on retirement economics, household finance, and Social Security policy.
+John Sabelhaus is a Senior Fellow at the Brookings Institution, where he is affiliated with the Urban-Brookings Tax Policy Center and the Retirement Security Project. He is also an Adjunct Research Professor at the University of Michigan Institute for Social Research. He previously served as Assistant Director in the Division of Research and Statistics at the Federal Reserve Board, overseeing the Microeconomic Surveys and Household and Business Spending sections, and as Chief of Long-Term Modeling at the Congressional Budget Office, where he led development of integrated micro/macro models of Social Security and Medicare. He holds a PhD in Economics from the University of Maryland. His research focuses on retirement economics, household finance, wealth distribution, and Social Security policy.
 
 For this project, Sabelhaus would provide guidance on Social Security benefit rules and policy interpretation, validation of model assumptions against economic theory and empirical patterns, specification of appropriate calibration targets from SSA administrative data, and connections to the academic literature and policy community.
 
