@@ -76,7 +76,7 @@ jobs:
           BASE_URL: /social-security-model
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: jupyterbook/_build/html
 
