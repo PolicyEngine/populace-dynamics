@@ -4,7 +4,9 @@ Thank you for your interest in contributing to the open-source Social Security d
 
 ## Project Status
 
-This project is currently in the **planning and documentation phase**. Code implementation will begin in Phase 1 (see [Roadmap](jupyterbook/roadmap.md)).
+This project is currently in the **planning and documentation phase**.
+The main product right now is a clearer, more honest project plan with
+explicit validation gates and decision points.
 
 ## How to Contribute
 
@@ -14,12 +16,11 @@ The most valuable contributions right now are improvements to the planning docum
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b improve-docs`
-3. Make your changes to files in `jupyterbook/`
+3. Make your changes to files in `docs/`
 4. Build and preview locally:
    ```bash
-   cd jupyterbook
-   myst build --html
-   myst start
+   quarto render docs
+   quarto preview docs
    ```
 5. Submit a pull request
 
@@ -29,6 +30,10 @@ The most valuable contributions right now are improvements to the planning docum
 - **Citations**: Add relevant academic references to `references.bib`
 - **Data sources**: Suggest additional calibration targets or data sources
 - **Methodology**: Propose improvements to the technical approach
+- **Scope discipline**: Point out places where the plan overclaims,
+  understates risk, or blurs near-term and long-term deliverables
+- **Validation**: Suggest better targets, benchmarks, or stop/go
+  criteria
 - **Typo fixes**: Correct spelling, grammar, or formatting issues
 
 ### Future Code Contributions
@@ -45,8 +50,8 @@ Once implementation begins (Phase 1), we will welcome contributions to:
 
 ### Requirements
 
-- Python 3.10-3.13
-- Node.js 20+ (for MyST documentation)
+- Python 3.10-3.14
+- Quarto CLI 1.9+
 
 ### Installation
 
@@ -66,16 +71,16 @@ pre-commit install
 ### Building Documentation
 
 ```bash
-cd jupyterbook
-myst build --html   # Build HTML
-myst start          # Serve locally at localhost:3004
+quarto render docs    # Build HTML
+quarto preview docs   # Serve locally
 ```
 
 ## Code Style
 
 - **Python**: Black formatter with 79-character line length
 - **Markdown**: Follow existing document structure and formatting
-- **Citations**: Use MyST citation syntax: `{cite:p}\`key\``
+- **Citations**: Use Pandoc citation syntax, e.g. `[@key]` or
+  `[@key1; @key2]`
 
 ## Pull Request Process
 

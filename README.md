@@ -1,203 +1,193 @@
-# Social Security Dynamic Microsimulation Model
+# Open-Source Dynamic Microsimulation for Social Security
 
-**Building the first open-source, publicly available Social Security dynamic microsimulation model**
+This repository contains the planning documents for making `microplex`
+longitudinal and using it to build a public Social Security policy
+model. The goal is not to imitate government models superficially; it
+is to build a public, inspectable alternative that can answer serious
+policy questions with transparent methods, published validation, and
+free access.
 
-## Overview
+## Why This Project Exists
 
-This project develops a comprehensive dynamic microsimulation model for Social Security policy analysis, combining:
-- PolicyEngine's existing Social Security rules implementation
-- Machine learning-based synthetic panel construction
-- Quantile regression forests for earnings trajectory imputation
-- Gradient descent calibration to administrative targets
-- Full integration with PolicyEngine's web app and Python API
+Social Security policy analysis is dominated by models that are either
+internal to government or available only through contracts and
+specialized relationships. That creates three problems:
 
-This would be the first open-source Social Security model comparable to proprietary tools like DynaSim (Urban Institute) and CBOLT (Congressional Budget Office), democratizing access to sophisticated lifetime benefit analysis.
+1. Researchers and advocates cannot independently reproduce major
+   policy estimates.
+2. Small organizations are effectively priced out of serious dynamic
+   modeling.
+3. Public debate defaults to summaries of model output instead of open
+   inspection of assumptions, errors, and tradeoffs.
 
-**This approach is proven.** PolicyEngine's Enhanced CPS is the only publicly available microdata file that produces accurate tax-benefit microsimulation impacts, matching models that use restricted IRS data. This project extends that proven methodology from cross-sectional to longitudinal analysis.
+PolicyEngine already solved an analogous cross-sectional problem with
+the Enhanced CPS, and `microplex` generalizes that work into a broader
+synthetic population dataset and calibration platform. The next step is
+to make that population longitudinal. Social Security is the first
+serious proving ground because it forces the project to get lifetime
+earnings, family structure, disability, and claiming dynamics right.
 
-## Documentation
+## Project Principles
 
-Full planning documentation available as a Jupyter Book:
+- Public-data first: the full pipeline should be reproducible from
+  public or broadly accessible sources.
+- Validation before ambition: the project earns credibility only by
+  passing explicit validation gates, not by promising everything up
+  front.
+- Platform first, application second: the core population work belongs
+  in `microplex`; this repository is the first domain application and
+  validation layer on top of it.
+- Social Security first: the first application is Social Security, not a
+  universal lifecycle simulator.
+- Platform thinking: the architecture should preserve a path to
+  adjacent domains such as SSI interactions, retirement adequacy, and
+  eventually long-term care.
+- Honest scope: this project is a serious research and infrastructure
+  effort, not an 18-month substitute for SSA or CBO.
 
-```bash
-cd jupyterbook
-myst build --html
-myst start
-```
+## Decisions Already Made
 
-Or view chapters directly:
-- [Introduction](jupyterbook/intro.md) - Overview and significance
-- [Literature Review](jupyterbook/literature-review.md) - Academic foundations
-- [Existing Models](jupyterbook/existing-models.md) - Comparison to DynaSim, MINT, CBOLT
-- [Technical Specifications](jupyterbook/technical-specifications.md) - Variables, transitions, behavioral responses
-- [Data Sources](jupyterbook/data-sources.md) - CPS, PSID, SIPP, SSA data
-- [Calibration Targets](jupyterbook/calibration-targets.md) - Validation approach
-- [Methodology](jupyterbook/methodology.md) - Technical approach
-- [Infrastructure](jupyterbook/infrastructure.md) - Tools and architecture
-- [Team](jupyterbook/team.md) - Proposed team leadership
-- [Roadmap](jupyterbook/roadmap.md) - Development timeline
+- **Base population platform**: `microplex` is the population dataset
+  and synthesis platform, with its current public cross-sectional layer
+  grounded in Enhanced CPS-style construction and calibration.
+- **Initial focus**: extend `microplex` longitudinally just far enough
+  to support lifetime earnings, family structure, disability, claiming,
+  and benefit calculation for Social Security reform analysis.
+- **Validation standard**: success requires matching baseline Social
+  Security distributions and projections closely enough to support
+  exploratory policy analysis, while also validating the underlying
+  longitudinal population asset itself.
+- **Development model**: a stage-gated, approximately 36-month plan,
+  with go/no-go checkpoints after each major methodological hurdle.
 
-## Why This Will Work: The Enhanced CPS Precedent
+## What Success Looks Like
 
-The same challenge exists in cross-sectional tax modeling: all major models (Tax Policy Center, Penn Wharton, Tax Foundation) rely on the IRS Public Use File, which cannot be publicly shared.
+**Within 12 months**
+- A documented proof of concept extends `microplex` from a public
+  cross-sectional population into a credible longitudinal population
+  asset.
+- The model matches key baseline distributions closely enough to justify
+  continuation.
+- The repository contains a published validation report, not just a
+  methods narrative.
 
-PolicyEngine solved this with the **Enhanced CPS (eCPS)** - the only publicly available microdata producing accurate tax-benefit impacts:
-- CPS base + ML imputation + calibration
-- Matches Joint Committee on Taxation revenue estimates
-- Matches Tax Policy Center distributional tables
-- Fully transparent and reproducible
+**Within 24 months**
+- A validated longitudinal `microplex` can feed Social Security benefit
+  calculations.
+- Family, disability, and claiming logic are implemented well enough to
+  replicate published baseline distributions and selected reform
+  analyses.
+- External reviewers can inspect the full pipeline and reproduce core
+  results.
 
-This project applies the same proven methodology to longitudinal analysis:
-- **eCPS**: CPS + ML + calibration → accurate tax modeling ✓
-- **This project**: CPS + QRF + calibration → accurate Social Security modeling
+**Within 36 months**
+- A public API and web interface expose the model for exploratory
+  policy analysis.
+- The model supports a core set of reform packages, cohort analysis,
+  and distributional outputs.
+- The documentation clearly distinguishes what is production-ready,
+  what is experimental, and what remains out of scope.
 
-## Key Innovation
+## Documentation Map
 
-PolicyEngine-US already captures Social Security rules comprehensively. The main challenge is building a **synthetic longitudinal panel** with realistic:
-- Lifetime earnings trajectories (birth to retirement)
-- Demographic transitions (marriage, divorce, fertility, disability, mortality)
-- Cross-sectional accuracy (matches current population)
-- Longitudinal consistency (realistic earnings mobility)
-- Calibration to SSA projections
+The main planning documents are a Quarto book in [`docs/`](docs/):
 
-## Methodology Summary
+- [index.md](docs/index.md):
+  executive summary, scope, and core project decisions
+- [funder-summary.md](docs/funder-summary.md):
+  short funder-facing synthesis of the investment case
+- [policy-applications.md](docs/policy-applications.md):
+  the concrete policy questions and user needs the model should serve
+- [existing-models.md](docs/existing-models.md):
+  comparison to DynaSim, MINT, CBOLT, and other models
+- [benchmark-model-component-matrix.md](docs/benchmark-model-component-matrix.md):
+  component-by-component benchmark comparison
+- [data-sources.md](docs/data-sources.md):
+  survey, administrative, and policy-rule data inputs
+- [methodology.md](docs/methodology.md):
+  synthetic-panel construction and modeling approach
+- [operationalizing-longitudinal-construction.md](docs/operationalizing-longitudinal-construction.md):
+  concrete design for lifetime earnings and longitudinal state construction
+- [technical-specifications.md](docs/technical-specifications.md):
+  state variables, transitions, and extensions
+- [calibration-targets.md](docs/calibration-targets.md):
+  targets, validation strategy, and tolerances
+- [public-validation-inventory.md](docs/public-validation-inventory.md):
+  public benchmark sources for validation
+- [evaluation-and-model-selection.md](docs/evaluation-and-model-selection.md):
+  model-selection protocol and validation metrics
+- [operationalizing-disability-and-claiming.md](docs/operationalizing-disability-and-claiming.md):
+  SSDI pathways, claiming behavior, and timing logic
+- [operationalizing-family-and-auxiliary-benefits.md](docs/operationalizing-family-and-auxiliary-benefits.md):
+  family histories, spouse matching, and auxiliary-benefit logic
+- [operationalizing-mortality-and-projection-drift.md](docs/operationalizing-mortality-and-projection-drift.md):
+  mortality construction and projection drift controls
+- [infrastructure.md](docs/infrastructure.md):
+  how `microplex`, PolicyEngine, and supporting libraries fit together
+- [team.md](docs/team.md):
+  leadership, staffing needs, and review structure
+- [implementation-plan-and-budget-logic.md](docs/implementation-plan-and-budget-logic.md):
+  work packages, staffing logic, and the funding case for implementation
+- [roadmap.md](docs/roadmap.md):
+  stage-gated work plan across 36 months
+- [risks-and-stage-gates.md](docs/risks-and-stage-gates.md):
+  principal risks, stop/go criteria, and fallback deliverables
+- [literature-review.md](docs/literature-review.md):
+  academic foundations and model-design context
+- [appendix-dynasim.md](docs/appendix-dynasim.md):
+  source-heavy public dossier on what is and is not knowable about
+  DYNASIM
+- [appendix-colorado-ltc-rules-packet.md](docs/appendix-colorado-ltc-rules-packet.md):
+  first-pass source packet for a possible Colorado long-term-care pilot
 
-1. **Select Base Dataset**: Evaluate options (CPS ASEC, SIPP, or Enhanced CPS) for cross-sectional starting point
-2. **Impute Earnings Histories**: Quantile regression forests trained on PSID
-3. **Model Demographics**: Hazard models for transitions (marriage, disability, mortality)
-4. **Calibrate**: Gradient descent reweighting to match SSA targets
-5. **Project Forward**: Year-by-year aging with continued calibration
-6. **Calculate Benefits**: Leverage PolicyEngine-US's existing implementation
+## Current Status
 
-## Infrastructure
-
-Built on PolicyEngine's open-source tools:
-- **microimpute**: Machine learning imputation (quantile regression forests)
-- **microcalibrate**: Gradient descent calibration to targets
-- **PolicyEngine-US-Data**: Enhanced CPS construction pipeline
-- **PolicyEngine-Core**: Microsimulation engine with Social Security rules
-
-## Timeline
-
-**18 months** from start to public launch:
-- Months 1-3: Proof of concept
-- Months 4-6: Full earnings imputation
-- Months 7-9: Demographic transitions
-- Months 10-12: Benefit calculation and validation
-- Months 13-15: Forward projection and calibration
-- Months 16-18: Web interface and API deployment
-
-## Team
-
-- **Max Ghenis**: PolicyEngine founder, infrastructure and integration
-- **Ben Ogorek**: PhD Statistics, quantile regression and validation
-- **John Sabelhaus**: Former Fed economist, Social Security expert
-
-## Impact
-
-This model will enable:
-- **First** open-source dynamic Social Security microsimulation
-- Free public access via web interface
-- Python API for programmatic analysis
-- Full transparency and reproducibility
-- Individual-level distributional analysis
-- Lifetime benefit calculations across cohorts
-- Analysis of reforms (benefit formulas, retirement age, taxation, etc.)
-
-## Project Status
-
-**Current**: Planning and documentation phase
-
-This repository contains the planning documentation. Code development will begin in Phase 1.
+This repository is still a planning and documentation repository. There
+is no claim that a validated dynamic Social Security model exists yet.
+The immediate product is a stronger project plan for a longitudinal
+`microplex` and a cleaner validation strategy for its first policy
+application.
 
 ## Repository Structure
 
-```
+```text
 social-security-model/
-├── jupyterbook/           # Planning documentation (Jupyter Book)
-│   ├── intro.md
-│   ├── literature-review.md
-│   ├── existing-models.md
-│   ├── data-sources.md
-│   ├── calibration-targets.md
-│   ├── methodology.md
-│   ├── infrastructure.md
-│   ├── team.md
-│   ├── roadmap.md
-│   ├── references.bib
-│   └── myst.yml
-├── README.md              # This file
-└── pyproject.toml         # Python package configuration
+├── docs/                  # Quarto planning documentation
+├── reviews/               # Reviewer feedback used to strengthen the plan
+├── README.md
+└── pyproject.toml
 ```
 
-After Phase 1 begins, will add:
-```
-├── data/                  # Data preparation scripts
-├── imputation/           # Earnings history imputation
-├── calibration/          # Reweighting and calibration
-├── simulation/           # Projection and benefit calculation
-└── tests/                # Test suite
-```
+After implementation begins, the repository is expected to add code for
+Social Security-specific validation, rules integration, simulation,
+tests, and public-facing interfaces. The more generic population-layer
+work should live in `microplex` or its related packages.
 
 ## Building the Documentation
 
-Requires Python 3.13 and MyST:
-
 ```bash
-# Install dependencies
-pip install -e ".[dev]"
-
-# Build Jupyter Book
-cd jupyterbook
-myst build --html
-
-# Start local server
-myst start
+quarto render docs
+quarto preview docs
 ```
 
-View at http://localhost:3004
+Python developer tooling can be installed separately with
+`pip install -e ".[dev]"`. Quarto itself is provided by the Quarto CLI,
+not by the Python package metadata.
 
 ## Related Projects
 
-### PolicyEngine Infrastructure
-- [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us) - US tax-benefit microsimulation
-- [PolicyEngine-US-Data](https://github.com/PolicyEngine/policyengine-us-data) - Enhanced CPS
-- [microimpute](https://github.com/PolicyEngine/microimpute) - ML imputation
-- [microcalibrate](https://github.com/PolicyEngine/microcalibrate) - Survey calibration
-- [L0](https://github.com/PolicyEngine/L0) - Sparse reweighting
-
-### Other Open-Source Social Security Models
-- [Cato Institute Social Security Model](https://github.com/kchanwong/social_security_cato_model) - R-based microsimulation using inverse transform sampling methodology
-
-## Citation
-
-If you use this model or methodology, please cite:
-
-```bibtex
-@misc{policyengine_ss_model,
-  title={Open-Source Social Security Dynamic Microsimulation Model},
-  author={Ghenis, Max and Ogorek, Ben and Sabelhaus, John},
-  year={2025},
-  publisher={PolicyEngine},
-  url={https://github.com/PolicyEngine/social-security-model}
-}
-```
-
-## License
-
-MIT License - See LICENSE file
+- [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us)
+- [PolicyEngine-US-Data](https://github.com/PolicyEngine/policyengine-us-data)
+- [microplex](https://github.com/CosilicoAI/microplex)
+- [microimpute](https://github.com/PolicyEngine/microimpute)
+- [microcalibrate](https://github.com/PolicyEngine/microcalibrate)
+- [Cato social_security_cato_model](https://github.com/kchanwong/social_security_cato_model)
 
 ## Contact
 
 - Max Ghenis: max@policyengine.org
 - PolicyEngine: https://policyengine.org
-- GitHub Issues: For questions and discussion
 
-## Acknowledgments
+## License
 
-This project builds on:
-- PolicyEngine's open-source infrastructure
-- Academic literature on dynamic microsimulation
-- SSA's public data and documentation
-- PSID and CPS for panel and cross-sectional data
-- Open-source machine learning and statistical tools
+MIT License.

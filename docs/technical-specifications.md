@@ -1,10 +1,20 @@
 # Technical Specifications
 
-This chapter provides detailed technical specifications for the dynamic microsimulation model, drawing on established practices in the field and specific requirements for Social Security analysis.
+This chapter provides technical specifications for longitudinal
+`microplex` and for the Social Security application layer that will sit
+on top of it. The relevant build is not a standalone Social
+Security-only dataset. It is a reusable longitudinal population asset
+plus a policy-analysis layer.
 
 ## Required Variables and Transition Equations
 
-Dynamic microsimulation models begin with a longitudinal sample of the population and age that sample forward through time using stochastic demographic and economic transition equations. The specific variables and equations required depend on the modeling goals. For Social Security analysis, we need inputs to both payroll tax and benefit calculations.
+Dynamic microsimulation models begin with a longitudinal sample of the
+population and age that sample forward through time using stochastic
+demographic and economic transition equations. In this project, that
+sample should be delivered as longitudinal `microplex`. The specific
+variables and equations required depend on the modeling goals. For
+Social Security analysis, we need inputs to both payroll tax and benefit
+calculations.
 
 ### Core Demographic Variables
 
@@ -28,9 +38,16 @@ A basic Social Security model thus involves simulating year-by-year and person-b
 - Earnings (combining participation, hours, and wages)
 - Benefit claiming decisions
 
-## Constructing the Longitudinal Base File: Historical Simulation
+## Constructing Longitudinal microplex: Historical Simulation
 
-The input file for dynamic microsimulation requires longitudinal histories for all listed variables in a representative sample as of the base year. Creating and validating this longitudinal input file proceeds through historical simulation, which is effectively a synthetic data generation exercise using cross-sectional and longitudinal input data, including parameterized stochastic earnings shocks and other transition equations.
+The input dataset for dynamic microsimulation requires longitudinal
+histories for all listed variables in a representative sample as of the
+base year. Creating and validating that dataset is the central task in
+making `microplex` longitudinal. It proceeds through historical
+simulation, which is effectively a synthetic data generation exercise
+using cross-sectional and longitudinal input data, including
+parameterized stochastic earnings shocks and other transition
+equations.
 
 ### The Historical Simulation Process
 
@@ -78,6 +95,44 @@ Adding capabilities for Medicare program outcomes is straightforward because no 
 
 Medicaid and Long-Term Care analysis requires asset testing, introducing additional complexity. This necessitates either imputation of assets based on lifetime earnings and marital history using statistical relationships from the Survey of Consumer Finances and Health and Retirement Study, or development of a saving and wealth accumulation module that explicitly models asset accumulation over the lifecycle. The former approach is simpler to implement initially, while the latter provides richer behavioral content.
 
+Treating LTC as a serious extension requires more than an asset-test flag. The model should be designed to carry an LTSS state vector that can be activated in later phases. Core variables include:
+- Functional limitations (ADLs, IADLs, cognitive impairment, need for supervision)
+- Care setting (unpaid family care, paid home care, assisted living, nursing facility, no care)
+- Financing state (liquid assets, home equity, private LTC insurance, Medicaid eligibility pathway, spenddown status)
+- Family spillovers (availability of caregivers, caregiving hours, caregiver employment effects, co-residence)
+- Program interactions (SSI, Medicaid LTSS, Medicare home health or home-care benefits, tax-based caregiver supports)
+
+The key design implication is that LTC should not be framed only as a downstream application of the Social Security model. It should be treated as a parallel extension target with its own state variables, transition equations, and validation criteria, while still reusing the common synthetic panel, calibration machinery, and PolicyEngine rules infrastructure.
+
+A practical development sequence is static-first, dynamic-second. An initial LTC workstream can encode state rules and estimate point-in-time eligibility or first-pass fiscal effects. A later workstream can add transitions across disability states, care settings, and spenddown paths. Planning for both stages now reduces the risk of building a Social Security-only architecture that is difficult to extend later.
+
+Even a static-first state pilot is a substantial rules-engine build, not
+just a thin eligibility screen. A concrete Colorado-style LTSS scope
+would need to encode at least:
+
+- income-cap eligibility tied to SSI-based methodology rather than MAGI
+- countable versus exempt assets, including home equity, vehicles,
+  burial arrangements, trusts, and retirement accounts
+- spousal impoverishment protections such as the Community Spouse
+  Resource Allowance and monthly maintenance allowances
+- post-eligibility income contribution rules, including personal-needs
+  allowances and patient liability toward care costs
+- 60-month look-back rules, transfer penalties, and Qualified Income
+  Trust or Miller Trust logic
+- functional eligibility and pathway logic across institutional care,
+  HCBS and PACE, working-disabled buy-in pathways, and youth
+  institutional pathways
+- estate recovery and home-preservation implications
+
+That in turn implies that a useful LTC product must return more than a
+binary flag. It should be able to answer questions such as "eligible now
+or soon?", "what spend-down path would make eligibility possible?",
+"would a Miller Trust solve the income-cap problem?", "how much income
+would still have to be contributed to care?", and "how do home and
+spousal protections change the result?". Those outputs are feasible in a
+static-first pilot, but they make clear why LTC should be budgeted as a
+real extension track rather than a minor add-on.
+
 ### Advanced Extensions
 
 More generally, adding realistic modules for pension coverage and benefits, homeownership, saving patterns, detailed taxes, business ownership, and intergenerational transfers is potentially feasible but represents the cutting edge of dynamic microsimulation. These extensions would provide comprehensive lifetime fiscal analysis but require substantial additional development effort.
@@ -104,7 +159,11 @@ This approach aligns with PolicyEngine's existing strength in detailed tax and t
 
 ## Output dataset structure
 
-The synthetic longitudinal panel should be organized as a relational dataset with four linked tables. This structure captures all data elements required for benefit calculation across all beneficiary types, maintains family relationships for auxiliary and survivor benefits, and supports both current-year and forward-projection analysis.
+Longitudinal `microplex` should be organized as a relational dataset
+with four linked tables. This structure captures all data elements
+required for benefit calculation across all beneficiary types,
+maintains family relationships for auxiliary and survivor benefits, and
+supports both current-year and forward-projection analysis.
 
 ### Table overview
 
@@ -121,7 +180,12 @@ All tables link via `person_id`. Relationships link `person_id` to `related_pers
 
 One row per individual, capturing status as of the base year (December 31, 2025):
 
-**Core demographics**: `person_id`, `sample_weight`, `date_of_birth`, `sex`, `race_ethnicity`, `education`, `state_of_residence`
+**Core demographics**: `person_id`, `representation_factor`, `date_of_birth`, `sex`, `race_ethnicity`, `education`, `state_of_residence`
+
+`representation_factor` should be fixed or network-preserving after the
+base-year population is constructed. It is not a freely recalibrated
+annual person weight; arbitrary person-level reweighting would break
+spouse, former-spouse, parent-child, and household consistency.
 
 **Vital status**: `vital_status` (alive/deceased), `date_of_death`
 
@@ -195,6 +259,18 @@ For PolicyEngine integration, the 4-table structure will be flattened into the e
 
 ## Summary
 
-The technical specifications outlined here provide a roadmap for model development. We start with clearly defined variables and transition equations needed for Social Security analysis. Historical simulation creates and validates the base longitudinal file. Forward projections incorporate calibration to address the jump-off problem. Behavioral responses, even if simple, ensure realism. Incremental capabilities allow starting with core Social Security analysis and expanding over time. The approach to micro-macro interactions emphasizes following fiscal flows rather than imposing questionable OLG structure. The output dataset structure provides a concrete specification for the synthetic panel, organized to support all benefit types through linked relational tables.
+The technical specifications outlined here provide a roadmap for model
+development. We start with clearly defined variables and transition
+equations needed for Social Security analysis, but we place them inside
+the broader task of building longitudinal `microplex`. Historical
+simulation creates and validates the base longitudinal population.
+Forward projections incorporate calibration to address the jump-off
+problem. Behavioral responses, even if simple, ensure realism.
+Incremental capabilities allow starting with core Social Security
+analysis and expanding over time. The approach to micro-macro
+interactions emphasizes following fiscal flows rather than imposing
+questionable OLG structure. The output dataset structure provides a
+concrete specification for the longitudinal population asset, organized
+to support all benefit types through linked relational tables.
 
 These specifications, developed through decades of experience with dynamic microsimulation, provide a sound foundation for building an open-source model that serves both research and policy analysis needs.

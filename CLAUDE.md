@@ -6,35 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Current phase**: Planning and documentation only. No implementation code exists yet.
 
-This repository contains a Jupyter Book (MyST 2.0) planning document for an open-source Social Security dynamic microsimulation model. The project will create the first publicly available tool comparable to proprietary models like DynaSim (Urban Institute), MINT (SSA), and CBOLT (CBO).
+This repository contains a Quarto Book planning document for an open-source Social Security dynamic microsimulation model. The project will create the first publicly available tool comparable to proprietary models like DynaSim (Urban Institute), MINT (SSA), and CBOLT (CBO).
 
 ## Commands
 
 ```bash
 make install      # pip install -e ".[dev]"
-make docs         # cd jupyterbook && myst build --html
-make docs-serve   # cd jupyterbook && myst start (serves at localhost:3004)
+make docs         # quarto render docs
+make docs-serve   # quarto preview docs --port 3004 --no-browser
 make format       # black . -l 79
 make clean        # remove build artifacts
 ```
 
-## Documentation System (MyST 2.0)
-
-**This uses Jupyter Book 2.0 / MyST - NOT legacy Jupyter Book 1.x.**
+## Documentation System (Quarto)
 
 | Task | Command |
 |------|---------|
-| Build HTML | `myst build --html` |
-| Serve locally | `myst start` |
-| Config file | `myst.yml` (not `_config.yml`) |
+| Build HTML | `quarto render docs` |
+| Serve locally | `quarto preview docs` |
+| Config file | `docs/_quarto.yml` |
 
 ### Citation Syntax
 
-Citations use MyST syntax with the `references.bib` file:
+Citations use Pandoc syntax with the `references.bib` file:
 ```markdown
-{cite:p}`key`     # Parenthetical: (Author 2024)
-{cite:t}`key`     # Textual: Author (2024)
-{cite:p}`a,b,c`   # Multiple citations
+[@key]            # Parenthetical: (Author 2024)
+@key              # Textual: Author (2024)
+[@a; @b; @c]      # Multiple citations
 ```
 
 Common citation keys: `ghenis2024` (Enhanced CPS), `favreault2015` (DynaSim), `meinshausen2006` (QRF), `deville1992` (calibration)
@@ -42,13 +40,13 @@ Common citation keys: `ghenis2024` (Enhanced CPS), `favreault2015` (DynaSim), `m
 ### Admonitions
 
 ```markdown
-::::{note}
+::: {.callout-note}
 Content here
-::::
+:::
 
-::::{warning}
+::: {.callout-warning}
 Content here
-::::
+:::
 ```
 
 ## Writing Standards
@@ -75,9 +73,9 @@ Key insight: ECPS already proved this approach works for cross-sectional tax mod
 ## Repository Structure
 
 ```
-jupyterbook/
-├── myst.yml              # MyST config (title, TOC, bibliography)
-├── intro.md              # Executive summary and significance
+docs/
+├── _quarto.yml           # Quarto config (title, TOC, bibliography)
+├── index.md              # Executive summary and significance
 ├── literature-review.md  # Academic foundations
 ├── existing-models.md    # DynaSim, MINT, CBOLT comparison
 ├── technical-specifications.md  # Variables, transitions, behavioral responses
@@ -86,9 +84,9 @@ jupyterbook/
 ├── methodology.md        # QRF imputation, gradient descent calibration
 ├── infrastructure.md     # PolicyEngine tools ecosystem
 ├── team.md
-├── roadmap.md            # 18-month development plan with milestones
+├── roadmap.md            # 36-month development plan with milestones
 ├── references.bib        # BibTeX citations
-└── _build/               # Generated output (gitignored)
+└── _book/                # Generated output (gitignored)
 ```
 
 ## Related PolicyEngine Repositories
@@ -115,7 +113,7 @@ tests/          # Unit and validation tests
 
 ## Code Style
 
-- Python 3.10-3.13
+- Python 3.10-3.14
 - Black formatter, 79-char line length
 - Ruff linting
 - pytest for testing

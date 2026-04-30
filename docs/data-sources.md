@@ -2,7 +2,12 @@
 
 ## Overview
 
-Building a dynamic Social Security microsimulation model requires multiple data sources that capture cross-sectional population characteristics, longitudinal earnings dynamics, and demographic transitions. This chapter describes the primary data sources we will use.
+Building a dynamic Social Security microsimulation model now means
+building longitudinal `microplex` and then using it for Social Security
+analysis. That requires multiple data sources that capture
+cross-sectional population characteristics, longitudinal earnings
+dynamics, and demographic transitions. This chapter describes the
+primary data sources that feed that population platform.
 
 ## Primary Survey Data Sources
 
@@ -33,10 +38,11 @@ Building a dynamic Social Security microsimulation model requires multiple data 
 - Limited earning history (only current year)
 
 **Our Use**:
-- Base year cross-sectional distributions
+- Core cross-sectional input to the current public `microplex`
+  population layer
 - Validation of age-earnings profiles
 - Calibration targets for population characteristics
-- Starting point for synthetic panel construction
+- Starting point for longitudinal extension
 
 ### Panel Study of Income Dynamics (PSID)
 
@@ -65,7 +71,7 @@ Building a dynamic Social Security microsimulation model requires multiple data 
 - Public use files have restricted geographic detail
 
 **Our Use**:
-- **Primary source for earnings transition matrices**
+- **Primary source for longitudinal extension of `microplex`**
 - Training data for quantile regression forests
 - Validation of lifetime earnings distributions
 - Demographic transition modeling
@@ -176,7 +182,7 @@ While we cannot directly access individual-level administrative data, we use pub
 - ~6,000 households per wave, triennial since 1989
 - Detailed retirement account data (401(k), IRA, DB pensions)
 
-**Why Wealth Matters for Social Security Analysis** (per Sabelhaus feedback):
+**Why Wealth Matters for Social Security Analysis** (per reviewer feedback):
 - Benefit claiming decisions: wealthier households can afford to delay claiming to age 70 for higher benefits
 - Replacement rates: Social Security replaces a higher share of consumption for wealth-poor households
 - Means-testing proposals: require wealth data to evaluate
@@ -206,6 +212,97 @@ While we cannot directly access individual-level administrative data, we use pub
 - Disability onset patterns
 - Retirement claiming behavior by AIME quintile
 
+### National Health and Aging Trends Study (NHATS) and National Study of Caregiving (NSOC)
+
+**Description**: Panel studies of older Americans and their caregivers, with detailed information on disability, care needs, care receipt, and unpaid caregiving.
+
+**Strengths**:
+- Rich measures of ADLs, IADLs, cognitive impairment, and supervision needs
+- Detailed care setting information (informal care, paid home care, residential care)
+- Direct measurement of unpaid caregiving hours and caregiver relationships
+- Especially useful for validating intermediate LTC states rather than only final fiscal aggregates
+
+**Our Use**:
+- Calibrate or validate disability and care-need prevalence among older adults
+- Validate transitions between no care, home care, and institutional settings
+- Measure caregiver burden, co-residence, and labor-supply spillovers
+- Inform static and dynamic modeling of caregiver-support policies
+
+### Medicare Current Beneficiary Survey (MCBS)
+
+**Description**: Survey of Medicare beneficiaries with detailed information on utilization, spending, supplemental coverage, and health status.
+
+**Strengths**:
+- Detailed Medicare utilization and out-of-pocket spending
+- Information on home health, post-acute care, and other services relevant to older adults with care needs
+- Better direct measurement of Medicare-financed services than general household surveys
+
+**Our Use**:
+- Validate spending and utilization for Medicare beneficiaries with functional limitations
+- Assess interaction between Medicare and LTC proposals such as home-care benefits
+- Benchmark static first-pass models of Medicare-at-home style proposals
+
+### National Health Interview Survey (NHIS) and Medical Expenditure Panel Survey (MEPS)
+
+**Description**: Broad household surveys covering health, disability, utilization, and medical expenditures.
+
+**Strengths**:
+- Coverage of noninstitutionalized populations below age 65
+- Functional limitation and health-status measures outside retirement-age populations
+- Expenditure detail useful for near-term medical spending and disability interactions
+
+**Our Use**:
+- Support modeling of younger disabled populations who may have LTC needs
+- Validate health-status and expenditure gradients outside the Medicare population
+- Provide an all-age complement to HRS and NHATS
+
+### CMS Long-Term Care Administrative Sources
+
+**Minimum Data Set (MDS)**:
+- Resident assessments for nursing home populations
+- Functional status, cognitive impairment, and care needs in institutional settings
+
+**Transformed Medicaid Statistical Information System (T-MSIS)**:
+- Medicaid enrollment, service use, and spending
+- HCBS and institutional LTSS utilization patterns
+- State-by-state variation in Medicaid LTSS programs
+
+**Our Use**:
+- Validate institutional care prevalence and resident characteristics
+- Benchmark Medicaid LTSS participation, payer mix, and spending
+- Anchor state-level LTC rule encoding and downstream model validation
+
+### State LTC Policy Sources
+
+Long-term care policy analysis also requires policy-source data, not just survey microdata. We will need to assemble and version:
+- State Medicaid manuals and eligibility rules
+- HCBS waiver documentation and assessment criteria
+- Home equity and asset treatment rules
+- Functional eligibility definitions (ADLs, cognitive impairment, level-of-care tests)
+- Spousal impoverishment parameters such as resource allowances, monthly
+  maintenance allowances, and personal-needs allowances
+- State transfer-penalty divisors, private-pay nursing facility rate
+  tables, and Qualified Income Trust or Miller Trust guidance
+- Estate recovery guidance, PACE manuals, and Single Entry Point or
+  assessment-instrument documentation
+
+These sources play the same role for LTC that statutes, tax forms, and program manuals play in PolicyEngine's existing tax-benefit infrastructure.
+
+This matters because a credible static LTC pilot must do more than check
+one income threshold. It should be able to tell a family whether they
+are eligible now or soon, what spend-down or trust path would be
+required, how spousal protections change the result, and what patient
+liability would look like after approval. That level of output depends
+on operational state documents as much as on survey data.
+
+For the proposal, two supporting appendices make this more concrete.
+[`public-validation-inventory.md`](public-validation-inventory.md)
+shows how much of the model can be judged against public evidence before
+restricted administrative access is available.
+[`appendix-colorado-ltc-rules-packet.md`](appendix-colorado-ltc-rules-packet.md)
+shows what a first-pass authoritative source packet looks like for a
+state LTC pilot.
+
 ### American Time Use Survey (ATUS)
 
 **Description**: Time use diary survey providing detailed labor supply.
@@ -230,6 +327,17 @@ While we cannot directly access individual-level administrative data, we use pub
 - Differential mortality by socioeconomic status
 
 ## Data Integration Strategy
+
+### Institutional Population Challenge
+
+One reason LTC is hard to model is that no single public dataset adequately covers household populations, caregivers, and institutional residents at the same time. CPS and many other core household surveys exclude most institutional populations. An LTC-ready architecture therefore needs an explicit blended strategy:
+
+1. Household base population from Enhanced CPS and allied surveys
+2. Longitudinal aging and wealth dynamics from PSID and HRS
+3. Care-need and caregiving detail from NHATS/NSOC and MCBS
+4. Institutional population benchmarks from MDS and Medicaid administrative sources
+
+Planning around this challenge early is important because the transition into institutional care is itself one of the core outcomes for LTC policy analysis.
 
 ### Multi-Survey Fusion Approach
 
@@ -336,17 +444,23 @@ Our data preparation follows these steps:
    - Quantile regression forest imputation
    - Multiple imputation for uncertainty
 
-3. **Calibrate**:
-   - Gradient descent reweighting
-   - Align to external targets
-   - Validate distributions
+3. **Calibrate the Base Population**:
+   - Use survey weights only before longitudinalization
+   - Align the base cross-section to external targets
+   - Convert to fixed representation factors or replicate counts
 
-4. **Validate**:
+4. **Align Dynamic Processes**:
+   - Match transition controls through event selection
+   - Tune process parameters without independently reweighting linked
+     people
+   - Preserve spouse, former-spouse, parent-child, and household links
+
+5. **Validate**:
    - Compare to administrative aggregates
    - Check internal consistency
    - Sensitivity analysis
 
-5. **Document**:
+6. **Document**:
    - Full documentation of sources
    - Code comments
    - Validation reports

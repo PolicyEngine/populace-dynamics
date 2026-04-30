@@ -1,0 +1,60 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Building an Open-Source Social Security Dynamic Microsimulation Model"
+  subtitle: "Stage-Gated Planning Document"
+  author:
+    - name: Max Ghenis
+      affiliation: PolicyEngine
+  date: "2026"
+  favicon: favicon.ico
+  repo-url: https://github.com/PolicyEngine/social-security-model
+  repo-actions: [edit, issue]
+  site-url: https://policyengine.github.io/social-security-model
+  sidebar:
+    logo: policyengine.png
+  page-footer:
+    left: "Copyright 2026, Max Ghenis"
+    right:
+      - text: GitHub
+        href: https://github.com/PolicyEngine/social-security-model
+      - text: PolicyEngine
+        href: https://policyengine.org
+  chapters:
+    - index.md
+    - funder-summary.md
+    - policy-applications.md
+    - existing-models.md
+    - benchmark-model-component-matrix.md
+    - data-sources.md
+    - methodology.md
+    - operationalizing-longitudinal-construction.md
+    - technical-specifications.md
+    - calibration-targets.md
+    - public-validation-inventory.md
+    - evaluation-and-model-selection.md
+    - operationalizing-disability-and-claiming.md
+    - operationalizing-family-and-auxiliary-benefits.md
+    - operationalizing-mortality-and-projection-drift.md
+    - infrastructure.md
+    - team.md
+    - implementation-plan-and-budget-logic.md
+    - roadmap.md
+    - risks-and-stage-gates.md
+    - literature-review.md
+    - appendix-dynasim.md
+    - appendix-colorado-ltc-rules-packet.md
+    - bibliography.md
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    css: _static/custom.css
+    toc: true
+    number-sections: false
+    code-copy: true
+    link-external-icon: true

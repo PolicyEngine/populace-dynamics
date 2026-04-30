@@ -1,4 +1,4 @@
-.PHONY: install format test docs docs-serve clean
+.PHONY: install format test docs docs-serve docs-quick clean help
 
 # Install dependencies
 install:
@@ -8,21 +8,22 @@ install:
 format:
 	black . -l 79
 
-# Run tests (will add tests in Phase 1)
+# Run tests if implementation tests exist
 test:
-	pytest tests/ -v
+	@if [ -d tests ]; then pytest tests/ -v; else echo "No tests directory yet; skipping."; fi
 
-# Build documentation
+# Build Quarto documentation
 docs:
-	cd jupyterbook && myst build --html
+	quarto render docs
 
 # Serve documentation locally
 docs-serve:
-	cd jupyterbook && myst start
+	quarto preview docs --port 3004 --no-browser
 
 # Clean build artifacts
 clean:
-	rm -rf jupyterbook/_build
+	rm -rf docs/_book
+	rm -rf docs/.quarto
 	rm -rf dist/
 	rm -rf *.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} +
@@ -37,7 +38,7 @@ help:
 	@echo "  make install      - Install dependencies"
 	@echo "  make format       - Format code with Black"
 	@echo "  make test         - Run test suite"
-	@echo "  make docs         - Build Jupyter Book documentation"
+	@echo "  make docs         - Build Quarto documentation"
 	@echo "  make docs-serve   - Serve documentation locally"
 	@echo "  make docs-quick   - Build and serve documentation"
 	@echo "  make clean        - Remove build artifacts"

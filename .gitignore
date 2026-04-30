@@ -87,8 +87,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Jupyter Book / MyST build output
-jupyterbook/_build/
+# Quarto build output
+docs/_book/
+docs/.quarto/
 
 # IDE
 .idea/

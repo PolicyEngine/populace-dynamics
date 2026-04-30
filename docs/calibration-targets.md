@@ -2,7 +2,10 @@
 
 ## Overview
 
-Calibration ensures our synthetic panel matches known population characteristics and Social Security system aggregates. This chapter specifies the targets we will use for calibration, their sources, and priority weighting.
+Calibration ensures that longitudinal `microplex` matches known
+population characteristics and that the Social Security application
+layer matches system aggregates. This chapter specifies the targets we
+will use for calibration, their sources, and priority weighting.
 
 ## Why Calibration Matters
 
@@ -11,12 +14,16 @@ Dynamic microsimulation models face two key challenges:
 1. **Drift**: Small errors compound over projection periods, causing divergence from reality
 2. **Misalignment**: Survey data often differ from administrative totals
 
-Calibration addresses both by reweighting observations to match external targets while preserving:
+Calibration addresses both by matching the synthetic population and its
+transition process to external targets while preserving:
 - Individual-level heterogeneity
 - Correlations across variables
 - Distributional properties
 
-Our approach uses gradient descent reweighting to minimize distance between weighted survey distributions and calibration targets.
+Our approach uses weight calibration for the base cross-section, then
+uses process alignment for the dynamic panel. Once spouse,
+former-spouse, parent-child, and household links exist, arbitrary
+person-level reweighting can break the population network.
 
 ## Calibration Target Categories
 
@@ -140,6 +147,45 @@ The Opportunity Insights life expectancy dataset provides critical granularity f
 - Source: SSA disability statistics
 - Priority: **High** (SSDI modeling)
 
+### Long-Term Care and Caregiving Targets (Extension Track)
+
+If the model is extended toward LTC, we should add a dedicated validation layer rather than relying only on aggregate program costs.
+
+**Functional Status and Care Need**:
+- Prevalence of ADL and IADL limitations by age, sex, and living arrangement
+- Cognitive impairment and supervision needs
+- Source: NHATS, HRS, MCBS
+- Priority: **Critical** within LTC extension (determines care demand)
+
+**Care Setting and Utilization**:
+- Share receiving unpaid family care
+- Share receiving paid home care
+- Share in institutional settings or nursing facilities
+- Transition rates between community, home-care, and institutional states
+- Source: NHATS/NSOC, MCBS, MDS
+- Priority: **Critical** within LTC extension (core behavioral state)
+
+**Medicaid LTSS Participation and Spending**:
+- Medicaid LTSS enrollment by age and disability status
+- HCBS versus institutional spending shares
+- State-level variation in service mix and spending
+- Source: T-MSIS, CMS summaries, MACPAC
+- Priority: **Critical** within LTC extension (program financing)
+
+**Caregiver Burden and Spillovers**:
+- Unpaid caregiving hours by relationship type
+- Employment reduction or labor-force exit among caregivers
+- Co-residence with care recipient
+- Source: NSOC, ATUS, CPS supplements where available
+- Priority: **High** within LTC extension (distributional and welfare analysis)
+
+**Asset Depletion and Spenddown**:
+- Asset holdings near Medicaid entry
+- Distribution of housing and liquid wealth among high-need older adults
+- Observed spenddown paths where measurable
+- Source: HRS, SCF, Medicaid-linked studies
+- Priority: **High** within LTC extension (eligibility and reform incidence)
+
 ### Financial and Fiscal Targets (Annual)
 
 **Program Aggregates**:
@@ -185,15 +231,18 @@ Not all targets are equally important. We prioritize:
 
 **Rationale**: Useful but not central to benefit modeling
 
+For an LTC module, the prioritization changes slightly. Functional status, care setting, and Medicaid LTSS aggregates become Tier 1 within that module because getting those intermediate states wrong can still produce superficially plausible fiscal totals while misleading policy analysis.
+
 ## Calibration Approach
 
-### Gradient Descent Reweighting
+### Base-Population Weight Calibration
 
-We use gradient descent to find survey weights that:
+Before longitudinalization, gradient descent can be used to find survey
+or synthetic-population weights that:
 
 **Minimize**: Distance from original CPS weights (preserve representativeness)
 
-**Subject to**: Match all calibration targets within tolerance
+**Subject to**: Match base-year calibration targets within tolerance
 
 **Method**:
 1. Start with CPS survey weights
@@ -208,22 +257,30 @@ We use gradient descent to find survey weights that:
 - Computationally efficient
 - Transparent and interpretable
 
-### Dynamic Calibration
+This is primarily a base-year construction tool. It should not be the
+default mechanism for repairing annual dynamic projections after family
+relationships and event histories have been simulated.
 
-For longitudinal projections, we calibrate at multiple time points:
+### Dynamic Process Alignment
+
+For longitudinal projections, we align processes and outputs at multiple
+time points:
 
 **Base Year (e.g., 2024)**: Full calibration to current data
 
-**5-Year Intervals**: Calibrate to SSA projected aggregates
+**5-Year Intervals**: Align to SSA projected aggregates
 - Ensures long-run projections stay aligned
 - Prevents drift accumulation
 - Uses SSA Trustees Report intermediate assumptions
 
-**Annual Re-Calibration**: For near-term projections (10 years)
+**Annual Transition Controls**: For near-term projections (10 years),
+select events and tune process intercepts so annual transitions match
+published controls without breaking household and relationship
+consistency
 
 ### Retirement claiming behavior targets
 
-**Claiming Age Distribution** (per Sabelhaus feedback):
+**Claiming Age Distribution** (per reviewer feedback):
 From SSA administrative data:
 - Share claiming at age 62, 63, 64, Full Retirement Age, and 70
 - Claiming patterns by AIME quintile (higher earners delay more)
@@ -250,10 +307,12 @@ We reserve some variables as validation checks (not calibration targets):
 - Income inequality measures (Gini, percentile ratios)
 - Replacement rates by lifetime earnings quintile
 - Family structure outcomes (share receiving spouse vs. own benefits, widow(er) beneficiaries)
+- ADL/IADL prevalence and care-setting distributions for LTC extensions
+- Caregiver hours and labor-supply responses for caregiver-policy extensions
 
 **Why validation, not calibration?** Survey-based measures like poverty rates suffer from income underreporting—the very problem our methodology corrects. Calibrating to flawed poverty estimates would embed those errors. Instead, we calibrate to administrative data (SSA, IRS) and then *check* whether our corrected income distributions produce more accurate poverty estimates than raw surveys.
 
-**Survey of Consumer Finances (SCF) Wealth Validation** (per Sabelhaus feedback):
+**Survey of Consumer Finances (SCF) Wealth Validation** (per reviewer feedback):
 The SCF provides the gold standard for U.S. household wealth data. We validate that our synthetic panel produces realistic:
 - Net worth distributions by age and lifetime earnings quintile
 - Financial asset holdings by age group ($0-$10k, $10k-$50k, $50k-$250k, $250k+)
@@ -262,6 +321,9 @@ The SCF provides the gold standard for U.S. household wealth data. We validate t
 - Pension coverage (DB and DC) by age and employer type
 
 Wealth affects Social Security claiming behavior (wealthier households can afford to delay) and retirement adequacy. While we don't calibrate to SCF targets in the initial model, validating against them ensures comprehensive retirement security analysis and positions the model for future wealth integration.
+
+**Why intermediate LTC validation matters**:
+For LTC policy analysis, matching only the final cost estimate is not enough. Two models can generate similar aggregate spending while implying very different paths through disability, family caregiving, paid home care, institutional care, and Medicaid spenddown. Any LTC extension should therefore validate these intermediate states explicitly before being used for structural reforms.
 
 ## Data Sources for Targets
 
@@ -274,6 +336,8 @@ Wealth affects Social Security claiming behavior (wealthier households can affor
 | Mortality | NVSS/SSA | Annual | 2022 |
 | Projections | SSA Trustees | Annual | 2024 |
 | Disability | SSA Statistics | Annual | 2023 |
+| LTC need and caregiving | NHATS, HRS, MCBS | Annual/Biennial | Varies |
+| Medicaid LTSS | T-MSIS, CMS | Annual | Varies |
 
 ## Target Specification Examples
 
@@ -341,24 +405,29 @@ Our calibration process follows these steps:
    - Harmonize definitions and formats
    - Document sources and vintages
 
-2. **Initial Weights**:
+2. **Base Population Weights**:
    - Start with CPS survey weights
    - Adjust for non-response and coverage
 
-3. **Tier 1 Calibration**:
-   - Calibrate to critical targets first
+3. **Tier 1 Base Calibration**:
+   - Calibrate the base population to critical targets first
    - Ensure core demographics and earnings accurate
 
-4. **Tier 2 Calibration**:
+4. **Tier 2 Base Calibration**:
    - Add secondary targets
    - Iterate to convergence
 
-5. **Validation**:
+5. **Dynamic Alignment**:
+   - Select annual events to match aggregate transition controls
+   - Tune process parameters without independently reweighting linked
+     people
+
+6. **Validation**:
    - Check non-targeted variables
    - Compare to external benchmarks
    - Assess quality of fit
 
-6. **Documentation**:
+7. **Documentation**:
    - Record all targets and sources
    - Document convergence metrics
    - Report any systematic deviations
@@ -408,5 +477,10 @@ Calibration targets provide external validation of our synthetic panel:
 - **Transparent**: All targets documented with sources
 - **Dynamic**: Calibrated across time periods
 - **Validated**: Non-targeted variables as quality checks
+
+[`public-validation-inventory.md`](public-validation-inventory.md)
+enumerates the public source stack behind these targets. That appendix
+is useful because it shows how much of the validation burden can be met
+transparently before any restricted administrative linkage is available.
 
 The next chapter describes the methodology for constructing the synthetic panel subject to these calibration constraints.

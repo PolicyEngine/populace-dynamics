@@ -2,26 +2,33 @@
 
 ## Overview
 
-Building a dynamic Social Security microsimulation model requires sophisticated infrastructure for data processing, imputation, calibration, and policy simulation. Fortunately, PolicyEngine has already developed much of this infrastructure for its Enhanced CPS construction and tax-benefit modeling. This chapter describes the key tools and infrastructure we will leverage.
+Building a dynamic Social Security microsimulation model requires
+infrastructure for data processing, synthesis, calibration, and policy
+simulation. The most important architectural point is now clear:
+`microplex` should be treated as the population platform and dataset,
+while this repository provides the Social Security-specific application
+layer on top of it. This chapter describes the tools that make that
+split possible.
 
 ## PolicyEngine Ecosystem
 
 Our model builds on PolicyEngine's existing open-source infrastructure:
 
-```{mermaid}
+```mermaid
 flowchart LR
-    subgraph core["Core Libraries"]
-        MI["microimpute<br/>QRF Imputation"]
-        MC["microcalibrate<br/>Gradient Descent"]
-        L0["L0<br/>Sparse Selection"]
+    subgraph sources["Public Data and Methods"]
+        MI["microimpute<br/>Imputation methods"]
+        MC["microcalibrate<br/>Calibration methods"]
+        L0["L0<br/>Sparse selection"]
     end
 
-    subgraph data["Data Layer"]
-        ECPS["Enhanced CPS<br/>(Cross-sectional)"]
-        SSM["Social Security Model<br/>(Longitudinal)"]
+    subgraph population["Population Platform"]
+        MPX["microplex<br/>(Synthetic population dataset)"]
+        LMPX["Longitudinal microplex<br/>(project target)"]
     end
 
-    subgraph rules["Policy Rules"]
+    subgraph application["Policy Application Layer"]
+        SSM["Social Security model<br/>validation + workflows"]
         PEUS["PolicyEngine-US<br/>Tax & Benefit Rules"]
     end
 
@@ -31,33 +38,82 @@ flowchart LR
         PY["policyengine.py"]
     end
 
-    MI --> ECPS
-    MC --> ECPS
-    MI --> SSM
-    MC --> SSM
-    L0 --> SSM
-    ECPS --> PEUS
+    MI --> MPX
+    MC --> MPX
+    L0 --> MPX
+    MPX --> LMPX
+    LMPX --> SSM
     SSM --> PEUS
     PEUS --> API
     API --> APP
     API --> PY
 
-    style SSM fill:#e1f5fe
+    style LMPX fill:#e1f5fe
+    style SSM fill:#fff3cd
 ```
 
-**PolicyEngine-US**: Tax and benefit rules engine (includes Social Security)
+The high-level logic is:
 
-**PolicyEngine-US-Data**: Enhanced CPS construction and microdata processing
+- use `microplex` as the public population asset
+- extend `microplex` longitudinally
+- use PolicyEngine-US and this repository to turn that asset into a
+  Social Security policy model
 
-**PolicyEngine-API**: REST API for policy simulations
+This means the project should avoid rebuilding generic synthesis
+machinery in the Social Security repository when that work properly
+belongs in `microplex`.
 
-**PolicyEngine-App**: Web interface for policy analysis
+## Population Platform Versus Application Layer
 
-**PolicyEngine.py**: Python client for programmatic access
+The tooling should be divided intentionally.
 
-We will extend these with new dynamic modeling capabilities while maintaining integration.
+### What belongs in microplex
+
+- synthetic public population construction
+- cross-sectional and longitudinal calibration machinery
+- generic earnings-trajectory methods
+- household, person, and tax-unit coherence
+- generic panel-evolution methods
+- dataset-level validation of synthetic population quality
+
+### What belongs in the Social Security repository
+
+- OASDI, SSI, and tax-rule integration through PolicyEngine-US
+- Social Security-specific target construction
+- claiming, spouse, survivor, and disability application logic
+- replication of published baseline and reform tables
+- user-facing documentation and policy-analysis workflows
+
+That separation makes the project more reusable and makes its
+comparison to DYNASIM more honest. The relevant comparison is not a
+single small repository against a mature institutional model. It is a
+public population platform plus an open policy application layer.
 
 ## Key Tools and Libraries
+
+### microplex: the core population platform
+
+**Purpose**: public synthetic population dataset and synthesis platform
+
+**Repository**: https://github.com/CosilicoAI/microplex
+
+**Key Capabilities**:
+- synthetic microdata generation
+- multi-source fusion
+- zero-inflation handling
+- base-population calibration and sparse selection
+- candidate longitudinal and trajectory tooling
+
+**Our Use**:
+- **base population platform for this project**
+- host the longitudinal extension work that should outlive Social
+  Security alone
+- supply the public population asset consumed by the Social Security
+  application layer
+
+**Status**: active research and engineering platform; cross-sectional
+capabilities are already substantial, while longitudinal capabilities
+are the central next step
 
 ### microimpute: ML-Based Variable Imputation
 
@@ -73,10 +129,11 @@ We will extend these with new dynamic modeling capabilities while maintaining in
 - Preserves correlations and distributions
 
 **Our Use**:
-- **Critical for earnings history imputation**
-- Impute latent variables (earnings potential, health)
-- Fill missing demographic variables
-- Generate multiple imputations for uncertainty quantification
+- one important method family inside the broader `microplex`
+  longitudinal build
+- baseline earnings-history reconstruction
+- imputation of latent variables (earnings potential, health)
+- multiple imputations for uncertainty quantification
 
 **Example Workflow**:
 ```python
@@ -99,27 +156,35 @@ earnings_dist = qrf.predict_quantiles(
 cps_data['earnings_25_imputed'] = qrf.sample(cps_data)
 ```
 
-**Status**: Actively maintained, used in PolicyEngine-US-Data
+**Status**: Actively maintained, useful as a baseline method family even
+if more ambitious synthesis methods are added to `microplex`
 
-### microcalibrate: Survey Calibration and Reweighting
+### microcalibrate: Base-Population Calibration
 
-**Purpose**: Calibrate survey weights to match external targets using gradient descent
+**Purpose**: Calibrate the base cross-sectional population to external
+targets using gradient descent or related methods
 
 **Repository**: https://github.com/PolicyEngine/microcalibrate
 
 **Key Capabilities**:
-- Gradient descent reweighting
+- Base-population gradient calibration
 - Multiple simultaneous targets
 - Constraint satisfaction
 - Convergence monitoring
 - Performance optimization
 
 **Our Use**:
-- **Core calibration tool for synthetic panel**
-- Match earnings distributions to SSA data
-- Align beneficiary counts to administrative totals
-- Cross-sectional and longitudinal calibration
-- Year-by-year reweighting in projections
+- core calibration method for the base synthetic population layer
+- match base-year earnings distributions to SSA and IRS data
+- align base-year beneficiary counts to administrative totals
+- prepare donor or source pools before longitudinalization
+- diagnose which errors are weight-correctable versus process errors
+
+After the longitudinal relationship network exists, calibration should
+mostly operate through event selection, process intercepts, donor
+probabilities, and network-preserving resampling. Year-by-year
+individual reweighting would make spouse and parent-child links
+incoherent.
 
 **Example Workflow**:
 ```python
@@ -133,9 +198,9 @@ targets = {
     # ... hundreds more targets
 }
 
-# Calibrate weights
-calibrated_weights = calibrate(
-    data=synthetic_panel,
+# Calibrate base-year representation before longitudinalization
+representation_factors = calibrate(
+    data=base_population,
     targets=targets,
     initial_weights=cps_weights,
     method='gradient_descent',
@@ -143,15 +208,17 @@ calibrated_weights = calibrate(
     max_iterations=1000
 )
 
-# Apply calibrated weights
-synthetic_panel['weight'] = calibrated_weights
+# Carry stable representation factors into the dynamic simulation
+base_population['representation_factor'] = representation_factors
 ```
 
-**Status**: Actively maintained, used in Enhanced CPS construction
+**Status**: Actively maintained and central for base-year population
+construction. Dynamic alignment needs additional transition-control
+machinery.
 
-### L0: Sparse Reweighting and Sample Selection
+### L0: Sparse Selection and Base Calibration
 
-**Purpose**: L0 regularization for discrete sample selection and sparse reweighting
+**Purpose**: L0 regularization for discrete sample selection and sparse base-population calibration
 
 **Repository**: https://github.com/PolicyEngine/L0
 
@@ -163,7 +230,7 @@ synthetic_panel['weight'] = calibrated_weights
 
 **Our Use**:
 - **Optional**: Select representative subsample for computational efficiency
-- Alternative to continuous reweighting
+- Alternative to dense base-population reweighting
 - Identify most informative observations
 - Reduce computational burden for web app deployment
 
@@ -191,17 +258,21 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Repository**: https://github.com/PolicyEngine/policyengine-us-data
 
-The Enhanced CPS uses QRF imputation and gradient descent calibration to ~2,800 administrative targets {cite:p}`ghenis2024`. This project extends the same methodology to longitudinal earnings histories.
+The Enhanced CPS uses QRF imputation and gradient descent calibration to
+~2,800 administrative targets [@ghenis2024]. That work is best
+understood as an important precursor to `microplex`, not as the final
+architecture of this project.
 
 **Our Use**:
-- Base cross-sectional population
-- Proven methodology (microimpute, microcalibrate)
-- Already integrated with PolicyEngine-US
+- historical foundation for the current public population layer
+- proof that public-data enhancement and calibration can succeed at
+  policy-relevant scale
+- bridge between the older PolicyEngine data pipeline and `microplex`
 
 **Extensions for Dynamic Model**:
-- Add earnings history variables (QRF from PSID)
-- Add demographic transitions (hazard models)
-- Add longitudinal calibration targets
+- move from a calibrated cross-section to longitudinal `microplex`
+- add earnings histories and transitions
+- add longitudinal calibration and validation targets
 
 ### PolicyEngine-Core: Microsimulation Engine
 
@@ -302,8 +373,8 @@ synthetic_panel.h5
 ├── relationship/      # Family network (marriages, parent-child)
 ├── event/             # Life events (disability, death, claiming)
 ├── computed/          # Derived variables (AIME, PIA, eligibility)
-└── weights/
-    └── calibrated_weight
+└── representation/
+    └── representation_factor
 ```
 
 For distribution, CSV or Parquet files (one per table) provide maximum accessibility. For production analysis, HDF5 or a SQL database provides better query performance.
@@ -365,8 +436,9 @@ policyengine-us-data/
 │   └── validation/       # Validation code
 ├── calibration/
 │   ├── targets/          # Calibration target definitions
-│   ├── weights/          # Reweighting algorithms
-│   └── validation/       # Calibration validation
+│   ├── base_population/  # Base-year weight calibration
+│   ├── alignment/        # Event and process controls
+│   └── validation/       # Calibration and alignment validation
 ├── simulation/
 │   ├── projection/       # Forward projection
 │   ├── benefits/         # Benefit calculation
@@ -428,13 +500,19 @@ python imputation/earnings/impute_history.py \
     --output data/outputs/cps_with_history.h5
 ```
 
-### 4. Calibration
+### 4. Base Calibration and Dynamic Alignment
 ```bash
-# Calibrate weights
-python calibration/weights/calibrate_panel.py \
+# Calibrate the base population before longitudinalization
+python calibration/base_population/calibrate.py \
     --input data/outputs/cps_with_history.h5 \
     --targets calibration/targets/ssa_2024.yaml \
     --output data/outputs/synthetic_panel_2024.h5
+
+# Align dynamic transitions without independently reweighting linked people
+python calibration/alignment/select_events.py \
+    --input data/outputs/synthetic_panel_2024.h5 \
+    --targets calibration/targets/transition_controls.yaml \
+    --output data/outputs/aligned_panel_2024.h5
 ```
 
 ### 5. Validation
@@ -525,7 +603,7 @@ python deployment/package_for_policyengine.py \
 - Validation reports
 - Comparison to other models
 
-### Jupyter Books
+### Quarto Book
 
 Like this document:
 - Planning and methodology
@@ -589,7 +667,7 @@ We leverage a rich ecosystem of open-source tools:
 - **Zero-inflated quantile deep neural networks (ZI-QDNN)**: Primary candidate for earnings imputation, with dedicated zero-inflation head and conditional quantile output; early experiments show 3× better trajectory coverage than recurrent alternatives on survey panel data
 - **Normalizing flows**: Conditional Masked Autoregressive Flows (MAF) as alternative for joint multi-year imputation, particularly where cross-year correlation structure matters
 - **Multi-survey fusion**: Harmonize CPS, PSID, and PUF into unified datasets using common variable schemas and masked imputation for cross-survey variables
-- **Sparse calibration**: IPF (raking), entropy balancing, and L0/L1/L2 sparse reweighting as alternatives to gradient descent for different calibration tasks
+- **Sparse calibration**: IPF (raking), entropy balancing, and L0/L1/L2 sparse reweighting for base-population and donor-pool calibration, with network-preserving selection once relationships exist
 - **Demographic transition models**: Discrete-time hazard models for disability onset/recovery (using SSA DI incidence rates), mortality (using SSA period life tables), and marriage/divorce (using CPS/ACS-based rates)
 - **Hierarchical household synthesis**: Two-pass household/person generation preserving family structure, tax unit composition, and spousal earnings correlations
 

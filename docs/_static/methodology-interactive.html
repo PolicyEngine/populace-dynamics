@@ -586,7 +586,7 @@ cps_with_histories = imputer.<span class="function">transform</span>(cps_data)
         icon: '⚖️',
         title: 'microcalibrate',
         content: `
-          <p>PolicyEngine's gradient descent reweighting library. Adjusts sample weights to match hundreds of targets simultaneously while minimizing deviation from original weights.</p>
+          <p>PolicyEngine's base-population calibration library. It can align a starting cross-section to hundreds of targets before the relationship network and longitudinal event histories are constructed.</p>
           <div class="code-block">
 <span class="keyword">from</span> microcalibrate <span class="keyword">import</span> Calibrator
 
@@ -594,7 +594,7 @@ calibrator = Calibrator(
     targets=ssa_targets,  <span class="comment"># 100+ demographic/economic targets</span>
     priorities={<span class="string">'beneficiary_counts'</span>: 1.0, ...}
 )
-calibrated_panel = calibrator.<span class="function">fit_transform</span>(synthetic_panel)
+base_population = calibrator.<span class="function">fit_transform</span>(base_population)
           </div>
           <div style="margin-top: 1rem;">
             <span class="tag existing">✓ Already exists</span>
@@ -606,7 +606,7 @@ calibrated_panel = calibrator.<span class="function">fit_transform</span>(synthe
         icon: '🗃️',
         title: 'Calibrated Synthetic Panel',
         content: `
-          <p>The final dataset: a representative sample of Americans with complete earnings histories, demographic characteristics, and sample weights calibrated to SSA statistics.</p>
+          <p>The final dataset: a representative sample of Americans with complete earnings histories, demographic characteristics, and stable representation factors. Dynamic alignment happens through transition controls and process parameters, not annual independent person-weight repair.</p>
           <p>This is the <strong>deliverable</strong>—a dataset that can be used for any Social Security analysis, comparable to what DynaSim or MINT produce internally.</p>
           <div style="margin-top: 1rem;">
             <span class="tag new">New deliverable</span>
