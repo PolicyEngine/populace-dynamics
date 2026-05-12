@@ -2,21 +2,16 @@
 
 ## What this is
 
-This is a concept note for an open, dynamic microsimulation model of
-the U.S. Social Security system. The model would combine:
+This is a concept note describing the design of an open, dynamic
+microsimulation model of the U.S. Social Security system, alongside a
+published validation record that lets outsiders inspect and reproduce
+its behavior.
 
-- a synthetic longitudinal population built from public data
-- an open rules engine for benefit calculation
-- a published validation record that lets outsiders inspect and
-  reproduce the model's behavior
-
-The proposed contribution is not just a tool. It is a public
-methodological artifact: a fully open dynamic Social Security stack
-alongside an inspectable validation record. The point is not to claim
-instant parity with closed institutional models. The point is to build
-the most transparent public alternative in this space and to validate
-it rigorously enough that it becomes useful for research, advocacy,
-exploratory policy design, and public education.
+The proposed contribution is methodological. The right standard is not
+matching closed institutional models in their first release; it is
+building the most transparent public alternative in this space and
+validating it rigorously enough that it becomes useful for research,
+advocacy, exploratory policy design, and public education.
 
 ## Why this matters
 
@@ -32,66 +27,220 @@ reform packages, but they often cannot inspect or reproduce the
 assumptions behind the models that shape those debates. The public
 ecosystem is more dependent on institutional trust than it should be.
 
+## Design
+
+The proposed model has four components. The design is described first
+as an architecture; one possible realization in existing open-source
+stacks is described separately further down.
+
+### Component 1: Synthetic longitudinal population
+
+The population layer must support:
+
+- lifetime earnings histories (the highest-35 earnings record that
+  drives benefit calculation)
+- marriage, divorce, widowhood, and remarriage histories needed for
+  spousal, survivor, and divorced-spouse benefits
+- disability onset, recovery, and termination dynamics
+- mortality with differential rates by lifetime earnings, education,
+  race, and sex
+- forward projection that does not drift off course
+- coherent household and couple structure preserved across years
+
+The population must also be public, reproducible, and validatable
+against administrative targets. That rules out dependence on
+restricted matched data, which is how MINT operates. It rules in
+favor of synthesis methods that combine survey panel data,
+administrative aggregate targets, and modern imputation.
+
+The methodological structure has three layers:
+
+1. A calibrated cross-sectional baseline grounded in public survey
+   data and adjusted against administrative aggregates
+2. Longitudinal extension via imputation from panel data and/or
+   generative trajectory synthesis with explicit handling of zero
+   earnings, mobility, and cohort effects
+3. Calibration to administrative targets at both cross-sectional and
+   longitudinal levels, with explicit handling of network constraints
+   created by marriage, divorce, fertility, and death
+
+The hard part of this project lives almost entirely in component 1.
+
+### Component 2: Open tax-benefit rules engine
+
+The rules engine must calculate:
+
+- retirement benefits (OASI), including AIME, PIA, bend points, COLA,
+  and early/delayed retirement adjustments
+- disability benefits (SSDI), including the waiting period and
+  Medicare interaction
+- dependent, spousal, and survivor benefits
+- benefit taxation under federal income tax rules
+- interactions with means-tested programs (SSI, Medicare, Medicaid)
+  for adequacy analysis
+- WEP, GPO, and other adjustments
+- reform variants via parameter and formula modification
+
+An open rules engine matters not only because the rules themselves
+should be inspectable, but because the *reforms* analysts want to
+test must also be encodable and auditable. Closed rules engines force
+users to trust the implementation.
+
+The rules engine must also support vectorized operations on large
+synthetic panels so that reform analysis at scale is computationally
+feasible.
+
+### Component 3: Validation and benchmark layer
+
+The validation premise is what distinguishes this project from a
+model description. Validation must occur at multiple levels and each
+level should be published.
+
+The validation stack:
+
+- **Input data quality**: panel earnings vs. SSA cohort earnings;
+  benefit receipt in survey data vs. SSA administrative totals;
+  demographic distributions vs. Census
+- **Imputation quality**: held-out panel validation, quantile
+  coverage, autocorrelation structure of imputed histories
+- **Cross-sectional calibration**: age-earnings profiles, beneficiary
+  counts by type, average benefit amounts, benefit distributions
+- **Longitudinal validation**: earnings mobility matrices, variance
+  decomposition between- and within-person, cohort-specific
+  age-earnings profiles
+- **Fiscal aggregates**: total OASDI benefit payments, total covered
+  earnings, near-term and long-term trust fund projections
+- **Policy-relevant outcomes**: replacement rates by lifetime
+  earnings quintile, lifetime benefit distribution by cohort,
+  distributional progressivity, poverty rates among elderly by
+  demographic group
+
+The stage-gate logic is risk management. The project should not
+advance from one stage to the next without published validation
+passing pre-specified thresholds. False confidence — building a model
+that looks plausible but does not survive external scrutiny — is the
+principal risk this project faces, not coding speed.
+
+### Component 4: Public delivery surface
+
+The model should expose three surfaces:
+
+- a Python library and CLI that researchers can use directly
+- a REST API that programmatic users can call
+- an MCP server so AI agents can run baseline distributions, score
+  reform packages, and generate cohort-specific outputs through
+  natural language
+
+The MCP surface matters because it dramatically lowers the cost of
+substantive Social Security analysis for users without direct
+modeling expertise — journalists, congressional staff, advocacy
+organizations, and researchers in adjacent fields. Done right, this
+would be the first dynamic Social Security model an AI agent can
+call.
+
+A public web interface is part of the long-term delivery design but
+should follow validation rather than precede it.
+
 ## What is methodologically new
 
-The contribution is the combination of:
+The design described above is not unprecedented in any single
+component. The contribution is the combination of:
 
 - a public synthetic longitudinal population, calibrated to
   administrative targets
-- an open rules engine that integrates benefit calculation natively
+- an open rules engine integrating benefit calculation natively
 - explicit benchmark comparison to DYNASIM, MINT, CBOLT, and
   Morningstar
 - a published validation record at the intermediate-state level, not
   only at the headline output level
+- AI-callable analysis interfaces from day one
 - a path to productization that follows credibility rather than
   precedes it
 
-No single piece of that bundle is unprecedented in isolation. The
-combination does not currently exist for U.S. Social Security
+No equivalent bundle currently exists for U.S. Social Security
 analysis.
 
-## Why this is suddenly achievable
+## Possible implementation paths
 
-The methodological building blocks have matured:
+The design above is architecture-agnostic. Several open-source stacks
+could support it. The two most natural starting points today are
+PolicyEngine's current architecture and the next-generation synthetic
+population work at Cosilico. A plausible realization combines both.
 
-- Public-data reconstruction of a calibrated cross-sectional
-  population is a solved problem. PolicyEngine's Enhanced CPS
-  demonstrated that public data plus modern imputation plus
-  aggressive calibration can support useful cross-sectional policy
-  infrastructure.
-- Synthetic population methodology has progressed enough to make
-  longitudinal extension plausible without restricted matched data.
-- An open rules engine for U.S. tax and benefit policy already
-  implements core Social Security calculation logic.
-- AI-assisted development substantially reduces the engineering cost
-  of infrastructure, validation, replication, and documentation work
-  relative to a decade ago.
+### PolicyEngine's current architecture
 
-A serious open dynamic Social Security model would have been
-impractical at small-organization scale a decade ago. It is plausible
-now.
+PolicyEngine provides:
 
-## Why this is hard
+- **Enhanced CPS** (ECPS): a calibrated public cross-sectional
+  microdata foundation, adjusted against ~2,800 IRS, Census, and SSA
+  administrative targets
+- **PolicyEngine-US**: an open Python rules engine for U.S. federal
+  and state tax-benefit policy, including OASDI calculation, benefit
+  taxation, and means-tested program interactions
+- **PolicyEngine-API** and frontend: production REST API and
+  interactive interface used by think tanks, researchers, and
+  congressional staff
+- **microimpute, microcalibrate, L0**: imputation, gradient-descent
+  calibration, and sparsification tooling
 
-The hard part is not the benefit formula. The hard part is building a
-credible longitudinal population that supports:
+Strengths for this project:
 
-- lifetime earnings histories
-- insured-status determination
-- claim-age and disability pathways
-- spouse, survivor, and divorced-spouse outcomes
-- forward projections that do not drift off course
+- mature, production-tested cross-sectional foundation
+- existing Social Security calculation logic in the rules engine
+- existing API and delivery infrastructure
+- cross-sectional calibration that already matches major external
+  benchmarks
 
-That is why the project is best understood as a serious
-research-and-infrastructure build that uses an existing public
-synthetic population platform as a starting point, rather than a thin
-Social Security app on top of static data.
+Gap relative to the design:
 
-## How it relates to existing models
+- cross-sectional only; the longitudinal extension is the central
+  open methodological work
+- no existing synthetic population platform optimized for
+  longitudinal trajectory synthesis
 
-The right comparison object is the full open stack: the longitudinal
-population layer, the open rules engine, and the Social Security
-application and validation layer. Against that stack:
+### Cosilico's microplex platform
+
+Cosilico maintains `microplex`, an open synthetic population platform
+under a permissive license, with explicit authenticity and privacy
+metrics. microplex is methodologically oriented toward the kind of
+longitudinal trajectory work this project needs, including
+zero-inflated and pathwise generative models for full-trajectory
+synthesis.
+
+Strengths for this project:
+
+- architecture explicitly designed for synthetic population work,
+  including longitudinal extension
+- permissive, all-OSS license
+- modern synthesis methodology with research provenance
+
+Gap relative to the design:
+
+- less mature than Enhanced CPS in production cross-sectional
+  calibration
+- newer; less established benchmark track record
+
+### A combined realization
+
+The most likely realization combines both: PolicyEngine-US as the
+rules engine and delivery surface, with the longitudinal synthetic
+population built either inside microplex or as a direct longitudinal
+extension of Enhanced CPS, with the platform decision made on
+technical merits at the proof-of-concept stage rather than fixed in
+advance.
+
+This concept note is therefore not "fund microplex" or "fund
+PolicyEngine." It is "build the model design described above, using
+whichever open-source components best support it." The expected
+combination is PolicyEngine plus microplex, but the design is what
+matters and the combination is one realization among several
+plausible ones.
+
+## How this relates to existing models
+
+The right comparison object is the full open stack: longitudinal
+population layer, open rules engine, and Social Security application
+and validation layer. Against that stack:
 
 - **DYNASIM** (Urban Institute) is the main benchmark for breadth,
   maturity, and state richness. The proposed open alternative does
@@ -102,18 +251,32 @@ application and validation layer. Against that stack:
   proposed model trades administrative earnings for fully
   reproducible synthetic histories with explicit validation.
 - **CBOLT** (CBO) is the main benchmark for official projection
-  authority and macro-fiscal integration. The proposed model does not
-  claim official scoring authority. Its contribution is making
-  construction, validation, and policy workflow publicly inspectable.
+  authority and macro-fiscal integration. The proposed model does
+  not claim official scoring authority. Its contribution is making
+  construction, validation, and policy workflow publicly
+  inspectable.
 - **Morningstar's retirement-outcomes model** is the most relevant
   adjacent benchmark for retirement-adequacy and LTSS-oriented
   household modeling.
 
 Those models are not reasons to avoid this project. They are reasons
-to scope it correctly. The right claim is not "we will beat all of
-them quickly." The right claim is "we can build the most transparent
-public alternative, and we know which components have to earn
-credibility first."
+to scope it correctly.
+
+## Why this is suddenly achievable
+
+A serious open dynamic Social Security model would have been
+impractical at small-organization scale a decade ago. It is plausible
+now for four reasons:
+
+- public-data reconstruction of calibrated cross-sectional
+  populations is a solved problem
+- synthetic population methodology has progressed enough to make
+  longitudinal extension plausible without restricted matched data
+- open rules engines for U.S. tax-benefit policy now implement core
+  Social Security calculation logic
+- AI-assisted development substantially reduces the engineering cost
+  of infrastructure, validation, replication, and documentation work
+  relative to a decade ago
 
 ## A quantifiable signal of demand
 
@@ -121,109 +284,50 @@ The asymmetry between tax-policy modeling supply and Social Security
 modeling supply is a useful proxy for demand.
 
 On the tax side, outside analysts can point to multiple visible
-modeling channels that regularly support outside-facing analysis:
-
-- **Tax-Calculator** is an open-source federal tax microsimulation
-  model [@taxcalc2026]
-- **TaxBrain** provides a public interface to open-source tax models
-  [@taxbrain2025]
-- **The Tax Policy Center** uses its microsimulation model to analyze
-  major individual income tax bills and proposals [@tpcmodelfaq2025]
-- **ITEP** publishes federal, state, and local distributional and
-  revenue analyses driven by its microsimulation model
-  [@itepmodel2025]
+modeling channels: Tax-Calculator [@taxcalc2026],
+TaxBrain [@taxbrain2025], the Tax Policy Center microsimulation
+model [@tpcmodelfaq2025], and ITEP's tax microsimulation
+model [@itepmodel2025].
 
 On the Social Security side, the benchmark model families are real
-but largely closed:
-
-- DYNASIM, MINT, CBOLT, Morningstar
-  [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes]
+but largely closed: DYNASIM, MINT, CBOLT, and
+Morningstar [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
 
 A fair summary is therefore that tax policy has at least **four**
 visible modeling channels supporting outside-facing analysis, while
 Social Security has **zero** comparably broad public self-service
 dynamic microsimulation platforms.
 
-That does not prove that any single closed model is the bottleneck.
-But it is strong evidence that public modeling supply is thin
-relative to policy interest.
-
-There is also a more specific signal. Some users can already use
+There is also a more specific signal: some users can already use
 PolicyEngine for narrow Social Security-adjacent questions, such as
 taxation of benefits, but still need closed models like DYNASIM for
-broader dynamic Social Security analysis. CRFB is a useful example of
-this pattern. The problem is not lack of policy demand. It is the
-absence of an open dynamic model layer.
-
-## What an open dynamic Social Security stack would produce
-
-Concrete deliverables would include:
-
-- a documented public longitudinal synthetic population suitable for
-  Social Security analysis and adjacent reuse
-- a validated benefit-calculation pipeline integrated with the open
-  rules engine
-- reform-analysis workflows for a defined set of policy packages
-- a public API and a focused user interface
-- a permanent open repository containing methods, validation
-  artifacts, and documentation
-- a published validation record covering earnings histories, family
-  structure, disability, claiming, and projection drift
-
-The model would also expose the underlying analysis to AI agents
-through standard interfaces (CLI, REST API, MCP server). That makes
-it the first dynamic Social Security model an AI agent can call
-directly. The accessibility matters: it lowers the cost of
-substantive analysis for researchers, journalists, congressional
-staff, and others who do not have direct modeling expertise.
-
-## Stage gates and risk management
-
-The project should be understood as stage-gated rather than
-all-or-nothing. The principal risk is not coding speed. It is false
-confidence — building a model that looks plausible but does not
-survive external scrutiny.
-
-The main gates:
-
-- **Stage 1**: are the earnings histories and longitudinal population
-  credible enough to support Social Security analysis?
-- **Stage 2**: do family, disability, and benefit outputs hold up
-  against published benchmarks?
-- **Stage 3**: do forward projections remain stable and interpretable?
-- **Stage 4**: is the validated subset ready for public
-  productization?
-
-If a gate fails, the project stops or narrows rather than proceeding
-mechanically. Even a partial completion leaves real public value: a
-longitudinal-population methods contribution, benchmark evidence on
-competing earnings architectures, validated synthetic baseline panels
-for selected uses, and reusable improvements to the underlying open
-infrastructure.
+broader dynamic analysis. CRFB is a useful example of this pattern.
+The problem is not lack of policy demand. It is the absence of an
+open dynamic model layer.
 
 ## Adjacent applications
 
-The same architecture should preserve a path to domains that share
-the same longitudinal ingredients:
+The same architecture preserves a path to domains that share the same
+longitudinal ingredients:
 
 - retirement adequacy and wealth-sensitive analysis (SCF-linked)
 - SSI interactions and poverty analysis
 - long-term care and caregiving policy, where disability, wealth, and
   family structure matter over time
 
-Those are not phase-one commitments. They are reasons to design the
+These are not phase-one commitments. They are reasons to design the
 core architecture well.
 
 The most plausible first adjacent step is a state-specific long-term
-care pilot rather than a national dynamic LTSS model. A state-specific
-pilot can answer concrete eligibility and spend-down questions for
-real families while the harder national dynamic LTC problem remains a
-separate, later effort.
+care pilot rather than a national dynamic LTSS model. A
+state-specific pilot can answer concrete eligibility and spend-down
+questions for real families while the harder national dynamic LTC
+problem remains a separate, later effort.
 
 ## What success looks like, even short of an official model
 
-Success does not require becoming the official federal baseline. This
-project is already valuable if it can:
+Success does not require becoming the official federal baseline.
+This project is already valuable if it can:
 
 - replicate major baseline Social Security distributions credibly
 - support exploratory reform analysis with transparent assumptions
@@ -239,24 +343,6 @@ project is already valuable if it can:
 That is meaningful public value even short of official scoring
 status.
 
-## Why now
-
-The project is more credible now than it would have been a few years
-ago for three reasons.
-
-First, the public-data tax modeling stack has already established a
-credible workflow. Enhanced CPS demonstrates that public-data
-reconstruction can support useful cross-sectional policy
-infrastructure.
-
-Second, synthetic population methodology has matured enough to make
-longitudinal extension plausible.
-
-Third, the benchmark landscape is clearer. The public record now
-includes substantially more detail about what DYNASIM, MINT, CBOLT,
-and Morningstar each optimize for, which makes it easier to scope a
-public alternative honestly.
-
 ## What this is not
 
 This is not "open-source policy analysis in the abstract." It is a
@@ -267,8 +353,8 @@ focused public-infrastructure build with an explicit proving ground:
 - productization only after credibility is earned
 
 That framing matters because it ties the infrastructure work to a
-concrete and important policy domain rather than to an open principle
-in general.
+concrete and important policy domain rather than to an open
+principle in general.
 
 ## Open invitation
 
