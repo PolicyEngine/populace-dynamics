@@ -4,16 +4,11 @@
 
 The current planning lead can set the technical and product direction,
 but that is not, by itself, a sufficient staffing plan for full
-implementation. A credible funder-facing proposal should distinguish
-between:
+implementation. A credible plan distinguishes between:
 
 - the current project lead
 - the external review capacity the project needs
-- the funded implementation team required to execute the roadmap
-
-The staffing logic in this chapter is complemented by
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md),
-which maps those roles onto work packages and budget tiers.
+- the implementation team required to execute the roadmap
 
 ## Current Project Lead
 
@@ -36,7 +31,7 @@ implementation, the project should recruit review capacity covering:
 - statistical imputation, calibration, and validation
 - public-interest product and user research
 
-## Required Funded Roles
+## Required Roles
 
 The project should assume at least the following dedicated roles during
 implementation:

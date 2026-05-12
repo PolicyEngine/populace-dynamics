@@ -9,52 +9,52 @@ validated dynamic Social Security model already exists.
 
 ## Executive Summary
 
-This project proposes an open-source dynamic microsimulation model for
-Social Security policy analysis. More precisely, it proposes a
-longitudinal extension of `microplex` and a Social Security application
-layer built on top of that population asset. The model would combine:
+This project proposes an open-source dynamic microsimulation model
+for Social Security policy analysis, combining:
 
-- a public, calibrated population platform in `microplex`, currently
-  rooted in Enhanced CPS-style construction
+- a public synthetic longitudinal population, calibrated to
+  administrative targets
 - synthetic lifetime earnings histories learned from longitudinal data
 - demographic and family transitions needed for auxiliary benefits and
   disability analysis
-- validated benefit calculations integrated with PolicyEngine-US
-- a public API and web interface for exploratory policy analysis
+- validated benefit calculations integrated with an open tax-benefit
+  rules engine
+- a public API and user interface for exploratory policy analysis,
+  callable from AI agents through standard interfaces
 
-The central claim is not that a public model can instantly replace SSA,
-CBO, or Urban Institute tools. The central claim is narrower and more
-defensible: public data, modern imputation, and explicit calibration may
-be sufficient to create a transparent model that is useful for research,
-teaching, advocacy, exploratory policy design, and eventually broader
-policy use if the validation is strong enough.
+The central claim is not that a public model can instantly replace
+SSA, CBO, or Urban Institute tools. The central claim is narrower and
+more defensible: public data, modern imputation, and explicit
+calibration may be sufficient to create a transparent model that is
+useful for research, teaching, advocacy, exploratory policy design,
+and eventually broader policy use if the validation is strong enough.
 
 ## The Problem
 
-Social Security is too important to be modeled only behind closed doors.
-The main U.S. dynamic models are either internal to government, tied to
-restricted administrative records, or accessible only through contracts.
-That leaves a major gap between the importance of the policy questions
-and the accessibility of the tools used to answer them.
+Social Security is too important to be modeled only behind closed
+doors. The main U.S. dynamic models are either internal to government,
+tied to restricted administrative records, or accessible only through
+contracts. That leaves a major gap between the importance of the
+policy questions and the accessibility of the tools used to answer
+them.
 
 At the same time, static tax-benefit modeling has already shown that
 publicly reproducible microdata can be useful when the pipeline is
 carefully engineered and aggressively validated. PolicyEngine's
-Enhanced CPS established that precedent in cross-sectional analysis, and
-`microplex` turns that logic into a broader synthetic population
-dataset. The next question is whether that public population platform
-can be made longitudinal and then support serious Social Security
+Enhanced CPS established that precedent in cross-sectional analysis.
+The next question is whether a public population platform of that
+kind can be made longitudinal and then support serious Social Security
 analysis.
 
 ## What This Project Is
 
 This project is:
 
-- a research and infrastructure effort to make `microplex` into a
-  validated synthetic longitudinal population
+- a research and infrastructure effort to build a validated public
+  synthetic longitudinal population
 - a transparency project for Social Security policy analysis
 - the first policy application and validation layer on top of that
-  longitudinal population platform
+  longitudinal population
 
 This project is not:
 
@@ -65,17 +65,19 @@ This project is not:
 
 ## Decisions Already Made
 
-### 1. Base Population Platform: microplex
+### 1. Build on an Existing Public Population Platform
 
-The project should be understood as a longitudinal extension of
-`microplex`, not as an isolated Social Security-only dataset effort.
-That decision matters because it fixes the proposal on a real platform
-boundary:
+The project should be understood as a longitudinal extension of an
+existing public synthetic population platform, not as an isolated
+Social Security-only dataset effort. The chosen platform is
+`microplex`, which inherits the cross-sectional strengths of
+PolicyEngine's Enhanced CPS. That separation matters because:
 
-- the public population layer belongs in `microplex`
-- the current cross-sectional foundation still inherits the strengths of
-  the Enhanced CPS
-- the Social Security repository can focus on domain validation and
+- generic population synthesis belongs upstream, not in this
+  repository
+- the cross-sectional foundation has already been validated against
+  large numbers of administrative targets
+- this repository can focus on Social Security domain validation and
   policy application rather than rebuilding generic synthesis tools
 - future adjacent domains can reuse the same longitudinal population
   asset
@@ -169,8 +171,8 @@ that cannot be extended later.
 
 ## Guide to the Rest of the Book
 
-- [funder-summary.md](funder-summary.md) is the shortest first-read
-  version of the investment case for external funders and collaborators.
+- [funder-summary.md](funder-summary.md) is a standalone concept note
+  describing the project's methodological premise and contribution.
 - [policy-applications.md](policy-applications.md) explains the user
   needs and policy questions the model should answer.
 - [existing-models.md](existing-models.md) positions the project against
@@ -200,9 +202,6 @@ that cannot be extended later.
 - [operationalizing-mortality-and-projection-drift.md](operationalizing-mortality-and-projection-drift.md)
   covers mortality construction, survivor-relevant death timing, and
   the drift-control logic needed for credible forward projections.
-- [implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md)
-  converts the technical plan into work packages, staffing logic, and
-  the budget case for a `$1M-$1.5M` build.
 - [roadmap.md](roadmap.md) and
   [risks-and-stage-gates.md](risks-and-stage-gates.md) set a realistic
   implementation and review plan.

@@ -2,16 +2,13 @@
 
 ## Overview
 
-This roadmap assumes a serious, stage-gated build over approximately 36
-months. The goal is not to force a public launch on an arbitrary
-schedule. The goal is to earn the right to proceed from one stage to the
-next by passing validation gates.
+This roadmap describes a serious, stage-gated build. The goal is not
+to force a public launch on an arbitrary schedule. The goal is to earn
+the right to proceed from one stage to the next by passing validation
+gates.
 
 The roadmap is therefore organized around capability milestones and
-decision points, not just optimistic chronological phases.
-
-For the staffing and budget logic behind these stages, see
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md).
+decision points, not chronological phases.
 
 ## Workstreams
 
@@ -26,11 +23,7 @@ These workstreams overlap, but they should not advance at the same pace.
 Interface work should lag validation work. Policy analysis should lag
 baseline replication. That ordering is intentional.
 
-Those workstreams can also be expressed as explicit work packages. The
-implementation-oriented version of that mapping lives in
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md).
-
-## Stage 0: Project Setup and Baselines (Months 0-3)
+## Stage 0: Project Setup and Baselines
 
 **Purpose**: lock the main project decisions before large-scale
 implementation.
@@ -54,7 +47,7 @@ implementation.
 - At least a small set of external users or partner categories identified
   for the first validated outputs
 
-## Stage 1: Historical Earnings Reconstruction (Months 4-9)
+## Stage 1: Historical Earnings Reconstruction
 
 **Purpose**: determine whether `microplex` can be extended into a
 credible longitudinal population asset for Social Security analysis.
@@ -87,7 +80,7 @@ credible longitudinal population asset for Social Security analysis.
 If these conditions are not met, the project should pause rather than
 proceeding mechanically.
 
-## Stage 2: Family, Disability, Claiming, and Benefits (Months 10-18)
+## Stage 2: Family, Disability, Claiming, and Benefits
 
 **Purpose**: turn longitudinal `microplex` into a credible Social
 Security analysis dataset.
@@ -116,7 +109,7 @@ Security analysis dataset.
   exploratory reform analysis
 - Known weaknesses are documented and bounded
 
-## Stage 3: Forward Projection and Reform Analysis (Months 19-27)
+## Stage 3: Forward Projection and Reform Analysis
 
 **Purpose**: move from longitudinal `microplex` plus a validated Social
 Security layer to a projected dynamic model that can analyze reform
@@ -148,7 +141,7 @@ The operational detail behind this stage now lives in
 - At least limited outside testing shows the validated outputs are
   legible and useful to non-team users
 
-## Stage 4: Public Productization (Months 28-36)
+## Stage 4: Public Productization
 
 **Purpose**: expose validated capabilities to outside users.
 
@@ -204,15 +197,9 @@ phase.
 Those extensions should follow, not precede, validation of the Social
 Security core.
 
-## Funding and Staffing Assumption
-
-This roadmap assumes dedicated project staff. It is not a realistic plan
-if implemented only through spare capacity from existing leadership.
-
 ## Summary
 
-The roadmap is deliberately slower and more conservative than a typical
-grant pitch because the main risk in this project is not coding speed.
-It is false confidence. A public dynamic Social Security model becomes
-valuable by surviving explicit validation gates, not by reaching a web
-launch quickly.
+The roadmap is deliberately conservative because the main risk in this
+project is not coding speed. It is false confidence. A public dynamic
+Social Security model becomes valuable by surviving explicit
+validation gates, not by reaching a web launch quickly.
