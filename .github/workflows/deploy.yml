@@ -1,4 +1,4 @@
-name: Deploy Jupyter Book to GitHub Pages
+name: Deploy site to GitHub Pages
 
 on:
   push:
@@ -13,7 +13,6 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -32,16 +31,13 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: |
-          pip install black ruff
+        run: pip install black ruff
 
       - name: Check formatting with Black
-        run: |
-          black . -l 79 --check --diff
+        run: black . -l 79 --check --diff
 
       - name: Lint with Ruff
-        run: |
-          ruff check .
+        run: ruff check .
 
   build:
     runs-on: ubuntu-latest
@@ -49,39 +45,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-          cache: 'pip'
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-
-      - name: Install Python dependencies
-        run: |
-          pip install -e ".[dev]"
-
-      - name: Install MyST
-        run: |
-          npm install -g mystmd
-
-      - name: Build Jupyter Book
-        run: |
-          cd jupyterbook
-          myst build --html
-        env:
-          BASE_URL: /social-security-model
+      - name: Render Quarto site
+        run: quarto render docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: jupyterbook/_build/html
+          path: docs/_book
 
   deploy:
-    # Only deploy on pushes to master, not on PRs
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     environment:
       name: github-pages
