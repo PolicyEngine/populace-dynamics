@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "QUARTO_VERSION=1.6.40 && curl -fsSL https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.tar.gz -o quarto.tar.gz && mkdir -p .quarto-cli && tar -xzf quarto.tar.gz -C .quarto-cli --strip-components=1 && rm quarto.tar.gz",
+  "installCommand": "bash scripts/install-quarto.sh",
   "buildCommand": "./.quarto-cli/bin/quarto render docs",
   "outputDirectory": "docs/_book"
 }
