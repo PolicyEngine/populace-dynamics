@@ -164,8 +164,9 @@ analysis.
 
 The design above is architecture-agnostic. Several open-source stacks
 could support it. The two most natural starting points today are
-PolicyEngine's current architecture and the next-generation synthetic
-population work at Cosilico. A plausible realization combines both.
+PolicyEngine's current architecture and the open synthetic
+population platform `microplex`. A plausible realization combines
+both.
 
 ### PolicyEngine's current architecture
 
@@ -199,16 +200,16 @@ Gap relative to the design:
 - no existing synthetic population platform optimized for
   longitudinal trajectory synthesis
 
-### Cosilico's microplex platform
+### The microplex platform
 
-Cosilico maintains `microplex`, an open synthetic population platform
-under a permissive license. It supports multi-source fusion across
-surveys with different variable sets, zero-inflated distribution
-handling, multiple cross-sectional synthesis methods (quantile
-regression forests, quantile deep neural networks, and masked
-autoregressive flows), and sparse survey reweighting (including
-L0-regularized record selection). It evaluates synthetic populations
-using precision, recall, density, and coverage (PRDC) metrics for
+`microplex` is an open synthetic population platform released under a
+permissive license. It supports multi-source fusion across surveys
+with different variable sets, zero-inflated distribution handling,
+multiple cross-sectional synthesis methods (quantile regression
+forests, quantile deep neural networks, and masked autoregressive
+flows), and sparse survey reweighting (including L0-regularized
+record selection). It evaluates synthetic populations using
+precision, recall, density, and coverage (PRDC) metrics for
 authenticity and privacy.
 
 Strengths for this project:

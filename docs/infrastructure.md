@@ -95,7 +95,8 @@ public population platform plus an open policy application layer.
 
 **Purpose**: public synthetic population dataset and synthesis platform
 
-**Repository**: https://github.com/CosilicoAI/microplex
+**Status**: open source under a permissive license; repository
+location is subject to change as governance is finalized.
 
 **Key Capabilities**:
 - synthetic microdata generation

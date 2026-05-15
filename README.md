@@ -178,7 +178,7 @@ not by the Python package metadata.
 
 - [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us)
 - [PolicyEngine-US-Data](https://github.com/PolicyEngine/policyengine-us-data)
-- [microplex](https://github.com/CosilicoAI/microplex)
+- microplex (open synthetic population platform; permissively licensed)
 - [microimpute](https://github.com/PolicyEngine/microimpute)
 - [microcalibrate](https://github.com/PolicyEngine/microcalibrate)
 - [Cato social_security_cato_model](https://github.com/kchanwong/social_security_cato_model)
