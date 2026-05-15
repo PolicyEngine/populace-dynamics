@@ -134,9 +134,9 @@ The model should expose three surfaces:
 The MCP surface matters because it dramatically lowers the cost of
 substantive Social Security analysis for users without direct
 modeling expertise — journalists, congressional staff, advocacy
-organizations, and researchers in adjacent fields. Done right, this
-would be the first dynamic Social Security model an AI agent can
-call.
+organizations, and researchers in adjacent fields. We are not aware
+of an existing dynamic Social Security model that exposes an
+AI-callable interface of this kind.
 
 A public web interface is part of the long-term delivery design but
 should follow validation rather than precede it.
@@ -172,8 +172,9 @@ population work at Cosilico. A plausible realization combines both.
 PolicyEngine provides:
 
 - **Enhanced CPS** (ECPS): a calibrated public cross-sectional
-  microdata foundation, adjusted against ~2,800 IRS, Census, and SSA
-  administrative targets
+  microdata foundation, combining the Current Population Survey with
+  IRS Public Use File imputations and reweighted to match
+  administrative aggregates from CBO, IRS, SSA, and other sources
 - **PolicyEngine-US**: an open Python rules engine for U.S. federal
   and state tax-benefit policy, including OASDI calculation, benefit
   taxation, and means-tested program interactions
@@ -201,24 +202,29 @@ Gap relative to the design:
 ### Cosilico's microplex platform
 
 Cosilico maintains `microplex`, an open synthetic population platform
-under a permissive license, with explicit authenticity and privacy
-metrics. microplex is methodologically oriented toward the kind of
-longitudinal trajectory work this project needs, including
-zero-inflated and pathwise generative models for full-trajectory
-synthesis.
+under a permissive license. It supports multi-source fusion across
+surveys with different variable sets, zero-inflated distribution
+handling, multiple cross-sectional synthesis methods (quantile
+regression forests, quantile deep neural networks, and masked
+autoregressive flows), and sparse survey reweighting (including
+L0-regularized record selection). It evaluates synthetic populations
+using precision, recall, density, and coverage (PRDC) metrics for
+authenticity and privacy.
 
 Strengths for this project:
 
-- architecture explicitly designed for synthetic population work,
-  including longitudinal extension
-- permissive, all-OSS license
+- architecture explicitly designed for synthetic population
+  construction, including the kind of multi-source fusion needed to
+  combine survey and longitudinal data
 - modern synthesis methodology with research provenance
+- permissive, all-OSS license, actively maintained
 
 Gap relative to the design:
 
-- less mature than Enhanced CPS in production cross-sectional
-  calibration
-- newer; less established benchmark track record
+- currently cross-sectional; the longitudinal extension is open work,
+  not an existing capability
+- less mature than Enhanced CPS in production calibration against US
+  administrative targets
 
 ### A combined realization
 
