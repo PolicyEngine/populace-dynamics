@@ -202,15 +202,18 @@ Gap relative to the design:
 
 ### The microplex platform
 
-`microplex` is an open synthetic population platform released under a
-permissive license. It supports multi-source fusion across surveys
-with different variable sets, zero-inflated distribution handling,
-multiple cross-sectional synthesis methods (quantile regression
-forests, quantile deep neural networks, and masked autoregressive
-flows), and sparse survey reweighting (including L0-regularized
-record selection). It evaluates synthetic populations using
-precision, recall, density, and coverage (PRDC) metrics for
-authenticity and privacy.
+`microplex` is an open ML-first microdata architecture released
+under a permissive license. It is built from the ground up around
+modern machine-learning synthesis and calibration methods rather
+than retrofitting them onto older microsim infrastructure. The
+platform supports multi-source fusion across surveys with different
+variable sets, zero-inflated distribution handling, multiple
+cross-sectional synthesis methods (quantile regression forests,
+quantile deep neural networks, and masked autoregressive flows), and
+sparse survey reweighting (including L0-regularized record
+selection). It evaluates synthetic populations using precision,
+recall, density, and coverage (PRDC) metrics for authenticity and
+privacy.
 
 Strengths for this project:
 
