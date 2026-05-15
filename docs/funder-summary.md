@@ -312,22 +312,36 @@ On the tax side, the ecosystem spans a spectrum of openness.
 - **Penn Wharton Budget Model** [@pwbm2025]
 
 The Social Security side has a much thinner open-modeling layer. The
-**Cato Social Security model** is an active open-source dynamic
-model under AGPL-3.0 [@catossmodel2026] — and its existence
-disproves "open Social Security modeling is hypothetical." The
-institutional benchmark models, however, remain closed: DYNASIM
-(Urban), MINT (SSA), CBOLT (CBO), and Morningstar's
-retirement-outcomes model are accessible only through institutional
-relationships
+institutional benchmark models — **DYNASIM** (Urban),
+**MINT** (SSA), **CBOLT** (CBO), and **Morningstar's
+retirement-outcomes model** — are real and important, but they are
+accessible only through institutional relationships
 [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
 
-So the honest framing is not "tax has many open models, Social
-Security has none." It is that the open tax-modeling ecosystem
-includes multiple production stacks with calibrated public data, web
-interfaces, and APIs — while the open Social Security layer today
-consists of a single open dynamic model without a calibrated public
-population, programmatic API, or integration with a broader
-tax-benefit platform. The combination that does not yet exist is:
+The closest open analogue is the **Cato Social Security model**
+[@catossmodel2026], an AGPL-3.0 R implementation built on a sample
+of 10,000 households drawn from the 2007 ASEC, with earnings
+histories reconstructed from the 2006 Social Security Public Use
+File and demographic transitions driven by SSA Trustees assumptions.
+It produces conventional long-term Social Security analysis (trust
+fund ratios, insolvency dates, 75-year balance) and can score
+reforms to retirement ages, bend points, and indexing methodology.
+Its authors explicitly state that the model cannot score tax-code
+changes, has limited capabilities for Government Pension Offset
+provisions, and depends on simplifying assumptions for fertility and
+other transitions. A more complete characterization is in
+[`existing-models.md`](existing-models.md).
+
+The Cato model shows that an open dynamic Social Security model is
+feasible. It does not close the gap this concept addresses. The open
+tax-modeling ecosystem includes multiple production stacks with
+calibrated public-data populations, programmatic APIs, web
+interfaces, and integration with broader tax-benefit logic — while
+the open Social Security layer today consists of a single narrower
+model without a calibrated public population, a programmatic API,
+integration with a tax-benefit platform, or transparent
+intermediate-state validation. The combination that does not yet
+exist is:
 
 - open source
 - a public-data workflow
