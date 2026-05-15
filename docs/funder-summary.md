@@ -319,18 +319,26 @@ accessible only through institutional relationships
 [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
 
 The closest open analogue is the **Cato Social Security model**
-[@catossmodel2026], an AGPL-3.0 R implementation built on a sample
-of 10,000 households drawn from the 2007 ASEC, with earnings
-histories reconstructed from the 2006 Social Security Public Use
-File and demographic transitions driven by SSA Trustees assumptions.
-It produces conventional long-term Social Security analysis (trust
-fund ratios, insolvency dates, 75-year balance) and can score
-reforms to retirement ages, bend points, and indexing methodology.
-Its authors explicitly state that the model cannot score tax-code
-changes, has limited capabilities for Government Pension Offset
-provisions, and depends on simplifying assumptions for fertility and
-other transitions. A more complete characterization is in
-[`existing-models.md`](existing-models.md).
+[@catossmodel2026], an AGPL-3.0 R implementation. It simulates
+mortality, fertility, marriage, divorce, and employment as
+stochastic transitions on a sample of approximately 10,000
+households drawn from the 2007 ASEC, with pre-2007 earnings
+histories matched against the 2006 SSA Public Use File and forward
+earnings indexed to the Average Wage Index. It produces conventional
+long-term Social Security outputs — trust fund ratios, insolvency
+dates, 75-year balance — and can score reforms to retirement ages,
+bend points, indexing methodology, and benefit credits.
+
+The stated capabilities are deliberately scoped. The model focuses
+on OASI without a separate SSDI module, cannot score tax-code
+reforms, treats the Windfall Elimination Provision and Government
+Pension Offset as limited, holds the labor-force transition matrix
+constant from 2024 onward, and depends on simplifying assumptions
+for fertility and other dynamics. Running the baseline simulation
+requires access to the underlying SSA Public Use File. The
+repository does not currently include published validation against
+SSA Trustees, MINT, or DYNASIM. A more complete characterization is
+in [`existing-models.md`](existing-models.md).
 
 The Cato model shows that an open dynamic Social Security model is
 feasible. It does not close the gap this concept addresses. The open
