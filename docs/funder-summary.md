@@ -278,40 +278,73 @@ now for four reasons:
   of infrastructure, validation, replication, and documentation work
   relative to a decade ago
 
-## A quantifiable signal of demand
+## The open-modeling landscape
 
-The asymmetry between tax-policy modeling supply and Social Security
-modeling supply is a useful proxy for demand.
+The contrast between U.S. tax microsimulation and U.S. Social
+Security microsimulation is a useful proxy for the public
+infrastructure gap.
 
-On the tax side, open microsimulation has matured into real public
-infrastructure. Two stacks are openly usable today:
-**Tax-Calculator** (Policy Simulation Library), an open-source
-federal tax microsimulation model [@taxcalc2026]; and
-**PolicyEngine**, which extends that pattern with a calibrated
-public microdata foundation, federal and state coverage, and a
-programmatic and interactive interface. Both can be called by third
-parties without going through their maintainers.
+On the tax side, the ecosystem spans a spectrum of openness.
 
-Behind that open layer, the tax analysis ecosystem also includes a
-number of closed or internal models maintained by the Tax Policy
-Center, ITEP, the Tax Foundation, and the Yale Budget Lab, among
-others. Those models are used to produce distributional and revenue
-analyses but are not directly callable by outside researchers.
+**Openly callable, public-data models**:
 
-The Social Security side has the closed layer but not the open one.
-DYNASIM (Urban Institute), MINT (SSA), CBOLT (CBO), and Morningstar's
-retirement-outcomes model are real and important, but they are
-accessible only through institutional relationships
+- **Tax-Calculator** (Policy Simulation Library): open-source federal
+  tax microsimulation model [@taxcalc2026]
+- **PolicyEngine**: open-source federal and state tax-benefit
+  microsimulation with a calibrated public microdata foundation, a
+  REST API, and an interactive web interface [@policyengine2026]
+- **FiscalSim-US** (Center for Growth and Opportunity, Utah State):
+  open-source federal and state tax-benefit microsimulation
+  [@fiscalsim2026]
+
+**Source-available, restricted-data models**:
+
+- **Yale Budget Lab Tax-Simulator**: code is published on GitHub but
+  the model depends on the IRS Public Use File, which is not public,
+  so outside users cannot reproduce production runs
+  [@yaletaxsimulator2026]
+
+**Proprietary models** used for outside-facing analysis:
+
+- **Tax Policy Center** microsimulation model [@tpcmodelfaq2025]
+- **ITEP** microsimulation tax model [@itepmodel2025]
+- **Tax Foundation** Taxes and Growth model [@taxfoundationtag2025]
+- **Penn Wharton Budget Model** [@pwbm2025]
+
+The Social Security side has a much thinner open-modeling layer. The
+**Cato Social Security model** is an active open-source dynamic
+model under AGPL-3.0 [@catossmodel2026] — and its existence
+disproves "open Social Security modeling is hypothetical." The
+institutional benchmark models, however, remain closed: DYNASIM
+(Urban), MINT (SSA), CBOLT (CBO), and Morningstar's
+retirement-outcomes model are accessible only through institutional
+relationships
 [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
-There is no comparably open dynamic microsimulation platform for U.S.
-Social Security analysis.
+
+So the honest framing is not "tax has many open models, Social
+Security has none." It is that the open tax-modeling ecosystem
+includes multiple production stacks with calibrated public data, web
+interfaces, and APIs — while the open Social Security layer today
+consists of a single open dynamic model without a calibrated public
+population, programmatic API, or integration with a broader
+tax-benefit platform. The combination that does not yet exist is:
+
+- open source
+- a public-data workflow
+- transparent intermediate-state validation
+- a programmatic API and AI-callable interface
+- a public web interface
+- integration with a broader tax-benefit platform
+
+That is the specific gap this project is designed to fill.
 
 A more specific signal of demand: some users can already use
 PolicyEngine for narrow Social Security-adjacent questions, such as
 taxation of benefits, but still need closed models like DYNASIM for
 broader dynamic analysis. CRFB is a useful example of this pattern.
 The problem is not lack of policy demand. It is the absence of an
-open dynamic model layer.
+open dynamic model layer at the level of completeness, integration,
+and validation that the tax-side open stacks have already reached.
 
 ## Adjacent applications
 
