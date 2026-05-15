@@ -367,12 +367,16 @@ exist is:
 That is the specific gap this project is designed to fill.
 
 A more specific signal of demand: some users can already use
-PolicyEngine for narrow Social Security-adjacent questions, such as
-taxation of benefits, but still need closed models like DYNASIM for
-broader dynamic analysis. CRFB is a useful example of this pattern.
-The problem is not lack of policy demand. It is the absence of an
-open dynamic model layer at the level of completeness, integration,
-and validation that the tax-side open stacks have already reached.
+PolicyEngine for narrow Social Security-adjacent questions but still
+need closed models for broader dynamic analysis. CRFB has
+commissioned PolicyEngine for an
+[analysis of Social Security benefit-taxation reforms](https://www.policyengine.org/us/taxation-of-benefits-reforms)
+(publication forthcoming, 2026 Q2) — a static tax-side question that
+the existing open stack already supports. Broader dynamic questions
+about actuarial balance, claiming behavior, lifetime distributional
+impact, and cohort-specific reform effects still push users toward
+closed benchmark models. That is exactly the gap this project is
+designed to narrow.
 
 ## Adjacent applications
 
