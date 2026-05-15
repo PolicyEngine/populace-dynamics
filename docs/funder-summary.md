@@ -15,23 +15,23 @@ advocacy, exploratory policy design, and public education.
 
 ## Why this matters
 
-Social Security policy analysis is dominated by models that are
-internal to government, tied to restricted administrative records, or
-accessible only through institutional relationships. The public
-infrastructure for tax microsimulation has matured substantially in
-the last decade. The same has not happened for Social Security.
+Closed institutional models dominate Social Security policy analysis.
+They live inside government, depend on restricted administrative
+records, or sit behind institutional relationships. Tax
+microsimulation has matured into real public infrastructure over the
+past decade. Social Security modeling has not.
 
 For a program at this scale, the gap is unusually large. Researchers,
 smaller policy organizations, journalists, and advocates can discuss
 reform packages, but they often cannot inspect or reproduce the
 assumptions behind the models that shape those debates. The public
-ecosystem is more dependent on institutional trust than it should be.
+ecosystem depends more on institutional trust than it should.
 
 ## Design
 
-The proposed model has four components. The design is described first
-as an architecture; one possible realization in existing open-source
-stacks is described separately further down.
+The proposed model has four components. This note describes the
+design first as an architecture, then describes one possible
+realization in existing open-source stacks separately further down.
 
 ### Component 1: Synthetic longitudinal population
 
@@ -81,20 +81,19 @@ The rules engine must calculate:
 - WEP, GPO, and other adjustments
 - reform variants via parameter and formula modification
 
-An open rules engine matters not only because the rules themselves
-should be inspectable, but because the *reforms* analysts want to
-test must also be encodable and auditable. Closed rules engines force
-users to trust the implementation.
+An open rules engine matters not only because users should be able
+to inspect the rules themselves, but because analysts must be able
+to encode and audit the reforms they want to test. Closed rules
+engines force users to trust the implementation.
 
 The rules engine must also support vectorized operations on large
-synthetic panels so that reform analysis at scale is computationally
-feasible.
+synthetic panels so the model can run reform analysis at scale.
 
 ### Component 3: Validation and benchmark layer
 
-The validation premise is what distinguishes this project from a
-model description. Validation must occur at multiple levels and each
-level should be published.
+The validation premise distinguishes this project from a model
+description. The project must validate at multiple levels and
+publish each level.
 
 The validation stack:
 
@@ -148,10 +147,10 @@ component. The contribution is the combination of:
 
 - a public synthetic longitudinal population, calibrated to
   administrative targets
-- an open rules engine integrating benefit calculation natively
+- an open rules engine that integrates benefit calculation natively
 - explicit benchmark comparison to DYNASIM, MINT, CBOLT, and
   Morningstar
-- a published validation record at the intermediate-state level, not
+- a public validation record at the intermediate-state level, not
   only at the headline output level
 - AI-callable analysis interfaces from day one
 - a path to productization that follows credibility rather than
@@ -172,18 +171,18 @@ both.
 
 PolicyEngine provides:
 
-- **Enhanced CPS** (ECPS): a calibrated public cross-sectional
-  microdata foundation, combining the Current Population Survey with
-  IRS Public Use File imputations and reweighted to match
-  administrative aggregates from CBO, IRS, SSA, and other sources
+- **Enhanced CPS** (ECPS): a public cross-sectional microdata
+  foundation that combines the Current Population Survey with IRS
+  Public Use File imputations and reweights against administrative
+  aggregates from CBO, IRS, SSA, and other sources
 - **PolicyEngine-US**: an open Python rules engine for U.S. federal
-  and state tax-benefit policy, including OASDI calculation, benefit
-  taxation, and means-tested program interactions
-- **PolicyEngine-API** and frontend: production REST API and
-  interactive interface used by think tanks, researchers, and
-  congressional staff
-- **microimpute, microcalibrate, L0**: imputation, gradient-descent
-  calibration, and sparsification tooling
+  and state tax-benefit policy that calculates OASDI benefits,
+  benefit taxation, and means-tested program interactions
+- **PolicyEngine-API** and frontend: a production REST API and
+  interactive interface that think tanks, researchers, and
+  congressional staff use
+- **microimpute, microcalibrate, L0**: tooling for imputation,
+  gradient-descent calibration, and sparsification
 
 Strengths for this project:
 
@@ -202,18 +201,17 @@ Gap relative to the design:
 
 ### The microplex platform
 
-`microplex` is an open ML-first microdata architecture released
-under a permissive license. It is built from the ground up around
-modern machine-learning synthesis and calibration methods rather
-than retrofitting them onto older microsim infrastructure. The
-platform supports multi-source fusion across surveys with different
-variable sets, zero-inflated distribution handling, multiple
-cross-sectional synthesis methods (quantile regression forests,
-quantile deep neural networks, and masked autoregressive flows), and
-sparse survey reweighting (including L0-regularized record
-selection). It evaluates synthetic populations using precision,
-recall, density, and coverage (PRDC) metrics for authenticity and
-privacy.
+`microplex` is an open ML-first microdata architecture under a
+permissive license. Its architecture starts from modern
+machine-learning synthesis and calibration methods rather than
+retrofitting them onto older microsim infrastructure. The platform
+supports multi-source fusion across surveys with different variable
+sets, zero-inflated distribution handling, multiple cross-sectional
+synthesis methods (quantile regression forests, quantile deep neural
+networks, and masked autoregressive flows), and sparse survey
+reweighting (including L0-regularized record selection). It
+evaluates synthetic populations using precision, recall, density,
+and coverage (PRDC) metrics for authenticity and privacy.
 
 Strengths for this project:
 
@@ -234,10 +232,10 @@ Gap relative to the design:
 
 The most likely realization combines both: PolicyEngine-US as the
 rules engine and delivery surface, with the longitudinal synthetic
-population built either inside microplex or as a direct longitudinal
-extension of Enhanced CPS, with the platform decision made on
-technical merits at the proof-of-concept stage rather than fixed in
-advance.
+population living either inside microplex or as a direct
+longitudinal extension of Enhanced CPS. The team can decide between
+those at the proof-of-concept stage on technical merits rather than
+fixing the choice in advance.
 
 This concept note is therefore not "fund microplex" or "fund
 PolicyEngine." It is "build the model design described above, using
@@ -309,10 +307,10 @@ On the tax side, the ecosystem spans a spectrum of openness.
 
 **Source-available, restricted-data models**:
 
-- **Yale Budget Lab Tax-Simulator**: code is published on GitHub but
-  the model depends on the IRS Public Use File, which is not public,
-  so outside users cannot reproduce production runs
-  [@yaletaxsimulator2026]
+- **Yale Budget Lab Tax-Simulator**: the Budget Lab publishes its
+  code on GitHub but the model depends on the IRS Public Use File,
+  which the IRS does not release publicly, so outside users cannot
+  reproduce production runs [@yaletaxsimulator2026]
 
 **Proprietary models** used for outside-facing analysis:
 
@@ -324,8 +322,8 @@ On the tax side, the ecosystem spans a spectrum of openness.
 The Social Security side has a much thinner open-modeling layer. The
 institutional benchmark models — **DYNASIM** (Urban),
 **MINT** (SSA), **CBOLT** (CBO), and **Morningstar's
-retirement-outcomes model** — are real and important, but they are
-accessible only through institutional relationships
+retirement-outcomes model** — are real and important, but outside
+users can access them only through institutional relationships
 [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
 
 The closest open analogue is the **Cato Social Security model**
@@ -368,7 +366,7 @@ exist is:
 - a public web interface
 - integration with a broader tax-benefit platform
 
-That is the specific gap this project is designed to fill.
+That is the specific gap this project fills.
 
 A more specific signal of demand: some users can already use
 PolicyEngine for narrow Social Security-adjacent questions but still
@@ -379,8 +377,8 @@ commissioned PolicyEngine for an
 the existing open stack already supports. Broader dynamic questions
 about actuarial balance, claiming behavior, lifetime distributional
 impact, and cohort-specific reform effects still push users toward
-closed benchmark models. That is exactly the gap this project is
-designed to narrow.
+closed benchmark models. That is exactly the gap this project
+narrows.
 
 ## Adjacent applications
 
@@ -427,7 +425,7 @@ focused public-infrastructure build with an explicit proving ground:
 
 - Social Security first
 - public validation first
-- productization only after credibility is earned
+- productization only after the project earns credibility
 
 That framing matters because it ties the infrastructure work to a
 concrete and important policy domain rather than to an open
@@ -435,8 +433,8 @@ principle in general.
 
 ## Open invitation
 
-The project is at a stage where outside input shapes how it gets
-built. The most valuable conversations right now are with:
+The project is at a stage where outside input shapes how it
+develops. The most valuable conversations right now are with:
 
 - researchers and modelers with retirement-economics or
   microsimulation expertise
