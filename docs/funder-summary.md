@@ -283,22 +283,30 @@ now for four reasons:
 The asymmetry between tax-policy modeling supply and Social Security
 modeling supply is a useful proxy for demand.
 
-On the tax side, outside analysts can point to multiple visible
-modeling channels: Tax-Calculator [@taxcalc2026],
-TaxBrain [@taxbrain2025], the Tax Policy Center microsimulation
-model [@tpcmodelfaq2025], and ITEP's tax microsimulation
-model [@itepmodel2025].
+On the tax side, open microsimulation has matured into real public
+infrastructure. Two stacks are openly usable today:
+**Tax-Calculator** (Policy Simulation Library), an open-source
+federal tax microsimulation model [@taxcalc2026]; and
+**PolicyEngine**, which extends that pattern with a calibrated
+public microdata foundation, federal and state coverage, and a
+programmatic and interactive interface. Both can be called by third
+parties without going through their maintainers.
 
-On the Social Security side, the benchmark model families are real
-but largely closed: DYNASIM, MINT, CBOLT, and
-Morningstar [@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
+Behind that open layer, the tax analysis ecosystem also includes a
+number of closed or internal models maintained by the Tax Policy
+Center, ITEP, the Tax Foundation, and the Yale Budget Lab, among
+others. Those models are used to produce distributional and revenue
+analyses but are not directly callable by outside researchers.
 
-A fair summary is therefore that tax policy has at least **four**
-visible modeling channels supporting outside-facing analysis, while
-Social Security has **zero** comparably broad public self-service
-dynamic microsimulation platforms.
+The Social Security side has the closed layer but not the open one.
+DYNASIM (Urban Institute), MINT (SSA), CBOLT (CBO), and Morningstar's
+retirement-outcomes model are real and important, but they are
+accessible only through institutional relationships
+[@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
+There is no comparably open dynamic microsimulation platform for U.S.
+Social Security analysis.
 
-There is also a more specific signal: some users can already use
+A more specific signal of demand: some users can already use
 PolicyEngine for narrow Social Security-adjacent questions, such as
 taxation of benefits, but still need closed models like DYNASIM for
 broader dynamic analysis. CRFB is a useful example of this pattern.
