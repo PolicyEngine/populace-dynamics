@@ -159,90 +159,45 @@ component. The contribution is the combination of:
 No equivalent bundle currently exists for U.S. Social Security
 analysis.
 
-## Possible implementation paths
+## Implementation: the PolicyEngine stack
 
-The design above is architecture-agnostic. Several open-source stacks
-could support it. The two most natural starting points today are
-PolicyEngine's current architecture and the open synthetic
-population platform `microplex`. A plausible realization combines
-both.
+The most natural implementation of this design today is the
+PolicyEngine open-source stack. PolicyEngine maintains:
 
-### PolicyEngine's current architecture
-
-PolicyEngine provides:
-
-- **Enhanced CPS** (ECPS): a public cross-sectional microdata
-  foundation that combines the Current Population Survey with IRS
-  Public Use File imputations and reweights against administrative
-  aggregates from CBO, IRS, SSA, and other sources
-- **PolicyEngine-US**: an open Python rules engine for U.S. federal
-  and state tax-benefit policy that calculates OASDI benefits,
-  benefit taxation, and means-tested program interactions
-- **PolicyEngine-API** and frontend: a production REST API and
+- **microplex**: PolicyEngine's next-generation microdata layer. An
+  ML-first architecture, built from the ground up around modern
+  machine-learning synthesis and calibration methods rather than
+  retrofitting them onto older microsim infrastructure. It
+  integrates and calibrates against dozens of surveys and
+  administrative sources, with explicit support for longitudinal
+  sources. The synthesis methods include quantile regression
+  forests, quantile deep neural networks, and masked autoregressive
+  flows; calibration uses gradient descent with optional
+  L0-regularized record selection; authenticity and privacy
+  evaluation uses precision, recall, density, and coverage (PRDC)
+  metrics.
+- **Enhanced CPS** (ECPS): the production cross-sectional microdata
+  foundation in use today. Combines the Current Population Survey
+  with IRS Public Use File imputations and reweights against
+  administrative aggregates from CBO, IRS, SSA, and other sources.
+- **PolicyEngine-US**: open Python rules engine for U.S. federal and
+  state tax-benefit policy. Calculates OASDI benefits, benefit
+  taxation, and means-tested program interactions.
+- **PolicyEngine-API** and **frontend**: production REST API and
   interactive interface that think tanks, researchers, and
-  congressional staff use
+  congressional staff use.
 - **microimpute, microcalibrate, L0**: tooling for imputation,
-  gradient-descent calibration, and sparsification
+  gradient-descent calibration, and sparsification.
 
-Strengths for this project:
+The Social Security build adds the longitudinal extension on top of
+microplex, the Social Security application and validation layer on
+top of PolicyEngine-US, and an MCP server on top of the API.
 
-- mature, production-tested cross-sectional foundation
-- existing Social Security calculation logic in the rules engine
-- existing API and delivery infrastructure
-- cross-sectional calibration that already matches major external
-  benchmarks
-
-Gap relative to the design:
-
-- cross-sectional only; the longitudinal extension is the central
-  open methodological work
-- no existing synthetic population platform optimized for
-  longitudinal trajectory synthesis
-
-### The microplex platform
-
-`microplex` is an open ML-first microdata architecture under a
-permissive license. Its architecture starts from modern
-machine-learning synthesis and calibration methods rather than
-retrofitting them onto older microsim infrastructure. The platform
-supports multi-source fusion across surveys with different variable
-sets, zero-inflated distribution handling, multiple cross-sectional
-synthesis methods (quantile regression forests, quantile deep neural
-networks, and masked autoregressive flows), and sparse survey
-reweighting (including L0-regularized record selection). It
-evaluates synthetic populations using precision, recall, density,
-and coverage (PRDC) metrics for authenticity and privacy.
-
-Strengths for this project:
-
-- architecture explicitly designed for synthetic population
-  construction, including the kind of multi-source fusion needed to
-  combine survey and longitudinal data
-- modern synthesis methodology with research provenance
-- permissive, all-OSS license, actively maintained
-
-Gap relative to the design:
-
-- currently cross-sectional; the longitudinal extension is open work,
-  not an existing capability
-- less mature than Enhanced CPS in production calibration against US
-  administrative targets
-
-### A combined realization
-
-The most likely realization combines both: PolicyEngine-US as the
-rules engine and delivery surface, with the longitudinal synthetic
-population living either inside microplex or as a direct
-longitudinal extension of Enhanced CPS. The team can decide between
-those at the proof-of-concept stage on technical merits rather than
-fixing the choice in advance.
-
-This concept note is therefore not "fund microplex" or "fund
-PolicyEngine." It is "build the model design described above, using
-whichever open-source components best support it." The expected
-combination is PolicyEngine plus microplex, but the design is what
-matters and the combination is one realization among several
-plausible ones.
+The design itself is architecture-agnostic — other open-source
+stacks could realize it — but the PolicyEngine stack is the path
+with the most production-ready foundation, existing Social Security
+calculation logic in the rules engine, and existing API and delivery
+infrastructure.
 
 ## How this relates to existing models
 

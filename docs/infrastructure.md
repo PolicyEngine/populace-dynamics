@@ -95,8 +95,8 @@ public population platform plus an open policy application layer.
 
 **Purpose**: public synthetic population dataset and synthesis platform
 
-**Status**: open source under a permissive license; repository
-location is subject to change as governance is finalized.
+**Status**: PolicyEngine's next-generation microdata layer; open
+source under a permissive license.
 
 **Key Capabilities**:
 - synthetic microdata generation
