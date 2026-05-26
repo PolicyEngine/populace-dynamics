@@ -253,27 +253,14 @@ panel_subset = synthetic_panel[selected_indices]
 
 **Status**: Under development, research stage
 
-### PolicyEngine-US-Data: Enhanced CPS
+### Enhanced CPS: precursor work
 
-**Purpose**: Construct high-quality microdata from CPS with improved income reporting
-
-**Repository**: https://github.com/PolicyEngine/policyengine-us-data
-
-The Enhanced CPS uses QRF imputation and gradient descent calibration to
-~2,800 administrative targets [@ghenis2024]. That work is best
-understood as an important precursor to `microplex`, not as the final
-architecture of this project.
-
-**Our Use**:
-- historical foundation for the current public population layer
-- proof that public-data enhancement and calibration can succeed at
-  policy-relevant scale
-- bridge between the older PolicyEngine data pipeline and `microplex`
-
-**Extensions for Dynamic Model**:
-- move from a calibrated cross-section to longitudinal `microplex`
-- add earnings histories and transitions
-- add longitudinal calibration and validation targets
+PolicyEngine's earlier Enhanced CPS used QRF imputation and gradient
+descent calibration against administrative targets [@ghenis2024].
+That work is best understood as an important precursor to
+`microplex`, not as the architecture of this project. microplex
+generalizes the conceptual approach into a broader ML-first
+microdata stack.
 
 ### PolicyEngine-Core: Microsimulation Engine
 
@@ -655,13 +642,12 @@ We leverage a rich ecosystem of open-source tools:
 **Core Tools** (PolicyEngine-developed):
 - `microimpute`: ML imputation (QRF)
 - `microcalibrate`: Gradient descent calibration
-- `policyengine-us-data`: Enhanced CPS construction
 - `policyengine-core`: Microsimulation engine
 
 **Foundation** (Existing):
-- Enhanced CPS as starting point
-- Proven data construction pipeline
-- Social Security rules already implemented
+- `microplex` as starting point — PolicyEngine's microdata stack
+- Proven data construction and calibration pipeline
+- Social Security rules already implemented in PolicyEngine-US
 - Infrastructure for web/API deployment
 
 **Additional Methodological Approaches** (To evaluate during proof of concept):

@@ -41,10 +41,9 @@ them.
 At the same time, static tax-benefit modeling has already shown that
 publicly reproducible microdata can be useful when the pipeline is
 carefully engineered and aggressively validated. PolicyEngine's
-Enhanced CPS established that precedent in cross-sectional analysis.
-The next question is whether a public population platform of that
-kind can be made longitudinal and then support serious Social Security
-analysis.
+microplex stack demonstrates this at production scale today. The
+next question is whether that stack can extend to longitudinal
+microdata and then support serious Social Security analysis.
 
 ## What This Project Is
 
@@ -65,17 +64,19 @@ This project is not:
 
 ## Decisions Already Made
 
-### 1. Build on an Existing Public Population Platform
+### 1. Build on PolicyEngine's microplex microdata stack
 
-The project should be understood as a longitudinal extension of an
-existing public synthetic population platform, not as an isolated
-Social Security-only dataset effort. The chosen platform is
-`microplex`, which inherits the cross-sectional strengths of
-PolicyEngine's Enhanced CPS. That separation matters because:
+The project extends `microplex`, PolicyEngine's ML-first microdata
+layer, rather than building an isolated Social Security-only
+dataset. microplex already integrates and calibrates dozens of
+surveys and administrative sources and supports the methodological
+machinery (synthesis, calibration, sparsification, and
+authenticity/privacy evaluation) the Social Security extension
+needs. That choice matters because:
 
-- generic population synthesis belongs upstream, not in this
+- generic population synthesis belongs in microplex, not in this
   repository
-- the cross-sectional foundation has already been validated against
+- microplex's cross-sectional layer is already validated against
   large numbers of administrative targets
 - this repository can focus on Social Security domain validation and
   policy application rather than rebuilding generic synthesis tools

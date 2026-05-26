@@ -111,43 +111,50 @@ comparison to DynaSim, MINT, CBOLT, and other models.
 
 ### Starting Point: microplex's current cross-sectional layer
 
-The project should start from `microplex` as the public population
-platform. Today that still means inheriting much of the logic and many
-of the strengths of the Enhanced CPS, because `microplex`'s current
-cross-sectional layer is grounded in the same general approach:
-public-data construction, income enhancement, and calibration to
-external targets.
-
-This decision reflects strong reviewer consensus about the value of the
-Enhanced CPS lineage while also recognizing that the end product should
-be a longitudinal `microplex`, not a standalone Social Security-only
-cross-section.
+The project starts from `microplex`, PolicyEngine's microdata stack.
+microplex already demonstrates public-data construction, income
+enhancement, and calibration to administrative targets at production
+scale. It supersedes PolicyEngine's earlier Enhanced CPS work, which
+implemented part of the same conceptual approach on a narrower
+scope.
 
 Advantages of this starting point:
 
-1. **Proven methodology**: ECPS has already solved the cross-sectional income underreporting problem using the same tools we will apply longitudinally
-2. **Integration**: Seamless connection to PolicyEngine-US's existing tax-benefit calculations
-3. **Platform value**: improvements made for this project can strengthen `microplex` rather than remaining trapped in a narrow application repository
-4. **Credibility**: builds on demonstrated success rather than restarting from scratch
-5. **Sample size**: a large synthetic public population provides statistical power for national and subnational analysis
+1. **Proven methodology**: microplex has already solved the
+   cross-sectional income underreporting problem using the same
+   tools the longitudinal extension will apply
+2. **Integration**: seamless connection to PolicyEngine-US's
+   existing tax-benefit calculations
+3. **Platform value**: improvements made for this project strengthen
+   `microplex` rather than remaining trapped in a narrow application
+   repository
+4. **Credibility**: builds on a demonstrated production stack rather
+   than restarting from scratch
+5. **Sample size**: a large synthetic public population provides
+   statistical power for national and subnational analysis
 
-The ECPS improves upon raw CPS through:
+microplex improves upon raw CPS through:
 
-**Income Imputation**: Filling missing income components using `microimpute`
+**Income imputation**: filling missing income components using
+`microimpute` (quantile regression forests and related methods)
 
-**Benefit Underreporting**: Correcting for survey underreporting of transfer income
+**Benefit underreporting correction**: aligning survey-reported
+transfer income with administrative aggregates
 
-**Tax Unit Construction**: Creating tax filing units from household structure
+**Tax unit construction**: creating tax filing units from household
+structure
 
-**Calibration**: base-population calibration to match ~2,800 IRS,
-Census, and SSA administrative targets
+**Multi-source calibration**: base-population reweighting against
+administrative aggregates from CBO, IRS, SSA, Census, and other
+sources
 
-The proof-of-concept phase should therefore validate that `microplex`
-can be extended longitudinally, rather than reopening the question of
+The proof-of-concept phase should validate that `microplex` can be
+extended longitudinally, rather than reopening the question of
 whether the project should start from some entirely different base
-population. If computational constraints arise with the full synthetic
-population, sparse selection techniques can still be used for research
-and product deployment while preserving the underlying population asset.
+population. If computational constraints arise with the full
+synthetic population, sparse selection techniques can still be used
+for research and product deployment while preserving the underlying
+population asset.
 
 ### Adding Historical Variables
 

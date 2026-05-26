@@ -164,22 +164,18 @@ analysis.
 The most natural implementation of this design today is the
 PolicyEngine open-source stack. PolicyEngine maintains:
 
-- **microplex**: PolicyEngine's next-generation microdata layer. An
-  ML-first architecture, built from the ground up around modern
+- **microplex**: PolicyEngine's microdata layer. An ML-first
+  architecture, built from the ground up around modern
   machine-learning synthesis and calibration methods rather than
   retrofitting them onto older microsim infrastructure. It
   integrates and calibrates against dozens of surveys and
-  administrative sources, with explicit support for longitudinal
-  sources. The synthesis methods include quantile regression
-  forests, quantile deep neural networks, and masked autoregressive
-  flows; calibration uses gradient descent with optional
-  L0-regularized record selection; authenticity and privacy
-  evaluation uses precision, recall, density, and coverage (PRDC)
-  metrics.
-- **Enhanced CPS** (ECPS): the production cross-sectional microdata
-  foundation in use today. Combines the Current Population Survey
-  with IRS Public Use File imputations and reweights against
-  administrative aggregates from CBO, IRS, SSA, and other sources.
+  administrative sources from CBO, IRS, SSA, Census, and others,
+  with explicit support for longitudinal sources. The synthesis
+  methods include quantile regression forests, quantile deep neural
+  networks, and masked autoregressive flows; calibration uses
+  gradient descent with optional L0-regularized record selection;
+  authenticity and privacy evaluation uses precision, recall,
+  density, and coverage (PRDC) metrics.
 - **PolicyEngine-US**: open Python rules engine for U.S. federal and
   state tax-benefit policy. Calculates OASDI benefits, benefit
   taxation, and means-tested program interactions.
@@ -231,8 +227,9 @@ A serious open dynamic Social Security model would have been
 impractical at small-organization scale a decade ago. It is plausible
 now for four reasons:
 
-- public-data reconstruction of calibrated cross-sectional
-  populations is a solved problem
+- PolicyEngine's microplex stack demonstrates that public-data
+  reconstruction of calibrated cross-sectional populations works at
+  production scale
 - synthetic population methodology has progressed enough to make
   longitudinal extension plausible without restricted matched data
 - open rules engines for U.S. tax-benefit policy now implement core

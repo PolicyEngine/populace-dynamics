@@ -30,8 +30,8 @@ implementation.
 
 ### Deliverables
 
-- Finalized base population platform: `microplex`, with its current
-  cross-sectional layer grounded in Enhanced CPS-style construction
+- Finalized base population platform: `microplex`, PolicyEngine's
+  microdata stack
 - Clear boundary between `microplex` platform work and
   Social Security-specific application work
 - Benchmark datasets and target tables assembled
