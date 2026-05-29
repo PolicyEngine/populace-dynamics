@@ -18,7 +18,7 @@ infrastructure:
 ```mermaid
 flowchart LR
     subgraph data["Data layer"]
-        ARCH["Arch<br/>(Government datasets<br/>+ calibration targets)"]
+        LEDGER["Ledger<br/>(Government datasets<br/>+ calibration targets)"]
     end
 
     subgraph sources["Public Methods"]
@@ -43,7 +43,7 @@ flowchart LR
         PY["policyengine.py"]
     end
 
-    ARCH --> MPX
+    LEDGER --> MPX
     MI --> MPX
     MC --> MPX
     L0 --> MPX
@@ -60,7 +60,7 @@ flowchart LR
 
 The high-level logic is:
 
-- assemble government source data and calibration targets in `Arch`
+- assemble government source data and calibration targets in `Ledger`
 - synthesize and calibrate the public population in `microplex`
 - extend `microplex` longitudinally
 - use PolicyEngine-US and this repository to turn that asset into a
@@ -98,7 +98,7 @@ public population platform plus an open policy application layer.
 
 ## Key tools and libraries
 
-### Arch: the data layer
+### Ledger: the data layer
 
 **Purpose**: assemble and maintain the U.S. government survey and
 administrative datasets — and the administrative aggregates used as
@@ -112,7 +112,7 @@ set of sources and calibrates against a consistent set of targets.
 ### microplex: the population layer
 
 **Purpose**: synthesize and calibrate the public population from
-Arch's sources and targets.
+Ledger's sources and targets.
 
 **Status**: PolicyEngine's ML-first microdata layer; open source
 under a permissive license. Cross-sectional capabilities are already

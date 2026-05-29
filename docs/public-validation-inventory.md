@@ -16,7 +16,7 @@ use to validate the model. It is not an exhaustive bibliography. It is
 the minimum practical source stack for judging whether longitudinal
 `microplex` is becoming decision-useful.
 
-Many of these sources are already assembled inside Arch, PolicyEngine's
+Many of these sources are already assembled inside Ledger, PolicyEngine's
 harness over dozens of U.S. government survey and administrative
 datasets — the source microdata and calibration targets (from CBO, IRS,
 SSA, Census, and others) that `microplex` draws on. Naming the sources

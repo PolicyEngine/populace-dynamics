@@ -34,7 +34,7 @@ implementation.
   microdata stack
 - Clear boundary between `microplex` platform work and
   Social Security-specific application work
-- Benchmark datasets and target tables assembled from Arch, the
+- Benchmark datasets and target tables assembled from Ledger, the
   PolicyEngine data layer that harnesses dozens of government survey and
   administrative sources
 - Initial validation harness for baseline distributions

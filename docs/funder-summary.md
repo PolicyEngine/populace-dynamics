@@ -164,15 +164,15 @@ analysis.
 The most natural implementation of this design today is the
 PolicyEngine open-source stack. PolicyEngine maintains:
 
-- **Arch**: a harness over dozens of U.S. government survey and
+- **Ledger**: a harness over dozens of U.S. government survey and
   administrative datasets — the source microdata and the calibration
   targets (from CBO, IRS, SSA, Census, and others) — assembled and
   maintained as a common data layer.
 - **microplex**: PolicyEngine's ML-first microdata layer. Built from
   the ground up around modern machine-learning synthesis and
   calibration methods rather than retrofitting them onto older
-  microsim infrastructure, it synthesizes populations from Arch's
-  sources and calibrates them against Arch's administrative targets,
+  microsim infrastructure, it synthesizes populations from Ledger's
+  sources and calibrates them against Ledger's administrative targets,
   with explicit support for longitudinal sources. The synthesis
   methods include quantile regression forests, quantile deep neural
   networks, and masked autoregressive flows; calibration uses

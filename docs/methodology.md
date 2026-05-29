@@ -7,8 +7,8 @@ longitudinal and then using that longitudinal population for Social
 Security microsimulation. `microplex` is PolicyEngine's ML-first
 microdata layer; it synthesizes populations from the U.S. government
 survey and administrative datasets that PolicyEngine assembles in
-`Arch` and calibrates them against the administrative targets (CBO,
-IRS, SSA, Census, and others) that `Arch` maintains. The core
+`Ledger` and calibrates them against the administrative targets (CBO,
+IRS, SSA, Census, and others) that `Ledger` maintains. The core
 challenge is creating realistic lifetime earnings trajectories and
 demographic transitions while maintaining cross-sectional accuracy,
 longitudinal realism, and computational feasibility.
@@ -22,7 +22,7 @@ MINT, and the public CBO record.
 ## Methodology flow
 
 The following diagram illustrates the high-level data flow through the
-synthetic panel construction process. `Arch` supplies the source
+synthetic panel construction process. `Ledger` supplies the source
 microdata and the calibration targets (including SSA aggregates) that
 `microplex` draws on:
 
@@ -31,7 +31,7 @@ flowchart TD
     subgraph inputs["Input Data Sources"]
         MPX["microplex<br/>(Cross-sectional population)"]
         PSID["PSID<br/>(Longitudinal)"]
-        SSA["Arch calibration targets<br/>(SSA, CBO, IRS, Census)"]
+        SSA["Ledger calibration targets<br/>(SSA, CBO, IRS, Census)"]
     end
 
     subgraph processing["Longitudinal Extension"]
@@ -153,7 +153,7 @@ structure
 
 **Multi-source calibration**: base-population reweighting against the
 administrative aggregates (CBO, IRS, SSA, Census, and others) that
-`Arch` assembles and maintains
+`Ledger` assembles and maintains
 
 The proof-of-concept phase should validate that `microplex` can be
 extended longitudinally, rather than reopening the question of
@@ -512,7 +512,7 @@ structure this project needs.
 Weights still matter before longitudinalization. The cross-sectional
 `microplex` base should be calibrated to demographic, income, tax, and
 program targets using `microplex`'s existing calibration toolchain
-against `Arch`'s administrative aggregates.
+against `Ledger`'s administrative aggregates.
 
 Once that base population is converted into a longitudinal population,
 the representation should be treated as a population scaffold with

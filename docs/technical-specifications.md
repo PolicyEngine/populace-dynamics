@@ -49,7 +49,7 @@ using cross-sectional and longitudinal input data, including
 parameterized stochastic earnings shocks and other transition
 equations. `microplex` draws those cross-sectional and longitudinal
 sources, along with the SSA, CBO, IRS, and Census calibration targets
-the validation steps rely on, from `Arch` — PolicyEngine's harness over
+the validation steps rely on, from `Ledger` — PolicyEngine's harness over
 dozens of U.S. government survey and administrative datasets.
 
 ### The historical simulation process

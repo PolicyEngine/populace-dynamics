@@ -56,7 +56,7 @@ just whether the code runs.
 
 The project requires substantial work on harmonization, ingestion,
 versioning, and reproducibility across the surveys and administrative
-sources in Arch, PolicyEngine's harness over dozens of government
+sources in Ledger, PolicyEngine's harness over dozens of government
 datasets and calibration targets. This is a real workload, not a
 background task.
 

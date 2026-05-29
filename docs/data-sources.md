@@ -9,11 +9,11 @@ cross-sectional population characteristics, longitudinal earnings
 dynamics, and demographic transitions.
 
 PolicyEngine assembles and maintains these sources, along with the
-administrative aggregates used as calibration targets, in `Arch` —
+administrative aggregates used as calibration targets, in `Ledger` —
 its harness over dozens of U.S. government survey and administrative
-datasets. `microplex` synthesizes populations from Arch's sources
-and calibrates them against Arch's targets. This chapter describes
-the primary sources Arch supplies to that pipeline.
+datasets. `microplex` synthesizes populations from Ledger's sources
+and calibrates them against Ledger's targets. This chapter describes
+the primary sources Ledger supplies to that pipeline.
 
 ## Primary survey data sources
 

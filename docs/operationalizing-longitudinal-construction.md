@@ -11,7 +11,7 @@ longitudinal `microplex` is merely an interesting synthetic dataset or a
 serious policy-analysis asset.
 
 Throughout this chapter, `microplex` is PolicyEngine's ML-first
-microdata layer, and `Arch` is PolicyEngine's harness over dozens of
+microdata layer, and `Ledger` is PolicyEngine's harness over dozens of
 U.S. government survey and administrative datasets — the source
 microdata and the calibration targets (CBO, IRS, SSA, Census, and
 others) that `microplex` synthesizes from and calibrates against.
@@ -68,7 +68,7 @@ main benchmark models:
 
 | Component | DYNASIM public record | MINT public record | CBO public record | Implication for us |
 |---|---|---|---|---|
-| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `microplex`, synthesized from `Arch`'s survey sources, can play the starting-sample role, but it does not inherit observed earnings histories |
+| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `microplex`, synthesized from `Ledger`'s survey sources, can play the starting-sample role, but it does not inherit observed earnings histories |
 | **Historical earnings** | Older DYNASIM work used statistical matching to attach historical earnings built from PSID and CPS/SER-style sources | Uses observed administrative earnings where available and projects the remainder | Public documentation is sparse on exact record construction | This is the central gap our project must close with public methods |
 | **Annual labor-market process** | Relies on yearly transition equations, hazard-style modules, and Monte Carlo simulation | Projects labor force participation and earnings from an admin-linked base | Public emphasis is on cohort/quintile outputs and aggregate consistency | Our design should be annual and state-based, not only age-point imputation |
 | **Alignment and calibration** | Explicitly aligns modules to observed history and future control totals | Uses Trustees assumptions and current-law rules for projections | Integrated to official long-term projections and budget baselines | We need explicit alignment layers, not a one-shot imputation |
@@ -738,7 +738,7 @@ The proposal should explicitly benchmark the following pieces:
 
 ### Starting file
 
-- **Our plan**: `microplex` cross section, synthesized from `Arch`'s
+- **Our plan**: `microplex` cross section, synthesized from `Ledger`'s
   survey sources
 - **DYNASIM**: representative survey base, augmented by multiple surveys
   and matched historical earnings work
