@@ -6,7 +6,7 @@ on top of it. The relevant build is not a standalone Social
 Security-only dataset. It is a reusable longitudinal population asset
 plus a policy-analysis layer.
 
-## Required Variables and Transition Equations
+## Required variables and transition equations
 
 Dynamic microsimulation models begin with a longitudinal sample of the
 population and age that sample forward through time using stochastic
@@ -16,15 +16,15 @@ variables and equations required depend on the modeling goals. For
 Social Security analysis, we need inputs to both payroll tax and benefit
 calculations.
 
-### Core Demographic Variables
+### Core demographic variables
 
 The demographic inputs directly relevant to Social Security include birth year, which determines retirement eligibility and benefit calculation periods, marital status for spousal and survivor benefit calculations, and family linkages connecting individuals to spouse, children, and parent records in the data structure. These relationships enable modeling of dependent and survivor benefits, which constitute a substantial share of Social Security expenditures.
 
-### Economic Variables
+### Economic variables
 
 The primary economic input is annual earnings, which determines both payroll tax liability and future benefit levels through the Average Indexed Monthly Earnings (AIME) calculation. Modeling earnings requires capturing labor force participation decisions, educational attainment (which strongly predicts lifetime earnings trajectories), and hours worked (which along with wages determines total earnings). These employment outcomes depend on additional factors including sex, health status (relevant for disability insurance and early claiming decisions), and fertility (particularly relevant for women's labor force participation patterns).
 
-### Complete Variable List
+### Complete variable list
 
 A basic Social Security model thus involves simulating year-by-year and person-by-person:
 - Birth and mortality
@@ -38,7 +38,7 @@ A basic Social Security model thus involves simulating year-by-year and person-b
 - Earnings (combining participation, hours, and wages)
 - Benefit claiming decisions
 
-## Constructing Longitudinal microplex: Historical Simulation
+## Constructing longitudinal microplex: historical simulation
 
 The input dataset for dynamic microsimulation requires longitudinal
 histories for all listed variables in a representative sample as of the
@@ -47,47 +47,50 @@ making `microplex` longitudinal. It proceeds through historical
 simulation, which is effectively a synthetic data generation exercise
 using cross-sectional and longitudinal input data, including
 parameterized stochastic earnings shocks and other transition
-equations.
+equations. `microplex` draws those cross-sectional and longitudinal
+sources, along with the SSA, CBO, IRS, and Census calibration targets
+the validation steps rely on, from `Arch` — PolicyEngine's harness over
+dozens of U.S. government survey and administrative datasets.
 
-### The Historical Simulation Process
+### The historical simulation process
 
 Historical simulation works backward from the present to construct plausible lifetime histories. For a 65-year-old in the base year 2024, we need earnings from ages 18-64 (1977-2023). Rather than mechanically imputing these values, we simulate backward using transition equations estimated from longitudinal data sources like PSID. This approach ensures that simulated histories respect observed transition probabilities and correlations across variables.
 
-### Validation Through Historical Matching
+### Validation through historical matching
 
 Validating the synthetic input file requires matching known cross-sectional and longitudinal moments for the input variables. Cross-sectional validation checks whether the base year distributions match observed data for all key variables. Longitudinal validation examines whether transition rates (job-to-job mobility, marriage rates, etc.) match those observed in panel data. The critical test compares model predictions for outcomes of interest, specifically payroll taxes collected, number of beneficiaries by type, and benefit amounts distributed, to historical outcomes from SSA administrative data.
 
 This validation process differs from simply matching target moments through calibration. Historical simulation validates that the underlying data generation process produces realistic outcomes, not just that we have calibrated weights to hit specific targets. This distinction matters because projections rely on the transition equations continuing to generate plausible outcomes as the population ages forward.
 
-## Projections and the Jump-Off Problem
+## Projections and the jump-off problem
 
-The same basic machinery used to produce and validate the longitudinal input file is then used to simulate forward through time. All projection models, both micro and macro, face the well-known "jump-off" problem. Earnings processes and transition equations that fit on average during the historical period provide an imperfect prediction when simulating forward from the base year. Structural changes in the economy, demographic shifts, policy changes, and other factors cause projected outcomes to drift from realized aggregates.
+The same basic machinery that produces and validates the longitudinal input file then simulates forward through time. All projection models, both micro and macro, face the well-known "jump-off" problem. Earnings processes and transition equations that fit on average during the historical period provide an imperfect prediction when simulating forward from the base year. Structural changes in the economy, demographic shifts, policy changes, and other factors cause projected outcomes to drift from realized aggregates.
 
-### Addressing Projection Drift
+### Addressing projection drift
 
 Projections generally require adding calibration factors to correct for the jump-off problem. These factors adjust transition probabilities or outcome distributions to ensure that projected aggregates match external benchmarks, such as SSA Trustees' intermediate assumptions for aggregate earnings, labor force participation, mortality rates, and disability incidence. This calibration is key to generating ergodic (non-degenerative) distributions for outcomes of interest and preventing unrealistic drift in long-run projections.
 
 The calibration factors should be applied transparently, with clear documentation of which projections are purely model-driven versus calibrated to external assumptions. This transparency allows users to understand the degree to which results depend on model dynamics versus imposed alignment to official projections.
 
-## Behavioral Responses
+## Behavioral responses
 
 Dynamic microsimulation does not generally involve textbook optimizing economic behavior of the sort found in structural models. However, even the simplest models require behavioral responses to ensure realistic policy analysis.
 
-### Essential Behavioral Components
+### Essential behavioral components
 
 In Social Security modeling, several behavioral responses are essential. Labor force participation and hours worked should vary with wages, reflecting standard labor supply elasticities. Without this response, simulated behavior would be unresponsive to changes in wage rates or tax treatment of earnings, producing unrealistic policy impacts. Benefit claiming decisions should vary with benefit levels across potential retirement ages. Individuals face trade-offs between claiming benefits early with actuarial reductions versus delaying for actuarial increases, and claiming patterns should respond to changes in these incentives.
 
-### Implementation Approach
+### Implementation approach
 
 These behavioral responses can be implemented through simple elasticities rather than full structural optimization. For example, labor supply can respond to net wages using empirically estimated elasticities from the literature, and benefit claiming can follow empirical hazard models that incorporate benefit levels as explanatory variables. This reduced-form approach captures first-order behavioral effects while avoiding the computational complexity and strong assumptions of structural models.
 
 Failure to include these responses means behavior will be unresponsive to benefit formulas or the macroeconomy, severely limiting the model's usefulness for policy analysis. Even simple elasticities substantially improve realism compared to purely mechanical projections.
 
-## Incremental Capabilities and Extensions
+## Incremental capabilities and extensions
 
 The basic Social Security model described above can be extended incrementally to analyze additional programs and interactions.
 
-### Medicare Integration
+### Medicare integration
 
 Adding capabilities for Medicare program outcomes is straightforward because no variables beyond lifetime earnings and health are required inputs. Medicare eligibility depends on age (65+) and disability status (after 24 months of SSDI receipt), both of which are already in the base model. Parts B and D premiums depend on income (determined by MAGI), while out-of-pocket spending can be modeled based on age and health status.
 
@@ -133,13 +136,13 @@ spousal protections change the result?". Those outputs are feasible in a
 static-first pilot, but they make clear why LTC should be budgeted as a
 real extension track rather than a minor add-on.
 
-### Advanced Extensions
+### Advanced extensions
 
 More generally, adding realistic modules for pension coverage and benefits, homeownership, saving patterns, detailed taxes, business ownership, and intergenerational transfers is potentially feasible but represents the cutting edge of dynamic microsimulation. These extensions would provide comprehensive lifetime fiscal analysis but require substantial additional development effort.
 
 The incremental approach allows starting with a validated basic model and adding capabilities as resources and priorities dictate. This modularity ensures early versions remain useful for core Social Security analysis while allowing expansion over time.
 
-## Micro-Macro Interactions
+## Micro-macro interactions
 
 Much policy analysis involving dynamic microsimulation begins with a macro model, usually an Overlapping Generations (OLG) framework, with highly simplified budget constraints solved under assumptions of consistent agent expectations and asymptotic elimination of government debt. The micro processes, particularly individual earnings distributions, are then calibrated to match the macro processes from the OLG model.
 
@@ -147,11 +150,11 @@ Much policy analysis involving dynamic microsimulation begins with a macro model
 
 OLG models provide internally consistent frameworks for analyzing intertemporal policy trade-offs, and PWBM and other groups have demonstrated their value for fiscal analysis. However, for our distributional microsimulation goals, OLG frameworks involve trade-offs. The assumptions required for tractable solutions—representative agents within cohorts, perfect foresight, and equilibrium convergence—limit the heterogeneity that microsimulation is designed to capture. Calibrating micro processes to match OLG macro outcomes may constrain the distributional detail that is our primary value-add relative to existing models.
 
-### Alternative Approaches
+### Alternative approaches
 
 Promising alternatives exist for introducing micro-macro interactions in dynamic microsimulation. Reduced-form dynamic programming can capture behavioral responses without requiring full structural solutions. This approach uses empirical patterns from panel data to inform decision rules, avoiding the strong assumptions of OLG models. More fundamentally, dynamic microsimulation may provide important information about why long-term macro models provide little value for budget analysis.
 
-### Following the Money
+### Following the money
 
 The most direct approach starts by following the money through the fiscal system. This means tracking taxes collected from individuals, government benefits paid to individuals, and ownership of government debt across the income and wealth distribution. These flows can be aggregated to produce fiscal projections without requiring OLG apparatus. The distributional patterns emerging from this tracking exercise may reveal why aggregate fiscal projections based on representative agents fail to capture reality.
 

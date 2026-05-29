@@ -1,13 +1,17 @@
-# Calibration Targets
+# Calibration targets
 
 ## Overview
 
 Calibration ensures that longitudinal `microplex` matches known
 population characteristics and that the Social Security application
-layer matches system aggregates. This chapter specifies the targets we
-will use for calibration, their sources, and priority weighting.
+layer matches system aggregates. This chapter specifies the targets
+the project will use for calibration, their sources, and priority
+weighting. PolicyEngine maintains these administrative aggregates in
+`Arch`, its harness over U.S. government survey and administrative
+datasets, so that `microplex` calibrates against a single,
+version-controlled set of targets.
 
-## Why Calibration Matters
+## Why calibration matters
 
 Dynamic microsimulation models face two key challenges:
 

@@ -1,6 +1,6 @@
-# Operationalizing Disability and Claiming
+# Operationalizing disability and claiming
 
-## Why This Chapter Exists
+## Why this chapter exists
 
 Earnings histories are only part of the Social Security problem. A model
 can produce reasonable AIME distributions and still fail badly on the
@@ -20,7 +20,7 @@ This chapter therefore does for disability and claiming what the earlier
 operational chapter does for earnings: it turns a general aspiration
 into a concrete build plan.
 
-## The Main Modeling Distinction
+## The main modeling distinction
 
 The proposal should distinguish three different objects that often get
 blurred together:
@@ -49,7 +49,7 @@ The model should therefore carry separate states for impairment, program
 status, and claiming status rather than collapsing them into one
 "disabled/not disabled" or "retired/not retired" flag.
 
-## What the Public Benchmark Models Tell Us
+## What the public benchmark models tell us
 
 The public record on comparable models is revealing.
 
@@ -88,7 +88,7 @@ disability construction. That itself is useful context. It means the
 project should not overclaim comparative detail where public
 documentation does not support it.
 
-## Recommended State Representation
+## Recommended state representation
 
 The proposal should specify disability and claiming as explicit state
 machines layered on top of the longitudinal earnings panel.
@@ -141,7 +141,7 @@ That event layer should capture:
 This does not require a full monthly microsimulation for every domain.
 But it does require more than a single annual "claimed this year" flag.
 
-## Phase 1 Disability Design
+## Phase 1 disability design
 
 The first funded version should aim for a credible disability pathway,
 not the full administrative process.
@@ -188,7 +188,7 @@ So the phase-1 disability layer should include:
 This is one of the main places where a public model can avoid an overly
 mechanical interpretation of disability entry.
 
-## Phase 1 Claiming Design
+## Phase 1 claiming design
 
 The first funded version should also implement a minimal but explicit
 claiming model.
@@ -238,7 +238,7 @@ The important thing is not to build a full structural retirement model.
 It is to avoid a claiming model that is purely exogenous to the features
 that obviously matter.
 
-## Spousal and Survivor Logic
+## Spousal and survivor logic
 
 The model should acknowledge that auxiliary benefits are not just a rule
 calculator problem. They are also a history-construction problem.
@@ -260,7 +260,7 @@ disabled-worker claiming over the full spouse and survivor timing model.
 But if it does, that should be presented as a stage choice rather than
 left implicit.
 
-## Recommended Operational Sequence
+## Recommended operational sequence
 
 The cleanest build sequence is:
 
@@ -278,7 +278,7 @@ The cleanest build sequence is:
 This sequence is realistic, fundable, and easier to validate than
 trying to solve every benefit path at once.
 
-## Estimation Inputs
+## Estimation inputs
 
 The main data and benchmark inputs should include:
 
@@ -299,7 +299,7 @@ example:
   and award states
 - sophisticated claiming strategies are not the right phase-1 promise
 
-## Evaluation Metrics for Disability
+## Evaluation metrics for disability
 
 The disability layer should be judged on policy-facing metrics, not only
 internal fit.
@@ -323,7 +323,7 @@ If data support them, later stages should also examine:
 - duration on the rolls
 - return-to-work transitions
 
-## Evaluation Metrics for Claiming
+## Evaluation metrics for claiming
 
 The claiming layer should be judged on the patterns the policy community
 actually argues about.
@@ -346,7 +346,7 @@ Where spouse and survivor timing is in scope, add:
 - widow(er) beneficiary counts
 - dual-entitlement shares
 
-## Suggested Stage-1 Thresholds
+## Suggested stage-1 thresholds
 
 The proposal should define at least rough stage-1 gates for this layer.
 
@@ -362,7 +362,7 @@ As with the earnings chapter, these should be refined during
 implementation. But the proposal should not dodge numeric commitments
 entirely.
 
-## How This Should Be Positioned in the Proposal
+## How this should be positioned in the proposal
 
 The proposal should make three points clearly.
 
@@ -396,7 +396,7 @@ the earnings model "works." If the project cannot produce a credible
 claiming and disability layer, it should narrow its policy claims
 accordingly.
 
-## Bottom Line
+## Bottom line
 
 The proposal should not leave disability and claiming as vague hazard
 models in the background.

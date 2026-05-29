@@ -1,4 +1,4 @@
-# Development Roadmap
+# Development roadmap
 
 ## Overview
 
@@ -23,7 +23,7 @@ These workstreams overlap, but they should not advance at the same pace.
 Interface work should lag validation work. Policy analysis should lag
 baseline replication. That ordering is intentional.
 
-## Stage 0: Project Setup and Baselines
+## Stage 0: project setup and baselines
 
 **Purpose**: lock the main project decisions before large-scale
 implementation.
@@ -34,25 +34,27 @@ implementation.
   microdata stack
 - Clear boundary between `microplex` platform work and
   Social Security-specific application work
-- Benchmark datasets and target tables assembled
+- Benchmark datasets and target tables assembled from Arch, the
+  PolicyEngine data layer that harnesses dozens of government survey and
+  administrative sources
 - Initial validation harness for baseline distributions
-- Staffing plan finalized for funded implementation
+- Implementation team and external review capacity identified
 - Written stage-gate criteria approved internally
 - Initial design-partner set and first pilot-analysis memo
 
-### Exit Criteria
+### Exit criteria
 
 - Clear specification of which outcomes count as success in stage 1
 - No unresolved ambiguity about base population or top-level scope
 - At least a small set of external users or partner categories identified
   for the first validated outputs
 
-## Stage 1: Historical Earnings Reconstruction
+## Stage 1: historical earnings reconstruction
 
 **Purpose**: determine whether `microplex` can be extended into a
 credible longitudinal population asset for Social Security analysis.
 
-### Core Tasks
+### Core tasks
 
 - Harmonize PSID and related longitudinal sources
 - Build at least one conservative production path for earnings-history
@@ -71,7 +73,7 @@ credible longitudinal population asset for Social Security analysis.
 - Validation report on held-out data and external benchmarks
 - Recommendation on the production longitudinal architecture
 
-### Exit Criteria
+### Exit criteria
 
 - Longitudinal `microplex` is accurate enough to justify downstream
   benefit modeling
@@ -80,12 +82,12 @@ credible longitudinal population asset for Social Security analysis.
 If these conditions are not met, the project should pause rather than
 proceeding mechanically.
 
-## Stage 2: Family, Disability, Claiming, and Benefits
+## Stage 2: family, disability, claiming, and benefits
 
 **Purpose**: turn longitudinal `microplex` into a credible Social
 Security analysis dataset.
 
-### Core Tasks
+### Core tasks
 
 - Freeze the minimal production version of longitudinal `microplex`
   chosen at the end of stage 1
@@ -103,19 +105,19 @@ Security analysis dataset.
 - Replication of a small set of standard baseline tables
 - Pilot baseline or reform analyses with clear external use cases
 
-### Exit Criteria
+### Exit criteria
 
 - Benefit results are close enough to published benchmarks to support
   exploratory reform analysis
 - Known weaknesses are documented and bounded
 
-## Stage 3: Forward Projection and Reform Analysis
+## Stage 3: forward projection and reform analysis
 
 **Purpose**: move from longitudinal `microplex` plus a validated Social
 Security layer to a projected dynamic model that can analyze reform
 packages.
 
-### Core Tasks
+### Core tasks
 
 - Add forward aging and cohort entry
 - Align near-term and long-term projections to published assumptions
@@ -133,7 +135,7 @@ The operational detail behind this stage now lives in
 - Reform-analysis workflows for a defined set of policy packages
 - External pilot use of validated baseline or reform workflows
 
-### Exit Criteria
+### Exit criteria
 
 - Baseline projection quality is strong enough that reform outputs are
   interpretable
@@ -141,11 +143,11 @@ The operational detail behind this stage now lives in
 - At least limited outside testing shows the validated outputs are
   legible and useful to non-team users
 
-## Stage 4: Public Productization
+## Stage 4: public productization
 
 **Purpose**: expose validated capabilities to outside users.
 
-### Core Tasks
+### Core tasks
 
 - Build API endpoints for baseline and reform analysis
 - Build a focused public interface
@@ -160,13 +162,13 @@ The operational detail behind this stage now lives in
 - User documentation
 - Public release materials and examples
 
-### Exit Criteria
+### Exit criteria
 
 - External users can reproduce headline examples
 - The interface is narrower than the full model, but more reliable
 - Validation artifacts are published alongside the product
 
-## Cross-Cutting Deliverables
+## Cross-cutting deliverables
 
 Throughout the project:
 
@@ -178,7 +180,7 @@ Throughout the project:
   and Social Security-specific application code
 - collect external review from domain experts
 
-## Adjacent Extension Track
+## Adjacent extension track
 
 The core project is Social Security-first. However, the architecture
 should preserve a path to adjacent modules that can share the synthetic

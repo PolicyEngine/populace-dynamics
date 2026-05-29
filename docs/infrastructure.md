@@ -10,20 +10,25 @@ while this repository provides the Social Security-specific application
 layer on top of it. This chapter describes the tools that make that
 split possible.
 
-## PolicyEngine Ecosystem
+## PolicyEngine ecosystem
 
-Our model builds on PolicyEngine's existing open-source infrastructure:
+The model builds on PolicyEngine's existing open-source
+infrastructure:
 
 ```mermaid
 flowchart LR
-    subgraph sources["Public Data and Methods"]
+    subgraph data["Data layer"]
+        ARCH["Arch<br/>(Government datasets<br/>+ calibration targets)"]
+    end
+
+    subgraph sources["Public Methods"]
         MI["microimpute<br/>Imputation methods"]
         MC["microcalibrate<br/>Calibration methods"]
         L0["L0<br/>Sparse selection"]
     end
 
-    subgraph population["Population Platform"]
-        MPX["microplex<br/>(Synthetic population dataset)"]
+    subgraph population["Population layer"]
+        MPX["microplex<br/>(Synthetic population)"]
         LMPX["Longitudinal microplex<br/>(project target)"]
     end
 
@@ -38,6 +43,7 @@ flowchart LR
         PY["policyengine.py"]
     end
 
+    ARCH --> MPX
     MI --> MPX
     MC --> MPX
     L0 --> MPX
@@ -54,7 +60,8 @@ flowchart LR
 
 The high-level logic is:
 
-- use `microplex` as the public population asset
+- assemble government source data and calibration targets in `Arch`
+- synthesize and calibrate the public population in `microplex`
 - extend `microplex` longitudinally
 - use PolicyEngine-US and this repository to turn that asset into a
   Social Security policy model
@@ -63,7 +70,7 @@ This means the project should avoid rebuilding generic synthesis
 machinery in the Social Security repository when that work properly
 belongs in `microplex`.
 
-## Population Platform Versus Application Layer
+## Population layer versus application layer
 
 The tooling should be divided intentionally.
 
@@ -89,34 +96,44 @@ comparison to DYNASIM more honest. The relevant comparison is not a
 single small repository against a mature institutional model. It is a
 public population platform plus an open policy application layer.
 
-## Key Tools and Libraries
+## Key tools and libraries
 
-### microplex: the core population platform
+### Arch: the data layer
 
-**Purpose**: public synthetic population dataset and synthesis platform
+**Purpose**: assemble and maintain the U.S. government survey and
+administrative datasets — and the administrative aggregates used as
+calibration targets — that the population layer draws on.
 
-**Status**: PolicyEngine's next-generation microdata layer; open
-source under a permissive license.
+**Role**: PolicyEngine's harness over dozens of government datasets
+(CBO, IRS, SSA, Census, and others), kept current and
+version-controlled so that `microplex` synthesizes from a consistent
+set of sources and calibrates against a consistent set of targets.
 
-**Key Capabilities**:
+### microplex: the population layer
+
+**Purpose**: synthesize and calibrate the public population from
+Arch's sources and targets.
+
+**Status**: PolicyEngine's ML-first microdata layer; open source
+under a permissive license. Cross-sectional capabilities are already
+substantial; longitudinal capabilities are the central next step for
+this project.
+
+**Key capabilities**:
 - synthetic microdata generation
 - multi-source fusion
 - zero-inflation handling
 - base-population calibration and sparse selection
 - candidate longitudinal and trajectory tooling
 
-**Our Use**:
-- **base population platform for this project**
+**Our use**:
+- **base population layer for this project**
 - host the longitudinal extension work that should outlive Social
   Security alone
 - supply the public population asset consumed by the Social Security
   application layer
 
-**Status**: active research and engineering platform; cross-sectional
-capabilities are already substantial, while longitudinal capabilities
-are the central next step
-
-### microimpute: ML-Based Variable Imputation
+### microimpute: ML-based variable imputation
 
 **Purpose**: Impute missing variables using machine learning
 

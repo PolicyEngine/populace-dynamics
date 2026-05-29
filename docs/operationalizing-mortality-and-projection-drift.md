@@ -1,6 +1,6 @@
-# Operationalizing Mortality and Projection Drift
+# Operationalizing mortality and projection drift
 
-## Why This Chapter Exists
+## Why this chapter exists
 
 Mortality and projection control are easy to underspecify in a grant
 proposal because they can sound like routine background machinery.
@@ -30,7 +30,7 @@ problems:
 The first problem is about state evolution. The second is about
 discipline and alignment.
 
-## The Main Modeling Distinction
+## The main modeling distinction
 
 The proposal should distinguish three separate objects.
 
@@ -58,7 +58,7 @@ For example:
 So the proposal should never talk as if "we use SSA life tables" fully
 solves the mortality problem.
 
-## Why Mortality Is Policy-Relevant
+## Why mortality is policy-relevant
 
 Mortality is not just a demographic background variable. For Social
 Security, it changes the meaning of reform results.
@@ -82,7 +82,7 @@ If the project wants to claim any seriousness on lifetime incidence, it
 needs a mortality layer that is more than an undifferentiated age-sex
 table.
 
-## What the Public Benchmark Models Tell Us
+## What the public benchmark models tell us
 
 The public record on benchmark models is useful here.
 
@@ -124,7 +124,7 @@ advantage:
 - but a public micro-level projection stack with explicit alignment and
   published failure modes
 
-## Recommended State Representation
+## Recommended state representation
 
 The proposal should describe mortality as a state block, not just as a
 reference table.
@@ -177,7 +177,7 @@ For forward runs, the panel should preserve additional metadata:
 That metadata is useful both for debugging and for making the
 calibrated-versus-uncalibrated distinction visible to users.
 
-## Phase 1 Mortality Design
+## Phase 1 mortality design
 
 The first funded version should aim for a credible mortality layer, not
 the final word on longevity modeling.
@@ -221,7 +221,7 @@ Phase 1 should not collapse:
 Those simplifications would undermine lifetime-incidence claims too
 directly.
 
-## Mortality Inputs and Benchmark Sources
+## Mortality inputs and benchmark sources
 
 The proposal should name the main inputs explicitly.
 
@@ -264,7 +264,7 @@ That is not a perfect one-to-one mapping to our synthetic panel. But it
 is strong enough to justify a differential mortality layer and to anchor
 validation targets.
 
-## Recommended Mortality Construction Strategy
+## Recommended mortality construction strategy
 
 The simplest credible design is a layered hazard.
 
@@ -305,7 +305,7 @@ the before-and-after values.
 This is the right place to be transparent: alignment is a feature, not a
 sign of methodological failure.
 
-## Why Projection Drift Needs Its Own Design
+## Why projection drift needs its own design
 
 Once the model is projected forward, drift is unavoidable unless the
 project plans for it explicitly.
@@ -323,7 +323,7 @@ Small mismatches accumulate through:
 So the proposal should describe projection drift as a central operating
 problem, not a residual annoyance.
 
-## Sources of Projection Drift
+## Sources of projection drift
 
 The main sources of drift are different and need different responses.
 
@@ -355,7 +355,7 @@ when modules interact. This is especially important for:
 The proposal should say this explicitly. Not all drift comes from one
 broken equation.
 
-## Recommended Drift-Control Stack
+## Recommended drift-control stack
 
 The proposal should describe drift control as a stack rather than a
 single calibration step.
@@ -401,7 +401,7 @@ Even after alignment, monitor:
 
 This is the step that prevents alignment from becoming a black box.
 
-## Near-Term Versus Long-Term Projection Strategy
+## Near-term versus long-term projection strategy
 
 The proposal should separate near-term and long-term projection goals.
 
@@ -429,7 +429,7 @@ The project should not pretend that a public micro model will produce a
 uniquely authoritative 75-year path without strong alignment and
 uncertainty reporting.
 
-## Evaluation Metrics for Mortality
+## Evaluation metrics for mortality
 
 The mortality layer should be judged on policy-facing metrics.
 
@@ -453,7 +453,7 @@ If data support them, later phases should also evaluate:
 - mortality by disability pathway
 - cohort improvements in survival over time
 
-## Evaluation Metrics for Projection Quality
+## Evaluation metrics for projection quality
 
 Projection quality should have its own scorecard.
 
@@ -481,7 +481,7 @@ The project should also track:
 That last point matters. A reform result that changes sharply depending
 on minor alignment choices is not ready for confident public use.
 
-## Suggested Stage-3 Thresholds
+## Suggested stage-3 thresholds
 
 The proposal should define rough projection gates rather than leaving
 stage 3 qualitative.
@@ -498,7 +498,7 @@ stage 3 qualitative.
 These should be refined during implementation, but the proposal should
 still commit to the idea that stage 3 is falsifiable.
 
-## What This Should Mean for the Proposal
+## What this should mean for the proposal
 
 The proposal should make three points clearly.
 
@@ -526,7 +526,7 @@ offer. Users should be able to see:
 That is a stronger public contribution than pretending the calibration
 layer does not exist.
 
-## Recommended Build Sequence
+## Recommended build sequence
 
 The cleanest sequence is:
 
@@ -544,7 +544,7 @@ The cleanest sequence is:
 This is realistic, fundable, and easier to validate than attempting a
 fully endogenous mortality-and-macro system from the outset.
 
-## Bottom Line
+## Bottom line
 
 The proposal should not describe mortality as "use SSA life tables" and
 projection quality as "align to Trustees assumptions."

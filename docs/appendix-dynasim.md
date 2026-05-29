@@ -1,4 +1,4 @@
-# Appendix: Public Dossier on DYNASIM
+# Appendix: public dossier on DYNASIM
 
 ## Purpose
 
@@ -257,7 +257,7 @@ But the public record also reveals some limitations:
 - wealth spenddown is described publicly as relatively simple, not as a
   highly detailed state-specific depletion model [@favreault2015]
 
-## 9. Demonstrated policy uses
+## 10. Demonstrated policy uses
 
 DYNASIM's importance is not only methodological. Urban has used it in
 published policy analysis across multiple domains. Public sources show
@@ -273,7 +273,7 @@ This matters because it distinguishes DYNASIM from a merely notional
 research model. It is a live production research platform with a long
 publication trail.
 
-## 10. Operational clues from public materials
+## 11. Operational clues from public materials
 
 Urban's 2024 fact sheet gives a rare public glimpse into how DYNASIM is
 used in practice. It distinguishes between:
@@ -291,7 +291,7 @@ That is an important clue. Publicly, DYNASIM looks less like a
 downloadable package and more like an internal expert-operated research
 platform.
 
-## 11. What remains opaque
+## 12. What remains opaque
 
 Even after reading the public record closely, several important things
 remain unknown or only partially known:
@@ -311,7 +311,7 @@ available on request from the authors rather than fully public
 been publicly described for years, but it has not been publicly exposed
 as an inspectable end-to-end software artifact.
 
-## 12. Implications for this repository
+## 13. Implications for this repository
 
 The public record suggests five practical conclusions for this project:
 

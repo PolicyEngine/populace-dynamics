@@ -1,6 +1,6 @@
 # Operationalizing Longitudinal Construction
 
-## Why This Chapter Exists
+## Why this chapter exists
 
 The hardest question in this project is not whether PolicyEngine-US can
 compute Social Security benefits once the right variables exist. The
@@ -8,7 +8,13 @@ hard question is whether we can construct a public, person-level panel
 with plausible lifetime earnings, family histories, disability spells,
 and claiming-relevant states. That is the part that determines whether
 longitudinal `microplex` is merely an interesting synthetic dataset or a
-serious policy-analysis platform.
+serious policy-analysis asset.
+
+Throughout this chapter, `microplex` is PolicyEngine's ML-first
+microdata layer, and `Arch` is PolicyEngine's harness over dozens of
+U.S. government survey and administrative datasets — the source
+microdata and the calibration targets (CBO, IRS, SSA, Census, and
+others) that `microplex` synthesizes from and calibrates against.
 
 This chapter therefore goes one layer deeper than the methodology and
 technical-specification chapters. It describes what the funded build
@@ -29,9 +35,9 @@ what official long-term analysis optimizes for: macro-fiscal coherence,
 cohort and quintile projections, and official baseline authority
 [@cbo2004; @cbo2018; @cbo2024longterm; @cbo2024finances].
 
-## The Specific Standard We Need to Meet
+## The specific standard we need to meet
 
-For this project to justify a $1.0M-$1.5M build, it needs to do more
+For this project to justify a serious build, it needs to do more
 than generate reasonable average earnings by age. It needs to support
 the following chain end to end:
 
@@ -55,14 +61,14 @@ That implies four distinct standards:
 - **Transparency**: the construction process has to be inspectable and
   rerunnable with public ingredients
 
-## How Comparable Models Handle the Problem
+## How comparable models handle the problem
 
 The public record suggests the following division of labor across the
 main benchmark models:
 
 | Component | DYNASIM public record | MINT public record | CBO public record | Implication for us |
 |---|---|---|---|---|
-| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `microplex` can play the starting-sample role, but it does not inherit observed earnings histories |
+| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `microplex`, synthesized from `Arch`'s survey sources, can play the starting-sample role, but it does not inherit observed earnings histories |
 | **Historical earnings** | Older DYNASIM work used statistical matching to attach historical earnings built from PSID and CPS/SER-style sources | Uses observed administrative earnings where available and projects the remainder | Public documentation is sparse on exact record construction | This is the central gap our project must close with public methods |
 | **Annual labor-market process** | Relies on yearly transition equations, hazard-style modules, and Monte Carlo simulation | Projects labor force participation and earnings from an admin-linked base | Public emphasis is on cohort/quintile outputs and aggregate consistency | Our design should be annual and state-based, not only age-point imputation |
 | **Alignment and calibration** | Explicitly aligns modules to observed history and future control totals | Uses Trustees assumptions and current-law rules for projections | Integrated to official long-term projections and budget baselines | We need explicit alignment layers, not a one-shot imputation |
@@ -76,7 +82,7 @@ component has a distinct "our plan versus DYNASIM versus MINT versus
 CBO" story. But the first deliverable should still be written and
 citable.
 
-## Fundamental Methodology Review: What CBOLT and DYNASIM Imply
+## Fundamental methodology review: what CBOLT and DYNASIM imply
 
 The deeper benchmark review changes the shape of the build. The closest
 public descriptions of CBOLT and DYNASIM do not describe a single
@@ -203,7 +209,7 @@ That is also the strongest case for the funding ask. The difficult work
 is the controlled construction and validation of these intermediate
 states, not the existence of the final benefit formula.
 
-## Recommended Architecture
+## Recommended architecture
 
 The proposal should stop describing the earnings process as if one
 standalone model family, such as age-specific QRF, is the architecture.
@@ -236,7 +242,7 @@ proposal should leave room for refreshed evaluation results to decide
 whether the best implementation is ZI-QDNN, a flow-based model, or
 another pathwise candidate.
 
-## The Annual Data Model We Actually Need
+## The annual data model we actually need
 
 The build should treat annual person-year records as the canonical
 intermediate object. For Social Security analysis, the key unit is not
@@ -274,7 +280,7 @@ be able to say, for any field and year, whether it is:
 
 That level of provenance is part of the product.
 
-## Decomposing the Earnings Problem
+## Decomposing the earnings problem
 
 The annual earnings process should be modeled as a composition of
 several pieces rather than a single black-box prediction.
@@ -317,7 +323,7 @@ useful for Social Security. The program is sensitive to:
 Those are exactly the margins that get obscured if we only predict
 earnings at age 30, 35, 40, and so on.
 
-## Step 1: Estimate a Latent Earnings-Capacity Distribution
+## Step 1: Estimate a latent earnings-capacity distribution
 
 The project should not treat current earnings as a sufficient statistic
 for lifetime earnings rank. The empirical literature is clear that
@@ -367,7 +373,7 @@ This layer gives the annual process a stable backbone:
   structure, which itself is informative: official users are not being
   invited to reproduce the pipeline [@cbo2004; @cbo2018]
 
-## Step 2: Model the Extensive Margin Explicitly
+## Step 2: Model the extensive margin explicitly
 
 The next layer is the work-state process. Social Security benefits are
 deeply sensitive to whether a year is counted as covered work, not just
@@ -412,7 +418,7 @@ This module should be judged against:
 - frequency and duration of work interruptions around childbirth,
   disability, and retirement
 
-## Step 3: Model Earnings Conditional on Work
+## Step 3: Model earnings conditional on work
 
 Conditional on positive covered work, we then need a distributional
 model for earnings.
@@ -494,7 +500,7 @@ This is one of the places where a public model can be both serious and
 transparent. The model can show not only the point estimates but the
 shock library it is using.
 
-## Step 4: Separate Covered, Uncovered, and Taxable-Max Processes
+## Step 4: Separate covered, uncovered, and taxable-max processes
 
 Social Security modeling fails quickly if all labor earnings are treated
 as interchangeable.
@@ -524,7 +530,7 @@ For phase 1:
 This is a cleaner and more defensible sequence than pretending we can
 solve all pension interaction problems on day one.
 
-## Step 5: Reconstruct the Historical Path, Not Just the Current Year
+## Step 5: Reconstruct the historical path, not just the current year
 
 The key operational problem is backward construction.
 
@@ -586,10 +592,10 @@ say this plainly:
 - for older cohorts, early-career years will require stronger
   dependence on public aggregate alignment and donor-based simulation
 - this is a core research problem, not a footnote
-- a significant share of the proposed budget is buying down exactly this
-  risk
+- a significant share of the project's effort goes toward buying down
+  exactly this risk
 
-## Step 6: Forward Projection Uses the Same Process, With Explicit Alignment
+## Step 6: Forward projection uses the same process, with explicit alignment
 
 Once the historical panel is credible, forward projection should use the
 same annual state machinery. But the project should distinguish clearly
@@ -614,7 +620,7 @@ The forward process should therefore include:
 This mirrors the public record on DYNASIM and MINT more than a purely
 static extension does [@favreault2015; @urban2024dynasim4; @ssa2024mint].
 
-## Alignment Has to Operate on Events, Not Just Weights
+## Alignment has to operate on events, not just weights
 
 The current proposal talks too much about weight calibration. That is
 useful for building the base cross-section, but it is not sufficient
@@ -699,7 +705,7 @@ Check whether the resulting panel, after benefit calculation, matches:
 
 Only after all five layers should we say the model is benefit-ready.
 
-## Validation Should Be Tiered and Numeric
+## Validation should be tiered and numeric
 
 The proposal will be much stronger if it states ex ante what counts as a
 passing build. A draft acceptance table could look like this:
@@ -722,7 +728,7 @@ proposal should commit to the discipline of numeric gates. The next
 chapter, [evaluation-and-model-selection.md](evaluation-and-model-selection.md),
 turns that idea into an explicit model-selection framework.
 
-## What We Should Benchmark Against, Component by Component
+## What we should benchmark against, component by component
 
 Reviewers will reasonably ask not only "does your model fit the data?"
 but also "how does your design compare with the institutions that
@@ -732,7 +738,8 @@ The proposal should explicitly benchmark the following pieces:
 
 ### Starting file
 
-- **Our plan**: `microplex` cross section
+- **Our plan**: `microplex` cross section, synthesized from `Arch`'s
+  survey sources
 - **DYNASIM**: representative survey base, augmented by multiple surveys
   and matched historical earnings work
 - **MINT**: SIPP linked to administrative earnings and benefits
@@ -777,10 +784,10 @@ This could later become an interactive comparison surface, but the
 written version should come first because funders and reviewers will
 want something they can annotate and cite.
 
-## The Main Research Questions the Funded Build Should Answer
+## The main research questions the funded build should answer
 
-The first 12-18 months should not merely "implement the model." They
-should answer a bounded set of research questions.
+The first phase should not merely "implement the model." It should
+answer a bounded set of research questions.
 
 ### 1. Which earnings architecture survives validation?
 
@@ -831,11 +838,10 @@ every weakness. The funded build should produce a principled target map:
 - targets we use only for validation
 - targets we cannot support in phase 1
 
-## What a Fundable Year-One Work Package Should Deliver
+## What a fundable year-one work package should deliver
 
-If the project is pitched at roughly $1.0M-$1.5M, the earnings build
-should have concrete artifacts, not just a promise of future
-microsimulation.
+A fundable year-one earnings build should produce concrete artifacts,
+not just a promise of future microsimulation.
 
 At minimum, year one should deliver:
 
@@ -854,7 +860,7 @@ That is a real work package. It is also the right package to fund first,
 because if it fails, the project should narrow or stop before investing
 heavily in a broader public interface.
 
-## Bottom Line
+## Bottom line
 
 The proposal should frame lifetime earnings construction as the central
 technical object of the project.
@@ -869,7 +875,7 @@ default destination.
 
 The public differentiator remains real:
 
-- `microplex` as the reusable public population platform
+- `microplex` as PolicyEngine's reusable public population layer
 - explicit benchmark comparison to DYNASIM, MINT, and CBO
 - record-level provenance
 - published validation gates

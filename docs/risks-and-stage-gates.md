@@ -1,4 +1,4 @@
-# Risks and Stage Gates
+# Risks and stage gates
 
 ## Overview
 
@@ -7,23 +7,23 @@ failure to know when the outputs are not yet good enough. This chapter
 defines the principal risks and the stage gates that should govern
 continuation.
 
-## Principal Risks
+## Principal risks
 
-### 1. Earnings Histories Look Reasonable But Are Wrong in Policy-Relevant Ways
+### 1. Earnings histories look reasonable but are wrong in policy-relevant ways
 
 It is possible to match simple age-earnings profiles while still getting
 mobility, persistence, zero-earnings patterns, or AIME distributions
 wrong. That would produce a panel that looks plausible but fails at the
 core Social Security task.
 
-### 2. Cross-Sectional Calibration Conflicts With Longitudinal Validation
+### 2. Cross-sectional calibration conflicts with longitudinal validation
 
 A model may be able to match annual aggregates and still distort
 longitudinal transitions. Conversely, a model that respects PSID-style
 transitions may drift away from administrative totals. Managing that
 tension is one of the core research problems of the project.
 
-### 3. Platform Work Expands Faster Than Policy Validation
+### 3. Platform work expands faster than policy validation
 
 Now that the project is best understood as making `microplex`
 longitudinal, there is a new risk: the population platform can become
@@ -31,23 +31,23 @@ technically interesting without yet being decision-useful for Social
 Security. That would be real research progress, but it would not by
 itself justify strong policy claims.
 
-### 4. Benefit Logic Works for Typical Cases but Fails at Important Edges
+### 4. Benefit logic works for typical cases but fails at important edges
 
 Social Security policy analysis depends on edge cases, not just median
 retired workers. Family benefits, disability pathways, and complex
 claiming patterns matter.
 
-### 5. Baseline Projections Drift
+### 5. Baseline projections drift
 
 Even a strong baseline panel can become untrustworthy when projected
 forward if drift is not controlled explicitly.
 
-### 6. Productization Happens Before Validation Is Mature
+### 6. Productization happens before validation is mature
 
 A public interface is attractive and visible, but it can also amplify
 weaknesses if the validation record is not ready.
 
-## Stage Gate 1: Longitudinal microplex Quality
+## Stage gate 1: longitudinal microplex quality
 
 The project should advance past stage 1 only if it can show that
 longitudinal `microplex` is credible on multiple dimensions:
@@ -61,7 +61,7 @@ longitudinal `microplex` is credible on multiple dimensions:
 Failure here is not a minor miss. It is a reason to pause and revise the
 methodology.
 
-## Stage Gate 2: Benefit and Family Validation
+## Stage gate 2: benefit and family validation
 
 The project should advance past stage 2 only if the synthetic panel
 produces benefit outcomes that are good enough for exploratory policy
@@ -76,7 +76,7 @@ If the model only works for retired worker benefits and breaks down in
 family or disability pathways, that should be stated clearly and used to
 bound later claims.
 
-## Stage Gate 3: Projection Quality
+## Stage gate 3: projection quality
 
 The project should advance to public reform analysis only if baseline
 projections remain stable and interpretable:
@@ -88,7 +88,7 @@ projections remain stable and interpretable:
 If the model cannot produce a credible baseline projection, it is not
 ready for strong claims about reform packages.
 
-## Stage Gate 4: Public Product Readiness
+## Stage gate 4: public product readiness
 
 The project should release a public interface only if:
 
@@ -97,7 +97,7 @@ The project should release a public interface only if:
 - the public product is narrower than the full internal research stack
 - the validation record is published alongside the interface
 
-## If a Gate Fails
+## If a gate fails
 
 Failure should still produce useful public outputs. Possible fallback
 deliverables include:
@@ -111,7 +111,7 @@ The point of stage gates is not to threaten cancellation. It is to avoid
 pretending that an unvalidated model is ready for claims it cannot yet
 support.
 
-## Explicit Near-Term Non-Goals
+## Explicit near-term non-goals
 
 In the first major phase of the project, the model should not claim to:
 

@@ -1,15 +1,21 @@
-# Data Sources
+# Data sources
 
 ## Overview
 
-Building a dynamic Social Security microsimulation model now means
-building longitudinal `microplex` and then using it for Social Security
-analysis. That requires multiple data sources that capture
+Building a dynamic Social Security microsimulation model means
+extending `microplex` longitudinally and then using it for Social
+Security analysis. That requires multiple data sources that capture
 cross-sectional population characteristics, longitudinal earnings
-dynamics, and demographic transitions. This chapter describes the
-primary data sources that feed that population platform.
+dynamics, and demographic transitions.
 
-## Primary Survey Data Sources
+PolicyEngine assembles and maintains these sources, along with the
+administrative aggregates used as calibration targets, in `Arch` —
+its harness over dozens of U.S. government survey and administrative
+datasets. `microplex` synthesizes populations from Arch's sources
+and calibrates them against Arch's targets. This chapter describes
+the primary sources Arch supplies to that pipeline.
+
+## Primary survey data sources
 
 ### Current Population Survey (CPS)
 
