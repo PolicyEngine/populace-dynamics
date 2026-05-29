@@ -2,7 +2,7 @@
 
 ## What this is
 
-This is a concept note describing the design of an open, dynamic
+This concept note describes the design of an open, dynamic
 microsimulation model of the U.S. Social Security system, alongside a
 published validation record that lets outsiders inspect and reproduce
 its behavior.
@@ -30,8 +30,8 @@ ecosystem depends more on institutional trust than it should.
 ## Design
 
 The proposed model has four components. This note describes the
-design first as an architecture, then describes one possible
-realization in existing open-source stacks separately further down.
+design first as an architecture, then a concrete implementation in
+the PolicyEngine open-source stack.
 
 ### Component 1: Synthetic longitudinal population
 
@@ -164,12 +164,15 @@ analysis.
 The most natural implementation of this design today is the
 PolicyEngine open-source stack. PolicyEngine maintains:
 
-- **microplex**: PolicyEngine's microdata layer. An ML-first
-  architecture, built from the ground up around modern
-  machine-learning synthesis and calibration methods rather than
-  retrofitting them onto older microsim infrastructure. It
-  integrates and calibrates against dozens of surveys and
-  administrative sources from CBO, IRS, SSA, Census, and others,
+- **Arch**: a harness over dozens of U.S. government survey and
+  administrative datasets — the source microdata and the calibration
+  targets (from CBO, IRS, SSA, Census, and others) — assembled and
+  maintained as a common data layer.
+- **microplex**: PolicyEngine's ML-first microdata layer. Built from
+  the ground up around modern machine-learning synthesis and
+  calibration methods rather than retrofitting them onto older
+  microsim infrastructure, it synthesizes populations from Arch's
+  sources and calibrates them against Arch's administrative targets,
   with explicit support for longitudinal sources. The synthesis
   methods include quantile regression forests, quantile deep neural
   networks, and masked autoregressive flows; calibration uses
@@ -194,32 +197,6 @@ stacks could realize it — but the PolicyEngine stack is the path
 with the most production-ready foundation, existing Social Security
 calculation logic in the rules engine, and existing API and delivery
 infrastructure.
-
-## How this relates to existing models
-
-The right comparison object is the full open stack: longitudinal
-population layer, open rules engine, and Social Security application
-and validation layer. Against that stack:
-
-- **DYNASIM** (Urban Institute) is the main benchmark for breadth,
-  maturity, and state richness. The proposed open alternative does
-  not match DYNASIM's institutional continuity but offers full
-  inspectability and reproducibility.
-- **MINT** (SSA) is the main benchmark for the importance of
-  earnings-history credibility and administrative-data access. The
-  proposed model trades administrative earnings for fully
-  reproducible synthetic histories with explicit validation.
-- **CBOLT** (CBO) is the main benchmark for official projection
-  authority and macro-fiscal integration. The proposed model does
-  not claim official scoring authority. Its contribution is making
-  construction, validation, and policy workflow publicly
-  inspectable.
-- **Morningstar's retirement-outcomes model** is the most relevant
-  adjacent benchmark for retirement-adequacy and LTSS-oriented
-  household modeling.
-
-Those models are not reasons to avoid this project. They are reasons
-to scope it correctly.
 
 ## Why this is suddenly achievable
 
@@ -272,11 +249,28 @@ On the tax side, the ecosystem spans a spectrum of openness.
 - **Penn Wharton Budget Model** [@pwbm2025]
 
 The Social Security side has a much thinner open-modeling layer. The
-institutional benchmark models — **DYNASIM** (Urban),
-**MINT** (SSA), **CBOLT** (CBO), and **Morningstar's
-retirement-outcomes model** — are real and important, but outside
-users can access them only through institutional relationships
-[@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes].
+institutional benchmark models are real and important, but outside
+users can reach them only through institutional relationships
+[@favreault2015; @urban2024dynasim4; @ssa2024mint; @cbo2018; @cbo2024longterm; @look2024retirementoutcomes]:
+
+- **DYNASIM** (Urban Institute) — the benchmark for breadth,
+  maturity, and state richness. The open model will not match its
+  institutional continuity, but offers full inspectability and
+  reproducibility.
+- **MINT** (SSA) — the benchmark for earnings-history credibility
+  through administrative data. The open model trades administrative
+  earnings for fully reproducible synthetic histories with explicit
+  validation.
+- **CBOLT** (CBO) — the benchmark for official projection authority
+  and macro-fiscal integration. The open model makes no claim to
+  official scoring; its contribution is a publicly inspectable
+  construction, validation, and policy workflow.
+- **Morningstar's retirement-outcomes model** — the closest adjacent
+  benchmark for retirement-adequacy and LTSS-oriented household
+  modeling.
+
+These models are not reasons to avoid the project. They are reasons
+to scope it correctly.
 
 The closest open analogue is the **Cato Social Security model**
 [@catossmodel2026], an AGPL-3.0 R implementation. It simulates
@@ -301,24 +295,13 @@ SSA Trustees, MINT, or DYNASIM. A more complete characterization is
 in [`existing-models.md`](existing-models.md).
 
 The Cato model shows that an open dynamic Social Security model is
-feasible. It does not close the gap this concept addresses. The open
-tax-modeling ecosystem includes multiple production stacks with
-calibrated public-data populations, programmatic APIs, web
-interfaces, and integration with broader tax-benefit logic — while
-the open Social Security layer today consists of a single narrower
-model without a calibrated public population, a programmatic API,
-integration with a tax-benefit platform, or transparent
-intermediate-state validation. The combination that does not yet
-exist is:
-
-- open source
-- a public-data workflow
-- transparent intermediate-state validation
-- a programmatic API and AI-callable interface
-- a public web interface
-- integration with a broader tax-benefit platform
-
-That is the specific gap this project fills.
+feasible; it does not close the gap this concept addresses. The open
+tax-modeling ecosystem already offers production stacks with
+calibrated public-data populations, programmatic and AI-callable
+APIs, web interfaces, transparent validation, and tax-benefit
+integration. The open Social Security layer offers a single narrower
+model with none of that combination. That is the specific gap this
+project fills.
 
 A more specific signal of demand: some users can already use
 PolicyEngine for narrow Social Security-adjacent questions but still
