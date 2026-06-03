@@ -172,13 +172,15 @@ PolicyEngine open-source stack. PolicyEngine maintains:
   the ground up around modern machine-learning synthesis and
   calibration methods rather than retrofitting them onto older
   microsim infrastructure, it synthesizes populations from Ledger's
-  sources and calibrates them against Ledger's administrative targets,
-  with explicit support for longitudinal sources. The synthesis
-  methods include quantile regression forests, quantile deep neural
-  networks, and masked autoregressive flows; calibration uses
-  gradient descent with optional L0-regularized record selection;
-  authenticity and privacy evaluation uses precision, recall,
-  density, and coverage (PRDC) metrics.
+  sources and calibrates them against Ledger's administrative targets.
+  The synthesis methods include quantile regression forests, quantile
+  deep neural networks, and masked autoregressive flows; calibration
+  uses gradient descent with optional L0-regularized record selection;
+  authenticity and privacy evaluation uses precision, density, and
+  coverage metrics. The methods and a cross-survey benchmark are
+  documented in a methods paper [@ghenis2026microplex]. microplex also
+  includes trajectory and panel-synthesis primitives — the building
+  blocks for the longitudinal extension this project requires.
 - **PolicyEngine-US**: open Python rules engine for U.S. federal and
   state tax-benefit policy. Calculates OASDI benefits, benefit
   taxation, and means-tested program interactions.

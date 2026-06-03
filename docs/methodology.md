@@ -5,10 +5,11 @@
 This chapter describes the technical approach to making `microplex`
 longitudinal and then using that longitudinal population for Social
 Security microsimulation. `microplex` is PolicyEngine's ML-first
-microdata layer; it synthesizes populations from the U.S. government
-survey and administrative datasets that PolicyEngine assembles in
-`Ledger` and calibrates them against the administrative targets (CBO,
-IRS, SSA, Census, and others) that `Ledger` maintains. The core
+microdata layer [@ghenis2026microplex]; it synthesizes populations
+from the U.S. government survey and administrative datasets that
+PolicyEngine assembles in `Ledger` and calibrates them against the
+administrative targets (CBO, IRS, SSA, Census, and others) that
+`Ledger` maintains. The core
 challenge is creating realistic lifetime earnings trajectories and
 demographic transitions while maintaining cross-sectional accuracy,
 longitudinal realism, and computational feasibility.

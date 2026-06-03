@@ -116,8 +116,9 @@ Ledger's sources and targets.
 
 **Status**: PolicyEngine's ML-first microdata layer; open source
 under a permissive license. Cross-sectional capabilities are already
-substantial; longitudinal capabilities are the central next step for
-this project.
+substantial and documented in a methods paper [@ghenis2026microplex];
+trajectory and panel-synthesis primitives exist, and validating them
+for Social Security is the central next step for this project.
 
 **Key capabilities**:
 - synthetic microdata generation
