@@ -104,9 +104,10 @@ primary-source government data, and expose it to a rules engine.
 MIT). Built entirely from primary sources (CPS/ASEC, IRS PUF, SCF,
 SIPP, CPS-ORG, MEPS, ACS), it replaced PolicyEngine's enhanced CPS as
 the certified default U.S. microdata in policyengine.py in June 2026,
-after beating it on a held-out, symmetric-refit comparison. The
-synthesis methods build on the microplex engine, documented in a
-methods paper [@ghenis2026microplex].
+after beating it on a held-out, symmetric-refit comparison. It
+synthesizes missing variables with weight-aware conditional models
+(quantile regression forests, quantile deep neural networks, and
+masked autoregressive flows).
 
 **Architecture**: one kernel datatype — the `Frame`, a weighted
 sampling frame of entity tables — with operators as separate shards

@@ -10,8 +10,7 @@ primary-source U.S. government survey and administrative data
 (CPS/ASEC, IRS Public Use File, SCF, SIPP, CPS-ORG, MEPS, ACS) using
 weight-aware machine-learning conditional models, and calibrates them
 against administrative targets (CBO, IRS, SSA, Census, and others)
-treated as uncertainty-weighted facts. The synthesis methods build on
-the microplex engine [@ghenis2026microplex]. The core challenge this
+treated as uncertainty-weighted facts. The core challenge this
 project adds is creating realistic lifetime earnings trajectories and
 demographic transitions while maintaining cross-sectional accuracy,
 longitudinal realism, and computational feasibility.
