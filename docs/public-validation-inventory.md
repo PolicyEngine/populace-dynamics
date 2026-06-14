@@ -14,12 +14,12 @@ negotiations before it can produce a credible first model.
 This chapter inventories the main public or low-friction sources we can
 use to validate the model. It is not an exhaustive bibliography. It is
 the minimum practical source stack for judging whether longitudinal
-`microplex` is becoming decision-useful.
+`populace` is becoming decision-useful.
 
-Many of these sources are already assembled inside Ledger, PolicyEngine's
-harness over dozens of U.S. government survey and administrative
-datasets — the source microdata and calibration targets (from CBO, IRS,
-SSA, Census, and others) that `microplex` draws on. Naming the sources
+Many of these sources are already assembled inside `populace`,
+PolicyEngine's microdata stack — the primary-source microdata and the
+calibration targets (from CBO, IRS, SSA, Census, and others) that it
+draws on. Naming the sources
 explicitly here keeps the validation record legible to outside reviewers,
 who can inspect the underlying public tables and microdata themselves
 rather than taking the data layer on trust.

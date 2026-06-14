@@ -41,7 +41,7 @@ during implementation:
 
 ### Technical lead or research engineer
 
-Implementation leadership is needed to own the longitudinal `microplex`
+Implementation leadership is needed to own the longitudinal `populace`
 pipeline, modeling infrastructure, and reproducibility workflow. This
 capacity should not be treated as optional.
 
@@ -56,9 +56,8 @@ just whether the code runs.
 
 The project requires substantial work on harmonization, ingestion,
 versioning, and reproducibility across the surveys and administrative
-sources in Ledger, PolicyEngine's harness over dozens of government
-datasets and calibration targets. This is a real workload, not a
-background task.
+sources that `populace` integrates and calibrates against. This is a
+real workload, not a background task.
 
 ### Research assistance
 

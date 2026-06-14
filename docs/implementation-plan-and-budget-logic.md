@@ -15,7 +15,7 @@ the work is described as:
 
 It will sound much more realistic if the work is described correctly:
 
-- making `microplex` longitudinal
+- making `populace` longitudinal
 - validating that longitudinal population against panel and
   Social-Security-specific targets
 - building the family, disability, claiming, and benefit logic needed
@@ -56,7 +56,7 @@ the main build begins.
 
 - finalize source-data inventory and benchmark tables
 - define shared evaluation harness and run registry
-- settle repository boundaries between `microplex` and this repository
+- settle repository boundaries between `populace` and this repository
 - define must-pass metrics for stage 1 and stage 2
 - establish advisor and reviewer cadence
 - recruit an initial set of external design partners and identify the
@@ -74,10 +74,10 @@ the main build begins.
 without this package, later work becomes hard to evaluate and easy to
 oversell.
 
-### WP1. Longitudinal `microplex` Base Construction
+### WP1. Longitudinal `populace` Base Construction
 
 **Purpose**:
-create the first credible longitudinal version of `microplex` for
+create the first credible longitudinal version of `populace` for
 Social Security use.
 
 **Main tasks**:
@@ -90,7 +90,7 @@ Social Security use.
 
 **Primary outputs**:
 
-- longitudinal `microplex` alpha
+- longitudinal `populace` alpha
 - reproducible data pipeline
 - benchmark-ready training and validation datasets
 
@@ -108,7 +108,7 @@ alone.
 **Main tasks**:
 
 - run comparator families such as QRF, ZI-QRF, ZI-QDNN, and pathwise
-  `microplex` models
+  `populace` models
 - evaluate zero patterns, persistence, mobility, highest-35 sums, AIME,
   and insured status
 - run pseudo-cross-sectional holdout tests
@@ -127,7 +127,7 @@ synthetic-data effort to a real Social Security input file.
 ### WP3. Family, Disability, Mortality, and Claiming States
 
 **Purpose**:
-turn longitudinal `microplex` into a benefit-relevant population rather
+turn longitudinal `populace` into a benefit-relevant population rather
 than just an earnings panel.
 
 **Main tasks**:
@@ -308,7 +308,7 @@ The proposal should distinguish between:
 The recommended execution team is:
 
 1. **Technical lead / research engineer**
-   owns the longitudinal `microplex` implementation, evaluation harness,
+   owns the longitudinal `populace` implementation, evaluation harness,
    and reproducibility pipeline
 2. **Research economist / quantitative social scientist**
    owns benchmark design, policy interpretation, and stage-gate
@@ -508,7 +508,7 @@ the funder can still receive:
 - benchmark evaluations of candidate earnings architectures
 - a validated baseline panel for selected Social Security uses
 - a benchmark comparison asset for future funders and collaborators
-- reusable improvements to `microplex` and PolicyEngine infrastructure
+- reusable improvements to `populace` and PolicyEngine infrastructure
 
 That makes the project more legible as research infrastructure, not just
 as a risky all-or-nothing product launch.
@@ -534,7 +534,7 @@ is being funded.
 It is too large for a thin Social Security app.
 It is reasonable for:
 
-- making `microplex` longitudinal
+- making `populace` longitudinal
 - validating the resulting population asset
 - building the Social Security-specific family, disability, claiming,
   and benefit layers

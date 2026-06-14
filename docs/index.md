@@ -41,9 +41,12 @@ them.
 At the same time, static tax-benefit modeling has already shown that
 publicly reproducible microdata can be useful when the pipeline is
 carefully engineered and aggressively validated. PolicyEngine's
-microplex stack demonstrates this at production scale today. The
-next question is whether that stack can extend to longitudinal
-microdata and then support serious Social Security analysis.
+populace stack demonstrates this at production scale today — built
+entirely from primary sources, it became the certified default U.S.
+microdata in policyengine.py in 2026 after beating the prior enhanced
+CPS on held-out accuracy. The next question is whether that stack can
+extend to longitudinal microdata and then support serious Social
+Security analysis.
 
 ## What This Project Is
 
@@ -64,19 +67,19 @@ This project is not:
 
 ## Decisions Already Made
 
-### 1. Build on PolicyEngine's microplex microdata stack
+### 1. Build on PolicyEngine's populace microdata stack
 
-The project extends `microplex`, PolicyEngine's ML-first microdata
+The project extends `populace`, PolicyEngine's ML-first microdata
 layer, rather than building an isolated Social Security-only
-dataset. microplex already integrates and calibrates dozens of
+dataset. populace already integrates and calibrates dozens of
 surveys and administrative sources and supports the methodological
 machinery (synthesis, calibration, sparsification, and
 authenticity/privacy evaluation) the Social Security extension
 needs. That choice matters because:
 
-- generic population synthesis belongs in microplex, not in this
+- generic population synthesis belongs in populace, not in this
   repository
-- microplex's cross-sectional layer is already validated against
+- populace's cross-sectional layer is already validated against
   large numbers of administrative targets
 - this repository can focus on Social Security domain validation and
   policy application rather than rebuilding generic synthesis tools
@@ -86,7 +89,7 @@ needs. That choice matters because:
 ### 2. Social Security First, With Adjacent Interactions Preserved
 
 The initial objective is still a Social Security model. That means the
-first longitudinal extension of `microplex` should include the family
+first longitudinal extension of `populace` should include the family
 structure, disability, and claiming dynamics needed for serious benefit
 analysis. It also preserves interactions with taxes, SSI, and other
 means-tested programs through PolicyEngine-US where possible.
@@ -119,7 +122,7 @@ committed leadership alone.
 
 This project now has two validation obligations:
 
-- validate longitudinal `microplex` as a population asset
+- validate longitudinal `populace` as a population asset
 - validate Social Security outputs generated from that asset
 
 Those are related, but not identical. A population platform can look
@@ -132,7 +135,7 @@ longitudinal structure. The project has to clear both bars.
 
 By the end of the full plan, the project should produce:
 
-- a documented longitudinal `microplex` suitable for Social Security
+- a documented longitudinal `populace` suitable for Social Security
   analysis and adjacent reuse
 - a validated benefit-calculation pipeline integrated with
   PolicyEngine-US
@@ -167,7 +170,7 @@ longitudinal ingredients, especially:
   family structure matter over time
 
 That does not mean those domains belong in phase 1. It means the
-project should not lock `microplex` into a Social-Security-only design
+project should not lock `populace` into a Social-Security-only design
 that cannot be extended later.
 
 ## Guide to the Rest of the Book

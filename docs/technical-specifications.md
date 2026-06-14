@@ -1,7 +1,7 @@
 # Technical Specifications
 
 This chapter provides technical specifications for longitudinal
-`microplex` and for the Social Security application layer that will sit
+`populace` and for the Social Security application layer that will sit
 on top of it. The relevant build is not a standalone Social
 Security-only dataset. It is a reusable longitudinal population asset
 plus a policy-analysis layer.
@@ -11,7 +11,7 @@ plus a policy-analysis layer.
 Dynamic microsimulation models begin with a longitudinal sample of the
 population and age that sample forward through time using stochastic
 demographic and economic transition equations. In this project, that
-sample should be delivered as longitudinal `microplex`. The specific
+sample should be delivered as longitudinal `populace`. The specific
 variables and equations required depend on the modeling goals. For
 Social Security analysis, we need inputs to both payroll tax and benefit
 calculations.
@@ -38,19 +38,19 @@ A basic Social Security model thus involves simulating year-by-year and person-b
 - Earnings (combining participation, hours, and wages)
 - Benefit claiming decisions
 
-## Constructing longitudinal microplex: historical simulation
+## Constructing longitudinal populace: historical simulation
 
 The input dataset for dynamic microsimulation requires longitudinal
 histories for all listed variables in a representative sample as of the
 base year. Creating and validating that dataset is the central task in
-making `microplex` longitudinal. It proceeds through historical
+making `populace` longitudinal. It proceeds through historical
 simulation, which is effectively a synthetic data generation exercise
 using cross-sectional and longitudinal input data, including
 parameterized stochastic earnings shocks and other transition
-equations. `microplex` draws those cross-sectional and longitudinal
-sources, along with the SSA, CBO, IRS, and Census calibration targets
-the validation steps rely on, from `Ledger` — PolicyEngine's harness over
-dozens of U.S. government survey and administrative datasets.
+equations. `populace` integrates those cross-sectional and
+longitudinal sources, along with the SSA, CBO, IRS, and Census
+calibration targets the validation steps rely on, from primary-source
+U.S. government survey and administrative data.
 
 ### The historical simulation process
 
@@ -162,7 +162,7 @@ This approach aligns with PolicyEngine's existing strength in detailed tax and t
 
 ## Output dataset structure
 
-Longitudinal `microplex` should be organized as a relational dataset
+Longitudinal `populace` should be organized as a relational dataset
 with four linked tables. This structure captures all data elements
 required for benefit calculation across all beneficiary types,
 maintains family relationships for auxiliary and survivor benefits, and
@@ -265,7 +265,7 @@ For PolicyEngine integration, the 4-table structure will be flattened into the e
 The technical specifications outlined here provide a roadmap for model
 development. We start with clearly defined variables and transition
 equations needed for Social Security analysis, but we place them inside
-the broader task of building longitudinal `microplex`. Historical
+the broader task of building longitudinal `populace`. Historical
 simulation creates and validates the base longitudinal population.
 Forward projections incorporate calibration to address the jump-off
 problem. Behavioral responses, even if simple, ensure realism.

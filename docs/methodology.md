@@ -2,15 +2,17 @@
 
 ## Overview
 
-This chapter describes the technical approach to making `microplex`
+This chapter describes the technical approach to making `populace`
 longitudinal and then using that longitudinal population for Social
-Security microsimulation. `microplex` is PolicyEngine's ML-first
-microdata layer [@ghenis2026microplex]; it synthesizes populations
-from the U.S. government survey and administrative datasets that
-PolicyEngine assembles in `Ledger` and calibrates them against the
-administrative targets (CBO, IRS, SSA, Census, and others) that
-`Ledger` maintains. The core
-challenge is creating realistic lifetime earnings trajectories and
+Security microsimulation. `populace` is PolicyEngine's rebuilt
+open-source microdata stack: it synthesizes populations from
+primary-source U.S. government survey and administrative data
+(CPS/ASEC, IRS Public Use File, SCF, SIPP, CPS-ORG, MEPS, ACS) using
+weight-aware machine-learning conditional models, and calibrates them
+against administrative targets (CBO, IRS, SSA, Census, and others)
+treated as uncertainty-weighted facts. The synthesis methods build on
+the microplex engine [@ghenis2026microplex]. The core challenge this
+project adds is creating realistic lifetime earnings trajectories and
 demographic transitions while maintaining cross-sectional accuracy,
 longitudinal realism, and computational feasibility.
 
@@ -23,26 +25,26 @@ MINT, and the public CBO record.
 ## Methodology flow
 
 The following diagram illustrates the high-level data flow through the
-synthetic panel construction process. `Ledger` supplies the source
-microdata and the calibration targets (including SSA aggregates) that
-`microplex` draws on:
+synthetic panel construction process. `populace` draws on
+primary-source microdata and administrative calibration targets
+(including SSA aggregates):
 
 ```mermaid
 flowchart TD
     subgraph inputs["Input Data Sources"]
-        MPX["microplex<br/>(Cross-sectional population)"]
+        MPX["populace<br/>(Cross-sectional population)"]
         PSID["PSID<br/>(Longitudinal)"]
-        SSA["Ledger calibration targets<br/>(SSA, CBO, IRS, Census)"]
+        SSA["Calibration targets<br/>(SSA, CBO, IRS, Census)"]
     end
 
     subgraph processing["Longitudinal Extension"]
-        HIST["Add lifetime histories<br/>to microplex"]
+        HIST["Add lifetime histories<br/>to populace"]
         TRANS["Add demographic and<br/>family transitions"]
         CAL["Longitudinal validation<br/>& calibration"]
     end
 
     subgraph outputs["Application Layer"]
-        PANEL["Longitudinal<br/>microplex"]
+        PANEL["Longitudinal<br/>populace"]
         PE["PolicyEngine-US<br/>Benefit Calculations"]
         WEB["Web Interface<br/>& API"]
     end
@@ -61,7 +63,7 @@ flowchart TD
 
 The methodology now has two explicit layers:
 
-1. **Population layer**: make `microplex` into a credible longitudinal
+1. **Population layer**: make `populace` into a credible longitudinal
    synthetic population.
 2. **Application layer**: use that longitudinal population for Social
    Security benefit calculation, validation, and reform analysis.
@@ -70,13 +72,13 @@ That split is not just organizational. It determines where methods and
 code should live.
 
 - Generic synthesis, calibration, trajectory construction, and
-  longitudinal state machinery belong in `microplex` or its companion
+  longitudinal state machinery belong in `populace` or its companion
   packages.
 - Social Security-specific logic, policy validation, and reform
   workflows belong in this repository and in PolicyEngine-US.
 
 Within the population layer, the project should remain baseline-first.
-That means the first implementation inside longitudinal `microplex`
+That means the first implementation inside longitudinal `populace`
 should use methods that are simple enough to audit and validate
 directly. More ambitious joint generative models can be added later if
 they improve the metrics that matter.
@@ -91,7 +93,7 @@ Machine learning is useful inside that system, but it is not the
 system.
 
 This produces a longitudinal public population with:
-- representative synthetic records from the `microplex` base population
+- representative synthetic records from the `populace` base population
 - lifetime dynamics learned from panel data and external targets
 - explicit calibration and validation artifacts
 - reuse across Social Security and adjacent policy domains
@@ -99,7 +101,7 @@ This produces a longitudinal public population with:
 ### How this differs from existing models
 
 **vs. DynaSim**: the comparison object is not this repository alone. It
-is longitudinal `microplex` plus PolicyEngine-US plus this Social
+is longitudinal `populace` plus PolicyEngine-US plus this Social
 Security application layer. The differentiator is openness,
 inspectability, and modularity rather than institutional continuity.
 
@@ -117,34 +119,36 @@ comparison to DynaSim, MINT, CBOLT, and other models.
 
 ## Phase 1: Base-year cross-section
 
-### Starting point: microplex's current cross-sectional layer
+### Starting point: populace's current cross-sectional layer
 
-The project starts from `microplex`, PolicyEngine's ML-first microdata
-layer. microplex already demonstrates public-data construction, income
-enhancement, and calibration to administrative targets at production
-scale. It supersedes PolicyEngine's earlier Enhanced CPS work, which
-implemented part of the same conceptual approach on a narrower
-scope.
+The project starts from `populace`, PolicyEngine's rebuilt microdata
+stack. populace builds a calibrated cross-sectional population
+entirely from primary sources and, in June 2026, replaced
+PolicyEngine's enhanced CPS as the certified default U.S. microdata
+in policyengine.py — after beating it on a held-out, symmetric-refit
+comparison. The cross-sectional foundation has therefore already
+shipped and won; the longitudinal extension is the open work.
 
 Advantages of this starting point:
 
-1. **Proven methodology**: microplex has already solved the
+1. **Proven methodology**: populace has already solved the
    cross-sectional income underreporting problem using the same
    tools the longitudinal extension will apply
 2. **Integration**: seamless connection to PolicyEngine-US's
    existing tax-benefit calculations
 3. **Asset value**: improvements made for this project strengthen
-   `microplex` rather than remaining trapped in a narrow application
+   `populace` rather than remaining trapped in a narrow application
    repository
 4. **Credibility**: builds on a demonstrated production stack rather
    than restarting from scratch
 5. **Sample size**: a large synthetic public population provides
    statistical power for national and subnational analysis
 
-microplex improves upon raw CPS through:
+populace improves upon raw CPS through:
 
-**Income imputation**: filling missing income components using
-`microimpute` (quantile regression forests and related methods)
+**Income imputation**: filling missing income components with
+weight-aware conditional models (the `populace-fit` shard, succeeding
+`microimpute` — quantile regression forests and related methods)
 
 **Benefit underreporting correction**: aligning survey-reported
 transfer income with administrative aggregates
@@ -152,11 +156,11 @@ transfer income with administrative aggregates
 **Tax unit construction**: creating tax filing units from household
 structure
 
-**Multi-source calibration**: base-population reweighting against the
-administrative aggregates (CBO, IRS, SSA, Census, and others) that
-`Ledger` assembles and maintains
+**Multi-source calibration**: base-population reweighting (the
+`populace-calibrate` shard) against administrative aggregates from
+CBO, IRS, SSA, Census, and other sources
 
-The proof-of-concept phase should validate that `microplex` can be
+The proof-of-concept phase should validate that `populace` can be
 extended longitudinally, rather than reopening the question of
 whether the project should start from some entirely different base
 population. If computational constraints arise with the full
@@ -181,13 +185,13 @@ For dynamic modeling, we need variables not in CPS:
 
 These "latent" variables will drive longitudinal transitions even when not directly observed.
 
-## Phase 2: Longitudinal extension of microplex
+## Phase 2: Longitudinal extension of populace
 
 ### The core challenge
 
 Social Security benefits depend on 35 highest years of earnings, but the
 current public population layer only observes a cross-section. We need
-to extend `microplex` so that it carries:
+to extend `populace` so that it carries:
 
 - Past earnings for current workers (ages 18-70)
 - Future earnings for younger workers (for projections)
@@ -199,27 +203,27 @@ to extend `microplex` so that it carries:
 - Realistic variance
 
 This is the step where the project becomes more than a static synthetic
-dataset. It turns `microplex` into a longitudinal population asset.
+dataset. It turns `populace` into a longitudinal population asset.
 
-### Earnings-history approach inside longitudinal microplex
+### Earnings-history approach inside longitudinal populace
 
 The project should begin with a benchmark set rather than prematurely
 declaring one model family to be the production architecture. The
-current `microplex` direction points away from plain sequential QRF as
+current `populace` direction points away from plain sequential QRF as
 the main design and toward zero-inflated, pathwise generation inside
-`microplex`.
+`populace`.
 
 That means the proposal should distinguish:
 
 - **diagnostic comparators** such as QRF and ZI-QRF
 - **serious production candidates** such as ZI-QDNN and zero-inflated
-  pathwise `microplex` models
+  pathwise `populace` models
 - **the architectural question underneath them**: sequential age-point
   imputation versus all-at-once trajectory generation
 
 The methodological objective is therefore not "use QRF because it is
 familiar." It is "use the simplest architecture that survives the
-Social-Security-specific validation gates." The refreshed `microplex`
+Social-Security-specific validation gates." The refreshed `populace`
 imputation evaluations should help decide whether the leading candidate
 is ZI-QDNN, a flow-based pathwise model, or another zero-inflated
 trajectory approach. The proposal should be written to accommodate that
@@ -248,7 +252,7 @@ decision rather than forcing it in advance.
 
 **Phase-1 comparison approach**:
 
-For each base-year CPS or `microplex` individual, the project should
+For each base-year CPS or `populace` individual, the project should
 compare at least two families:
 
 1. **Age-point benchmark models**:
@@ -260,7 +264,7 @@ compare at least two families:
 
 The first family is useful because it is interpretable and easy to
 debug. The second is the more likely production direction because it is
-better aligned with the actual `microplex` longitudinal architecture and
+better aligned with the actual `populace` longitudinal architecture and
 preserves cross-age dependence natively.
 
 ### Interval-specific training strategy for benchmark models
@@ -281,14 +285,14 @@ This approach:
 - Allows different predictors to matter at different ages
 - Prevents impossible trajectories (e.g., starting at $200k at age 22)
 - Provides an interpretable benchmark arm for the more ambitious
-  `microplex` trajectory models
+  `populace` trajectory models
 
 But it should no longer be described as the expected production
 architecture.
 
 ### Expected production direction: joint trajectory synthesis
 
-The stronger architectural bet is that `microplex` should learn full
+The stronger architectural bet is that `populace` should learn full
 earnings trajectories all at once, with zero-inflation built directly
 into the model. In practice, that means:
 
@@ -300,13 +304,13 @@ into the model. In practice, that means:
   careers
 - preserving cross-age correlations without post-hoc smoothing
 
-This is the design most consistent with making `microplex`
+This is the design most consistent with making `populace`
 longitudinal. It also better matches the actual Social Security
 decision problem, where the full path matters more than any single
 age's earnings.
 
 The winning model family should still be chosen empirically. The
-refreshed `microplex` evaluation work should tell us whether ZI-QDNN, a
+refreshed `populace` evaluation work should tell us whether ZI-QDNN, a
 flow-based pathwise model, or another zero-inflated sequence model is
 the strongest production candidate.
 
@@ -327,7 +331,7 @@ cohort in the conditioning set for all candidate models
 birth where sample size permits
 
 **Trend adjustment**: Adjust PSID training data to reflect the CPS or
-`microplex` cohort's economic environment
+`populace` cohort's economic environment
 
 ### Validation of imputed histories
 
@@ -347,7 +351,7 @@ We validate imputed earnings histories against multiple benchmarks:
 
 This validation step is doing double duty. It decides whether the
 earnings-history machinery is good enough for Social Security, and it
-also decides whether longitudinal `microplex` is becoming a credible
+also decides whether longitudinal `populace` is becoming a credible
 population asset in its own right.
 
 ## Phase 3: Demographic transitions
@@ -511,9 +515,9 @@ structure this project needs.
 ### Base-year calibration
 
 Weights still matter before longitudinalization. The cross-sectional
-`microplex` base should be calibrated to demographic, income, tax, and
-program targets using `microplex`'s existing calibration toolchain
-against `Ledger`'s administrative aggregates.
+`populace` base should be calibrated to demographic, income, tax, and
+program targets using `populace`'s existing calibration shard
+(`populace-calibrate`) against administrative aggregates.
 
 Once that base population is converted into a longitudinal population,
 the representation should be treated as a population scaffold with

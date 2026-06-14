@@ -164,41 +164,45 @@ analysis.
 The most natural implementation of this design today is the
 PolicyEngine open-source stack. PolicyEngine maintains:
 
-- **Ledger**: a harness over dozens of U.S. government survey and
-  administrative datasets — the source microdata and the calibration
-  targets (from CBO, IRS, SSA, Census, and others) — assembled and
-  maintained as a common data layer.
-- **microplex**: PolicyEngine's ML-first microdata layer. Built from
-  the ground up around modern machine-learning synthesis and
-  calibration methods rather than retrofitting them onto older
-  microsim infrastructure, it synthesizes populations from Ledger's
-  sources and calibrates them against Ledger's administrative targets.
-  The synthesis methods include quantile regression forests, quantile
-  deep neural networks, and masked autoregressive flows; calibration
-  uses gradient descent with optional L0-regularized record selection;
-  authenticity and privacy evaluation uses precision, density, and
-  coverage metrics. The methods and a cross-survey benchmark are
-  documented in a methods paper [@ghenis2026microplex]. microplex also
-  includes trajectory and panel-synthesis primitives — the building
-  blocks for the longitudinal extension this project requires.
+- **populace**: PolicyEngine's rebuilt, open-source microdata stack
+  ([github.com/PolicyEngine/populace](https://github.com/PolicyEngine/populace),
+  [populace.dev](https://populace.dev), MIT). It builds a calibrated
+  synthetic population entirely from primary-source government data
+  (CPS/ASEC, IRS Public Use File, Survey of Consumer Finances, SIPP,
+  CPS outgoing-rotation groups, MEPS, and ACS), synthesizes missing
+  variables with weight-aware machine-learning conditional models,
+  and calibrates to administrative targets treated as
+  uncertainty-weighted facts. Its kernel is a single datatype — a
+  weighted sampling frame of entity tables — and it exposes the
+  population through a rules-engine adapter (policyengine-us today,
+  with Axiom's rules layer as the next adapter). In June 2026,
+  populace **replaced PolicyEngine's enhanced CPS as the certified
+  default U.S. microdata in policyengine.py**, after beating it on a
+  held-out, symmetric-refit comparison — the same kind of predictive
+  evaluation this project applies to the Social Security layer.
 - **PolicyEngine-US**: open Python rules engine for U.S. federal and
   state tax-benefit policy. Calculates OASDI benefits, benefit
   taxation, and means-tested program interactions.
 - **PolicyEngine-API** and **frontend**: production REST API and
   interactive interface that think tanks, researchers, and
   congressional staff use.
-- **microimpute, microcalibrate, L0**: tooling for imputation,
-  gradient-descent calibration, and sparsification.
 
-The Social Security build adds the longitudinal extension on top of
-microplex, the Social Security application and validation layer on
-top of PolicyEngine-US, and an MCP server on top of the API.
+populace's kernel is **longitudinal-ready by design** — it carries
+one weight per trajectory, and its charter names the longitudinal
+extension (person-period keying, cohort entry and exit, household
+recomposition over time) explicitly as "the social-security-model
+direction." That extension is the central open work this project
+funds: the cross-sectional foundation has shipped and won; the
+Social Security build grows populace's longitudinal kernel, adds the
+Social Security application and validation layer on top of
+PolicyEngine-US, and exposes the result through an MCP server on top
+of the API.
 
 The design itself is architecture-agnostic — other open-source
 stacks could realize it — but the PolicyEngine stack is the path
-with the most production-ready foundation, existing Social Security
-calculation logic in the rules engine, and existing API and delivery
-infrastructure.
+with a shipped, validated microdata foundation, existing Social
+Security calculation logic in the rules engine, and existing API and
+delivery infrastructure.
 
 ## Why this is suddenly achievable
 
@@ -206,9 +210,9 @@ A serious open dynamic Social Security model would have been
 impractical at small-organization scale a decade ago. It is plausible
 now for four reasons:
 
-- PolicyEngine's microplex stack demonstrates that public-data
-  reconstruction of calibrated cross-sectional populations works at
-  production scale
+- PolicyEngine's populace stack has already replaced the enhanced CPS
+  as the certified default public microdata in policyengine.py — proof
+  that primary-source reconstruction works at production scale
 - synthetic population methodology has progressed enough to make
   longitudinal extension plausible without restricted matched data
 - open rules engines for U.S. tax-benefit policy now implement core

@@ -7,7 +7,7 @@ they care how it works. The point of this project is not to create a
 generic simulator in the abstract. It is to answer concrete policy
 questions that require lifecycle information and distributional detail.
 More specifically, this repository should be understood as the first
-serious proving ground for longitudinal `microplex`: if the population
+serious proving ground for longitudinal `populace`: if the population
 platform can support Social Security well, it earns the right to support
 adjacent domains later.
 
@@ -318,7 +318,7 @@ Accessible public modeling supply appears even thinner than in Social
 Security. The fair claim is not that any one closed model is the sole
 bottleneck. It is that LTC policy interest is substantial and visible,
 while LTSS modeling capacity is concentrated in a small number of closed
-or proprietary systems. If longitudinal `microplex` becomes credible,
+or proprietary systems. If longitudinal `populace` becomes credible,
 LTC may become one of the highest-value adjacent domains for expansion.
 
 The most plausible first adjacent LTC product is not a national dynamic

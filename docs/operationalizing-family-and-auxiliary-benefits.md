@@ -124,7 +124,7 @@ micro-implementation than the documentation supports.
 ## Recommended state representation
 
 The proposal should specify a family-history layer as a first-class
-state block inside longitudinal `microplex`.
+state block inside longitudinal `populace`.
 
 ### Current marital-status state
 
@@ -279,12 +279,12 @@ auxiliary layer is credible.
 ## Recommended construction strategy
 
 The family-history layer should be built in a way that respects both the
-existing `microplex` cross section and the needs of Social Security
+existing `populace` cross section and the needs of Social Security
 benefit logic.
 
 ### 1. Start from the base-year household network
 
-`microplex` already provides a cross-sectional household and family
+`populace` already provides a cross-sectional household and family
 structure. That gives the project a real starting point for:
 
 - current couples
@@ -339,7 +339,7 @@ That mechanism should preserve:
 - dual-earner versus single-earner household patterns
 
 This is one of the strongest reasons to think in terms of longitudinal
-`microplex` rather than a loose collection of independent hazards.
+`populace` rather than a loose collection of independent hazards.
 
 ### 5. Enforce relational consistency
 
@@ -404,7 +404,7 @@ it is likely more fundable and easier to validate in phase 1.
 
 ### Higher-upside extension
 
-If longitudinal `microplex` advances enough, the project can later move
+If longitudinal `populace` advances enough, the project can later move
 toward hierarchical or household-first generation that jointly models:
 
 - household composition
@@ -567,7 +567,7 @@ The proposal should not describe family structure as a few marriage
 hazards plus a spouse-benefit rule call.
 
 It should describe an explicit relationship-history layer inside
-longitudinal `microplex`, say what phase 1 will and will not include,
+longitudinal `populace`, say what phase 1 will and will not include,
 benchmark those choices against DYNASIM and MINT, and evaluate the
 result against the auxiliary-benefit outcomes that policy users actually
 care about.

@@ -7,14 +7,14 @@ compute Social Security benefits once the right variables exist. The
 hard question is whether we can construct a public, person-level panel
 with plausible lifetime earnings, family histories, disability spells,
 and claiming-relevant states. That is the part that determines whether
-longitudinal `microplex` is merely an interesting synthetic dataset or a
+longitudinal `populace` is merely an interesting synthetic dataset or a
 serious policy-analysis asset.
 
-Throughout this chapter, `microplex` is PolicyEngine's ML-first
-microdata layer, and `Ledger` is PolicyEngine's harness over dozens of
-U.S. government survey and administrative datasets — the source
-microdata and the calibration targets (CBO, IRS, SSA, Census, and
-others) that `microplex` synthesizes from and calibrates against.
+Throughout this chapter, `populace` is PolicyEngine's rebuilt
+open-source microdata stack — it integrates primary-source U.S.
+government survey and administrative data and calibrates against
+administrative targets (CBO, IRS, SSA, Census, and others), and it
+is the certified default U.S. microdata in policyengine.py.
 
 This chapter therefore goes one layer deeper than the methodology and
 technical-specification chapters. It describes what the funded build
@@ -41,7 +41,7 @@ For this project to justify a serious build, it needs to do more
 than generate reasonable average earnings by age. It needs to support
 the following chain end to end:
 
-1. represent a public cross-sectional population in `microplex`
+1. represent a public cross-sectional population in `populace`
 2. attach plausible lifetime earnings and family histories to each
    record
 3. transform those histories into quarters of coverage, AIME, and PIA
@@ -68,7 +68,7 @@ main benchmark models:
 
 | Component | DYNASIM public record | MINT public record | CBO public record | Implication for us |
 |---|---|---|---|---|
-| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `microplex`, synthesized from `Ledger`'s survey sources, can play the starting-sample role, but it does not inherit observed earnings histories |
+| **Starting sample** | Starts from survey-based representative samples and augments them with multiple public and administrative data sources | Starts from SIPP matched to SSA administrative earnings and benefits | Uses CBOLT as the long-term baseline framework for fiscal and distributional analysis | `populace`, synthesized from primary-source survey data, can play the starting-sample role, but it does not inherit observed earnings histories |
 | **Historical earnings** | Older DYNASIM work used statistical matching to attach historical earnings built from PSID and CPS/SER-style sources | Uses observed administrative earnings where available and projects the remainder | Public documentation is sparse on exact record construction | This is the central gap our project must close with public methods |
 | **Annual labor-market process** | Relies on yearly transition equations, hazard-style modules, and Monte Carlo simulation | Projects labor force participation and earnings from an admin-linked base | Public emphasis is on cohort/quintile outputs and aggregate consistency | Our design should be annual and state-based, not only age-point imputation |
 | **Alignment and calibration** | Explicitly aligns modules to observed history and future control totals | Uses Trustees assumptions and current-law rules for projections | Integrated to official long-term projections and budget baselines | We need explicit alignment layers, not a one-shot imputation |
@@ -179,7 +179,7 @@ systems:
 
 | System | What it must do | Benchmark lesson |
 |---|---|---|
-| Starting-file adapter | Convert cross-sectional `microplex` into a person-year scaffold with stable IDs, household IDs, tax-unit IDs, and fixed representation factors or replicate counts | CBOLT and DYNASIM both begin with a representative population, not abstract cohorts |
+| Starting-file adapter | Convert cross-sectional `populace` into a person-year scaffold with stable IDs, household IDs, tax-unit IDs, and fixed representation factors or replicate counts | CBOLT and DYNASIM both begin with a representative population, not abstract cohorts |
 | Historical earnings engine | Reconstruct covered earnings, uncovered earnings, self-employment, zero-earnings years, and taxable-maximum exposure | CBOLT's strength comes from CWHS; our public substitute must be validated hard |
 | Annual transition engine | Simulate work, earnings, marital status, fertility, disability, mortality, claiming, and household changes year by year | Both benchmark systems are annual transition models |
 | Family network engine | Maintain current, former, and deceased spouse links plus parent-child links needed for auxiliary benefits | CBOLT explicitly uses family links for benefits |
@@ -237,7 +237,7 @@ while still leaving room for more ambitious joint generative methods
 later.
 
 The strongest version of that "more ambitious" path is probably a
-zero-inflated all-at-once `microplex` trajectory model. But the
+zero-inflated all-at-once `populace` trajectory model. But the
 proposal should leave room for refreshed evaluation results to decide
 whether the best implementation is ZI-QDNN, a flow-based model, or
 another pathwise candidate.
@@ -331,7 +331,7 @@ current earnings become a better proxy only around midcareer, and much
 worse outside that window [@haider2006].
 
 So the first operational task is to define and estimate a latent
-earnings-capacity measure that can be attached to each `microplex`
+earnings-capacity measure that can be attached to each `populace`
 person.
 
 ### Practical definition
@@ -344,7 +344,7 @@ A workable phase-1 target is:
   currently observed cross-sectional traits
 
 The target should be estimated in PSID and similar panel sources, then
-mapped back to `microplex` using supervised prediction. This is the
+mapped back to `populace` using supervised prediction. This is the
 right use of tools like QRF or distributional regression: not as the
 whole earnings engine, but as a way to recover a latent position in the
 lifetime distribution.
@@ -440,7 +440,7 @@ include:
 
 - QRF and ZI-QRF as interpretable age-point benchmarks
 - ZI-QDNN as the most obvious zero-inflated neural candidate
-- at least one pathwise `microplex` model that generates the earnings
+- at least one pathwise `populace` model that generates the earnings
   path all at once
 
 In other words, the proposal should compare benchmark models against
@@ -534,7 +534,7 @@ solve all pension interaction problems on day one.
 
 The key operational problem is backward construction.
 
-For a person observed in `microplex` at age 52 in 2025, we need a path
+For a person observed in `populace` at age 52 in 2025, we need a path
 from age 18 to age 52 that is consistent with:
 
 - their current observed earnings or benefit state
@@ -649,7 +649,7 @@ So the operational plan should treat alignment as a stack:
 
 ### Layer 1: Base-population calibration
 
-Calibrate the cross-sectional `microplex` population before the dynamic
+Calibrate the cross-sectional `populace` population before the dynamic
 simulation begins. After longitudinalization, carry fixed representation
 factors or replicate counts through the relationship network rather than
 freely changing individual weights every year.
@@ -738,8 +738,8 @@ The proposal should explicitly benchmark the following pieces:
 
 ### Starting file
 
-- **Our plan**: `microplex` cross section, synthesized from `Ledger`'s
-  survey sources
+- **Our plan**: `populace` cross section, synthesized from
+  primary-source survey data
 - **DYNASIM**: representative survey base, augmented by multiple surveys
   and matched historical earnings work
 - **MINT**: SIPP linked to administrative earnings and benefits
@@ -800,7 +800,7 @@ The project should compare at least three candidate families:
    latent rank plus work-state plus conditional earnings plus calibrated
    residuals
 3. **Joint trajectory generator**:
-   a pathwise zero-inflated generator inside `microplex`, with
+   a pathwise zero-inflated generator inside `populace`, with
    ZI-QDNN, ZI-MAF, or related sequence models as candidates
 
 The project should precommit that the simplest architecture that clears
@@ -849,7 +849,7 @@ At minimum, year one should deliver:
    earnings-state features
 2. a benchmark note comparing the public record on DYNASIM, MINT, and
    CBO component by component
-3. a longitudinal `microplex` alpha with historical earnings paths and
+3. a longitudinal `populace` alpha with historical earnings paths and
    source provenance flags
 4. a validation report covering earnings distributions, mobility,
    taxable-maximum incidence, zero-earnings years, and AIME-sensitive
@@ -868,14 +868,14 @@ technical object of the project.
 The right architecture is not "QRF everywhere." It is a transparent
 annual state process for covered work and earnings, anchored to current
 records and disciplined by external calibration, with a likely
-production path toward zero-inflated all-at-once `microplex`
+production path toward zero-inflated all-at-once `populace`
 trajectory models. QRF can still play an important role as a benchmark
 and diagnostic tool, but it should no longer be described as the
 default destination.
 
 The public differentiator remains real:
 
-- `microplex` as PolicyEngine's reusable public population layer
+- `populace` as PolicyEngine's reusable public population layer
 - explicit benchmark comparison to DYNASIM, MINT, and CBO
 - record-level provenance
 - published validation gates

@@ -13,7 +13,7 @@ enough to justify the next stage of the build. This chapter therefore
 defines the evaluation framework for deciding:
 
 - which earnings architecture becomes the production path for
-  longitudinal `microplex`
+  longitudinal `populace`
 - whether the resulting panel is good enough for benefit calculation
 - whether the full project has earned the right to advance from stage 1
   to stage 2
@@ -54,8 +54,8 @@ and likely production candidates.
 | **QRF** | Baseline comparator | Interpretable benchmark and direct comparison to older sequential PE-style methods |
 | **ZI-QRF** | Stronger baseline comparator | Isolates the value of explicit zero-inflation without changing the broader modeling family |
 | **ZI-QDNN** | Serious candidate | Zero-inflated neural distribution model; plausible production option if refreshed evals support it |
-| **ZI-MAF or related flow models** | Serious candidate | Strong match to `microplex`'s generative direction and all-at-once path generation |
-| **Pathwise `microplex` sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
+| **ZI-MAF or related flow models** | Serious candidate | Strong match to `populace`'s generative direction and all-at-once path generation |
+| **Pathwise `populace` sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
 | **Factorized annual process with calibrated residuals** | Structural benchmark | Useful if a transparent annual-state model beats pure black-box pathwise generation on policy metrics |
 
 The proposal should not prejudge the winner. It should prejudge the
@@ -141,7 +141,7 @@ person-years.
 
 ### Cross-sectional anchor tests
 
-Because the final use case starts from a cross-sectional `microplex`
+Because the final use case starts from a cross-sectional `populace`
 record, the project should also simulate that workflow directly:
 
 1. collapse a held-out panel person to a pseudo-cross-section at a
@@ -274,7 +274,7 @@ These may include:
 - zero-fraction error
 - correlation preservation
 
-They are useful as diagnostics, especially for comparing `microplex`
+They are useful as diagnostics, especially for comparing `populace`
 candidate families, but they are not the final decision rule.
 
 ### Operational metrics
@@ -317,7 +317,7 @@ For candidates that clear Gate 1, score them on:
 - policy-output fit
 - stability
 - runtime and reproducibility
-- architectural alignment with longitudinal `microplex`
+- architectural alignment with longitudinal `populace`
 
 The scorecard should be reported as a table, not just prose.
 
@@ -330,7 +330,7 @@ The winning architecture should be the one that:
 3. is simple enough to explain and maintain publicly
 
 That rule leaves open whether the winner is ZI-QDNN, ZI-MAF, a broader
-`microplex` sequence model, or a more transparent annual-state process.
+`populace` sequence model, or a more transparent annual-state process.
 
 ## Suggested numeric thresholds for stage 1
 
@@ -381,14 +381,14 @@ decision:
 - which architecture deserves continued investment
 - what the residual limitations are even if the answer is "yes"
 
-## Relationship to the refreshed microplex evaluations
+## Relationship to the refreshed populace evaluations
 
-The `microplex` imputation evaluations should feed directly into this
+The `populace` imputation evaluations should feed directly into this
 chapter, but they should not be the only evidence.
 
 The right interpretation is:
 
-- refreshed `microplex` evals help narrow the candidate set
+- refreshed `populace` evals help narrow the candidate set
 - Social-Security-specific benchmarks decide the production winner
 - the proposal should remain architecture-agnostic until both pieces are
   in hand

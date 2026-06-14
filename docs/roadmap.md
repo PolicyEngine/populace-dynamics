@@ -14,7 +14,7 @@ decision points, not chronological phases.
 
 The project has four core workstreams:
 
-1. **Longitudinal microplex construction**
+1. **Longitudinal populace construction**
 2. **Social Security integration and validation**
 3. **Policy analysis products**
 4. **Public API and interface**
@@ -30,13 +30,12 @@ implementation.
 
 ### Deliverables
 
-- Finalized base population platform: `microplex`, PolicyEngine's
+- Finalized base population platform: `populace`, PolicyEngine's
   microdata stack
-- Clear boundary between `microplex` platform work and
+- Clear boundary between `populace` platform work and
   Social Security-specific application work
-- Benchmark datasets and target tables assembled from Ledger, the
-  PolicyEngine data layer that harnesses dozens of government survey and
-  administrative sources
+- Benchmark datasets and target tables assembled from `populace`'s
+  primary-source data and its versioned target registry
 - Initial validation harness for baseline distributions
 - Implementation team and external review capacity identified
 - Written stage-gate criteria approved internally
@@ -51,16 +50,16 @@ implementation.
 
 ## Stage 1: historical earnings reconstruction
 
-**Purpose**: determine whether `microplex` can be extended into a
+**Purpose**: determine whether `populace` can be extended into a
 credible longitudinal population asset for Social Security analysis.
 
 ### Core tasks
 
 - Harmonize PSID and related longitudinal sources
 - Build at least one conservative production path for earnings-history
-  reconstruction inside `microplex`
+  reconstruction inside `populace`
 - Add the first longitudinal state variables and transition machinery to
-  `microplex`
+  `populace`
 - Compare alternative model families where justified
 - Validate age-earnings profiles, percentiles, mobility, AIME, and
   correlation structure
@@ -68,14 +67,14 @@ credible longitudinal population asset for Social Security analysis.
 
 ### Deliverables
 
-- Longitudinal `microplex` alpha with earnings histories and core
+- Longitudinal `populace` alpha with earnings histories and core
   longitudinal states
 - Validation report on held-out data and external benchmarks
 - Recommendation on the production longitudinal architecture
 
 ### Exit criteria
 
-- Longitudinal `microplex` is accurate enough to justify downstream
+- Longitudinal `populace` is accurate enough to justify downstream
   benefit modeling
 - Validation results are publishable and not merely anecdotal
 
@@ -84,12 +83,12 @@ proceeding mechanically.
 
 ## Stage 2: family, disability, claiming, and benefits
 
-**Purpose**: turn longitudinal `microplex` into a credible Social
+**Purpose**: turn longitudinal `populace` into a credible Social
 Security analysis dataset.
 
 ### Core tasks
 
-- Freeze the minimal production version of longitudinal `microplex`
+- Freeze the minimal production version of longitudinal `populace`
   chosen at the end of stage 1
 - Implement family structure and marital histories needed for auxiliary
   benefits
@@ -113,7 +112,7 @@ Security analysis dataset.
 
 ## Stage 3: forward projection and reform analysis
 
-**Purpose**: move from longitudinal `microplex` plus a validated Social
+**Purpose**: move from longitudinal `populace` plus a validated Social
 Security layer to a projected dynamic model that can analyze reform
 packages.
 
@@ -176,7 +175,7 @@ Throughout the project:
 - preserve reproducible data-processing pipelines where licensing
   permits
 - document model decisions and reversals
-- preserve the separation between reusable `microplex` infrastructure
+- preserve the separation between reusable `populace` infrastructure
   and Social Security-specific application code
 - collect external review from domain experts
 
