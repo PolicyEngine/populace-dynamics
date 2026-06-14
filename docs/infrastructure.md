@@ -104,10 +104,10 @@ primary-source government data, and expose it to a rules engine.
 MIT). Built entirely from primary sources (CPS/ASEC, IRS PUF, SCF,
 SIPP, CPS-ORG, MEPS, ACS), it replaced PolicyEngine's enhanced CPS as
 the certified default U.S. microdata in policyengine.py in June 2026,
-after beating it on a held-out, symmetric-refit comparison. It
-synthesizes missing variables with weight-aware conditional models
-(quantile regression forests, quantile deep neural networks, and
-masked autoregressive flows).
+after beating it on a held-out, symmetric-refit comparison. Its
+synthesis method (the `populace-fit` shard) is a regime-gated,
+sequentially-chained, weight-aware quantile-regression-forest
+imputer, with a gradient-boosted classifier handling zero inflation.
 
 **Architecture**: one kernel datatype — the `Frame`, a weighted
 sampling frame of entity tables — with operators as separate shards
@@ -549,16 +549,17 @@ We leverage a rich ecosystem of open-source tools:
 - Social Security rules already implemented in PolicyEngine-US
 - infrastructure for web/API deployment
 
-**Additional Methodological Approaches** (To evaluate during proof of concept):
-- **Zero-inflated quantile deep neural networks (ZI-QDNN)**: Primary candidate for earnings imputation, with dedicated zero-inflation head and conditional quantile output; early experiments show 3× better trajectory coverage than recurrent alternatives on survey panel data
-- **Normalizing flows**: Conditional Masked Autoregressive Flows (MAF) as alternative for joint multi-year imputation, particularly where cross-year correlation structure matters
+**Additional methodological approaches** (to evaluate during proof of concept):
+- **Baseline (incumbent)**: populace's production synthesis method is a regime-gated, weight-aware quantile-regression-forest imputer. It is the proven cross-sectional method and the natural baseline for the longitudinal extension to beat.
+- **Zero-inflated neural distribution models (e.g. ZI-QDNN)**: candidate for richer earnings-trajectory imputation, with a dedicated zero-inflation head and conditional quantile output — to evaluate against the QRF baseline, not assumed superior.
+- **Normalizing flows**: candidate for joint multi-year imputation where cross-year correlation structure matters; to evaluate, not committed.
 - **Multi-survey fusion**: Harmonize CPS, PSID, and PUF into unified datasets using common variable schemas and masked imputation for cross-survey variables
 - **Sparse calibration**: IPF (raking), entropy balancing, and L0/L1/L2 sparse reweighting for base-population and donor-pool calibration, with network-preserving selection once relationships exist
 - **Demographic transition models**: Discrete-time hazard models for disability onset/recovery (using SSA DI incidence rates), mortality (using SSA period life tables), and marriage/divorce (using CPS/ACS-based rates)
 - **Hierarchical household synthesis**: Two-pass household/person generation preserving family structure, tax unit composition, and spousal earnings correlations
 
 **Extensions** (To develop):
-- Full earnings history imputation (ZI-QDNN primary, with QRF and normalizing flows as alternatives)
+- Full earnings history imputation (regime-gated QRF baseline, with zero-inflated neural and flow models as candidates to evaluate)
 - Spousal matching and assortative mating
 - Forward projection with multi-year calibration
 - Dynamic analysis API and web interface
