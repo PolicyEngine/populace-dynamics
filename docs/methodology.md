@@ -13,7 +13,11 @@ against administrative targets (CBO, IRS, SSA, Census, and others)
 treated as uncertainty-weighted facts. The core challenge this
 project adds is creating realistic lifetime earnings trajectories and
 demographic transitions while maintaining cross-sectional accuracy,
-longitudinal realism, and computational feasibility.
+longitudinal realism, and computational feasibility. The scope of
+claims this machinery supports is bounded in
+[domains-of-validity.md](domains-of-validity.md); its credential is
+the scorecard defined in
+[scoring-and-resolution.md](scoring-and-resolution.md).
 
 The chapter below stays at the architecture level. The next chapter,
 [operationalizing-longitudinal-construction.md](operationalizing-longitudinal-construction.md),

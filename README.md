@@ -98,6 +98,8 @@ The main planning documents are a Quarto book in [`docs/`](docs/):
   executive summary, scope, and core project decisions
 - [funder-summary.md](docs/funder-summary.md):
   short funder-facing synthesis of the investment case
+- [domains-of-validity.md](docs/domains-of-validity.md):
+  what the model will and will not claim, and why
 - [policy-applications.md](docs/policy-applications.md):
   the concrete policy questions and user needs the model should serve
 - [existing-models.md](docs/existing-models.md):
@@ -114,6 +116,8 @@ The main planning documents are a Quarto book in [`docs/`](docs/):
   state variables, transitions, and extensions
 - [calibration-targets.md](docs/calibration-targets.md):
   targets, validation strategy, and tolerances
+- [scoring-and-resolution.md](docs/scoring-and-resolution.md):
+  resolving forecast cells, retrodiction protocol, and the merge-on-score contribution rule
 - [public-validation-inventory.md](docs/public-validation-inventory.md):
   public benchmark sources for validation
 - [evaluation-and-model-selection.md](docs/evaluation-and-model-selection.md):

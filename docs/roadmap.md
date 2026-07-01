@@ -4,8 +4,9 @@
 
 This roadmap describes a serious, stage-gated build. The goal is not
 to force a public launch on an arbitrary schedule. The goal is to earn
-the right to proceed from one stage to the next by passing validation
-gates.
+the right to proceed from one stage to the next by passing scoring
+gates — pre-specified thresholds on the record defined in
+[scoring-and-resolution.md](scoring-and-resolution.md).
 
 The roadmap is therefore organized around capability milestones and
 decision points, not chronological phases.

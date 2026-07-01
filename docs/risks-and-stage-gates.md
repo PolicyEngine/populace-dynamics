@@ -4,8 +4,10 @@
 
 The main threat to this project is not failure to write code. It is
 failure to know when the outputs are not yet good enough. This chapter
-defines the principal risks and the stage gates that should govern
-continuation.
+defines the principal risks and the stage gates that govern
+continuation. Gates are score thresholds on the record defined in
+[scoring-and-resolution.md](scoring-and-resolution.md), not
+narrative judgments.
 
 ## Principal risks
 

@@ -10,6 +10,11 @@ weighting. `populace` maintains these administrative aggregates as a
 versioned target registry — signed facts with standard errors — so
 that calibration runs against a single, consistent set of targets and
 treats them as uncertainty-weighted evidence rather than exact hits.
+The same registry entries double as resolution criteria for the
+forecast cells in
+[scoring-and-resolution.md](scoring-and-resolution.md): the table
+that calibrates the model this year is the table that grades it next
+year.
 
 ## Why calibration matters
 

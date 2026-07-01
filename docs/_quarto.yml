@@ -3,8 +3,8 @@ project:
   output-dir: _book
 
 book:
-  title: "Building an Open-Source Social Security Dynamic Microsimulation Model"
-  subtitle: "Stage-Gated Planning Document"
+  title: "An open dynamic Social Security model"
+  subtitle: "A scored longitudinal extension of populace"
   author:
     - name: Max Ghenis
       affiliation: PolicyEngine
@@ -25,6 +25,7 @@ book:
   chapters:
     - index.md
     - funder-summary.md
+    - domains-of-validity.md
     - policy-applications.md
     - existing-models.md
     - benchmark-model-component-matrix.md
@@ -33,6 +34,7 @@ book:
     - operationalizing-longitudinal-construction.md
     - technical-specifications.md
     - calibration-targets.md
+    - scoring-and-resolution.md
     - public-validation-inventory.md
     - evaluation-and-model-selection.md
     - operationalizing-disability-and-claiming.md
