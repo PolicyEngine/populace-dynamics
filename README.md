@@ -20,9 +20,10 @@ specialized relationships. That creates three problems:
 3. Public debate defaults to summaries of model output instead of open
    inspection of assumptions, errors, and tradeoffs.
 
-PolicyEngine already solved an analogous cross-sectional problem with
-the Enhanced CPS, and `populace` generalizes that work into a broader
-synthetic population dataset and calibration platform. The next step is
+PolicyEngine already solved the analogous cross-sectional problem:
+`populace`, built entirely from primary sources, replaced the earlier
+Enhanced CPS as the certified default U.S. microdata in policyengine.py
+after beating it on held-out accuracy. The next step is
 to make that population longitudinal. Social Security is the first
 serious proving ground because it forces the project to get lifetime
 earnings, family structure, disability, and claiming dynamics right.
@@ -41,15 +42,16 @@ earnings, family structure, disability, and claiming dynamics right.
   universal lifecycle simulator.
 - Platform thinking: the architecture should preserve a path to
   adjacent domains such as SSI interactions, retirement adequacy, and
-  eventually long-term care.
+  eventually long-term care — and, because `populace`'s kernel is
+  country-agnostic, to other countries' pension and benefit systems.
 - Honest scope: this project is a serious research and infrastructure
   effort, not an 18-month substitute for SSA or CBO.
 
 ## Decisions Already Made
 
 - **Base population platform**: `populace` is the population dataset
-  and synthesis platform, with its current public cross-sectional layer
-  grounded in Enhanced CPS-style construction and calibration.
+  and synthesis platform — built from primary sources and now the
+  certified default U.S. microdata in policyengine.py.
 - **Initial focus**: extend `populace` longitudinally just far enough
   to support lifetime earnings, family structure, disability, claiming,
   and benefit calculation for Social Security reform analysis.
@@ -57,12 +59,12 @@ earnings, family structure, disability, and claiming dynamics right.
   Security distributions and projections closely enough to support
   exploratory policy analysis, while also validating the underlying
   longitudinal population asset itself.
-- **Development model**: a stage-gated, approximately 36-month plan,
-  with go/no-go checkpoints after each major methodological hurdle.
+- **Development model**: a stage-gated plan with go/no-go checkpoints
+  after each major methodological hurdle.
 
 ## What Success Looks Like
 
-**Within 12 months**
+**Proof of concept**
 - A documented proof of concept extends `populace` from a public
   cross-sectional population into a credible longitudinal population
   asset.
@@ -71,7 +73,7 @@ earnings, family structure, disability, and claiming dynamics right.
 - The repository contains a published validation report, not just a
   methods narrative.
 
-**Within 24 months**
+**Validated Social Security layer**
 - A validated longitudinal `populace` can feed Social Security benefit
   calculations.
 - Family, disability, and claiming logic are implemented well enough to
@@ -80,7 +82,7 @@ earnings, family structure, disability, and claiming dynamics right.
 - External reviewers can inspect the full pipeline and reproduce core
   results.
 
-**Within 36 months**
+**Public product**
 - A public API and web interface expose the model for exploratory
   policy analysis.
 - The model supports a core set of reform packages, cohort analysis,
@@ -126,10 +128,8 @@ The main planning documents are a Quarto book in [`docs/`](docs/):
   how `populace`, PolicyEngine, and supporting libraries fit together
 - [team.md](docs/team.md):
   leadership, staffing needs, and review structure
-- [implementation-plan-and-budget-logic.md](docs/implementation-plan-and-budget-logic.md):
-  work packages, staffing logic, and the funding case for implementation
 - [roadmap.md](docs/roadmap.md):
-  stage-gated work plan across 36 months
+  stage-gated work plan and validation gates
 - [risks-and-stage-gates.md](docs/risks-and-stage-gates.md):
   principal risks, stop/go criteria, and fallback deliverables
 - [literature-review.md](docs/literature-review.md):

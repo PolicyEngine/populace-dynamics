@@ -314,7 +314,7 @@ PolicyEngine for narrow Social Security-adjacent questions but still
 need closed models for broader dynamic analysis. CRFB has
 commissioned PolicyEngine for an
 [analysis of Social Security benefit-taxation reforms](https://www.policyengine.org/us/taxation-of-benefits-reforms)
-(publication forthcoming, 2026 Q2) — a static tax-side question that
+(publication forthcoming) — a static tax-side question that
 the existing open stack already supports. Broader dynamic questions
 about actuarial balance, claiming behavior, lifetime distributional
 impact, and cohort-specific reform effects still push users toward
@@ -333,6 +333,11 @@ longitudinal ingredients:
 
 These are not phase-one commitments. They are reasons to design the
 core architecture well.
+
+The longitudinal machinery itself is generic and lives upstream in
+`populace`, whose kernel is country-agnostic. The same extension can
+eventually serve other countries' pension and benefit systems; Social
+Security is the first application, not the boundary.
 
 The most plausible first adjacent step is a state-specific long-term
 care pilot rather than a national dynamic LTSS model. A

@@ -54,8 +54,8 @@ and likely production candidates.
 | **QRF** | Baseline comparator | Interpretable benchmark and direct comparison to older sequential PE-style methods |
 | **ZI-QRF** | Stronger baseline comparator | Isolates the value of explicit zero-inflation without changing the broader modeling family |
 | **ZI-QDNN** | Serious candidate | Zero-inflated neural distribution model; plausible production option if refreshed evals support it |
-| **ZI-MAF or related flow models** | Serious candidate | Strong match to `populace`'s generative direction and all-at-once path generation |
-| **Pathwise `populace` sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
+| **ZI-MAF or related flow models** | Serious candidate | Candidate for all-at-once path generation where cross-age correlation structure matters; evaluated against the QRF baseline, not assumed superior |
+| **Pathwise sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
 | **Factorized annual process with calibrated residuals** | Structural benchmark | Useful if a transparent annual-state model beats pure black-box pathwise generation on policy metrics |
 
 The proposal should not prejudge the winner. It should prejudge the
