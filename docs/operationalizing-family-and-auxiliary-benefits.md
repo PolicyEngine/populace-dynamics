@@ -1,6 +1,6 @@
-# Operationalizing Family Structure and Auxiliary Benefits
+# Operationalizing family structure and auxiliary benefits
 
-## Why This Chapter Exists
+## Why this chapter exists
 
 Family structure is not a side table in Social Security modeling. It is
 one of the main reasons a dynamic model is needed at all.
@@ -22,7 +22,7 @@ structure what the earlier operational chapters do for earnings,
 disability, and claiming: it turns a broad requirement into a concrete
 build plan.
 
-## The Main Modeling Distinction
+## The main modeling distinction
 
 The proposal should keep three objects separate.
 
@@ -54,7 +54,7 @@ The model should therefore carry explicit relationship history and
 benefit-facing family states rather than relying on current marital
 status alone.
 
-## Why This Matters for Policy Analysis
+## Why this matters for policy analysis
 
 Some of the most visible Social Security adequacy debates run through
 family pathways rather than through the retired-worker benefit formula
@@ -75,7 +75,7 @@ usefulness. If the family-history layer is weak, the model may still
 look fine on aggregate OASDI payments while misrepresenting adequacy for
 widows, divorced beneficiaries, and low-own-earnings spouses.
 
-## What the Public Benchmark Models Tell Us
+## What the public benchmark models tell us
 
 The public record on existing models gives useful guidance about what
 needs to be explicit.
@@ -121,10 +121,10 @@ construction and auxiliary-benefit pathways. That is itself useful. It
 means the proposal should not pretend we know more about public CBO
 micro-implementation than the documentation supports.
 
-## Recommended State Representation
+## Recommended state representation
 
 The proposal should specify a family-history layer as a first-class
-state block inside longitudinal `microplex`.
+state block inside longitudinal `populace`.
 
 ### Current marital-status state
 
@@ -207,7 +207,7 @@ event timing for:
 This does not require a fully monthly model for every process. It does
 require more than a single annual marital-status flag.
 
-## Phase 1 Scope
+## Phase 1 scope
 
 A fundable phase 1 should be narrower than "all family pathways," but it
 should still be strong enough to support the main auxiliary-benefit
@@ -258,7 +258,7 @@ Phase 1 should not collapse:
 Those shortcuts would erase exactly the parts of the program that make
 family structure policy-relevant.
 
-## Why Older-Adult History Deserves Priority
+## Why older-adult history deserves priority
 
 The Social Security-first version of the project does not need to model
 every family process equally well at every age.
@@ -276,15 +276,15 @@ That is a better phase-1 priority than trying to perfect general
 fertility dynamics or every child-benefit path before the older-adult
 auxiliary layer is credible.
 
-## Recommended Construction Strategy
+## Recommended construction strategy
 
 The family-history layer should be built in a way that respects both the
-existing `microplex` cross section and the needs of Social Security
+existing `populace` cross section and the needs of Social Security
 benefit logic.
 
 ### 1. Start from the base-year household network
 
-`microplex` already provides a cross-sectional household and family
+`populace` already provides a cross-sectional household and family
 structure. That gives the project a real starting point for:
 
 - current couples
@@ -321,7 +321,7 @@ After base-year history construction, the model should simulate:
 
 These can be implemented as hazard models or related reduced-form
 transition models. The important thing is not sophistication for its own
-smile. It is preservation of the joint relationship structure that
+sake. It is preservation of the joint relationship structure that
 benefit rules depend on.
 
 ### 4. Match couples jointly, not independently
@@ -339,7 +339,7 @@ That mechanism should preserve:
 - dual-earner versus single-earner household patterns
 
 This is one of the strongest reasons to think in terms of longitudinal
-`microplex` rather than a loose collection of independent hazards.
+`populace` rather than a loose collection of independent hazards.
 
 ### 5. Enforce relational consistency
 
@@ -371,7 +371,7 @@ Only after the relationship layer is coherent should the model derive:
 That ordering matters. Auxiliary-benefit variables should be outputs of
 the relationship-history layer, not substitutes for it.
 
-## Matching and Household Synthesis
+## Matching and household synthesis
 
 The proposal should go one level deeper than "we will estimate marriage
 hazards."
@@ -404,7 +404,7 @@ it is likely more fundable and easier to validate in phase 1.
 
 ### Higher-upside extension
 
-If longitudinal `microplex` advances enough, the project can later move
+If longitudinal `populace` advances enough, the project can later move
 toward hierarchical or household-first generation that jointly models:
 
 - household composition
@@ -416,7 +416,7 @@ toward hierarchical or household-first generation that jointly models:
 That is a plausible phase-2 or methodology-R&D direction. It should not
 be the phase-1 dependency.
 
-## Estimation Inputs and Benchmark Sources
+## Estimation inputs and benchmark sources
 
 The family-history layer needs both panel data and benefit-facing
 targets.
@@ -449,7 +449,7 @@ The project should also be transparent about weak spots:
 These are reasons for scoped promises, not reasons to leave the family
 layer vague.
 
-## Evaluation Metrics for Family Structure
+## Evaluation metrics for family structure
 
 The family-history layer should be judged on both demographic realism
 and benefit relevance.
@@ -490,7 +490,7 @@ If the project wants a stronger adequacy story, it should also examine:
 This is where the family-history layer becomes directly legible to
 funders and policy partners.
 
-## Suggested Stage-1 Thresholds
+## Suggested stage-1 thresholds
 
 The proposal should not dodge stage-1 numeric expectations for this
 layer either.
@@ -509,7 +509,7 @@ layer either.
 The point is not that these exact cutoffs are sacred. The point is that
 the proposal should make the family-history layer falsifiable.
 
-## Recommended Operational Sequence
+## Recommended operational sequence
 
 The build sequence should reflect both policy value and implementation
 difficulty.
@@ -531,7 +531,7 @@ difficulty.
 This is realistic, fundable, and much easier to validate than promising
 the whole family-benefit codebook at once.
 
-## How This Should Be Positioned in the Proposal
+## How this should be positioned in the proposal
 
 The proposal should make three points clearly.
 
@@ -561,13 +561,13 @@ claims accordingly. Family structure should not be treated as something
 that can silently underperform while the proposal still advertises full
 adequacy analysis.
 
-## Bottom Line
+## Bottom line
 
 The proposal should not describe family structure as a few marriage
 hazards plus a spouse-benefit rule call.
 
 It should describe an explicit relationship-history layer inside
-longitudinal `microplex`, say what phase 1 will and will not include,
+longitudinal `populace`, say what phase 1 will and will not include,
 benchmark those choices against DYNASIM and MINT, and evaluate the
 result against the auxiliary-benefit outcomes that policy users actually
 care about.

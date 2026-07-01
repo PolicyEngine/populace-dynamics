@@ -1,6 +1,6 @@
-# Evaluation and Model Selection
+# Evaluation and model selection
 
-## Why This Needs Its Own Chapter
+## Why this needs its own chapter
 
 Calibration targets tell us what the model should match. They do not, by
 themselves, tell us how we choose among competing longitudinal
@@ -13,7 +13,7 @@ enough to justify the next stage of the build. This chapter therefore
 defines the evaluation framework for deciding:
 
 - which earnings architecture becomes the production path for
-  longitudinal `microplex`
+  longitudinal `populace`
 - whether the resulting panel is good enough for benefit calculation
 - whether the full project has earned the right to advance from stage 1
   to stage 2
@@ -21,7 +21,7 @@ defines the evaluation framework for deciding:
 In other words, this chapter is about model selection and stage-gate
 discipline, not just fit diagnostics.
 
-## The Core Evaluation Principle
+## The core evaluation principle
 
 The project should not select models on generic imputation quality
 alone. The winning method has to perform well on the variables and
@@ -44,7 +44,7 @@ That implies a layered evaluation rule:
 Any method that fails layer 3 should be considered non-production-ready
 even if it looks strong on layers 1 and 2.
 
-## Candidate Models to Evaluate
+## Candidate models to evaluate
 
 The project should maintain a clear distinction between benchmark models
 and likely production candidates.
@@ -54,14 +54,14 @@ and likely production candidates.
 | **QRF** | Baseline comparator | Interpretable benchmark and direct comparison to older sequential PE-style methods |
 | **ZI-QRF** | Stronger baseline comparator | Isolates the value of explicit zero-inflation without changing the broader modeling family |
 | **ZI-QDNN** | Serious candidate | Zero-inflated neural distribution model; plausible production option if refreshed evals support it |
-| **ZI-MAF or related flow models** | Serious candidate | Strong match to `microplex`'s generative direction and all-at-once path generation |
-| **Pathwise `microplex` sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
+| **ZI-MAF or related flow models** | Serious candidate | Candidate for all-at-once path generation where cross-age correlation structure matters; evaluated against the QRF baseline, not assumed superior |
+| **Pathwise sequence models** | Serious candidate | Best fit to the project's long-run architecture if they pass validation |
 | **Factorized annual process with calibrated residuals** | Structural benchmark | Useful if a transparent annual-state model beats pure black-box pathwise generation on policy metrics |
 
 The proposal should not prejudge the winner. It should prejudge the
 decision rule.
 
-## Evaluation Objects
+## Evaluation objects
 
 The build should evaluate the project on four distinct objects.
 
@@ -118,7 +118,7 @@ support actual policy analysis:
 The project should not claim production readiness without clearing this
 layer.
 
-## Datasets and Holdout Design
+## Datasets and holdout design
 
 The evaluation design should make leakage difficult and failure visible.
 That means not relying on one train/test split or one aggregate score.
@@ -141,7 +141,7 @@ person-years.
 
 ### Cross-sectional anchor tests
 
-Because the final use case starts from a cross-sectional `microplex`
+Because the final use case starts from a cross-sectional `populace`
 record, the project should also simulate that workflow directly:
 
 1. collapse a held-out panel person to a pseudo-cross-section at a
@@ -168,7 +168,7 @@ That means:
 Otherwise the model can appear stronger than it really is simply because
 the evaluation set has been absorbed into calibration.
 
-## Common Experimental Protocol
+## Common experimental protocol
 
 All candidate models should be evaluated under a common protocol.
 
@@ -223,7 +223,7 @@ Every evaluation run should save:
 The project should treat benchmark reproducibility as part of the
 deliverable.
 
-## Primary Metrics for Model Selection
+## Primary metrics for model selection
 
 The decisive metrics should be the ones that determine Social Security
 outcomes.
@@ -259,7 +259,7 @@ outcomes.
 | Aggregate covered earnings and payroll tax base | Fiscal realism |
 | Claiming-age distribution where modeled | Needed for reform analysis and timing realism |
 
-## Secondary Metrics
+## Secondary metrics
 
 A model should not win because it looks cleaner on generic benchmarks
 while failing on the policy metrics above. But secondary metrics still
@@ -274,7 +274,7 @@ These may include:
 - zero-fraction error
 - correlation preservation
 
-They are useful as diagnostics, especially for comparing `microplex`
+They are useful as diagnostics, especially for comparing `populace`
 candidate families, but they are not the final decision rule.
 
 ### Operational metrics
@@ -291,7 +291,7 @@ The production candidate must also be practical:
 For a public model, operational viability matters more than it would in
 a closed internal pipeline.
 
-## Proposed Decision Rule
+## Proposed decision rule
 
 The proposal should state the model-selection rule plainly.
 
@@ -317,7 +317,7 @@ For candidates that clear Gate 1, score them on:
 - policy-output fit
 - stability
 - runtime and reproducibility
-- architectural alignment with longitudinal `microplex`
+- architectural alignment with longitudinal `populace`
 
 The scorecard should be reported as a table, not just prose.
 
@@ -330,9 +330,9 @@ The winning architecture should be the one that:
 3. is simple enough to explain and maintain publicly
 
 That rule leaves open whether the winner is ZI-QDNN, ZI-MAF, a broader
-`microplex` sequence model, or a more transparent annual-state process.
+`populace` sequence model, or a more transparent annual-state process.
 
-## Suggested Numeric Thresholds for Stage 1
+## Suggested numeric thresholds for stage 1
 
 The exact tolerances should be refined during implementation, but the
 proposal should not avoid numeric commitments altogether.
@@ -350,7 +350,7 @@ proposal should not avoid numeric commitments altogether.
 
 The point of this table is not false precision. It is accountability.
 
-## Benchmark Outputs the Project Should Publish
+## Benchmark outputs the project should publish
 
 Each major benchmark round should produce:
 
@@ -363,10 +363,9 @@ Each major benchmark round should produce:
 At least one benchmark output should be designed for outside reviewers,
 not just internal iteration.
 
-## How This Connects to Funding
+## How this connects to funding
 
-For a $1.0M-$1.5M proposal, the evaluation framework is part of the
-pitch, not a back-office detail.
+The evaluation framework is part of the pitch, not a back-office detail.
 
 Funders should be able to see that the project will not:
 
@@ -382,21 +381,21 @@ decision:
 - which architecture deserves continued investment
 - what the residual limitations are even if the answer is "yes"
 
-## Relationship to the Refreshed microplex Evaluations
+## Relationship to the refreshed populace evaluations
 
-The `microplex` imputation evaluations should feed directly into this
+The `populace` imputation evaluations should feed directly into this
 chapter, but they should not be the only evidence.
 
 The right interpretation is:
 
-- refreshed `microplex` evals help narrow the candidate set
+- refreshed `populace` evals help narrow the candidate set
 - Social-Security-specific benchmarks decide the production winner
 - the proposal should remain architecture-agnostic until both pieces are
   in hand
 
 That makes the proposal both more honest and more robust.
 
-## Bottom Line
+## Bottom line
 
 This project needs a public benchmark regime, not just a preferred
 architecture.

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "bash scripts/install-quarto.sh",
+  "buildCommand": "./.quarto-cli/bin/quarto render docs",
+  "outputDirectory": "docs/_book"
+}

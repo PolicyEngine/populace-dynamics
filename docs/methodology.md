@@ -2,12 +2,18 @@
 
 ## Overview
 
-This chapter describes the technical approach to making `microplex`
+This chapter describes the technical approach to making `populace`
 longitudinal and then using that longitudinal population for Social
-Security microsimulation. The core challenge is creating realistic
-lifetime earnings trajectories and demographic transitions while
-maintaining cross-sectional accuracy, longitudinal realism, and
-computational feasibility.
+Security microsimulation. `populace` is PolicyEngine's rebuilt
+open-source microdata stack: it synthesizes populations from
+primary-source U.S. government survey and administrative data
+(CPS/ASEC, IRS Public Use File, SCF, SIPP, CPS-ORG, MEPS, ACS) using
+weight-aware machine-learning conditional models, and calibrates them
+against administrative targets (CBO, IRS, SSA, Census, and others)
+treated as uncertainty-weighted facts. The core challenge this
+project adds is creating realistic lifetime earnings trajectories and
+demographic transitions while maintaining cross-sectional accuracy,
+longitudinal realism, and computational feasibility.
 
 The chapter below stays at the architecture level. The next chapter,
 [operationalizing-longitudinal-construction.md](operationalizing-longitudinal-construction.md),
@@ -15,26 +21,29 @@ spells out the proposed lifetime-earnings build in much more concrete
 terms, including how it compares component by component with DYNASIM,
 MINT, and the public CBO record.
 
-## Methodology Flow
+## Methodology flow
 
-The following diagram illustrates the high-level data flow through our synthetic panel construction process:
+The following diagram illustrates the high-level data flow through the
+synthetic panel construction process. `populace` draws on
+primary-source microdata and administrative calibration targets
+(including SSA aggregates):
 
 ```mermaid
 flowchart TD
     subgraph inputs["Input Data Sources"]
-        MPX["microplex<br/>(Cross-sectional population)"]
+        MPX["populace<br/>(Cross-sectional population)"]
         PSID["PSID<br/>(Longitudinal)"]
-        SSA["SSA Statistics<br/>(Calibration targets)"]
+        SSA["Calibration targets<br/>(SSA, CBO, IRS, Census)"]
     end
 
     subgraph processing["Longitudinal Extension"]
-        HIST["Add lifetime histories<br/>to microplex"]
+        HIST["Add lifetime histories<br/>to populace"]
         TRANS["Add demographic and<br/>family transitions"]
         CAL["Longitudinal validation<br/>& calibration"]
     end
 
     subgraph outputs["Application Layer"]
-        PANEL["Longitudinal<br/>microplex"]
+        PANEL["Longitudinal<br/>populace"]
         PE["PolicyEngine-US<br/>Benefit Calculations"]
         WEB["Web Interface<br/>& API"]
     end
@@ -49,11 +58,11 @@ flowchart TD
     PE --> WEB
 ```
 
-## Conceptual Framework
+## Conceptual framework
 
 The methodology now has two explicit layers:
 
-1. **Population layer**: make `microplex` into a credible longitudinal
+1. **Population layer**: make `populace` into a credible longitudinal
    synthetic population.
 2. **Application layer**: use that longitudinal population for Social
    Security benefit calculation, validation, and reform analysis.
@@ -62,13 +71,13 @@ That split is not just organizational. It determines where methods and
 code should live.
 
 - Generic synthesis, calibration, trajectory construction, and
-  longitudinal state machinery belong in `microplex` or its companion
+  longitudinal state machinery belong in `populace` or its companion
   packages.
 - Social Security-specific logic, policy validation, and reform
   workflows belong in this repository and in PolicyEngine-US.
 
 Within the population layer, the project should remain baseline-first.
-That means the first implementation inside longitudinal `microplex`
+That means the first implementation inside longitudinal `populace`
 should use methods that are simple enough to audit and validate
 directly. More ambitious joint generative models can be added later if
 they improve the metrics that matter.
@@ -83,15 +92,15 @@ Machine learning is useful inside that system, but it is not the
 system.
 
 This produces a longitudinal public population with:
-- representative synthetic records from the `microplex` base population
+- representative synthetic records from the `populace` base population
 - lifetime dynamics learned from panel data and external targets
 - explicit calibration and validation artifacts
 - reuse across Social Security and adjacent policy domains
 
-### How This Differs from Existing Models
+### How this differs from existing models
 
 **vs. DynaSim**: the comparison object is not this repository alone. It
-is longitudinal `microplex` plus PolicyEngine-US plus this Social
+is longitudinal `populace` plus PolicyEngine-US plus this Social
 Security application layer. The differentiator is openness,
 inspectability, and modularity rather than institutional continuity.
 
@@ -107,72 +116,81 @@ inspectable.
 See the [Existing Models](existing-models.md) chapter for the broader
 comparison to DynaSim, MINT, CBOLT, and other models.
 
-## Phase 1: Base Year Cross-Section
+## Phase 1: Base-year cross-section
 
-### Starting Point: microplex's current cross-sectional layer
+### Starting point: populace's current cross-sectional layer
 
-The project should start from `microplex` as the public population
-platform. Today that still means inheriting much of the logic and many
-of the strengths of the Enhanced CPS, because `microplex`'s current
-cross-sectional layer is grounded in the same general approach:
-public-data construction, income enhancement, and calibration to
-external targets.
-
-This decision reflects strong reviewer consensus about the value of the
-Enhanced CPS lineage while also recognizing that the end product should
-be a longitudinal `microplex`, not a standalone Social Security-only
-cross-section.
+The project starts from `populace`, PolicyEngine's rebuilt microdata
+stack. populace builds a calibrated cross-sectional population
+entirely from primary sources and, in June 2026, replaced
+PolicyEngine's enhanced CPS as the certified default U.S. microdata
+in policyengine.py — after beating it on a held-out, symmetric-refit
+comparison. The cross-sectional foundation has therefore already
+shipped and won; the longitudinal extension is the open work.
 
 Advantages of this starting point:
 
-1. **Proven methodology**: ECPS has already solved the cross-sectional income underreporting problem using the same tools we will apply longitudinally
-2. **Integration**: Seamless connection to PolicyEngine-US's existing tax-benefit calculations
-3. **Platform value**: improvements made for this project can strengthen `microplex` rather than remaining trapped in a narrow application repository
-4. **Credibility**: builds on demonstrated success rather than restarting from scratch
-5. **Sample size**: a large synthetic public population provides statistical power for national and subnational analysis
+1. **Proven methodology**: populace has already solved the
+   cross-sectional income underreporting problem using the same
+   tools the longitudinal extension will apply
+2. **Integration**: seamless connection to PolicyEngine-US's
+   existing tax-benefit calculations
+3. **Asset value**: improvements made for this project strengthen
+   `populace` rather than remaining trapped in a narrow application
+   repository
+4. **Credibility**: builds on a demonstrated production stack rather
+   than restarting from scratch
+5. **Sample size**: a large synthetic public population provides
+   statistical power for national and subnational analysis
 
-The ECPS improves upon raw CPS through:
+populace improves upon raw CPS through:
 
-**Income Imputation**: Filling missing income components using `microimpute`
+**Income imputation**: filling missing income components with
+weight-aware conditional models (the `populace-fit` shard, succeeding
+`microimpute` — quantile regression forests and related methods)
 
-**Benefit Underreporting**: Correcting for survey underreporting of transfer income
+**Benefit underreporting correction**: aligning survey-reported
+transfer income with administrative aggregates
 
-**Tax Unit Construction**: Creating tax filing units from household structure
+**Tax unit construction**: creating tax filing units from household
+structure
 
-**Calibration**: base-population calibration to match ~2,800 IRS,
-Census, and SSA administrative targets
+**Multi-source calibration**: base-population reweighting (the
+`populace-calibrate` shard) against administrative aggregates from
+CBO, IRS, SSA, Census, and other sources
 
-The proof-of-concept phase should therefore validate that `microplex`
-can be extended longitudinally, rather than reopening the question of
+The proof-of-concept phase should validate that `populace` can be
+extended longitudinally, rather than reopening the question of
 whether the project should start from some entirely different base
-population. If computational constraints arise with the full synthetic
-population, sparse selection techniques can still be used for research
-and product deployment while preserving the underlying population asset.
+population. If computational constraints arise with the full
+synthetic population, sparse selection techniques can still be used
+for research and product deployment while preserving the underlying
+population asset.
 
-### Adding Historical Variables
+### Adding historical variables
 
 For dynamic modeling, we need variables not in CPS:
 
 **Education**: Already in CPS, but we validate and impute where missing
 
-**Occupation and Industry**: For earnings trajectory modeling
+**Occupation and industry**: For earnings trajectory modeling
 
-**Health and Disability**: Impute from HRS and NHIS using statistical matching
+**Health and disability**: Impute from HRS and NHIS using statistical matching
 
-**Potential Variables**: Predict latent variables that govern dynamics:
+**Potential variables**: Predict latent variables that govern dynamics:
 - Earnings potential (distinct from current earnings)
 - Health status (not just disability)
 - Labor force attachment
 
 These "latent" variables will drive longitudinal transitions even when not directly observed.
 
-## Phase 2: Longitudinal Extension of microplex
+## Phase 2: Longitudinal extension of populace
 
-### The Core Challenge
+### The core challenge
 
 Social Security benefits depend on 35 highest years of earnings, but the
 current public population layer only observes a cross-section. We need
-to extend `microplex` so that it carries:
+to extend `populace` so that it carries:
 
 - Past earnings for current workers (ages 18-70)
 - Future earnings for younger workers (for projections)
@@ -184,33 +202,33 @@ to extend `microplex` so that it carries:
 - Realistic variance
 
 This is the step where the project becomes more than a static synthetic
-dataset. It becomes a longitudinal population platform.
+dataset. It turns `populace` into a longitudinal population asset.
 
-### Earnings-history approach inside longitudinal microplex
+### Earnings-history approach inside longitudinal populace
 
 The project should begin with a benchmark set rather than prematurely
 declaring one model family to be the production architecture. The
-current `microplex` direction points away from plain sequential QRF as
+current `populace` direction points away from plain sequential QRF as
 the main design and toward zero-inflated, pathwise generation inside
-`microplex`.
+`populace`.
 
 That means the proposal should distinguish:
 
 - **diagnostic comparators** such as QRF and ZI-QRF
 - **serious production candidates** such as ZI-QDNN and zero-inflated
-  pathwise `microplex` models
+  pathwise `populace` models
 - **the architectural question underneath them**: sequential age-point
   imputation versus all-at-once trajectory generation
 
 The methodological objective is therefore not "use QRF because it is
 familiar." It is "use the simplest architecture that survives the
-Social-Security-specific validation gates." The refreshed `microplex`
+Social-Security-specific validation gates." The refreshed `populace`
 imputation evaluations should help decide whether the leading candidate
 is ZI-QDNN, a flow-based pathwise model, or another zero-inflated
 trajectory approach. The proposal should be written to accommodate that
 decision rather than forcing it in advance.
 
-**Training Data**: PSID (1968-present)
+**Training data**: PSID (1968-present)
 
 **Features** (X variables):
 - Current earnings
@@ -233,7 +251,7 @@ decision rather than forcing it in advance.
 
 **Phase-1 comparison approach**:
 
-For each base-year CPS or `microplex` individual, the project should
+For each base-year CPS or `populace` individual, the project should
 compare at least two families:
 
 1. **Age-point benchmark models**:
@@ -245,7 +263,7 @@ compare at least two families:
 
 The first family is useful because it is interpretable and easy to
 debug. The second is the more likely production direction because it is
-better aligned with the actual `microplex` longitudinal architecture and
+better aligned with the actual `populace` longitudinal architecture and
 preserves cross-age dependence natively.
 
 ### Interval-specific training strategy for benchmark models
@@ -266,14 +284,14 @@ This approach:
 - Allows different predictors to matter at different ages
 - Prevents impossible trajectories (e.g., starting at $200k at age 22)
 - Provides an interpretable benchmark arm for the more ambitious
-  `microplex` trajectory models
+  `populace` trajectory models
 
 But it should no longer be described as the expected production
 architecture.
 
 ### Expected production direction: joint trajectory synthesis
 
-The stronger architectural bet is that `microplex` should learn full
+The stronger architectural bet is that `populace` should learn full
 earnings trajectories all at once, with zero-inflation built directly
 into the model. In practice, that means:
 
@@ -285,17 +303,17 @@ into the model. In practice, that means:
   careers
 - preserving cross-age correlations without post-hoc smoothing
 
-This is the design most consistent with making `microplex`
+This is the design most consistent with making `populace`
 longitudinal. It also better matches the actual Social Security
 decision problem, where the full path matters more than any single
 age's earnings.
 
 The winning model family should still be chosen empirically. The
-refreshed `microplex` evaluation work should tell us whether ZI-QDNN, a
+refreshed `populace` evaluation work should tell us whether ZI-QDNN, a
 flow-based pathwise model, or another zero-inflated sequence model is
 the strongest production candidate.
 
-### Cohort-Specific Modeling
+### Cohort-specific modeling
 
 Earnings profiles differ across birth cohorts due to:
 - Secular wage growth
@@ -305,39 +323,39 @@ Earnings profiles differ across birth cohorts due to:
 
 We incorporate cohort effects by:
 
-**Cohort as Conditioning Information**: Include birth year or birth
+**Cohort as conditioning information**: Include birth year or birth
 cohort in the conditioning set for all candidate models
 
-**Cohort-Specific Training Slices**: Train separate models by decade of
+**Cohort-specific training slices**: Train separate models by decade of
 birth where sample size permits
 
-**Trend Adjustment**: Adjust PSID training data to reflect the CPS or
-`microplex` cohort's economic environment
+**Trend adjustment**: Adjust PSID training data to reflect the CPS or
+`populace` cohort's economic environment
 
-### Validation of Imputed Histories
+### Validation of imputed histories
 
 We validate imputed earnings histories against multiple benchmarks:
 
-**Age-Earnings Profiles**: Compare average earnings by age to SSA data
+**Age-earnings profiles**: Compare average earnings by age to SSA data
 
-**Earnings Distribution**: Check percentiles match SSA earnings statistics
+**Earnings distribution**: Check percentiles match SSA earnings statistics
 
-**Earnings Mobility**: Verify transition matrices match PSID quintile mobility
+**Earnings mobility**: Verify transition matrices match PSID quintile mobility
 
-**AIME Distribution**: Distribution of Average Indexed Monthly Earnings should match SSA
+**AIME distribution**: The distribution of Average Indexed Monthly Earnings should match SSA
 
-**Correlation Structure**: Ensure earnings at different ages have realistic correlations
+**Correlation structure**: Ensure earnings at different ages have realistic correlations
 
-**Variance Components**: Between-person vs. within-person variance should match PSID
+**Variance components**: Between-person vs. within-person variance should match PSID
 
 This validation step is doing double duty. It decides whether the
 earnings-history machinery is good enough for Social Security, and it
-also decides whether longitudinal `microplex` is becoming a credible
+also decides whether longitudinal `populace` is becoming a credible
 population asset in its own right.
 
-## Phase 3: Demographic Transitions
+## Phase 3: Demographic transitions
 
-### Marriage and Divorce
+### Marriage and divorce
 
 Social Security spousal and survivor benefits require accurate marital history modeling.
 
@@ -424,20 +442,21 @@ treatment as earnings, disability, and family history. See
 for the proposed mortality state design, drift-control stack, and
 projection evaluation criteria.
 
-## Phase 4: Forward Projection
+## Phase 4: Forward projection
 
-Once we have complete histories through base year, we project forward:
+Once we have complete histories through the base year, we project
+forward:
 
-### Earnings Projection
+### Earnings projection
 
 For each individual, project future earnings based on:
 
-**Deterministic Component**:
+**Deterministic component**:
 - Age-earnings profile
 - Cohort trends
 - Aggregate wage growth (per SSA assumptions)
 
-**Stochastic Component**:
+**Stochastic component**:
 - Idiosyncratic shocks (from PSID variance)
 - Employment transitions (entry/exit from labor force)
 - Disability onset (earnings drop)
@@ -446,7 +465,7 @@ For each individual, project future earnings based on:
 - Retirement decision (endogenous based on Social Security rules)
 - Labor supply responses to policy reforms (optional extension)
 
-### Demographic Projection
+### Demographic projection
 
 Continue simulating:
 - Marriage/divorce transitions
@@ -462,9 +481,9 @@ abstraction. See
 for the recommended separation between raw micro transitions, mortality
 improvements, and explicit alignment to published baselines.
 
-### Population Growth
+### Population growth
 
-New birth cohorts enter model each year:
+New birth cohorts enter the model each year:
 
 **Approach**:
 - Generate initial cohort from CPS for age 18
@@ -472,7 +491,7 @@ New birth cohorts enter model each year:
 - Initialize earnings potential
 - Project forward as cohort ages
 
-## Phase 5: Alignment and Calibration
+## Phase 5: Alignment and calibration
 
 After imputation and projection, the full synthetic panel has to be
 aligned to external targets. For a dynamic model, that alignment cannot
@@ -492,11 +511,12 @@ events are being simulated, not as an unconstrained annual person-level
 calibration dial [@dekkers2012weights]. That is closer to the
 structure this project needs.
 
-### Base-Year Calibration
+### Base-year calibration
 
 Weights still matter before longitudinalization. The cross-sectional
-`microplex` base should be calibrated to demographic, income, tax, and
-program targets using the existing Enhanced-CPS-style toolchain.
+`populace` base should be calibrated to demographic, income, tax, and
+program targets using `populace`'s existing calibration shard
+(`populace-calibrate`) against administrative aggregates.
 
 Once that base population is converted into a longitudinal population,
 the representation should be treated as a population scaffold with
@@ -511,7 +531,7 @@ public materials describe starting-sample scale and external alignment,
 not annual independent person-weight repair after marriage, divorce,
 fertility, and household transitions [@urban2024dynasim4].
 
-### Dynamic Alignment Framework
+### Dynamic alignment framework
 
 The longitudinal model should align to targets through four mechanisms:
 
@@ -536,7 +556,7 @@ The longitudinal model should align to targets through four mechanisms:
 This keeps the dynamic panel internally coherent while still preventing
 long-run drift.
 
-### Where Weight Calibration Still Belongs
+### Where weight calibration still belongs
 
 Continuous reweighting remains useful in narrower contexts:
 
@@ -550,7 +570,7 @@ Continuous reweighting remains useful in narrower contexts:
 It should not be the main mechanism for repairing longitudinal paths
 after family networks and benefit histories have been simulated.
 
-### Multi-Year Alignment
+### Multi-year alignment
 
 For each projected year, the model should align process outputs rather
 than freely recalibrating person weights:
@@ -567,20 +587,20 @@ taxes on benefits, and scheduled-versus-payable benefit aggregates
 This prevents drift while preserving coherent people, couples,
 families, and histories.
 
-## Phase 6: Social Security Benefit Calculation
+## Phase 6: Social Security benefit calculation
 
-### PolicyEngine-US Integration
+### PolicyEngine-US integration
 
-Once synthetic panel is constructed, we leverage PolicyEngine-US's existing Social Security implementation:
+Once the synthetic panel is constructed, we leverage PolicyEngine-US's existing Social Security implementation:
 
-**Variables Already Implemented**:
+**Variables already implemented**:
 - `social_security_retirement`: Retirement benefits
 - `social_security_disability`: SSDI benefits
 - `social_security_survivors`: Survivor benefits
 - `social_security_dependents`: Dependent benefits
 - `taxable_social_security`: Benefit taxation
 
-**Required Inputs** (now available from synthetic panel):
+**Required inputs** (now available from the synthetic panel):
 - Lifetime earnings history (35 highest years)
 - Date of birth
 - Retirement age
@@ -588,7 +608,7 @@ Once synthetic panel is constructed, we leverage PolicyEngine-US's existing Soci
 - Disability status
 - Number of children (for dependent benefits)
 
-### Calculation Pipeline
+### Calculation pipeline
 
 For each individual in each year:
 
@@ -599,16 +619,16 @@ For each individual in each year:
    - Early/delayed retirement factors
    - Spousal/survivor benefit rules
    - Disability considerations
-5. **Family Benefits**: Dependent and survivor benefits
+5. **Family benefits**: Dependent and survivor benefits
 6. **Taxation**: Federal income tax on benefits (integrated with broader PolicyEngine tax model)
 
-### Reform Modeling
+### Reform modeling
 
 To analyze reforms, we modify PolicyEngine parameters:
 
-**Benefit Formula**: Adjust bend points, replacement rates
+**Benefit formula**: Adjust bend points, replacement rates
 
-**Retirement Age**: Change full/early retirement ages
+**Retirement age**: Change full/early retirement ages
 
 **Taxation**: Modify benefit taxation thresholds
 
@@ -618,11 +638,11 @@ To analyze reforms, we modify PolicyEngine parameters:
 
 PolicyEngine's reform framework enables easy specification and analysis of arbitrary combinations of reforms.
 
-## Computational Efficiency
+## Computational efficiency
 
 Dynamic microsimulation can be computationally intensive. Our optimizations:
 
-### Pre-Generation
+### Pre-generation
 
 - Generate synthetic panel once
 - Store complete histories
@@ -634,12 +654,12 @@ Dynamic microsimulation can be computationally intensive. Our optimizations:
 - No Python loops over individuals
 - Leverage PolicyEngine-Core's efficient simulation engine
 
-### Selective Projection
+### Selective projection
 
 - Only project variables needed for analysis
 - Can skip detailed demographic transitions if just modeling benefit formulas
 
-### Parallel Processing
+### Parallel processing
 
 - Panel construction parallelizable across individuals
 - Multiple imputations can run in parallel
@@ -649,64 +669,64 @@ Dynamic microsimulation can be computationally intensive. Our optimizations:
 - Cache intermediate results
 - Incremental updates when only some parameters change
 
-## Uncertainty Quantification
+## Uncertainty quantification
 
 Multiple sources of uncertainty:
 
-**Imputation Uncertainty**: Earnings histories are predicted, not observed
+**Imputation uncertainty**: We predict earnings histories rather than observing them
 
 **Method**: Multiple imputation (m=5-10 imputations)
 
-**Parameter Uncertainty**: Model parameters estimated from PSID have sampling error
+**Parameter uncertainty**: Model parameters estimated from PSID carry sampling error
 
-**Method**: Bootstrap PSID sample, re-estimate models
+**Method**: Bootstrap the PSID sample, re-estimate models
 
-**Projection Uncertainty**: Future unknowable
+**Projection uncertainty**: The future is unknowable
 
 **Method**:
 - Scenario analysis with different assumptions
 - Sensitivity to wage growth, mortality, disability rates
 - Confidence intervals around SSA's stochastic projections
 
-**Model Uncertainty**: Our model is simplified reality
+**Model uncertainty**: Our model simplifies reality
 
 **Method**:
 - Validation against multiple benchmarks
 - Comparison to DynaSim/MINT where possible
 - Transparent documentation of assumptions
 
-## Validation Strategy
+## Validation strategy
 
 Comprehensive validation at multiple levels:
 
-### Cross-Sectional Validation
+### Cross-sectional validation
 
-**Base Year**:
+**Base year**:
 - Age-sex-education distributions
 - Earnings distributions
 - Beneficiary counts and average benefits
 
-**Match to**: CPS, SSA Administrative Data
+**Match to**: CPS, SSA administrative data
 
-### Longitudinal Validation
+### Longitudinal validation
 
-**Earnings Dynamics**:
+**Earnings dynamics**:
 - Age-earnings profiles by cohort
 - Earnings mobility matrices
 - Variance decomposition
 
-**Match to**: PSID, Published MINT analyses
+**Match to**: PSID, published MINT analyses
 
-### Distributional Validation
+### Distributional validation
 
-**Benefit Distribution**:
+**Benefit distribution**:
 - Percentiles of benefits by type
 - Replacement rates by lifetime earnings
 - Progressivity measures
 
-**Match to**: SSA benefit statistics, Academic studies
+**Match to**: SSA benefit statistics, academic studies
 
-### Fiscal Validation
+### Fiscal validation
 
 **Aggregates**:
 - Total benefits by type
@@ -715,9 +735,9 @@ Comprehensive validation at multiple levels:
 
 **Match to**: SSA Trustees Reports
 
-### External Validation
+### External validation
 
-**Published Results**:
+**Published results**:
 - Compare our reform analysis to published DynaSim results for same reforms
 - Compare to CBO cost estimates where available
 - Compare to academic studies using MINT

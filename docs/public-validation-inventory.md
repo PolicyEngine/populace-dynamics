@@ -1,4 +1,4 @@
-# Public Validation Inventory
+# Public validation inventory
 
 One of the strongest parts of this proposal is that the model can be
 validated extensively against public sources before any restricted
@@ -14,9 +14,17 @@ negotiations before it can produce a credible first model.
 This chapter inventories the main public or low-friction sources we can
 use to validate the model. It is not an exhaustive bibliography. It is
 the minimum practical source stack for judging whether longitudinal
-`microplex` is becoming decision-useful.
+`populace` is becoming decision-useful.
 
-## Access Tiers
+Many of these sources are already assembled inside `populace`,
+PolicyEngine's microdata stack — the primary-source microdata and the
+calibration targets (from CBO, IRS, SSA, Census, and others) that it
+draws on. Naming the sources
+explicitly here keeps the validation record legible to outside reviewers,
+who can inspect the underlying public tables and microdata themselves
+rather than taking the data layer on trust.
+
+## Access tiers
 
 The validation stack naturally breaks into four tiers.
 
@@ -37,7 +45,7 @@ The validation stack naturally breaks into four tiers.
 The proposal should be explicit that stage gates are built primarily on
 the first two tiers. The third tier is a bonus, not a prerequisite.
 
-## Core Source Inventory
+## Core source inventory
 
 | Source | Access tier | Best use in this project | Main caveat |
 | --- | --- | --- | --- |
@@ -57,9 +65,9 @@ the first two tiers. The third tier is a bonus, not a prerequisite.
 | T-MSIS overview and TAF documentation [@medicaid2025tmsis; @medicaid2025taf] | Open documentation plus research files | Medicaid enrollment, LTSS utilization, state variation, and later LTC validation | Data quality varies by state; research files require more setup |
 | MDS 3.0 technical information [@cms2025mds] | Open technical documentation and files | Institutional care benchmarks for nursing-home populations | Not a household survey; linking to other populations is nontrivial |
 
-## Minimum Validation Set By Model Block
+## Minimum validation set by model block
 
-### Population and Household Structure
+### Population and household structure
 
 The baseline population should be judged first against Census products
 and then against longitudinal surveys.
@@ -73,7 +81,7 @@ and then against longitudinal surveys.
   plausible family dynamics and wealth heterogeneity, not just plausible
   cross-sectional margins [@census2024sipp; @psid2025home].
 
-### Earnings, Coverage, and Insured Status
+### Earnings, coverage, and insured status
 
 This is where the proposal needs the most discipline. Public validation
 does not recover exact administrative earnings histories, but it can
@@ -92,7 +100,7 @@ The proposal should continue to treat public validation of `AIME`-like
 and benefit-like outputs as a must-pass requirement even before
 restricted SSA linkages exist.
 
-### Claiming, Auxiliary Benefits, and Beneficiary Status
+### Claiming, auxiliary benefits, and beneficiary status
 
 Public SSA tables are stronger here than many teams realize.
 
@@ -125,7 +133,7 @@ publishes a surprisingly rich disability record.
   income context around SSI and disability receipt
   [@census2024sipp].
 
-### Mortality and Projection Drift
+### Mortality and projection drift
 
 Projection validity should be judged against public official
 projections, not only against internally generated smooth paths.
@@ -139,7 +147,7 @@ projections, not only against internally generated smooth paths.
 - Use ACS and CPS for denominator populations when validating drift in
   population structure [@census2026acs; @census2025cpsasec].
 
-### LTC and Caregiving Extension
+### LTC and caregiving extension
 
 The LTC extension would also have a substantial public validation stack,
 even if it is thinner and more fragmented than the Social Security one.
@@ -158,7 +166,7 @@ even if it is thinner and more fragmented than the Social Security one.
 This still does not make LTC easy. It does mean that an LTC extension
 can be validated more seriously than most high-level proposals imply.
 
-## Recommended Stage-Gate Use
+## Recommended stage-gate use
 
 If this project is funded in phases, the validation stack should be
 matched to those phases explicitly.
@@ -174,7 +182,7 @@ matched to those phases explicitly.
 That framing matters for funders. It makes clear that the project can be
 measured against public evidence all along the way.
 
-## What Public Sources Still Cannot Solve
+## What public sources still cannot solve
 
 This appendix should not be read as claiming that public validation is
 enough for every question.

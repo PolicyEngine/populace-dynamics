@@ -1,6 +1,6 @@
-# Benchmark Model Component Matrix
+# Benchmark model component matrix
 
-## Why This Chapter Exists
+## Why this chapter exists
 
 The [existing-models.md](existing-models.md) chapter is strategic. It
 answers the question "where does this project fit in the landscape?"
@@ -17,7 +17,7 @@ public model would be useful." It is "we understand the current
 benchmarks well enough to know what work the funding would actually pay
 for."
 
-## Scope and Interpretation
+## Scope and interpretation
 
 This matrix is based on the **public record**, not on private access or
 inference about internal codebases.
@@ -33,7 +33,7 @@ That means:
 This chapter covers five comparison objects:
 
 1. **Our plan**
-   longitudinal `microplex` plus PolicyEngine-US plus this Social
+   longitudinal `populace` plus PolicyEngine-US plus this Social
    Security application layer
 2. **DYNASIM**
    the main non-governmental dynamic benchmark
@@ -51,7 +51,7 @@ because its recent public work is one of the clearest examples of a
 modern retirement-outcomes model being used for LTSS policy analysis
 [@morningstar2024modelpage; @look2025ltss; @look2025wish].
 
-## High-Level Orientation
+## High-level orientation
 
 | Model | Primary objective | Public access | Main strength | Main limitation for our purposes |
 |---|---|---|---|---|
@@ -61,17 +61,17 @@ modern retirement-outcomes model being used for LTSS policy analysis
 | **CBO / CBOLT** | Official long-term budget and Social Security outlook | Public reports, not public production microdata/code | Institutional authority and macro-fiscal integration [@cbo2004; @cbo2018; @cbo2024finances; @cbo2024longterm] | Public record is relatively thin on record-level construction details |
 | **Morningstar** | Retirement-income adequacy and retirement-product or policy analysis | Public papers and technical notes; proprietary model | Household retirement adequacy, assets, and recent LTSS work [@look2024retirementoutcomes; @morningstar2024modelpage; @look2025ltss; @look2025wish] | Not a direct public Social Security microsimulation benchmark |
 
-## Matrix 1: Population and State Construction
+## Matrix 1: population and state construction
 
 | Component | Our plan | DYNASIM | MINT | CBO / CBOLT | Morningstar |
 |---|---|---|---|---|---|
-| **Base population** | Public synthetic `microplex`, initially rooted in Enhanced-CPS-style construction and extended longitudinally | SIPP-based starting sample with publicly documented 0.04% core and 0.4% expanded variants [@favreault2015; @urban2024dynasim4] | SIPP plus administrative earnings and program records for strong near-retirement credibility [@smith2010mint; @smith2021mint8; @ssa2024mint] | SSA Continuous Work History Sample foundation, with a 1-in-1,000 representative microsimulation sample and SIPP/CPS imputations for missing demographics and family structure [@cbo2018; @cbo2019replacementrates] | Household-oriented retirement simulation using current resources, projected longevity, healthcare, and retirement assets; public materials emphasize model outputs more than raw starting-file mechanics [@look2024retirementoutcomes; @morningstar2024modelpage] |
-| **Historical earnings** | Synthetic reconstruction from panel data and external targets; benchmarked across candidate model families | Public record shows lifetime economic histories built from survey and linked administrative inputs, with annual updating and alignment [@favreault2015; @urban2024dynasim4] | Strongest public benchmark because administrative earnings are built in for many cohorts [@smith2010mint; @ssa2024mint] | Public record discusses lifetime earnings assumptions and fiscal outputs, but is much less explicit on the micro history-construction machinery [@cbo2004; @cbo2018; @cbo2024finances] | Public papers say the model estimates historical wages for each household member and then simulates accumulation and retirement adequacy; claim age is simplified in the inaugural analysis [@look2024retirementoutcomes] |
+| **Base population** | Public synthetic `populace`, PolicyEngine's ML-first microdata layer, extended longitudinally | SIPP-based starting sample with publicly documented 0.04% core and 0.4% expanded variants [@favreault2015; @urban2024dynasim4] | SIPP plus administrative earnings and program records for strong near-retirement credibility [@smith2010mint; @smith2021mint8; @ssa2024mint] | SSA Continuous Work History Sample foundation, with a 1-in-1,000 representative microsimulation sample and SIPP/CPS imputations for missing demographics and family structure [@cbo2018; @cbo2019replacementrates] | Household-oriented retirement simulation using current resources, projected longevity, healthcare, and retirement assets; public materials emphasize model outputs more than raw starting-file mechanics [@look2024retirementoutcomes; @morningstar2024modelpage] |
+| **Historical earnings** | Synthetic reconstruction from panel data, calibrated against `populace`'s registry of administrative targets; benchmarked across candidate model families | Public record shows lifetime economic histories built from survey and linked administrative inputs, with annual updating and alignment [@favreault2015; @urban2024dynasim4] | Strongest public benchmark because administrative earnings are built in for many cohorts [@smith2010mint; @ssa2024mint] | Public record discusses lifetime earnings assumptions and fiscal outputs, but is much less explicit on the micro history-construction machinery [@cbo2004; @cbo2018; @cbo2024finances] | Public papers say the model estimates historical wages for each household member and then simulates accumulation and retirement adequacy; claim age is simplified in the inaugural analysis [@look2024retirementoutcomes] |
 | **Family structure** | Explicit relationship-history layer with spouse links, widowhood, divorce duration, remarriage, and benefit-facing auxiliary states | Public documentation shows marriage, divorce, family structure, and spouse-related states are part of the annual simulation [@favreault2015; @urban2024dynasim4] | Public methodology supports spouse and survivor benefit analysis, but the public record is less explicit than DYNASIM on relationship-history mechanics [@smith2010mint; @ssa2024mint] | Public record is relatively thin on family-history construction at the record level [@cbo2004; @cbo2018] | Public outputs are household-based and broken out by family status, but the public record does not suggest a fully general spouse-former-spouse-child network like the one needed for detailed auxiliary-benefit analysis [@morningstar2024modelpage; @look2024retirementoutcomes] |
 | **Disability and health** | Separate impairment, program-pathway, and claiming states, plus mortality and family interactions | Publicly documented health, disability, cognition, and work-limitation modules with yearly transitions [@favreault2015; @urban2024dynasim4] | Includes disability pathways but with publicly documented simplifications around adjudication and return-to-work rules [@ssa2024mint] | Public record is strong on aggregate Social Security finances and disability spending, weaker on record-level disability-state machinery [@cbo2024finances; @cbo2024longterm] | Public papers explicitly include healthcare costs, projected longevity, and LTSS states such as home healthcare and nursing home need, but not a public SSDI-style program pathway [@look2024retirementoutcomes; @look2025ltss] |
-| **Wealth, assets, and LTSS** | Not phase-1 core, but preserved as a later extension track through longitudinal `microplex` | Major documented strength: wealth, pensions, health spending, LTSS use, payer assignment, and Medicaid interaction [@favreault2015; @urban2024dynasim4; @favreault2020ltss] | Stronger than a Social Security-only model on pensions and SSI interactions, but not positioned publicly as a leading LTSS model [@smith2010mint; @ssa2024mint] | Public emphasis is fiscal outlook rather than household adequacy, wealth depletion, or LTSS risk pathways [@cbo2024finances; @cbo2024longterm] | Major strength: retirement assets, expenses, projected inadequacy, and recent LTSS and WISH analyses using the same model family [@look2024retirementoutcomes; @look2025ltss; @look2025wish] |
+| **Wealth, assets, and LTSS** | Not phase-1 core, but preserved as a later extension track through longitudinal `populace` | Major documented strength: wealth, pensions, health spending, LTSS use, payer assignment, and Medicaid interaction [@favreault2015; @urban2024dynasim4; @favreault2020ltss] | Stronger than a Social Security-only model on pensions and SSI interactions, but not positioned publicly as a leading LTSS model [@smith2010mint; @ssa2024mint] | Public emphasis is fiscal outlook rather than household adequacy, wealth depletion, or LTSS risk pathways [@cbo2024finances; @cbo2024longterm] | Major strength: retirement assets, expenses, projected inadequacy, and recent LTSS and WISH analyses using the same model family [@look2024retirementoutcomes; @look2025ltss; @look2025wish] |
 
-## Matrix 2: Benefit Logic, Behavior, and Policy Use
+## Matrix 2: benefit logic, behavior, and policy use
 
 | Component | Our plan | DYNASIM | MINT | CBO / CBOLT | Morningstar |
 |---|---|---|---|---|---|
@@ -81,7 +81,7 @@ modern retirement-outcomes model being used for LTSS policy analysis
 | **Behavioral responses** | Reduced-form claiming, work, and transition responses; no phase-1 promise of full structural optimization | Public model supports retirement-income and policy analysis with rich state transitions and cross-domain behavior [@favreault2015; @urban2024dynasim4] | Stronger on administrative earnings credibility than on open behavioral detail; public docs disclose simplifications where relevant [@ssa2024mint] | Strongest on fiscal integration and official assumptions, not on public behavioral transparency [@cbo2018; @cbo2024longterm] | Strong on retirement timing, contribution behavior, asset accumulation and drawdown, and adequacy outcomes; weaker fit for detailed Social Security claimant-pathway modeling [@look2024retirementoutcomes; @morningstar2024modelpage] |
 | **Policy use cases** | Transparent Social Security reform analysis first, with extension path to SSI, adequacy, and LTC | Broad retirement, Social Security, SSI, wealth, caregiving, and LTSS policy use [@favreault2015; @favreault2020ltss; @johnson2023caregiving] | Social Security, SSI, pensions, retirement-income distribution, and beneficiary analysis [@smith2010mint; @ssa2024mint] | Official long-term Social Security finances and budget effects [@cbo2024finances; @cbo2024longterm] | Retirement adequacy, plan design, savings policy, and now LTSS adequacy and WISH-style backstop analysis [@look2024retirementoutcomes; @look2025ltss; @look2025wish] |
 
-## Matrix 3: Alignment, Validation, and Transparency
+## Matrix 3: alignment, validation, and transparency
 
 | Component | Our plan | DYNASIM | MINT | CBO / CBOLT | Morningstar |
 |---|---|---|---|---|---|
@@ -90,7 +90,7 @@ modern retirement-outcomes model being used for LTSS policy analysis
 | **Transparency** | Intended full transparency on methods, code, and validation | Documentation public; full codebase not public | Methodology public; data and code restricted | Reports public; production internals not public | Research papers and technical notes public; full model remains proprietary |
 | **What we should learn** | N/A | Match the seriousness about state richness and alignment | Treat lifecycle validation as the hardest problem | Do not overclaim official-scoring parity | Remember that retirement adequacy and LTSS policy can be highly decision-relevant even when the Social Security micro-paths are simplified |
 
-## What This Means for Each Workstream
+## What this means for each workstream
 
 The matrix is only useful if it changes how we describe the build.
 
@@ -159,10 +159,9 @@ It should mean:
 That is a real differentiator. It just is not the same thing as saying
 we already have the best model.
 
-## Why This Supports the Funding Ask
+## Why this supports the funding ask
 
-This comparison helps justify a `$1M-$1.5M` implementation budget
-because it makes the actual work legible.
+This comparison helps make the actual work legible.
 
 The funding is not for a thin wrapper around existing Social Security
 rules. It is for:
@@ -176,7 +175,7 @@ rules. It is for:
 The benchmarks show that these are substantial model-building tasks, not
 mere documentation tasks.
 
-## Why This Is a Good Candidate for Interactivity
+## Why this is a good candidate for interactivity
 
 This is one of the few parts of the proposal where interactivity would
 be genuinely useful rather than decorative.

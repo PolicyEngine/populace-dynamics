@@ -1,13 +1,17 @@
-# Calibration Targets
+# Calibration targets
 
 ## Overview
 
-Calibration ensures that longitudinal `microplex` matches known
+Calibration ensures that longitudinal `populace` matches known
 population characteristics and that the Social Security application
-layer matches system aggregates. This chapter specifies the targets we
-will use for calibration, their sources, and priority weighting.
+layer matches system aggregates. This chapter specifies the targets
+the project will use for calibration, their sources, and priority
+weighting. `populace` maintains these administrative aggregates as a
+versioned target registry — signed facts with standard errors — so
+that calibration runs against a single, consistent set of targets and
+treats them as uncertainty-weighted evidence rather than exact hits.
 
-## Why Calibration Matters
+## Why calibration matters
 
 Dynamic microsimulation models face two key challenges:
 

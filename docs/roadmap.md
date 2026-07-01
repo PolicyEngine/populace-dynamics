@@ -1,23 +1,20 @@
-# Development Roadmap
+# Development roadmap
 
 ## Overview
 
-This roadmap assumes a serious, stage-gated build over approximately 36
-months. The goal is not to force a public launch on an arbitrary
-schedule. The goal is to earn the right to proceed from one stage to the
-next by passing validation gates.
+This roadmap describes a serious, stage-gated build. The goal is not
+to force a public launch on an arbitrary schedule. The goal is to earn
+the right to proceed from one stage to the next by passing validation
+gates.
 
 The roadmap is therefore organized around capability milestones and
-decision points, not just optimistic chronological phases.
-
-For the staffing and budget logic behind these stages, see
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md).
+decision points, not chronological phases.
 
 ## Workstreams
 
 The project has four core workstreams:
 
-1. **Longitudinal microplex construction**
+1. **Longitudinal populace construction**
 2. **Social Security integration and validation**
 3. **Policy analysis products**
 4. **Public API and interface**
@@ -26,46 +23,43 @@ These workstreams overlap, but they should not advance at the same pace.
 Interface work should lag validation work. Policy analysis should lag
 baseline replication. That ordering is intentional.
 
-Those workstreams can also be expressed as explicit work packages. The
-implementation-oriented version of that mapping lives in
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md).
-
-## Stage 0: Project Setup and Baselines (Months 0-3)
+## Stage 0: project setup and baselines
 
 **Purpose**: lock the main project decisions before large-scale
 implementation.
 
 ### Deliverables
 
-- Finalized base population platform: `microplex`, with its current
-  cross-sectional layer grounded in Enhanced CPS-style construction
-- Clear boundary between `microplex` platform work and
+- Finalized base population platform: `populace`, PolicyEngine's
+  microdata stack
+- Clear boundary between `populace` platform work and
   Social Security-specific application work
-- Benchmark datasets and target tables assembled
+- Benchmark datasets and target tables assembled from `populace`'s
+  primary-source data and its versioned target registry
 - Initial validation harness for baseline distributions
-- Staffing plan finalized for funded implementation
+- Implementation team and external review capacity identified
 - Written stage-gate criteria approved internally
 - Initial design-partner set and first pilot-analysis memo
 
-### Exit Criteria
+### Exit criteria
 
 - Clear specification of which outcomes count as success in stage 1
 - No unresolved ambiguity about base population or top-level scope
 - At least a small set of external users or partner categories identified
   for the first validated outputs
 
-## Stage 1: Historical Earnings Reconstruction (Months 4-9)
+## Stage 1: historical earnings reconstruction
 
-**Purpose**: determine whether `microplex` can be extended into a
+**Purpose**: determine whether `populace` can be extended into a
 credible longitudinal population asset for Social Security analysis.
 
-### Core Tasks
+### Core tasks
 
 - Harmonize PSID and related longitudinal sources
 - Build at least one conservative production path for earnings-history
-  reconstruction inside `microplex`
+  reconstruction inside `populace`
 - Add the first longitudinal state variables and transition machinery to
-  `microplex`
+  `populace`
 - Compare alternative model families where justified
 - Validate age-earnings profiles, percentiles, mobility, AIME, and
   correlation structure
@@ -73,28 +67,28 @@ credible longitudinal population asset for Social Security analysis.
 
 ### Deliverables
 
-- Longitudinal `microplex` alpha with earnings histories and core
+- Longitudinal `populace` alpha with earnings histories and core
   longitudinal states
 - Validation report on held-out data and external benchmarks
 - Recommendation on the production longitudinal architecture
 
-### Exit Criteria
+### Exit criteria
 
-- Longitudinal `microplex` is accurate enough to justify downstream
+- Longitudinal `populace` is accurate enough to justify downstream
   benefit modeling
 - Validation results are publishable and not merely anecdotal
 
 If these conditions are not met, the project should pause rather than
 proceeding mechanically.
 
-## Stage 2: Family, Disability, Claiming, and Benefits (Months 10-18)
+## Stage 2: family, disability, claiming, and benefits
 
-**Purpose**: turn longitudinal `microplex` into a credible Social
+**Purpose**: turn longitudinal `populace` into a credible Social
 Security analysis dataset.
 
-### Core Tasks
+### Core tasks
 
-- Freeze the minimal production version of longitudinal `microplex`
+- Freeze the minimal production version of longitudinal `populace`
   chosen at the end of stage 1
 - Implement family structure and marital histories needed for auxiliary
   benefits
@@ -110,19 +104,19 @@ Security analysis dataset.
 - Replication of a small set of standard baseline tables
 - Pilot baseline or reform analyses with clear external use cases
 
-### Exit Criteria
+### Exit criteria
 
 - Benefit results are close enough to published benchmarks to support
   exploratory reform analysis
 - Known weaknesses are documented and bounded
 
-## Stage 3: Forward Projection and Reform Analysis (Months 19-27)
+## Stage 3: forward projection and reform analysis
 
-**Purpose**: move from longitudinal `microplex` plus a validated Social
+**Purpose**: move from longitudinal `populace` plus a validated Social
 Security layer to a projected dynamic model that can analyze reform
 packages.
 
-### Core Tasks
+### Core tasks
 
 - Add forward aging and cohort entry
 - Align near-term and long-term projections to published assumptions
@@ -140,7 +134,7 @@ The operational detail behind this stage now lives in
 - Reform-analysis workflows for a defined set of policy packages
 - External pilot use of validated baseline or reform workflows
 
-### Exit Criteria
+### Exit criteria
 
 - Baseline projection quality is strong enough that reform outputs are
   interpretable
@@ -148,11 +142,11 @@ The operational detail behind this stage now lives in
 - At least limited outside testing shows the validated outputs are
   legible and useful to non-team users
 
-## Stage 4: Public Productization (Months 28-36)
+## Stage 4: public productization
 
 **Purpose**: expose validated capabilities to outside users.
 
-### Core Tasks
+### Core tasks
 
 - Build API endpoints for baseline and reform analysis
 - Build a focused public interface
@@ -167,13 +161,13 @@ The operational detail behind this stage now lives in
 - User documentation
 - Public release materials and examples
 
-### Exit Criteria
+### Exit criteria
 
 - External users can reproduce headline examples
 - The interface is narrower than the full model, but more reliable
 - Validation artifacts are published alongside the product
 
-## Cross-Cutting Deliverables
+## Cross-cutting deliverables
 
 Throughout the project:
 
@@ -181,11 +175,11 @@ Throughout the project:
 - preserve reproducible data-processing pipelines where licensing
   permits
 - document model decisions and reversals
-- preserve the separation between reusable `microplex` infrastructure
+- preserve the separation between reusable `populace` infrastructure
   and Social Security-specific application code
 - collect external review from domain experts
 
-## Adjacent Extension Track
+## Adjacent extension track
 
 The core project is Social Security-first. However, the architecture
 should preserve a path to adjacent modules that can share the synthetic
@@ -204,15 +198,9 @@ phase.
 Those extensions should follow, not precede, validation of the Social
 Security core.
 
-## Funding and Staffing Assumption
-
-This roadmap assumes dedicated project staff. It is not a realistic plan
-if implemented only through spare capacity from existing leadership.
-
 ## Summary
 
-The roadmap is deliberately slower and more conservative than a typical
-grant pitch because the main risk in this project is not coding speed.
-It is false confidence. A public dynamic Social Security model becomes
-valuable by surviving explicit validation gates, not by reaching a web
-launch quickly.
+The roadmap is deliberately conservative because the main risk in this
+project is not coding speed. It is false confidence. A public dynamic
+Social Security model becomes valuable by surviving explicit
+validation gates, not by reaching a web launch quickly.

@@ -1,21 +1,19 @@
-# Team and Staffing Plan
+# Team and expertise
 
 ## Overview
 
 The current planning lead can set the technical and product direction,
-but that is not, by itself, a sufficient staffing plan for full
-implementation. A credible funder-facing proposal should distinguish
-between:
+but that is not, by itself, a sufficient team for full implementation. A
+credible plan distinguishes between:
 
 - the current project lead
 - the external review capacity the project needs
-- the funded implementation team required to execute the roadmap
+- the implementation expertise required to execute the roadmap
 
-The staffing logic in this chapter is complemented by
-[implementation-plan-and-budget-logic.md](implementation-plan-and-budget-logic.md),
-which maps those roles onto work packages and budget tiers.
+This chapter describes the kinds of roles and expertise the project
+needs, not headcounts or compensation.
 
-## Current Project Lead
+## Current project lead
 
 ### Max Ghenis
 
@@ -24,7 +22,7 @@ experience behind the Enhanced CPS and PolicyEngine's tax-benefit
 models. His role in this project is architectural leadership, product
 direction, and integration with the broader PolicyEngine ecosystem.
 
-## Needed Review Capacity
+## Needed review capacity
 
 The public proposal should not imply named advisors, reviewers, or
 staff are committed unless those commitments are explicit. Before full
@@ -36,31 +34,32 @@ implementation, the project should recruit review capacity covering:
 - statistical imputation, calibration, and validation
 - public-interest product and user research
 
-## Required Funded Roles
+## Required expertise
 
-The project should assume at least the following dedicated roles during
-implementation:
+The project should cover at least the following kinds of expertise
+during implementation:
 
-### Technical Lead or Research Engineer
+### Technical lead or research engineer
 
-A full-time implementation lead is needed to own the longitudinal
-`microplex` pipeline, modeling infrastructure, and reproducibility
-workflow. This role should not be treated as optional.
+Implementation leadership is needed to own the longitudinal `populace`
+pipeline, modeling infrastructure, and reproducibility workflow. This
+capacity should not be treated as optional.
 
-### Research Economist or Quantitative Social Scientist
+### Research economist or quantitative social scientist
 
-This role is needed for validation design, policy interpretation,
-benchmark replication, and reform analysis. The project needs someone
+This expertise is needed for validation design, policy interpretation,
+benchmark replication, and reform analysis. The project needs people
 whose job is to ask whether the results are economically credible, not
 just whether the code runs.
 
-### Data Engineer or Data Scientist
+### Data engineering and data science
 
 The project requires substantial work on harmonization, ingestion,
-versioning, and reproducibility across multiple surveys and benchmark
-sources. This is a real workload, not a background task.
+versioning, and reproducibility across the surveys and administrative
+sources that `populace` integrates and calibrates against. This is a
+real workload, not a background task.
 
-### Research Assistants
+### Research assistance
 
 Research assistance will likely be needed for:
 
@@ -69,7 +68,7 @@ Research assistance will likely be needed for:
 - literature synthesis
 - validation-table construction
 
-## Review and Governance
+## Review and governance
 
 The project should use structured outside review rather than relying
 only on internal confidence. That review should include:
@@ -82,19 +81,19 @@ only on internal confidence. That review should include:
 The goal is to catch overclaiming early and document disagreements
 openly.
 
-## Operating Model
+## Operating model
 
 The recommended operating model is:
 
 - the project lead sets scope, standards, and go/no-go decisions
 - external reviewers inform validation standards and policy relevance
-- dedicated staff own implementation
+- the implementation team owns delivery
 - reviewers challenge the validation record at each major gate
 
 That is a healthier structure than informal part-time execution by a
 small core team.
 
-## Why This Matters
+## Why this matters
 
 This project is easy to underscope because it looks like an extension of
 existing PolicyEngine work. It is not just that. Dynamic microsimulation

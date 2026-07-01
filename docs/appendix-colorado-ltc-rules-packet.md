@@ -1,4 +1,4 @@
-# Colorado LTC Rules Packet
+# Colorado LTC rules packet
 
 This appendix translates the proposal's Colorado pilot idea into a
 source-of-truth rules packet. The point is not to prove that one state
@@ -19,11 +19,11 @@ Colorado is a good pilot state for three reasons.
   enough to fit into an adjacent pilot rather than a full national LTSS
   build.
 
-## Source Hierarchy
+## Source hierarchy
 
 The pilot should treat sources in descending order of authority.
 
-### 1. Federal Floor
+### 1. Federal floor
 
 These sources define the national legal and parameter environment that
 Colorado must operate within.
@@ -40,7 +40,7 @@ Colorado must operate within.
 These are not enough to decide an individual case. They are the floor
 under the state-specific implementation.
 
-### 2. Colorado Program Pages
+### 2. Colorado program pages
 
 These sources identify the live program pathways a household can
 actually enter.
@@ -60,7 +60,7 @@ These pages are especially valuable for product design because they show
 how the state itself explains pathway differences to applicants and
 families.
 
-### 3. Colorado Operational Memos and Rules
+### 3. Colorado operational memos and rules
 
 This is where the pilot moves from a navigation prototype to a real
 rules layer.
@@ -75,13 +75,13 @@ rules layer.
 Operationally, this is the minimum layer needed to turn a general
 "Medicaid LTSS" description into coded rules.
 
-## Minimum Rule Blocks For A Credible Pilot
+## Minimum rule blocks for a credible pilot
 
 The first pilot does not need to solve every edge case in long-term care
 law. It does need to solve the blocks that determine whether outputs are
 useful.
 
-### Intake and Pathway Selection
+### Intake and pathway selection
 
 The engine should first identify which broad program path is being
 tested.
@@ -97,7 +97,7 @@ income handling, service packages, assessment requirements, and
 post-eligibility payment rules
 [@colorado2026ltssprograms; @colorado2026ebd; @colorado2026pace; @colorado2026buyin].
 
-### Financial Eligibility
+### Financial eligibility
 
 The pilot should encode:
 
@@ -116,7 +116,7 @@ The working-disabled buy-in path should be modeled separately. It uses a
 different income frame and premium schedule and is not just a variant of
 the same institutional/HCBS test [@colorado2026buyin].
 
-### Spousal Impoverishment
+### Spousal impoverishment
 
 Any serious state LTSS pilot has to encode spousal impoverishment rather
 than treating "married" as a footnote.
@@ -133,7 +133,7 @@ The parameter values change over time and should come from the annual
 CMS standards bulletins, not hard-coded prose
 [@medicaid2026spousal].
 
-### Income Trusts
+### Income trusts
 
 Colorado is a good pilot precisely because income-trust logic is real,
 visible, and codifiable.
@@ -154,7 +154,7 @@ yes/no." It should be able to return:
 - what monthly funding or distribution logic applies
 - what maintenance and closure obligations exist
 
-### Post-Eligibility Treatment of Income and Patient Liability
+### Post-eligibility treatment of income and patient liability
 
 This is one of the easiest areas to omit and one of the most important
 for user value.
@@ -172,7 +172,7 @@ personal-needs allowance, spousal income payments, and approved PETI
 payments, with the remainder paid toward the cost of care up to the
 medical assistance reimbursement rate [@colorado2025incomeTrustMemo].
 
-### Transfers, Look-Back, and Penalties
+### Transfers, look-back, and penalties
 
 A credible pilot also has to recognize when the right answer is
 "probably ineligible for now because of a transfer penalty."
@@ -188,7 +188,7 @@ be denied coverage when assets were transferred for less than fair
 market value during the five-year period preceding application
 [@medicaid2025eligibility].
 
-### Functional Eligibility and Local Entry Points
+### Functional eligibility and local entry points
 
 The pilot should not pretend financial rules alone determine access.
 
@@ -203,7 +203,7 @@ Colorado's EBD waiver page and CMA directory are enough to show that
 financial screening and case-management routing are inseparable in real
 operations [@colorado2026ebd; @colorado2026cma].
 
-### Estate Recovery and Trust Recovery
+### Estate recovery and trust recovery
 
 Estate recovery is a required part of any honest user-facing output in
 this space.
@@ -224,7 +224,7 @@ The pilot therefore should at least be able to say:
 - whether home preservation is being evaluated under incomplete
   information
 
-## Parameter Inventory For Phase 1
+## Parameter inventory for phase 1
 
 The first coded version should include, at minimum, the following
 parameter groups.
@@ -241,7 +241,7 @@ parameter groups.
 | Case-management routing | Operational entry to real programs | `colorado2026cma` |
 | Transfer and estate-recovery rules | Risk flags and downstream household implications | `medicaid2025eligibility`, `medicaid2025estate`, `colorado2026trusts` |
 
-## Maintenance Requirements
+## Maintenance requirements
 
 This pilot only stays credible if the update burden is acknowledged
 upfront.
@@ -260,7 +260,7 @@ upfront.
 That means the first pilot should be designed like a maintained rules
 product, not like a one-off memo.
 
-## What The Pilot Should Return
+## What the pilot should return
 
 If the pilot is worth funding, it should answer better questions than a
 simple binary eligibility calculator.

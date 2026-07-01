@@ -140,7 +140,7 @@ that:
 - a stronger validation story
 - a clearer path from research pipeline to public interface
 
-## International Open Models
+## International open models
 
 Open dynamic microsimulation is not unique to the United States. Models
 such as SimPaths demonstrate that dynamic policy modeling can be built
@@ -148,7 +148,7 @@ in the open and documented for outside researchers. That matters less as
 a direct methodological template than as proof that a transparent,
 research-grade ecosystem can form around this type of work.
 
-## Comparison Table
+## Comparison table
 
 | Model | Main strength | Main limitation | What we should learn |
 |---|---|---|---|
@@ -158,20 +158,20 @@ research-grade ecosystem can form around this type of work.
 | **PWBM** | Public-facing policy communication | Limited transparency beneath the interface | Public tools help, but they are not enough |
 | **Cato model** | Open-source proof of concept | Narrower ecosystem and product layer | Openness alone is not the differentiator |
 
-## What Gap Still Exists
+## What gap still exists
 
 No current model combines all of the following:
 
 - open source
 - a public-data workflow
-- transparent validation artifacts
-- a public API
+- transparent intermediate-state validation artifacts
+- a programmatic and AI-callable API
 - a public interface
 - integration with a broader tax-benefit platform
 
-That is the real gap this project is trying to fill.
+That is the real gap this project fills.
 
-## What This Project Should and Should Not Claim
+## What this project should and should not claim
 
 ### Plausible claims
 
@@ -191,7 +191,7 @@ That is the real gap this project is trying to fill.
   records
 - that an interface alone creates credibility
 
-## Bottom Line
+## Bottom line
 
 Existing models already show what a serious Social Security
 microsimulation model looks like. DynaSim shows the value of breadth and

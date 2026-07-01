@@ -5,47 +5,48 @@
 Building a dynamic Social Security microsimulation model requires
 infrastructure for data processing, synthesis, calibration, and policy
 simulation. The most important architectural point is now clear:
-`microplex` should be treated as the population platform and dataset,
+`populace` should be treated as the population platform and dataset,
 while this repository provides the Social Security-specific application
 layer on top of it. This chapter describes the tools that make that
 split possible.
 
-## PolicyEngine Ecosystem
+## PolicyEngine ecosystem
 
-Our model builds on PolicyEngine's existing open-source infrastructure:
+The model builds on PolicyEngine's existing open-source
+infrastructure:
 
 ```mermaid
 flowchart LR
-    subgraph sources["Public Data and Methods"]
-        MI["microimpute<br/>Imputation methods"]
-        MC["microcalibrate<br/>Calibration methods"]
-        L0["L0<br/>Sparse selection"]
+    subgraph sources["Primary-source data"]
+        SRC["CPS/ASEC, IRS PUF,<br/>SCF, SIPP, CPS-ORG,<br/>MEPS, ACS + admin targets"]
     end
 
-    subgraph population["Population Platform"]
-        MPX["microplex<br/>(Synthetic population dataset)"]
-        LMPX["Longitudinal microplex<br/>(project target)"]
+    subgraph population["populace (microdata stack)"]
+        FRAME["populace-frame<br/>(Frame kernel)"]
+        FIT["populace-fit<br/>(conditional models)"]
+        CAL["populace-calibrate<br/>(targets to weights)"]
+        LMPX["Longitudinal populace<br/>(project target)"]
     end
 
     subgraph application["Policy Application Layer"]
         SSM["Social Security model<br/>validation + workflows"]
-        PEUS["PolicyEngine-US<br/>Tax & Benefit Rules"]
+        PEUS["PolicyEngine-US<br/>(rules adapter)"]
     end
 
-    subgraph interface["User Interface"]
+    subgraph interface["Delivery"]
         API["PolicyEngine-API"]
-        APP["PolicyEngine-App"]
+        MCP["MCP server"]
         PY["policyengine.py"]
     end
 
-    MI --> MPX
-    MC --> MPX
-    L0 --> MPX
-    MPX --> LMPX
+    SRC --> FIT
+    FIT --> FRAME
+    CAL --> FRAME
+    FRAME --> LMPX
     LMPX --> SSM
     SSM --> PEUS
     PEUS --> API
-    API --> APP
+    API --> MCP
     API --> PY
 
     style LMPX fill:#e1f5fe
@@ -54,20 +55,22 @@ flowchart LR
 
 The high-level logic is:
 
-- use `microplex` as the public population asset
-- extend `microplex` longitudinally
+- `populace` builds and calibrates the public cross-sectional
+  population from primary-source data (shipped; now the certified
+  default U.S. microdata in policyengine.py)
+- extend `populace` longitudinally — the project's central work
 - use PolicyEngine-US and this repository to turn that asset into a
   Social Security policy model
 
 This means the project should avoid rebuilding generic synthesis
 machinery in the Social Security repository when that work properly
-belongs in `microplex`.
+belongs in `populace`.
 
-## Population Platform Versus Application Layer
+## Population layer versus application layer
 
 The tooling should be divided intentionally.
 
-### What belongs in microplex
+### What belongs in populace
 
 - synthetic public population construction
 - cross-sectional and longitudinal calibration machinery
@@ -89,190 +92,73 @@ comparison to DYNASIM more honest. The relevant comparison is not a
 single small repository against a mature institutional model. It is a
 public population platform plus an open policy application layer.
 
-## Key Tools and Libraries
+## Key tools and libraries
 
-### microplex: the core population platform
+### populace: the microdata stack
 
-**Purpose**: public synthetic population dataset and synthesis platform
+**Purpose**: build and calibrate the public population from
+primary-source government data, and expose it to a rules engine.
 
-**Repository**: https://github.com/CosilicoAI/microplex
+**Status**: PolicyEngine's rebuilt open-source microdata stack
+([github.com/PolicyEngine/populace](https://github.com/PolicyEngine/populace),
+MIT). Built entirely from primary sources (CPS/ASEC, IRS PUF, SCF,
+SIPP, CPS-ORG, MEPS, ACS), it replaced PolicyEngine's enhanced CPS as
+the certified default U.S. microdata in policyengine.py in June 2026,
+after beating it on a held-out, symmetric-refit comparison. Its
+synthesis method (the `populace-fit` shard) is a regime-gated,
+sequentially-chained, weight-aware quantile-regression-forest
+imputer, with a gradient-boosted classifier handling zero inflation.
 
-**Key Capabilities**:
-- synthetic microdata generation
-- multi-source fusion
-- zero-inflation handling
-- base-population calibration and sparse selection
-- candidate longitudinal and trajectory tooling
+**Architecture**: one kernel datatype — the `Frame`, a weighted
+sampling frame of entity tables — with operators as separate shards
+that share the `populace.*` namespace:
 
-**Our Use**:
-- **base population platform for this project**
+- `populace-frame`: the kernel (typed weights with conservation
+  invariants, strata for provenance, links, unit structure, and the
+  rules-engine adapter protocol — policyengine-us today, Axiom's
+  rules layer next). Succeeds microdf and microunit.
+- `populace-fit`: weight-aware conditional models for synthesis and
+  imputation. Succeeds microimpute.
+- `populace-calibrate`: targets-to-weights calibration (accelerated
+  projected gradient and L0 sparse selection). Succeeds
+  microcalibrate.
+- `populace-data` / `populace-build`: dataset registry and the
+  gated, no-fallback build pipeline.
+
+**Longitudinal status**: the kernel is longitudinal-ready by
+design — one weight per trajectory — and populace's charter names the
+longitudinal extension (person-period keying, cohort entry and exit,
+household recomposition over time) explicitly as "the
+social-security-model direction." Those kernel hooks are deliberate
+future work, and growing them is the central next step for this
+project.
+
+**Our use**:
+- **base population layer for this project**
 - host the longitudinal extension work that should outlive Social
   Security alone
 - supply the public population asset consumed by the Social Security
   application layer
 
-**Status**: active research and engineering platform; cross-sectional
-capabilities are already substantial, while longitudinal capabilities
-are the central next step
+### Predecessor tooling: microimpute, microcalibrate, L0
 
-### microimpute: ML-Based Variable Imputation
+Before populace, PolicyEngine's enhancement pipeline used three
+standalone packages: `microimpute` (quantile-regression-forest and
+related imputation), `microcalibrate` (gradient-descent base-population
+calibration), and `L0` (L0-regularized sparse record selection).
+populace reimplements their capabilities as the `populace-fit` and
+`populace-calibrate` shards on the shared `Frame` kernel; the legacy
+packages remain available but are no longer the path this project
+builds on.
 
-**Purpose**: Impute missing variables using machine learning
+### Enhanced CPS: precursor work
 
-**Repository**: https://github.com/PolicyEngine/microimpute
-
-**Key Capabilities**:
-- Random forest imputation
-- Quantile regression forests
-- Multiple imputation
-- Cross-validation and validation
-- Preserves correlations and distributions
-
-**Our Use**:
-- one important method family inside the broader `microplex`
-  longitudinal build
-- baseline earnings-history reconstruction
-- imputation of latent variables (earnings potential, health)
-- multiple imputations for uncertainty quantification
-
-**Example Workflow**:
-```python
-from microimpute import QuantileRegressionForest
-
-# Train model on PSID
-qrf = QuantileRegressionForest(
-    features=['age', 'education', 'current_earnings'],
-    target='earnings_at_age_25'
-)
-qrf.fit(psid_data)
-
-# Predict distribution for CPS
-earnings_dist = qrf.predict_quantiles(
-    cps_data,
-    quantiles=[0.1, 0.25, 0.5, 0.75, 0.9]
-)
-
-# Sample from distribution
-cps_data['earnings_25_imputed'] = qrf.sample(cps_data)
-```
-
-**Status**: Actively maintained, useful as a baseline method family even
-if more ambitious synthesis methods are added to `microplex`
-
-### microcalibrate: Base-Population Calibration
-
-**Purpose**: Calibrate the base cross-sectional population to external
-targets using gradient descent or related methods
-
-**Repository**: https://github.com/PolicyEngine/microcalibrate
-
-**Key Capabilities**:
-- Base-population gradient calibration
-- Multiple simultaneous targets
-- Constraint satisfaction
-- Convergence monitoring
-- Performance optimization
-
-**Our Use**:
-- core calibration method for the base synthetic population layer
-- match base-year earnings distributions to SSA and IRS data
-- align base-year beneficiary counts to administrative totals
-- prepare donor or source pools before longitudinalization
-- diagnose which errors are weight-correctable versus process errors
-
-After the longitudinal relationship network exists, calibration should
-mostly operate through event selection, process intercepts, donor
-probabilities, and network-preserving resampling. Year-by-year
-individual reweighting would make spouse and parent-child links
-incoherent.
-
-**Example Workflow**:
-```python
-from microcalibrate import calibrate
-
-# Define targets
-targets = {
-    'mean_earnings_age_25_male': 45000,
-    'mean_earnings_age_25_female': 40000,
-    'retired_beneficiaries_age_65': 12_200_000,
-    # ... hundreds more targets
-}
-
-# Calibrate base-year representation before longitudinalization
-representation_factors = calibrate(
-    data=base_population,
-    targets=targets,
-    initial_weights=cps_weights,
-    method='gradient_descent',
-    tolerance=0.01,  # 1% tolerance
-    max_iterations=1000
-)
-
-# Carry stable representation factors into the dynamic simulation
-base_population['representation_factor'] = representation_factors
-```
-
-**Status**: Actively maintained and central for base-year population
-construction. Dynamic alignment needs additional transition-control
-machinery.
-
-### L0: Sparse Selection and Base Calibration
-
-**Purpose**: L0 regularization for discrete sample selection and sparse base-population calibration
-
-**Repository**: https://github.com/PolicyEngine/L0
-
-**Key Capabilities**:
-- L0 regularized optimization
-- Discrete (0/1) weight selection
-- Gradient-based optimization
-- Sample size reduction while maintaining targets
-
-**Our Use**:
-- **Optional**: Select representative subsample for computational efficiency
-- Alternative to dense base-population reweighting
-- Identify most informative observations
-- Reduce computational burden for web app deployment
-
-**Example Workflow**:
-```python
-from l0 import sparse_calibrate
-
-# Select 50,000 most informative observations
-selected_indices = sparse_calibrate(
-    data=synthetic_panel,
-    targets=targets,
-    n_select=50_000,
-    method='l0_gradient'
-)
-
-# Create reduced dataset
-panel_subset = synthetic_panel[selected_indices]
-```
-
-**Status**: Under development, research stage
-
-### PolicyEngine-US-Data: Enhanced CPS
-
-**Purpose**: Construct high-quality microdata from CPS with improved income reporting
-
-**Repository**: https://github.com/PolicyEngine/policyengine-us-data
-
-The Enhanced CPS uses QRF imputation and gradient descent calibration to
-~2,800 administrative targets [@ghenis2024]. That work is best
-understood as an important precursor to `microplex`, not as the final
-architecture of this project.
-
-**Our Use**:
-- historical foundation for the current public population layer
-- proof that public-data enhancement and calibration can succeed at
-  policy-relevant scale
-- bridge between the older PolicyEngine data pipeline and `microplex`
-
-**Extensions for Dynamic Model**:
-- move from a calibrated cross-section to longitudinal `microplex`
-- add earnings histories and transitions
-- add longitudinal calibration and validation targets
+PolicyEngine's earlier Enhanced CPS used QRF imputation and gradient
+descent calibration against administrative targets [@ghenis2024].
+That work is best understood as an important precursor to
+`populace`, not as the architecture of this project. populace
+generalizes the conceptual approach into a broader ML-first
+microdata stack.
 
 ### PolicyEngine-Core: Microsimulation Engine
 
@@ -651,28 +537,29 @@ Like this document:
 
 We leverage a rich ecosystem of open-source tools:
 
-**Core Tools** (PolicyEngine-developed):
-- `microimpute`: ML imputation (QRF)
-- `microcalibrate`: Gradient descent calibration
-- `policyengine-us-data`: Enhanced CPS construction
-- `policyengine-core`: Microsimulation engine
+**Core tools** (PolicyEngine-developed):
+- `populace`: the microdata stack (`populace-frame` kernel,
+  `populace-fit` synthesis, `populace-calibrate` calibration)
+- `policyengine-core`: microsimulation engine
 
-**Foundation** (Existing):
-- Enhanced CPS as starting point
-- Proven data construction pipeline
-- Social Security rules already implemented
-- Infrastructure for web/API deployment
+**Foundation** (existing):
+- `populace` as starting point — shipped, and the certified default
+  U.S. microdata in policyengine.py
+- proven data construction and calibration pipeline
+- Social Security rules already implemented in PolicyEngine-US
+- infrastructure for web/API deployment
 
-**Additional Methodological Approaches** (To evaluate during proof of concept):
-- **Zero-inflated quantile deep neural networks (ZI-QDNN)**: Primary candidate for earnings imputation, with dedicated zero-inflation head and conditional quantile output; early experiments show 3× better trajectory coverage than recurrent alternatives on survey panel data
-- **Normalizing flows**: Conditional Masked Autoregressive Flows (MAF) as alternative for joint multi-year imputation, particularly where cross-year correlation structure matters
+**Additional methodological approaches** (to evaluate during proof of concept):
+- **Baseline (incumbent)**: populace's production synthesis method is a regime-gated, weight-aware quantile-regression-forest imputer. It is the proven cross-sectional method and the natural baseline for the longitudinal extension to beat.
+- **Zero-inflated neural distribution models (e.g. ZI-QDNN)**: candidate for richer earnings-trajectory imputation, with a dedicated zero-inflation head and conditional quantile output — to evaluate against the QRF baseline, not assumed superior.
+- **Normalizing flows**: candidate for joint multi-year imputation where cross-year correlation structure matters; to evaluate, not committed.
 - **Multi-survey fusion**: Harmonize CPS, PSID, and PUF into unified datasets using common variable schemas and masked imputation for cross-survey variables
 - **Sparse calibration**: IPF (raking), entropy balancing, and L0/L1/L2 sparse reweighting for base-population and donor-pool calibration, with network-preserving selection once relationships exist
 - **Demographic transition models**: Discrete-time hazard models for disability onset/recovery (using SSA DI incidence rates), mortality (using SSA period life tables), and marriage/divorce (using CPS/ACS-based rates)
 - **Hierarchical household synthesis**: Two-pass household/person generation preserving family structure, tax unit composition, and spousal earnings correlations
 
 **Extensions** (To develop):
-- Full earnings history imputation (ZI-QDNN primary, with QRF and normalizing flows as alternatives)
+- Full earnings history imputation (regime-gated QRF baseline, with zero-inflated neural and flow models as candidates to evaluate)
 - Spousal matching and assortative mating
 - Forward projection with multi-year calibration
 - Dynamic analysis API and web interface

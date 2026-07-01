@@ -1,15 +1,19 @@
-# Data Sources
+# Data sources
 
 ## Overview
 
-Building a dynamic Social Security microsimulation model now means
-building longitudinal `microplex` and then using it for Social Security
-analysis. That requires multiple data sources that capture
+Building a dynamic Social Security microsimulation model means
+extending `populace` longitudinally and then using it for Social
+Security analysis. That requires multiple data sources that capture
 cross-sectional population characteristics, longitudinal earnings
-dynamics, and demographic transitions. This chapter describes the
-primary data sources that feed that population platform.
+dynamics, and demographic transitions.
 
-## Primary Survey Data Sources
+PolicyEngine's `populace` stack assembles these primary sources,
+along with the administrative aggregates used as calibration targets,
+and builds a calibrated synthetic population from them. This chapter
+describes the primary sources that feed that pipeline.
+
+## Primary survey data sources
 
 ### Current Population Survey (CPS)
 
@@ -38,7 +42,7 @@ primary data sources that feed that population platform.
 - Limited earning history (only current year)
 
 **Our Use**:
-- Core cross-sectional input to the current public `microplex`
+- Core cross-sectional input to the current public `populace`
   population layer
 - Validation of age-earnings profiles
 - Calibration targets for population characteristics
@@ -71,7 +75,7 @@ primary data sources that feed that population platform.
 - Public use files have restricted geographic detail
 
 **Our Use**:
-- **Primary source for longitudinal extension of `microplex`**
+- **Primary source for longitudinal extension of `populace`**
 - Training data for quantile regression forests
 - Validation of lifetime earnings distributions
 - Demographic transition modeling
@@ -332,7 +336,7 @@ state LTC pilot.
 
 One reason LTC is hard to model is that no single public dataset adequately covers household populations, caregivers, and institutional residents at the same time. CPS and many other core household surveys exclude most institutional populations. An LTC-ready architecture therefore needs an explicit blended strategy:
 
-1. Household base population from Enhanced CPS and allied surveys
+1. Household base population from populace's calibrated CPS-based core and allied surveys
 2. Longitudinal aging and wealth dynamics from PSID and HRS
 3. Care-need and caregiving detail from NHATS/NSOC and MCBS
 4. Institutional population benchmarks from MDS and Medicaid administrative sources
@@ -351,9 +355,9 @@ Rather than treating each survey in isolation, we pursue a multi-survey fusion s
 
 Our data integration follows a hierarchical structure:
 
-1. **Base Population**: Enhanced CPS (primary candidate—see below) providing large sample with calibrated cross-sectional income
-2. **Longitudinal Structure**: PSID for earnings trajectories and transition dynamics
-3. **Income Detail**: PUF for tax return variables and high-income tail corrections
+1. **Base population**: populace's CPS-based core providing a large sample with calibrated cross-sectional income
+2. **Longitudinal structure**: PSID for earnings trajectories and transition dynamics
+3. **Income detail**: PUF for tax return variables and high-income tail corrections
 4. **Validation**: SIPP for program participation; administrative aggregates
 5. **Calibration**: SSA statistics for alignment
 

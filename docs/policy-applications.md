@@ -1,4 +1,4 @@
-# Policy Applications and Users
+# Policy applications and users
 
 ## Overview
 
@@ -7,13 +7,13 @@ they care how it works. The point of this project is not to create a
 generic simulator in the abstract. It is to answer concrete policy
 questions that require lifecycle information and distributional detail.
 More specifically, this repository should be understood as the first
-serious proving ground for longitudinal `microplex`: if the population
+serious proving ground for longitudinal `populace`: if the population
 platform can support Social Security well, it earns the right to support
 adjacent domains later.
 
-## Core Policy Questions
+## Core policy questions
 
-### Solvency Packages
+### Solvency packages
 
 The model should evaluate packages that change the long-run finances of
 Social Security, including:
@@ -28,7 +28,7 @@ The output should include both fiscal outcomes and distributional
 outcomes, since a package that improves actuarial balance may still
 shift losses toward vulnerable groups.
 
-### Benefit Adequacy and Poverty
+### Benefit adequacy and poverty
 
 The model should support analysis of:
 
@@ -42,7 +42,7 @@ This is one of the clearest gaps in many public discussions of Social
 Security reform: solvency is visible, but adequacy is often treated as a
 secondary appendix.
 
-### Claiming and Retirement Timing
+### Claiming and retirement timing
 
 Some of the most important policy questions run through claiming
 behavior rather than pure benefit arithmetic. The model should be able
@@ -53,7 +53,7 @@ to explore:
 - how disability status and weak labor-force attachment affect take-up
 - how household wealth changes the option value of delaying benefits
 
-### Family Structure and Auxiliary Benefits
+### Family structure and auxiliary benefits
 
 Social Security is not an individual-only program. The model should be
 able to analyze:
@@ -66,7 +66,7 @@ able to analyze:
 These are core questions for women, widows, divorced beneficiaries, and
 households with uneven work histories.
 
-### Distributional and Equity Analysis
+### Distributional and equity analysis
 
 The project should support analysis by:
 
@@ -82,7 +82,7 @@ The important design principle is that these should not be afterthought
 cuts added at the end of the pipeline. The model should be built so that
 distributional analysis is native to the workflow.
 
-## Early Products Before Full Dynamic Completion
+## Early products before full dynamic completion
 
 Not every useful output requires a complete public launch. Before the
 full model is available, the project can still deliver:
@@ -95,77 +95,76 @@ full model is available, the project can still deliver:
 This matters for both funders and users: value should accrue before the
 very end of the roadmap.
 
-## A Quantifiable Demand Proxy
+## A quantifiable demand proxy
 
 One useful proxy for demand is the asymmetry between policy interest and
 public modeling supply.
 
-On the tax side, outside analysts can point to multiple visible modeling
-channels:
+On the tax side, an open modeling ecosystem already exists. Several
+stacks are openly callable on public data:
 
-- **Tax-Calculator** is an open-source federal income and payroll tax
-  microsimulation model with public documentation and usable interfaces
-  [@taxcalc2026]
-- **TaxBrain** is a public interface to open-source tax policy models
-  [@taxbrain2025]
-- **The Tax Policy Center microsimulation model** is explicitly used to
-  analyze major individual income tax bills and proposals
-  [@tpcmodelfaq2025]
-- **ITEP's tax microsimulation model** underlies the federal, state,
-  and local distributional analyses and revenue estimates that ITEP
-  publishes [@itepmodel2025]
+- **Tax-Calculator** — open-source federal income and payroll tax
+  microsimulation [@taxcalc2026]
+- **PolicyEngine** — open-source federal and state tax-benefit
+  microsimulation with a calibrated public population, a REST API,
+  and a web interface [@policyengine2026]
+- **FiscalSim-US** — open-source federal and state tax-benefit
+  microsimulation [@fiscalsim2026]
 
-That does not mean tax-policy modeling is easy. It does mean there is a
-visible public or quasi-public ecosystem that routinely turns
-microsimulation into published analysis.
+Behind that open layer, several organizations run proprietary
+models to produce published analysis — the Tax Policy Center
+[@tpcmodelfaq2025], ITEP [@itepmodel2025], the Tax Foundation
+[@taxfoundationtag2025], and the Penn Wharton Budget Model
+[@pwbm2025]. The point is that tax policy has both an open,
+self-service modeling layer and a proprietary one.
 
-On the Social Security side, the benchmark model families are visible,
-but the public product layer is much thinner:
+On the Social Security side, the benchmark model families are
+real but the open layer is thin:
 
-- **DYNASIM** is the main non-governmental breadth benchmark, but not an
-  open public model [@favreault2015; @urban2024dynasim4]
-- **MINT** is the administrative-data benchmark, but not a public model
-  [@smith2021mint8; @ssa2024mint]
+- **DYNASIM** is the main non-governmental breadth benchmark, but
+  not an open public model [@favreault2015; @urban2024dynasim4]
+- **MINT** is the administrative-data benchmark, but not a public
+  model [@smith2021mint8; @ssa2024mint]
 - **CBO / CBOLT** provide official long-term baselines, but not a
-  public self-service microsimulation environment [@cbo2018; @cbo2024longterm]
+  public self-service microsimulation environment
+  [@cbo2018; @cbo2024longterm]
 - **Morningstar** has a proprietary retirement-outcomes model with
-  recent LTSS analysis, but not a public Social Security modeling tool
-  [@look2024retirementoutcomes; @look2025ltss; @look2025wish]
+  recent LTSS analysis, but not a public Social Security modeling
+  tool [@look2024retirementoutcomes; @look2025ltss; @look2025wish]
+- the **Cato Social Security model** is the one open analogue, but
+  it is narrower in scope, lacks a calibrated public population and
+  an API, and is not integrated with a tax-benefit platform
+  [@catossmodel2026]
 
-So a fair quantitative summary is:
+So a fair summary is that tax policy has multiple openly callable,
+self-service public models, while Social Security has effectively
+none in the same class. That does not prove that DYNASIM alone is
+the bottleneck. It does make the broader story plausible: policy
+interest is real, but the open modeling supply is unusually thin.
 
-- at least **four** established tax-model channels regularly support
-  outside-facing analysis
-- there are **zero** broad public self-service Social Security dynamic
-  microsimulation platforms in the same class
-
-That does not prove that DYNASIM alone is the bottleneck. It does make
-the broader bottleneck story plausible: policy interest is real, but
-public modeling supply is unusually thin.
-
-## Who The Model Should Serve
+## Who the model should serve
 
 ### Researchers
 
 Researchers need a replicable platform for testing assumptions,
 reproducing standard analyses, and extending methods publicly.
 
-### Advocacy and Policy Organizations
+### Advocacy and policy organizations
 
 Smaller organizations often cannot buy access to proprietary models or
 maintain specialized teams. A public model lowers that barrier.
 
-### Journalists and Public Communicators
+### Journalists and public communicators
 
 A transparent interface can make Social Security distributional effects
 easier to explain and harder to obscure.
 
-### Students and Instructors
+### Students and instructors
 
 Social Security modeling is currently too inaccessible for most
 classrooms. A public model changes that.
 
-## Likely Early Adopters
+## Likely early adopters
 
 The proposal should not treat all user groups as equally important at
 the start. The earliest real demand is likely to come from groups that
@@ -242,7 +241,7 @@ These users are likely to want:
 - a usable public interface rather than access to a closed institutional
   model
 
-## What External Demand Should Look Like in Practice
+## What external demand should look like in practice
 
 From a funder's perspective, the demand story is stronger if it is tied
 to concrete adoption tests rather than left as a general expectation.
@@ -250,14 +249,14 @@ to concrete adoption tests rather than left as a general expectation.
 The proposal should therefore aim to show:
 
 - **design partners in stage 0**:
-  at least 3-5 external organizations or researchers willing to help
+  a small set of external organizations or researchers willing to help
   prioritize early outputs
 - **pilot analyses by stage 2**:
   a small number of externally legible baseline or reform analyses that
   real users have asked for
 - **external pilot use by stage 3**:
-  at least 2-3 outside users or organizations testing the validated
-  baseline and reform workflows
+  outside users or organizations testing the validated baseline and
+  reform workflows
 - **public uptake by stage 4**:
   evidence that outside users can reproduce headline examples and cite
   the model in their own work
@@ -277,7 +276,7 @@ In practice, the most credible early design-partner set would mix:
 Those are much stronger demand signals than abstract statements about
 future openness.
 
-## Why Open Source Matters Here
+## Why open source matters here
 
 Open source is not a branding preference. It changes the structure of
 the policy ecosystem:
@@ -290,7 +289,7 @@ the policy ecosystem:
 For a program as consequential as Social Security, that shift is a
 substantive contribution.
 
-## Adjacent Applications
+## Adjacent applications
 
 The same dynamic infrastructure could later support:
 
@@ -319,7 +318,7 @@ Accessible public modeling supply appears even thinner than in Social
 Security. The fair claim is not that any one closed model is the sole
 bottleneck. It is that LTC policy interest is substantial and visible,
 while LTSS modeling capacity is concentrated in a small number of closed
-or proprietary systems. If longitudinal `microplex` becomes credible,
+or proprietary systems. If longitudinal `populace` becomes credible,
 LTC may become one of the highest-value adjacent domains for expansion.
 
 The most plausible first adjacent LTC product is not a national dynamic
