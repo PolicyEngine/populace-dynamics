@@ -38,6 +38,12 @@ format:
     # populace.dev serves directory URLs without a trailing slash, so a
     # sibling paper_files/ directory 404s; ship one self-contained file
     embed-resources: true
+    # the deployed PDF lives at a renamed path, so the auto-derived
+    # ../paper.pdf format link 404s; point it at the real file
+    format-links:
+      - text: PDF
+        href: /papers/dynamics/populace-dynamics.pdf
+        icon: file-pdf
   pdf:
     documentclass: article
     number-sections: true
