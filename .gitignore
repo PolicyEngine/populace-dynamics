@@ -106,3 +106,6 @@ Thumbs.db
 *.tmp
 *.temp
 *.log
+paper/paper.html
+paper/paper.pdf
+paper/paper_files/
