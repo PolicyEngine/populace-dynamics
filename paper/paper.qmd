@@ -35,6 +35,9 @@ format:
   html:
     toc: true
     number-sections: true
+    # populace.dev serves directory URLs without a trailing slash, so a
+    # sibling paper_files/ directory 404s; ship one self-contained file
+    embed-resources: true
   pdf:
     documentclass: article
     number-sections: true
