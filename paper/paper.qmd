@@ -10,10 +10,10 @@ abstract: |
   Dynamic microsimulation — the longitudinal aging of a person-level
   population through earnings, family structure, disability,
   mortality, and program participation — underpins retirement and
-  social-insurance policy analysis, yet every major United States
-  model of this kind is closed: internal to government, tied to
-  restricted administrative records, or accessible only through
-  institutional relationships. This design paper specifies an open
+  social-insurance policy analysis, yet the benchmark United States
+  models — DYNASIM, MINT, and CBOLT — are closed: internal to
+  government, tied to restricted administrative records, or
+  accessible only through institutional relationships. This design paper specifies an open
   alternative built as an extension of Populace, PolicyEngine's
   open-source microdata stack, whose cross-sectional layer is the
   certified default United States microdata in PolicyEngine after
@@ -153,7 +153,7 @@ Technical Panels convened by the
 Social Security Advisory Board have recommended revising fertility
 and mortality-improvement assumptions as realized values ran
 persistently outside the projected path [@technicalpanel2023]. Two
-expert institutions with administrative data and decades of
+institutions with administrative data and decades of
 refinement disagree with each other and have both missed realized
 demographic trends; a better microsimulation does not repair that,
 because the variance lives in the inputs.
@@ -202,10 +202,10 @@ and depletion dates *conditional on named assumption paths*,
 including the Trustees' intermediate path, so the numbers the
 policy debate runs on remain available as labeled
 conditional outputs; what the model declines is presenting any
-single path as its own forecast. Incumbent practice buries
-assumption-dependence behind a point estimate and an appendix; an
-open model can invert that and make the sensitivity the
-interface.
+single path as its own forecast. Incumbent practice publishes the
+point estimate up front and the sensitivity analysis in an
+appendix; an open model can invert that and make the sensitivity
+the interface.
 
 Every API response carries its tier, assumption path, and
 calibration history as metadata, so a downstream consumer — human
@@ -246,9 +246,9 @@ The longitudinal extension follows two kernel rules set in
 Populace's charter. First, **one weight per trajectory**:
 multi-period calibration targets stack as (target, period)
 constraint rows over a single trajectory-level weight vector, so
-that calibrating cross-sections independently — the standard way
-panels die — is a kernel-level error rather than a modeling
-temptation. Second, **population is not closed**: trajectories carry
+that calibrating cross-sections independently — which severs the
+trajectory-level consistency a panel exists to provide — is a
+kernel-level error rather than a modeling temptation. Second, **population is not closed**: trajectories carry
 entry and exit markers (birth, death, immigration, emigration), and
 a trajectory's weight contributes to a period only while the person
 is present. Household and couple links are period-scoped, so family
@@ -335,7 +335,7 @@ The rules adapter is engine-agnostic. PolicyEngine-US implements it
 today; Axiom — an open project that encodes statute declaratively
 and compiles it to Rust — is the next adapter, and the performance
 headroom matters when benefit formulas run over person-periods
-across hundreds of thousands of trajectories and many reform
+across the full trajectory panel and many reform
 scenarios. In that architecture, PolicyEngine is a composition:
 Axiom supplies the rules, Populace supplies the population, and
 behavioral responses enter as the labeled scenario layer.
@@ -364,8 +364,8 @@ validity metadata attached.
 
 # Scoring and resolution {#sec-scoring}
 
-Most microsimulation validation asks whether the model matches
-published aggregates. That standard is necessary but weak: a model
+Validation by fidelity — does the model match published
+aggregates? — is necessary but weak: a model
 can reproduce the tables its authors fit it to. This
 project's standard: a claim counts as validated when it improves
 prediction of something that later resolves. Five scoring
@@ -437,8 +437,8 @@ survivorship histories, disability pathways, differential
 mortality, and claiming timing — jointly. A layer that scores well
 here earns reuse in adjacent domains — Supplemental Security Income
 interactions, long-term care, and retirement adequacy, the last of
-which is *harder*, not easier: wealth projection was the weak link
-of even administrative-data models [@favreault2016], and a wealth
+which is *harder*, not easier: wealth projection challenged even
+administrative-data models [@favreault2016], and a wealth
 and pension roadmap is future work, not an assumed extension — and
 in other countries' pension systems.
 
@@ -459,10 +459,9 @@ behind the published numbers.
 # Related work {#sec-related}
 
 Dynamic microsimulation originates with @orcutt1961; @li2013 survey
-the field's alignment and calibration practice. DYNASIM
-[@favreault2015; @urban2024dynasim4], MINT [@ssa2024mint], and
-CBOLT [@cbo2018] define the closed state of the art in the United
-States, and this design borrows their central structural lesson —
+the field's alignment and calibration practice. This design
+borrows the central structural lesson of DYNASIM [@favreault2015;
+@urban2024dynasim4], MINT [@ssa2024mint], and CBOLT [@cbo2018] —
 an annual state engine with family links and external alignment —
 while departing on openness, trajectory-level weighting, and
 scoring; @dekkerscumpston2012 treat the weighting question
