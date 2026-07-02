@@ -140,13 +140,38 @@ that:
 - a stronger validation story
 - a clearer path from research pipeline to public interface
 
-## International open models
+## International dynamic models
 
-Open dynamic microsimulation is not unique to the United States. Models
-such as SimPaths demonstrate that dynamic policy modeling can be built
-in the open and documented for outside researchers. That matters less as
-a direct methodological template than as proof that a transparent,
-research-grade ecosystem can form around this type of work.
+The pattern of closed national models repeats internationally —
+Pensim2 at the United Kingdom's Department for Work and Pensions,
+MOSART at Statistics Norway, MIDAS at Belgium's Federal Planning
+Bureau [@li2013] — but the exceptions mark the direction of travel:
+
+- **Destinie 2** (INSEE, France): the pension microsimulation model
+  behind France's official projection exercises, with source code
+  published under the GPL [@blanchet2010destinie]
+  ([github.com/InseeFr/Destinie-2](https://github.com/InseeFr/Destinie-2)).
+  A national statistical institute releasing its production dynamic
+  model is the strongest precedent for the access model this project
+  proposes.
+- **SimPaths** (CeMPA, University of Essex): an open-source
+  life-course microsimulation model estimated for the United Kingdom,
+  with adaptations underway for several other European countries
+  [@bronka2025simpaths]. The closest international analogue on
+  openness, and proof that a research-grade open ecosystem can form
+  around dynamic modeling.
+- **Open frameworks without open populations**: LIAM2, developed at
+  Belgium's Federal Planning Bureau [@dementen2014liam2], and
+  OpenM++, an open reimplementation of Statistics Canada's Modgen
+  platform [@openmpp2026], supply generic dynamic-simulation
+  engines. Neither ships a calibrated population, a maintained rules
+  stack, or a scoring protocol; they solve the engine problem, not
+  the credibility problem.
+
+What none of these combines is an open codebase, a certified
+calibrated microdata baseline, and a public scoring protocol under
+which the model's claims resolve. That combination — not openness
+alone — is the gap.
 
 ## Comparison table
 
@@ -157,6 +182,8 @@ research-grade ecosystem can form around this type of work.
 | **CBOLT** | Official long-term fiscal authority plus administrative earnings credibility | Limited public reproducibility of the production pipeline | Do not overclaim on official scoring, administrative-data parity, or macro closure |
 | **PWBM** | Public-facing policy communication | Limited transparency beneath the interface | Public tools help, but they are not enough |
 | **Cato model** | Open-source proof of concept | Narrower ecosystem and product layer | Openness alone is not the differentiator |
+| **SimPaths** | Open-source life-course modeling, spreading across European countries | No published resolution-scoring program | An open research ecosystem is achievable |
+| **Destinie 2** | Official production model with published GPL source | France-specific scope; no published scoring program | Governments can open production models |
 
 ## What gap still exists
 
