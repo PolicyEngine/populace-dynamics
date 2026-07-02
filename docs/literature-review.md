@@ -117,7 +117,7 @@ failing on the quantities that actually matter for policy use.
 
 The literature on microsimulation evaluation is clear on one point: the
 credibility of the model depends on external validation, sensitivity
-analysis, and honest reporting of error [@toder2002; @bourguignon2006; @favreaux2016].
+analysis, and honest reporting of error [@toder2002; @bourguignon2006; @favreault2016].
 
 That matters especially here because a public synthetic model does not
 have the administrative-data privilege of official agency models. The
