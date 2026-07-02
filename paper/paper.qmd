@@ -71,11 +71,14 @@ the scoring protocol of @sec-scoring.
 
 The design makes four contributions:
 
-1. **A trajectory-weighted kernel.** One weight per trajectory, with
-   multi-period calibration expressed as stacked constraint rows
-   over the same weight vector, so that hitting cross-sectional
-   totals in multiple periods cannot silently destroy panel
-   structure (@sec-architecture).
+1. **A trajectory-weighted kernel with explicit alignment.** One
+   weight per trajectory, with multi-period calibration expressed as
+   stacked constraint rows over the same weight vector, so that
+   hitting cross-sectional totals in multiple periods cannot
+   silently destroy panel structure — combined with event-selection
+   alignment for period-by-period control, since weights alone
+   cannot separate a correct life course from a correctly timed one
+   (@sec-architecture).
 2. **Transitions as conditional models.** A single operator
    interface covers deterministic demographic hazards and
    machine-learned earnings processes, so candidate architectures
@@ -132,8 +135,13 @@ States Social Security. The Trustees' own low- and high-cost
 scenarios bracket a range of 75-year balances wider than the
 intermediate deficit itself [@ssa2025trustees]. The Congressional
 Budget Office's long-term projections differ materially from the
-Trustees' for assumption reasons rather than benefit arithmetic
-[@cbo2024longterm]. Successive Technical Panels convened by the
+Trustees' — chiefly for assumption reasons, though method
+differences such as CBO's micro-founded projection of the taxable
+share of earnings also do real work in the divergence
+[@cbo2024longterm]. Assumption variance dominates the headline;
+model structure matters for distribution and the near term, which
+is the division of labor the output tiers encode. Successive
+Technical Panels convened by the
 Social Security Advisory Board have recommended revising fertility
 and mortality-improvement assumptions as realized values ran
 persistently outside the projected path [@technicalpanel2023]. Two
@@ -155,9 +163,17 @@ both arms and cancels in the difference. The required ingredients —
 a calibrated joint distribution of lifetime earnings, family
 structure, and differential mortality, plus an exact rules engine —
 are the components that can be validated directly. The slice of a
-reform delta that does not cancel, such as reform-induced claiming
-responses, is labeled as the least-validated slice rather than
-buried.
+reform delta that does not cancel is labeled as the least-validated
+slice rather than buried: reform-induced claiming responses, and
+interactions between the reform and uncertain dynamics — the
+mortality gradient enters many deltas as a covariance with benefit
+position, not a level, so it does not difference out. Deltas
+evaluated past trust-fund depletion also require an explicit
+scheduled-versus-payable baseline convention, which the model
+states with every such output. For claiming specifically, scenario
+ranges anchor to the quasi-experimental record on retirement-age
+responses [@mastrobuoni2009; @behaghelblau2012], published as a
+scenario library rather than embedded as point estimates.
 
 **Tier 2: near-term components that resolve.** Over roughly a
 ten-year horizon, outputs are dominated by mechanics rather than
@@ -221,7 +237,26 @@ temptation. Second, **population is not closed**: trajectories carry
 entry and exit markers (birth, death, immigration, emigration), and
 a trajectory's weight contributes to a period only while the person
 is present. Household and couple links are period-scoped, so family
-recomposition preserves per-period accounting identities.
+recomposition preserves per-period accounting identities; couples
+carry a shared unit weight derived from their trajectory weights so
+that spousal and survivor benefits have a well-defined
+representation.
+
+Weights alone are one layer of alignment, not the whole answer: a
+weight cannot distinguish a correct life course from a correctly
+timed one, and reweighting trajectories to hit future
+cross-sectional cells risks selecting on entire correlated life
+courses. Period-by-period control therefore also operates through
+event selection — ranking individual transition probabilities and
+selecting the number of events an external control demands, the
+mechanism CBOLT and DYNASIM use — with trajectory weights reserved
+for base-year representation and slow-moving composition
+[@li2013; @dekkerscumpston2012]. The stacked constraint system is
+solved as uncertainty-weighted penalized least squares against
+target standard errors, so infeasible combinations resolve by
+SE-weighted compromise rather than silent failure, and cohorts
+born after the base year are pinned by projected demographic
+controls rather than left free.
 
 ## The Dynamics operator
 
@@ -239,25 +274,61 @@ beat the baseline on held-out longitudinal moments to merge.
 
 The design is deliberately hybrid. Where the evidence base is
 tabular — mortality from official life tables with published
-income gradients, fertility and marriage from vital statistics,
+income gradients, fertility from vital statistics, marriage and
+divorce from ACS- and CPS-based rates (federal collection of
+detailed marriage and divorce statistics ended in the 1990s),
 disability incidence from program statistics — transitions are
-deterministic hazards, auditable row by row. Machine learning is
-reserved for processes with rich conditional structure, led by
-earnings dynamics, where held-out panel moments such as
-higher-order earnings-change distributions [@guvenen2015earningsrisk]
-provide a demanding evaluation standard. Backcasting histories from
-an observed cross-section and projecting forward are the same
-operator run in either direction, with cohort aggregates
-constraining the backcast.
+deterministic hazards, auditable row by row. Marriage requires a
+matching model, not only a hazard: spousal and survivor benefits
+depend on assortative matching over lifetime earnings, which the
+design treats as a first-class estimation target rather than an
+afterthought. Machine learning is reserved for processes with rich
+conditional structure, led by earnings dynamics — where the
+process is not stationary: volatility and mobility vary by cohort
+and period in administrative data [@sabelhaussong2010;
+@kopczuksaezsong2010], so transition models carry cohort and
+period conditioning rather than pooling across decades. Chained
+one-period models also understate long-spell persistence unless
+spell structure is modeled explicitly, and backcasting is a
+distinct conditional object from forward simulation rather than
+the same operator reversed; both are treated as evaluation targets
+in their own right, disciplined by held-out panel moments such as
+higher-order earnings-change distributions [@guvenen2021].
+
+One measurement caveat is stated rather than hidden: the most
+demanding earnings-dynamics moments come from administrative
+records that public panels understate, and survey- and
+administrative-based estimates disagree on volatility levels and
+trends. Where a published administrative moment cannot be
+recomputed on held-out public data, matching it is calibration,
+not validation, and the scorecard labels it as such.
 
 ## Rules and delivery
 
-Statute is the deterministic slice of any policy forecast. Benefit
-formulas — average indexed monthly earnings, primary insurance
-amounts, actuarial adjustments, auxiliary and survivor benefits,
-benefit taxation, and program interactions — compute exactly
-through PolicyEngine's rules engine via populace's rules-adapter
-protocol, vectorized over person-periods. Uncertainty budgets
+Statute is the deterministic slice of any policy forecast. Core
+retirement benefit formulas — average indexed monthly earnings,
+primary insurance amounts, actuarial adjustments — and benefit
+taxation compute exactly today through PolicyEngine's rules engine
+via populace's rules-adapter protocol, vectorized over
+person-periods. Auxiliary, spousal, and survivor benefit formulas
+are explicit build items in the validation program: the current
+engine carries them as calibrated aggregates rather than
+person-level formulas, and the scorecard treats "computes exactly"
+as a per-rule status to be earned, not a blanket claim.
+
+Data governance is a design requirement, not an afterthought.
+Estimating transition models on restricted-use panels and
+publishing the estimated parameters is settled practice — open
+models such as OG-USA, and DYNASIM itself, estimate on the PSID
+and publish what they learn. Releasing a synthetic *microdata*
+artifact informed by such panels is a stricter problem, because
+donor-based samplers can emit observed training values. The design
+answers it structurally: released records originate from populace's
+public-use cross-section, restricted panels train processes rather
+than donate records, samplers are smoothed or noised so no verbatim
+donor values ship, and every release passes nearest-neighbor
+disclosure checks alongside its accuracy scorecard — with data
+producers engaged directly where their terms of use warrant it. Uncertainty budgets
 therefore attach only to the genuinely uncertain components. The
 deliverable is a versioned artifact — a longitudinal population
 release with a manifest and scorecard, certified through the same
@@ -285,14 +356,24 @@ surfaces implement it.
 2. **Forecasting the forecasters.** Official projections revise
    constantly; predicting the next revision of headline quantities
    resolves in months rather than decades and is decision-relevant
-   to anyone who acts on the official number.
+   to anyone who acts on the official number. This is partly
+   forecasting an assumptions process — panels advise, committees
+   adopt with a lag — so each cell pre-specifies the naive baseline
+   it must beat (an assumption random walk plus mechanical data
+   update).
 3. **Retrodiction with leakage control.** The model is built from
    data vintages available at a historical date and scored against
    realized outcomes. populace's versioned data registry pins
-   vintages, making "what could the model have known" an enforceable
-   constraint. Retrodictive calibration under the historical regime
-   does not guarantee calibration under a new one, so backtests
-   complement rather than substitute for live resolution.
+   vintages going forward; pre-registry history is a reconstruction
+   problem — survey redesigns, revised administrative tables,
+   re-released panels — so pre-registry backtests are graded as
+   pseudo-vintage, with a published log of deviations from true
+   vintage, and no registry pins specification leakage: a
+   "2005-vintage" model built today knows 2008 happened, and the
+   protocol says so. Retrodictive calibration under the historical
+   regime does not guarantee calibration under a new one, so
+   backtests complement rather than substitute for live
+   resolution.
 4. **Statutory resolution.** Where an output is fixed by law, the
    rules engine computes it exactly, and enacted policy settles the
    corresponding conditional cells immediately.
@@ -319,9 +400,12 @@ available test of the machinery: eligibility and benefits depend on
 the highest thirty-five years of indexed earnings, marital and
 survivorship histories, disability pathways, differential
 mortality, and claiming timing — jointly. A layer that scores well
-here earns reuse in easier adjacent domains (Supplemental Security
-Income interactions, retirement adequacy with wealth, long-term
-care) and in other countries' pension systems.
+here earns reuse in adjacent domains — Supplemental Security Income
+interactions, long-term care, and retirement adequacy, the last of
+which is *harder*, not easier: wealth projection was the weak link
+of even administrative-data models [@favreault2016], and a wealth
+and pension roadmap is future work, not an assumed extension — and
+in other countries' pension systems.
 
 The domain also sharpens the honesty argument. The canonical
 output of existing Social Security models — the 75-year balance
@@ -332,8 +416,10 @@ reforms with reproducible assumptions; tier-2 near-term components
 with a public resolution record; and tier-3 sensitivity surfaces
 that make the assumption-dependence of long-horizon claims the
 interface rather than the appendix. No existing model, closed or
-open, publishes that combination, and the closed benchmarks cannot
-be audited at the intermediate-state level at all.
+open, publishes that combination. The closed benchmarks do publish
+validation and cohort tables; what outsiders cannot do is rerun the
+pipeline, vary its assumptions, or audit the intermediate states
+behind the published numbers.
 
 # Related work {#sec-related}
 
@@ -344,13 +430,20 @@ CBOLT [@cbo2018] define the closed state of the art in the United
 States, and this design borrows their central structural lesson —
 an annual state engine with family links and external alignment —
 while departing on openness, trajectory-level weighting, and
-scoring. The Cato model [@catossmodel2026] is the nearest open
+scoring; @dekkerscumpston2012 treat the weighting question
+directly. The Cato model [@catossmodel2026] is the nearest open
 system and demonstrates demand for one. On the measurement side,
-administrative-data moments of earnings dynamics
-[@guvenen2015earningsrisk] supply held-out evaluation standards
-that public survey panels alone cannot, and the assumption-failure
-record compiled by successive Technical Panels
-[@technicalpanel2023] motivates the domains-of-validity framework.
+administrative-data studies of earnings dynamics discipline the
+earnings process: lifecycle moments [@guvenen2021], long-run
+mobility [@kopczuksaezsong2010], non-stationary volatility
+[@sabelhaussong2010], and the attenuating link between current and
+lifetime earnings [@haider2006] — with nonlinear panel frameworks
+[@arellanoblundellbonhomme2017] the academic cousin of the
+quantile machinery used here. The quasi-experimental record on
+claiming responses [@mastrobuoni2009; @behaghelblau2012] anchors
+the behavioral scenario library, and the assumption-failure record
+compiled by successive Technical Panels [@technicalpanel2023]
+motivates the domains-of-validity framework.
 
 # Status and roadmap {#sec-status}
 
