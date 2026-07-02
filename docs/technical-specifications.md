@@ -38,7 +38,7 @@ A basic Social Security model thus involves simulating year-by-year and person-b
 - Earnings (combining participation, hours, and wages)
 - Benefit claiming decisions
 
-## Constructing longitudinal populace: historical simulation
+## Constructing longitudinal Populace: historical simulation
 
 The input dataset for dynamic microsimulation requires longitudinal
 histories for all listed variables in a representative sample as of the

@@ -35,19 +35,19 @@ primary-source microdata and administrative calibration targets
 ```mermaid
 flowchart TD
     subgraph inputs["Input Data Sources"]
-        MPX["populace<br/>(Cross-sectional population)"]
+        MPX["Populace<br/>(Cross-sectional population)"]
         PSID["PSID<br/>(Longitudinal)"]
         SSA["Calibration targets<br/>(SSA, CBO, IRS, Census)"]
     end
 
     subgraph processing["Longitudinal Extension"]
-        HIST["Add lifetime histories<br/>to populace"]
+        HIST["Add lifetime histories<br/>to Populace"]
         TRANS["Add demographic and<br/>family transitions"]
         CAL["Longitudinal validation<br/>& calibration"]
     end
 
     subgraph outputs["Application Layer"]
-        PANEL["Longitudinal<br/>populace"]
+        PANEL["Longitudinal<br/>Populace"]
         PE["PolicyEngine-US<br/>Benefit Calculations"]
         WEB["Web Interface<br/>& API"]
     end
@@ -122,10 +122,10 @@ comparison to DynaSim, MINT, CBOLT, and other models.
 
 ## Phase 1: Base-year cross-section
 
-### Starting point: populace's current cross-sectional layer
+### Starting point: Populace's current cross-sectional layer
 
 The project starts from `populace`, PolicyEngine's rebuilt microdata
-stack. populace builds a calibrated cross-sectional population
+stack. Populace builds a calibrated cross-sectional population
 entirely from primary sources and, in June 2026, replaced
 PolicyEngine's enhanced CPS as the certified default U.S. microdata
 in policyengine.py — after beating it on a held-out, symmetric-refit
@@ -134,7 +134,7 @@ shipped and won; the longitudinal extension is the open work.
 
 Advantages of this starting point:
 
-1. **Proven methodology**: populace has already solved the
+1. **Proven methodology**: Populace has already solved the
    cross-sectional income underreporting problem using the same
    tools the longitudinal extension will apply
 2. **Integration**: seamless connection to PolicyEngine-US's
@@ -147,7 +147,7 @@ Advantages of this starting point:
 5. **Sample size**: a large synthetic public population provides
    statistical power for national and subnational analysis
 
-populace improves upon raw CPS through:
+Populace improves upon raw CPS through:
 
 **Income imputation**: filling missing income components with
 weight-aware conditional models (the `populace-fit` shard, succeeding
@@ -188,7 +188,7 @@ For dynamic modeling, we need variables not in CPS:
 
 These "latent" variables will drive longitudinal transitions even when not directly observed.
 
-## Phase 2: Longitudinal extension of populace
+## Phase 2: Longitudinal extension of Populace
 
 ### The core challenge
 
@@ -208,7 +208,7 @@ to extend `populace` so that it carries:
 This is the step where the project becomes more than a static synthetic
 dataset. It turns `populace` into a longitudinal population asset.
 
-### Earnings-history approach inside longitudinal populace
+### Earnings-history approach inside longitudinal Populace
 
 The project should begin with a benchmark set rather than prematurely
 declaring one model family to be the production architecture. The

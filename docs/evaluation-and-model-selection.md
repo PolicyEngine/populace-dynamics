@@ -381,7 +381,7 @@ decision:
 - which architecture deserves continued investment
 - what the residual limitations are even if the answer is "yes"
 
-## Relationship to the refreshed populace evaluations
+## Relationship to the refreshed Populace evaluations
 
 The `populace` imputation evaluations should feed directly into this
 chapter, but they should not be the only evidence.

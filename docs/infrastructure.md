@@ -21,11 +21,11 @@ flowchart LR
         SRC["CPS/ASEC, IRS PUF,<br/>SCF, SIPP, CPS-ORG,<br/>MEPS, ACS + admin targets"]
     end
 
-    subgraph population["populace (microdata stack)"]
+    subgraph population["Populace (microdata stack)"]
         FRAME["populace-frame<br/>(Frame kernel)"]
         FIT["populace-fit<br/>(conditional models)"]
         CAL["populace-calibrate<br/>(targets to weights)"]
-        LMPX["Longitudinal populace<br/>(project target)"]
+        LMPX["Longitudinal Populace<br/>(project target)"]
     end
 
     subgraph application["Policy Application Layer"]
@@ -70,7 +70,7 @@ belongs in `populace`.
 
 The tooling should be divided intentionally.
 
-### What belongs in populace
+### What belongs in Populace
 
 - synthetic public population construction
 - cross-sectional and longitudinal calibration machinery
@@ -94,7 +94,7 @@ public population platform plus an open policy application layer.
 
 ## Key tools and libraries
 
-### populace: the microdata stack
+### Populace: the microdata stack
 
 **Purpose**: build and calibrate the public population from
 primary-source government data, and expose it to a rules engine.
@@ -126,7 +126,7 @@ that share the `populace.*` namespace:
   gated, no-fallback build pipeline.
 
 **Longitudinal status**: the kernel is longitudinal-ready by
-design — one weight per trajectory — and populace's charter names the
+design — one weight per trajectory — and Populace's charter names the
 longitudinal extension (person-period keying, cohort entry and exit,
 household recomposition over time) explicitly as "the
 social-security-model direction." Those kernel hooks are deliberate
@@ -142,11 +142,11 @@ project.
 
 ### Predecessor tooling: microimpute, microcalibrate, L0
 
-Before populace, PolicyEngine's enhancement pipeline used three
+Before Populace, PolicyEngine's enhancement pipeline used three
 standalone packages: `microimpute` (quantile-regression-forest and
 related imputation), `microcalibrate` (gradient-descent base-population
 calibration), and `L0` (L0-regularized sparse record selection).
-populace reimplements their capabilities as the `populace-fit` and
+Populace reimplements their capabilities as the `populace-fit` and
 `populace-calibrate` shards on the shared `Frame` kernel; the legacy
 packages remain available but are no longer the path this project
 builds on.
@@ -156,7 +156,7 @@ builds on.
 PolicyEngine's earlier Enhanced CPS used QRF imputation and gradient
 descent calibration against administrative targets [@ghenis2024].
 That work is best understood as an important precursor to
-`populace`, not as the architecture of this project. populace
+`populace`, not as the architecture of this project. Populace
 generalizes the conceptual approach into a broader ML-first
 microdata stack.
 
@@ -550,7 +550,7 @@ We leverage a rich ecosystem of open-source tools:
 - infrastructure for web/API deployment
 
 **Additional methodological approaches** (to evaluate during proof of concept):
-- **Baseline (incumbent)**: populace's production synthesis method is a regime-gated, weight-aware quantile-regression-forest imputer. It is the proven cross-sectional method and the natural baseline for the longitudinal extension to beat.
+- **Baseline (incumbent)**: Populace's production synthesis method is a regime-gated, weight-aware quantile-regression-forest imputer. It is the proven cross-sectional method and the natural baseline for the longitudinal extension to beat.
 - **Zero-inflated neural distribution models (e.g. ZI-QDNN)**: candidate for richer earnings-trajectory imputation, with a dedicated zero-inflation head and conditional quantile output — to evaluate against the QRF baseline, not assumed superior.
 - **Normalizing flows**: candidate for joint multi-year imputation where cross-year correlation structure matters; to evaluate, not committed.
 - **Multi-survey fusion**: Harmonize CPS, PSID, and PUF into unified datasets using common variable schemas and masked imputation for cross-survey variables
