@@ -213,8 +213,12 @@ forward are the same operator run in either direction.
 **PolicyEngine-US** supplies the rules engine — OASDI benefit
 calculation, benefit taxation, and means-tested interactions —
 through populace's rules-engine adapter, with Axiom's rules layer as
-the next adapter. **PolicyEngine-API** and the MCP server are the
-delivery surface.
+the next adapter: statute encoded declaratively and compiled to
+Rust, a performance boundary that matters when benefit formulas run
+over person-periods across hundreds of thousands of trajectories.
+In that architecture PolicyEngine is a composition — Axiom rules,
+populace population, and a labeled behavioral scenario layer.
+**PolicyEngine-API** and the MCP server are the delivery surface.
 
 The deliverable is a versioned artifact — `populace_us_panel_*` —
 with a release manifest and scorecard, certified through the same

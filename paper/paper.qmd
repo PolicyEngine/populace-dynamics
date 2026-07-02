@@ -316,6 +316,15 @@ engine carries them as calibrated aggregates rather than
 person-level formulas, and the scorecard treats "computes exactly"
 as a per-rule status to be earned, not a blanket claim.
 
+The rules adapter is engine-agnostic. PolicyEngine-US implements it
+today; Axiom — an open project that encodes statute declaratively
+and compiles it to Rust — is the next adapter, and the performance
+headroom matters when benefit formulas run over person-periods
+across hundreds of thousands of trajectories and many reform
+scenarios. In that architecture, PolicyEngine is a composition:
+Axiom supplies the rules, populace supplies the population, and
+behavioral responses enter as the labeled scenario layer.
+
 Data governance is a design requirement, not an afterthought.
 Estimating transition models on restricted-use panels and
 publishing the estimated parameters is settled practice — open
