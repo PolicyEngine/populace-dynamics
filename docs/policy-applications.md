@@ -108,8 +108,6 @@ stacks are openly callable on public data:
 - **PolicyEngine** — open-source federal and state tax-benefit
   microsimulation with a calibrated public population, a REST API,
   and a web interface [@policyengine2026]
-- **FiscalSim-US** — open-source federal and state tax-benefit
-  microsimulation [@fiscalsim2026]
 
 Behind that open layer, several organizations run proprietary
 models to produce published analysis — the Tax Policy Center
