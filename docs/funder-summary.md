@@ -303,8 +303,8 @@ repository does not currently include published validation against
 SSA Trustees, MINT, or DYNASIM. A more complete characterization is
 in [`existing-models.md`](existing-models.md).
 
-The Cato model shows that an open dynamic Social Security model is
-feasible; it does not close the gap this concept addresses. The open
+An open dynamic Social Security model exists; it does not close the
+gap this concept addresses. The open
 tax-modeling ecosystem already offers production stacks with
 calibrated public-data populations, programmatic and AI-callable
 APIs, web interfaces, transparent validation, and tax-benefit
