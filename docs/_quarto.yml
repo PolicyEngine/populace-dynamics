@@ -10,16 +10,16 @@ book:
       affiliation: PolicyEngine
   date: "2026"
   favicon: favicon.ico
-  repo-url: https://github.com/PolicyEngine/social-security-model
+  repo-url: https://github.com/PolicyEngine/populace-dynamics
   repo-actions: [edit, issue]
-  site-url: https://policyengine.github.io/social-security-model
+  site-url: https://policyengine.github.io/populace-dynamics
   sidebar:
     logo: policyengine.png
   page-footer:
     left: "Copyright 2026, Max Ghenis"
     right:
       - text: GitHub
-        href: https://github.com/PolicyEngine/social-security-model
+        href: https://github.com/PolicyEngine/populace-dynamics
       - text: PolicyEngine
         href: https://policyengine.org
   chapters:
