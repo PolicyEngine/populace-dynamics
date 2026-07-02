@@ -122,16 +122,19 @@ is a useful reminder that accessibility has layers:
 The implication for this project is straightforward: a web interface is
 helpful, but it is not a substitute for an open modeling pipeline.
 
-## The Cato model: proof that open Social Security modeling is possible
+## The Cato model: the nearest open system
 
-The Cato Institute's open-source Social Security model is important even
-if it differs methodologically from this proposal. It demonstrates that:
+The Cato Institute's open-source Social Security model simulates
+mortality, fertility, marriage, divorce, and employment as stochastic
+transitions on roughly 10,000 households from the 2007 CPS ASEC, and
+reports trust-fund metrics and reform scores [@catossmodel2026]. It
+focuses on OASI without a separate SSDI module, holds its labor-force
+transition matrix constant from 2024 onward, and its repository
+publishes no validation against SSA Trustees, MINT, or DYNASIM
+projections (see the fuller characterization below and in the funder
+summary).
 
-- there is demand for open Social Security modeling
-- open-source implementation is not hypothetical
-- a smaller or narrower model can still be useful
-
-Its existence also raises the bar. This project cannot claim novelty
+Its existence raises the bar. This project cannot claim novelty
 just because it is open. The differentiators have to be stronger than
 that:
 
@@ -181,7 +184,7 @@ alone — is the gap.
 | **MINT** | Administrative-data credibility | Restricted data and code | Treat validation as the central challenge |
 | **CBOLT** | Official long-term fiscal authority plus administrative earnings credibility | Limited public reproducibility of the production pipeline | Do not overclaim on official scoring, administrative-data parity, or macro closure |
 | **PWBM** | Public-facing policy communication | Limited transparency beneath the interface | Public tools help, but they are not enough |
-| **Cato model** | Open-source proof of concept | Narrower ecosystem and product layer | Openness alone is not the differentiator |
+| **Cato model** | Open-source; simulates ~10,000 ASEC households under SSA assumptions | No published validation against administrative benchmarks | Openness alone is not the differentiator |
 | **SimPaths** | Open-source life-course modeling, spreading across European countries | No published resolution-scoring program | An open research ecosystem is achievable |
 | **Destinie 2** | Official production model with published GPL source | France-specific scope; no published scoring program | Governments can open production models |
 
