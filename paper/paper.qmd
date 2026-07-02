@@ -187,10 +187,16 @@ administrative publications on an annual cycle and are scored
 outputs are published as surfaces over documented assumption
 ranges — how the balance, cohort replacement rates, or
 distributional outcomes move as fertility, mortality improvement,
-and immigration vary — never as point forecasts. Incumbent practice
-buries assumption-dependence behind a point estimate and an
-appendix; an open model can invert that and make the sensitivity
-the interface.
+and immigration vary — never as point forecasts. The distinction is
+between computing and blessing: the model computes 75-year balances
+and depletion dates *conditional on named assumption paths*,
+including the Trustees' intermediate path, so the numbers the
+policy debate runs on remain available as clearly labeled
+conditional outputs; what the model declines is presenting any
+single path as its own forecast. Incumbent practice buries
+assumption-dependence behind a point estimate and an appendix; an
+open model can invert that and make the sensitivity the
+interface.
 
 Every API response carries its tier, assumption path, and
 calibration history as metadata, so a downstream consumer — human
@@ -401,6 +407,15 @@ discipline**: misses publish with the same prominence as hits;
 superseded methods keep their historical scorecards; and stage
 gates in the development roadmap are pre-specified score
 thresholds, not narrative judgments.
+
+One role the protocol cannot supply for itself is the referee. Gate
+thresholds, resolution-rule disputes, and the assumptions library
+are designed to sit with an independent convening body — in the
+tradition of the Social Security Advisory Board's Technical
+Panels — rather than with the project's authors, and independent
+validators, including teams with access to restricted linked data
+the open model cannot touch, are how the synthetic histories earn
+trust the authors cannot grant themselves.
 
 # First validation domain: U.S. Social Security {#sec-domain}
 
