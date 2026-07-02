@@ -44,6 +44,22 @@ the deliverable is a versioned population artifact with a manifest
 and a scorecard. Models were branded when the model was the moat.
 Here the artifact and its track record are the product.
 
+::: {.callout-note}
+**What "dynamics" means here.** This project uses the term in the
+microsimulation field's standard sense — Orcutt's lineage, carried
+by DYNASIM, MINT, CBOLT, and SimPaths: a longitudinal model that
+ages a person-level population through time, across earnings,
+family structure, disability, mortality, and claiming
+[@orcutt1961; @li2013]. It does not mean "dynamic scoring" — the
+tax-policy usage for macroeconomic feedback in revenue estimates —
+and it is not an overlapping-generations general-equilibrium model
+of the Auerbach–Kotlikoff kind, such as the Penn Wharton Budget
+Model runs [@pwbm2025]. This model claims neither macro feedback
+nor equilibrium closure; behavioral responses enter as labeled
+scenario inputs, per
+[domains-of-validity.md](domains-of-validity.md).
+:::
+
 ## The problem
 
 Social Security is too important to be modeled only behind closed
