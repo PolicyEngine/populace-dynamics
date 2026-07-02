@@ -12,7 +12,7 @@ book:
   favicon: favicon.ico
   repo-url: https://github.com/PolicyEngine/populace-dynamics
   repo-actions: [edit, issue]
-  site-url: https://policyengine.github.io/social-security-model
+  site-url: https://policyengine.github.io/populace-dynamics
   sidebar:
     logo: policyengine.png
   page-footer:
