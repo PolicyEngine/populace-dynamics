@@ -49,8 +49,8 @@ bibliography: ../docs/references.bib
 
 Public microsimulation infrastructure is unevenly distributed. On
 the tax side, analysts can run open, calibrated models directly:
-Tax-Calculator [@taxcalc2026], PolicyEngine [@policyengine2026], and
-FiscalSim-US [@fiscalsim2026] are openly callable on public data,
+Tax-Calculator [@taxcalc2026] and PolicyEngine
+[@policyengine2026] are openly callable on public data,
 alongside source-available models with restricted inputs
 [@yaletaxsimulator2026] and proprietary models used for
 outside-facing analysis [@tpcmodelfaq2025; @itepmodel2025;

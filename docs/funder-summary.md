@@ -242,9 +242,6 @@ On the tax side, the ecosystem spans a spectrum of openness.
 - **PolicyEngine**: open-source federal and state tax-benefit
   microsimulation with a calibrated public microdata foundation, a
   REST API, and an interactive web interface [@policyengine2026]
-- **FiscalSim-US** (Center for Growth and Opportunity, Utah State):
-  open-source federal and state tax-benefit microsimulation
-  [@fiscalsim2026]
 
 **Source-available, restricted-data models**:
 
