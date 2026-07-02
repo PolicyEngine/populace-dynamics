@@ -3,8 +3,8 @@ project:
   output-dir: _book
 
 book:
-  title: "An open dynamic Social Security model"
-  subtitle: "A scored longitudinal extension of populace"
+  title: "populace dynamics"
+  subtitle: "An open, scored longitudinal layer for policy microsimulation — validated first on U.S. Social Security"
   author:
     - name: Max Ghenis
       affiliation: PolicyEngine

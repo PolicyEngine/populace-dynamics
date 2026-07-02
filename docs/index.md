@@ -1,17 +1,19 @@
-# An open dynamic Social Security model
+# populace dynamics
 
 ::: {.callout-note}
 **Stage-gated planning document**
 
 This repository describes a proposed project. It does not claim that a
-validated dynamic Social Security model already exists.
+validated dynamic model already exists.
 :::
 
 ## Executive summary
 
-This project proposes an open, dynamic microsimulation model for
-Social Security policy analysis — built so that every claim it makes
-can be scored against reality. It combines:
+This project extends `populace` — PolicyEngine's certified,
+country-agnostic microdata stack — with an open longitudinal
+**Dynamics** layer, and validates it first on U.S. Social Security.
+The layer is built so that every claim it makes can be scored against
+reality. It combines:
 
 - a public synthetic longitudinal population, calibrated to
   administrative targets
@@ -67,13 +69,19 @@ This project is:
 
 - a research and infrastructure effort to build a validated public
   synthetic longitudinal population
-- a transparency project for Social Security policy analysis
-- the first policy application and validation layer on top of that
-  longitudinal population
+- a global capability: populace's kernel is country-agnostic, so the
+  same Dynamics layer can serve every country PolicyEngine models —
+  pension and benefit systems abroad follow as country coverage
+  expands
+- the first domain application and validation program — U.S. Social
+  Security — chosen because it forces lifetime earnings, family
+  structure, disability, and claiming dynamics to be right
 
 This project is not:
 
 - a near-term replacement for SSA's MINT or CBO's internal models
+- a single-country or single-program model — Social Security is the
+  first validation domain, not the boundary
 - a promise that every behavioral margin can be modeled credibly
 - a one-shot 18-month build that goes directly from concept to public
   launch

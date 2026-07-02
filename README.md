@@ -1,11 +1,14 @@
-# Open-Source Dynamic Microsimulation for Social Security
+# populace dynamics
 
-This repository contains the planning documents for making `populace`
-longitudinal and using it to build a public Social Security policy
-model. The goal is not to imitate government models superficially; it
-is to build a public, inspectable alternative that can answer serious
-policy questions with transparent methods, published validation, and
-free access.
+This repository contains the design and validation program for
+`populace`'s longitudinal **Dynamics** layer — an open, scored
+extension of PolicyEngine's country-agnostic microdata stack. Its
+first validation domain is U.S. Social Security, chosen because it
+forces lifetime earnings, family structure, disability, and claiming
+dynamics to be right. The goal is not to imitate government models
+superficially; it is to build public, inspectable infrastructure that
+answers serious policy questions with transparent methods and a
+published scoring record, in any country PolicyEngine models.
 
 ## Why This Project Exists
 
