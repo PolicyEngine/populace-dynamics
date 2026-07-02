@@ -1,5 +1,8 @@
 # populace dynamics
 
+> **Design paper:** a citable distillation of this book is published at
+> https://populace.dev/papers/dynamics (web and PDF).
+
 This repository contains the design and validation program for
 `populace`'s longitudinal **Dynamics** layer — an open, scored
 extension of PolicyEngine's country-agnostic microdata stack. Its
