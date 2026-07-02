@@ -419,14 +419,24 @@ superseded methods keep their historical scorecards; and stage
 gates in the development roadmap are pre-specified score
 thresholds, not narrative judgments.
 
-One role the protocol cannot supply for itself is the referee. The
-design places gate thresholds, resolution-rule disputes, and the
-assumptions library with an independent convening body — in the
-tradition of the Social Security Advisory Board's Technical
-Panels — rather than with the project's authors, and independent
-validators, including teams with access to restricted linked data
-the open model cannot touch, are how the synthetic histories earn
-trust the authors cannot grant themselves.
+Openness supplies most of the refereeing. Resolution rules are
+pre-registered, scores recompute from public data, and anyone who
+distrusts a published scorecard can rerun it — or fork the project
+and publish a rival scorecard. Two pieces sit beyond reproduction.
+First, restricted-data checks: the most demanding earnings-history
+moments live in linked administrative records that the public
+pipeline never touches, so the reader must trust whoever runs the
+comparison — author or outsider — and a validator without a stake
+in the result adds evidence where rerunning is impossible. Second,
+judgment: gate thresholds, disputed resolution rules, and the
+assumptions library carry discretion that pre-registration narrows
+but does not remove. The project publishes those decisions with
+their rationales; an independent convening body in the tradition of
+the Social Security Advisory Board's Technical Panels would
+strengthen them, none exists today for this class of model, and the
+protocol runs without one. Published projections from the closed
+models also give any future scoring body a cross-model comparison
+set that requires no model access.
 
 # First validation domain: U.S. Social Security {#sec-domain}
 
