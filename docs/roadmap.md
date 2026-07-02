@@ -15,7 +15,7 @@ decision points, not chronological phases.
 
 The project has four core workstreams:
 
-1. **Longitudinal populace construction**
+1. **Longitudinal Populace construction**
 2. **Social Security integration and validation**
 3. **Policy analysis products**
 4. **Public API and interface**

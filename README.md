@@ -1,4 +1,4 @@
-# populace dynamics
+# Populace dynamics
 
 > **Design paper:** a citable distillation of this book is published at
 > https://populace.dev/papers/dynamics (web and PDF).
@@ -188,7 +188,7 @@ not by the Python package metadata.
 
 - [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us)
 - [PolicyEngine-US-Data](https://github.com/PolicyEngine/policyengine-us-data)
-- [populace](https://github.com/PolicyEngine/populace) — PolicyEngine's open-source microdata stack (MIT)
+- [Populace](https://github.com/PolicyEngine/populace) — PolicyEngine's open-source microdata stack (MIT)
 - [microimpute](https://github.com/PolicyEngine/microimpute)
 - [microcalibrate](https://github.com/PolicyEngine/microcalibrate)
 - [Cato social_security_cato_model](https://github.com/kchanwong/social_security_cato_model)

@@ -1,5 +1,5 @@
 ---
-title: "populace dynamics: an open, scored longitudinal layer for policy microsimulation"
+title: "Populace dynamics: an open, scored longitudinal layer for policy microsimulation"
 author:
   - name: Max Ghenis
     affiliation: PolicyEngine
@@ -14,7 +14,7 @@ abstract: |
   model of this kind is closed: internal to government, tied to
   restricted administrative records, or accessible only through
   institutional relationships. This design paper specifies an open
-  alternative built as an extension of populace, PolicyEngine's
+  alternative built as an extension of Populace, PolicyEngine's
   open-source microdata stack, whose cross-sectional layer is the
   certified default United States microdata in PolicyEngine after
   outperforming its predecessor on held-out administrative targets.
@@ -63,7 +63,7 @@ The nearest open analogue, the Cato Social Security model
 deliberately narrow in population, scope, and validation.
 
 This paper specifies the design of an open longitudinal layer —
-*populace dynamics* — as an extension of populace, PolicyEngine's
+*Populace dynamics* — as an extension of Populace, PolicyEngine's
 open-source microdata stack. It is a design paper: the
 cross-sectional foundation is shipped and validated; the
 longitudinal layer is specified here and built in the open, gated by
@@ -207,7 +207,7 @@ than by the producer's reputation.
 
 ## The cross-sectional foundation
 
-populace builds a calibrated synthetic population entirely from
+Populace builds a calibrated synthetic population entirely from
 primary-source government data — the Current Population Survey
 ASEC, the IRS Public Use File, the Survey of Consumer Finances,
 SIPP, CPS outgoing-rotation groups, MEPS, and the ACS — synthesizing
@@ -218,14 +218,14 @@ enhanced CPS as the certified default United States microdata in
 PolicyEngine, after a matched, symmetric-refit comparison on 41,314
 households with a 739-target holdout (@tbl-scorecard).
 
-| Metric (lower is better) | populace | enhanced CPS |
+| Metric (lower is better) | Populace | enhanced CPS |
 |---|---|---|
 | Holdout loss (739 held-out targets) | 0.038 | 0.317 |
 | Training loss | 0.190 | 1.089 |
 | Full loss | 0.228 | 1.405 |
 | Per-target wins | 1,040 | 2,613 (51 ties) |
 
-: Certification comparison from the populace release manifest. The
+: Certification comparison from the Populace release manifest. The
 per-target asymmetry is reported deliberately: the enhanced CPS wins
 more individual targets narrowly while its largest misses are far
 larger, and publishing the number that cuts against the headline is
@@ -234,7 +234,7 @@ the discipline the scoring protocol requires. {#tbl-scorecard}
 ## Trajectory weights and population accounting
 
 The longitudinal extension follows two kernel rules set in
-populace's charter. First, **one weight per trajectory**:
+Populace's charter. First, **one weight per trajectory**:
 multi-period calibration targets stack as (target, period)
 constraint rows over a single trajectory-level weight vector, so
 that calibrating cross-sections independently — the standard way
@@ -270,7 +270,7 @@ Dynamics is an operator from a population and a transition
 specification to a population with extended periods. A transition
 is a conditional distribution — the probability of next-period
 state given current state and covariates — which is the same
-interface populace's synthesis models already implement. The
+interface Populace's synthesis models already implement. The
 shipped baseline for earnings is a regime-gated, sequentially
 chained, weighted quantile-regression-forest imputer
 [@meinshausen2006] whose zero-inflation gate doubles as a
@@ -315,7 +315,7 @@ Statute is the deterministic slice of any policy forecast. Core
 retirement benefit formulas — average indexed monthly earnings,
 primary insurance amounts, actuarial adjustments — and benefit
 taxation compute exactly today through PolicyEngine's rules engine
-via populace's rules-adapter protocol, vectorized over
+via Populace's rules-adapter protocol, vectorized over
 person-periods. Auxiliary, spousal, and survivor benefit formulas
 are explicit build items in the validation program: the current
 engine carries them as calibrated aggregates rather than
@@ -328,7 +328,7 @@ and compiles it to Rust — is the next adapter, and the performance
 headroom matters when benefit formulas run over person-periods
 across hundreds of thousands of trajectories and many reform
 scenarios. In that architecture, PolicyEngine is a composition:
-Axiom supplies the rules, populace supplies the population, and
+Axiom supplies the rules, Populace supplies the population, and
 behavioral responses enter as the labeled scenario layer.
 
 Data governance is a design requirement, not an afterthought.
@@ -338,7 +338,7 @@ models such as OG-USA, and DYNASIM itself, estimate on the PSID
 and publish what they learn. Releasing a synthetic *microdata*
 artifact informed by such panels is a stricter problem, because
 donor-based samplers can emit observed training values. The design
-answers it structurally: released records originate from populace's
+answers it structurally: released records originate from Populace's
 public-use cross-section, restricted panels train processes rather
 than donate records, samplers are smoothed or noised so no verbatim
 donor values ship, and every release passes nearest-neighbor
@@ -378,7 +378,7 @@ surfaces implement it.
    update).
 3. **Retrodiction with leakage control.** The model is built from
    data vintages available at a historical date and scored against
-   realized outcomes. populace's versioned data registry pins
+   realized outcomes. Populace's versioned data registry pins
    vintages going forward; pre-registry history is a reconstruction
    problem — survey redesigns, revised administrative tables,
    re-released panels — so pre-registry backtests are graded as
@@ -402,7 +402,7 @@ Two governance rules complete the protocol. **Merge on score**: a
 contribution — a mortality module, a claiming model, an earnings
 architecture, from any contributor — merges if and only if it
 improves the population's score on held-out facts, the rule
-populace already applies to its cross-sectional layer. **Publication
+Populace already applies to its cross-sectional layer. **Publication
 discipline**: misses publish with the same prominence as hits;
 superseded methods keep their historical scorecards; and stage
 gates in the development roadmap are pre-specified score
@@ -472,11 +472,14 @@ motivates the domains-of-validity framework.
 # Status and roadmap {#sec-status}
 
 The cross-sectional foundation is in production. The longitudinal
-kernel rules are specified in populace's charter, and this paper's
-companion repository holds the full design book: operational
-chapters on earnings-history construction, family and auxiliary
-benefits, disability and claiming, mortality and projection drift,
-calibration targets, and the Social Security validation program.
+kernel rules are specified in Populace's charter. This paper is the
+project's front door; the supplementary design appendices —
+operational chapters on earnings-history construction, family and
+auxiliary benefits, disability and claiming, mortality and
+projection drift, calibration targets, the Social Security
+validation program, and a source-based DYNASIM dossier — live in
+the project repository at
+[github.com/PolicyEngine/populace-dynamics](https://github.com/PolicyEngine/populace-dynamics).
 Development proceeds through stage gates defined as score
 thresholds — earnings-history credibility first, family and benefit
 outputs second, forward projection third, productization last —

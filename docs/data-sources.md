@@ -336,7 +336,7 @@ state LTC pilot.
 
 One reason LTC is hard to model is that no single public dataset adequately covers household populations, caregivers, and institutional residents at the same time. CPS and many other core household surveys exclude most institutional populations. An LTC-ready architecture therefore needs an explicit blended strategy:
 
-1. Household base population from populace's calibrated CPS-based core and allied surveys
+1. Household base population from Populace's calibrated CPS-based core and allied surveys
 2. Longitudinal aging and wealth dynamics from PSID and HRS
 3. Care-need and caregiving detail from NHATS/NSOC and MCBS
 4. Institutional population benchmarks from MDS and Medicaid administrative sources
@@ -355,7 +355,7 @@ Rather than treating each survey in isolation, we pursue a multi-survey fusion s
 
 Our data integration follows a hierarchical structure:
 
-1. **Base population**: populace's CPS-based core providing a large sample with calibrated cross-sectional income
+1. **Base population**: Populace's CPS-based core providing a large sample with calibrated cross-sectional income
 2. **Longitudinal structure**: PSID for earnings trajectories and transition dynamics
 3. **Income detail**: PUF for tax return variables and high-income tail corrections
 4. **Validation**: SIPP for program participation; administrative aggregates

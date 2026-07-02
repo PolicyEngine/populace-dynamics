@@ -1,4 +1,4 @@
-# Concept note: populace dynamics
+# Concept note: Populace dynamics
 
 ## What this is
 
@@ -167,7 +167,7 @@ No equivalent bundle exists for U.S. Social Security analysis.
 
 The natural implementation is the PolicyEngine open-source stack.
 
-**populace** is PolicyEngine's rebuilt, open-source microdata stack
+**Populace** is PolicyEngine's rebuilt, open-source microdata stack
 ([github.com/PolicyEngine/populace](https://github.com/PolicyEngine/populace),
 MIT). It builds a calibrated synthetic population entirely from
 primary-source government data (CPS/ASEC, IRS Public Use File,
@@ -179,7 +179,7 @@ PolicyEngine's enhanced CPS as the certified default U.S. microdata
 in policyengine.py, after a matched, symmetric-refit comparison on
 41,314 households with a 739-target holdout:
 
-| Metric (lower is better) | populace | enhanced CPS |
+| Metric (lower is better) | Populace | enhanced CPS |
 |---|---|---|
 | Holdout loss (739 held-out targets) | 0.038 | 0.317 |
 | Training loss | 0.190 | 1.089 |
@@ -188,13 +188,13 @@ in policyengine.py, after a matched, symmetric-refit comparison on
 
 The asymmetry in the last row is published deliberately: the
 enhanced CPS wins more individual targets narrowly, while its
-largest misses are far larger — populace's aggregate loss is an
+largest misses are far larger — Populace's aggregate loss is an
 order of magnitude lower on held-out targets. Publishing the number
 that cuts against the headline is the discipline this whole project
-runs on. (Source: the release manifest in the populace repository.)
+runs on. (Source: the release manifest in the Populace repository.)
 
 **The longitudinal extension is designed, not improvised.**
-populace's charter names this project's direction explicitly and
+Populace's charter names this project's direction explicitly and
 specifies the kernel rules: one weight per trajectory, with
 multi-period targets stacked as (target, period) constraint rows
 over the same weight vector; entry and exit markers (birth, death,
@@ -212,12 +212,12 @@ forward are the same operator run in either direction.
 
 **PolicyEngine-US** supplies the rules engine — OASDI benefit
 calculation, benefit taxation, and means-tested interactions —
-through populace's rules-engine adapter, with Axiom's rules layer as
+through Populace's rules-engine adapter, with Axiom's rules layer as
 the next adapter: statute encoded declaratively and compiled to
 Rust, a performance boundary that matters when benefit formulas run
 over person-periods across hundreds of thousands of trajectories.
 In that architecture PolicyEngine is a composition — Axiom rules,
-populace population, and a labeled behavioral scenario layer.
+Populace population, and a labeled behavioral scenario layer.
 **PolicyEngine-API** and the MCP server are the delivery surface.
 
 The deliverable is a versioned artifact — `populace_us_panel_*` —
@@ -380,7 +380,7 @@ makes the scorecard, and the case for trusting it, longer.
   be co-owned through bilateral institutional agreements.
 - Not a 75-year oracle — the long horizon ships as a sensitivity
   surface, never a point forecast.
-- Not a brand-name simulator — the machinery is populace's, the
+- Not a brand-name simulator — the machinery is Populace's, the
   artifact is versioned, and the scorecard is the product.
 
 ## Open invitation

@@ -2,5 +2,22 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "bash scripts/install-quarto.sh",
   "buildCommand": "./.quarto-cli/bin/quarto render docs",
-  "outputDirectory": "docs/_book"
+  "outputDirectory": "docs/_book",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://populace.dev/papers/dynamics",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "destination": "https://populace.dev/papers/dynamics",
+      "permanent": false
+    },
+    {
+      "source": "/funder-summary.html",
+      "destination": "https://populace.dev/papers/dynamics",
+      "permanent": false
+    }
+  ]
 }

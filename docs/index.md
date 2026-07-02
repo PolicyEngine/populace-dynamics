@@ -1,4 +1,4 @@
-# populace dynamics
+# Populace dynamics
 
 ::: {.callout-note}
 **Stage-gated planning document**
@@ -72,7 +72,7 @@ them.
 At the same time, static tax-benefit modeling has already shown that
 publicly reproducible microdata can be useful when the pipeline is
 carefully engineered and aggressively validated. PolicyEngine's
-populace stack demonstrates this at production scale today — built
+Populace stack demonstrates this at production scale today — built
 entirely from primary sources, it became the certified default U.S.
 microdata in policyengine.py in 2026 after beating the prior enhanced
 CPS on held-out accuracy. The next question is whether that stack can
@@ -85,7 +85,7 @@ This project is:
 
 - a research and infrastructure effort to build a validated public
   synthetic longitudinal population
-- a global capability: populace's kernel is country-agnostic, so the
+- a global capability: Populace's kernel is country-agnostic, so the
   same Dynamics layer can serve every country PolicyEngine models —
   pension and benefit systems abroad follow as country coverage
   expands
@@ -104,19 +104,19 @@ This project is not:
 
 ## Decisions already made
 
-### 1. Build on PolicyEngine's populace microdata stack
+### 1. Build on PolicyEngine's Populace microdata stack
 
 The project extends `populace`, PolicyEngine's ML-first microdata
 layer, rather than building an isolated Social Security-only
-dataset. populace already integrates and calibrates dozens of
+dataset. Populace already integrates and calibrates dozens of
 surveys and administrative sources and supports the methodological
 machinery (synthesis, calibration, sparsification, and
 authenticity/privacy evaluation) the Social Security extension
 needs. That choice matters because:
 
-- generic population synthesis belongs in populace, not in this
+- generic population synthesis belongs in Populace, not in this
   repository
-- populace's cross-sectional layer is already validated against
+- Populace's cross-sectional layer is already validated against
   large numbers of administrative targets
 - this repository can focus on Social Security domain validation and
   policy application rather than rebuilding generic synthesis tools
