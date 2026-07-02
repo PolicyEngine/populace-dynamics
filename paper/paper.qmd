@@ -56,14 +56,18 @@ outside-facing analysis [@tpcmodelfaq2025; @itepmodel2025;
 @taxfoundationtag2025; @pwbm2025]. Analysts who want dynamic
 microsimulation — the longitudinal modeling that retirement and
 social-insurance policy requires — find the benchmark models
-closed: DYNASIM [@favreault2015; @urban2024dynasim4], MINT
-[@ssa2024mint], CBOLT [@cbo2018; @cbo2024longterm], and
-Morningstar's retirement-outcomes model
-[@look2024retirementoutcomes] anchor official and industry
-analysis, and outside users reach them only through institutional
-relationships. The nearest open analogue, the Cato Social Security
-model [@catossmodel2026], demonstrates feasibility while covering
-a narrower population, scope, and validation program.
+closed: SSA projects retirement income and the distributional
+effects of policy proposals with MINT [@ssa2024mint], CBO produces
+its long-term Social Security projections with CBOLT [@cbo2018;
+@cbo2024longterm], the Urban Institute projects retirement income
+and long-term care with DYNASIM [@favreault2015;
+@urban2024dynasim4], and Morningstar studies retirement adequacy
+with its Model of US Retirement Outcomes
+[@look2024retirementoutcomes]. Outside users reach each only
+through an institutional relationship. The nearest open analogue,
+the Cato Social Security model [@catossmodel2026], demonstrates
+feasibility while covering a narrower population, scope, and
+validation program.
 
 This paper specifies the design of an open longitudinal layer —
 *Populace dynamics* — as an extension of Populace, PolicyEngine's
