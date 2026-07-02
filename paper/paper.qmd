@@ -110,7 +110,7 @@ grows.
 
 "Dynamic" is used here in the microsimulation field's standard
 sense, following @orcutt1961 and the tradition carried by DYNASIM,
-MINT, CBOLT, and SimPaths: a longitudinal model that ages a
+MINT, CBOLT, and SimPaths [@bronka2025simpaths]: a longitudinal model that ages a
 person-level population through time [@li2013]. It does not mean
 "dynamic scoring" — the tax-policy usage denoting macroeconomic
 feedback in revenue estimation — and the design is not an
@@ -459,7 +459,32 @@ an annual state engine with family links and external alignment —
 while departing on openness, trajectory-level weighting, and
 scoring; @dekkerscumpston2012 treat the weighting question
 directly. The Cato model [@catossmodel2026] is the nearest open
-system and demonstrates demand for one. On the measurement side,
+system and demonstrates demand for one.
+
+The pattern repeats internationally — Pensim2 at the United
+Kingdom's Department for Work and Pensions, MOSART at Statistics
+Norway, MIDAS at Belgium's Federal Planning Bureau [@li2013] —
+with exceptions that mark the direction of travel. INSEE has
+published the source of Destinie 2 [@blanchet2010destinie], the
+pension model behind France's official projection exercises
+([github.com/InseeFr/Destinie-2](https://github.com/InseeFr/Destinie-2)).
+SimPaths, from the University of Essex's Centre for Microsimulation
+and Policy Analysis, is an open-source life-course model estimated
+for the United Kingdom and being adapted to several other European
+countries [@bronka2025simpaths]. And open frameworks exist without
+open populations: LIAM2 — built at the same Federal Planning Bureau
+that runs MIDAS [@dementen2014liam2] — and OpenM++, an open
+reimplementation of Statistics Canada's Modgen platform
+[@openmpp2026], supply generic simulation engines but ship no
+calibrated population and no rules stack. None of these combines an
+open codebase with a certified calibrated microdata baseline and a
+public scoring protocol under which claims resolve. SimPaths is
+closest on openness; the difference here is inheritance — a
+certified cross-sectional population, one rules platform across
+countries, and credibility staked on resolved scores rather than
+publication.
+
+On the measurement side,
 administrative-data studies of earnings dynamics discipline the
 earnings process: lifecycle moments [@guvenen2021], long-run
 mobility [@kopczuksaezsong2010], non-stationary volatility
