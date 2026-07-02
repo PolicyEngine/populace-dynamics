@@ -26,8 +26,8 @@ abstract: |
   framework that refuses point forecasts where parameter uncertainty
   dominates — including the 75-year actuarial balance — and instead
   publishes sensitivity surfaces; and a scoring protocol under which
-  every claim either resolves against administrative publications,
-  is backtested with leakage control, or is computed exactly from
+  every claim resolves against administrative publications,
+  backtests with leakage control, or computes exactly from
   statute, with contributions merging only when they improve
   held-out scores. United States Social Security is the first
   validation domain; the layer itself is country-agnostic.
@@ -47,36 +47,36 @@ bibliography: ../docs/references.bib
 
 # Introduction
 
-Public microsimulation infrastructure is unevenly distributed. On
-the tax side, analysts can run open, calibrated models directly:
-Tax-Calculator [@taxcalc2026] and PolicyEngine
+Analysts who want to model taxes can run open, calibrated models
+directly: Tax-Calculator [@taxcalc2026] and PolicyEngine
 [@policyengine2026] are openly callable on public data,
 alongside source-available models with restricted inputs
 [@yaletaxsimulator2026] and proprietary models used for
 outside-facing analysis [@tpcmodelfaq2025; @itepmodel2025;
-@taxfoundationtag2025; @pwbm2025]. On the dynamic side — the
-longitudinal modeling that retirement and social-insurance policy
-requires — the benchmark models remain closed. DYNASIM
-[@favreault2015; @urban2024dynasim4], MINT [@ssa2024mint], CBOLT
-[@cbo2018; @cbo2024longterm], and Morningstar's retirement-outcomes
-model [@look2024retirementoutcomes] are real and important, but
-outside users reach them only through institutional relationships.
-The nearest open analogue, the Cato Social Security model
-[@catossmodel2026], demonstrates feasibility while remaining
-deliberately narrow in population, scope, and validation.
+@taxfoundationtag2025; @pwbm2025]. Analysts who want dynamic
+microsimulation — the longitudinal modeling that retirement and
+social-insurance policy requires — find the benchmark models
+closed: DYNASIM [@favreault2015; @urban2024dynasim4], MINT
+[@ssa2024mint], CBOLT [@cbo2018; @cbo2024longterm], and
+Morningstar's retirement-outcomes model
+[@look2024retirementoutcomes] anchor official and industry
+analysis, and outside users reach them only through institutional
+relationships. The nearest open analogue, the Cato Social Security
+model [@catossmodel2026], demonstrates feasibility while covering
+a narrower population, scope, and validation program.
 
 This paper specifies the design of an open longitudinal layer —
 *Populace dynamics* — as an extension of Populace, PolicyEngine's
 open-source microdata stack. It is a design paper: the
-cross-sectional foundation is shipped and validated; the
-longitudinal layer is specified here and built in the open, gated by
+cross-sectional foundation is in production; this paper specifies
+the longitudinal layer, which the project builds in the open behind
 the scoring protocol of @sec-scoring.
 
 The design makes four contributions:
 
 1. **A trajectory-weighted kernel with explicit alignment.** One
-   weight per trajectory, with multi-period calibration expressed as
-   stacked constraint rows over the same weight vector, so that
+   weight per trajectory: multi-period calibration stacks constraint
+   rows over the same weight vector, so that
    hitting cross-sectional totals in multiple periods cannot
    silently destroy panel structure — combined with event-selection
    alignment for period-by-period control, since weights alone
@@ -98,17 +98,16 @@ The design makes four contributions:
    control, or compute exactly from statute; contributions merge
    only when they improve held-out scores (@sec-scoring).
 
-United States Social Security is the first validation domain,
-chosen because it is the hardest available proving ground: benefit
-adequacy and reform incidence depend jointly on lifetime earnings,
-marriage and survivorship, disability, differential mortality, and
-claiming. The layer itself is country-agnostic and extends to other
+United States Social Security is the first validation domain
+because benefit adequacy and reform incidence depend jointly on
+lifetime earnings, marriage and survivorship, disability,
+differential mortality, and claiming. The layer itself is country-agnostic and extends to other
 pension and benefit systems as PolicyEngine's country coverage
 grows.
 
 # Terminology and scope {#sec-terminology}
 
-"Dynamic" is used here in the microsimulation field's standard
+This paper uses "dynamic" in the microsimulation field's standard
 sense, following @orcutt1961 and the tradition carried by DYNASIM,
 MINT, CBOLT, and SimPaths [@bronka2025simpaths]: a longitudinal model that ages a
 person-level population through time [@li2013]. It does not mean
@@ -137,10 +136,10 @@ processes them. The public record makes this concrete for United
 States Social Security. The Trustees' own low- and high-cost
 scenarios bracket a range of 75-year balances wider than the
 intermediate deficit itself [@ssa2025trustees]. The Congressional
-Budget Office's long-term projections differ materially from the
+Budget Office's long-term projections differ from the
 Trustees' — chiefly for assumption reasons, though method
 differences such as CBO's micro-founded projection of the taxable
-share of earnings also do real work in the divergence
+share of earnings also contribute to the divergence
 [@cbo2024longterm]. Assumption variance dominates the headline;
 model structure matters for distribution and the near term, which
 is the division of labor the output tiers encode. Successive
@@ -155,8 +154,8 @@ because the variance lives in the inputs.
 
 ## Three output tiers
 
-The model's outputs are organized into tiers, each attached to the
-strongest claim it can support.
+The model sorts its outputs into tiers, each carrying the strongest
+claim it can support.
 
 **Tier 1: distributional analysis under fixed assumptions.** Reform
 analysis is a difference — outcome under reform minus outcome under
@@ -165,36 +164,37 @@ much of the unforecastable demographic uncertainty is common to
 both arms and cancels in the difference. The required ingredients —
 a calibrated joint distribution of lifetime earnings, family
 structure, and differential mortality, plus an exact rules engine —
-are the components that can be validated directly. The slice of a
-reform delta that does not cancel is labeled as the least-validated
-slice rather than buried: reform-induced claiming responses, and
+are the components the scoring protocol validates directly. The
+design labels rather than buries the slice of a reform delta that
+does not cancel: reform-induced claiming responses, and
 interactions between the reform and uncertain dynamics — the
 mortality gradient enters many deltas as a covariance with benefit
 position, not a level, so it does not difference out. Deltas
 evaluated past trust-fund depletion also require an explicit
 scheduled-versus-payable baseline convention, which the model
-states with every such output. For claiming specifically, scenario
+states with every such output. For claiming, scenario
 ranges anchor to the quasi-experimental record on retirement-age
-responses [@mastrobuoni2009; @behaghelblau2012], published as a
-scenario library rather than embedded as point estimates.
+responses [@mastrobuoni2009; @behaghelblau2012], and the model
+publishes them as a scenario library rather than embedding them as
+point estimates.
 
 **Tier 2: near-term components that resolve.** Over roughly a
-ten-year horizon, outputs are dominated by mechanics rather than
-demographic extrapolation: beneficiary counts by type, average
+ten-year horizon, mechanics rather than demographic extrapolation
+dominate outputs: beneficiary counts by type, average
 benefits, covered earnings and taxable payroll, claiming-age
 distributions, disability incidence. These resolve against
-administrative publications on an annual cycle and are scored
+administrative publications each year, and the protocol scores them
 (@sec-scoring).
 
-**Tier 3: the long horizon as a sensitivity surface.** Long-horizon
-outputs are published as surfaces over documented assumption
-ranges — how the balance, cohort replacement rates, or
+**Tier 3: the long horizon as a sensitivity surface.** The model
+publishes long-horizon outputs as surfaces over documented
+assumption ranges — how the balance, cohort replacement rates, or
 distributional outcomes move as fertility, mortality improvement,
 and immigration vary — never as point forecasts. The distinction is
 between computing and blessing: the model computes 75-year balances
 and depletion dates *conditional on named assumption paths*,
 including the Trustees' intermediate path, so the numbers the
-policy debate runs on remain available as clearly labeled
+policy debate runs on remain available as labeled
 conditional outputs; what the model declines is presenting any
 single path as its own forecast. Incumbent practice buries
 assumption-dependence behind a point estimate and an appendix; an
@@ -229,10 +229,10 @@ households with a 739-target holdout (@tbl-scorecard).
 | Per-target wins | 1,040 | 2,613 (51 ties) |
 
 : Certification comparison from the Populace release manifest. The
-per-target asymmetry is reported deliberately: the enhanced CPS wins
-more individual targets narrowly while its largest misses are far
-larger, and publishing the number that cuts against the headline is
-the discipline the scoring protocol requires. {#tbl-scorecard}
+enhanced CPS wins more individual targets by small margins while
+its largest misses dominate the loss; the scoring protocol requires
+publishing the count that cuts against the headline.
+{#tbl-scorecard}
 
 ## Trajectory weights and population accounting
 
@@ -260,12 +260,12 @@ event selection — ranking individual transition probabilities and
 selecting the number of events an external control demands, the
 mechanism CBOLT and DYNASIM use — with trajectory weights reserved
 for base-year representation and slow-moving composition
-[@li2013; @dekkerscumpston2012]. The stacked constraint system is
-solved as uncertainty-weighted penalized least squares against
-target standard errors, so infeasible combinations resolve by
-SE-weighted compromise rather than silent failure, and cohorts
-born after the base year are pinned by projected demographic
-controls rather than left free.
+[@li2013; @dekkerscumpston2012]. The kernel solves the stacked
+constraint system as uncertainty-weighted penalized least squares
+against target standard errors, so infeasible combinations resolve
+by SE-weighted compromise rather than silent failure, and projected
+demographic controls pin cohorts born after the base year rather
+than leaving them free.
 
 ## The Dynamics operator
 
@@ -281,7 +281,7 @@ nonemployment model; richer architectures (zero-inflated neural
 distribution models, normalizing flows) are candidates that must
 beat the baseline on held-out longitudinal moments to merge.
 
-The design is deliberately hybrid. Where the evidence base is
+The design is hybrid. Where the evidence base is
 tabular — mortality from official life tables with published
 income gradients, fertility from vital statistics, marriage and
 divorce from ACS- and CPS-based rates (federal collection of
@@ -291,26 +291,26 @@ deterministic hazards, auditable row by row. Marriage requires a
 matching model, not only a hazard: spousal and survivor benefits
 depend on assortative matching over lifetime earnings, which the
 design treats as a first-class estimation target rather than an
-afterthought. Machine learning is reserved for processes with rich
-conditional structure, led by earnings dynamics — where the
+afterthought. The design reserves machine learning for processes
+with rich conditional structure, led by earnings dynamics — where the
 process is not stationary: volatility and mobility vary by cohort
 and period in administrative data [@sabelhaussong2010;
 @kopczuksaezsong2010], so transition models carry cohort and
 period conditioning rather than pooling across decades. Chained
 one-period models also understate long-spell persistence unless
-spell structure is modeled explicitly, and backcasting is a
+spell structure enters the model explicitly, and backcasting is a
 distinct conditional object from forward simulation rather than
-the same operator reversed; both are treated as evaluation targets
+the same operator reversed; both enter the evaluation as targets
 in their own right, disciplined by held-out panel moments such as
 higher-order earnings-change distributions [@guvenen2021].
 
-One measurement caveat is stated rather than hidden: the most
-demanding earnings-dynamics moments come from administrative
+The design states one measurement caveat rather than hiding it: the
+most demanding earnings-dynamics moments come from administrative
 records that public panels understate, and survey- and
 administrative-based estimates disagree on volatility levels and
-trends. Where a published administrative moment cannot be
-recomputed on held-out public data, matching it is calibration,
-not validation, and the scorecard labels it as such.
+trends. Where the project cannot recompute a published
+administrative moment on held-out public data, matching it is
+calibration, not validation, and the scorecard labels it as such.
 
 ## Rules and delivery
 
@@ -323,7 +323,7 @@ person-periods. Auxiliary, spousal, and survivor benefit formulas
 are explicit build items in the validation program: the current
 engine carries them as calibrated aggregates rather than
 person-level formulas, and the scorecard treats "computes exactly"
-as a per-rule status to be earned, not a blanket claim.
+as a per-rule status each formula earns, not a blanket claim.
 
 The rules adapter is engine-agnostic. PolicyEngine-US implements it
 today; Axiom — an open project that encodes statute declaratively
@@ -343,11 +343,12 @@ artifact informed by such panels is a stricter problem, because
 donor-based samplers can emit observed training values. The design
 answers it structurally: released records originate from Populace's
 public-use cross-section, restricted panels train processes rather
-than donate records, samplers are smoothed or noised so no verbatim
-donor values ship, and every release passes nearest-neighbor
-disclosure checks alongside its accuracy scorecard — with data
-producers engaged directly where their terms of use warrant it. Uncertainty budgets
-therefore attach only to the genuinely uncertain components. The
+than donate records, samplers smooth or noise their draws so no
+verbatim donor value ships, and every release passes
+nearest-neighbor disclosure checks alongside its accuracy
+scorecard — and the project engages data producers directly where
+their terms of use warrant it. Uncertainty budgets therefore attach
+only to the components statute does not fix. The
 deliverable is a versioned artifact — a longitudinal population
 release with a manifest and scorecard, certified through the same
 path as the cross-sectional release — exposed through a Python
@@ -359,9 +360,9 @@ validity metadata attached.
 
 Most microsimulation validation asks whether the model matches
 published aggregates. That standard is necessary but weak: a model
-can be tuned to reproduce the tables it was built from. This
-project's standard is that a claim is validated when it improves
-prediction of something that subsequently resolves. Five scoring
+can reproduce the tables its authors fit it to. This
+project's standard: a claim counts as validated when it improves
+prediction of something that later resolves. Five scoring
 surfaces implement it.
 
 1. **Annually resolving components.** Beneficiary counts by type,
@@ -372,21 +373,22 @@ surfaces implement it.
    resolution rule naming the exact table and vintage that settles
    it.
 2. **Forecasting the forecasters.** Official projections revise
-   constantly; predicting the next revision of headline quantities
+   every year; predicting the next revision of headline quantities
    resolves in months rather than decades and is decision-relevant
    to anyone who acts on the official number. This is partly
    forecasting an assumptions process — panels advise, committees
    adopt with a lag — so each cell pre-specifies the naive baseline
    it must beat (an assumption random walk plus mechanical data
    update).
-3. **Retrodiction with leakage control.** The model is built from
-   data vintages available at a historical date and scored against
-   realized outcomes. Populace's versioned data registry pins
+3. **Retrodiction with leakage control.** Retrodiction builds the
+   model from data vintages available at a historical date and
+   scores it against realized outcomes. Populace's versioned data
+   registry pins
    vintages going forward; pre-registry history is a reconstruction
    problem — survey redesigns, revised administrative tables,
-   re-released panels — so pre-registry backtests are graded as
-   pseudo-vintage, with a published log of deviations from true
-   vintage, and no registry pins specification leakage: a
+   re-released panels — so the protocol grades pre-registry
+   backtests as pseudo-vintage, with a published log of deviations
+   from true vintage, and no registry pins specification leakage: a
    "2005-vintage" model built today knows 2008 happened, and the
    protocol says so. Retrodictive calibration under the historical
    regime does not guarantee calibration under a new one, so
@@ -395,8 +397,8 @@ surfaces implement it.
 4. **Statutory resolution.** Where an output is fixed by law, the
    rules engine computes it exactly, and enacted policy settles the
    corresponding conditional cells immediately.
-5. **Held-out panel moments.** The population layer is scored
-   against moments it was not fit to: earnings-mobility matrices,
+5. **Held-out panel moments.** The protocol scores the population
+   layer against moments it never fit: earnings-mobility matrices,
    autocorrelation and higher-order moments of earnings changes,
    cohort age-earnings profiles, and family-transition rates on
    held-out panel records.
@@ -411,9 +413,9 @@ superseded methods keep their historical scorecards; and stage
 gates in the development roadmap are pre-specified score
 thresholds, not narrative judgments.
 
-One role the protocol cannot supply for itself is the referee. Gate
-thresholds, resolution-rule disputes, and the assumptions library
-are designed to sit with an independent convening body — in the
+One role the protocol cannot supply for itself is the referee. The
+design places gate thresholds, resolution-rule disputes, and the
+assumptions library with an independent convening body — in the
 tradition of the Social Security Advisory Board's Technical
 Panels — rather than with the project's authors, and independent
 validators, including teams with access to restricted linked data
@@ -422,8 +424,8 @@ trust the authors cannot grant themselves.
 
 # First validation domain: U.S. Social Security {#sec-domain}
 
-Social Security is the first domain because it is the hardest
-available test of the machinery: eligibility and benefits depend on
+Social Security is the first domain because eligibility and
+benefits depend on
 the highest thirty-five years of indexed earnings, marital and
 survivorship histories, disability pathways, differential
 mortality, and claiming timing — jointly. A layer that scores well
@@ -434,9 +436,9 @@ of even administrative-data models [@favreault2016], and a wealth
 and pension roadmap is future work, not an assumed extension — and
 in other countries' pension systems.
 
-The domain also sharpens the honesty argument. The canonical
-output of existing Social Security models — the 75-year balance
-and depletion date — is precisely the quantity @sec-validity
+The domain also makes the validity framework concrete. The
+canonical output of existing Social Security models — the 75-year
+balance and depletion date — is the quantity @sec-validity
 declines to forecast. What the open layer offers instead is the
 combination the field lacks: tier-1 distributional incidence of
 reforms with reproducible assumptions; tier-2 near-term components
@@ -459,12 +461,12 @@ an annual state engine with family links and external alignment —
 while departing on openness, trajectory-level weighting, and
 scoring; @dekkerscumpston2012 treat the weighting question
 directly. The Cato model [@catossmodel2026] is the nearest open
-system and demonstrates demand for one.
+system.
 
 The pattern repeats internationally — Pensim2 at the United
 Kingdom's Department for Work and Pensions, MOSART at Statistics
 Norway, MIDAS at Belgium's Federal Planning Bureau [@li2013] —
-with exceptions that mark the direction of travel. INSEE has
+with exceptions. INSEE has
 published the source of Destinie 2 [@blanchet2010destinie], the
 pension model behind France's official projection exercises
 ([github.com/InseeFr/Destinie-2](https://github.com/InseeFr/Destinie-2)).
@@ -499,8 +501,8 @@ motivates the domains-of-validity framework.
 
 # Status and roadmap {#sec-status}
 
-The cross-sectional foundation is in production. The longitudinal
-kernel rules are specified in Populace's charter. This paper is the
+The cross-sectional foundation is in production. Populace's charter
+specifies the longitudinal kernel rules. This paper is the
 project's front door; the supplementary design appendices —
 operational chapters on earnings-history construction, family and
 auxiliary benefits, disability and claiming, mortality and
@@ -511,12 +513,12 @@ the project repository at
 Development proceeds through stage gates defined as score
 thresholds — earnings-history credibility first, family and benefit
 outputs second, forward projection third, productization last —
-with every gate's evidence published whether it passes or fails.
+and every gate's evidence publishes whether it passes or fails.
 
-The layer is open source under the MIT license. Corrections are
-invited, particularly to the benchmark characterizations, and
-contributions merge on the same standard as the authors': improve
-the held-out score.
+The layer is open source under the MIT license. The project
+invites corrections, particularly to the benchmark
+characterizations, and contributions merge on the same standard as
+the authors': improve the held-out score.
 
 # References {.unnumbered}
 
