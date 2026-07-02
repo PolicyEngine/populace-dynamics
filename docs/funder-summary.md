@@ -1,10 +1,16 @@
-# Concept note: an open dynamic model for Social Security
+# Concept note: populace dynamics
 
 ## What this is
 
-This concept note describes the design of an open, dynamic
-microsimulation model of the U.S. Social Security system — built so
-that every claim it makes can be scored against reality.
+This concept note describes the design of an open, longitudinal
+Dynamics layer for `populace`, PolicyEngine's country-agnostic
+microdata stack — validated first on the U.S. Social Security
+system, and built so that every claim it makes can be scored against
+reality. Social Security is the proving ground because it is the
+hardest first domain: lifetime earnings, family structure,
+disability, and claiming all have to be right. The layer itself is
+global by construction, and extends to other countries' pension and
+benefit systems as PolicyEngine's country coverage grows.
 
 The premise is George Box's, taken literally: all models are wrong,
 and a model is useful only if it improves predictions. So this
@@ -365,6 +371,9 @@ makes the scorecard, and the case for trusting it, longer.
 - Not "open-source policy analysis in the abstract" — a focused
   build with a proving ground: Social Security first, public scoring
   first, productization only after the record earns it.
+- Not a single-country project — the layer is country-agnostic
+  infrastructure under open governance, which is also why it cannot
+  be co-owned through bilateral institutional agreements.
 - Not a 75-year oracle — the long horizon ships as a sensitivity
   surface, never a point forecast.
 - Not a brand-name simulator — the machinery is populace's, the
