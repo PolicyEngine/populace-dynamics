@@ -169,7 +169,12 @@ Bureau [@li2013] — but the exceptions mark the direction of travel:
   platform [@openmpp2026], supply generic dynamic-simulation
   engines. Neither ships a calibrated population, a maintained rules
   stack, or a scoring protocol; they solve the engine problem, not
-  the credibility problem.
+  the credibility problem. WIFO's microWELT, built on OpenM++,
+  models welfare transfers comparatively across Austria, Spain,
+  Finland, and the United Kingdom, with a United States variant for
+  labor-force projection [@spielauer2020microwelt] — one open
+  engine carrying a multi-country dynamic model, still without a
+  certified baseline or a scoring program.
 
 What none of these combines is an open codebase, a certified
 calibrated microdata baseline, and a public scoring protocol under

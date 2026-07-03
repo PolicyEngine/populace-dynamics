@@ -500,7 +500,12 @@ open populations: LIAM2 — built at the same Federal Planning Bureau
 that runs MIDAS [@dementen2014liam2] — and OpenM++, an open
 reimplementation of Statistics Canada's Modgen platform
 [@openmpp2026], supply generic simulation engines but ship no
-calibrated population and no rules stack. None of these combines an
+calibrated population and no rules stack. On OpenM++, WIFO's
+microWELT models welfare transfers comparatively across Austria,
+Spain, Finland, and the United Kingdom, with a United States
+variant for labor-force projection [@spielauer2020microwelt] —
+one open engine carrying a multi-country dynamic model. None of
+these combines an
 open codebase with a certified calibrated microdata baseline and a
 public scoring protocol under which claims resolve. SimPaths is
 closest on openness; the difference here is inheritance — a
