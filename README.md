@@ -173,6 +173,35 @@ Social Security-specific validation, rules integration, simulation,
 tests, and public-facing interfaces. The more generic population-layer
 work should live in `populace` or its related packages.
 
+## The harness (phase 0)
+
+Implementation starts with the scoring harness, before any transition
+model — the order the design paper specifies. `src/populace_dynamics/`
+carries:
+
+- `harness/metrics.py`, `harness/holdout.py`, `harness/views.py`:
+  the population-view harness, adapted from
+  [PolicyEngine/imputation-paper](https://github.com/PolicyEngine/imputation-paper)
+  (weighted energy distance, PRDC coverage, weighted C2ST, the
+  tail-sensitive block, person-paired holdout splits).
+- `harness/panel.py`: longitudinal views — `PanelView` projects
+  person-period records into trajectory windows so the geometry
+  blocks run on dynamics under one weight per trajectory, with a
+  person-disjoint noise-floor reference.
+- `harness/moments.py`: the held-out panel-moment battery (mobility
+  matrices, weighted change moments and autocorrelation,
+  age-earnings profiles, zero-spell structure, discrete-state
+  transition rates).
+- `data/psid.py`: fixed-width PSID readers driven by the products'
+  own SPS layouts (see `~/PolicyEngine/psid-data`).
+- [`gates.yaml`](gates.yaml): the pre-registered gate definitions;
+  numeric thresholds lock before the first model run.
+
+```bash
+uv pip install -e ".[dev]"
+uv run pytest -q
+```
+
 ## Building the Documentation
 
 ```bash
