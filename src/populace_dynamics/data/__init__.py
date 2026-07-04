@@ -6,6 +6,13 @@ SPSS setup files) via :mod:`populace_dynamics.data.psid`.
 
 from __future__ import annotations
 
+from populace_dynamics.data.panels import (
+    DEMOGRAPHIC_CONCEPTS,
+    demographic_panel,
+    ind_person_period,
+    label_year,
+    wave_variables,
+)
 from populace_dynamics.data.psid import (
     PRODUCTS,
     find_variables,
@@ -15,6 +22,11 @@ from populace_dynamics.data.psid import (
 )
 
 __all__ = [
+    "DEMOGRAPHIC_CONCEPTS",
+    "demographic_panel",
+    "ind_person_period",
+    "label_year",
+    "wave_variables",
     "PRODUCTS",
     "find_variables",
     "parse_sps_labels",
