@@ -1,0 +1,93 @@
+# Pre-registered gate definitions for Populace dynamics.
+#
+# Pre-registration contract: the battery, views, holdout protocol, and
+# baselines below are fixed BEFORE any transition model runs against
+# them. Numeric thresholds carry `locked: false` until they are set —
+# they must lock before the first model run, and once locked they
+# change only through a public amendment noted in this file's history.
+# Every gate's evidence publishes whether it passes or fails
+# (paper sec. 5, populace.dev/papers/dynamics).
+
+version: 0.1.0
+
+holdout_protocol:
+  unit: person # splits are person-disjoint; windows never leak
+  fraction: 0.2
+  paired_across_methods: true # same split for every candidate
+  seeds: [0, 1, 2, 3, 4]
+
+noise_floor:
+  method: half_vs_half # person-disjoint halves of one holdout
+  reference: populace_dynamics.harness.panel.noise_floor
+
+views:
+  psid_earnings_pairs:
+    product: ind2023er
+    value_columns: [labor_income]
+    covariate_columns: [age, cohort]
+    window: 2
+    period_step: 2 # PSID interviews biennial since 1997
+  psid_earnings_runs:
+    product: ind2023er
+    value_columns: [labor_income]
+    covariate_columns: [age, cohort]
+    window: 3 # spans two transitions; catches chained-model
+    period_step: 2 #   understatement of persistence
+
+geometry_blocks:
+  - energy_distance # strictly proper; weight-sensitive
+  - prdc # coverage is reweighting-invariant
+  - c2st_auc # omnibus distinguishability
+  - tail # w1_over_sd, q90_ratio, q99_ratio on targets
+
+moment_battery:
+  mobility_matrix:
+    horizons: [1, 2]
+    n_bins: 5
+    zero_bin: true
+  change_moments:
+    moments: [mean, sd, skew, kurtosis]
+    by: [cohort]
+    log: true
+  autocorrelation:
+    lags: [1, 2, 5]
+    log: true
+  age_profile:
+    quantiles: [0.1, 0.5, 0.9]
+    by: [cohort]
+  zero_spells: {}
+  transition_rates:
+    state: marital_status
+    product: mh85_23
+
+gates:
+  gate_1:
+    name: earnings-history credibility
+    description: >-
+      The baseline backcast earnings process (populace-fit regime-gated
+      chained weighted QRF) scores against held-out PSID panel moments
+      and geometry blocks, judged relative to the same-panel noise
+      floor, before any family or benefit output ships.
+    baseline: populace-fit chained weighted QRF
+    thresholds:
+      locked: false
+      note: >-
+        Lock numeric thresholds against the noise floor before the
+        first model run; do not run models against unlocked gates.
+  gate_2:
+    name: family and benefit outputs
+    description: >-
+      Marriage, divorce, fertility, and household-composition
+      transitions score against mh85_23, cah85_23, and MX23REL
+      holdouts; benefit formulas earn per-rule "computes exactly"
+      status.
+    thresholds:
+      locked: false
+  gate_3:
+    name: forward projection
+    description: >-
+      Tier-2 near-term components resolve against administrative
+      publications on named resolution rules; retrodiction backtests
+      grade as pseudo-vintage with a published deviation log.
+    thresholds:
+      locked: false
