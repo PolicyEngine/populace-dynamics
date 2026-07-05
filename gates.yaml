@@ -184,8 +184,10 @@ gates:
       # autocorr 0.207 vs reference 0.539 (gap 0.332, 4.7x the 0.07
       # tolerance) and 4yr 0.533 vs 0.657 (gap 0.124, 2.1x the 0.06
       # tolerance), each failing on 5/5 seeds.
-      locked: false
-      pending: maintainer ratification
+      locked: true
+      ratified: 2026-07-05 by maintainer merge of pull request 33
+      # (commit e0c4eb95). Locked thresholds change only through a
+      # public amendment noted in this file's history.
       views:
         psid_family_earnings_pairs:
           geometry:
