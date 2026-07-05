@@ -26,6 +26,20 @@ views:
   # implemented views use its total-annual-earnings recode, reference
   # years 1997/1999/2001, prime age 25-59. Family-file earnings views
   # extend coverage once those products are staged.
+  # Amended pre-lock 2026-07-05: family files staged; the primary
+  # earnings view now uses head/spouse labor income attached to
+  # persons (reference years 1998-2022 biennial), superseding the
+  # three-wave individual recode view, which stays as a secondary
+  # check.
+  psid_family_earnings_pairs:
+    loader: populace_dynamics.data.family.family_earnings_panel
+    value_columns: [earnings]
+    covariate_columns: [age]
+    age_range: [25, 59]
+    period_range: [1998, 2022]
+    window: 2
+    period_step: 2
+    noise_floor_run: runs/noise_floor_psid_family_9822.json
   psid_earnings_pairs:
     product: ind2023er
     loader: populace_dynamics.data.panels.individual_earnings_panel

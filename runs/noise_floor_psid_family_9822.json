@@ -1,0 +1,65 @@
+{
+  "run": "noise_floor_psid_family_9822",
+  "data": "PSID family-file head/spouse labor income attached to persons via interview number and relationship; reference years 1998-2022 biennial, prime age 25-59, positive weights",
+  "n_person_periods": 126867,
+  "n_persons": 22300,
+  "n_windows": 101970,
+  "view": {
+    "window": 2,
+    "period_step": 2,
+    "value_columns": [
+      "earnings"
+    ],
+    "covariates": [
+      "age"
+    ]
+  },
+  "noise_floor_seeds_0_4": {
+    "c2st_auc": {
+      "mean": 0.5048960505897212,
+      "sd": 0.002764276616744591
+    },
+    "energy_distance": {
+      "mean": 0.0022815820100301476,
+      "sd": 0.0011961384609422154
+    },
+    "prdc_coverage": {
+      "mean": 0.96884765625,
+      "sd": 0.006568426453437592
+    },
+    "prdc_density": {
+      "mean": 1.09224609375,
+      "sd": 0.020585474229844143
+    },
+    "prdc_precision": {
+      "mean": 0.9919921875,
+      "sd": 0.0019918044974971817
+    },
+    "prdc_recall": {
+      "mean": 0.992578125,
+      "sd": 0.0033744438560880854
+    },
+    "q90_ratio.earnings_t1": {
+      "mean": 0.9973204867240485,
+      "sd": 0.01599808269523258
+    },
+    "q99_ratio.earnings_t1": {
+      "mean": 1.0032524121455362,
+      "sd": 0.07573825210748034
+    },
+    "w1_over_sd.earnings_t1": {
+      "mean": 0.018437882541720733,
+      "sd": 0.002781725724495522
+    }
+  },
+  "battery_reference": {
+    "autocorr_log_2yr": 0.7301235102305604,
+    "autocorr_log_4yr": 0.657166897978905,
+    "autocorr_log_10yr": 0.538879427219318,
+    "mobility_diagonal_mean": 0.6040519205702761,
+    "zero_persistence": 0.7010206920609328,
+    "entry_rate": 0.06672228841044435,
+    "exit_rate": 0.29897930793906724,
+    "mean_spell_length": 2.087148386008407
+  }
+}
