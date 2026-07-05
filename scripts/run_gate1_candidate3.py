@@ -88,7 +88,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import nnls
 
 # The protocol mechanics and stages 0, 2, 3 are IMPORTED from the merged
 # candidate-2 runner so that the split, residualiser, anchors, perm-draw
@@ -127,6 +126,7 @@ from run_gate1_candidate2 import (  # noqa: F401 (re-exported for tests)
     reproduce_battery_reference,
     split_holdout_train,
 )
+from scipy.optimize import nnls
 
 from populace_dynamics.harness import panel as hpanel
 
