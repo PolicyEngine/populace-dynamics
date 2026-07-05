@@ -172,3 +172,74 @@ def test_real_panel_feeds_panel_view_projection():
     # Ages advance about two years across a biennial window.
     diffs = points[:, 1] - points[:, 0]
     assert np.median(diffs) == 2
+
+
+@pytest.fixture()
+def mislabeled_earnings_dir(tmp_path: Path) -> Path:
+    """An ind2023er product whose earnings variable label is wrong."""
+    product = tmp_path / "ind2023er"
+    product.mkdir()
+    sps = (
+        "DATA LIST FILE = PSID FIXED /\n"
+        "      ER30001         1 - 2         ER30002         3 - 5\n"
+        "      ER33537N        6 - 12\n"
+        ".\n\nVARIABLE LABELS\n"
+        '   ER30001      "1968 INTERVIEW NUMBER"\n'
+        '   ER30002      "PERSON NUMBER   68"\n'
+        '   ER33537N     "TOTAL ANNUAL EARNINGS IN 1998         99"\n'
+        ".\n"
+    )
+    (product / "IND2023ER.sps").write_text(sps)
+    (product / "IND2023ER.txt").write_text(" 1  1  50000\n")
+    return tmp_path
+
+
+def test_earnings_panel_rejects_mislabeled_release(
+    mislabeled_earnings_dir: Path,
+):
+    with pytest.raises(ValueError, match="release layout may have changed"):
+        panels.individual_earnings_panel(data_dir=mislabeled_earnings_dir)
+
+
+@needs_real_data
+def test_real_individual_earnings_panel():
+    panel = panels.individual_earnings_panel()
+    assert sorted(panel.period.unique()) == [1997, 1999, 2001]
+    # Verified 61,066 rows over 24,429 persons on the 2023 release.
+    assert len(panel) > 55_000
+    assert panel.person_id.nunique() > 20_000
+    # Missing sentinel filtered; weights positive.
+    assert panel.earnings.max() < 9_999_999
+    assert (panel.weight > 0).all()
+    # Zeros retained: the nonemployment margin stays scoreable.
+    assert (panel.earnings == 0).mean() > 0.1
+
+
+@needs_real_data
+def test_real_earnings_noise_floor_reproduces_committed_run():
+    """The committed first-noise-floor artifact reproduces at seed 0."""
+    import json
+
+    from populace_dynamics.harness import panel as hpanel
+
+    committed = json.loads(
+        Path("runs/noise_floor_psid_earnings_9701.json").read_text()
+    )
+    full = panels.individual_earnings_panel()
+    prime = full[(full.age >= 25) & (full.age <= 59)]
+    view = hpanel.PanelView(
+        name="psid_earnings_pairs_9701",
+        id_column="person_id",
+        period_column="period",
+        value_columns=("earnings",),
+        covariate_columns=("age",),
+        weight_column="weight",
+        window=2,
+        period_step=2,
+    )
+    floor = hpanel.noise_floor(prime, view, seed=0)
+    recorded = committed["noise_floor_seeds_0_4"]
+    # Seed-0 values sit within the recorded 5-seed spread.
+    for key in ("c2st_auc", "prdc_coverage"):
+        stats = recorded[key]
+        assert abs(floor[key] - stats["mean"]) < max(4 * stats["sd"], 0.03)

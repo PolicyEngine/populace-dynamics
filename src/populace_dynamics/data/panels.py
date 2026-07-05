@@ -45,6 +45,7 @@ __all__ = [
     "wave_variables",
     "ind_person_period",
     "demographic_panel",
+    "individual_earnings_panel",
     "DEMOGRAPHIC_CONCEPTS",
 ]
 
@@ -71,6 +72,23 @@ DEMOGRAPHIC_CONCEPTS: dict[str, tuple[str, ...]] = {
 }
 
 _IN_FAMILY_SEQUENCE = (1, 20)
+
+#: The individual file's one uniform earnings series is a discontinued
+#: "total annual earnings" recode collected in three biennial waves.
+#: Each variable is *labeled* by its collection wave but measures the
+#: prior odd year's earnings, so keying on the label wave would
+#: mislabel every observation by two years. The mapping is
+#: earnings reference year -> (variable code, collection wave); both
+#: are verified against the file's own labels at read time.
+_INDIVIDUAL_EARNINGS_SERIES: dict[int, tuple[str, int]] = {
+    1997: ("ER33537N", 1999),
+    1999: ("ER33628N", 2001),
+    2001: ("ER33728N", 2003),
+}
+
+#: PSID recodes reserve a large sentinel for missing earnings; the
+#: total-annual-earnings recodes top out well below it.
+_EARNINGS_MISSING = 9_999_999
 
 
 def label_year(label: str) -> int | None:
@@ -248,3 +266,94 @@ def demographic_panel(
         present = (panel["sequence"] >= low) & (panel["sequence"] <= high)
         panel = panel.loc[present].reset_index(drop=True)
     return panel
+
+
+def individual_earnings_panel(
+    *,
+    data_dir: Path | None = None,
+    nrows: int | None = None,
+    positive_only: bool = False,
+) -> pd.DataFrame:
+    """Real biennial individual earnings, reference years 1997-2001.
+
+    Built from the cross-year individual file's one uniform earnings
+    series (:data:`_INDIVIDUAL_EARNINGS_SERIES`). Each variable is
+    labeled by its collection wave but measures the prior odd year's
+    earnings, so ``period`` is set to the earnings reference year, and
+    ``age`` and ``weight`` are read from the same collection wave.
+    Every variable code is verified against the file's own label
+    before use, so a different release fails loudly rather than
+    silently mislabeling.
+
+    Columns: ``person_id``, ``period`` (1997/1999/2001),
+    ``earnings`` (missing sentinel dropped), ``age``, ``weight``.
+    Rows with in-universe zero earnings are kept unless
+    ``positive_only`` is set — zeros are the nonemployment margin the
+    scoring protocol's zero-inflation gate targets.
+
+    This is the first *real earnings* input to the noise floor. It is
+    a thin three-wave series by design; the full head/wife earnings
+    history across every wave lives in the per-wave family files (see
+    the staged-data README).
+    """
+    sps_path = (
+        psid._resolve_data_dir(data_dir)
+        / psid.PRODUCTS["ind2023er"][0]
+        / psid.PRODUCTS["ind2023er"][2]
+    )
+    labels = psid.parse_sps_labels(sps_path)
+    age_by_wave = wave_variables(labels, r"^AGE OF INDIVIDUAL")
+    weight_by_wave: dict[int, str] = {}
+    for pattern in DEMOGRAPHIC_CONCEPTS["weight"]:
+        for year, name in wave_variables(labels, pattern).items():
+            weight_by_wave.setdefault(year, name)
+
+    plan: list[tuple[int, str, str, str]] = []
+    for ref_year, (earn_var, wave) in _INDIVIDUAL_EARNINGS_SERIES.items():
+        actual = labels.get(earn_var, "")
+        if f"TOTAL ANNUAL EARNINGS IN {ref_year}" not in actual:
+            raise ValueError(
+                f"Earnings variable {earn_var} for reference year "
+                f"{ref_year} does not match the expected label; found "
+                f"{actual!r}. The release layout may have changed."
+            )
+        if wave not in age_by_wave or wave not in weight_by_wave:
+            raise ValueError(
+                f"Collection wave {wave} lacks an age or weight "
+                f"variable for the {ref_year} earnings series."
+            )
+        plan.append(
+            (ref_year, earn_var, age_by_wave[wave], weight_by_wave[wave])
+        )
+
+    columns = [_ID_1968_INTERVIEW, _ID_PERSON_NUMBER]
+    for _, earn_var, age_var, weight_var in plan:
+        columns += [earn_var, age_var, weight_var]
+    wide = psid.read_psid(
+        "ind2023er", columns=columns, data_dir=data_dir, nrows=nrows
+    )
+    person_id = wide[_ID_1968_INTERVIEW].astype("int64") * 1000 + wide[
+        _ID_PERSON_NUMBER
+    ].astype("int64")
+
+    frames = []
+    for ref_year, earn_var, age_var, weight_var in plan:
+        frame = pd.DataFrame(
+            {
+                "person_id": person_id,
+                "period": ref_year,
+                "earnings": wide[earn_var].astype("float64"),
+                "age": wide[age_var].astype("int64"),
+                "weight": wide[weight_var].astype("float64"),
+            }
+        )
+        frames.append(frame)
+    long = pd.concat(frames, ignore_index=True)
+
+    # Drop the missing sentinel and out-of-universe zero-weight rows;
+    # keep in-universe zero earnings as the nonemployment margin.
+    keep = (long["earnings"] < _EARNINGS_MISSING) & (long["weight"] > 0)
+    if positive_only:
+        keep &= long["earnings"] > 0
+    long = long.loc[keep]
+    return long.sort_values(["person_id", "period"]).reset_index(drop=True)

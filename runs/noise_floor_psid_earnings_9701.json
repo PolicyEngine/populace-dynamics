@@ -1,0 +1,63 @@
+{
+  "run": "noise_floor_psid_earnings_9701",
+  "data": "PSID cross-year individual total annual earnings, reference years 1997/1999/2001, prime age 25-59, missing sentinel and zero weights dropped",
+  "n_person_periods": 27628,
+  "n_persons": 11675,
+  "n_windows": 15535,
+  "view": {
+    "window": 2,
+    "period_step": 2,
+    "value_columns": [
+      "earnings"
+    ],
+    "covariates": [
+      "age"
+    ]
+  },
+  "noise_floor_seeds_0_4": {
+    "c2st_auc": {
+      "mean": 0.5091284005201117,
+      "sd": 0.007004178779685999
+    },
+    "energy_distance": {
+      "mean": 0.003266433700304816,
+      "sd": 0.0017816778660069922
+    },
+    "prdc_coverage": {
+      "mean": 0.9361328125,
+      "sd": 0.009379068127767943
+    },
+    "prdc_density": {
+      "mean": 1.0618945312499999,
+      "sd": 0.022559599882865784
+    },
+    "prdc_precision": {
+      "mean": 0.985546875,
+      "sd": 0.003661783839697788
+    },
+    "prdc_recall": {
+      "mean": 0.9857421875,
+      "sd": 0.0028370779387370997
+    },
+    "q90_ratio.earnings_t1": {
+      "mean": 1.0227608490433222,
+      "sd": 0.04219012055277024
+    },
+    "q99_ratio.earnings_t1": {
+      "mean": 1.1007784520851267,
+      "sd": 0.06367124691770565
+    },
+    "w1_over_sd.earnings_t1": {
+      "mean": 0.03723590261267403,
+      "sd": 0.011524421811853628
+    }
+  },
+  "battery_reference": {
+    "autocorr_log_2yr": 0.7193920550537918,
+    "mobility_diagonal_mean": 0.5751166390203966,
+    "zero_persistence": 0.5755755621123082,
+    "entry_rate": 0.07726031284081379,
+    "exit_rate": 0.4247687867048741,
+    "mean_spell_length": 1.4528555971146242
+  }
+}
