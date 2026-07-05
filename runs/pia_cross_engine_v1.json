@@ -1,0 +1,2445 @@
+{
+  "run": "pia_cross_engine_v1",
+  "description": "Cross-engine PIA agreement: the Axiom rules engine (Rust, lifetime execution) versus the populace_dynamics.ss Python oracle, over synthetic earnings histories driven through the full 42 USC 415 chain. Every parameter is oracle-sourced (policyengine-us); the engine RuleSpec module is generated programmatically. Pre-declared merge trigger for axiom-rules-engine#68 and rulespec-us#541.",
+  "n_workers": 240,
+  "cohorts": {
+    "2020": {
+      "eligibility_year": 2020,
+      "birth_year": 1958
+    },
+    "2026": {
+      "eligibility_year": 2026,
+      "birth_year": 1964
+    }
+  },
+  "worker_design": "120 workers per cohort (eligibility [2020, 2026]), deterministic seed 20200626. Shapes: all-zeros and astronomical edges; flat low/median/high; rising; declining; spiky; zero-earning spells; wage-base-clipped in many years; three bend-point straddlers (below first, between, above second); and pseudo-random careers drawn from those families with optional zero spells. Each worker's history is nominal earnings for ages 22-62 (41 calendar years, final year = the age-62 eligibility year, so the eligibility-year bend points resolve at the last supplied period).",
+  "engine_revision": "ffef7b4",
+  "pe_us_revision": "bf71be3b",
+  "seed": 20200626,
+  "agreement_tolerance_dollars": 0.005,
+  "max_abs_diff_dollars": 0.0,
+  "n_exact_to_cent": 240,
+  "exercises": [
+    "sum_top_n_over_periods (over-periods reduction, 415(b))",
+    "derived person-varying n (computation-year count) feeding the reduction",
+    "per-period parameters inside the reduction (wage base, NAWI as step functions)",
+    "invariant-bound per-person inputs (year attained 21/62/60, NAWI at indexing year)",
+    "period-indexed bend points resolved at the last supplied period",
+    "415(g) round-down-to-next-lower-dime floor"
+  ],
+  "notes": "n = 415(b)(2)(B) computation-year count; elapsed = year62 - max(1950, year21) - 1 (= 40 for both cohorts) minus 5 dropout years = 35, matching the oracle's hard-coded 35. The engine's dime floor omits the oracle's 1e-9 epsilon; verified inert for integer AIME x integer bend points by an exhaustive sweep in tests/ss/test_cross_engine.py.",
+  "per_cohort": {
+    "2020": {
+      "n": 120,
+      "mean_pia_oracle": 2757.8583,
+      "mean_pia_engine": 2757.8583
+    },
+    "2026": {
+      "n": 120,
+      "mean_pia_oracle": 3451.3958,
+      "mean_pia_engine": 3451.3958
+    }
+  },
+  "workers": [
+    {
+      "id": "2020-000",
+      "cohort": 2020,
+      "shape": "all_zeros",
+      "aime_oracle": 0,
+      "aime_engine": 0.0,
+      "pia_oracle": 0.0,
+      "pia_engine": 0.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-001",
+      "cohort": 2020,
+      "shape": "astronomical",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-002",
+      "cohort": 2020,
+      "shape": "flat_low",
+      "aime_oracle": 3164,
+      "aime_engine": 3164.0,
+      "pia_oracle": 1569.2,
+      "pia_engine": 1569.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-003",
+      "cohort": 2020,
+      "shape": "flat_median",
+      "aime_oracle": 7981,
+      "aime_engine": 7981.0,
+      "pia_oracle": 2737.4,
+      "pia_engine": 2737.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-004",
+      "cohort": 2020,
+      "shape": "flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-005",
+      "cohort": 2020,
+      "shape": "rising",
+      "aime_oracle": 9901,
+      "aime_engine": 9901.0,
+      "pia_oracle": 3025.4,
+      "pia_engine": 3025.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-006",
+      "cohort": 2020,
+      "shape": "declining",
+      "aime_oracle": 7778,
+      "aime_engine": 7778.0,
+      "pia_oracle": 2706.9,
+      "pia_engine": 2706.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-007",
+      "cohort": 2020,
+      "shape": "spiky",
+      "aime_oracle": 4856,
+      "aime_engine": 4856.0,
+      "pia_oracle": 2110.7,
+      "pia_engine": 2110.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-008",
+      "cohort": 2020,
+      "shape": "zero_spell",
+      "aime_oracle": 6478,
+      "aime_engine": 6478.0,
+      "pia_oracle": 2511.9,
+      "pia_engine": 2511.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-009",
+      "cohort": 2020,
+      "shape": "clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-010",
+      "cohort": 2020,
+      "shape": "bend_below_first",
+      "aime_oracle": 576,
+      "aime_engine": 576.0,
+      "pia_oracle": 518.4,
+      "pia_engine": 518.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-011",
+      "cohort": 2020,
+      "shape": "bend_between",
+      "aime_oracle": 3372,
+      "aime_engine": 3372.0,
+      "pia_oracle": 1635.8,
+      "pia_engine": 1635.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-012",
+      "cohort": 2020,
+      "shape": "bend_above_second",
+      "aime_oracle": 6584,
+      "aime_engine": 6584.0,
+      "pia_oracle": 2527.8,
+      "pia_engine": 2527.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-013",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-014",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10698,
+      "aime_engine": 10698.0,
+      "pia_oracle": 3144.9,
+      "pia_engine": 3144.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-015",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6696,
+      "aime_engine": 6696.0,
+      "pia_oracle": 2544.6,
+      "pia_engine": 2544.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-016",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 9356,
+      "aime_engine": 9356.0,
+      "pia_oracle": 2943.6,
+      "pia_engine": 2943.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-017",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 8250,
+      "aime_engine": 8250.0,
+      "pia_oracle": 2777.7,
+      "pia_engine": 2777.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-018",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10658,
+      "aime_engine": 10658.0,
+      "pia_oracle": 3138.9,
+      "pia_engine": 3138.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-019",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-020",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 8602,
+      "aime_engine": 8602.0,
+      "pia_oracle": 2830.5,
+      "pia_engine": 2830.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-021",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-022",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 7486,
+      "aime_engine": 7486.0,
+      "pia_oracle": 2663.1,
+      "pia_engine": 2663.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-023",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 1204,
+      "aime_engine": 1204.0,
+      "pia_oracle": 942.0,
+      "pia_engine": 942.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-024",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-025",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10672,
+      "aime_engine": 10672.0,
+      "pia_oracle": 3141.0,
+      "pia_engine": 3141.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-026",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 9538,
+      "aime_engine": 9538.0,
+      "pia_oracle": 2970.9,
+      "pia_engine": 2970.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-027",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10704,
+      "aime_engine": 10704.0,
+      "pia_oracle": 3145.8,
+      "pia_engine": 3145.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-028",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10716,
+      "aime_engine": 10716.0,
+      "pia_oracle": 3147.6,
+      "pia_engine": 3147.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-029",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6410,
+      "aime_engine": 6410.0,
+      "pia_oracle": 2501.7,
+      "pia_engine": 2501.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-030",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-031",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10677,
+      "aime_engine": 10677.0,
+      "pia_oracle": 3141.8,
+      "pia_engine": 3141.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-032",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10670,
+      "aime_engine": 10670.0,
+      "pia_oracle": 3140.7,
+      "pia_engine": 3140.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-033",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 2021,
+      "aime_engine": 2021.0,
+      "pia_oracle": 1203.5,
+      "pia_engine": 1203.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-034",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-035",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10599,
+      "aime_engine": 10599.0,
+      "pia_oracle": 3130.1,
+      "pia_engine": 3130.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-036",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10593,
+      "aime_engine": 10593.0,
+      "pia_oracle": 3129.2,
+      "pia_engine": 3129.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-037",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-038",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 8270,
+      "aime_engine": 8270.0,
+      "pia_oracle": 2780.7,
+      "pia_engine": 2780.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-039",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-040",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 8402,
+      "aime_engine": 8402.0,
+      "pia_oracle": 2800.5,
+      "pia_engine": 2800.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-041",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8538,
+      "aime_engine": 8538.0,
+      "pia_oracle": 2820.9,
+      "pia_engine": 2820.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-042",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 9561,
+      "aime_engine": 9561.0,
+      "pia_oracle": 2974.4,
+      "pia_engine": 2974.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-043",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 9703,
+      "aime_engine": 9703.0,
+      "pia_oracle": 2995.7,
+      "pia_engine": 2995.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-044",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-045",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 8387,
+      "aime_engine": 8387.0,
+      "pia_oracle": 2798.3,
+      "pia_engine": 2798.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-046",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-047",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10688,
+      "aime_engine": 10688.0,
+      "pia_oracle": 3143.4,
+      "pia_engine": 3143.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-048",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 1974,
+      "aime_engine": 1974.0,
+      "pia_oracle": 1188.4,
+      "pia_engine": 1188.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-049",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10003,
+      "aime_engine": 10003.0,
+      "pia_oracle": 3040.7,
+      "pia_engine": 3040.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-050",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 9336,
+      "aime_engine": 9336.0,
+      "pia_oracle": 2940.6,
+      "pia_engine": 2940.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-051",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 10677,
+      "aime_engine": 10677.0,
+      "pia_oracle": 3141.8,
+      "pia_engine": 3141.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-052",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-053",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-054",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 7670,
+      "aime_engine": 7670.0,
+      "pia_oracle": 2690.7,
+      "pia_engine": 2690.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-055",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-056",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 9916,
+      "aime_engine": 9916.0,
+      "pia_oracle": 3027.6,
+      "pia_engine": 3027.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-057",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 5014,
+      "aime_engine": 5014.0,
+      "pia_oracle": 2161.2,
+      "pia_engine": 2161.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-058",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9099,
+      "aime_engine": 9099.0,
+      "pia_oracle": 2905.1,
+      "pia_engine": 2905.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-059",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-060",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 8928,
+      "aime_engine": 8928.0,
+      "pia_oracle": 2879.4,
+      "pia_engine": 2879.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-061",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 6495,
+      "aime_engine": 6495.0,
+      "pia_oracle": 2514.5,
+      "pia_engine": 2514.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-062",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 5242,
+      "aime_engine": 5242.0,
+      "pia_oracle": 2234.2,
+      "pia_engine": 2234.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-063",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-064",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-065",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10638,
+      "aime_engine": 10638.0,
+      "pia_oracle": 3135.9,
+      "pia_engine": 3135.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-066",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 4427,
+      "aime_engine": 4427.0,
+      "pia_oracle": 1973.4,
+      "pia_engine": 1973.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-067",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-068",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 8995,
+      "aime_engine": 8995.0,
+      "pia_oracle": 2889.5,
+      "pia_engine": 2889.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-069",
+      "cohort": 2020,
+      "shape": "rand_flat_median",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-070",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 10483,
+      "aime_engine": 10483.0,
+      "pia_oracle": 3112.7,
+      "pia_engine": 3112.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-071",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 5740,
+      "aime_engine": 5740.0,
+      "pia_oracle": 2393.6,
+      "pia_engine": 2393.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-072",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-073",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10309,
+      "aime_engine": 10309.0,
+      "pia_oracle": 3086.6,
+      "pia_engine": 3086.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-074",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 7970,
+      "aime_engine": 7970.0,
+      "pia_oracle": 2735.7,
+      "pia_engine": 2735.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-075",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 6921,
+      "aime_engine": 6921.0,
+      "pia_oracle": 2578.4,
+      "pia_engine": 2578.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-076",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10700,
+      "aime_engine": 10700.0,
+      "pia_oracle": 3145.2,
+      "pia_engine": 3145.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-077",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 3570,
+      "aime_engine": 3570.0,
+      "pia_oracle": 1699.2,
+      "pia_engine": 1699.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-078",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 5005,
+      "aime_engine": 5005.0,
+      "pia_oracle": 2158.4,
+      "pia_engine": 2158.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-079",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-080",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-081",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9443,
+      "aime_engine": 9443.0,
+      "pia_oracle": 2956.7,
+      "pia_engine": 2956.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-082",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10668,
+      "aime_engine": 10668.0,
+      "pia_oracle": 3140.4,
+      "pia_engine": 3140.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-083",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-084",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10712,
+      "aime_engine": 10712.0,
+      "pia_oracle": 3147.0,
+      "pia_engine": 3147.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-085",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8169,
+      "aime_engine": 8169.0,
+      "pia_oracle": 2765.6,
+      "pia_engine": 2765.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-086",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-087",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-088",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10572,
+      "aime_engine": 10572.0,
+      "pia_oracle": 3126.0,
+      "pia_engine": 3126.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-089",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-090",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 7431,
+      "aime_engine": 7431.0,
+      "pia_oracle": 2654.9,
+      "pia_engine": 2654.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-091",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-092",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 3731,
+      "aime_engine": 3731.0,
+      "pia_oracle": 1750.7,
+      "pia_engine": 1750.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-093",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10660,
+      "aime_engine": 10660.0,
+      "pia_oracle": 3139.2,
+      "pia_engine": 3139.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-094",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-095",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8754,
+      "aime_engine": 8754.0,
+      "pia_oracle": 2853.3,
+      "pia_engine": 2853.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-096",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-097",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10101,
+      "aime_engine": 10101.0,
+      "pia_oracle": 3055.4,
+      "pia_engine": 3055.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-098",
+      "cohort": 2020,
+      "shape": "rand_flat_median",
+      "aime_oracle": 3518,
+      "aime_engine": 3518.0,
+      "pia_oracle": 1682.5,
+      "pia_engine": 1682.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-099",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10623,
+      "aime_engine": 10623.0,
+      "pia_oracle": 3133.7,
+      "pia_engine": 3133.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-100",
+      "cohort": 2020,
+      "shape": "rand_flat_median",
+      "aime_oracle": 10625,
+      "aime_engine": 10625.0,
+      "pia_oracle": 3134.0,
+      "pia_engine": 3134.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-101",
+      "cohort": 2020,
+      "shape": "rand_rising",
+      "aime_oracle": 5183,
+      "aime_engine": 5183.0,
+      "pia_oracle": 2215.3,
+      "pia_engine": 2215.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-102",
+      "cohort": 2020,
+      "shape": "rand_spiky",
+      "aime_oracle": 5495,
+      "aime_engine": 5495.0,
+      "pia_oracle": 2315.2,
+      "pia_engine": 2315.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-103",
+      "cohort": 2020,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-104",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 9962,
+      "aime_engine": 9962.0,
+      "pia_oracle": 3034.5,
+      "pia_engine": 3034.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-105",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6330,
+      "aime_engine": 6330.0,
+      "pia_oracle": 2489.7,
+      "pia_engine": 2489.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-106",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-107",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9367,
+      "aime_engine": 9367.0,
+      "pia_oracle": 2945.3,
+      "pia_engine": 2945.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-108",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-109",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 9922,
+      "aime_engine": 9922.0,
+      "pia_oracle": 3028.5,
+      "pia_engine": 3028.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-110",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-111",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6065,
+      "aime_engine": 6065.0,
+      "pia_oracle": 2450.0,
+      "pia_engine": 2450.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-112",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 8351,
+      "aime_engine": 8351.0,
+      "pia_oracle": 2792.9,
+      "pia_engine": 2792.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-113",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9502,
+      "aime_engine": 9502.0,
+      "pia_oracle": 2965.5,
+      "pia_engine": 2965.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-114",
+      "cohort": 2020,
+      "shape": "rand_flat_high",
+      "aime_oracle": 3166,
+      "aime_engine": 3166.0,
+      "pia_oracle": 1569.9,
+      "pia_engine": 1569.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-115",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 2326,
+      "aime_engine": 2326.0,
+      "pia_oracle": 1301.1,
+      "pia_engine": 1301.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-116",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 2377,
+      "aime_engine": 2377.0,
+      "pia_oracle": 1317.4,
+      "pia_engine": 1317.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-117",
+      "cohort": 2020,
+      "shape": "rand_declining",
+      "aime_oracle": 10720,
+      "aime_engine": 10720.0,
+      "pia_oracle": 3148.2,
+      "pia_engine": 3148.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-118",
+      "cohort": 2020,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 10708,
+      "aime_engine": 10708.0,
+      "pia_oracle": 3146.4,
+      "pia_engine": 3146.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2020-119",
+      "cohort": 2020,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6858,
+      "aime_engine": 6858.0,
+      "pia_oracle": 2568.9,
+      "pia_engine": 2568.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-000",
+      "cohort": 2026,
+      "shape": "all_zeros",
+      "aime_oracle": 0,
+      "aime_engine": 0.0,
+      "pia_oracle": 0.0,
+      "pia_engine": 0.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-001",
+      "cohort": 2026,
+      "shape": "astronomical",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-002",
+      "cohort": 2026,
+      "shape": "flat_low",
+      "aime_oracle": 3366,
+      "aime_engine": 3366.0,
+      "pia_oracle": 1823.0,
+      "pia_engine": 1823.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-003",
+      "cohort": 2026,
+      "shape": "flat_median",
+      "aime_oracle": 9456,
+      "aime_engine": 9456.0,
+      "pia_oracle": 3481.6,
+      "pia_engine": 3481.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-004",
+      "cohort": 2026,
+      "shape": "flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-005",
+      "cohort": 2026,
+      "shape": "rising",
+      "aime_oracle": 10747,
+      "aime_engine": 10747.0,
+      "pia_oracle": 3675.2,
+      "pia_engine": 3675.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-006",
+      "cohort": 2026,
+      "shape": "declining",
+      "aime_oracle": 9690,
+      "aime_engine": 9690.0,
+      "pia_oracle": 3516.7,
+      "pia_engine": 3516.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-007",
+      "cohort": 2026,
+      "shape": "spiky",
+      "aime_oracle": 6381,
+      "aime_engine": 6381.0,
+      "pia_oracle": 2787.8,
+      "pia_engine": 2787.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-008",
+      "cohort": 2026,
+      "shape": "zero_spell",
+      "aime_oracle": 7437,
+      "aime_engine": 7437.0,
+      "pia_oracle": 3125.7,
+      "pia_engine": 3125.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-009",
+      "cohort": 2026,
+      "shape": "clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-010",
+      "cohort": 2026,
+      "shape": "bend_below_first",
+      "aime_oracle": 772,
+      "aime_engine": 772.0,
+      "pia_oracle": 694.8,
+      "pia_engine": 694.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-011",
+      "cohort": 2026,
+      "shape": "bend_between",
+      "aime_oracle": 4518,
+      "aime_engine": 4518.0,
+      "pia_oracle": 2191.6,
+      "pia_engine": 2191.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-012",
+      "cohort": 2026,
+      "shape": "bend_above_second",
+      "aime_oracle": 8548,
+      "aime_engine": 8548.0,
+      "pia_oracle": 3345.4,
+      "pia_engine": 3345.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-013",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 3017,
+      "aime_engine": 3017.0,
+      "pia_oracle": 1711.3,
+      "pia_engine": 1711.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-014",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 5024,
+      "aime_engine": 5024.0,
+      "pia_oracle": 2353.5,
+      "pia_engine": 2353.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-015",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 13774,
+      "aime_engine": 13774.0,
+      "pia_oracle": 4129.3,
+      "pia_engine": 4129.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-016",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-017",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8892,
+      "aime_engine": 8892.0,
+      "pia_oracle": 3397.0,
+      "pia_engine": 3397.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-018",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-019",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 12345,
+      "aime_engine": 12345.0,
+      "pia_oracle": 3914.9,
+      "pia_engine": 3914.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-020",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14401,
+      "aime_engine": 14401.0,
+      "pia_oracle": 4223.3,
+      "pia_engine": 4223.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-021",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8068,
+      "aime_engine": 8068.0,
+      "pia_oracle": 3273.4,
+      "pia_engine": 3273.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-022",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 8974,
+      "aime_engine": 8974.0,
+      "pia_oracle": 3409.3,
+      "pia_engine": 3409.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-023",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 11563,
+      "aime_engine": 11563.0,
+      "pia_oracle": 3797.6,
+      "pia_engine": 3797.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-024",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 7160,
+      "aime_engine": 7160.0,
+      "pia_oracle": 3037.0,
+      "pia_engine": 3037.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-025",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-026",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 11735,
+      "aime_engine": 11735.0,
+      "pia_oracle": 3823.4,
+      "pia_engine": 3823.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-027",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14384,
+      "aime_engine": 14384.0,
+      "pia_oracle": 4220.8,
+      "pia_engine": 4220.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-028",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 8895,
+      "aime_engine": 8895.0,
+      "pia_oracle": 3397.4,
+      "pia_engine": 3397.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-029",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 10504,
+      "aime_engine": 10504.0,
+      "pia_oracle": 3638.8,
+      "pia_engine": 3638.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-030",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 14042,
+      "aime_engine": 14042.0,
+      "pia_oracle": 4169.5,
+      "pia_engine": 4169.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-031",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 10443,
+      "aime_engine": 10443.0,
+      "pia_oracle": 3629.6,
+      "pia_engine": 3629.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-032",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 4832,
+      "aime_engine": 4832.0,
+      "pia_oracle": 2292.1,
+      "pia_engine": 2292.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-033",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 1648,
+      "aime_engine": 1648.0,
+      "pia_oracle": 1273.2,
+      "pia_engine": 1273.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-034",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-035",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14372,
+      "aime_engine": 14372.0,
+      "pia_oracle": 4219.0,
+      "pia_engine": 4219.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-036",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-037",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 12380,
+      "aime_engine": 12380.0,
+      "pia_oracle": 3920.2,
+      "pia_engine": 3920.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-038",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 9283,
+      "aime_engine": 9283.0,
+      "pia_oracle": 3455.6,
+      "pia_engine": 3455.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-039",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 8342,
+      "aime_engine": 8342.0,
+      "pia_oracle": 3314.5,
+      "pia_engine": 3314.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-040",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-041",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 7195,
+      "aime_engine": 7195.0,
+      "pia_oracle": 3048.2,
+      "pia_engine": 3048.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-042",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 4135,
+      "aime_engine": 4135.0,
+      "pia_oracle": 2069.0,
+      "pia_engine": 2069.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-043",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 7346,
+      "aime_engine": 7346.0,
+      "pia_oracle": 3096.6,
+      "pia_engine": 3096.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-044",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 14355,
+      "aime_engine": 14355.0,
+      "pia_oracle": 4216.4,
+      "pia_engine": 4216.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-045",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 3163,
+      "aime_engine": 3163.0,
+      "pia_oracle": 1758.0,
+      "pia_engine": 1758.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-046",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 7664,
+      "aime_engine": 7664.0,
+      "pia_oracle": 3198.3,
+      "pia_engine": 3198.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-047",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 6869,
+      "aime_engine": 6869.0,
+      "pia_oracle": 2943.9,
+      "pia_engine": 2943.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-048",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-049",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14371,
+      "aime_engine": 14371.0,
+      "pia_oracle": 4218.8,
+      "pia_engine": 4218.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-050",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 11033,
+      "aime_engine": 11033.0,
+      "pia_oracle": 3718.1,
+      "pia_engine": 3718.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-051",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 9583,
+      "aime_engine": 9583.0,
+      "pia_oracle": 3500.6,
+      "pia_engine": 3500.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-052",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14317,
+      "aime_engine": 14317.0,
+      "pia_oracle": 4210.7,
+      "pia_engine": 4210.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-053",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 9290,
+      "aime_engine": 9290.0,
+      "pia_oracle": 3456.7,
+      "pia_engine": 3456.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-054",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8538,
+      "aime_engine": 8538.0,
+      "pia_oracle": 3343.9,
+      "pia_engine": 3343.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-055",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14355,
+      "aime_engine": 14355.0,
+      "pia_oracle": 4216.4,
+      "pia_engine": 4216.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-056",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-057",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14225,
+      "aime_engine": 14225.0,
+      "pia_oracle": 4196.9,
+      "pia_engine": 4196.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-058",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 13333,
+      "aime_engine": 13333.0,
+      "pia_oracle": 4063.1,
+      "pia_engine": 4063.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-059",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 8741,
+      "aime_engine": 8741.0,
+      "pia_oracle": 3374.3,
+      "pia_engine": 3374.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-060",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-061",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-062",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 6679,
+      "aime_engine": 6679.0,
+      "pia_oracle": 2883.1,
+      "pia_engine": 2883.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-063",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-064",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-065",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14271,
+      "aime_engine": 14271.0,
+      "pia_oracle": 4203.8,
+      "pia_engine": 4203.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-066",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 13484,
+      "aime_engine": 13484.0,
+      "pia_oracle": 4085.8,
+      "pia_engine": 4085.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-067",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 4110,
+      "aime_engine": 4110.0,
+      "pia_oracle": 2061.0,
+      "pia_engine": 2061.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-068",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 1778,
+      "aime_engine": 1778.0,
+      "pia_oracle": 1314.8,
+      "pia_engine": 1314.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-069",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-070",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 8675,
+      "aime_engine": 8675.0,
+      "pia_oracle": 3364.4,
+      "pia_engine": 3364.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-071",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14311,
+      "aime_engine": 14311.0,
+      "pia_oracle": 4209.8,
+      "pia_engine": 4209.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-072",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-073",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-074",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 10159,
+      "aime_engine": 10159.0,
+      "pia_oracle": 3587.0,
+      "pia_engine": 3587.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-075",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-076",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 9672,
+      "aime_engine": 9672.0,
+      "pia_oracle": 3514.0,
+      "pia_engine": 3514.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-077",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 12852,
+      "aime_engine": 12852.0,
+      "pia_oracle": 3991.0,
+      "pia_engine": 3991.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-078",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 10914,
+      "aime_engine": 10914.0,
+      "pia_oracle": 3700.3,
+      "pia_engine": 3700.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-079",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 5395,
+      "aime_engine": 5395.0,
+      "pia_oracle": 2472.2,
+      "pia_engine": 2472.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-080",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-081",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 11504,
+      "aime_engine": 11504.0,
+      "pia_oracle": 3788.8,
+      "pia_engine": 3788.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-082",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 1385,
+      "aime_engine": 1385.0,
+      "pia_oracle": 1189.0,
+      "pia_engine": 1189.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-083",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 8022,
+      "aime_engine": 8022.0,
+      "pia_oracle": 3266.5,
+      "pia_engine": 3266.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-084",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 1866,
+      "aime_engine": 1866.0,
+      "pia_oracle": 1343.0,
+      "pia_engine": 1343.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-085",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 2833,
+      "aime_engine": 2833.0,
+      "pia_oracle": 1652.4,
+      "pia_engine": 1652.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-086",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14352,
+      "aime_engine": 14352.0,
+      "pia_oracle": 4216.0,
+      "pia_engine": 4216.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-087",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9768,
+      "aime_engine": 9768.0,
+      "pia_oracle": 3528.4,
+      "pia_engine": 3528.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-088",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-089",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14317,
+      "aime_engine": 14317.0,
+      "pia_oracle": 4210.7,
+      "pia_engine": 4210.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-090",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 13605,
+      "aime_engine": 13605.0,
+      "pia_oracle": 4103.9,
+      "pia_engine": 4103.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-091",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 9092,
+      "aime_engine": 9092.0,
+      "pia_oracle": 3427.0,
+      "pia_engine": 3427.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-092",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-093",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14058,
+      "aime_engine": 14058.0,
+      "pia_oracle": 4171.9,
+      "pia_engine": 4171.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-094",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 2322,
+      "aime_engine": 2322.0,
+      "pia_oracle": 1488.9,
+      "pia_engine": 1488.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-095",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-096",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 13643,
+      "aime_engine": 13643.0,
+      "pia_oracle": 4109.6,
+      "pia_engine": 4109.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-097",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 8411,
+      "aime_engine": 8411.0,
+      "pia_oracle": 3324.8,
+      "pia_engine": 3324.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-098",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 2939,
+      "aime_engine": 2939.0,
+      "pia_oracle": 1686.3,
+      "pia_engine": 1686.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-099",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 14397,
+      "aime_engine": 14397.0,
+      "pia_oracle": 4222.7,
+      "pia_engine": 4222.7,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-100",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 11854,
+      "aime_engine": 11854.0,
+      "pia_oracle": 3841.3,
+      "pia_engine": 3841.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-101",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 3354,
+      "aime_engine": 3354.0,
+      "pia_oracle": 1819.1,
+      "pia_engine": 1819.1,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-102",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 14392,
+      "aime_engine": 14392.0,
+      "pia_oracle": 4222.0,
+      "pia_engine": 4222.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-103",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 13481,
+      "aime_engine": 13481.0,
+      "pia_oracle": 4085.3,
+      "pia_engine": 4085.3,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-104",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 4280,
+      "aime_engine": 4280.0,
+      "pia_oracle": 2115.4,
+      "pia_engine": 2115.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-105",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-106",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-107",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 9019,
+      "aime_engine": 9019.0,
+      "pia_oracle": 3416.0,
+      "pia_engine": 3416.0,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-108",
+      "cohort": 2026,
+      "shape": "rand_flat_median",
+      "aime_oracle": 14320,
+      "aime_engine": 14320.0,
+      "pia_oracle": 4211.2,
+      "pia_engine": 4211.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-109",
+      "cohort": 2026,
+      "shape": "rand_rising",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-110",
+      "cohort": 2026,
+      "shape": "rand_spiky",
+      "aime_oracle": 9578,
+      "aime_engine": 9578.0,
+      "pia_oracle": 3499.9,
+      "pia_engine": 3499.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-111",
+      "cohort": 2026,
+      "shape": "rand_clipped_always",
+      "aime_oracle": 14402,
+      "aime_engine": 14402.0,
+      "pia_oracle": 4223.5,
+      "pia_engine": 4223.5,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-112",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 6555,
+      "aime_engine": 6555.0,
+      "pia_oracle": 2843.4,
+      "pia_engine": 2843.4,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-113",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 5218,
+      "aime_engine": 5218.0,
+      "pia_oracle": 2415.6,
+      "pia_engine": 2415.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-114",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 4775,
+      "aime_engine": 4775.0,
+      "pia_oracle": 2273.8,
+      "pia_engine": 2273.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-115",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14391,
+      "aime_engine": 14391.0,
+      "pia_oracle": 4221.8,
+      "pia_engine": 4221.8,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-116",
+      "cohort": 2026,
+      "shape": "rand_zero_spell",
+      "aime_oracle": 14360,
+      "aime_engine": 14360.0,
+      "pia_oracle": 4217.2,
+      "pia_engine": 4217.2,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-117",
+      "cohort": 2026,
+      "shape": "rand_flat_low",
+      "aime_oracle": 2768,
+      "aime_engine": 2768.0,
+      "pia_oracle": 1631.6,
+      "pia_engine": 1631.6,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-118",
+      "cohort": 2026,
+      "shape": "rand_flat_high",
+      "aime_oracle": 13625,
+      "aime_engine": 13625.0,
+      "pia_oracle": 4106.9,
+      "pia_engine": 4106.9,
+      "abs_diff": 0.0
+    },
+    {
+      "id": "2026-119",
+      "cohort": 2026,
+      "shape": "rand_declining",
+      "aime_oracle": 14399,
+      "aime_engine": 14399.0,
+      "pia_oracle": 4223.0,
+      "pia_engine": 4223.0,
+      "abs_diff": 0.0
+    }
+  ]
+}
