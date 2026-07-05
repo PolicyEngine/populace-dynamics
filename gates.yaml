@@ -63,9 +63,10 @@ views:
     covariate_columns: [age]
     age_range: [25, 59]
     period_range: [1998, 2022]
-    window: 3 # spans two consecutive transitions; catches chained-
-    period_step: 2 #   model understatement of persistence
+    window: 3 # spans two consecutive transitions
+    period_step: 2
     noise_floor_run: runs/noise_floor_psid_family_runs_9822.json
+    candidate_context_floor_run: runs/noise_floor_psid_family_runs_ctx20_9822.json
   psid_earnings_pairs:
     product: ind2023er
     loader: populace_dynamics.data.panels.individual_earnings_panel
@@ -131,42 +132,58 @@ gates:
       # holdouts. Locks on maintainer ratification of this pull
       # request; models run only after the merge that flips locked.
       #
-      # Geometry thresholds derive from two committed floor
-      # artifacts, each at the scale the protocol scores at
-      # (floor stats are mean +/- sd over seeds 0-4):
+      # Round-2 amendment (2026-07-05, review comment 4885102386):
+      # the round-1 amendment had calibrated the runs view against
+      # the full-panel half-vs-half floor — the same wrong-scale
+      # defect round 1 rejected for the pairs view. The runs
+      # thresholds now derive from a committed deployment-scale runs
+      # floor; q90 is locked (it was computed but ungated); every
+      # derivation is machine-checkable
+      # (tests/test_gates_derivations.py asserts each locked
+      # threshold equals floor mean + k * floor sd as stated below).
+      #
+      # Geometry thresholds derive from two committed
+      # deployment-scale floor artifacts (candidate-context
+      # construction, real vs real at ~20%-of-persons scale, seeds
+      # 0-4; stats are mean +/- sd):
       # - runs/noise_floor_psid_family_ctx20_9822.json (window-2
-      #   pairs, real vs real at ~20%-of-persons scale): c2st
-      #   0.5108+/-0.0046, energy 0.0034+/-0.0025, coverage
-      #   0.9577+/-0.0059, q99 1.0428+/-0.1338, w1/sd
-      #   0.0349+/-0.0131.
-      # - runs/noise_floor_psid_family_runs_9822.json (window-3
-      #   runs, half vs half, 81,654 windows): c2st 0.5071+/-0.0049,
-      #   coverage 0.9640+/-0.0058.
-      # Derivations, threshold = floor mean + k * floor sd with k
-      # stated per metric:
-      #   pairs c2st_auc_max    0.53 = 0.5108 + 4.2 sd
-      #   pairs energy_max      0.008 = 0.0034 + 1.8 sd
-      #   pairs coverage_min    0.93 = 0.9577 - 4.7 sd
-      #   pairs q99 upper       1.40 = 1.0428 + 2.7 sd
-      #   pairs q99 lower       0.70 = 1.0428 - 2.6 sd
-      #   pairs w1_over_sd_max  0.06 = 0.0349 + 1.9 sd
-      #   runs  c2st_auc_max    0.53 = 0.5071 + 4.7 sd
-      #   runs  coverage_min    0.93 = 0.9640 - 5.9 sd
-      # The k values under 2 pair with the 4-of-5-seed rule: a
-      # faithful candidate that clips one seed on a tail metric
-      # still passes; the demonstrated broken candidates fail 5/5.
-      # Bite, demonstrated in the review at protocol scale: a
+      #   pairs): c2st 0.5108+/-0.0046, energy 0.0034+/-0.0025,
+      #   coverage 0.9577+/-0.0059, q99 1.0428+/-0.1338, q90
+      #   1.0064+/-0.0480, w1/sd 0.0349+/-0.0131.
+      # - runs/noise_floor_psid_family_runs_ctx20_9822.json
+      #   (window-3 runs): c2st 0.5092+/-0.0072, coverage
+      #   0.9507+/-0.0125.
+      # The machine-checked derivations live in each view's
+      # `derivations` block below. The k values under 2 pair with
+      # the 4-of-5-seed rule: a faithful candidate that clips one
+      # seed on a tail metric still passes; the demonstrated broken
+      # candidates fail 5/5.
+      # Construction note: the five ctx20 seeds draw overlapping
+      # person sets (Jaccard ~0.11, ~71% reuse across seeds). The
+      # round-2 review measured the effect: the disjoint-draw c2st
+      # sd is 0.0058, against which the pairs c2st lock still sits
+      # at +3.3 sd; the committed energy sd is ~8x the
+      # independent-draw sd, so that margin is conservative (wider
+      # than pure noise requires).
+      # Bite, demonstrated in the reviews at protocol scale: a
       # marginals-matched shuffled-dynamics candidate scores
       # coverage 0.881-0.903 (fails 0.93 on 5/5 seeds); a candidate
       # understating one-step correlation by 18% scores c2st
       # 0.548-0.557 (fails 0.53 on 5/5); a faithful redraw of the
-      # true process passes 5/5 (c2st <= 0.507, coverage >= 0.950).
-      # A chained one-period clone passes every window-2 threshold
-      # by construction (the pairs view is the object it fits); the
-      # locked guards for that failure mode are the window-3 view
-      # (clone c2st 0.527-0.536) and the 4yr/10yr autocorrelation
-      # and mean-spell-length tolerances (clone 10yr autocorr 0.207
-      # vs reference 0.539; 4yr 0.533 vs 0.657).
+      # true process passes 5/5 under the full seed-level
+      # conjunction across both views (pairs c2st <= 0.511, runs
+      # c2st <= 0.512).
+      # Persistence-failure attribution (round-2 finding 2): a
+      # chained one-period clone passes every window-2 threshold by
+      # construction (the pairs view is the object it fits), and at
+      # deployment scale it straddles the runs c2st threshold
+      # (clone 0.533-0.542 vs 0.54), so the runs view is a
+      # SUPPORTING check, not the guard. The pre-registered guards
+      # for chained-model persistence understatement are the
+      # battery's autocorrelation and spell tolerances: clone 10yr
+      # autocorr 0.207 vs reference 0.539 (gap 0.332, 4.7x the 0.07
+      # tolerance) and 4yr 0.533 vs 0.657 (gap 0.124, 2.1x the 0.06
+      # tolerance), each failing on 5/5 seeds.
       locked: false
       pending: maintainer ratification
       views:
@@ -176,11 +193,29 @@ gates:
             energy_distance_max: 0.008
             prdc_coverage_min: 0.93
             q99_ratio_range: [0.70, 1.40]
+            q90_ratio_range: [0.85, 1.15]
             w1_over_sd_max: 0.06
+          derivations:
+            floor_run: runs/noise_floor_psid_family_ctx20_9822.json
+            rules:
+              c2st_auc_max: { key: c2st_auc, k: 4.2 }
+              energy_distance_max:
+                { key: energy_distance, k: 1.8, rounding: 3 }
+              prdc_coverage_min: { key: prdc_coverage, k: -4.7 }
+              q99_ratio_range:
+                { key: q99_ratio.earnings_t1, k: [-2.56, 2.7] }
+              q90_ratio_range:
+                { key: q90_ratio.earnings_t1, k: [-3.3, 3.0] }
+              w1_over_sd_max: { key: w1_over_sd.earnings_t1, k: 1.9 }
         psid_family_earnings_runs:
           geometry:
-            c2st_auc_max: 0.53
-            prdc_coverage_min: 0.93
+            c2st_auc_max: 0.54
+            prdc_coverage_min: 0.90
+          derivations:
+            floor_run: runs/noise_floor_psid_family_runs_ctx20_9822.json
+            rules:
+              c2st_auc_max: { key: c2st_auc, k: 4.3 }
+              prdc_coverage_min: { key: prdc_coverage, k: -4.0 }
       battery:
         # Absolute bands around the committed reference values in
         # runs/noise_floor_psid_family_9822.json (battery_reference).

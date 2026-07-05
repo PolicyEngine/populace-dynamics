@@ -241,3 +241,37 @@ def test_real_family_ctx20_floor_reproduces_committed_run():
     for key in ("c2st_auc", "prdc_coverage", "energy_distance"):
         stats = recorded[key]
         assert score[key] == pytest.approx(stats["values"][0])
+
+
+@needs_real_family
+def test_real_family_runs_ctx20_floor_reproduces_committed_run():
+    """Deployment-scale window-3 floor (runs-view derivation basis)."""
+    import json
+
+    from populace_dynamics.harness import panel as hpanel
+
+    committed = json.loads(
+        Path("runs/noise_floor_psid_family_runs_ctx20_9822.json").read_text()
+    )
+    prime = _prime_family_panel()
+    view = hpanel.PanelView(
+        name="psid_family_earnings_runs_ctx20_9822",
+        id_column="person_id",
+        period_column="period",
+        value_columns=("earnings",),
+        covariate_columns=("age",),
+        weight_column="weight",
+        window=3,
+        period_step=2,
+    )
+    forty, _ = hpanel.split_panel_by_person(
+        prime, "person_id", fraction=0.4, seed=1000
+    )
+    a, b = hpanel.split_panel_by_person(
+        forty, "person_id", fraction=0.5, seed=0
+    )
+    score = hpanel.panel_scorecard(a, b, view, seed=0)
+    recorded = committed["noise_floor_seeds_0_4"]
+    for key in ("c2st_auc", "prdc_coverage"):
+        stats = recorded[key]
+        assert score[key] == pytest.approx(stats["values"][0])

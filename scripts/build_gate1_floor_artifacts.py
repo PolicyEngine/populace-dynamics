@@ -97,50 +97,63 @@ def main() -> None:
     path3.write_text(json.dumps(artifact3, indent=1) + "\n")
     print(f"wrote {path3}: n_windows={artifact3['n_windows']}")
 
-    view2 = _view(2)
-    rows_ctx = []
-    n_side = []
-    for s in SEEDS:
-        forty, _ = hpanel.split_panel_by_person(
-            prime, "person_id", fraction=0.4, seed=1000 + s
-        )
-        a, b = hpanel.split_panel_by_person(
-            forty, "person_id", fraction=0.5, seed=s
-        )
-        rows_ctx.append(hpanel.panel_scorecard(a, b, view2, seed=s))
-        n_side.append(int(a.person_id.nunique()))
-    artifact_ctx = {
-        "run": "noise_floor_psid_family_ctx20_9822",
-        "data": (
-            "PSID family-file head/spouse labor income attached to "
-            f"persons; {FILTER}; window-2 pairs view"
-        ),
-        "method": (
-            "candidate-context floor: per seed s, draw 40% of persons "
-            "(split_panel_by_person, fraction=0.4, seed=1000+s), halve "
-            "it person-disjointly (fraction=0.5, seed=s), and score "
-            "one half against the other (panel_scorecard, seed=s) — "
-            "real vs real at the ~20%-of-persons scale the gate "
-            "protocol scores candidates at"
-        ),
-        "n_person_periods": int(len(prime)),
-        "n_persons": n_persons,
-        "n_persons_per_side_mean": float(np.mean(n_side)),
-        "view": {
-            "window": 2,
-            "period_step": 2,
-            "value_columns": ["earnings"],
-            "covariates": ["age"],
-        },
-        "noise_floor_seeds_0_4": _stats(rows_ctx),
-    }
-    path_ctx = RUNS / "noise_floor_psid_family_ctx20_9822.json"
-    path_ctx.write_text(json.dumps(artifact_ctx, indent=1) + "\n")
-    print(
-        f"wrote {path_ctx}: persons/side~{artifact_ctx['n_persons_per_side_mean']:.0f}"
+    ctx_specs = (
+        (2, "ctx20", "window-2 pairs view"),
+        (3, "runs_ctx20", "window-3 runs view"),
     )
+    ctx_artifacts = {}
+    for window, tag, view_label in ctx_specs:
+        view = _view(window)
+        rows_ctx = []
+        n_side = []
+        for s in SEEDS:
+            forty, _ = hpanel.split_panel_by_person(
+                prime, "person_id", fraction=0.4, seed=1000 + s
+            )
+            a, b = hpanel.split_panel_by_person(
+                forty, "person_id", fraction=0.5, seed=s
+            )
+            rows_ctx.append(hpanel.panel_scorecard(a, b, view, seed=s))
+            n_side.append(int(a.person_id.nunique()))
+        artifact_ctx = {
+            "run": f"noise_floor_psid_family_{tag}_9822",
+            "data": (
+                "PSID family-file head/spouse labor income attached to "
+                f"persons; {FILTER}; {view_label}"
+            ),
+            "method": (
+                "candidate-context floor: per seed s, draw 40% of "
+                "persons (split_panel_by_person, fraction=0.4, "
+                "seed=1000+s), halve it person-disjointly "
+                "(fraction=0.5, seed=s), and score one half against "
+                "the other (panel_scorecard, seed=s) — real vs real "
+                "at the ~20%-of-persons scale the gate protocol "
+                "scores candidates at"
+            ),
+            "n_person_periods": int(len(prime)),
+            "n_persons": n_persons,
+            "n_persons_per_side_mean": float(np.mean(n_side)),
+            "view": {
+                "window": window,
+                "period_step": 2,
+                "value_columns": ["earnings"],
+                "covariates": ["age"],
+            },
+            "noise_floor_seeds_0_4": _stats(rows_ctx),
+        }
+        path_ctx = RUNS / f"noise_floor_psid_family_{tag}_9822.json"
+        path_ctx.write_text(json.dumps(artifact_ctx, indent=1) + "\n")
+        ctx_artifacts[tag] = artifact_ctx
+        print(
+            f"wrote {path_ctx}: persons/side~"
+            f"{artifact_ctx['n_persons_per_side_mean']:.0f}"
+        )
 
-    for name, artifact in (("runs", artifact3), ("ctx20", artifact_ctx)):
+    for name, artifact in (
+        ("runs", artifact3),
+        ("ctx20", ctx_artifacts["ctx20"]),
+        ("runs_ctx20", ctx_artifacts["runs_ctx20"]),
+    ):
         floor = artifact["noise_floor_seeds_0_4"]
         for key in ("c2st_auc", "prdc_coverage", "energy_distance"):
             print(
