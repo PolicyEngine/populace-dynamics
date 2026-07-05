@@ -165,3 +165,79 @@ def test_real_family_noise_floor_reproduces_committed_run():
     for key in ("c2st_auc", "prdc_coverage"):
         stats = recorded[key]
         assert abs(floor[key] - stats["mean"]) < max(4 * stats["sd"], 0.03)
+
+
+def _prime_family_panel():
+    panel = family.family_earnings_panel()
+    return panel[
+        (panel.age >= 25)
+        & (panel.age <= 59)
+        & (panel.period >= 1998)
+        & (panel.period <= 2022)
+        & (panel.weight > 0)
+    ]
+
+
+@needs_real_family
+def test_real_family_runs_noise_floor_reproduces_committed_run():
+    """Window-3 floor artifact (the runs view gate 1 locks)."""
+    import json
+
+    from populace_dynamics.harness import panel as hpanel
+
+    committed = json.loads(
+        Path("runs/noise_floor_psid_family_runs_9822.json").read_text()
+    )
+    prime = _prime_family_panel()
+    view = hpanel.PanelView(
+        name="psid_family_earnings_runs_9822",
+        id_column="person_id",
+        period_column="period",
+        value_columns=("earnings",),
+        covariate_columns=("age",),
+        weight_column="weight",
+        window=3,
+        period_step=2,
+    )
+    windows, _ = hpanel.project_panel(prime, view)
+    assert len(windows) == committed["n_windows"]
+    floor = hpanel.noise_floor(prime, view, seed=0)
+    recorded = committed["noise_floor_seeds_0_4"]
+    for key in ("c2st_auc", "prdc_coverage"):
+        stats = recorded[key]
+        assert floor[key] == pytest.approx(stats["values"][0])
+        assert abs(floor[key] - stats["mean"]) < max(4 * stats["sd"], 0.03)
+
+
+@needs_real_family
+def test_real_family_ctx20_floor_reproduces_committed_run():
+    """Candidate-context floor: 20% vs 20% of persons, seed 0."""
+    import json
+
+    from populace_dynamics.harness import panel as hpanel
+
+    committed = json.loads(
+        Path("runs/noise_floor_psid_family_ctx20_9822.json").read_text()
+    )
+    prime = _prime_family_panel()
+    view = hpanel.PanelView(
+        name="psid_family_earnings_ctx20_9822",
+        id_column="person_id",
+        period_column="period",
+        value_columns=("earnings",),
+        covariate_columns=("age",),
+        weight_column="weight",
+        window=2,
+        period_step=2,
+    )
+    forty, _ = hpanel.split_panel_by_person(
+        prime, "person_id", fraction=0.4, seed=1000
+    )
+    a, b = hpanel.split_panel_by_person(
+        forty, "person_id", fraction=0.5, seed=0
+    )
+    score = hpanel.panel_scorecard(a, b, view, seed=0)
+    recorded = committed["noise_floor_seeds_0_4"]
+    for key in ("c2st_auc", "prdc_coverage", "energy_distance"):
+        stats = recorded[key]
+        assert score[key] == pytest.approx(stats["values"][0])

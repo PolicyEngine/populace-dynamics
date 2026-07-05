@@ -19,6 +19,15 @@ holdout_protocol:
 noise_floor:
   method: half_vs_half # person-disjoint halves of one holdout
   reference: populace_dynamics.harness.panel.noise_floor
+  candidate_context: >-
+    Thresholds cite a second floor at deployment scale: two disjoint
+    20%-of-persons real samples scored against each other
+    (runs/noise_floor_psid_family_ctx20_9822.json). C2ST and the
+    tail block run uncapped, so their sampling noise at the
+    protocol's ~20%-holdout scale exceeds the full-panel
+    half-vs-half floor's; thresholds that ignored this were the
+    pre-lock review's central finding (pull request 33 review,
+    2026-07-05).
 
 views:
   # Amended pre-lock 2026-07-04: the individual file carries no
@@ -31,6 +40,13 @@ views:
   # persons (reference years 1998-2022 biennial), superseding the
   # three-wave individual recode view, which stays as a secondary
   # check.
+  # Amended pre-lock 2026-07-05 (pull request 33 review): the runs
+  # view moves to the family panel too — the individual three-wave
+  # product supports at most one window-3 window per person, while
+  # the family panel supports 81,654 — and gate 1 locks geometry on
+  # it, because window-2 geometry cannot see chained-model
+  # persistence understatement (a chained one-period clone matches
+  # the pairs view by construction).
   psid_family_earnings_pairs:
     loader: populace_dynamics.data.family.family_earnings_panel
     value_columns: [earnings]
@@ -40,6 +56,16 @@ views:
     window: 2
     period_step: 2
     noise_floor_run: runs/noise_floor_psid_family_9822.json
+    candidate_context_floor_run: runs/noise_floor_psid_family_ctx20_9822.json
+  psid_family_earnings_runs:
+    loader: populace_dynamics.data.family.family_earnings_panel
+    value_columns: [earnings]
+    covariate_columns: [age]
+    age_range: [25, 59]
+    period_range: [1998, 2022]
+    window: 3 # spans two consecutive transitions; catches chained-
+    period_step: 2 #   model understatement of persistence
+    noise_floor_run: runs/noise_floor_psid_family_runs_9822.json
   psid_earnings_pairs:
     product: ind2023er
     loader: populace_dynamics.data.panels.individual_earnings_panel
@@ -50,13 +76,16 @@ views:
     period_step: 2 # PSID interviews biennial since 1997
     noise_floor_run: runs/noise_floor_psid_earnings_9701.json
   psid_earnings_runs:
+    # Secondary since 2026-07-05: superseded for gating by
+    # psid_family_earnings_runs (this three-wave product yields at
+    # most one window per person); stays registered as a check.
     product: ind2023er
     loader: populace_dynamics.data.panels.individual_earnings_panel
     value_columns: [earnings]
     covariate_columns: [age]
     age_range: [25, 59]
-    window: 3 # spans both transitions; catches chained-model
-    period_step: 2 #   understatement of persistence
+    window: 3
+    period_step: 2
 
 geometry_blocks:
   - energy_distance # strictly proper; weight-sensitive
@@ -94,38 +123,132 @@ gates:
       floor, before any family or benefit output ships.
     baseline: populace-fit chained weighted QRF
     thresholds:
-      # Proposed 2026-07-05 against the committed floor
-      # (runs/noise_floor_psid_family_9822.json: C2ST 0.5049+/-0.0028,
-      # energy 0.0023+/-0.0012, coverage 0.9688+/-0.0066, q99 tail
-      # 1.0033+/-0.0757, w1/sd 0.0184+/-0.0028). Rationale: geometry
-      # thresholds sit at floor mean + ~4 floor-sd or 2x floor mean,
-      # whichever is looser, so sampling noise cannot fail a faithful
-      # candidate; battery thresholds are absolute tolerances around
-      # the committed reference values sized to their economic
-      # meaning. Locks on maintainer ratification of this pull
+      # Proposed 2026-07-05; amended the same day per the pre-lock
+      # review (pull request 33, comment of 2026-07-05) before
+      # ratification. The original proposal's rationale did not
+      # derive its own numbers, and its floor was measured at ~51k
+      # windows per side while the protocol scores ~20k-window
+      # holdouts. Locks on maintainer ratification of this pull
       # request; models run only after the merge that flips locked.
+      #
+      # Geometry thresholds derive from two committed floor
+      # artifacts, each at the scale the protocol scores at
+      # (floor stats are mean +/- sd over seeds 0-4):
+      # - runs/noise_floor_psid_family_ctx20_9822.json (window-2
+      #   pairs, real vs real at ~20%-of-persons scale): c2st
+      #   0.5108+/-0.0046, energy 0.0034+/-0.0025, coverage
+      #   0.9577+/-0.0059, q99 1.0428+/-0.1338, w1/sd
+      #   0.0349+/-0.0131.
+      # - runs/noise_floor_psid_family_runs_9822.json (window-3
+      #   runs, half vs half, 81,654 windows): c2st 0.5071+/-0.0049,
+      #   coverage 0.9640+/-0.0058.
+      # Derivations, threshold = floor mean + k * floor sd with k
+      # stated per metric:
+      #   pairs c2st_auc_max    0.53 = 0.5108 + 4.2 sd
+      #   pairs energy_max      0.008 = 0.0034 + 1.8 sd
+      #   pairs coverage_min    0.93 = 0.9577 - 4.7 sd
+      #   pairs q99 upper       1.40 = 1.0428 + 2.7 sd
+      #   pairs q99 lower       0.70 = 1.0428 - 2.6 sd
+      #   pairs w1_over_sd_max  0.06 = 0.0349 + 1.9 sd
+      #   runs  c2st_auc_max    0.53 = 0.5071 + 4.7 sd
+      #   runs  coverage_min    0.93 = 0.9640 - 5.9 sd
+      # The k values under 2 pair with the 4-of-5-seed rule: a
+      # faithful candidate that clips one seed on a tail metric
+      # still passes; the demonstrated broken candidates fail 5/5.
+      # Bite, demonstrated in the review at protocol scale: a
+      # marginals-matched shuffled-dynamics candidate scores
+      # coverage 0.881-0.903 (fails 0.93 on 5/5 seeds); a candidate
+      # understating one-step correlation by 18% scores c2st
+      # 0.548-0.557 (fails 0.53 on 5/5); a faithful redraw of the
+      # true process passes 5/5 (c2st <= 0.507, coverage >= 0.950).
+      # A chained one-period clone passes every window-2 threshold
+      # by construction (the pairs view is the object it fits); the
+      # locked guards for that failure mode are the window-3 view
+      # (clone c2st 0.527-0.536) and the 4yr/10yr autocorrelation
+      # and mean-spell-length tolerances (clone 10yr autocorr 0.207
+      # vs reference 0.539; 4yr 0.533 vs 0.657).
       locked: false
       pending: maintainer ratification
-      view: psid_family_earnings_pairs
-      geometry:
-        c2st_auc_max: 0.55
-        energy_distance_max: 0.008
-        prdc_coverage_min: 0.90
-        q99_ratio_range: [0.70, 1.40]
-        w1_over_sd_max: 0.06
+      views:
+        psid_family_earnings_pairs:
+          geometry:
+            c2st_auc_max: 0.53
+            energy_distance_max: 0.008
+            prdc_coverage_min: 0.93
+            q99_ratio_range: [0.70, 1.40]
+            w1_over_sd_max: 0.06
+        psid_family_earnings_runs:
+          geometry:
+            c2st_auc_max: 0.53
+            prdc_coverage_min: 0.93
       battery:
+        # Absolute bands around the committed reference values in
+        # runs/noise_floor_psid_family_9822.json (battery_reference).
+        # Definitions pinned at lock:
+        # - autocorr_log_*: populace_dynamics.harness.moments.
+        #   autocorrelation on log earnings among positives; lags
+        #   1/2/5 of the biennial panel = 2/4/10 years.
+        # - mobility_diagonal: unweighted mean over all six
+        #   origin-diagonal cells of the horizon-1 mobility matrix
+        #   (five weighted quintile bins plus the zero bin —
+        #   moments.mobility_matrix, zero_bin true). The zero bin is
+        #   included: the positive-bins-only reading gives 0.5847,
+        #   not the committed 0.604052.
+        # - zero_persistence and exit_rate satisfy the identity
+        #   zero_persistence = 1 - exit_rate; the two lines lock ONE
+        #   constraint, kept separately for reporting.
+        # - mean_spell_length: moments.zero_spells mean length in
+        #   waves — the battery's only direct long-spell statistic.
+        # Holdout-scale measurement error (review, finding 5c):
+        # perfect-candidate gaps at single-20%-holdout scale consume
+        # up to ~61% of the mobility band (small-sample attenuation,
+        # systematically negative), ~57% of exit/zero-persistence,
+        # ~38% of entry. Accepted at lock; the candidate-panel-size
+        # pin in the protocol keeps that regime fixed.
         autocorr_log_2yr_tolerance: 0.05
+        autocorr_log_4yr_tolerance: 0.06
         autocorr_log_10yr_tolerance: 0.07
         mobility_diagonal_tolerance: 0.05
         zero_persistence_tolerance: 0.05
         entry_rate_tolerance: 0.02
         exit_rate_tolerance: 0.05
+        mean_spell_length_tolerance: 0.25
+      reported_not_gated:
+        # Registered battery families with no committed reference at
+        # gate 1: published with every gate run, gated no earlier
+        # than a later gate with committed references.
+        - change_moments sd, skew, kurtosis
+        - age_profile quantiles
+        - mobility_matrix horizon 2
       protocol:
         seeds: [0, 1, 2, 3, 4]
+        split: >-
+          Apply the view filter first (age 25-59, reference years
+          1998-2022, positive weights), then
+          populace_dynamics.harness.panel.split_panel_by_person(
+          panel, "person_id", fraction=0.2, seed=s); the drawn 20%
+          of persons is seed s's holdout.
+        candidate: >-
+          Refit per seed on the 80% complement; holdout persons are
+          excluded from all fitting, tuning, and calibration. The
+          candidate emits trajectories for exactly the holdout
+          persons on their observed periods, which pins the
+          candidate panel to holdout scale — the scale of the ctx20
+          floor and of the battery measurement-error figures above.
+        scoring: >-
+          populace_dynamics.harness.panel.panel_scorecard(candidate,
+          holdout, view, seed=s) for each locked view. Battery
+          statistics are computed on the candidate panel per seed
+          and compared to the committed battery_reference values —
+          not to a pooled holdout, which the harness does not
+          define (the five 20% draws overlap).
         pass_rule: >-
-          Every geometry threshold holds on at least 4 of 5 paired
-          seeds; every battery reference falls within tolerance on
-          the pooled holdout.
+          Seed-level conjunction. Seed s passes geometry iff every
+          locked threshold on every locked view holds at seed s;
+          seed s passes the battery iff every locked tolerance
+          holds at seed s. The gate passes iff at least 4 of 5
+          seeds pass geometry and at least 4 of 5 seeds pass the
+          battery.
   gate_2:
     name: family and benefit outputs
     description: >-

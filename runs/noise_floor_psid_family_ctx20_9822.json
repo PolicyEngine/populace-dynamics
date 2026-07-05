@@ -1,0 +1,119 @@
+{
+ "run": "noise_floor_psid_family_ctx20_9822",
+ "data": "PSID family-file head/spouse labor income attached to persons; age 25-59, reference years 1998-2022, positive weights; window-2 pairs view",
+ "method": "candidate-context floor: per seed s, draw 40% of persons (split_panel_by_person, fraction=0.4, seed=1000+s), halve it person-disjointly (fraction=0.5, seed=s), and score one half against the other (panel_scorecard, seed=s) \u2014 real vs real at the ~20%-of-persons scale the gate protocol scores candidates at",
+ "n_person_periods": 126867,
+ "n_persons": 22300,
+ "n_persons_per_side_mean": 4443.6,
+ "view": {
+  "window": 2,
+  "period_step": 2,
+  "value_columns": [
+   "earnings"
+  ],
+  "covariates": [
+   "age"
+  ]
+ },
+ "noise_floor_seeds_0_4": {
+  "energy_distance": {
+   "mean": 0.003379336446512271,
+   "sd": 0.002514258848837629,
+   "values": [
+    0.0012786581312571599,
+    0.004394732673878021,
+    0.002088761097954528,
+    0.0017965091899487806,
+    0.007338021139522866
+   ]
+  },
+  "c2st_auc": {
+   "mean": 0.5108054329908959,
+   "sd": 0.004553500908938964,
+   "values": [
+    0.5175048392363439,
+    0.5077230022987244,
+    0.5089995180753141,
+    0.5064609522436315,
+    0.5133388531004653
+   ]
+  },
+  "prdc_precision": {
+   "mean": 0.9892578125,
+   "sd": 0.002042627017905458,
+   "values": [
+    0.98828125,
+    0.9921875,
+    0.990234375,
+    0.98681640625,
+    0.98876953125
+   ]
+  },
+  "prdc_recall": {
+   "mean": 0.99091796875,
+   "sd": 0.0027098509620139856,
+   "values": [
+    0.98974609375,
+    0.99560546875,
+    0.98974609375,
+    0.99072265625,
+    0.98876953125
+   ]
+  },
+  "prdc_density": {
+   "mean": 1.092578125,
+   "sd": 0.012048185245097947,
+   "values": [
+    1.07626953125,
+    1.090625,
+    1.10556640625,
+    1.10322265625,
+    1.08720703125
+   ]
+  },
+  "prdc_coverage": {
+   "mean": 0.95771484375,
+   "sd": 0.005936182779464505,
+   "values": [
+    0.955078125,
+    0.966796875,
+    0.9541015625,
+    0.96044921875,
+    0.9521484375
+   ]
+  },
+  "w1_over_sd.earnings_t1": {
+   "mean": 0.03485286561662634,
+   "sd": 0.013092481116299074,
+   "values": [
+    0.018254369688157114,
+    0.04360919229705783,
+    0.037958775099675206,
+    0.024718872257384467,
+    0.04972311874085709
+   ]
+  },
+  "q90_ratio.earnings_t1": {
+   "mean": 1.0064196061656256,
+   "sd": 0.04796860511605263,
+   "values": [
+    1.0030727719099004,
+    0.94324926854763,
+    1.075268817204301,
+    1.0204081632653061,
+    0.9900990099009901
+   ]
+  },
+  "q99_ratio.earnings_t1": {
+   "mean": 1.0428390637834053,
+   "sd": 0.13378861142035406,
+   "values": [
+    1.1850079153100925,
+    0.8923076923076924,
+    1.0946641744649976,
+    0.9090909090909091,
+    1.1331246277433344
+   ]
+  }
+ }
+}
