@@ -420,5 +420,5 @@ def test_stage1_gamma_monotone_nonincreasing_in_every_seed():
     for seed in _artifact()["per_seed"]:
         g = seed["stage1_fit"]["gamma"]
         vals = [g[str(k)] for k in range(6)]
-        for a, b in zip(vals, vals[1:]):
+        for a, b in zip(vals, vals[1:], strict=False):
             assert b <= a + 1e-9, f"gamma not monotone in seed {seed['seed']}"
