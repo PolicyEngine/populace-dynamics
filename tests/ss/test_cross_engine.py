@@ -325,6 +325,13 @@ def test_committed_artifact_matches_live_engine_spotcheck() -> None:
     by_id = {r["id"]: r for r in artifact["workers"]}
 
     params = params_mod.load_ssa_parameters()
+    if params.pe_us_revision != artifact["pe_us_revision"]:
+        pytest.skip(
+            f"policyengine-us checkout at {params.pe_us_revision} differs "
+            f"from the artifact's pinned {artifact['pe_us_revision']}; "
+            "point POPULACE_DYNAMICS_PE_US_DIR at the pinned revision "
+            "to run the spotcheck"
+        )
     module_text = builder.build_engine_module(params)
     subset: dict[int, list] = {}
     for cohort, birth in builder.COHORTS.items():
