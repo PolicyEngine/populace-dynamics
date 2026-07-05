@@ -49,6 +49,11 @@ def _gate1_thresholds() -> dict:
 @needs_real_family
 def test_seed0_reproduces_committed_artifact():
     """Rerun seed 0 and match the committed artifact to float precision."""
+    pytest.importorskip(
+        "populace.fit",
+        reason="populace-fit not installed (it pins scikit-learn<1.9, "
+        "so gate runs use a dedicated venv)",
+    )
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
     import run_gate1_baseline as runner
