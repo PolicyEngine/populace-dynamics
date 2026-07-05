@@ -94,10 +94,38 @@ gates:
       floor, before any family or benefit output ships.
     baseline: populace-fit chained weighted QRF
     thresholds:
+      # Proposed 2026-07-05 against the committed floor
+      # (runs/noise_floor_psid_family_9822.json: C2ST 0.5049+/-0.0028,
+      # energy 0.0023+/-0.0012, coverage 0.9688+/-0.0066, q99 tail
+      # 1.0033+/-0.0757, w1/sd 0.0184+/-0.0028). Rationale: geometry
+      # thresholds sit at floor mean + ~4 floor-sd or 2x floor mean,
+      # whichever is looser, so sampling noise cannot fail a faithful
+      # candidate; battery thresholds are absolute tolerances around
+      # the committed reference values sized to their economic
+      # meaning. Locks on maintainer ratification of this pull
+      # request; models run only after the merge that flips locked.
       locked: false
-      note: >-
-        Lock numeric thresholds against the noise floor before the
-        first model run; do not run models against unlocked gates.
+      pending: maintainer ratification
+      view: psid_family_earnings_pairs
+      geometry:
+        c2st_auc_max: 0.55
+        energy_distance_max: 0.008
+        prdc_coverage_min: 0.90
+        q99_ratio_range: [0.70, 1.40]
+        w1_over_sd_max: 0.06
+      battery:
+        autocorr_log_2yr_tolerance: 0.05
+        autocorr_log_10yr_tolerance: 0.07
+        mobility_diagonal_tolerance: 0.05
+        zero_persistence_tolerance: 0.05
+        entry_rate_tolerance: 0.02
+        exit_rate_tolerance: 0.05
+      protocol:
+        seeds: [0, 1, 2, 3, 4]
+        pass_rule: >-
+          Every geometry threshold holds on at least 4 of 5 paired
+          seeds; every battery reference falls within tolerance on
+          the pooled holdout.
   gate_2:
     name: family and benefit outputs
     description: >-
