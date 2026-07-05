@@ -30,15 +30,25 @@ from pathlib import Path
 
 import pytest
 
-# The artifact builder lives in scripts/; add it to the path before importing.
+# The artifact builder lives in scripts/; the engine-backed tests import it
+# lazily (see _load_builder) so the always-runnable committed-artifact tests
+# below have NO import dependency on it or on populace_dynamics — they only read
+# the JSON. This keeps schema/agreement checks collectable in a bare CI runner
+# that has neither policyengine-us nor the engine wheel.
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCRIPTS = _REPO_ROOT / "scripts"
-if str(_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS))
-
-import build_cross_engine_pia_artifact as builder  # noqa: E402
 
 ARTIFACT_PATH = _REPO_ROOT / "runs" / "pia_cross_engine_v1.json"
+
+
+def _load_builder():
+    """Import the artifact builder module (adds scripts/ to the path)."""
+    if str(_SCRIPTS) not in sys.path:
+        sys.path.insert(0, str(_SCRIPTS))
+    import build_cross_engine_pia_artifact as builder
+
+    return builder
+
 
 PE_US = Path("~/PolicyEngine/policyengine-us").expanduser()
 needs_pe_us = pytest.mark.skipif(
@@ -185,9 +195,9 @@ class TestDimeFloorEpsilonIsInert:
 
     @needs_pe_us
     def test_epsilon_never_changes_result(self) -> None:
-        from populace_dynamics.ss.params import load_ssa_parameters
+        params_mod = pytest.importorskip("populace_dynamics.ss.params")
 
-        params = load_ssa_parameters()
+        params = params_mod.load_ssa_parameters()
         f1, f2, f3 = params.pia_factors
         for elig_year in (2020, 2026):
             first, second = params.bend_points(elig_year)
@@ -263,9 +273,10 @@ needs_engine = pytest.mark.skipif(
 def test_subset_regenerates_and_agrees_exactly() -> None:
     """Take the first 10 workers of the artifact, recompute both sides live, and
     assert exact-to-cent agreement — a fresh proof, not the committed file."""
-    from populace_dynamics.ss.params import load_ssa_parameters
+    params_mod = pytest.importorskip("populace_dynamics.ss.params")
 
-    params = load_ssa_parameters()
+    builder = _load_builder()
+    params = params_mod.load_ssa_parameters()
     module_text = builder.build_engine_module(params)
 
     # Build the full deterministic worker sets, then take a 10-worker subset
@@ -306,13 +317,14 @@ def test_committed_artifact_matches_live_engine_spotcheck() -> None:
     """The committed artifact's engine PIAs reproduce when the module is rebuilt
     and re-executed for a handful of workers — guards against a stale artifact.
     """
-    from populace_dynamics.ss.params import load_ssa_parameters
+    params_mod = pytest.importorskip("populace_dynamics.ss.params")
 
+    builder = _load_builder()
     with ARTIFACT_PATH.open(encoding="utf-8") as fh:
         artifact = json.load(fh)
     by_id = {r["id"]: r for r in artifact["workers"]}
 
-    params = load_ssa_parameters()
+    params = params_mod.load_ssa_parameters()
     module_text = builder.build_engine_module(params)
     subset: dict[int, list] = {}
     for cohort, birth in builder.COHORTS.items():
