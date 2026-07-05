@@ -13,7 +13,7 @@
     }
   },
   "worker_design": "120 workers per cohort (eligibility [2020, 2026]), deterministic seed 20200626. Shapes: all-zeros and astronomical edges; flat low/median/high; rising; declining; spiky; zero-earning spells; wage-base-clipped in many years; three bend-point straddlers (below first, between, above second); and pseudo-random careers drawn from those families with optional zero spells. Each worker's history is nominal earnings for ages 22-62 (41 calendar years, final year = the age-62 eligibility year, so the eligibility-year bend points resolve at the last supplied period).",
-  "engine_revision": "984a4e0",
+  "engine_revision": "ffef7b4",
   "pe_us_revision": "bf71be3b",
   "seed": 20200626,
   "agreement_tolerance_dollars": 0.005,
