@@ -109,8 +109,10 @@ def test_reference_year_mismatch_raises(mini_family_dir: Path):
 
 
 def test_out_of_range_wave_rejected():
+    # 1998 is not an interview year (annual ends 1997, biennial
+    # resumes 1999).
     with pytest.raises(ValueError, match="outside the resolved range"):
-        family.read_family_labor(1985)
+        family.read_family_labor(1998)
 
 
 @needs_real_family
@@ -127,11 +129,16 @@ def test_real_all_waves_resolve():
 @needs_real_family
 def test_real_family_earnings_panel():
     panel = family.family_earnings_panel()
-    # Verified 207,806 rows over 29,142 persons on the 2023 release.
-    assert len(panel) > 190_000
-    assert panel.person_id.nunique() > 25_000
-    assert panel.period.min() == 1993
+    # Verified 405,348 rows over 34,404 persons on the 2023 release
+    # (reference years 1968-2022; 1,981 persons carry 35+ observed
+    # years).
+    assert len(panel) > 380_000
+    assert panel.person_id.nunique() > 30_000
+    assert panel.period.min() == 1968
     assert panel.period.max() == 2022
+    assert panel.period.nunique() == 42
+    depth = panel.groupby("person_id").period.nunique()
+    assert (depth >= 35).sum() > 1_500
     assert panel.earnings.max() < 9_999_998
     assert set(panel.role.unique()) == {"head", "spouse"}
     assert not panel.duplicated(["person_id", "period"]).any()
