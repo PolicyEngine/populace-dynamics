@@ -4,9 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Status
 
-**Current phase**: Planning and documentation only. No implementation code exists yet.
+**Current phase**: Implementation, under a locked pre-registered evaluation gate.
 
-This repository contains a Quarto Book planning document for an open-source Social Security dynamic microsimulation model. The project will create the first publicly available tool comparable to proprietary models like DynaSim (Urban Institute), MINT (SSA), and CBOLT (CBO).
+This repository is Populace dynamics: an open longitudinal microsimulation layer (paper at populace.dev/papers/dynamics) plus a working implementation in `src/populace_dynamics/`:
+
+- `harness/` — the population-view scoring harness (geometry blocks, PanelView trajectory windows, the moment battery in `moments.py`)
+- `data/` — label-verified PSID readers (`family.py` builds the 1968-2022 head/spouse earnings panel with assignment flags; PSID files staged at `~/PolicyEngine/psid-data`)
+- `ss/` — the statutory AIME/PIA oracle (parameters load from a policyengine-us checkout; it is the validation oracle for the Axiom rules-engine encodings, not a rules engine)
+
+`gates.yaml` is the pre-registration contract: gate-1 thresholds are **locked** (ratified via PR #33/#39) and change only through a public amendment plus a fresh referee round. `runs/` holds committed evidence artifacts (noise floors, gate runs, sensitivities) pinned by reproduction tests; model candidates are registered on issue #42 before each one-shot run. Do not edit `gates.yaml` thresholds or committed `runs/` artifacts casually.
+
+Gate runs need populace-fit, which pins scikit-learn <1.9 and cannot coexist with the repo `.venv` — use a dedicated venv (`.venv-gate` pattern); the affected tests importorskip `populace.fit`.
 
 ## Commands
 
@@ -99,16 +107,15 @@ docs/
 | [policyengine-us](https://github.com/PolicyEngine/policyengine-us) | US tax-benefit rules | Has Social Security implementation |
 | [L0](https://github.com/PolicyEngine/L0) | Sparse reweighting | Optional sample selection |
 
-## Future Code Structure (Phase 1+)
-
-When implementation begins, the repository will add:
+## Code Layout
 
 ```
-data/           # Data preparation (CPS, PSID downloads)
-imputation/     # Earnings history QRF models
-calibration/    # Gradient descent reweighting to SSA targets
-simulation/     # Forward projection and benefit calculation
-tests/          # Unit and validation tests
+src/populace_dynamics/   # harness/, data/, ss/ (see Project Status)
+gates.yaml               # locked pre-registration contract
+runs/                    # committed evidence artifacts (test-pinned)
+scripts/                 # floor builders, gate runners, sensitivities
+tests/                   # pytest; PSID-dependent tests skip off-machine
+paper/                   # the Quarto paper (front door)
 ```
 
 ## Code Style
