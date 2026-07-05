@@ -1,0 +1,133 @@
+{
+  "run": "pia_observed_psid_v1",
+  "description": "AIME/PIA/age-62 benefit computed from OBSERVED PSID head/spouse earnings histories (family files, reference years 1968-2022); statutory formulas 42 USC 415(a)/(b), 402(q), 416(l); parameters from the policyengine-us tree; bend points derived per 415(a)(1)(B), cross-checked against stored thresholds and SSA's 2015 determination",
+  "pe_us_revision": "2542e38bc0",
+  "selection": {
+    "eligibility_years": [
+      2005,
+      2019
+    ],
+    "coverage_floor": 0.8,
+    "window": "ages 22-61",
+    "single_year_gaps": "interpolated (mean of neighbors)",
+    "caveats": [
+      "PSID long-stayers only (attrition selection)",
+      "weights = person's latest observed weight",
+      "head/spouse labor income; wife series wages-only for reference years 1975-1977",
+      "claim at exactly 62 assumed for the benefit column"
+    ]
+  },
+  "n_careers": 1486,
+  "interpolated_years_median": 8.0,
+  "by_eligibility_year": {
+    "2005": {
+      "n": 52.0,
+      "median_aime": 2690.0,
+      "median_pia": 1224.4,
+      "mean_pia": 1193.31,
+      "mean_benefit_62": 894.98
+    },
+    "2006": {
+      "n": 79.0,
+      "median_aime": 2399.0,
+      "median_pia": 1148.1,
+      "mean_pia": 1152.73,
+      "mean_benefit_62": 864.55
+    },
+    "2007": {
+      "n": 64.0,
+      "median_aime": 3347.0,
+      "median_pia": 1465.4,
+      "mean_pia": 1326.67,
+      "mean_benefit_62": 995.0
+    },
+    "2008": {
+      "n": 78.0,
+      "median_aime": 3386.0,
+      "median_pia": 1495.9,
+      "mean_pia": 1362.36,
+      "mean_benefit_62": 1021.77
+    },
+    "2009": {
+      "n": 101.0,
+      "median_aime": 2977.0,
+      "median_pia": 1384.1,
+      "mean_pia": 1435.19,
+      "mean_benefit_62": 1076.39
+    },
+    "2010": {
+      "n": 110.0,
+      "median_aime": 3008.0,
+      "median_pia": 1403.9,
+      "mean_pia": 1441.57,
+      "mean_benefit_62": 1081.18
+    },
+    "2011": {
+      "n": 114.0,
+      "median_aime": 3671.0,
+      "median_pia": 1609.1,
+      "mean_pia": 1481.18,
+      "mean_benefit_62": 1110.88
+    },
+    "2012": {
+      "n": 95.0,
+      "median_aime": 3366.0,
+      "median_pia": 1521.9,
+      "mean_pia": 1540.17,
+      "mean_benefit_62": 1155.12
+    },
+    "2013": {
+      "n": 90.0,
+      "median_aime": 3154.0,
+      "median_pia": 1468.0,
+      "mean_pia": 1550.36,
+      "mean_benefit_62": 1162.77
+    },
+    "2014": {
+      "n": 126.0,
+      "median_aime": 3432.0,
+      "median_pia": 1571.5,
+      "mean_pia": 1538.65,
+      "mean_benefit_62": 1153.99
+    },
+    "2015": {
+      "n": 108.0,
+      "median_aime": 3782.0,
+      "median_pia": 1689.3,
+      "mean_pia": 1587.32,
+      "mean_benefit_62": 1190.49
+    },
+    "2016": {
+      "n": 119.0,
+      "median_aime": 4120.0,
+      "median_pia": 1814.8,
+      "mean_pia": 1707.81,
+      "mean_benefit_62": 1280.86
+    },
+    "2017": {
+      "n": 123.0,
+      "median_aime": 3562.0,
+      "median_pia": 1653.1,
+      "mean_pia": 1654.83,
+      "mean_benefit_62": 1227.33
+    },
+    "2018": {
+      "n": 127.0,
+      "median_aime": 3818.0,
+      "median_pia": 1740.8,
+      "mean_pia": 1690.73,
+      "mean_benefit_62": 1239.86
+    },
+    "2019": {
+      "n": 100.0,
+      "median_aime": 2892.0,
+      "median_pia": 1462.5,
+      "mean_pia": 1520.47,
+      "mean_benefit_62": 1102.34
+    }
+  },
+  "ssa_comparison": {
+    "status": "pending",
+    "plan": "Anchor against SSA Annual Statistical Supplement new-award benefit tables (6.A4 time series; 6.B3 per-edition with-reduction averages; 6.B5.1 age-at-entitlement distribution for the claim-age mix). ssa.gov blocks non-browser fetches; extract via browser session or the Supplement PDF."
+  }
+}
