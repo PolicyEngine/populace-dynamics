@@ -477,7 +477,8 @@ behind the published numbers.
 
 The protocol of @sec-scoring stopped being a design in July 2026.
 This section reports what it produced: a locked gate, five
-registered model runs, and the findings the failures purchased.
+registered and scored model runs, and the findings the failures
+purchased.
 Every number below recomputes from committed artifacts in the
 project repository; the run log lives in the repository's pull
 requests and the candidate registry in
@@ -519,7 +520,7 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | + person effect as feature | 0.726 | 0.688 | 0.649 | fail |
 | + persistence-aware decomposition | 0.722 | 0.695 | 0.647 | fail |
 | structural three-component assembly | 0.464 | 0.401 | 0.354 | fail |
-| donor splicing (registered) | — | — | — | pending |
+| donor splicing (single-donor) | 0.779 | 0.704 | 0.616 | fail |
 
 The baseline failed exactly where the pre-lock review predicted a
 one-step chain must: window-2 geometry passed on every seed while
@@ -602,12 +603,23 @@ process, where the permanent–transitory structure lives — at the
 price of heavier estimation machinery than any off-the-shelf
 learner supplies.
 
-The fifth registered candidate is the first strategy run as a
-benchmark: donor splicing inherits marginal and person-level
-dependence together, and if the field's standard answer clears the
-gate it sets the bar the generative track must beat on conditioning
-flexibility — the capability the production use case (anchoring
-histories to a cross-sectional survey record) actually needs. The
+The fifth run tested the first strategy as a benchmark, in its
+simplest registered form: one donor per target, whole careers
+spliced by age with a level adjustment at the anchor. It failed —
+informatively. The marginal came through exactly as reuse promises
+(every distributional and tail metric passed comfortably), but the
+omnibus classifier still separated spliced from held-out
+trajectories on every seed, and the battery found whole-career
+reuse too persistent: mobility, exit rates, and zero-spell lengths
+all sit outside their bands, and the autocorrelation ladder
+overshoots at every horizon. The run's own diagnostics name the
+artifacts — donor and target cohorts occupy offset points of the
+biennial age grid, so half the spliced values come from an adjacent
+age; scaling a whole career to a noisy anchor observation converts
+that noise into a permanent component; and one donor per career is
+strictly more persistent than the segment splicing MINT actually
+performs. The result bounds naive splicing rather than refuting the
+strategy; a segment-splicing variant remains available. The
 generative track's next design composes the third and fourth
 strategies with the project's existing machinery: empirical
 quantile marginals, persistent dynamics in rank space, and
