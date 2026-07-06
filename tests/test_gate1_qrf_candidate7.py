@@ -289,7 +289,15 @@ def test_stored_thresholds_match_locked_gates_yaml():
     views_cfg = _gate1_thresholds()["views"]
     for seed in artifact["per_seed"]:
         for vname, view in seed["geometry"].items():
-            assert view["thresholds"] == views_cfg[vname]["geometry"]
+            stored = dict(view["thresholds"])
+            # Ratified amendments may demote a metric after this run
+            # published (gates.yaml amendment_history); the stored
+            # thresholds remain the correct record of the gate AS RUN.
+            for metric in views_cfg[vname].get("reported_not_gated", []):
+                stored.pop(f"{metric}_max", None)
+                stored.pop(f"{metric}_range", None)
+                stored.pop(f"{metric}_min", None)
+            assert stored == views_cfg[vname]["geometry"]
 
     battery_tol = {
         k[: -len("_tolerance")]: v
