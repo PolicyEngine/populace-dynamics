@@ -108,7 +108,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 
 # The protocol machinery is IMPORTED from the merged baseline runner so
 # that the filtered-panel load, the person-disjoint split, the view
@@ -136,6 +135,7 @@ from run_gate1_baseline import (  # noqa: F401 (re-exported for tests)
     reproduce_battery_reference,
     split_holdout_train,
 )
+from scipy.stats import norm
 
 from populace_dynamics.harness import moments
 from populace_dynamics.harness import panel as hpanel
@@ -280,7 +280,9 @@ def _plotting_positions(
     return wtil, ys
 
 
-def fit_cell_marginals(train: pd.DataFrame) -> dict[tuple[int, int], CellMarginal]:
+def fit_cell_marginals(
+    train: pd.DataFrame,
+) -> dict[tuple[int, int], CellMarginal]:
     """Fit ``p0``, ``Qhat_pos``, and ``rhat`` for every train cell.
 
     Cells are (age-bin, period). Within a cell ``p0`` is the weighted
@@ -404,7 +406,10 @@ def _build_smm_support(
 
     # Stable cell ordering so the per-cell interpolation loop is fixed.
     cell_keys = sorted(
-        {(int(b), int(p)) for b, p in zip(sub["bin"], sub["period"])}
+        {
+            (int(b), int(p))
+            for b, p in zip(sub["bin"], sub["period"], strict=True)
+        }
     )
     cell_key_to_i = {k: i for i, k in enumerate(cell_keys)}
 
@@ -476,9 +481,7 @@ def _lag_pairs_from_support(
     )
 
 
-def _weighted_corr(
-    x: np.ndarray, y: np.ndarray, w: np.ndarray
-) -> float:
+def _weighted_corr(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
     """Weighted Pearson correlation, the locked autocorrelation formula."""
     if len(x) < 2:
         return float("nan")
@@ -544,9 +547,7 @@ def _simulate_magnitude_grid_u(
     bc = b * b + c * c
     w = a * z_a + np.sqrt(max(0.0, 1.0 - a2)) * shocks["eta_w"]
     x = np.empty((n, m), dtype=np.float64)
-    x[:, 0] = (b * (z_a - a * w) / bc) + np.sqrt(c * c / bc) * shocks[
-        "eta_x0"
-    ]
+    x[:, 0] = (b * (z_a - a * w) / bc) + np.sqrt(c * c / bc) * shocks["eta_x0"]
     root = np.sqrt(max(0.0, 1.0 - rho * rho))
     for j in range(1, m):
         x[:, j] = rho * x[:, j - 1] + root * shocks["nu"][:, j]
@@ -603,9 +604,7 @@ def run_smm(
     shocks = _draw_smm_shocks(support, seed)
 
     # Per-slot cell marginals in the support's fixed cell order.
-    cell_marginals_by_i = [
-        marginals[key] for key in support["cell_keys"]
-    ]
+    cell_marginals_by_i = [marginals[key] for key in support["cell_keys"]]
 
     # z_A per person from the (positive) anchor value at its cell.
     z_a = np.empty(support["n_persons"], dtype=np.float64)
@@ -631,18 +630,14 @@ def run_smm(
     ac_train = moments.autocorrelation(
         train, lags=SMM_LAGS, period_step=PERIOD_STEP, log=True, **_MOMENT_KW
     )
-    target = {
-        int(r.lag): float(r.value) for r in ac_train.itertuples()
-    }
+    target = {int(r.lag): float(r.value) for r in ac_train.itertuples()}
     target_vec = np.array([target[lag] for lag in SMM_LAGS])
 
     def simulate_moments(a2: float, c2: float, rho: float) -> np.ndarray:
         a = np.sqrt(a2)
         c = np.sqrt(c2)
         b = np.sqrt(max(0.0, 1.0 - a2 - c2))
-        u_grid = _simulate_magnitude_grid_u(
-            support, shocks, z_a, a, b, c, rho
-        )
+        u_grid = _simulate_magnitude_grid_u(support, shocks, z_a, a, b, c, rho)
         earn = _u_to_earnings_grid(support, cell_marginals_by_i, u_grid)
         # Overlay the real anchor earnings at rank 0 (kept as generation
         # keeps the anchor); other positive slots use simulated values.
@@ -715,9 +710,7 @@ def run_smm(
         "b": float(np.sqrt(b2)),
         "c": float(np.sqrt(c2)),
         "min_sse": best["sse"],
-        "target_autocorr": {
-            f"lag{lag}": target[lag] for lag in SMM_LAGS
-        },
+        "target_autocorr": {f"lag{lag}": target[lag] for lag in SMM_LAGS},
         "simulated_autocorr": best["sim_autocorr"],
         "n_smm_persons": int(support["n_persons"]),
         "n_grid_points_evaluated": len(grid_trace),
@@ -837,7 +830,7 @@ def generate_candidate(
     n_rows = len(hp)
     pos_by_key = {
         (int(pid), int(r)): i
-        for i, (pid, r) in enumerate(zip(pids, ranks))
+        for i, (pid, r) in enumerate(zip(pids, ranks, strict=True))
     }
     max_depth = int(hp["depth"].max()) if n_rows else 0
 
@@ -893,9 +886,7 @@ def generate_candidate(
         order = np.argsort(pids[positions], kind="stable")
         positions = positions[order]
         step_pids = pids[positions]
-        step_person_k = np.array(
-            [person_pos[int(pid)] for pid in step_pids]
-        )
+        step_person_k = np.array([person_pos[int(pid)] for pid in step_pids])
         # Advance x for exactly the persons present at this step.
         nu = rng_x.standard_normal(len(positions))
         x_step = rho * x_state[step_person_k] + root * nu
@@ -913,9 +904,7 @@ def generate_candidate(
         )
         next_level = gen_earn[next_positions]
         u_gate = rng_gate.random(len(positions))
-        signs = _gate_sign_draw(
-            fitted, next_level, ages[positions], u_gate
-        )
+        signs = _gate_sign_draw(fitted, next_level, ages[positions], u_gate)
         is_pos = signs == 1
 
         # Magnitude where positive: Qhat_pos of the period's cell at U.
@@ -975,9 +964,7 @@ def generate_candidate(
             "target_autocorr": params["target_autocorr"],
             "simulated_autocorr": params["simulated_autocorr"],
             "n_smm_persons": int(params["n_smm_persons"]),
-            "n_grid_points_evaluated": int(
-                params["n_grid_points_evaluated"]
-            ),
+            "n_grid_points_evaluated": int(params["n_grid_points_evaluated"]),
         },
         "anchor_rank_distribution": anchor_rank_dist,
         "cell_count_distribution": cell_count_summary,
@@ -985,9 +972,7 @@ def generate_candidate(
             "n_positive_generated": int(n_positive_gen),
             "n_clamped": int(n_clamped),
             "share": (
-                float(n_clamped / n_positive_gen)
-                if n_positive_gen
-                else 0.0
+                float(n_clamped / n_positive_gen) if n_positive_gen else 0.0
             ),
             "note": (
                 "share of generated POSITIVE periods whose rank U fell "
@@ -1356,12 +1341,12 @@ def run(verbose: bool = True) -> dict[str, Any]:
                     "min_sse": s["smm"]["min_sse"],
                     "target_autocorr": s["smm"]["target_autocorr"],
                     "simulated_autocorr": s["smm"]["simulated_autocorr"],
-                    "anchor_rank_distribution": s[
-                        "generation_diagnostics"
-                    ]["anchor_rank_distribution"],
-                    "cell_count_distribution": s[
-                        "generation_diagnostics"
-                    ]["cell_count_distribution"],
+                    "anchor_rank_distribution": s["generation_diagnostics"][
+                        "anchor_rank_distribution"
+                    ],
+                    "cell_count_distribution": s["generation_diagnostics"][
+                        "cell_count_distribution"
+                    ],
                     "clamped_rank_share": s["generation_diagnostics"][
                         "clamped_rank_share"
                     ]["share"],
@@ -1397,9 +1382,7 @@ def _revision_pins() -> dict[str, Any]:
     def _sha(cwd: Path) -> str | None:
         try:
             return (
-                subprocess.check_output(
-                    ["git", "rev-parse", "HEAD"], cwd=cwd
-                )
+                subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=cwd)
                 .decode()
                 .strip()
             )
