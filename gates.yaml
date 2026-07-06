@@ -383,21 +383,53 @@ gates:
             decision-relevance, NOT relaxation: candidate 7 passes every
             population-view pairs threshold on all five seeds yet FAILS
             this block on Q0, so the amendment nets MORE strictness where
-            the evidence says it matters. The bands are the paper's
-            pre-stated +/-5%-of-SSA-statistics success criterion (see
-            a_priori_source); the KS band alone is derived from the
-            committed real-vs-real anchor (see derivations), matching how
-            the locked geometry thresholds derive from their floors.
+            the evidence says it matters. The percent bands are this
+            amendment's OWN proposal-time criterion (see
+            a_priori_source — the referee round corrected an earlier
+            misattribution to the paper); the KS band alone is derived
+            from the committed real-vs-real anchor (see derivations),
+            matching how the locked geometry thresholds derive from
+            their floors.
           a_priori_source: >-
-            The +/-5% bands are the project's pre-stated benefit-space
-            success criterion: "AIME distribution for retired workers ...
-            within 5 percent on key percentiles" (Phase-1 acceptance
-            table, docs/operationalizing-longitudinal-construction.md and
-            docs/evaluation-and-model-selection.md; the paper carries the
-            same standard, "+/-5% of SSA statistics", CLAUDE.md Writing
-            Standards). The PIA-proxy is a monotone statute-shaped
-            transform of the AIME-proxy, so its percentile/mean gaps map
-            onto this criterion. Fixed a priori, before this run.
+            The +/-5% percent bands are ADOPTED BY THIS AMENDMENT at
+            proposal time (2026-07-06), before any candidate was scored
+            against them. Provenance, stated exactly: the 5% figure
+            originates in the project's DRAFT Phase-1 acceptance tables
+            ("AIME distribution for retired workers ... within 5
+            percent on key percentiles",
+            docs/operationalizing-longitudinal-construction.md and
+            docs/evaluation-and-model-selection.md), which are draft
+            design documents in AIME units; the paper itself carries no
+            such criterion (an earlier draft of this subsection
+            misattributed it — corrected per the amendment referee
+            round, PR #57 review). Because the PIA formula is concave,
+            a 5% band in PIA-proxy space is STRICTER than the draft
+            tables' 5% in AIME space (roughly 7-9% AIME-equivalent at
+            the 2022 bend points), so adopting 5% here tightens rather
+            than relaxes the draft figure. The committed anchor shows
+            reality inside 2.7% on every gated statistic of this
+            block.
+          demotion_disclosure: >-
+            Moving the runs-view c2st from gated to reported changes
+            the GEOMETRY-block verdicts of four of the nine committed
+            runs, disclosed here in full (per the amendment referee
+            round): the baseline (PR #40) geometry 0/5 -> 5/5 (its only
+            geometry failures were runs-view c2st), candidate 2 (PR
+            #43) 3/5 -> 5/5, candidate 3 (PR #44) 4/5 (seed 3 also
+            fails pairs c2st, which stays gated), candidate 7 (PR #55)
+            2/5 -> 5/5. NO committed run's overall gate-1 verdict
+            flips to pass: every one of the four still fails the
+            battery (baseline/c2/c3 on the autocorrelation ladder;
+            candidate 7 on the 10-year rung 3/5) and, under this
+            amendment, the benefit-space block (referee-verified:
+            baseline pooled Q0 +19.0, candidate 7 +9.3, vs reality
+            2.66 and the 5 band). Guard concentration, acknowledged:
+            after the demotion the anti-persistence duty rests on the
+            battery autocorrelation bands plus the pooled-Q0 benefit
+            band; across all nine committed runs the battery ladder
+            alone failed every persistence-broken candidate on 5/5
+            seeds, so the duty is carried by the block with the
+            strongest demonstrated bite.
           anchor_artifact: runs/pia_proxy_floor_9822.json
           scored_on: >-
             the pairs-view candidate PIA-proxy panels per gate seed:
@@ -409,23 +441,23 @@ gates:
             abs_mean_pct_diff_max:
               value: 5
               scope: per_seed
-              a_priori_source: paper_5pct_criterion
+              a_priori_source: amendment_5pct_criterion
             abs_median_pct_diff_max:
               value: 5
               scope: per_seed
-              a_priori_source: paper_5pct_criterion
+              a_priori_source: amendment_5pct_criterion
             decile_pct_diff_max:
               value: 5
               scope: per_seed
               deciles_gated: [d3, d4, d5, d6, d7, d8, d9]
-              a_priori_source: paper_5pct_criterion
+              a_priori_source: amendment_5pct_criterion
             weighted_ks_max:
               value: 0.0599
               scope: per_seed
             abs_q0_mean_pct_diff_max:
               value: 5
               scope: pooled_across_seeds
-              a_priori_source: paper_5pct_criterion
+              a_priori_source: amendment_5pct_criterion
           reported_not_gated:
             - d1  # bottom decile: near-zero PIA-proxy denominator
             - d2  # second decile: same denominator fragility (see note)
