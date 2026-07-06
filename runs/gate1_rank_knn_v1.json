@@ -1,0 +1,2013 @@
+{
+  "schema_version": "gate1_rank_knn.v1",
+  "run": "gate1_rank_knn_v1",
+  "gate": "gate_1",
+  "spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4896132094",
+  "description": "Gate-1 candidate 7: k-NN conditional rank bootstrap with anchored two-step memory. Empirical per-cell quantile marginals (five-year age bin x period, byte-for-byte candidate 5b's) supply the magnitude; a continuous nonparametric transition law supplies the dynamics. From train positive observations, backward-adjacent records are built: pairs (u_prev, u_next) and, where the person is also positive one period later, triples (u_prev, u_next, u_next2); each record carries the person's continuous anchor rank u_A and the earlier-period weight. Generation keeps each holdout person's real anchor and chains backward one conditional draw per observed transition: matching on the next two generated-or-real ranks (v1, v2) and the anchor rank a by distance |u_next - v1| + 0.5|u_next2 - v2| (triples only) + 0.25|u_A - a|, taking the k=25 nearest records and drawing ONE with probability proportional to its weight; the generated u_prev is that record's u_prev exactly (a continuous empirical innovation; no binning, smoothing, or jitter). Where the next period is zero, the re-entry pool (candidate 6's re-entry pairs) is matched on |u_A - a| alone. Earnings = Qhat_pos of the period's cell at u_prev. Participation reuses the candidate-2 backward regime gate. No calibration stage: the bootstrap has zero free parameters. Registered frozen before the run in issue #42 (see spec_registration). Candidate scored against the held-out PSID family earnings panel geometry (two locked views) and the locked moment battery, per the locked seed-level conjunction in gates.yaml (pull request 39). Protocol machinery imported byte-for-byte from the baseline runner (pull request 40); rank machinery and participation gate from the candidate-5b runner (pull request 52).",
+  "model": {
+    "class": "k-NN conditional rank bootstrap with anchored two-step memory (quantile marginal + continuous empirical conditional draws)",
+    "stochastic": true,
+    "populace_fit_used": true,
+    "populace_fit_scope": "participation gate only (RegimeGatedQRF sign gate); the donor pools and k-NN draws use pure numpy",
+    "calibration": "none (zero free parameters; the bootstrap has no rescaling freedom)",
+    "marginal": {
+      "cells": "five-year age bins {25-29,...,55-59} x calendar period",
+      "p0": "weighted zero share per cell (train only)",
+      "quantile": "weighted empirical quantile Qhat_pos: sort positive y_k with weights w_k, plotting position wtil_k = (cum_k - 0.5 w_k)/W, linear interpolation of (wtil_k, y_k) clamped to [y_min, y_max]",
+      "rank": "inverse interpolation rhat: (y_k -> wtil_k) clamped to [0.001, 0.999]",
+      "source": "byte-for-byte candidate 5b (pull request 52)"
+    },
+    "anchor_rank": {
+      "rule": "u_A = rhat(anchor value) at its cell for a positive anchor; u_A = p0/2 of the cell for a zero anchor (continuous, carried per donor record and per query person)"
+    },
+    "donor_pools": {
+      "pairs": "train backward-adjacent pairs among positives (both periods positive, consecutive observed periods 2 years apart): (u_prev, u_next)",
+      "triples": "pairs whose person is also positive at the next-later observed period after u_next (period t+2): (u_prev, u_next, u_next2)",
+      "reentry": "train pairs where the LATER period is zero and the EARLIER is positive (candidate 6's re-entry pairs): (u_prev)",
+      "u_prev": "rhat at the earlier period's own cell",
+      "u_next": "rhat at the later period's own cell",
+      "u_next2": "rhat at the two-steps-later period's own cell",
+      "carried": "continuous anchor rank u_A and earlier-period person weight (weight_tm2) per record",
+      "tie_break_order": "records pinned in a stable (person_id, period_prev) sort that fixes the k-NN tie-break"
+    },
+    "knn": {
+      "k": 25,
+      "distance_triples": "|u_next - v1| + 0.5|u_next2 - v2| + 0.25|u_A - a|",
+      "distance_pairs": "|u_next - v1| + 0.25|u_A - a|",
+      "distance_reentry": "|u_A - a|",
+      "weights": {
+        "w_next": 1.0,
+        "w_next2": 0.5,
+        "w_anchor": 0.25
+      },
+      "record_choice": "triples when v2 exists (next-later period generated positive), else pairs; re-entry pool when the next period is zero",
+      "draw": "one record drawn with probability proportional to its weight among the k=25 nearest (seeded substream); generated u_prev is that record's u_prev exactly",
+      "no_smoothing": "no binning, no smoothing, no within-bin jitter; earnings = Qhat_pos of the target cell at u_prev (interpolated, so no value duplication)"
+    },
+    "generation": {
+      "anchor": "chronologically last observed period held at real earnings",
+      "anchor_rank": "positive anchor u_A = rhat(anchor value) at its cell; zero anchor u_A = p0/2 of the cell (continuous)",
+      "chain": "backward one conditional draw per observed transition (standing gap rule)",
+      "memory": "matches on v1 = rank of the next (rank j-1) period and v2 = rank of the two-steps-later (rank j-2) period when both were generated positive; plus the continuous anchor rank",
+      "period_draw": "earnings = Qhat_pos of the period's cell at the drawn u_prev",
+      "participation": "candidate-2 backward regime gate (RegimeGatedQRF sign gate) on (next generated level, current age), trained on the 80% complement, populace-fit defaults",
+      "rng": "distinct fixed-label substreams of the gate seed: gate, donor-draw, re-entry-draw",
+      "candidate_panel_pin": "exactly the holdout persons on exactly their observed periods; only earnings generated; anchor keeps real value; person_id/period/age/weight copied from holdout"
+    }
+  },
+  "protocol": {
+    "filter": "age 25-59, reference years 1998-2022, positive weights (applied before the split)",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel, 'person_id', fraction=0.2, seed=s); the drawn 20% is the holdout, the complement is the training set (imported from the baseline runner)",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "views": {
+      "psid_family_earnings_pairs": {
+        "window": 2,
+        "period_step": 2
+      },
+      "psid_family_earnings_runs": {
+        "window": 3,
+        "period_step": 2
+      }
+    },
+    "scoring": "panel_scorecard(candidate, holdout, view, seed=s) per locked view; battery on the candidate panel vs committed battery_reference (imported from the baseline runner)",
+    "pass_rule": "seed passes geometry iff every locked threshold on every locked view holds; seed passes battery iff every locked tolerance holds; gate passes iff >=4/5 seeds pass geometry AND >=4/5 seeds pass battery"
+  },
+  "battery_reference_reproduction": {
+    "run": "noise_floor_psid_family_9822",
+    "all_committed_values_reproduced_exactly": true,
+    "checks": {
+      "autocorr_log_2yr": {
+        "recomputed": 0.7301235102305604,
+        "committed": 0.7301235102305604,
+        "exact_float_match": true
+      },
+      "autocorr_log_4yr": {
+        "recomputed": 0.657166897978905,
+        "committed": 0.657166897978905,
+        "exact_float_match": true
+      },
+      "autocorr_log_10yr": {
+        "recomputed": 0.538879427219318,
+        "committed": 0.538879427219318,
+        "exact_float_match": true
+      },
+      "mobility_diagonal_mean": {
+        "recomputed": 0.6040519205702761,
+        "committed": 0.6040519205702761,
+        "exact_float_match": true
+      },
+      "zero_persistence": {
+        "recomputed": 0.7010206920609328,
+        "committed": 0.7010206920609328,
+        "exact_float_match": true
+      },
+      "entry_rate": {
+        "recomputed": 0.06672228841044435,
+        "committed": 0.06672228841044435,
+        "exact_float_match": true
+      },
+      "exit_rate": {
+        "recomputed": 0.29897930793906724,
+        "committed": 0.29897930793906724,
+        "exact_float_match": true
+      },
+      "mean_spell_length": {
+        "recomputed": 2.087148386008407,
+        "committed": 2.087148386008407,
+        "exact_float_match": true
+      }
+    }
+  },
+  "battery_reference_run": "runs/noise_floor_psid_family_9822.json",
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_persons": 4427,
+      "n_person_periods": 25071,
+      "n_train_persons": 17873,
+      "n_train_pairs": 81841,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20129,
+        "psid_family_earnings_runs": 16116
+      },
+      "regimes": {
+        "participation_gate": {
+          "earnings_tm2": "zero_inflated_positive"
+        }
+      },
+      "pools": {
+        "n_pairs": 64603,
+        "n_triples": 49220,
+        "n_reentry": 4994
+      },
+      "generation_diagnostics": {
+        "n_holdout_persons": 4427,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.000962018172554896,
+          "p25": 0.0045308982509630795,
+          "p50": 0.016233107945926945,
+          "p75": 0.026901194240664048,
+          "p90": 0.04095574362662082,
+          "p100": 0.1697021587259331,
+          "mean": 0.01928699780212337
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12650,
+          "n_pair_draws": 3776,
+          "n_reentry_draws": 1217,
+          "triple_share_of_positive": 0.7701205406063558
+        },
+        "donor_reuse": {
+          "n_pair_records": 64603,
+          "n_triple_records": 49220,
+          "n_reentry_records": 4994,
+          "pair_draws_per_record": 0.05844929802021578,
+          "triple_draws_per_record": 0.2570093457943925,
+          "reentry_draws_per_record": 0.24369243091710052,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5655,
+            "bottom_share": 0.11936339522546419,
+            "top_share": 0.008488063660477453
+          },
+          "Q1": {
+            "n": 3075,
+            "bottom_share": 0.03577235772357724,
+            "top_share": 0.001951219512195122
+          },
+          "Q2": {
+            "n": 3244,
+            "bottom_share": 0.018495684340320593,
+            "top_share": 0.012330456226880395
+          },
+          "Q3": {
+            "n": 2886,
+            "bottom_share": 0.010395010395010396,
+            "top_share": 0.010395010395010396
+          },
+          "Q4": {
+            "n": 2783,
+            "bottom_share": 0.01006108515989939,
+            "top_share": 0.22493711821775064
+          }
+        },
+        "drawn_corner_mass_note": "share of drawn u_prev in the bottom (< 0.05) and top (> 0.95) rank corners, by the query person's anchor quintile; comparable to candidate 6's kernel corner masses",
+        "n_draws": 17643,
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 892,
+          "[0.1,0.2)": 737,
+          "[0.2,0.3)": 367,
+          "[0.3,0.4)": 404,
+          "[0.4,0.5)": 397,
+          "[0.5,0.6)": 392,
+          "[0.6,0.7)": 349,
+          "[0.7,0.8)": 282,
+          "[0.8,0.9)": 299,
+          "[0.9,1.0)": 308
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 312,
+          "p25": 780,
+          "median": 930,
+          "p75": 1112,
+          "max": 1466
+        },
+        "clamped_rank_share": {
+          "n_positive_generated": 17643,
+          "n_clamped": 1,
+          "share": 5.667970299835629e-05,
+          "note": "share of generated POSITIVE periods whose drawn rank u_prev fell outside the cell's plotting-position span [wtil[0], wtil[-1]] and was clamped to the cell's [y_min, y_max]"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.0033870387538770252,
+            "c2st_auc": 0.5290954306159952,
+            "prdc_precision": 0.98828125,
+            "prdc_recall": 0.9892578125,
+            "prdc_density": 1.11220703125,
+            "prdc_coverage": 0.9501953125,
+            "w1_over_sd.earnings_t1": 0.02587048094866763,
+            "q90_ratio.earnings_t1": 0.9520269898245968,
+            "q99_ratio.earnings_t1": 0.8593316810452375
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5290954306159952,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": true
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.0033870387538770252,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9501953125,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.8593316810452375,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 0.9520269898245968,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.02587048094866763,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.00123559182638866,
+            "c2st_auc": 0.5484295518298694,
+            "prdc_precision": 0.9775390625,
+            "prdc_recall": 0.97607421875,
+            "prdc_density": 0.9888671875,
+            "prdc_coverage": 0.96044921875,
+            "w1_over_sd.earnings_t2": 0.026886758858528863,
+            "q90_ratio.earnings_t2": 0.9316458434311097,
+            "q99_ratio.earnings_t2": 0.8998920336222265
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5484295518298694,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.96044921875,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.718990666808246,
+        "autocorr_log_4yr": 0.6487951539588925,
+        "autocorr_log_10yr": 0.470124309451476,
+        "mobility_diagonal": 0.5822754457223404,
+        "zero_persistence": 0.7080236933286644,
+        "entry_rate": 0.06675402145043903,
+        "exit_rate": 0.29197630667133556,
+        "mean_spell_length": 2.140638799827272
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.718990666808246,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.011132843422314465,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6487951539588925,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.008371744020012506,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.470124309451476,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.06875511776784204,
+          "pass": true
+        },
+        "mobility_diagonal": {
+          "value": 0.5822754457223404,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.021776474847935767,
+          "pass": true
+        },
+        "zero_persistence": {
+          "value": 0.7080236933286644,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.007003001267731679,
+          "pass": true
+        },
+        "entry_rate": {
+          "value": 0.06675402145043903,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 3.1733039994680245e-05,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.29197630667133556,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.007003001267731679,
+          "pass": true
+        },
+        "mean_spell_length": {
+          "value": 2.140638799827272,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.05349041381886499,
+          "pass": true
+        }
+      },
+      "battery_pass": true
+    },
+    {
+      "seed": 1,
+      "n_persons": 4495,
+      "n_person_periods": 25501,
+      "n_train_persons": 17805,
+      "n_train_pairs": 81491,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20479,
+        "psid_family_earnings_runs": 16404
+      },
+      "regimes": {
+        "participation_gate": {
+          "earnings_tm2": "zero_inflated_positive"
+        }
+      },
+      "pools": {
+        "n_pairs": 64263,
+        "n_triples": 49007,
+        "n_reentry": 4927
+      },
+      "generation_diagnostics": {
+        "n_holdout_persons": 4495,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009706563165685911,
+          "p25": 0.004482221343146409,
+          "p50": 0.016113071847337734,
+          "p75": 0.026975062830809596,
+          "p90": 0.04076807820424687,
+          "p100": 0.16271581370751056,
+          "mean": 0.01914470455619074
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12813,
+          "n_pair_draws": 3854,
+          "n_reentry_draws": 1222,
+          "triple_share_of_positive": 0.7687646247075058
+        },
+        "donor_reuse": {
+          "n_pair_records": 64263,
+          "n_triple_records": 49007,
+          "n_reentry_records": 4927,
+          "pair_draws_per_record": 0.05997230132424568,
+          "triple_draws_per_record": 0.2614524455690003,
+          "reentry_draws_per_record": 0.24802110817941952,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5765,
+            "bottom_share": 0.11899392888117953,
+            "top_share": 0.01248915871639202
+          },
+          "Q1": {
+            "n": 3345,
+            "bottom_share": 0.039461883408071746,
+            "top_share": 0.003288490284005979
+          },
+          "Q2": {
+            "n": 3048,
+            "bottom_share": 0.016076115485564306,
+            "top_share": 0.009186351706036745
+          },
+          "Q3": {
+            "n": 3032,
+            "bottom_share": 0.010554089709762533,
+            "top_share": 0.0158311345646438
+          },
+          "Q4": {
+            "n": 2699,
+            "bottom_share": 0.005557613931085587,
+            "top_share": 0.22600963319748055
+          }
+        },
+        "drawn_corner_mass_note": "share of drawn u_prev in the bottom (< 0.05) and top (> 0.95) rank corners, by the query person's anchor quintile; comparable to candidate 6's kernel corner masses",
+        "n_draws": 17889,
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 956,
+          "[0.1,0.2)": 746,
+          "[0.2,0.3)": 437,
+          "[0.3,0.4)": 392,
+          "[0.4,0.5)": 407,
+          "[0.5,0.6)": 341,
+          "[0.6,0.7)": 341,
+          "[0.7,0.8)": 325,
+          "[0.8,0.9)": 262,
+          "[0.9,1.0)": 288
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 304,
+          "p25": 773,
+          "median": 930,
+          "p75": 1115,
+          "max": 1453
+        },
+        "clamped_rank_share": {
+          "n_positive_generated": 17889,
+          "n_clamped": 5,
+          "share": 0.00027950136955671084,
+          "note": "share of generated POSITIVE periods whose drawn rank u_prev fell outside the cell's plotting-position span [wtil[0], wtil[-1]] and was clamped to the cell's [y_min, y_max]"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.003414866024317842,
+            "c2st_auc": 0.5248586477204817,
+            "prdc_precision": 0.99169921875,
+            "prdc_recall": 0.99365234375,
+            "prdc_density": 1.04697265625,
+            "prdc_coverage": 0.955078125,
+            "w1_over_sd.earnings_t1": 0.012707883394704215,
+            "q90_ratio.earnings_t1": 1.0191547830635765,
+            "q99_ratio.earnings_t1": 1.0159855939388533
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5248586477204817,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": true
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.003414866024317842,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.955078125,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 1.0159855939388533,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0191547830635765,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.012707883394704215,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.001925222845572172,
+            "c2st_auc": 0.5392335892170241,
+            "prdc_precision": 0.9814453125,
+            "prdc_recall": 0.984375,
+            "prdc_density": 0.99619140625,
+            "prdc_coverage": 0.9375,
+            "w1_over_sd.earnings_t2": 0.022096728551781818,
+            "q90_ratio.earnings_t2": 1.0250528522226592,
+            "q99_ratio.earnings_t2": 1.0292575497834298
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5392335892170241,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9375,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        }
+      },
+      "geometry_pass": true,
+      "battery_values": {
+        "autocorr_log_2yr": 0.7206513198806808,
+        "autocorr_log_4yr": 0.6322121151903751,
+        "autocorr_log_10yr": 0.4724757124012393,
+        "mobility_diagonal": 0.5892333053426938,
+        "zero_persistence": 0.6791782723475275,
+        "entry_rate": 0.06759783095970527,
+        "exit_rate": 0.32082172765247247,
+        "mean_spell_length": 2.057891673456357
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.7206513198806808,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.009472190349879672,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6322121151903751,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.024954782788529917,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.4724757124012393,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.06640371481807872,
+          "pass": true
+        },
+        "mobility_diagonal": {
+          "value": 0.5892333053426938,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.014818615227582321,
+          "pass": true
+        },
+        "zero_persistence": {
+          "value": 0.6791782723475275,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.02184241971340528,
+          "pass": true
+        },
+        "entry_rate": {
+          "value": 0.06759783095970527,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.0008755425492609215,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.32082172765247247,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.021842419713405226,
+          "pass": true
+        },
+        "mean_spell_length": {
+          "value": 2.057891673456357,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.02925671255204998,
+          "pass": true
+        }
+      },
+      "battery_pass": true
+    },
+    {
+      "seed": 2,
+      "n_persons": 4477,
+      "n_person_periods": 25407,
+      "n_train_persons": 17823,
+      "n_train_pairs": 81559,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20411,
+        "psid_family_earnings_runs": 16358
+      },
+      "regimes": {
+        "participation_gate": {
+          "earnings_tm2": "zero_inflated_positive"
+        }
+      },
+      "pools": {
+        "n_pairs": 64557,
+        "n_triples": 49230,
+        "n_reentry": 4902
+      },
+      "generation_diagnostics": {
+        "n_holdout_persons": 4477,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009273211949020754,
+          "p25": 0.004380124585878581,
+          "p50": 0.01599025654746146,
+          "p75": 0.026850830219967793,
+          "p90": 0.04125636722281354,
+          "p100": 0.1486252264795287,
+          "mean": 0.019143354531245986
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12679,
+          "n_pair_draws": 3824,
+          "n_reentry_draws": 1291,
+          "triple_share_of_positive": 0.7682845543234563
+        },
+        "donor_reuse": {
+          "n_pair_records": 64557,
+          "n_triple_records": 49230,
+          "n_reentry_records": 4902,
+          "pair_draws_per_record": 0.05923447496011277,
+          "triple_draws_per_record": 0.25754621165955716,
+          "reentry_draws_per_record": 0.26336189310485514,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5597,
+            "bottom_share": 0.1341790244773986,
+            "top_share": 0.011434697159192424
+          },
+          "Q1": {
+            "n": 3095,
+            "bottom_share": 0.03037156704361874,
+            "top_share": 0.005815831987075929
+          },
+          "Q2": {
+            "n": 3259,
+            "bottom_share": 0.025161092359619514,
+            "top_share": 0.015342129487572876
+          },
+          "Q3": {
+            "n": 3022,
+            "bottom_share": 0.008603573792190603,
+            "top_share": 0.01753805426869623
+          },
+          "Q4": {
+            "n": 2821,
+            "bottom_share": 0.007444168734491315,
+            "top_share": 0.22013470400567176
+          }
+        },
+        "drawn_corner_mass_note": "share of drawn u_prev in the bottom (< 0.05) and top (> 0.95) rank corners, by the query person's anchor quintile; comparable to candidate 6's kernel corner masses",
+        "n_draws": 17794,
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 957,
+          "[0.1,0.2)": 736,
+          "[0.2,0.3)": 412,
+          "[0.3,0.4)": 356,
+          "[0.4,0.5)": 402,
+          "[0.5,0.6)": 360,
+          "[0.6,0.7)": 355,
+          "[0.7,0.8)": 316,
+          "[0.8,0.9)": 308,
+          "[0.9,1.0)": 275
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 304,
+          "p25": 785,
+          "median": 920,
+          "p75": 1114,
+          "max": 1427
+        },
+        "clamped_rank_share": {
+          "n_positive_generated": 17794,
+          "n_clamped": 6,
+          "share": 0.00033719231201528605,
+          "note": "share of generated POSITIVE periods whose drawn rank u_prev fell outside the cell's plotting-position span [wtil[0], wtil[-1]] and was clamped to the cell's [y_min, y_max]"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.0025016946980089827,
+            "c2st_auc": 0.5161407195236143,
+            "prdc_precision": 0.99169921875,
+            "prdc_recall": 0.99365234375,
+            "prdc_density": 1.02978515625,
+            "prdc_coverage": 0.94873046875,
+            "w1_over_sd.earnings_t1": 0.029373188809131444,
+            "q90_ratio.earnings_t1": 1.0,
+            "q99_ratio.earnings_t1": 0.8064516129032258
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5161407195236143,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": true
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.0025016946980089827,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94873046875,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.8064516129032258,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.029373188809131444,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.004357643353099849,
+            "c2st_auc": 0.5454640271528448,
+            "prdc_precision": 0.97607421875,
+            "prdc_recall": 0.98046875,
+            "prdc_density": 1.01103515625,
+            "prdc_coverage": 0.94384765625,
+            "w1_over_sd.earnings_t2": 0.0330728061944169,
+            "q90_ratio.earnings_t2": 0.9981286966833252,
+            "q99_ratio.earnings_t2": 0.7737601016820443
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5454640271528448,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94384765625,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.7110500426818246,
+        "autocorr_log_4yr": 0.6244480675791627,
+        "autocorr_log_10yr": 0.4450050709783639,
+        "mobility_diagonal": 0.5772809494123075,
+        "zero_persistence": 0.6985211707264474,
+        "entry_rate": 0.06854025767940823,
+        "exit_rate": 0.3014788292735526,
+        "mean_spell_length": 2.09597063292293
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.7110500426818246,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.019073467548735845,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6244480675791627,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.03271883039974233,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.4450050709783639,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.09387435624095414,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.5772809494123075,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.02677097115796867,
+          "pass": true
+        },
+        "zero_persistence": {
+          "value": 0.6985211707264474,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.0024995213344853884,
+          "pass": true
+        },
+        "entry_rate": {
+          "value": 0.06854025767940823,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.0018179692689638816,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.3014788292735526,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.002499521334485333,
+          "pass": true
+        },
+        "mean_spell_length": {
+          "value": 2.09597063292293,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.008822246914522935,
+          "pass": true
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 3,
+      "n_persons": 4464,
+      "n_person_periods": 25295,
+      "n_train_persons": 17836,
+      "n_train_pairs": 81657,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20313,
+        "psid_family_earnings_runs": 16257
+      },
+      "regimes": {
+        "participation_gate": {
+          "earnings_tm2": "zero_inflated_positive"
+        }
+      },
+      "pools": {
+        "n_pairs": 64793,
+        "n_triples": 49472,
+        "n_reentry": 4846
+      },
+      "generation_diagnostics": {
+        "n_holdout_persons": 4464,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009048647570640556,
+          "p25": 0.004106829745330286,
+          "p50": 0.01587972231788208,
+          "p75": 0.026729107923575916,
+          "p90": 0.040778773867865534,
+          "p100": 0.16009956883432228,
+          "mean": 0.019070927298164824
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12551,
+          "n_pair_draws": 3816,
+          "n_reentry_draws": 1285,
+          "triple_share_of_positive": 0.7668479257041608
+        },
+        "donor_reuse": {
+          "n_pair_records": 64793,
+          "n_triple_records": 49472,
+          "n_reentry_records": 4846,
+          "pair_draws_per_record": 0.05889525103020388,
+          "triple_draws_per_record": 0.2536990620957309,
+          "reentry_draws_per_record": 0.2651671481634338,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5698,
+            "bottom_share": 0.12056862056862057,
+            "top_share": 0.018252018252018252
+          },
+          "Q1": {
+            "n": 2895,
+            "bottom_share": 0.03557858376511226,
+            "top_share": 0.0051813471502590676
+          },
+          "Q2": {
+            "n": 3311,
+            "bottom_share": 0.022047719722138325,
+            "top_share": 0.007248565388100272
+          },
+          "Q3": {
+            "n": 3045,
+            "bottom_share": 0.008210180623973728,
+            "top_share": 0.012807881773399015
+          },
+          "Q4": {
+            "n": 2703,
+            "bottom_share": 0.009618941916389198,
+            "top_share": 0.21235664076951535
+          }
+        },
+        "drawn_corner_mass_note": "share of drawn u_prev in the bottom (< 0.05) and top (> 0.95) rank corners, by the query person's anchor quintile; comparable to candidate 6's kernel corner masses",
+        "n_draws": 17652,
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 934,
+          "[0.1,0.2)": 816,
+          "[0.2,0.3)": 358,
+          "[0.3,0.4)": 385,
+          "[0.4,0.5)": 376,
+          "[0.5,0.6)": 370,
+          "[0.6,0.7)": 325,
+          "[0.7,0.8)": 346,
+          "[0.8,0.9)": 263,
+          "[0.9,1.0)": 291
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 303,
+          "p25": 795,
+          "median": 923,
+          "p75": 1116,
+          "max": 1446
+        },
+        "clamped_rank_share": {
+          "n_positive_generated": 17652,
+          "n_clamped": 3,
+          "share": 0.0001699524133242692,
+          "note": "share of generated POSITIVE periods whose drawn rank u_prev fell outside the cell's plotting-position span [wtil[0], wtil[-1]] and was clamped to the cell's [y_min, y_max]"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.001450797787219571,
+            "c2st_auc": 0.5172279285741899,
+            "prdc_precision": 0.99169921875,
+            "prdc_recall": 0.9873046875,
+            "prdc_density": 1.069140625,
+            "prdc_coverage": 0.9736328125,
+            "w1_over_sd.earnings_t1": 0.012419945420520048,
+            "q90_ratio.earnings_t1": 1.0,
+            "q99_ratio.earnings_t1": 0.930659302884473
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5172279285741899,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": true
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.001450797787219571,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9736328125,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.930659302884473,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.012419945420520048,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.0027911577870392,
+            "c2st_auc": 0.5319292551439943,
+            "prdc_precision": 0.98388671875,
+            "prdc_recall": 0.9755859375,
+            "prdc_density": 1.0158203125,
+            "prdc_coverage": 0.95849609375,
+            "w1_over_sd.earnings_t2": 0.017683652281056624,
+            "q90_ratio.earnings_t2": 0.9708362882095861,
+            "q99_ratio.earnings_t2": 0.9751117677910437
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5319292551439943,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.95849609375,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        }
+      },
+      "geometry_pass": true,
+      "battery_values": {
+        "autocorr_log_2yr": 0.7197781881356932,
+        "autocorr_log_4yr": 0.6316436400453282,
+        "autocorr_log_10yr": 0.44226454832483203,
+        "mobility_diagonal": 0.5885043010472888,
+        "zero_persistence": 0.710093333116137,
+        "entry_rate": 0.0689379237179209,
+        "exit_rate": 0.28990666688386296,
+        "mean_spell_length": 2.104423622954692
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.7197781881356932,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.01034532209486727,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6316436400453282,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.025523257933576793,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.44226454832483203,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.096614878894486,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.5885043010472888,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.015547619522987333,
+          "pass": true
+        },
+        "zero_persistence": {
+          "value": 0.710093333116137,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.009072641055204222,
+          "pass": true
+        },
+        "entry_rate": {
+          "value": 0.0689379237179209,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.0022156353074765517,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.28990666688386296,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.009072641055204278,
+          "pass": true
+        },
+        "mean_spell_length": {
+          "value": 2.104423622954692,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.017275236946284966,
+          "pass": true
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 4,
+      "n_persons": 4530,
+      "n_person_periods": 25973,
+      "n_train_persons": 17770,
+      "n_train_pairs": 81035,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20935,
+        "psid_family_earnings_runs": 16803
+      },
+      "regimes": {
+        "participation_gate": {
+          "earnings_tm2": "zero_inflated_positive"
+        }
+      },
+      "pools": {
+        "n_pairs": 63865,
+        "n_triples": 48643,
+        "n_reentry": 4934
+      },
+      "generation_diagnostics": {
+        "n_holdout_persons": 4530,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009604599122433749,
+          "p25": 0.004868410210207485,
+          "p50": 0.01612813512015264,
+          "p75": 0.026482135050174934,
+          "p90": 0.040157495419216226,
+          "p100": 0.17459231785627388,
+          "mean": 0.01902905154316582
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 13241,
+          "n_pair_draws": 3893,
+          "n_reentry_draws": 1260,
+          "triple_share_of_positive": 0.7727909419866931
+        },
+        "donor_reuse": {
+          "n_pair_records": 63865,
+          "n_triple_records": 48643,
+          "n_reentry_records": 4934,
+          "pair_draws_per_record": 0.06095670555077116,
+          "triple_draws_per_record": 0.27220771745163747,
+          "reentry_draws_per_record": 0.25537089582488853,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5610,
+            "bottom_share": 0.1162210338680927,
+            "top_share": 0.013190730837789662
+          },
+          "Q1": {
+            "n": 2957,
+            "bottom_share": 0.037199864727764625,
+            "top_share": 0.0057490700033818055
+          },
+          "Q2": {
+            "n": 3443,
+            "bottom_share": 0.017426662794074933,
+            "top_share": 0.006680220737728725
+          },
+          "Q3": {
+            "n": 3540,
+            "bottom_share": 0.011864406779661017,
+            "top_share": 0.0096045197740113
+          },
+          "Q4": {
+            "n": 2844,
+            "bottom_share": 0.004571026722925457,
+            "top_share": 0.22292545710267228
+          }
+        },
+        "drawn_corner_mass_note": "share of drawn u_prev in the bottom (< 0.05) and top (> 0.95) rank corners, by the query person's anchor quintile; comparable to candidate 6's kernel corner masses",
+        "n_draws": 18394,
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 931,
+          "[0.1,0.2)": 762,
+          "[0.2,0.3)": 397,
+          "[0.3,0.4)": 337,
+          "[0.4,0.5)": 426,
+          "[0.5,0.6)": 367,
+          "[0.6,0.7)": 376,
+          "[0.7,0.8)": 325,
+          "[0.8,0.9)": 311,
+          "[0.9,1.0)": 298
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 297,
+          "p25": 776,
+          "median": 929,
+          "p75": 1095,
+          "max": 1483
+        },
+        "clamped_rank_share": {
+          "n_positive_generated": 18394,
+          "n_clamped": 6,
+          "share": 0.00032619332390997064,
+          "note": "share of generated POSITIVE periods whose drawn rank u_prev fell outside the cell's plotting-position span [wtil[0], wtil[-1]] and was clamped to the cell's [y_min, y_max]"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.0038489602489679697,
+            "c2st_auc": 0.5282764213623197,
+            "prdc_precision": 0.986328125,
+            "prdc_recall": 0.98583984375,
+            "prdc_density": 1.0107421875,
+            "prdc_coverage": 0.9599609375,
+            "w1_over_sd.earnings_t1": 0.019751302866385233,
+            "q90_ratio.earnings_t1": 1.0,
+            "q99_ratio.earnings_t1": 0.9575261956944774
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5282764213623197,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": true
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.0038489602489679697,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9599609375,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.9575261956944774,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.019751302866385233,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": true
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.002978935641181124,
+            "c2st_auc": 0.5485699003456393,
+            "prdc_precision": 0.974609375,
+            "prdc_recall": 0.98681640625,
+            "prdc_density": 0.99755859375,
+            "prdc_coverage": 0.95703125,
+            "w1_over_sd.earnings_t2": 0.019458200214845473,
+            "q90_ratio.earnings_t2": 1.0294117647058822,
+            "q99_ratio.earnings_t2": 0.9277955829220248
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5485699003456393,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.95703125,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.724767702900749,
+        "autocorr_log_4yr": 0.644092628012561,
+        "autocorr_log_10yr": 0.46483776075578803,
+        "mobility_diagonal": 0.5823088931991781,
+        "zero_persistence": 0.6853609309881097,
+        "entry_rate": 0.06421728829143693,
+        "exit_rate": 0.3146390690118903,
+        "mean_spell_length": 2.0524283991890875
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.724767702900749,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.005355807329811446,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.644092628012561,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.013074269966344088,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.46483776075578803,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.07404166646353,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.5823088931991781,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.02174302737109801,
+          "pass": true
+        },
+        "zero_persistence": {
+          "value": 0.6853609309881097,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.015659761072823075,
+          "pass": true
+        },
+        "entry_rate": {
+          "value": 0.06421728829143693,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.0025050001190074223,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.3146390690118903,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.015659761072823075,
+          "pass": true
+        },
+        "mean_spell_length": {
+          "value": 2.0524283991890875,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.03471998681931954,
+          "pass": true
+        }
+      },
+      "battery_pass": false
+    }
+  ],
+  "seed_conjunction": [
+    {
+      "seed": 0,
+      "geometry_pass": false,
+      "battery_pass": true
+    },
+    {
+      "seed": 1,
+      "geometry_pass": true,
+      "battery_pass": true
+    },
+    {
+      "seed": 2,
+      "geometry_pass": false,
+      "battery_pass": false
+    },
+    {
+      "seed": 3,
+      "geometry_pass": true,
+      "battery_pass": false
+    },
+    {
+      "seed": 4,
+      "geometry_pass": false,
+      "battery_pass": false
+    }
+  ],
+  "knn_context": {
+    "note": "Reported-not-gated per seed: neighbor-distance distribution, triple-vs-pair usage share, donor-record reuse, drawn corner mass of transitions by anchor quintile (comparability with candidate 6), and the clamped-rank share. None enters the geometry or battery pass/fail; the gate rule names only those two families.",
+    "per_seed": [
+      {
+        "seed": 0,
+        "n_pairs": 64603,
+        "n_triples": 49220,
+        "n_reentry": 4994,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.000962018172554896,
+          "p25": 0.0045308982509630795,
+          "p50": 0.016233107945926945,
+          "p75": 0.026901194240664048,
+          "p90": 0.04095574362662082,
+          "p100": 0.1697021587259331,
+          "mean": 0.01928699780212337
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12650,
+          "n_pair_draws": 3776,
+          "n_reentry_draws": 1217,
+          "triple_share_of_positive": 0.7701205406063558
+        },
+        "donor_reuse": {
+          "n_pair_records": 64603,
+          "n_triple_records": 49220,
+          "n_reentry_records": 4994,
+          "pair_draws_per_record": 0.05844929802021578,
+          "triple_draws_per_record": 0.2570093457943925,
+          "reentry_draws_per_record": 0.24369243091710052,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5655,
+            "bottom_share": 0.11936339522546419,
+            "top_share": 0.008488063660477453
+          },
+          "Q1": {
+            "n": 3075,
+            "bottom_share": 0.03577235772357724,
+            "top_share": 0.001951219512195122
+          },
+          "Q2": {
+            "n": 3244,
+            "bottom_share": 0.018495684340320593,
+            "top_share": 0.012330456226880395
+          },
+          "Q3": {
+            "n": 2886,
+            "bottom_share": 0.010395010395010396,
+            "top_share": 0.010395010395010396
+          },
+          "Q4": {
+            "n": 2783,
+            "bottom_share": 0.01006108515989939,
+            "top_share": 0.22493711821775064
+          }
+        },
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 892,
+          "[0.1,0.2)": 737,
+          "[0.2,0.3)": 367,
+          "[0.3,0.4)": 404,
+          "[0.4,0.5)": 397,
+          "[0.5,0.6)": 392,
+          "[0.6,0.7)": 349,
+          "[0.7,0.8)": 282,
+          "[0.8,0.9)": 299,
+          "[0.9,1.0)": 308
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 312,
+          "p25": 780,
+          "median": 930,
+          "p75": 1112,
+          "max": 1466
+        },
+        "clamped_rank_share": 5.667970299835629e-05
+      },
+      {
+        "seed": 1,
+        "n_pairs": 64263,
+        "n_triples": 49007,
+        "n_reentry": 4927,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009706563165685911,
+          "p25": 0.004482221343146409,
+          "p50": 0.016113071847337734,
+          "p75": 0.026975062830809596,
+          "p90": 0.04076807820424687,
+          "p100": 0.16271581370751056,
+          "mean": 0.01914470455619074
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12813,
+          "n_pair_draws": 3854,
+          "n_reentry_draws": 1222,
+          "triple_share_of_positive": 0.7687646247075058
+        },
+        "donor_reuse": {
+          "n_pair_records": 64263,
+          "n_triple_records": 49007,
+          "n_reentry_records": 4927,
+          "pair_draws_per_record": 0.05997230132424568,
+          "triple_draws_per_record": 0.2614524455690003,
+          "reentry_draws_per_record": 0.24802110817941952,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5765,
+            "bottom_share": 0.11899392888117953,
+            "top_share": 0.01248915871639202
+          },
+          "Q1": {
+            "n": 3345,
+            "bottom_share": 0.039461883408071746,
+            "top_share": 0.003288490284005979
+          },
+          "Q2": {
+            "n": 3048,
+            "bottom_share": 0.016076115485564306,
+            "top_share": 0.009186351706036745
+          },
+          "Q3": {
+            "n": 3032,
+            "bottom_share": 0.010554089709762533,
+            "top_share": 0.0158311345646438
+          },
+          "Q4": {
+            "n": 2699,
+            "bottom_share": 0.005557613931085587,
+            "top_share": 0.22600963319748055
+          }
+        },
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 956,
+          "[0.1,0.2)": 746,
+          "[0.2,0.3)": 437,
+          "[0.3,0.4)": 392,
+          "[0.4,0.5)": 407,
+          "[0.5,0.6)": 341,
+          "[0.6,0.7)": 341,
+          "[0.7,0.8)": 325,
+          "[0.8,0.9)": 262,
+          "[0.9,1.0)": 288
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 304,
+          "p25": 773,
+          "median": 930,
+          "p75": 1115,
+          "max": 1453
+        },
+        "clamped_rank_share": 0.00027950136955671084
+      },
+      {
+        "seed": 2,
+        "n_pairs": 64557,
+        "n_triples": 49230,
+        "n_reentry": 4902,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009273211949020754,
+          "p25": 0.004380124585878581,
+          "p50": 0.01599025654746146,
+          "p75": 0.026850830219967793,
+          "p90": 0.04125636722281354,
+          "p100": 0.1486252264795287,
+          "mean": 0.019143354531245986
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12679,
+          "n_pair_draws": 3824,
+          "n_reentry_draws": 1291,
+          "triple_share_of_positive": 0.7682845543234563
+        },
+        "donor_reuse": {
+          "n_pair_records": 64557,
+          "n_triple_records": 49230,
+          "n_reentry_records": 4902,
+          "pair_draws_per_record": 0.05923447496011277,
+          "triple_draws_per_record": 0.25754621165955716,
+          "reentry_draws_per_record": 0.26336189310485514,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5597,
+            "bottom_share": 0.1341790244773986,
+            "top_share": 0.011434697159192424
+          },
+          "Q1": {
+            "n": 3095,
+            "bottom_share": 0.03037156704361874,
+            "top_share": 0.005815831987075929
+          },
+          "Q2": {
+            "n": 3259,
+            "bottom_share": 0.025161092359619514,
+            "top_share": 0.015342129487572876
+          },
+          "Q3": {
+            "n": 3022,
+            "bottom_share": 0.008603573792190603,
+            "top_share": 0.01753805426869623
+          },
+          "Q4": {
+            "n": 2821,
+            "bottom_share": 0.007444168734491315,
+            "top_share": 0.22013470400567176
+          }
+        },
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 957,
+          "[0.1,0.2)": 736,
+          "[0.2,0.3)": 412,
+          "[0.3,0.4)": 356,
+          "[0.4,0.5)": 402,
+          "[0.5,0.6)": 360,
+          "[0.6,0.7)": 355,
+          "[0.7,0.8)": 316,
+          "[0.8,0.9)": 308,
+          "[0.9,1.0)": 275
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 304,
+          "p25": 785,
+          "median": 920,
+          "p75": 1114,
+          "max": 1427
+        },
+        "clamped_rank_share": 0.00033719231201528605
+      },
+      {
+        "seed": 3,
+        "n_pairs": 64793,
+        "n_triples": 49472,
+        "n_reentry": 4846,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009048647570640556,
+          "p25": 0.004106829745330286,
+          "p50": 0.01587972231788208,
+          "p75": 0.026729107923575916,
+          "p90": 0.040778773867865534,
+          "p100": 0.16009956883432228,
+          "mean": 0.019070927298164824
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 12551,
+          "n_pair_draws": 3816,
+          "n_reentry_draws": 1285,
+          "triple_share_of_positive": 0.7668479257041608
+        },
+        "donor_reuse": {
+          "n_pair_records": 64793,
+          "n_triple_records": 49472,
+          "n_reentry_records": 4846,
+          "pair_draws_per_record": 0.05889525103020388,
+          "triple_draws_per_record": 0.2536990620957309,
+          "reentry_draws_per_record": 0.2651671481634338,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5698,
+            "bottom_share": 0.12056862056862057,
+            "top_share": 0.018252018252018252
+          },
+          "Q1": {
+            "n": 2895,
+            "bottom_share": 0.03557858376511226,
+            "top_share": 0.0051813471502590676
+          },
+          "Q2": {
+            "n": 3311,
+            "bottom_share": 0.022047719722138325,
+            "top_share": 0.007248565388100272
+          },
+          "Q3": {
+            "n": 3045,
+            "bottom_share": 0.008210180623973728,
+            "top_share": 0.012807881773399015
+          },
+          "Q4": {
+            "n": 2703,
+            "bottom_share": 0.009618941916389198,
+            "top_share": 0.21235664076951535
+          }
+        },
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 934,
+          "[0.1,0.2)": 816,
+          "[0.2,0.3)": 358,
+          "[0.3,0.4)": 385,
+          "[0.4,0.5)": 376,
+          "[0.5,0.6)": 370,
+          "[0.6,0.7)": 325,
+          "[0.7,0.8)": 346,
+          "[0.8,0.9)": 263,
+          "[0.9,1.0)": 291
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 303,
+          "p25": 795,
+          "median": 923,
+          "p75": 1116,
+          "max": 1446
+        },
+        "clamped_rank_share": 0.0001699524133242692
+      },
+      {
+        "seed": 4,
+        "n_pairs": 63865,
+        "n_triples": 48643,
+        "n_reentry": 4934,
+        "neighbor_distance_distribution": {
+          "p0": 0.0,
+          "p10": 0.0009604599122433749,
+          "p25": 0.004868410210207485,
+          "p50": 0.01612813512015264,
+          "p75": 0.026482135050174934,
+          "p90": 0.040157495419216226,
+          "p100": 0.17459231785627388,
+          "mean": 0.01902905154316582
+        },
+        "triple_pair_usage": {
+          "n_triple_draws": 13241,
+          "n_pair_draws": 3893,
+          "n_reentry_draws": 1260,
+          "triple_share_of_positive": 0.7727909419866931
+        },
+        "donor_reuse": {
+          "n_pair_records": 63865,
+          "n_triple_records": 48643,
+          "n_reentry_records": 4934,
+          "pair_draws_per_record": 0.06095670555077116,
+          "triple_draws_per_record": 0.27220771745163747,
+          "reentry_draws_per_record": 0.25537089582488853,
+          "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+        },
+        "drawn_corner_mass_by_anchor_quintile": {
+          "Q0": {
+            "n": 5610,
+            "bottom_share": 0.1162210338680927,
+            "top_share": 0.013190730837789662
+          },
+          "Q1": {
+            "n": 2957,
+            "bottom_share": 0.037199864727764625,
+            "top_share": 0.0057490700033818055
+          },
+          "Q2": {
+            "n": 3443,
+            "bottom_share": 0.017426662794074933,
+            "top_share": 0.006680220737728725
+          },
+          "Q3": {
+            "n": 3540,
+            "bottom_share": 0.011864406779661017,
+            "top_share": 0.0096045197740113
+          },
+          "Q4": {
+            "n": 2844,
+            "bottom_share": 0.004571026722925457,
+            "top_share": 0.22292545710267228
+          }
+        },
+        "anchor_rank_distribution": {
+          "[0.0,0.1)": 931,
+          "[0.1,0.2)": 762,
+          "[0.2,0.3)": 397,
+          "[0.3,0.4)": 337,
+          "[0.4,0.5)": 426,
+          "[0.5,0.6)": 367,
+          "[0.6,0.7)": 376,
+          "[0.7,0.8)": 325,
+          "[0.8,0.9)": 311,
+          "[0.9,1.0)": 298
+        },
+        "cell_count_distribution": {
+          "n_cells": 91,
+          "min": 297,
+          "p25": 776,
+          "median": 929,
+          "p75": 1095,
+          "max": 1483
+        },
+        "clamped_rank_share": 0.00032619332390997064
+      }
+    ]
+  },
+  "verdict": {
+    "n_seeds": 5,
+    "n_geometry_pass": 2,
+    "n_battery_pass": 2,
+    "geometry_gate_pass": false,
+    "battery_gate_pass": false,
+    "gate_1_pass": false,
+    "rule": ">=4/5 seeds geometry AND >=4/5 seeds battery"
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "c20399930d3db73e535d42d5ae33f6d341db4140",
+    "populace_repo_sha": "e179ba5fe40de73c5f75734c814f95dd94129bd7",
+    "artifact_schema_version": "gate1_rank_knn.v1",
+    "gates_yaml_locked": true
+  },
+  "elapsed_seconds": 83.0
+}
