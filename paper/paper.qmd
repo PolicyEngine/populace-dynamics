@@ -546,16 +546,74 @@ data's marginal from empirical conditional draws by construction.
 The symmetry across the four failures defines the remaining design
 problem. Conditional-draw candidates preserve the marginal but
 cannot set person-level variance; the structural candidate set the
-variance and lost the marginal. The data demand both at once. The
-fifth registered candidate is the field's standard answer — donor
-splicing, the strategy of the Social Security Administration's MINT
-model, which inherits marginal and person-level dependence together
-by reusing whole observed careers — run as a benchmark the
-generative track must beat on conditioning flexibility. The
-generative track's next design combines empirical quantile
-marginals with persistent dynamics in rank space, with innovation
-dispersion calibrated so iterated — not one-step — dynamics match
-the data's ladder [@arellanoblundellbonhomme2017; @guvenen2021].
+variance and lost the marginal. The data demand both at once.
+
+## How existing models solve the joint problem
+
+Every serious earnings-history model confronts the same triple —
+the cross-sectional marginal, person-level persistence, and
+measurement noise — and the field has four working answers, each
+buying one thing at a stated price.
+
+**Reuse observed careers.** MINT splices segments of donor
+workers' administrative earnings records onto targets matched on
+demographics and recent earnings, adding a person-specific fixed
+effect in its regression projections [@ssa2024mint]. Reuse
+dissolves the joint problem rather than solving it: the marginal is
+exact because the values are real, and person-level dependence is
+exact because whole careers come from one person. The price is
+donor support — no pattern appears that no donor exhibited, cohort
+drift needs ad hoc adjustment, and conditioning is only as rich as
+the match cells.
+
+**Generate parametrically, then align.** DYNASIM carries an
+individual-specific error term in its earnings equations
+[@favreault2015; @urban2024dynasim4]; CBOLT decomposes each
+worker's earnings into a permanent shock — the long-run gap from
+the group mean — and a transitory shock, estimated on
+administrative panel records [@cbo2018]. Both then align:
+simulated outputs are recalibrated, typically rank-preservingly, to
+external distributional and aggregate targets [@li2013]. Alignment
+is the field's standing admission that generated marginals drift;
+it re-imposes them after the fact and guarantees the published
+tables. The documented cost is that alignment can distort the
+relationships between variables and hits its targets whether or not
+the underlying process is right [@li2013] — the class of silent
+correction this project's gate exists to expose rather than
+absorb: alignment would have masked the fourth candidate's marginal
+failure entirely.
+
+**Fit the simulator, not the one-step step.** The
+administrative-data literature estimates rich nonlinear processes
+by simulated method of moments — parameters chosen so that
+simulated trajectories reproduce the target moments jointly
+[@guvenen2021]. This answers the composition problem directly:
+one-step conditionals estimated from noisy data need not compose
+into correct long-horizon dynamics, so the generator is scored as a
+whole, at the horizon that matters. The price is a parametric
+process and total dependence on the chosen moment set.
+
+**Put the dynamics in rank space.** Nonlinear panel frameworks
+place persistence on a latent quantile position and read earnings
+off the empirical quantile function
+[@arellanoblundellbonhomme2017]. The marginal becomes untouchable
+by construction and all modeling effort concentrates on the rank
+process, where the permanent–transitory structure lives — at the
+price of heavier estimation machinery than any off-the-shelf
+learner supplies.
+
+The fifth registered candidate is the first strategy run as a
+benchmark: donor splicing inherits marginal and person-level
+dependence together, and if the field's standard answer clears the
+gate it sets the bar the generative track must beat on conditioning
+flexibility — the capability the production use case (anchoring
+histories to a cross-sectional survey record) actually needs. The
+generative track's next design composes the third and fourth
+strategies with the project's existing machinery: empirical
+quantile marginals, persistent dynamics in rank space, and
+innovation dispersion calibrated so iterated — not one-step —
+dynamics match the data's ladder
+[@arellanoblundellbonhomme2017; @guvenen2021].
 
 Two auxiliary results harden the target. Excluding every
 PSID observation carrying an income-assignment flag (8.7% of
