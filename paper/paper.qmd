@@ -521,6 +521,7 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | + persistence-aware decomposition | 0.722 | 0.695 | 0.647 | fail |
 | structural three-component assembly | 0.464 | 0.401 | 0.354 | fail |
 | donor splicing (single-donor) | 0.779 | 0.704 | 0.616 | fail |
+| donor splicing (segments) | 0.720 | 0.631 | 0.490 | fail |
 
 The baseline failed exactly where the pre-lock review predicted a
 one-step chain must: window-2 geometry passed on every seed while
@@ -619,7 +620,18 @@ age; scaling a whole career to a noisy anchor observation converts
 that noise into a permanent component; and one donor per career is
 strictly more persistent than the segment splicing MINT actually
 performs. The result bounds naive splicing rather than refuting the
-strategy; a segment-splicing variant remains available. The
+strategy. The registered segment variant — three-period segments
+from multiple donors, spliced by calendar period and level-adjusted
+at each segment boundary — then became the first candidate to clear
+the entire battery: all five seeds pass every dynamics tolerance,
+with the autocorrelation ladder, mobility, exit rates, and spell
+lengths inside their bands at once. What remains is a single metric
+family: the omnibus classifier still separates spliced from
+held-out trajectories by 0.017 and 0.027 above its two thresholds,
+with every other geometry metric passing on every seed. Six runs
+in, the gate has narrowed from "the dynamics are wrong" to "a
+classifier can still tell," which is the precise question the
+generative track now has to answer. The
 generative track's next design composes the third and fourth
 strategies with the project's existing machinery: empirical
 quantile marginals, persistent dynamics in rank space, and
