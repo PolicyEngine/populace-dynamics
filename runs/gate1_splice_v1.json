@@ -1,0 +1,1628 @@
+{
+  "schema_version": "gate1_splice.v1",
+  "run": "gate1_splice_v1",
+  "gate": "gate_1",
+  "spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4891949761",
+  "description": "Gate-1 candidate 5a: MINT-style donor splicing. For each held-out person a single train-person donor is matched deterministically at the anchor (same calendar period, age within a +/-2-year window widened as needed, smallest anchor-earnings gap; ties -> smaller age gap, then smaller person_id), and the donor's whole observed career is spliced onto the holdout's observed periods by age index (nearest observed age fallback, ties -> younger), scaled by the anchor-earnings ratio when both endpoints are positive (clipped to [0.2, 5]); the anchor keeps its real value. Fully deterministic given the split -- no RNG, no model fit, no populace-fit. Registered frozen before the run in issue #42 (see spec_registration). Candidate scored against the held-out PSID family earnings panel geometry (two locked views) and the locked moment battery, per the locked seed-level conjunction in gates.yaml (pull request 39). Protocol machinery imported byte-for-byte from the baseline runner (pull request 40).",
+  "model": {
+    "class": "deterministic donor matching + age-indexed splicing",
+    "stochastic": false,
+    "populace_fit_used": false,
+    "runtime_environment": "repo .venv (scikit-learn 1.9, pandas); no populace-fit",
+    "donor_pool": "the seed's 80% train persons' observed trajectories in the locked filtered panel",
+    "match_rule": {
+      "cell": "train persons observed in the same calendar period as the holdout's anchor (chronologically last observed period) with age within +/-2 years of the holdout's anchor age",
+      "selection": "smallest |donor anchor-period earnings - holdout anchor earnings|",
+      "tie_breaks": [
+        "smaller |donor age - holdout anchor age|",
+        "smaller donor person_id"
+      ],
+      "empty_cell": "widen the age window in +/-2 steps (+/-4, +/-6, ...) until non-empty; widening count reported"
+    },
+    "splice_rule": {
+      "scope": "age-indexed, whole-career, one donor per holdout person",
+      "value": "for each holdout observed period t other than the anchor, the donor's earnings at the holdout's age at t",
+      "nearest_age_fallback": "if the donor is not observed at that exact age, the donor's earnings at the nearest observed age (ties -> younger); fallback usage rate reported"
+    },
+    "level_adjustment": {
+      "condition": "both the holdout's anchor earnings and the donor's earnings at (nearest to) the anchor age are positive",
+      "factor": "holdout anchor earnings / donor earnings at (nearest to) the anchor age, clipped to [0.2, 5]",
+      "otherwise": "no scaling (donor values copy raw)",
+      "zeros": "zeros stay zeros",
+      "clip_bounds": [
+        0.2,
+        5.0
+      ]
+    },
+    "anchor": "chronologically last observed period held at real earnings",
+    "candidate_panel_pin": "exactly the holdout persons on exactly their observed periods; only earnings generated; anchor keeps real value; person_id/period/age/weight copied from holdout",
+    "determinism": "fully deterministic given the split; the gate seed enters only through split_panel_by_person"
+  },
+  "protocol": {
+    "filter": "age 25-59, reference years 1998-2022, positive weights (applied before the split)",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel, 'person_id', fraction=0.2, seed=s); the drawn 20% is the holdout, the complement is the training set / donor pool (imported from the baseline runner)",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "views": {
+      "psid_family_earnings_pairs": {
+        "window": 2,
+        "period_step": 2
+      },
+      "psid_family_earnings_runs": {
+        "window": 3,
+        "period_step": 2
+      }
+    },
+    "scoring": "panel_scorecard(candidate, holdout, view, seed=s) per locked view; battery on the candidate panel vs committed battery_reference (imported from the baseline runner)",
+    "pass_rule": "seed passes geometry iff every locked threshold on every locked view holds; seed passes battery iff every locked tolerance holds; gate passes iff >=4/5 seeds pass geometry AND >=4/5 seeds pass battery"
+  },
+  "battery_reference_reproduction": {
+    "run": "noise_floor_psid_family_9822",
+    "all_committed_values_reproduced_exactly": true,
+    "checks": {
+      "autocorr_log_2yr": {
+        "recomputed": 0.7301235102305604,
+        "committed": 0.7301235102305604,
+        "exact_float_match": true
+      },
+      "autocorr_log_4yr": {
+        "recomputed": 0.657166897978905,
+        "committed": 0.657166897978905,
+        "exact_float_match": true
+      },
+      "autocorr_log_10yr": {
+        "recomputed": 0.538879427219318,
+        "committed": 0.538879427219318,
+        "exact_float_match": true
+      },
+      "mobility_diagonal_mean": {
+        "recomputed": 0.6040519205702761,
+        "committed": 0.6040519205702761,
+        "exact_float_match": true
+      },
+      "zero_persistence": {
+        "recomputed": 0.7010206920609328,
+        "committed": 0.7010206920609328,
+        "exact_float_match": true
+      },
+      "entry_rate": {
+        "recomputed": 0.06672228841044435,
+        "committed": 0.06672228841044435,
+        "exact_float_match": true
+      },
+      "exit_rate": {
+        "recomputed": 0.29897930793906724,
+        "committed": 0.29897930793906724,
+        "exact_float_match": true
+      },
+      "mean_spell_length": {
+        "recomputed": 2.087148386008407,
+        "committed": 2.087148386008407,
+        "exact_float_match": true
+      }
+    }
+  },
+  "battery_reference_run": "runs/noise_floor_psid_family_9822.json",
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_persons": 4427,
+      "n_person_periods": 25071,
+      "n_train_persons": 17873,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20129,
+        "psid_family_earnings_runs": 16116
+      },
+      "splice_diagnostics": {
+        "n_holdout_persons": 4427,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4427
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback": {
+          "n_spliced_observations": 20644,
+          "n_fallback_observations": 9968,
+          "rate": 0.4828521604340244,
+          "note": "share of spliced (non-anchor) observations for which the donor had no observation at the holdout's exact age, so the nearest observed age (ties -> younger) was used"
+        },
+        "scaling_clip": {
+          "n_scaled_persons": 3497,
+          "n_clipped_persons": 45,
+          "rate_over_scaled": 0.012868172719473835,
+          "rate_over_holdout": 0.010164897221594759,
+          "raw_ratio_min": 0.007090522335145356,
+          "raw_ratio_max": 86.9,
+          "clip_bounds": [
+            0.2,
+            5.0
+          ],
+          "note": "a person is scaled when its anchor earnings and the donor's earnings at (nearest to) the anchor age are both positive; clipped when the raw ratio falls outside [0.2, 5]"
+        },
+        "donor_reuse": {
+          "n_distinct_donors": 2895,
+          "max_reuse": 24,
+          "reuse_count_distribution": {
+            "1": 2169,
+            "2": 502,
+            "3": 122,
+            "4": 27,
+            "5": 11,
+            "6": 6,
+            "7": 10,
+            "8": 5,
+            "9": 5,
+            "10": 6,
+            "11": 9,
+            "12": 4,
+            "13": 2,
+            "14": 3,
+            "15": 4,
+            "16": 2,
+            "17": 1,
+            "18": 1,
+            "20": 1,
+            "21": 1,
+            "22": 2,
+            "23": 1,
+            "24": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.0033944599825235233,
+            "c2st_auc": 0.5931601665889598,
+            "prdc_precision": 0.99658203125,
+            "prdc_recall": 0.98095703125,
+            "prdc_density": 1.1865234375,
+            "prdc_coverage": 0.94482421875,
+            "w1_over_sd.earnings_t1": 0.019614693258081455,
+            "q90_ratio.earnings_t1": 0.9523809523809523,
+            "q99_ratio.earnings_t1": 1.021148243615136
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5931601665889598,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": false
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.0033944599825235233,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94482421875,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 1.021148243615136,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 0.9523809523809523,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.019614693258081455,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.0016134940474659132,
+            "c2st_auc": 0.6053996800606235,
+            "prdc_precision": 0.9853515625,
+            "prdc_recall": 0.9736328125,
+            "prdc_density": 1.10654296875,
+            "prdc_coverage": 0.94287109375,
+            "w1_over_sd.earnings_t2": 0.01951134992512762,
+            "q90_ratio.earnings_t2": 0.9568181818181818,
+            "q99_ratio.earnings_t2": 1.0490502580116734
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.6053996800606235,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94287109375,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.782102151466148,
+        "autocorr_log_4yr": 0.7094354927862863,
+        "autocorr_log_10yr": 0.6387575271253627,
+        "mobility_diagonal": 0.6689064220606903,
+        "zero_persistence": 0.7919768964087508,
+        "entry_rate": 0.05274474397117335,
+        "exit_rate": 0.20802310359124923,
+        "mean_spell_length": 2.5166881217119252
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.782102151466148,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.0519786412355876,
+          "pass": false
+        },
+        "autocorr_log_4yr": {
+          "value": 0.7094354927862863,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.05226859480738122,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.6387575271253627,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.09987809990604468,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.6689064220606903,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.06485450149041416,
+          "pass": false
+        },
+        "zero_persistence": {
+          "value": 0.7919768964087508,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.09095620434781804,
+          "pass": false
+        },
+        "entry_rate": {
+          "value": 0.05274474397117335,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.013977544439271003,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.20802310359124923,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.09095620434781801,
+          "pass": false
+        },
+        "mean_spell_length": {
+          "value": 2.5166881217119252,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.4295397357035182,
+          "pass": false
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 1,
+      "n_persons": 4495,
+      "n_person_periods": 25501,
+      "n_train_persons": 17805,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20479,
+        "psid_family_earnings_runs": 16404
+      },
+      "splice_diagnostics": {
+        "n_holdout_persons": 4495,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4495
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback": {
+          "n_spliced_observations": 21006,
+          "n_fallback_observations": 10387,
+          "rate": 0.49447776825668854,
+          "note": "share of spliced (non-anchor) observations for which the donor had no observation at the holdout's exact age, so the nearest observed age (ties -> younger) was used"
+        },
+        "scaling_clip": {
+          "n_scaled_persons": 3592,
+          "n_clipped_persons": 41,
+          "rate_over_scaled": 0.011414253897550112,
+          "rate_over_holdout": 0.009121245828698554,
+          "raw_ratio_min": 0.016,
+          "raw_ratio_max": 53.2,
+          "clip_bounds": [
+            0.2,
+            5.0
+          ],
+          "note": "a person is scaled when its anchor earnings and the donor's earnings at (nearest to) the anchor age are both positive; clipped when the raw ratio falls outside [0.2, 5]"
+        },
+        "donor_reuse": {
+          "n_distinct_donors": 2891,
+          "max_reuse": 23,
+          "reuse_count_distribution": {
+            "1": 2137,
+            "2": 482,
+            "3": 154,
+            "4": 40,
+            "5": 17,
+            "6": 8,
+            "7": 6,
+            "8": 8,
+            "9": 3,
+            "10": 7,
+            "11": 3,
+            "12": 2,
+            "13": 6,
+            "14": 4,
+            "16": 6,
+            "17": 2,
+            "18": 3,
+            "19": 2,
+            "23": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.001873815286194791,
+            "c2st_auc": 0.6025492388913806,
+            "prdc_precision": 0.9951171875,
+            "prdc_recall": 0.97998046875,
+            "prdc_density": 1.13759765625,
+            "prdc_coverage": 0.94287109375,
+            "w1_over_sd.earnings_t1": 0.030818142668454854,
+            "q90_ratio.earnings_t1": 1.0204081632653061,
+            "q99_ratio.earnings_t1": 1.0185185185185186
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.6025492388913806,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": false
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.001873815286194791,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94287109375,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 1.0185185185185186,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0204081632653061,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.030818142668454854,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.0026203153508363997,
+            "c2st_auc": 0.6180605126337682,
+            "prdc_precision": 0.98974609375,
+            "prdc_recall": 0.953125,
+            "prdc_density": 1.1224609375,
+            "prdc_coverage": 0.94677734375,
+            "w1_over_sd.earnings_t2": 0.03290573527257404,
+            "q90_ratio.earnings_t2": 1.02,
+            "q99_ratio.earnings_t2": 1.016770356860892
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.6180605126337682,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94677734375,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.8080032582042415,
+        "autocorr_log_4yr": 0.7195049003992486,
+        "autocorr_log_10yr": 0.628020549001849,
+        "mobility_diagonal": 0.6659762021100165,
+        "zero_persistence": 0.7639676440202203,
+        "entry_rate": 0.05766426903534143,
+        "exit_rate": 0.2360323559797797,
+        "mean_spell_length": 2.428061440827836
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.8080032582042415,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.07787974797368102,
+          "pass": false
+        },
+        "autocorr_log_4yr": {
+          "value": 0.7195049003992486,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.0623380024203436,
+          "pass": false
+        },
+        "autocorr_log_10yr": {
+          "value": 0.628020549001849,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.08914112178253097,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.6659762021100165,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.06192428153974039,
+          "pass": false
+        },
+        "zero_persistence": {
+          "value": 0.7639676440202203,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.06294695195928757,
+          "pass": false
+        },
+        "entry_rate": {
+          "value": 0.05766426903534143,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.009058019375102921,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.2360323559797797,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.06294695195928754,
+          "pass": false
+        },
+        "mean_spell_length": {
+          "value": 2.428061440827836,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.340913054819429,
+          "pass": false
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 2,
+      "n_persons": 4477,
+      "n_person_periods": 25407,
+      "n_train_persons": 17823,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20411,
+        "psid_family_earnings_runs": 16358
+      },
+      "splice_diagnostics": {
+        "n_holdout_persons": 4477,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4477
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback": {
+          "n_spliced_observations": 20930,
+          "n_fallback_observations": 10181,
+          "rate": 0.48643096034400385,
+          "note": "share of spliced (non-anchor) observations for which the donor had no observation at the holdout's exact age, so the nearest observed age (ties -> younger) was used"
+        },
+        "scaling_clip": {
+          "n_scaled_persons": 3509,
+          "n_clipped_persons": 35,
+          "rate_over_scaled": 0.009974351667141636,
+          "rate_over_holdout": 0.007817735090462363,
+          "raw_ratio_min": 0.0125,
+          "raw_ratio_max": 86.9,
+          "clip_bounds": [
+            0.2,
+            5.0
+          ],
+          "note": "a person is scaled when its anchor earnings and the donor's earnings at (nearest to) the anchor age are both positive; clipped when the raw ratio falls outside [0.2, 5]"
+        },
+        "donor_reuse": {
+          "n_distinct_donors": 2891,
+          "max_reuse": 22,
+          "reuse_count_distribution": {
+            "1": 2157,
+            "2": 492,
+            "3": 133,
+            "4": 28,
+            "5": 15,
+            "6": 10,
+            "7": 6,
+            "8": 6,
+            "9": 8,
+            "10": 4,
+            "11": 3,
+            "12": 5,
+            "13": 3,
+            "14": 2,
+            "15": 3,
+            "16": 4,
+            "17": 4,
+            "18": 4,
+            "19": 3,
+            "22": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.0033203070213847496,
+            "c2st_auc": 0.5896793172052455,
+            "prdc_precision": 0.9921875,
+            "prdc_recall": 0.982421875,
+            "prdc_density": 1.06748046875,
+            "prdc_coverage": 0.93994140625,
+            "w1_over_sd.earnings_t1": 0.023861027900199436,
+            "q90_ratio.earnings_t1": 1.0076549088053266,
+            "q99_ratio.earnings_t1": 0.9108322919945452
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.5896793172052455,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": false
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.0033203070213847496,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.93994140625,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.9108322919945452,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.0076549088053266,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.023861027900199436,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.002916279188315052,
+            "c2st_auc": 0.610200608204986,
+            "prdc_precision": 0.98388671875,
+            "prdc_recall": 0.96484375,
+            "prdc_density": 1.08212890625,
+            "prdc_coverage": 0.9453125,
+            "w1_over_sd.earnings_t2": 0.023147283315026215,
+            "q90_ratio.earnings_t2": 1.0183117302498685,
+            "q99_ratio.earnings_t2": 0.9090909090909091
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.610200608204986,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9453125,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.763700454310751,
+        "autocorr_log_4yr": 0.6827771513483765,
+        "autocorr_log_10yr": 0.5828396982476296,
+        "mobility_diagonal": 0.663027490224246,
+        "zero_persistence": 0.7529907648658267,
+        "entry_rate": 0.057178267861571014,
+        "exit_rate": 0.24700923513417325,
+        "mean_spell_length": 2.30594263263296
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.763700454310751,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.03357694408019052,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6827771513483765,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.025610253369471425,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.5828396982476296,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.04396027102831157,
+          "pass": true
+        },
+        "mobility_diagonal": {
+          "value": 0.663027490224246,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.058975569653969884,
+          "pass": false
+        },
+        "zero_persistence": {
+          "value": 0.7529907648658267,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.05197007280489396,
+          "pass": false
+        },
+        "entry_rate": {
+          "value": 0.057178267861571014,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.009544020548873336,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.24700923513417325,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.05197007280489399,
+          "pass": false
+        },
+        "mean_spell_length": {
+          "value": 2.30594263263296,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.21879424662455316,
+          "pass": true
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 3,
+      "n_persons": 4464,
+      "n_person_periods": 25295,
+      "n_train_persons": 17836,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20313,
+        "psid_family_earnings_runs": 16257
+      },
+      "splice_diagnostics": {
+        "n_holdout_persons": 4464,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4464
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback": {
+          "n_spliced_observations": 20831,
+          "n_fallback_observations": 10229,
+          "rate": 0.49104699726369355,
+          "note": "share of spliced (non-anchor) observations for which the donor had no observation at the holdout's exact age, so the nearest observed age (ties -> younger) was used"
+        },
+        "scaling_clip": {
+          "n_scaled_persons": 3439,
+          "n_clipped_persons": 38,
+          "rate_over_scaled": 0.011049723756906077,
+          "rate_over_holdout": 0.008512544802867384,
+          "raw_ratio_min": 0.009375,
+          "raw_ratio_max": 15531.0,
+          "clip_bounds": [
+            0.2,
+            5.0
+          ],
+          "note": "a person is scaled when its anchor earnings and the donor's earnings at (nearest to) the anchor age are both positive; clipped when the raw ratio falls outside [0.2, 5]"
+        },
+        "donor_reuse": {
+          "n_distinct_donors": 2823,
+          "max_reuse": 29,
+          "reuse_count_distribution": {
+            "1": 2070,
+            "2": 521,
+            "3": 124,
+            "4": 31,
+            "5": 12,
+            "6": 8,
+            "7": 6,
+            "8": 4,
+            "9": 5,
+            "10": 5,
+            "11": 3,
+            "12": 5,
+            "13": 7,
+            "14": 4,
+            "15": 2,
+            "16": 4,
+            "17": 1,
+            "18": 2,
+            "20": 6,
+            "21": 1,
+            "22": 1,
+            "29": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.002635669284966502,
+            "c2st_auc": 0.606029389519348,
+            "prdc_precision": 0.98583984375,
+            "prdc_recall": 0.984375,
+            "prdc_density": 1.1451171875,
+            "prdc_coverage": 0.94580078125,
+            "w1_over_sd.earnings_t1": 0.024437088684984506,
+            "q90_ratio.earnings_t1": 0.9657160417930227,
+            "q99_ratio.earnings_t1": 0.93446088794926
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.606029389519348,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": false
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.002635669284966502,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94580078125,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 0.93446088794926,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 0.9657160417930227,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.024437088684984506,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.005059613420740572,
+            "c2st_auc": 0.627525734701018,
+            "prdc_precision": 0.98876953125,
+            "prdc_recall": 0.96630859375,
+            "prdc_density": 1.10146484375,
+            "prdc_coverage": 0.9453125,
+            "w1_over_sd.earnings_t2": 0.02906877311356474,
+            "q90_ratio.earnings_t2": 0.9523809523809523,
+            "q99_ratio.earnings_t2": 0.9353479093369788
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.627525734701018,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9453125,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.7680149012279336,
+        "autocorr_log_4yr": 0.6944842897846714,
+        "autocorr_log_10yr": 0.6023172220333305,
+        "mobility_diagonal": 0.6578737040513105,
+        "zero_persistence": 0.7799380292157323,
+        "entry_rate": 0.05811769242736163,
+        "exit_rate": 0.22006197078426767,
+        "mean_spell_length": 2.447392019842662
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.7680149012279336,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.03789139099737315,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.6944842897846714,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.03731739180576632,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.6023172220333305,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.06343779481401246,
+          "pass": true
+        },
+        "mobility_diagonal": {
+          "value": 0.6578737040513105,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.05382178348103439,
+          "pass": false
+        },
+        "zero_persistence": {
+          "value": 0.7799380292157323,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.07891733715479954,
+          "pass": false
+        },
+        "entry_rate": {
+          "value": 0.05811769242736163,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.008604595983082719,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.22006197078426767,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.07891733715479957,
+          "pass": false
+        },
+        "mean_spell_length": {
+          "value": 2.447392019842662,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.36024363383425495,
+          "pass": false
+        }
+      },
+      "battery_pass": false
+    },
+    {
+      "seed": 4,
+      "n_persons": 4530,
+      "n_person_periods": 25973,
+      "n_train_persons": 17770,
+      "n_windows": {
+        "psid_family_earnings_pairs": 20935,
+        "psid_family_earnings_runs": 16803
+      },
+      "splice_diagnostics": {
+        "n_holdout_persons": 4530,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4530
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback": {
+          "n_spliced_observations": 21443,
+          "n_fallback_observations": 10412,
+          "rate": 0.4855663853005643,
+          "note": "share of spliced (non-anchor) observations for which the donor had no observation at the holdout's exact age, so the nearest observed age (ties -> younger) was used"
+        },
+        "scaling_clip": {
+          "n_scaled_persons": 3567,
+          "n_clipped_persons": 41,
+          "rate_over_scaled": 0.011494252873563218,
+          "rate_over_holdout": 0.009050772626931568,
+          "raw_ratio_min": 0.009375,
+          "raw_ratio_max": 350.0,
+          "clip_bounds": [
+            0.2,
+            5.0
+          ],
+          "note": "a person is scaled when its anchor earnings and the donor's earnings at (nearest to) the anchor age are both positive; clipped when the raw ratio falls outside [0.2, 5]"
+        },
+        "donor_reuse": {
+          "n_distinct_donors": 2908,
+          "max_reuse": 30,
+          "reuse_count_distribution": {
+            "1": 2164,
+            "2": 503,
+            "3": 133,
+            "4": 29,
+            "5": 17,
+            "6": 7,
+            "7": 4,
+            "8": 6,
+            "9": 3,
+            "10": 4,
+            "11": 8,
+            "12": 3,
+            "13": 3,
+            "14": 6,
+            "15": 5,
+            "16": 3,
+            "17": 3,
+            "19": 1,
+            "20": 2,
+            "21": 2,
+            "23": 1,
+            "30": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      "geometry": {
+        "psid_family_earnings_pairs": {
+          "scores": {
+            "energy_distance": 0.003342445799525695,
+            "c2st_auc": 0.6121073954429594,
+            "prdc_precision": 0.990234375,
+            "prdc_recall": 0.986328125,
+            "prdc_density": 1.06416015625,
+            "prdc_coverage": 0.94873046875,
+            "w1_over_sd.earnings_t1": 0.03227106638043729,
+            "q90_ratio.earnings_t1": 1.01006,
+            "q99_ratio.earnings_t1": 1.1032548808265068
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.53,
+            "energy_distance_max": 0.008,
+            "prdc_coverage_min": 0.93,
+            "q99_ratio_range": [
+              0.7,
+              1.4
+            ],
+            "q90_ratio_range": [
+              0.85,
+              1.15
+            ],
+            "w1_over_sd_max": 0.06
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.6121073954429594,
+              "threshold": 0.53,
+              "comparison": "<=",
+              "pass": false
+            },
+            "energy_distance_max": {
+              "metric": "energy_distance",
+              "score": 0.003342445799525695,
+              "threshold": 0.008,
+              "comparison": "<=",
+              "pass": true
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.94873046875,
+              "threshold": 0.93,
+              "comparison": ">=",
+              "pass": true
+            },
+            "q99_ratio_range": {
+              "metric": "q99_ratio",
+              "score": 1.1032548808265068,
+              "threshold": [
+                0.7,
+                1.4
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "q90_ratio_range": {
+              "metric": "q90_ratio",
+              "score": 1.01006,
+              "threshold": [
+                0.85,
+                1.15
+              ],
+              "comparison": "in",
+              "pass": true
+            },
+            "w1_over_sd_max": {
+              "metric": "w1_over_sd",
+              "score": 0.03227106638043729,
+              "threshold": 0.06,
+              "comparison": "<=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        },
+        "psid_family_earnings_runs": {
+          "scores": {
+            "energy_distance": 0.002531023435579538,
+            "c2st_auc": 0.6191895696635663,
+            "prdc_precision": 0.982421875,
+            "prdc_recall": 0.97509765625,
+            "prdc_density": 1.12431640625,
+            "prdc_coverage": 0.9404296875,
+            "w1_over_sd.earnings_t2": 0.03653018082521538,
+            "q90_ratio.earnings_t2": 1.0294117647058822,
+            "q99_ratio.earnings_t2": 1.0778998891596645
+          },
+          "thresholds": {
+            "c2st_auc_max": 0.54,
+            "prdc_coverage_min": 0.9
+          },
+          "checks": {
+            "c2st_auc_max": {
+              "metric": "c2st_auc",
+              "score": 0.6191895696635663,
+              "threshold": 0.54,
+              "comparison": "<=",
+              "pass": false
+            },
+            "prdc_coverage_min": {
+              "metric": "prdc_coverage",
+              "score": 0.9404296875,
+              "threshold": 0.9,
+              "comparison": ">=",
+              "pass": true
+            }
+          },
+          "view_pass": false
+        }
+      },
+      "geometry_pass": false,
+      "battery_values": {
+        "autocorr_log_2yr": 0.7743776567653655,
+        "autocorr_log_4yr": 0.7157042431210427,
+        "autocorr_log_10yr": 0.6297716793122005,
+        "mobility_diagonal": 0.6676265964798614,
+        "zero_persistence": 0.7741830884471238,
+        "entry_rate": 0.05564249808009241,
+        "exit_rate": 0.22581691155287623,
+        "mean_spell_length": 2.4805276820459556
+      },
+      "battery_checks": {
+        "autocorr_log_2yr": {
+          "value": 0.7743776567653655,
+          "reference": 0.7301235102305604,
+          "tolerance": 0.05,
+          "deviation": 0.04425414653480508,
+          "pass": true
+        },
+        "autocorr_log_4yr": {
+          "value": 0.7157042431210427,
+          "reference": 0.657166897978905,
+          "tolerance": 0.06,
+          "deviation": 0.05853734514213771,
+          "pass": true
+        },
+        "autocorr_log_10yr": {
+          "value": 0.6297716793122005,
+          "reference": 0.538879427219318,
+          "tolerance": 0.07,
+          "deviation": 0.09089225209288243,
+          "pass": false
+        },
+        "mobility_diagonal": {
+          "value": 0.6676265964798614,
+          "reference": 0.6040519205702761,
+          "tolerance": 0.05,
+          "deviation": 0.06357467590958532,
+          "pass": false
+        },
+        "zero_persistence": {
+          "value": 0.7741830884471238,
+          "reference": 0.7010206920609328,
+          "tolerance": 0.05,
+          "deviation": 0.07316239638619104,
+          "pass": false
+        },
+        "entry_rate": {
+          "value": 0.05564249808009241,
+          "reference": 0.06672228841044435,
+          "tolerance": 0.02,
+          "deviation": 0.01107979033035194,
+          "pass": true
+        },
+        "exit_rate": {
+          "value": 0.22581691155287623,
+          "reference": 0.29897930793906724,
+          "tolerance": 0.05,
+          "deviation": 0.07316239638619101,
+          "pass": false
+        },
+        "mean_spell_length": {
+          "value": 2.4805276820459556,
+          "reference": 2.087148386008407,
+          "tolerance": 0.25,
+          "deviation": 0.3933792960375486,
+          "pass": false
+        }
+      },
+      "battery_pass": false
+    }
+  ],
+  "seed_conjunction": [
+    {
+      "seed": 0,
+      "geometry_pass": false,
+      "battery_pass": false
+    },
+    {
+      "seed": 1,
+      "geometry_pass": false,
+      "battery_pass": false
+    },
+    {
+      "seed": 2,
+      "geometry_pass": false,
+      "battery_pass": false
+    },
+    {
+      "seed": 3,
+      "geometry_pass": false,
+      "battery_pass": false
+    },
+    {
+      "seed": 4,
+      "geometry_pass": false,
+      "battery_pass": false
+    }
+  ],
+  "splice_diagnostics_context": {
+    "note": "Reported-not-gated diagnostics per seed: age-window widening distribution, nearest-age fallback rate, scaling-clip rate, and donor reuse distribution. None of these enters the geometry or battery pass/fail; the gate rule names only those two families.",
+    "per_seed": [
+      {
+        "seed": 0,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4427
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback_rate": 0.4828521604340244,
+        "scaling_clip_rate_over_holdout": 0.010164897221594759,
+        "donor_reuse": {
+          "n_distinct_donors": 2895,
+          "max_reuse": 24,
+          "reuse_count_distribution": {
+            "1": 2169,
+            "2": 502,
+            "3": 122,
+            "4": 27,
+            "5": 11,
+            "6": 6,
+            "7": 10,
+            "8": 5,
+            "9": 5,
+            "10": 6,
+            "11": 9,
+            "12": 4,
+            "13": 2,
+            "14": 3,
+            "15": 4,
+            "16": 2,
+            "17": 1,
+            "18": 1,
+            "20": 1,
+            "21": 1,
+            "22": 2,
+            "23": 1,
+            "24": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      {
+        "seed": 1,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4495
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback_rate": 0.49447776825668854,
+        "scaling_clip_rate_over_holdout": 0.009121245828698554,
+        "donor_reuse": {
+          "n_distinct_donors": 2891,
+          "max_reuse": 23,
+          "reuse_count_distribution": {
+            "1": 2137,
+            "2": 482,
+            "3": 154,
+            "4": 40,
+            "5": 17,
+            "6": 8,
+            "7": 6,
+            "8": 8,
+            "9": 3,
+            "10": 7,
+            "11": 3,
+            "12": 2,
+            "13": 6,
+            "14": 4,
+            "16": 6,
+            "17": 2,
+            "18": 3,
+            "19": 2,
+            "23": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      {
+        "seed": 2,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4477
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback_rate": 0.48643096034400385,
+        "scaling_clip_rate_over_holdout": 0.007817735090462363,
+        "donor_reuse": {
+          "n_distinct_donors": 2891,
+          "max_reuse": 22,
+          "reuse_count_distribution": {
+            "1": 2157,
+            "2": 492,
+            "3": 133,
+            "4": 28,
+            "5": 15,
+            "6": 10,
+            "7": 6,
+            "8": 6,
+            "9": 8,
+            "10": 4,
+            "11": 3,
+            "12": 5,
+            "13": 3,
+            "14": 2,
+            "15": 3,
+            "16": 4,
+            "17": 4,
+            "18": 4,
+            "19": 3,
+            "22": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      {
+        "seed": 3,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4464
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback_rate": 0.49104699726369355,
+        "scaling_clip_rate_over_holdout": 0.008512544802867384,
+        "donor_reuse": {
+          "n_distinct_donors": 2823,
+          "max_reuse": 29,
+          "reuse_count_distribution": {
+            "1": 2070,
+            "2": 521,
+            "3": 124,
+            "4": 31,
+            "5": 12,
+            "6": 8,
+            "7": 6,
+            "8": 4,
+            "9": 5,
+            "10": 5,
+            "11": 3,
+            "12": 5,
+            "13": 7,
+            "14": 4,
+            "15": 2,
+            "16": 4,
+            "17": 1,
+            "18": 2,
+            "20": 6,
+            "21": 1,
+            "22": 1,
+            "29": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      },
+      {
+        "seed": 4,
+        "age_window_widening": {
+          "distribution": {
+            "0": 4530
+          },
+          "any_widened": 0,
+          "max_widen_steps": 0,
+          "note": "count of +/-2 age-window widenings applied beyond the initial +/-2 window per holdout person (0 = matched in the initial window)"
+        },
+        "nearest_age_fallback_rate": 0.4855663853005643,
+        "scaling_clip_rate_over_holdout": 0.009050772626931568,
+        "donor_reuse": {
+          "n_distinct_donors": 2908,
+          "max_reuse": 30,
+          "reuse_count_distribution": {
+            "1": 2164,
+            "2": 503,
+            "3": 133,
+            "4": 29,
+            "5": 17,
+            "6": 7,
+            "7": 4,
+            "8": 6,
+            "9": 3,
+            "10": 4,
+            "11": 8,
+            "12": 3,
+            "13": 3,
+            "14": 6,
+            "15": 5,
+            "16": 3,
+            "17": 3,
+            "19": 1,
+            "20": 2,
+            "21": 2,
+            "23": 1,
+            "30": 1
+          },
+          "note": "reuse_count_distribution maps 'number of holdout persons sharing one donor' -> 'number of donors reused that many times'"
+        }
+      }
+    ]
+  },
+  "verdict": {
+    "n_seeds": 5,
+    "n_geometry_pass": 0,
+    "n_battery_pass": 0,
+    "geometry_gate_pass": false,
+    "battery_gate_pass": false,
+    "gate_1_pass": false,
+    "rule": ">=4/5 seeds geometry AND >=4/5 seeds battery"
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "92bb8c2c7dcf840032dd276067bd9e587978afaa",
+    "populace_repo_sha": "ed78097d1e2a7fd7869d5381502afa9316b394b8",
+    "artifact_schema_version": "gate1_splice.v1",
+    "gates_yaml_locked": true
+  },
+  "elapsed_seconds": 81.7
+}

@@ -57,13 +57,16 @@ import numpy as np
 import pandas as pd
 import yaml
 
-# Importing populace.fit runs its import-time compat gate.
-from populace.fit.qrf import (
-    DEFAULT_N_ESTIMATORS,
-    DEFAULT_ZERO_ATOL,
-    RegimeGatedQRF,
-)
-
+# populace.fit is imported LAZILY (inside the two functions that fit the
+# transition model), not at module top level. Importing it runs an
+# import-time compat gate and pins scikit-learn < 1.9, which the repo's
+# ``.venv`` violates; deferring the import lets pure-protocol reusers
+# (e.g. the deterministic candidate-5a splicing runner, which fits no
+# model) import this module's split / view / battery / geometry /
+# threshold / reproduction machinery under the repo ``.venv`` without
+# populace-fit installed. The baseline run itself still uses the
+# dedicated gate venv; the fit functions raise the ordinary
+# ``ModuleNotFoundError`` there if populace-fit is absent.
 from populace_dynamics.data.family import family_earnings_panel
 from populace_dynamics.harness import moments
 from populace_dynamics.harness import panel as hpanel
@@ -174,6 +177,10 @@ def fit_backward_model(pairs: pd.DataFrame, seed: int) -> Any:
     ``weight_tm2`` (the earlier-period weight), so the fit is weighted
     without constructing a Frame.
     """
+    # Imported lazily (see module header): only the model-fitting path
+    # needs populace-fit; pure-protocol reusers do not.
+    from populace.fit.qrf import RegimeGatedQRF
+
     model = RegimeGatedQRF(seed=seed)  # default hyperparameters
     return model.fit(
         pairs,
@@ -483,6 +490,10 @@ def reproduce_battery_reference(panel: pd.DataFrame) -> dict[str, Any]:
 
 def run(verbose: bool = True) -> dict[str, Any]:
     """Execute the full pre-registered gate-1 baseline run."""
+    # Imported lazily (see module header); the run records the
+    # populace-fit defaults in the artifact's model block.
+    from populace.fit.qrf import DEFAULT_N_ESTIMATORS, DEFAULT_ZERO_ATOL
+
     started = time.time()
     thresholds = load_gate1_thresholds()
     if not thresholds.get("locked", False):
