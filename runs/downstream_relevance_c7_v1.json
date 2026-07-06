@@ -1,0 +1,3263 @@
+{
+  "schema_version": "downstream_relevance_c7.v1",
+  "run": "downstream_relevance_c7_v1",
+  "reported_not_gated": true,
+  "purpose": "Translate the candidate-7 classifier residual into benefit space (a statute-shaped PIA proxy) to inform whether a future public gate amendment is warranted; this reads no gate and changes no gate.",
+  "not_full_415b": "The functional is a STATUTE-SHAPED PROXY, not the full 42 USC 415(b) AIME: the filtered panel's careers are partial (biennial PSID, prime age 25-59, reference years 1998-2022), so a faithful highest-35 AIME cannot be formed. The proxy is monotone in lifetime earnings, routes through the exact 415(a)/415(g) PIA bend-point formula, and uses a constant scale (top min(10,n) indexed years / (count*12*2)) that cancels in every real-vs-candidate comparison.",
+  "functional": {
+    "steps": [
+      "positive-earnings periods only, within the locked filter (age 25-59, periods 1998-2022)",
+      "cap each year at that year's wage base (wage_base_for)",
+      "index each to 2022 by nawi[2022]/nawi[year]",
+      "AIME-proxy = sum(top min(10, n_pos) indexed) / (min(10, n_pos) * 12 * 2)",
+      "PIA-proxy = pia(AIME-proxy, 2022, params) [2022-eligibility 415(a)/415(g)]",
+      "zero positive observations -> PIA-proxy 0 (person included)"
+    ],
+    "eligibility_year": 2022,
+    "top_n": 10,
+    "biennial_scale": 2,
+    "weight": "each person weighted by their anchor-period weight (the weight on their chronologically last observed period)",
+    "person_set": "both sides generate the same person set on the same observed periods; only earnings differ (candidate anchor held at real earnings)",
+    "anchor_quintiles": {
+      "definition": "Q0 = zero anchor earnings (no current-period earnings, ~20% by weight); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel so bins are seed-stable",
+      "positive_anchor_quartile_cutpoints": [
+        26000.0,
+        46000.0,
+        77000.0
+      ]
+    }
+  },
+  "oracle": {
+    "source": "policyengine-us (loaded once via load_ssa_parameters)",
+    "pe_us_revision": "bf71be3b",
+    "pe_us_dir_env": "POPULACE_DYNAMICS_PE_US_DIR",
+    "eligibility_year": 2022,
+    "bend_points_2022": [
+      1024.0,
+      6172.0
+    ],
+    "pia_factors": [
+      0.9,
+      0.32,
+      0.15
+    ],
+    "nawi_2022": 63795.13
+  },
+  "candidate7_reference": {
+    "run": "gate1_rank_knn_v1",
+    "schema_version": "gate1_rank_knn.v1",
+    "spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4896132094",
+    "verdict": {
+      "n_seeds": 5,
+      "n_geometry_pass": 2,
+      "n_battery_pass": 2,
+      "geometry_gate_pass": false,
+      "battery_gate_pass": false,
+      "gate_1_pass": false,
+      "rule": ">=4/5 seeds geometry AND >=4/5 seeds battery"
+    },
+    "revision_pins": {
+      "populace_dynamics_sha": "c20399930d3db73e535d42d5ae33f6d341db4140",
+      "populace_repo_sha": "e179ba5fe40de73c5f75734c814f95dd94129bd7",
+      "artifact_schema_version": "gate1_rank_knn.v1",
+      "gates_yaml_locked": true
+    },
+    "artifact_sha256": "471912aca48fe557274d141eba5ae3275242b73ef8fdd005e7beba961fad4f4e",
+    "path": "runs/gate1_rank_knn_v1.json"
+  },
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "split": "per gate seed s: the locked person-disjoint 0.2 holdout (split_holdout_train); candidate 7 regenerated over the holdout via the merged machinery; real holdout and candidate pushed through the proxy",
+    "noise_anchor": "real vs real at the same scale: the ctx20 construction on the seed's TRAIN split (fraction=0.4 seed=1000+s, then fraction=0.5 seed=s), both disjoint halves pushed through the proxy; distribution gaps only (person-level and by-quintile are n/a across disjoint persons)",
+    "measurements": [
+      "distribution gaps of PIA-proxy: mean/median % diff, decile % gaps, weighted Gini difference, weighted KS distance",
+      "person-level (real vs candidate, same persons): weighted MAE and RMSE of (candidate - real), weighted share within 5% and within 10% of real",
+      "the same by anchor-earnings quintile (concentration)",
+      "noise anchor: identical distribution measures for real-vs-real"
+    ]
+  },
+  "success_criterion": {
+    "pct": 5.0,
+    "text": "AIME distribution for retired workers: within 5 percent on key percentiles (paper Phase-1 acceptance table, docs/evaluation-and-model-selection.md 'AIME key percentiles: within 5 percent'). The PIA-proxy is a monotone statute-shaped transform of the AIME-proxy, so its percentile gaps map onto this criterion."
+  },
+  "candidate_per_seed": [
+    {
+      "seed": 0,
+      "n_persons": 4427,
+      "n_person_periods_holdout": 25071,
+      "n_real_zero_proxy": 275,
+      "n_candidate_zero_proxy": 233,
+      "pools": {
+        "n_pairs": 64603,
+        "n_triples": 49220,
+        "n_reentry": 4994
+      },
+      "distribution": {
+        "mean": {
+          "candidate": 1334.1227098114541,
+          "real": 1332.385027374884,
+          "pct_diff": 0.13041894053656458
+        },
+        "median": {
+          "candidate": 1288.5739359095808,
+          "real": 1282.3,
+          "pct_diff": 0.4892720821633638
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 493.21007507162125,
+            "real": 413.7,
+            "pct_diff": 19.21925914228215
+          },
+          "d2": {
+            "candidate": 927.0683547534409,
+            "real": 933.2415725317506,
+            "pct_diff": -0.6614812241553623
+          },
+          "d3": {
+            "candidate": 1060.5,
+            "real": 1055.5843756213199,
+            "pct_diff": 0.46567801610238874
+          },
+          "d4": {
+            "candidate": 1180.5,
+            "real": 1169.9099227397764,
+            "pct_diff": 0.9052044994560754
+          },
+          "d5": {
+            "candidate": 1288.5739359095808,
+            "real": 1282.3,
+            "pct_diff": 0.4892720821633638
+          },
+          "d6": {
+            "candidate": 1431.3281182830717,
+            "real": 1437.2395847750863,
+            "pct_diff": -0.4113069633369222
+          },
+          "d7": {
+            "candidate": 1609.1237047119812,
+            "real": 1607.4,
+            "pct_diff": 0.10723557994158886
+          },
+          "d8": {
+            "candidate": 1848.2119489702575,
+            "real": 1863.2877010364546,
+            "pct_diff": -0.8090941649972352
+          },
+          "d9": {
+            "candidate": 2247.218048268626,
+            "real": 2318.121203334542,
+            "pct_diff": -3.058647449664158
+          }
+        },
+        "gini": {
+          "candidate": 0.26801026283691065,
+          "real": 0.2773040918302878,
+          "difference": -0.009293828993377162
+        },
+        "ks_distance": 0.018308782125473044
+      },
+      "person_level": {
+        "weighted_mae": 301.4482940120006,
+        "weighted_rmse": 476.76298226919965,
+        "weighted_share_within_5pct": 0.2863656273014244,
+        "weighted_share_within_10pct": 0.4217443233647094,
+        "n_persons": 4427,
+        "n_real_zero": 275,
+        "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+      },
+      "by_anchor_quintile": {
+        "definition": "Q0 = zero anchor earnings (no current-period earnings); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel (seed-stable)",
+        "positive_anchor_quartile_cutpoints": [
+          26000.0,
+          46000.0,
+          77000.0
+        ],
+        "quintiles": {
+          "Q0": {
+            "n_persons": 883,
+            "distribution": {
+              "mean": {
+                "candidate": 796.9557480713589,
+                "real": 750.3889785859828,
+                "pct_diff": 6.205684093751686
+              },
+              "median": {
+                "candidate": 828.8,
+                "real": 828.7646845839098,
+                "pct_diff": 0.004261211505155681
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d2": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d3": {
+                  "candidate": 274.78206507461397,
+                  "real": 14.794570186602318,
+                  "pct_diff": 1757.3169859537481
+                },
+                "d4": {
+                  "candidate": 601.186882597601,
+                  "real": 407.52807798825745,
+                  "pct_diff": 47.52035873585222
+                },
+                "d5": {
+                  "candidate": 828.8,
+                  "real": 828.7646845839098,
+                  "pct_diff": 0.004261211505155681
+                },
+                "d6": {
+                  "candidate": 1023.7133291627568,
+                  "real": 984.8128081368092,
+                  "pct_diff": 3.9500421506036774
+                },
+                "d7": {
+                  "candidate": 1172.4739883855982,
+                  "real": 1105.8293834409865,
+                  "pct_diff": 6.026662516168189
+                },
+                "d8": {
+                  "candidate": 1321.7426290050591,
+                  "real": 1277.5288415064654,
+                  "pct_diff": 3.460883704704213
+                },
+                "d9": {
+                  "candidate": 1598.3540140344223,
+                  "real": 1625.4,
+                  "pct_diff": -1.6639587772596134
+                }
+              },
+              "gini": {
+                "candidate": 0.45155449199462017,
+                "real": 0.5069392988197042,
+                "difference": -0.055384806825084065
+              },
+              "ks_distance": 0.09280172040319465
+            },
+            "person_level": {
+              "weighted_mae": 596.5608287707802,
+              "weighted_rmse": 820.967212918624,
+              "weighted_share_within_5pct": 0.043251097182275496,
+              "weighted_share_within_10pct": 0.08284201721115173,
+              "n_persons": 883,
+              "n_real_zero": 275,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q1": {
+            "n_persons": 900,
+            "distribution": {
+              "mean": {
+                "candidate": 904.1032876149794,
+                "real": 929.9597535700208,
+                "pct_diff": -2.7803854796706005
+              },
+              "median": {
+                "candidate": 955.0870998597118,
+                "real": 961.2748748729177,
+                "pct_diff": -0.6437050603266833
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 367.42909460498845,
+                  "real": 413.59809702598557,
+                  "pct_diff": -11.162769546808724
+                },
+                "d2": {
+                  "candidate": 572.0273038954897,
+                  "real": 585.4572005237561,
+                  "pct_diff": -2.2939160396783733
+                },
+                "d3": {
+                  "candidate": 750.0,
+                  "real": 750.0,
+                  "pct_diff": 0.0
+                },
+                "d4": {
+                  "candidate": 883.9695923084034,
+                  "real": 915.6033022829289,
+                  "pct_diff": -3.454958047404506
+                },
+                "d5": {
+                  "candidate": 955.0870998597118,
+                  "real": 961.2748748729177,
+                  "pct_diff": -0.6437050603266833
+                },
+                "d6": {
+                  "candidate": 1023.3845353054784,
+                  "real": 1023.4,
+                  "pct_diff": -0.0015111094900915837
+                },
+                "d7": {
+                  "candidate": 1098.236559819413,
+                  "real": 1097.6000388747907,
+                  "pct_diff": 0.057992066515858885
+                },
+                "d8": {
+                  "candidate": 1176.5182212976208,
+                  "real": 1187.298919035547,
+                  "pct_diff": -0.9080019837534619
+                },
+                "d9": {
+                  "candidate": 1294.3,
+                  "real": 1336.1360049616392,
+                  "pct_diff": -3.131118748861224
+                }
+              },
+              "gini": {
+                "candidate": 0.2330596462502793,
+                "real": 0.2362364073822858,
+                "difference": -0.0031767611320064892
+              },
+              "ks_distance": 0.036746976850736635
+            },
+            "person_level": {
+              "weighted_mae": 277.81373954359094,
+              "weighted_rmse": 416.79111479300775,
+              "weighted_share_within_5pct": 0.2569289348997186,
+              "weighted_share_within_10pct": 0.3401774161436731,
+              "n_persons": 900,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q2": {
+            "n_persons": 1004,
+            "distribution": {
+              "mean": {
+                "candidate": 1257.0379550898003,
+                "real": 1269.5494591764268,
+                "pct_diff": -0.9855074173118744
+              },
+              "median": {
+                "candidate": 1217.4803643260593,
+                "real": 1225.75986390913,
+                "pct_diff": -0.6754585320379247
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 979.1826801916608,
+                  "real": 997.6212030136429,
+                  "pct_diff": -1.848248891090377
+                },
+                "d2": {
+                  "candidate": 1050.772034911399,
+                  "real": 1060.5,
+                  "pct_diff": -0.9172998669119253
+                },
+                "d3": {
+                  "candidate": 1104.4185865060322,
+                  "real": 1110.4273560829147,
+                  "pct_diff": -0.5411222574774035
+                },
+                "d4": {
+                  "candidate": 1171.0832746113988,
+                  "real": 1165.1132575574366,
+                  "pct_diff": 0.5123980021030645
+                },
+                "d5": {
+                  "candidate": 1217.4803643260593,
+                  "real": 1225.75986390913,
+                  "pct_diff": -0.6754585320379247
+                },
+                "d6": {
+                  "candidate": 1284.2251349374399,
+                  "real": 1292.1731073786887,
+                  "pct_diff": -0.6150857339363845
+                },
+                "d7": {
+                  "candidate": 1355.2859155107187,
+                  "real": 1375.78639962438,
+                  "pct_diff": -1.4900920752856963
+                },
+                "d8": {
+                  "candidate": 1447.8433093869733,
+                  "real": 1458.8212377321763,
+                  "pct_diff": -0.7525204638690955
+                },
+                "d9": {
+                  "candidate": 1611.9382011902476,
+                  "real": 1616.7909007107473,
+                  "pct_diff": -0.300143915850002
+                }
+              },
+              "gini": {
+                "candidate": 0.11626197804072524,
+                "real": 0.11158903719035529,
+                "difference": 0.0046729408503699554
+              },
+              "ks_distance": 0.039363645367027966
+            },
+            "person_level": {
+              "weighted_mae": 183.38555191505344,
+              "weighted_rmse": 287.49382550780655,
+              "weighted_share_within_5pct": 0.36296994345722094,
+              "weighted_share_within_10pct": 0.5046544043953021,
+              "n_persons": 1004,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q3": {
+            "n_persons": 876,
+            "distribution": {
+              "mean": {
+                "candidate": 1555.9590256963431,
+                "real": 1520.2851545774008,
+                "pct_diff": 2.346524993125958
+              },
+              "median": {
+                "candidate": 1508.828585271318,
+                "real": 1476.778725443949,
+                "pct_diff": 2.170254708790856
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1191.6653924364866,
+                  "real": 1155.9019061975507,
+                  "pct_diff": 3.0939897276044213
+                },
+                "d2": {
+                  "candidate": 1274.4532951198153,
+                  "real": 1240.5028075211712,
+                  "pct_diff": 2.736832790123662
+                },
+                "d3": {
+                  "candidate": 1348.1062438730758,
+                  "real": 1324.4902309307208,
+                  "pct_diff": 1.7830265856894942
+                },
+                "d4": {
+                  "candidate": 1432.1048398548946,
+                  "real": 1404.3387293426367,
+                  "pct_diff": 1.9771661873382267
+                },
+                "d5": {
+                  "candidate": 1508.828585271318,
+                  "real": 1476.778725443949,
+                  "pct_diff": 2.170254708790856
+                },
+                "d6": {
+                  "candidate": 1598.145284872938,
+                  "real": 1545.8539871848536,
+                  "pct_diff": 3.382680260980647
+                },
+                "d7": {
+                  "candidate": 1674.4308933418029,
+                  "real": 1642.8695413630517,
+                  "pct_diff": 1.9211112741529952
+                },
+                "d8": {
+                  "candidate": 1807.339038998265,
+                  "real": 1790.8683252288718,
+                  "pct_diff": 0.9197054600476222
+                },
+                "d9": {
+                  "candidate": 2043.134389666308,
+                  "real": 1975.4764320600036,
+                  "pct_diff": 3.4248931806162517
+                }
+              },
+              "gini": {
+                "candidate": 0.11718004080304056,
+                "real": 0.11716923554908576,
+                "difference": 1.080525395480425e-05
+              },
+              "ks_distance": 0.06778702703128059
+            },
+            "person_level": {
+              "weighted_mae": 207.88173110981865,
+              "weighted_rmse": 293.2172547065134,
+              "weighted_share_within_5pct": 0.2952762370757223,
+              "weighted_share_within_10pct": 0.5174705856420175,
+              "n_persons": 876,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q4": {
+            "n_persons": 764,
+            "distribution": {
+              "mean": {
+                "candidate": 2125.2678637845756,
+                "real": 2163.5420113278456,
+                "pct_diff": -1.7690503509002657
+              },
+              "median": {
+                "candidate": 2140.937249544627,
+                "real": 2215.038599857758,
+                "pct_diff": -3.3453751242930814
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1549.682075197944,
+                  "real": 1618.967531964355,
+                  "pct_diff": -4.279607552249323
+                },
+                "d2": {
+                  "candidate": 1737.0638007309096,
+                  "real": 1791.0415221732653,
+                  "pct_diff": -3.0137615892265104
+                },
+                "d3": {
+                  "candidate": 1867.6935260115608,
+                  "real": 1917.8001205136895,
+                  "pct_diff": -2.6127120321959034
+                },
+                "d4": {
+                  "candidate": 2004.538796192036,
+                  "real": 2017.2648105325973,
+                  "pct_diff": -0.6308549216798841
+                },
+                "d5": {
+                  "candidate": 2140.937249544627,
+                  "real": 2215.038599857758,
+                  "pct_diff": -3.3453751242930814
+                },
+                "d6": {
+                  "candidate": 2316.7914193516845,
+                  "real": 2390.6075960919848,
+                  "pct_diff": -3.0877579767156416
+                },
+                "d7": {
+                  "candidate": 2477.2594079631554,
+                  "real": 2518.1229444875453,
+                  "pct_diff": -1.6227776572166508
+                },
+                "d8": {
+                  "candidate": 2596.1199519124393,
+                  "real": 2600.5174304725547,
+                  "pct_diff": -0.169100137864343
+                },
+                "d9": {
+                  "candidate": 2617.5,
+                  "real": 2617.9263336558993,
+                  "pct_diff": -0.01628516625614523
+                }
+              },
+              "gini": {
+                "candidate": 0.11024553790986291,
+                "real": 0.10419391631189046,
+                "difference": 0.006051621597972456
+              },
+              "ks_distance": 0.05519563006562844
+            },
+            "person_level": {
+              "weighted_mae": 244.54754941281988,
+              "weighted_rmse": 347.8273408232988,
+              "weighted_share_within_5pct": 0.39729983916647854,
+              "weighted_share_within_10pct": 0.5532896027358559,
+              "n_persons": 764,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "n_persons": 4495,
+      "n_person_periods_holdout": 25501,
+      "n_real_zero_proxy": 281,
+      "n_candidate_zero_proxy": 239,
+      "pools": {
+        "n_pairs": 64263,
+        "n_triples": 49007,
+        "n_reentry": 4927
+      },
+      "distribution": {
+        "mean": {
+          "candidate": 1321.420349549003,
+          "real": 1300.1546067389684,
+          "pct_diff": 1.635631847151867
+        },
+        "median": {
+          "candidate": 1272.5,
+          "real": 1268.6121479053568,
+          "pct_diff": 0.30646499019125506
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 491.32411634349035,
+            "real": 360.66767221217066,
+            "pct_diff": 36.22626983170762
+          },
+          "d2": {
+            "candidate": 930.6560903932884,
+            "real": 909.3959486918975,
+            "pct_diff": 2.3378311429660696
+          },
+          "d3": {
+            "candidate": 1043.2,
+            "real": 1036.3,
+            "pct_diff": 0.6658303580044477
+          },
+          "d4": {
+            "candidate": 1156.3753242835596,
+            "real": 1138.1350979580823,
+            "pct_diff": 1.6026415807931742
+          },
+          "d5": {
+            "candidate": 1272.5,
+            "real": 1268.6121479053568,
+            "pct_diff": 0.30646499019125506
+          },
+          "d6": {
+            "candidate": 1419.5393232591998,
+            "real": 1398.8013330569088,
+            "pct_diff": 1.4825543636686915
+          },
+          "d7": {
+            "candidate": 1588.9885935684867,
+            "real": 1582.0096630745427,
+            "pct_diff": 0.4411433543573256
+          },
+          "d8": {
+            "candidate": 1817.8542430124223,
+            "real": 1818.2825087153851,
+            "pct_diff": -0.023553309285549866
+          },
+          "d9": {
+            "candidate": 2221.03544403482,
+            "real": 2238.7794867013445,
+            "pct_diff": -0.7925766147102205
+          }
+        },
+        "gini": {
+          "candidate": 0.2666693604284943,
+          "real": 0.2822159412780606,
+          "difference": -0.015546580849566283
+        },
+        "ks_distance": 0.02338919609385784
+      },
+      "person_level": {
+        "weighted_mae": 315.4577782033792,
+        "weighted_rmse": 487.0075598228123,
+        "weighted_share_within_5pct": 0.25886506315145913,
+        "weighted_share_within_10pct": 0.4155018572058715,
+        "n_persons": 4495,
+        "n_real_zero": 281,
+        "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+      },
+      "by_anchor_quintile": {
+        "definition": "Q0 = zero anchor earnings (no current-period earnings); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel (seed-stable)",
+        "positive_anchor_quartile_cutpoints": [
+          26000.0,
+          46000.0,
+          77000.0
+        ],
+        "quintiles": {
+          "Q0": {
+            "n_persons": 851,
+            "distribution": {
+              "mean": {
+                "candidate": 804.7853281685968,
+                "real": 733.3866356123269,
+                "pct_diff": 9.735477726105133
+              },
+              "median": {
+                "candidate": 944.0170200670798,
+                "real": 671.1081980930571,
+                "pct_diff": 40.66539832913509
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d2": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d3": {
+                  "candidate": 300.6506588997533,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d4": {
+                  "candidate": 661.2867815086469,
+                  "real": 306.8007904575398,
+                  "pct_diff": 115.54272416392837
+                },
+                "d5": {
+                  "candidate": 944.0170200670798,
+                  "real": 671.1081980930571,
+                  "pct_diff": 40.66539832913509
+                },
+                "d6": {
+                  "candidate": 1053.2088941176469,
+                  "real": 967.8846402677076,
+                  "pct_diff": 8.815539610830008
+                },
+                "d7": {
+                  "candidate": 1171.5877002351406,
+                  "real": 1110.9618486815646,
+                  "pct_diff": 5.457059720414686
+                },
+                "d8": {
+                  "candidate": 1331.3106764856996,
+                  "real": 1299.8962219146545,
+                  "pct_diff": 2.416689428081716
+                },
+                "d9": {
+                  "candidate": 1551.0853245284172,
+                  "real": 1666.111142385408,
+                  "pct_diff": -6.9038502252800305
+                }
+              },
+              "gini": {
+                "candidate": 0.4382401589486793,
+                "real": 0.5373303931577764,
+                "difference": -0.09909023420909713
+              },
+              "ks_distance": 0.11452399411194952
+            },
+            "person_level": {
+              "weighted_mae": 625.2909877512059,
+              "weighted_rmse": 832.5242809783182,
+              "weighted_share_within_5pct": 0.03400553470488402,
+              "weighted_share_within_10pct": 0.09004051086145484,
+              "n_persons": 851,
+              "n_real_zero": 281,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q1": {
+            "n_persons": 1000,
+            "distribution": {
+              "mean": {
+                "candidate": 907.9806192689834,
+                "real": 897.759018343301,
+                "pct_diff": 1.1385684484178256
+              },
+              "median": {
+                "candidate": 955.3157360406092,
+                "real": 954.1743207422134,
+                "pct_diff": 0.11962335116165848
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 343.7295130075705,
+                  "real": 354.3246349936143,
+                  "pct_diff": -2.9902301278698147
+                },
+                "d2": {
+                  "candidate": 550.3143156647913,
+                  "real": 538.2326613885506,
+                  "pct_diff": 2.244689916266325
+                },
+                "d3": {
+                  "candidate": 699.1531691160657,
+                  "real": 696.0524906979366,
+                  "pct_diff": 0.44546617669882804
+                },
+                "d4": {
+                  "candidate": 874.366598374268,
+                  "real": 868.2019149637442,
+                  "pct_diff": 0.7100518098697417
+                },
+                "d5": {
+                  "candidate": 955.3157360406092,
+                  "real": 954.1743207422134,
+                  "pct_diff": 0.11962335116165848
+                },
+                "d6": {
+                  "candidate": 1017.1,
+                  "real": 1014.3,
+                  "pct_diff": 0.27605244996550016
+                },
+                "d7": {
+                  "candidate": 1075.0382336580526,
+                  "real": 1080.8275832243253,
+                  "pct_diff": -0.5356404348047712
+                },
+                "d8": {
+                  "candidate": 1188.25288944138,
+                  "real": 1172.165401453958,
+                  "pct_diff": 1.3724588669369384
+                },
+                "d9": {
+                  "candidate": 1353.2368443528198,
+                  "real": 1305.9478209115282,
+                  "pct_diff": 3.621049990212071
+                }
+              },
+              "gini": {
+                "candidate": 0.2476486239628959,
+                "real": 0.24591875463040358,
+                "difference": 0.0017298693324923065
+              },
+              "ks_distance": 0.024877718593004028
+            },
+            "person_level": {
+              "weighted_mae": 332.74878528300525,
+              "weighted_rmse": 487.75104272830407,
+              "weighted_share_within_5pct": 0.23244063598165826,
+              "weighted_share_within_10pct": 0.3163528063839832,
+              "n_persons": 1000,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q2": {
+            "n_persons": 1030,
+            "distribution": {
+              "mean": {
+                "candidate": 1247.0131073387352,
+                "real": 1258.3537727817381,
+                "pct_diff": -0.9012302969405117
+              },
+              "median": {
+                "candidate": 1199.8553015290881,
+                "real": 1213.4788616704222,
+                "pct_diff": -1.1226862347301634
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 981.8003779187475,
+                  "real": 993.9,
+                  "pct_diff": -1.2173882766125874
+                },
+                "d2": {
+                  "candidate": 1032.5556508434995,
+                  "real": 1047.9599956445993,
+                  "pct_diff": -1.469936339661954
+                },
+                "d3": {
+                  "candidate": 1086.53053637812,
+                  "real": 1099.328252732069,
+                  "pct_diff": -1.1641396754921836
+                },
+                "d4": {
+                  "candidate": 1143.2142175365525,
+                  "real": 1146.5710935759967,
+                  "pct_diff": -0.292775219805562
+                },
+                "d5": {
+                  "candidate": 1199.8553015290881,
+                  "real": 1213.4788616704222,
+                  "pct_diff": -1.1226862347301634
+                },
+                "d6": {
+                  "candidate": 1268.2217504145337,
+                  "real": 1281.7641661659943,
+                  "pct_diff": -1.0565450422887515
+                },
+                "d7": {
+                  "candidate": 1357.5,
+                  "real": 1356.295533285612,
+                  "pct_diff": 0.08880562420420145
+                },
+                "d8": {
+                  "candidate": 1442.8133573446767,
+                  "real": 1448.6,
+                  "pct_diff": -0.39946449367135506
+                },
+                "d9": {
+                  "candidate": 1595.9,
+                  "real": 1612.3469111271677,
+                  "pct_diff": -1.0200603240942612
+                }
+              },
+              "gini": {
+                "candidate": 0.11462691350327436,
+                "real": 0.11011836636587746,
+                "difference": 0.004508547137396901
+              },
+              "ks_distance": 0.03983686751763496
+            },
+            "person_level": {
+              "weighted_mae": 174.56595508017017,
+              "weighted_rmse": 270.74253541975975,
+              "weighted_share_within_5pct": 0.3424218545552892,
+              "weighted_share_within_10pct": 0.5463154855779074,
+              "n_persons": 1030,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q3": {
+            "n_persons": 878,
+            "distribution": {
+              "mean": {
+                "candidate": 1568.8218615429032,
+                "real": 1542.932630524435,
+                "pct_diff": 1.6779236180693573
+              },
+              "median": {
+                "candidate": 1517.2513242767789,
+                "real": 1491.796838325451,
+                "pct_diff": 1.7062970839850133
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1197.9867629037283,
+                  "real": 1146.1477403679278,
+                  "pct_diff": 4.522891832353089
+                },
+                "d2": {
+                  "candidate": 1296.6096696908305,
+                  "real": 1260.5,
+                  "pct_diff": 2.8647100111725914
+                },
+                "d3": {
+                  "candidate": 1365.9269920654003,
+                  "real": 1324.9885537992764,
+                  "pct_diff": 3.0897201450334766
+                },
+                "d4": {
+                  "candidate": 1433.7640865384615,
+                  "real": 1419.9235457979225,
+                  "pct_diff": 0.9747384485240908
+                },
+                "d5": {
+                  "candidate": 1517.2513242767789,
+                  "real": 1491.796838325451,
+                  "pct_diff": 1.7062970839850133
+                },
+                "d6": {
+                  "candidate": 1593.9983828009997,
+                  "real": 1583.144458284817,
+                  "pct_diff": 0.6855928061007135
+                },
+                "d7": {
+                  "candidate": 1697.3086696975686,
+                  "real": 1683.0250607348164,
+                  "pct_diff": 0.8486866473940607
+                },
+                "d8": {
+                  "candidate": 1836.2495128063097,
+                  "real": 1812.939641985354,
+                  "pct_diff": 1.2857499654775588
+                },
+                "d9": {
+                  "candidate": 2019.0377759169319,
+                  "real": 2000.3053014637546,
+                  "pct_diff": 0.93648076818421
+                }
+              },
+              "gini": {
+                "candidate": 0.11653235571647524,
+                "real": 0.11947716909865291,
+                "difference": -0.002944813382177669
+              },
+              "ks_distance": 0.07602280872580247
+            },
+            "person_level": {
+              "weighted_mae": 218.4349099930339,
+              "weighted_rmse": 306.9146090503933,
+              "weighted_share_within_5pct": 0.2847180595533524,
+              "weighted_share_within_10pct": 0.4830012343264833,
+              "n_persons": 878,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q4": {
+            "n_persons": 736,
+            "distribution": {
+              "mean": {
+                "candidate": 2130.475480501971,
+                "real": 2114.128298227751,
+                "pct_diff": 0.7732351100888036
+              },
+              "median": {
+                "candidate": 2156.1110211187647,
+                "real": 2145.4520690896006,
+                "pct_diff": 0.49681613412538717
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1613.9735631089459,
+                  "real": 1535.9662498994287,
+                  "pct_diff": 5.078712713552457
+                },
+                "d2": {
+                  "candidate": 1735.610139957364,
+                  "real": 1725.412731092437,
+                  "pct_diff": 0.5910127287904334
+                },
+                "d3": {
+                  "candidate": 1859.458459156725,
+                  "real": 1842.371924857885,
+                  "pct_diff": 0.9274204664271565
+                },
+                "d4": {
+                  "candidate": 1983.6856841430363,
+                  "real": 1984.4524171104622,
+                  "pct_diff": -0.038637004385439204
+                },
+                "d5": {
+                  "candidate": 2156.1110211187647,
+                  "real": 2145.4520690896006,
+                  "pct_diff": 0.49681613412538717
+                },
+                "d6": {
+                  "candidate": 2301.840747465025,
+                  "real": 2295.543605457392,
+                  "pct_diff": 0.27432029575313205
+                },
+                "d7": {
+                  "candidate": 2454.4582357226564,
+                  "real": 2474.964106286239,
+                  "pct_diff": -0.8285320385656885
+                },
+                "d8": {
+                  "candidate": 2582.39105444986,
+                  "real": 2580.175582577935,
+                  "pct_diff": 0.08586515921181113
+                },
+                "d9": {
+                  "candidate": 2613.080066751218,
+                  "real": 2613.4305439821383,
+                  "pct_diff": -0.01341061968251798
+                }
+              },
+              "gini": {
+                "candidate": 0.10434572370780248,
+                "real": 0.11030402874308365,
+                "difference": -0.005958305035281164
+              },
+              "ks_distance": 0.04827753320997635
+            },
+            "person_level": {
+              "weighted_mae": 247.90426483721205,
+              "weighted_rmse": 338.05568266623544,
+              "weighted_share_within_5pct": 0.3184730832263512,
+              "weighted_share_within_10pct": 0.5264610772172013,
+              "n_persons": 736,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "n_persons": 4477,
+      "n_person_periods_holdout": 25407,
+      "n_real_zero_proxy": 296,
+      "n_candidate_zero_proxy": 235,
+      "pools": {
+        "n_pairs": 64557,
+        "n_triples": 49230,
+        "n_reentry": 4902
+      },
+      "distribution": {
+        "mean": {
+          "candidate": 1342.8960580120624,
+          "real": 1303.3801970674956,
+          "pct_diff": 3.0317984754927583
+        },
+        "median": {
+          "candidate": 1307.9005351573014,
+          "real": 1287.2,
+          "pct_diff": 1.608183278224159
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 455.3731084531649,
+            "real": 310.57946211872775,
+            "pct_diff": 46.620483320653605
+          },
+          "d2": {
+            "candidate": 927.0345905456018,
+            "real": 875.5413412759416,
+            "pct_diff": 5.881304153453013
+          },
+          "d3": {
+            "candidate": 1057.9169475774722,
+            "real": 1039.2857114848828,
+            "pct_diff": 1.7926962611628734
+          },
+          "d4": {
+            "candidate": 1187.1383374627453,
+            "real": 1161.8439112532094,
+            "pct_diff": 2.177093322480158
+          },
+          "d5": {
+            "candidate": 1307.9005351573014,
+            "real": 1287.2,
+            "pct_diff": 1.608183278224159
+          },
+          "d6": {
+            "candidate": 1448.6,
+            "real": 1432.6,
+            "pct_diff": 1.1168504816417704
+          },
+          "d7": {
+            "candidate": 1630.5267201709055,
+            "real": 1596.1628440231077,
+            "pct_diff": 2.152905405389846
+          },
+          "d8": {
+            "candidate": 1892.978390338505,
+            "real": 1818.1432077991024,
+            "pct_diff": 4.116022446328204
+          },
+          "d9": {
+            "candidate": 2264.5037341420507,
+            "real": 2247.410737533335,
+            "pct_diff": 0.7605639825088729
+          }
+        },
+        "gini": {
+          "candidate": 0.27187162907021456,
+          "real": 0.28574686782424885,
+          "difference": -0.013875238754034291
+        },
+        "ks_distance": 0.02832975810451427
+      },
+      "person_level": {
+        "weighted_mae": 325.5544258943716,
+        "weighted_rmse": 512.2444928209138,
+        "weighted_share_within_5pct": 0.2535499558386644,
+        "weighted_share_within_10pct": 0.396860637264322,
+        "n_persons": 4477,
+        "n_real_zero": 296,
+        "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+      },
+      "by_anchor_quintile": {
+        "definition": "Q0 = zero anchor earnings (no current-period earnings); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel (seed-stable)",
+        "positive_anchor_quartile_cutpoints": [
+          26000.0,
+          46000.0,
+          77000.0
+        ],
+        "quintiles": {
+          "Q0": {
+            "n_persons": 916,
+            "distribution": {
+              "mean": {
+                "candidate": 816.9143125833075,
+                "real": 731.7380817571774,
+                "pct_diff": 11.640262130623302
+              },
+              "median": {
+                "candidate": 881.378583032018,
+                "real": 761.0460340689574,
+                "pct_diff": 15.811467845078797
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d2": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d3": {
+                  "candidate": 271.8061358921162,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d4": {
+                  "candidate": 594.8175078696305,
+                  "real": 370.0874935888785,
+                  "pct_diff": 60.72348246666214
+                },
+                "d5": {
+                  "candidate": 881.378583032018,
+                  "real": 761.0460340689574,
+                  "pct_diff": 15.811467845078797
+                },
+                "d6": {
+                  "candidate": 1031.2766155451832,
+                  "real": 988.3461394258934,
+                  "pct_diff": 4.3436681145157365
+                },
+                "d7": {
+                  "candidate": 1176.0652042390775,
+                  "real": 1135.953012594925,
+                  "pct_diff": 3.531148841493175
+                },
+                "d8": {
+                  "candidate": 1342.8262346413,
+                  "real": 1301.1447187242927,
+                  "pct_diff": 3.2034496483891495
+                },
+                "d9": {
+                  "candidate": 1613.8199517296878,
+                  "real": 1591.7890191803576,
+                  "pct_diff": 1.3840359673214915
+                }
+              },
+              "gini": {
+                "candidate": 0.46098839793807067,
+                "real": 0.5189085074890221,
+                "difference": -0.05792010955095139
+              },
+              "ks_distance": 0.10792952283876023
+            },
+            "person_level": {
+              "weighted_mae": 631.8200128367213,
+              "weighted_rmse": 882.9368152216243,
+              "weighted_share_within_5pct": 0.0400972567520595,
+              "weighted_share_within_10pct": 0.08810708415144339,
+              "n_persons": 916,
+              "n_real_zero": 296,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q1": {
+            "n_persons": 937,
+            "distribution": {
+              "mean": {
+                "candidate": 909.3107899134842,
+                "real": 873.2409900075468,
+                "pct_diff": 4.1305665124155135
+              },
+              "median": {
+                "candidate": 952.0329993439494,
+                "real": 943.2004959100205,
+                "pct_diff": 0.9364396511907136
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 313.79584273753187,
+                  "real": 272.84578700738297,
+                  "pct_diff": 15.008498455957772
+                },
+                "d2": {
+                  "candidate": 525.5724822389666,
+                  "real": 478.8864798917325,
+                  "pct_diff": 9.748866236062653
+                },
+                "d3": {
+                  "candidate": 699.8468413911777,
+                  "real": 635.5268034180285,
+                  "pct_diff": 10.120743551211259
+                },
+                "d4": {
+                  "candidate": 860.0017738729656,
+                  "real": 803.6623958596895,
+                  "pct_diff": 7.010329001770584
+                },
+                "d5": {
+                  "candidate": 952.0329993439494,
+                  "real": 943.2004959100205,
+                  "pct_diff": 0.9364396511907136
+                },
+                "d6": {
+                  "candidate": 1027.4673314508539,
+                  "real": 1009.1906450376804,
+                  "pct_diff": 1.811024161098033
+                },
+                "d7": {
+                  "candidate": 1108.954729379993,
+                  "real": 1069.2369507145304,
+                  "pct_diff": 3.7145909182170325
+                },
+                "d8": {
+                  "candidate": 1181.5270918910396,
+                  "real": 1169.971721249048,
+                  "pct_diff": 0.9876623880836437
+                },
+                "d9": {
+                  "candidate": 1414.5413518164437,
+                  "real": 1324.2731375149474,
+                  "pct_diff": 6.816434747811036
+                }
+              },
+              "gini": {
+                "candidate": 0.2605048541315793,
+                "real": 0.27549785508420965,
+                "difference": -0.014993000952630342
+              },
+              "ks_distance": 0.0580398547918326
+            },
+            "person_level": {
+              "weighted_mae": 325.24415895083155,
+              "weighted_rmse": 479.18053424757534,
+              "weighted_share_within_5pct": 0.24020735034466265,
+              "weighted_share_within_10pct": 0.33749560182998256,
+              "n_persons": 937,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q2": {
+            "n_persons": 968,
+            "distribution": {
+              "mean": {
+                "candidate": 1266.7761967589781,
+                "real": 1250.2072048186988,
+                "pct_diff": 1.3252996684403335
+              },
+              "median": {
+                "candidate": 1228.7736147850317,
+                "real": 1204.7,
+                "pct_diff": 1.9983078596357287
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 976.1844733090448,
+                  "real": 983.8446126653595,
+                  "pct_diff": -0.7785923973870573
+                },
+                "d2": {
+                  "candidate": 1033.9,
+                  "real": 1040.2534454692259,
+                  "pct_diff": -0.6107593776207055
+                },
+                "d3": {
+                  "candidate": 1090.297069780459,
+                  "real": 1096.714365656963,
+                  "pct_diff": -0.5851383074261064
+                },
+                "d4": {
+                  "candidate": 1166.5394619063616,
+                  "real": 1156.7996626907075,
+                  "pct_diff": 0.8419607586156622
+                },
+                "d5": {
+                  "candidate": 1228.7736147850317,
+                  "real": 1204.7,
+                  "pct_diff": 1.9983078596357287
+                },
+                "d6": {
+                  "candidate": 1294.5105895370996,
+                  "real": 1283.215139649795,
+                  "pct_diff": 0.8802459960367403
+                },
+                "d7": {
+                  "candidate": 1383.8889047569044,
+                  "real": 1350.6907496953127,
+                  "pct_diff": 2.4578649901230545
+                },
+                "d8": {
+                  "candidate": 1475.8641892028768,
+                  "real": 1442.090650143837,
+                  "pct_diff": 2.3419844692614324
+                },
+                "d9": {
+                  "candidate": 1634.9383953294412,
+                  "real": 1605.743699593358,
+                  "pct_diff": 1.8181416961795587
+                }
+              },
+              "gini": {
+                "candidate": 0.12181453215821703,
+                "real": 0.11413694359866189,
+                "difference": 0.007677588559555137
+              },
+              "ks_distance": 0.040957746089933855
+            },
+            "person_level": {
+              "weighted_mae": 192.9281327126934,
+              "weighted_rmse": 283.3096898308434,
+              "weighted_share_within_5pct": 0.29593999895189743,
+              "weighted_share_within_10pct": 0.47428304606222527,
+              "n_persons": 968,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q3": {
+            "n_persons": 920,
+            "distribution": {
+              "mean": {
+                "candidate": 1578.3484723023591,
+                "real": 1546.2300792356334,
+                "pct_diff": 2.0772065876899255
+              },
+              "median": {
+                "candidate": 1498.7,
+                "real": 1496.9643027140332,
+                "pct_diff": 0.11594780736053262
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1213.246526544664,
+                  "real": 1155.59782305771,
+                  "pct_diff": 4.988647636460201
+                },
+                "d2": {
+                  "candidate": 1291.8347668201397,
+                  "real": 1277.338500216419,
+                  "pct_diff": 1.1348805818711754
+                },
+                "d3": {
+                  "candidate": 1364.479051441323,
+                  "real": 1358.9347041648489,
+                  "pct_diff": 0.40799217648072933
+                },
+                "d4": {
+                  "candidate": 1430.623485406871,
+                  "real": 1429.7920980569625,
+                  "pct_diff": 0.05814742933873452
+                },
+                "d5": {
+                  "candidate": 1498.7,
+                  "real": 1496.9643027140332,
+                  "pct_diff": 0.11594780736053262
+                },
+                "d6": {
+                  "candidate": 1596.6958511962382,
+                  "real": 1579.0,
+                  "pct_diff": 1.120699885765561
+                },
+                "d7": {
+                  "candidate": 1712.9167934305287,
+                  "real": 1653.1256979523957,
+                  "pct_diff": 3.6168511294810672
+                },
+                "d8": {
+                  "candidate": 1845.7047908886077,
+                  "real": 1802.8048267840445,
+                  "pct_diff": 2.3796233217930096
+                },
+                "d9": {
+                  "candidate": 2071.791873737147,
+                  "real": 2029.3222983832302,
+                  "pct_diff": 2.092795973697842
+                }
+              },
+              "gini": {
+                "candidate": 0.11788011896845618,
+                "real": 0.12074022587541988,
+                "difference": -0.0028601069069636997
+              },
+              "ks_distance": 0.05870327326103009
+            },
+            "person_level": {
+              "weighted_mae": 229.0864489589825,
+              "weighted_rmse": 314.77368081127287,
+              "weighted_share_within_5pct": 0.26771074379335547,
+              "weighted_share_within_10pct": 0.4345520402961275,
+              "n_persons": 920,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q4": {
+            "n_persons": 736,
+            "distribution": {
+              "mean": {
+                "candidate": 2139.2652314383713,
+                "real": 2111.5316857300195,
+                "pct_diff": 1.3134326089339976
+              },
+              "median": {
+                "candidate": 2161.513105630729,
+                "real": 2093.232473911291,
+                "pct_diff": 3.261970783008777
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1597.233806146572,
+                  "real": 1549.6612316965509,
+                  "pct_diff": 3.0698693028501007
+                },
+                "d2": {
+                  "candidate": 1757.614882968396,
+                  "real": 1720.2341257998432,
+                  "pct_diff": 2.1730040468283387
+                },
+                "d3": {
+                  "candidate": 1910.975278496344,
+                  "real": 1833.4,
+                  "pct_diff": 4.231224964347321
+                },
+                "d4": {
+                  "candidate": 2053.9196303423373,
+                  "real": 1959.080117240274,
+                  "pct_diff": 4.841022695675273
+                },
+                "d5": {
+                  "candidate": 2161.513105630729,
+                  "real": 2093.232473911291,
+                  "pct_diff": 3.261970783008777
+                },
+                "d6": {
+                  "candidate": 2291.520623494482,
+                  "real": 2304.1520381613173,
+                  "pct_diff": -0.548202308599167
+                },
+                "d7": {
+                  "candidate": 2443.1115594588177,
+                  "real": 2477.5451850200625,
+                  "pct_diff": -1.389828357902014
+                },
+                "d8": {
+                  "candidate": 2580.129534533806,
+                  "real": 2580.767965953186,
+                  "pct_diff": -0.02473804029663475
+                },
+                "d9": {
+                  "candidate": 2615.7,
+                  "real": 2617.5,
+                  "pct_diff": -0.06876790830946254
+                }
+              },
+              "gini": {
+                "candidate": 0.10311029123383397,
+                "real": 0.11028508011001037,
+                "difference": -0.007174788876176397
+              },
+              "ks_distance": 0.0847673114128818
+            },
+            "person_level": {
+              "weighted_mae": 252.37736402648116,
+              "weighted_rmse": 355.03738052172486,
+              "weighted_share_within_5pct": 0.3583237406793062,
+              "weighted_share_within_10pct": 0.5515862061467971,
+              "n_persons": 736,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "n_persons": 4464,
+      "n_person_periods_holdout": 25295,
+      "n_real_zero_proxy": 296,
+      "n_candidate_zero_proxy": 274,
+      "pools": {
+        "n_pairs": 64793,
+        "n_triples": 49472,
+        "n_reentry": 4846
+      },
+      "distribution": {
+        "mean": {
+          "candidate": 1330.029243314336,
+          "real": 1306.4095963307377,
+          "pct_diff": 1.8079817424747935
+        },
+        "median": {
+          "candidate": 1318.0186632870866,
+          "real": 1292.8781578359042,
+          "pct_diff": 1.9445378745715758
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 408.5336278702547,
+            "real": 289.42534581008937,
+            "pct_diff": 41.153369524975865
+          },
+          "d2": {
+            "candidate": 918.8360092771551,
+            "real": 819.0765458778056,
+            "pct_diff": 12.179504333436512
+          },
+          "d3": {
+            "candidate": 1056.5948675995694,
+            "real": 1029.7536693431362,
+            "pct_diff": 2.6065649538840514
+          },
+          "d4": {
+            "candidate": 1178.4188536318493,
+            "real": 1161.39549122439,
+            "pct_diff": 1.4657679090447044
+          },
+          "d5": {
+            "candidate": 1318.0186632870866,
+            "real": 1292.8781578359042,
+            "pct_diff": 1.9445378745715758
+          },
+          "d6": {
+            "candidate": 1465.7021625570055,
+            "real": 1446.3886401878303,
+            "pct_diff": 1.3352927306361522
+          },
+          "d7": {
+            "candidate": 1626.7552170552096,
+            "real": 1617.7887978020015,
+            "pct_diff": 0.5542391729619067
+          },
+          "d8": {
+            "candidate": 1841.7016104604445,
+            "real": 1862.5799315371025,
+            "pct_diff": -1.1209355756038943
+          },
+          "d9": {
+            "candidate": 2262.1686332326285,
+            "real": 2249.054252109955,
+            "pct_diff": 0.5831064817742897
+          }
+        },
+        "gini": {
+          "candidate": 0.27497013048580743,
+          "real": 0.29088766134344446,
+          "difference": -0.01591753085763703
+        },
+        "ks_distance": 0.027329002180266182
+      },
+      "person_level": {
+        "weighted_mae": 328.7289587608814,
+        "weighted_rmse": 514.1761413827129,
+        "weighted_share_within_5pct": 0.27030648541481733,
+        "weighted_share_within_10pct": 0.3960625028311485,
+        "n_persons": 4464,
+        "n_real_zero": 296,
+        "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+      },
+      "by_anchor_quintile": {
+        "definition": "Q0 = zero anchor earnings (no current-period earnings); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel (seed-stable)",
+        "positive_anchor_quartile_cutpoints": [
+          26000.0,
+          46000.0,
+          77000.0
+        ],
+        "quintiles": {
+          "Q0": {
+            "n_persons": 969,
+            "distribution": {
+              "mean": {
+                "candidate": 785.6278546498266,
+                "real": 755.3599811921619,
+                "pct_diff": 4.007079301433724
+              },
+              "median": {
+                "candidate": 894.1696726204142,
+                "real": 703.6058370044053,
+                "pct_diff": 27.08389066630437
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d2": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d3": {
+                  "candidate": 112.13133238183194,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d4": {
+                  "candidate": 512.6624334777678,
+                  "real": 340.98542054545084,
+                  "pct_diff": 50.34731768229183
+                },
+                "d5": {
+                  "candidate": 894.1696726204142,
+                  "real": 703.6058370044053,
+                  "pct_diff": 27.08389066630437
+                },
+                "d6": {
+                  "candidate": 1010.838160622339,
+                  "real": 964.0113156100886,
+                  "pct_diff": 4.857499518313791
+                },
+                "d7": {
+                  "candidate": 1148.5026722556981,
+                  "real": 1117.7886737639508,
+                  "pct_diff": 2.7477464401498666
+                },
+                "d8": {
+                  "candidate": 1339.901589336832,
+                  "real": 1380.9953735593222,
+                  "pct_diff": -2.9756641484306052
+                },
+                "d9": {
+                  "candidate": 1619.847102767934,
+                  "real": 1734.6040078878643,
+                  "pct_diff": -6.615740802978062
+                }
+              },
+              "gini": {
+                "candidate": 0.4845829560259419,
+                "real": 0.5328146212049452,
+                "difference": -0.048231665179003236
+              },
+              "ks_distance": 0.05891381715717098
+            },
+            "person_level": {
+              "weighted_mae": 639.2995726047081,
+              "weighted_rmse": 872.8855536273817,
+              "weighted_share_within_5pct": 0.030839961442747324,
+              "weighted_share_within_10pct": 0.08487560180810672,
+              "n_persons": 969,
+              "n_real_zero": 296,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q1": {
+            "n_persons": 955,
+            "distribution": {
+              "mean": {
+                "candidate": 936.0003023725702,
+                "real": 882.2426213693395,
+                "pct_diff": 6.093299020148531
+              },
+              "median": {
+                "candidate": 972.5777685607632,
+                "real": 947.7307274584655,
+                "pct_diff": 2.6217405833121106
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 424.12479240437375,
+                  "real": 343.9968002003004,
+                  "pct_diff": 23.293237657273814
+                },
+                "d2": {
+                  "candidate": 598.6779842969308,
+                  "real": 566.1001710922923,
+                  "pct_diff": 5.754778901016682
+                },
+                "d3": {
+                  "candidate": 751.8729883866167,
+                  "real": 721.4965823265709,
+                  "pct_diff": 4.210194033365021
+                },
+                "d4": {
+                  "candidate": 915.1256567599154,
+                  "real": 845.0140281498811,
+                  "pct_diff": 8.29709641194246
+                },
+                "d5": {
+                  "candidate": 972.5777685607632,
+                  "real": 947.7307274584655,
+                  "pct_diff": 2.6217405833121106
+                },
+                "d6": {
+                  "candidate": 1031.337709058927,
+                  "real": 1009.5237484371092,
+                  "pct_diff": 2.1608169847999057
+                },
+                "d7": {
+                  "candidate": 1113.241186015503,
+                  "real": 1065.421333014354,
+                  "pct_diff": 4.48835137042489
+                },
+                "d8": {
+                  "candidate": 1198.7152089066801,
+                  "real": 1147.2388127346032,
+                  "pct_diff": 4.486981751373607
+                },
+                "d9": {
+                  "candidate": 1367.751371368358,
+                  "real": 1271.7,
+                  "pct_diff": 7.5529898064290215
+                }
+              },
+              "gini": {
+                "candidate": 0.22759533126372,
+                "real": 0.23648910916129684,
+                "difference": -0.008893777897576838
+              },
+              "ks_distance": 0.07120856408516629
+            },
+            "person_level": {
+              "weighted_mae": 287.6692106248698,
+              "weighted_rmse": 426.17107128236484,
+              "weighted_share_within_5pct": 0.27230897473198223,
+              "weighted_share_within_10pct": 0.35097273999113404,
+              "n_persons": 955,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q2": {
+            "n_persons": 905,
+            "distribution": {
+              "mean": {
+                "candidate": 1291.0605613700316,
+                "real": 1281.0024769333281,
+                "pct_diff": 0.7851729108894555
+              },
+              "median": {
+                "candidate": 1275.8215812848587,
+                "real": 1260.6585331611163,
+                "pct_diff": 1.2027878862423438
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 993.9,
+                  "real": 975.4344849697467,
+                  "pct_diff": 1.8930553835018467
+                },
+                "d2": {
+                  "candidate": 1071.5239835116024,
+                  "real": 1052.6,
+                  "pct_diff": 1.7978323685732949
+                },
+                "d3": {
+                  "candidate": 1132.9255496488302,
+                  "real": 1127.2,
+                  "pct_diff": 0.5079444330048004
+                },
+                "d4": {
+                  "candidate": 1195.724434176751,
+                  "real": 1193.2150402939085,
+                  "pct_diff": 0.21030525078064344
+                },
+                "d5": {
+                  "candidate": 1275.8215812848587,
+                  "real": 1260.6585331611163,
+                  "pct_diff": 1.2027878862423438
+                },
+                "d6": {
+                  "candidate": 1342.1,
+                  "real": 1323.4020227034753,
+                  "pct_diff": 1.4128720506507912
+                },
+                "d7": {
+                  "candidate": 1417.7767536687631,
+                  "real": 1388.9304806954742,
+                  "pct_diff": 2.0768694599347293
+                },
+                "d8": {
+                  "candidate": 1491.2957847074574,
+                  "real": 1476.9364058243307,
+                  "pct_diff": 0.9722408376217294
+                },
+                "d9": {
+                  "candidate": 1599.9494016689355,
+                  "real": 1625.4,
+                  "pct_diff": -1.5658052375455032
+                }
+              },
+              "gini": {
+                "candidate": 0.11124426011040311,
+                "real": 0.11656910444366886,
+                "difference": -0.005324844333265744
+              },
+              "ks_distance": 0.05351595064894665
+            },
+            "person_level": {
+              "weighted_mae": 199.96462096976546,
+              "weighted_rmse": 301.13483307453527,
+              "weighted_share_within_5pct": 0.32284531450003956,
+              "weighted_share_within_10pct": 0.47147744004886044,
+              "n_persons": 905,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q3": {
+            "n_persons": 903,
+            "distribution": {
+              "mean": {
+                "candidate": 1579.489984225645,
+                "real": 1560.6073410088577,
+                "pct_diff": 1.2099547862296085
+              },
+              "median": {
+                "candidate": 1543.1,
+                "real": 1508.341283420775,
+                "pct_diff": 2.3044331519187398
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1190.336181698486,
+                  "real": 1171.3740100475466,
+                  "pct_diff": 1.6187973685850918
+                },
+                "d2": {
+                  "candidate": 1297.0820270831603,
+                  "real": 1273.1743830213484,
+                  "pct_diff": 1.877798075474709
+                },
+                "d3": {
+                  "candidate": 1381.453012957192,
+                  "real": 1368.5623463993616,
+                  "pct_diff": 0.941912992984593
+                },
+                "d4": {
+                  "candidate": 1456.0287518403402,
+                  "real": 1436.7725228590261,
+                  "pct_diff": 1.3402420129107273
+                },
+                "d5": {
+                  "candidate": 1543.1,
+                  "real": 1508.341283420775,
+                  "pct_diff": 2.3044331519187398
+                },
+                "d6": {
+                  "candidate": 1642.9977815937752,
+                  "real": 1589.6351159509745,
+                  "pct_diff": 3.3569128605263185
+                },
+                "d7": {
+                  "candidate": 1704.314691068668,
+                  "real": 1675.3248488249499,
+                  "pct_diff": 1.730401257048819
+                },
+                "d8": {
+                  "candidate": 1836.1119288303678,
+                  "real": 1843.1577263839788,
+                  "pct_diff": -0.3822677491325657
+                },
+                "d9": {
+                  "candidate": 2050.3651519763644,
+                  "real": 2067.3252157424963,
+                  "pct_diff": -0.8203868282059632
+                }
+              },
+              "gini": {
+                "candidate": 0.11827874856139609,
+                "real": 0.1225597885622185,
+                "difference": -0.004281040000822411
+              },
+              "ks_distance": 0.06787744875185153
+            },
+            "person_level": {
+              "weighted_mae": 213.7801832253819,
+              "weighted_rmse": 299.1647161894583,
+              "weighted_share_within_5pct": 0.31509508358455146,
+              "weighted_share_within_10pct": 0.5093369990799671,
+              "n_persons": 903,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q4": {
+            "n_persons": 732,
+            "distribution": {
+              "mean": {
+                "candidate": 2111.2206438855565,
+                "real": 2108.057649217999,
+                "pct_diff": 0.15004308201584904
+              },
+              "median": {
+                "candidate": 2094.2090356952585,
+                "real": 2111.6238909104272,
+                "pct_diff": -0.8247138749533791
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1574.1927807691327,
+                  "real": 1569.8104720266765,
+                  "pct_diff": 0.2791616453417135
+                },
+                "d2": {
+                  "candidate": 1707.9,
+                  "real": 1702.2945994788804,
+                  "pct_diff": 0.32928498526845235
+                },
+                "d3": {
+                  "candidate": 1840.377159567002,
+                  "real": 1840.4134917891097,
+                  "pct_diff": -0.0019741336536434435
+                },
+                "d4": {
+                  "candidate": 1952.013953939232,
+                  "real": 1980.192793321913,
+                  "pct_diff": -1.4230351447451335
+                },
+                "d5": {
+                  "candidate": 2094.2090356952585,
+                  "real": 2111.6238909104272,
+                  "pct_diff": -0.8247138749533791
+                },
+                "d6": {
+                  "candidate": 2310.212295900358,
+                  "real": 2283.9425791957997,
+                  "pct_diff": 1.150191644214118
+                },
+                "d7": {
+                  "candidate": 2451.5986468509664,
+                  "real": 2461.161787880315,
+                  "pct_diff": -0.38856206351167444
+                },
+                "d8": {
+                  "candidate": 2580.4119966521944,
+                  "real": 2587.5342,
+                  "pct_diff": -0.2752505975691328
+                },
+                "d9": {
+                  "candidate": 2614.4598376175923,
+                  "real": 2618.3905106056245,
+                  "pct_diff": -0.15011790533578986
+                }
+              },
+              "gini": {
+                "candidate": 0.10790142359848787,
+                "real": 0.10997448815633204,
+                "difference": -0.002073064557844173
+              },
+              "ks_distance": 0.039852807844975136
+            },
+            "person_level": {
+              "weighted_mae": 263.22208647743673,
+              "weighted_rmse": 369.44366431253525,
+              "weighted_share_within_5pct": 0.3599070996979496,
+              "weighted_share_within_10pct": 0.4947403915071981,
+              "n_persons": 732,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "n_persons": 4530,
+      "n_person_periods_holdout": 25973,
+      "n_real_zero_proxy": 277,
+      "n_candidate_zero_proxy": 253,
+      "pools": {
+        "n_pairs": 63865,
+        "n_triples": 48643,
+        "n_reentry": 4934
+      },
+      "distribution": {
+        "mean": {
+          "candidate": 1362.7026048137468,
+          "real": 1327.7442411943507,
+          "pct_diff": 2.6329139705362135
+        },
+        "median": {
+          "candidate": 1318.554873124871,
+          "real": 1308.9050069729606,
+          "pct_diff": 0.7372472486927939
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 505.1417841136646,
+            "real": 421.1569666400639,
+            "pct_diff": 19.94145274233993
+          },
+          "d2": {
+            "candidate": 952.1512166480862,
+            "real": 913.6,
+            "pct_diff": 4.2197040989586485
+          },
+          "d3": {
+            "candidate": 1074.8,
+            "real": 1043.6752082336047,
+            "pct_diff": 2.9822296746008927
+          },
+          "d4": {
+            "candidate": 1194.7998198722378,
+            "real": 1178.5022564680082,
+            "pct_diff": 1.3829047262984147
+          },
+          "d5": {
+            "candidate": 1318.554873124871,
+            "real": 1308.9050069729606,
+            "pct_diff": 0.7372472486927939
+          },
+          "d6": {
+            "candidate": 1464.6407023655406,
+            "real": 1449.0512935185695,
+            "pct_diff": 1.0758355426547435
+          },
+          "d7": {
+            "candidate": 1640.7627147139026,
+            "real": 1614.3811579873222,
+            "pct_diff": 1.6341591077209248
+          },
+          "d8": {
+            "candidate": 1889.8041259651784,
+            "real": 1842.8978211163417,
+            "pct_diff": 2.5452471814429227
+          },
+          "d9": {
+            "candidate": 2316.2797859974053,
+            "real": 2262.600638929543,
+            "pct_diff": 2.3724534566231856
+          }
+        },
+        "gini": {
+          "candidate": 0.2657010389511699,
+          "real": 0.2752619861829706,
+          "difference": -0.009560947231800676
+        },
+        "ks_distance": 0.02939577375852398
+      },
+      "person_level": {
+        "weighted_mae": 304.3480487783775,
+        "weighted_rmse": 476.6938643695451,
+        "weighted_share_within_5pct": 0.27221377617316506,
+        "weighted_share_within_10pct": 0.4112178332051168,
+        "n_persons": 4530,
+        "n_real_zero": 277,
+        "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+      },
+      "by_anchor_quintile": {
+        "definition": "Q0 = zero anchor earnings (no current-period earnings); Q1..Q4 = weighted quartiles of positive anchor earnings, edges fixed once on the full filtered panel (seed-stable)",
+        "positive_anchor_quartile_cutpoints": [
+          26000.0,
+          46000.0,
+          77000.0
+        ],
+        "quintiles": {
+          "Q0": {
+            "n_persons": 913,
+            "distribution": {
+              "mean": {
+                "candidate": 854.1440600628824,
+                "real": 743.4582982899641,
+                "pct_diff": 14.887958346487997
+              },
+              "median": {
+                "candidate": 957.7931543536482,
+                "real": 731.0573386804031,
+                "pct_diff": 31.01477868788175
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d2": {
+                  "candidate": 0.0,
+                  "real": 0.0,
+                  "pct_diff": null
+                },
+                "d3": {
+                  "candidate": 307.83030698626317,
+                  "real": 48.988814073400135,
+                  "pct_diff": 528.3685629234458
+                },
+                "d4": {
+                  "candidate": 735.7379298082357,
+                  "real": 436.7771486462678,
+                  "pct_diff": 68.44698310993529
+                },
+                "d5": {
+                  "candidate": 957.7931543536482,
+                  "real": 731.0573386804031,
+                  "pct_diff": 31.01477868788175
+                },
+                "d6": {
+                  "candidate": 1082.8028592396888,
+                  "real": 963.0451942052476,
+                  "pct_diff": 12.435311006693835
+                },
+                "d7": {
+                  "candidate": 1207.5680479775756,
+                  "real": 1098.3585834272624,
+                  "pct_diff": 9.942970009806956
+                },
+                "d8": {
+                  "candidate": 1361.5290002864508,
+                  "real": 1342.3365936430982,
+                  "pct_diff": 1.4297760140222673
+                },
+                "d9": {
+                  "candidate": 1690.1890206466694,
+                  "real": 1616.8338732882187,
+                  "pct_diff": 4.536962551957516
+                }
+              },
+              "gini": {
+                "candidate": 0.4481828295870792,
+                "real": 0.5083786062761764,
+                "difference": -0.06019577668909715
+              },
+              "ks_distance": 0.10979239920277922
+            },
+            "person_level": {
+              "weighted_mae": 586.1104992771387,
+              "weighted_rmse": 827.767284039202,
+              "weighted_share_within_5pct": 0.09627660365239113,
+              "weighted_share_within_10pct": 0.16080734036746672,
+              "n_persons": 913,
+              "n_real_zero": 277,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q1": {
+            "n_persons": 955,
+            "distribution": {
+              "mean": {
+                "candidate": 890.5411211439201,
+                "real": 894.9087419566727,
+                "pct_diff": -0.4880520893340423
+              },
+              "median": {
+                "candidate": 962.4355960631666,
+                "real": 943.2825647580095,
+                "pct_diff": 2.030465951638856
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 339.6368191931895,
+                  "real": 367.68306317804723,
+                  "pct_diff": -7.627831356288654
+                },
+                "d2": {
+                  "candidate": 543.9137785053489,
+                  "real": 560.8089473518978,
+                  "pct_diff": -3.0126425276070896
+                },
+                "d3": {
+                  "candidate": 704.2032928679818,
+                  "real": 736.5026242452392,
+                  "pct_diff": -4.385501193611832
+                },
+                "d4": {
+                  "candidate": 886.2978308473502,
+                  "real": 862.1732020024103,
+                  "pct_diff": 2.7981186133957774
+                },
+                "d5": {
+                  "candidate": 962.4355960631666,
+                  "real": 943.2825647580095,
+                  "pct_diff": 2.030465951638856
+                },
+                "d6": {
+                  "candidate": 1021.4481104608985,
+                  "real": 994.7311840581447,
+                  "pct_diff": 2.6858438572075767
+                },
+                "d7": {
+                  "candidate": 1076.7137799189418,
+                  "real": 1062.35300148395,
+                  "pct_diff": 1.3517896984271573
+                },
+                "d8": {
+                  "candidate": 1157.9685839103965,
+                  "real": 1168.6,
+                  "pct_diff": -0.9097566395347735
+                },
+                "d9": {
+                  "candidate": 1287.5461751292187,
+                  "real": 1299.0452131035074,
+                  "pct_diff": -0.8851915128355506
+                }
+              },
+              "gini": {
+                "candidate": 0.23899706164367807,
+                "real": 0.2408814879174197,
+                "difference": -0.001884426273741635
+              },
+              "ks_distance": 0.05410248128516004
+            },
+            "person_level": {
+              "weighted_mae": 285.69481903814363,
+              "weighted_rmse": 429.61944629063805,
+              "weighted_share_within_5pct": 0.2543337203877465,
+              "weighted_share_within_10pct": 0.3646558765934518,
+              "n_persons": 955,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q2": {
+            "n_persons": 951,
+            "distribution": {
+              "mean": {
+                "candidate": 1265.9325662357007,
+                "real": 1276.386878717158,
+                "pct_diff": -0.8190551513632309
+              },
+              "median": {
+                "candidate": 1243.9865315479603,
+                "real": 1245.1113981042654,
+                "pct_diff": -0.09034264388051604
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 980.5057265168355,
+                  "real": 992.4876457465394,
+                  "pct_diff": -1.207261297513814
+                },
+                "d2": {
+                  "candidate": 1050.0739206349208,
+                  "real": 1048.9633347297863,
+                  "pct_diff": 0.10587461623914365
+                },
+                "d3": {
+                  "candidate": 1117.594963548227,
+                  "real": 1122.7974842121707,
+                  "pct_diff": -0.4633534307920294
+                },
+                "d4": {
+                  "candidate": 1180.5,
+                  "real": 1178.9933950538998,
+                  "pct_diff": 0.1277873949439148
+                },
+                "d5": {
+                  "candidate": 1243.9865315479603,
+                  "real": 1245.1113981042654,
+                  "pct_diff": -0.09034264388051604
+                },
+                "d6": {
+                  "candidate": 1299.976178467802,
+                  "real": 1295.5925813901983,
+                  "pct_diff": 0.33834688007397057
+                },
+                "d7": {
+                  "candidate": 1376.5277156006136,
+                  "real": 1379.5609904771477,
+                  "pct_diff": -0.21987247374144253
+                },
+                "d8": {
+                  "candidate": 1448.6,
+                  "real": 1476.9624152763295,
+                  "pct_diff": -1.920320719266451
+                },
+                "d9": {
+                  "candidate": 1609.0122380283606,
+                  "real": 1625.4,
+                  "pct_diff": -1.0082294802288372
+                }
+              },
+              "gini": {
+                "candidate": 0.11532794480193265,
+                "real": 0.1153225872714021,
+                "difference": 5.3575305305475496e-06
+              },
+              "ks_distance": 0.030928191825010054
+            },
+            "person_level": {
+              "weighted_mae": 202.3045064625111,
+              "weighted_rmse": 293.3159610168228,
+              "weighted_share_within_5pct": 0.3122487893322479,
+              "weighted_share_within_10pct": 0.4510480725455772,
+              "n_persons": 951,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q3": {
+            "n_persons": 916,
+            "distribution": {
+              "mean": {
+                "candidate": 1563.7369454552006,
+                "real": 1540.1481954292435,
+                "pct_diff": 1.5315896285800503
+              },
+              "median": {
+                "candidate": 1519.2052043210697,
+                "real": 1487.2324153892598,
+                "pct_diff": 2.149817916888363
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1195.9348356297392,
+                  "real": 1167.435810956476,
+                  "pct_diff": 2.4411641655838916
+                },
+                "d2": {
+                  "candidate": 1287.1572457666762,
+                  "real": 1273.7,
+                  "pct_diff": 1.0565475203482864
+                },
+                "d3": {
+                  "candidate": 1368.137664631006,
+                  "real": 1344.4486601174215,
+                  "pct_diff": 1.7619865463301143
+                },
+                "d4": {
+                  "candidate": 1450.440347613219,
+                  "real": 1414.02847395659,
+                  "pct_diff": 2.5750452927404677
+                },
+                "d5": {
+                  "candidate": 1519.2052043210697,
+                  "real": 1487.2324153892598,
+                  "pct_diff": 2.149817916888363
+                },
+                "d6": {
+                  "candidate": 1594.9212840002076,
+                  "real": 1558.4421930567314,
+                  "pct_diff": 2.3407407156967457
+                },
+                "d7": {
+                  "candidate": 1691.8086693383495,
+                  "real": 1644.5088442703234,
+                  "pct_diff": 2.876228074590461
+                },
+                "d8": {
+                  "candidate": 1822.3659223328837,
+                  "real": 1783.164974654538,
+                  "pct_diff": 2.1983915249311337
+                },
+                "d9": {
+                  "candidate": 2012.047840805879,
+                  "real": 2019.501294611617,
+                  "pct_diff": -0.36907398007740466
+                }
+              },
+              "gini": {
+                "candidate": 0.11343068400865142,
+                "real": 0.11845779971390313,
+                "difference": -0.005027115705251717
+              },
+              "ks_distance": 0.06053703586886777
+            },
+            "person_level": {
+              "weighted_mae": 210.0306390901586,
+              "weighted_rmse": 287.97515982886955,
+              "weighted_share_within_5pct": 0.3009544056680546,
+              "weighted_share_within_10pct": 0.47177127489304616,
+              "n_persons": 916,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          },
+          "Q4": {
+            "n_persons": 795,
+            "distribution": {
+              "mean": {
+                "candidate": 2136.827175313905,
+                "real": 2082.702297356701,
+                "pct_diff": 2.5987813057054687
+              },
+              "median": {
+                "candidate": 2154.575523274702,
+                "real": 2091.276146670679,
+                "pct_diff": 3.0268301345470805
+              },
+              "deciles": {
+                "d1": {
+                  "candidate": 1610.1200659706872,
+                  "real": 1535.053839700568,
+                  "pct_diff": 4.890136380152099
+                },
+                "d2": {
+                  "candidate": 1752.9718476390033,
+                  "real": 1689.7119201072285,
+                  "pct_diff": 3.743829156851799
+                },
+                "d3": {
+                  "candidate": 1861.6926526686218,
+                  "real": 1814.8691683839875,
+                  "pct_diff": 2.5799922716372623
+                },
+                "d4": {
+                  "candidate": 2004.6907468221923,
+                  "real": 1944.9023342808882,
+                  "pct_diff": 3.0741087347920915
+                },
+                "d5": {
+                  "candidate": 2154.575523274702,
+                  "real": 2091.276146670679,
+                  "pct_diff": 3.0268301345470805
+                },
+                "d6": {
+                  "candidate": 2330.969514309076,
+                  "real": 2250.7,
+                  "pct_diff": 3.5664244150298305
+                },
+                "d7": {
+                  "candidate": 2470.048983994841,
+                  "real": 2384.3144465906894,
+                  "pct_diff": 3.595773096402725
+                },
+                "d8": {
+                  "candidate": 2587.2662455899845,
+                  "real": 2543.6517052165354,
+                  "pct_diff": 1.714642782421983
+                },
+                "d9": {
+                  "candidate": 2615.8286455744847,
+                  "real": 2615.3888390459642,
+                  "pct_diff": 0.01681610481601859
+                }
+              },
+              "gini": {
+                "candidate": 0.1047662651923883,
+                "real": 0.11165406182894333,
+                "difference": -0.0068877966365550325
+              },
+              "ks_distance": 0.06470335292219975
+            },
+            "person_level": {
+              "weighted_mae": 251.13330273436563,
+              "weighted_rmse": 346.8093598239287,
+              "weighted_share_within_5pct": 0.33674942358801596,
+              "weighted_share_within_10pct": 0.5185461616031689,
+              "n_persons": 795,
+              "n_real_zero": 0,
+              "within_tolerance_note": "within-5%/10% shares are over real-POSITIVE persons only (percent error is undefined at real PIA-proxy 0); MAE and RMSE are over all persons"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "noise_per_seed": [
+    {
+      "seed": 0,
+      "construction": "ctx20 on the seed's TRAIN split: split_panel_by_person(train, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 3568,
+      "n_persons_side_b": 3533,
+      "distribution": {
+        "mean": {
+          "candidate": 1309.7778795837542,
+          "real": 1330.87528229322,
+          "pct_diff": -1.5852276310303857
+        },
+        "median": {
+          "candidate": 1285.0836238967102,
+          "real": 1306.4303309896989,
+          "pct_diff": -1.6339720983680244
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 350.5103632553266,
+            "real": 359.9956491678601,
+            "pct_diff": -2.6348334860321305
+          },
+          "d2": {
+            "candidate": 862.3263044635866,
+            "real": 917.5,
+            "pct_diff": -6.013481802333891
+          },
+          "d3": {
+            "candidate": 1034.8,
+            "real": 1058.6116862019842,
+            "pct_diff": -2.2493315077046048
+          },
+          "d4": {
+            "candidate": 1153.9,
+            "real": 1176.688667157266,
+            "pct_diff": -1.9366777120681025
+          },
+          "d5": {
+            "candidate": 1285.0836238967102,
+            "real": 1306.4303309896989,
+            "pct_diff": -1.6339720983680244
+          },
+          "d6": {
+            "candidate": 1438.9001515151517,
+            "real": 1436.4857706775645,
+            "pct_diff": 0.16807551365082019
+          },
+          "d7": {
+            "candidate": 1630.9094259575752,
+            "real": 1617.366628148833,
+            "pct_diff": 0.8373362954967608
+          },
+          "d8": {
+            "candidate": 1855.877532419576,
+            "real": 1884.5701440833168,
+            "pct_diff": -1.5225016566150305
+          },
+          "d9": {
+            "candidate": 2225.21715995683,
+            "real": 2260.5,
+            "pct_diff": -1.560842293438174
+          }
+        },
+        "gini": {
+          "candidate": 0.2850058492062473,
+          "real": 0.2795272887534894,
+          "difference": 0.005478560452757852
+        },
+        "ks_distance": 0.030382986733405615
+      },
+      "person_level": "n/a (disjoint persons)",
+      "by_anchor_quintile": "n/a (disjoint persons)"
+    },
+    {
+      "seed": 1,
+      "construction": "ctx20 on the seed's TRAIN split: split_panel_by_person(train, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 3482,
+      "n_persons_side_b": 3579,
+      "distribution": {
+        "mean": {
+          "candidate": 1338.088280986456,
+          "real": 1302.3086870309025,
+          "pct_diff": 2.7473973192274745
+        },
+        "median": {
+          "candidate": 1296.6,
+          "real": 1281.7760067114093,
+          "pct_diff": 1.1565197983869118
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 417.4,
+            "real": 358.80690975067307,
+            "pct_diff": 16.32997822980665
+          },
+          "d2": {
+            "candidate": 912.9284116249314,
+            "real": 828.5190808882887,
+            "pct_diff": 10.187976678357733
+          },
+          "d3": {
+            "candidate": 1052.9303248357178,
+            "real": 1019.1404621525104,
+            "pct_diff": 3.315525576507909
+          },
+          "d4": {
+            "candidate": 1168.4084198498203,
+            "real": 1158.8954805950564,
+            "pct_diff": 0.8208625725142515
+          },
+          "d5": {
+            "candidate": 1296.6,
+            "real": 1281.7760067114093,
+            "pct_diff": 1.1565197983869118
+          },
+          "d6": {
+            "candidate": 1448.6,
+            "real": 1416.3406581059392,
+            "pct_diff": 2.277654158230613
+          },
+          "d7": {
+            "candidate": 1636.6730941100075,
+            "real": 1605.5788968875713,
+            "pct_diff": 1.9366346482700116
+          },
+          "d8": {
+            "candidate": 1897.7891897643242,
+            "real": 1834.5355165070953,
+            "pct_diff": 3.4479394205276632
+          },
+          "d9": {
+            "candidate": 2309.6479377463975,
+            "real": 2254.7708208640333,
+            "pct_diff": 2.4338223811737594
+          }
+        },
+        "gini": {
+          "candidate": 0.2792577158349058,
+          "real": 0.28620447037432495,
+          "difference": -0.006946754539419175
+        },
+        "ks_distance": 0.030523737545190777
+      },
+      "person_level": "n/a (disjoint persons)",
+      "by_anchor_quintile": "n/a (disjoint persons)"
+    },
+    {
+      "seed": 2,
+      "construction": "ctx20 on the seed's TRAIN split: split_panel_by_person(train, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 3611,
+      "n_persons_side_b": 3607,
+      "distribution": {
+        "mean": {
+          "candidate": 1339.1152883558464,
+          "real": 1312.7801356378234,
+          "pct_diff": 2.006059659428642
+        },
+        "median": {
+          "candidate": 1311.023185888738,
+          "real": 1283.706699665668,
+          "pct_diff": 2.12793827672507
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 394.18383022516065,
+            "real": 371.3790103319512,
+            "pct_diff": 6.140578562268704
+          },
+          "d2": {
+            "candidate": 914.221067387604,
+            "real": 871.3617115229654,
+            "pct_diff": 4.91866412052109
+          },
+          "d3": {
+            "candidate": 1059.4,
+            "real": 1029.0735185115295,
+            "pct_diff": 2.9469693800240173
+          },
+          "d4": {
+            "candidate": 1181.5391197415754,
+            "real": 1150.0537988001677,
+            "pct_diff": 2.737725919800957
+          },
+          "d5": {
+            "candidate": 1311.023185888738,
+            "real": 1283.706699665668,
+            "pct_diff": 2.12793827672507
+          },
+          "d6": {
+            "candidate": 1458.828101037438,
+            "real": 1435.3165922795256,
+            "pct_diff": 1.638071271828064
+          },
+          "d7": {
+            "candidate": 1626.4526992029366,
+            "real": 1594.1615011180606,
+            "pct_diff": 2.025591388465262
+          },
+          "d8": {
+            "candidate": 1874.7326696778803,
+            "real": 1826.7294646280238,
+            "pct_diff": 2.6278223447625457
+          },
+          "d9": {
+            "candidate": 2312.21988597801,
+            "real": 2282.073613893229,
+            "pct_diff": 1.3210034900386733
+          }
+        },
+        "gini": {
+          "candidate": 0.27855972493624614,
+          "real": 0.2837881599367288,
+          "difference": -0.005228435000482645
+        },
+        "ks_distance": 0.03256496357905303
+      },
+      "person_level": "n/a (disjoint persons)",
+      "by_anchor_quintile": "n/a (disjoint persons)"
+    },
+    {
+      "seed": 3,
+      "construction": "ctx20 on the seed's TRAIN split: split_panel_by_person(train, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 3566,
+      "n_persons_side_b": 3500,
+      "distribution": {
+        "mean": {
+          "candidate": 1330.6110802197034,
+          "real": 1328.1390709915513,
+          "pct_diff": 0.18612578171550317
+        },
+        "median": {
+          "candidate": 1293.3,
+          "real": 1288.9938698172093,
+          "pct_diff": 0.33406909711690763
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 418.56086134392854,
+            "real": 418.53884869417686,
+            "pct_diff": 0.005259404191594537
+          },
+          "d2": {
+            "candidate": 927.3942780369472,
+            "real": 927.2,
+            "pct_diff": 0.020953196392055576
+          },
+          "d3": {
+            "candidate": 1061.6070119970007,
+            "real": 1048.5750799403113,
+            "pct_diff": 1.2428229800608253
+          },
+          "d4": {
+            "candidate": 1173.1335086885333,
+            "real": 1173.6379651907635,
+            "pct_diff": -0.04298229242679166
+          },
+          "d5": {
+            "candidate": 1293.3,
+            "real": 1288.9938698172093,
+            "pct_diff": 0.33406909711690763
+          },
+          "d6": {
+            "candidate": 1448.6,
+            "real": 1443.1572423383982,
+            "pct_diff": 0.3771423862851304
+          },
+          "d7": {
+            "candidate": 1626.1981318681317,
+            "real": 1607.4340007742185,
+            "pct_diff": 1.1673344650464947
+          },
+          "d8": {
+            "candidate": 1852.819726291366,
+            "real": 1849.809140792217,
+            "pct_diff": 0.16275114187507647
+          },
+          "d9": {
+            "candidate": 2273.8695713753264,
+            "real": 2250.1753185074504,
+            "pct_diff": 1.0529958565003055
+          }
+        },
+        "gini": {
+          "candidate": 0.2743740615806821,
+          "real": 0.2761732296737741,
+          "difference": -0.0017991680930919962
+        },
+        "ks_distance": 0.021559609108571354
+      },
+      "person_level": "n/a (disjoint persons)",
+      "by_anchor_quintile": "n/a (disjoint persons)"
+    },
+    {
+      "seed": 4,
+      "construction": "ctx20 on the seed's TRAIN split: split_panel_by_person(train, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 3462,
+      "n_persons_side_b": 3474,
+      "distribution": {
+        "mean": {
+          "candidate": 1306.3594464018827,
+          "real": 1327.887530986975,
+          "pct_diff": -1.6212280093549178
+        },
+        "median": {
+          "candidate": 1277.9212218220623,
+          "real": 1291.337715532921,
+          "pct_diff": -1.0389608813773312
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 369.71695224364754,
+            "real": 367.0,
+            "pct_diff": 0.7403139628467412
+          },
+          "d2": {
+            "candidate": 892.4691354676711,
+            "real": 924.3028375881185,
+            "pct_diff": -3.444077073647682
+          },
+          "d3": {
+            "candidate": 1050.5183129635432,
+            "real": 1055.4826244551502,
+            "pct_diff": -0.47033569066754655
+          },
+          "d4": {
+            "candidate": 1165.2981030376468,
+            "real": 1170.0642987560193,
+            "pct_diff": -0.4073447692951397
+          },
+          "d5": {
+            "candidate": 1277.9212218220623,
+            "real": 1291.337715532921,
+            "pct_diff": -1.0389608813773312
+          },
+          "d6": {
+            "candidate": 1407.0465594361676,
+            "real": 1443.9718296131923,
+            "pct_diff": -2.5572015616756274
+          },
+          "d7": {
+            "candidate": 1575.7440392706867,
+            "real": 1611.135301890354,
+            "pct_diff": -2.1966660762843753
+          },
+          "d8": {
+            "candidate": 1838.4156731655441,
+            "real": 1852.7451484976755,
+            "pct_diff": -0.7734185861315347
+          },
+          "d9": {
+            "candidate": 2221.6111972715853,
+            "real": 2302.5390713804545,
+            "pct_diff": -3.5147231643000985
+          }
+        },
+        "gini": {
+          "candidate": 0.2783707157151968,
+          "real": 0.2804627224895839,
+          "difference": -0.002092006774387145
+        },
+        "ks_distance": 0.02663605719517914
+      },
+      "person_level": "n/a (disjoint persons)",
+      "by_anchor_quintile": "n/a (disjoint persons)"
+    }
+  ],
+  "candidate_pooled": {
+    "distribution": {
+      "mean_pct_diff": {
+        "mean": 1.8477489952384396,
+        "sd": 1.119626594652428,
+        "min": 0.13041894053656458,
+        "max": 3.0317984754927583,
+        "n_seeds": 5
+      },
+      "median_pct_diff": {
+        "mean": 1.0171410947686295,
+        "sd": 0.7196253252509265,
+        "min": 0.30646499019125506,
+        "max": 1.9445378745715758,
+        "n_seeds": 5
+      },
+      "gini_difference": {
+        "mean": -0.012838825337283089,
+        "sd": 0.0032092056773634467,
+        "min": -0.01591753085763703,
+        "max": -0.009293828993377162,
+        "n_seeds": 5
+      },
+      "ks_distance": {
+        "mean": 0.02535050245252706,
+        "sd": 0.004543874809804007,
+        "min": 0.018308782125473044,
+        "max": 0.02939577375852398,
+        "n_seeds": 5
+      },
+      "decile_pct_diff": {
+        "d1": {
+          "mean": 32.63216691239183,
+          "sd": 12.47158557173479,
+          "min": 19.21925914228215,
+          "max": 46.620483320653605,
+          "n_seeds": 5
+        },
+        "d2": {
+          "mean": 4.791372500931776,
+          "sd": 4.791991409787189,
+          "min": -0.6614812241553623,
+          "max": 12.179504333436512,
+          "n_seeds": 5
+        },
+        "d3": {
+          "mean": 1.702599852750931,
+          "sd": 1.1255653427342625,
+          "min": 0.46567801610238874,
+          "max": 2.9822296746008927,
+          "n_seeds": 5
+        },
+        "d4": {
+          "mean": 1.5067224076145052,
+          "sd": 0.4575558802692796,
+          "min": 0.9052044994560754,
+          "max": 2.177093322480158,
+          "n_seeds": 5
+        },
+        "d5": {
+          "mean": 1.0171410947686295,
+          "sd": 0.7196253252509265,
+          "min": 0.30646499019125506,
+          "max": 1.9445378745715758,
+          "n_seeds": 5
+        },
+        "d6": {
+          "mean": 0.9198452310528872,
+          "sd": 0.7622906931645655,
+          "min": -0.4113069633369222,
+          "max": 1.4825543636686915,
+          "n_seeds": 5
+        },
+        "d7": {
+          "mean": 0.9779365240743185,
+          "sd": 0.8713447133390734,
+          "min": 0.10723557994158886,
+          "max": 2.152905405389846,
+          "n_seeds": 5
+        },
+        "d8": {
+          "mean": 0.9415373155768894,
+          "sd": 2.2857791943376435,
+          "min": -1.1209355756038943,
+          "max": 4.116022446328204,
+          "n_seeds": 5
+        },
+        "d9": {
+          "mean": -0.02702002869360607,
+          "sd": 2.032661902911414,
+          "min": -3.058647449664158,
+          "max": 2.3724534566231856,
+          "n_seeds": 5
+        }
+      }
+    },
+    "person_level": {
+      "weighted_mae": {
+        "mean": 315.107501129802,
+        "sd": 12.218273129310399,
+        "min": 301.4482940120006,
+        "max": 328.7289587608814,
+        "n_seeds": 5
+      },
+      "weighted_rmse": {
+        "mean": 493.37700813303684,
+        "sd": 18.597774970404785,
+        "min": 476.6938643695451,
+        "max": 514.1761413827129,
+        "n_seeds": 5
+      },
+      "weighted_share_within_5pct": {
+        "mean": 0.2682601815759061,
+        "sd": 0.012769929776728391,
+        "min": 0.2535499558386644,
+        "max": 0.2863656273014244,
+        "n_seeds": 5
+      },
+      "weighted_share_within_10pct": {
+        "mean": 0.4082774307742336,
+        "sd": 0.011420848681991898,
+        "min": 0.3960625028311485,
+        "max": 0.4217443233647094,
+        "n_seeds": 5
+      }
+    },
+    "by_anchor_quintile": {
+      "Q0": {
+        "n_seeds_present": 5,
+        "mean_n_persons": 906.4,
+        "mean_pct_diff": 9.295292319680367,
+        "median_pct_diff": 22.915959347981033,
+        "ks_distance": 0.09679229074277092,
+        "gini_difference": -0.0641645184906466,
+        "weighted_mae": 615.8163802481109,
+        "weighted_rmse": 847.4162293570301,
+        "weighted_share_within_5pct": 0.048894090746871496,
+        "weighted_share_within_10pct": 0.10133451087992466
+      },
+      "Q1": {
+        "n_seeds_present": 5,
+        "mean_n_persons": 949.4,
+        "mean_pct_diff": 1.6187992823954456,
+        "median_pct_diff": 1.012912895395331,
+        "ks_distance": 0.04899511912117992,
+        "gini_difference": -0.005443619384692599,
+        "weighted_mae": 301.83414268808826,
+        "weighted_rmse": 447.90264186837805,
+        "weighted_share_within_5pct": 0.2512439232691536,
+        "weighted_share_within_10pct": 0.34193088818844497
+      },
+      "Q2": {
+        "n_seeds_present": 5,
+        "mean_n_persons": 971.6,
+        "mean_pct_diff": -0.11906405725716562,
+        "median_pct_diff": 0.2625216670458937,
+        "ks_distance": 0.040920480289710695,
+        "gini_difference": 0.0023079179489173597,
+        "weighted_mae": 190.62975342803873,
+        "weighted_rmse": 287.1993689699535,
+        "weighted_share_within_5pct": 0.327285180159339,
+        "weighted_share_within_10pct": 0.48955568972597446
+      },
+      "Q3": {
+        "n_seeds_present": 5,
+        "mean_n_persons": 898.6,
+        "mean_pct_diff": 1.76863992273898,
+        "median_pct_diff": 1.689350133788701,
+        "ks_distance": 0.06618551872776648,
+        "gini_difference": -0.0030204541482521385,
+        "weighted_mae": 215.84278247547508,
+        "weighted_rmse": 300.4090841173015,
+        "weighted_share_within_5pct": 0.29275090593500724,
+        "weighted_share_within_10pct": 0.48322642684752826
+      },
+      "Q4": {
+        "n_seeds_present": 5,
+        "mean_n_persons": 752.6,
+        "mean_pct_diff": 0.6132883511687707,
+        "median_pct_diff": 0.5231056104869569,
+        "ks_distance": 0.0585593270911323,
+        "gini_difference": -0.003208466701576862,
+        "weighted_mae": 251.8369134976631,
+        "weighted_rmse": 351.43468562954456,
+        "weighted_share_within_5pct": 0.3541506372716203,
+        "weighted_share_within_10pct": 0.5289246878420443
+      }
+    }
+  },
+  "noise_pooled": {
+    "distribution": {
+      "mean_pct_diff": {
+        "mean": 0.34662542399726326,
+        "sd": 2.009209494502576,
+        "min": -1.6212280093549178,
+        "max": 2.7473973192274745,
+        "n_seeds": 5
+      },
+      "median_pct_diff": {
+        "mean": 0.18911883849670671,
+        "sd": 1.5449705799113878,
+        "min": -1.6339720983680244,
+        "max": 2.12793827672507,
+        "n_seeds": 5
+      },
+      "gini_difference": {
+        "mean": -0.002117560790924622,
+        "sd": 0.004764497231469199,
+        "min": -0.006946754539419175,
+        "max": 0.005478560452757852,
+        "n_seeds": 5
+      },
+      "ks_distance": {
+        "mean": 0.028333470832279984,
+        "sd": 0.004349417497665219,
+        "min": 0.021559609108571354,
+        "max": 0.03256496357905303,
+        "n_seeds": 5
+      },
+      "decile_pct_diff": {
+        "d1": {
+          "mean": 4.116259334616311,
+          "sd": 7.53570466911204,
+          "min": -2.6348334860321305,
+          "max": 16.32997822980665,
+          "n_seeds": 5
+        },
+        "d2": {
+          "mean": 1.1340070238578612,
+          "sd": 6.511189123177371,
+          "min": -6.013481802333891,
+          "max": 10.187976678357733,
+          "n_seeds": 5
+        },
+        "d3": {
+          "mean": 0.95713014764412,
+          "sd": 2.3410555648503215,
+          "min": -2.2493315077046048,
+          "max": 3.315525576507909,
+          "n_seeds": 5
+        },
+        "d4": {
+          "mean": 0.2343167437050349,
+          "sd": 1.7184975045048632,
+          "min": -1.9366777120681025,
+          "max": 2.737725919800957,
+          "n_seeds": 5
+        },
+        "d5": {
+          "mean": 0.18911883849670671,
+          "sd": 1.5449705799113878,
+          "min": -1.6339720983680244,
+          "max": 2.12793827672507,
+          "n_seeds": 5
+        },
+        "d6": {
+          "mean": 0.3807483536638,
+          "sd": 1.861176039286937,
+          "min": -2.5572015616756274,
+          "max": 2.277654158230613,
+          "n_seeds": 5
+        },
+        "d7": {
+          "mean": 0.7540461441988309,
+          "sd": 1.7248036099610833,
+          "min": -2.1966660762843753,
+          "max": 2.025591388465262,
+          "n_seeds": 5
+        },
+        "d8": {
+          "mean": 0.7885185328837441,
+          "sd": 2.1579854423574756,
+          "min": -1.5225016566150305,
+          "max": 3.4479394205276632,
+          "n_seeds": 5
+        },
+        "d9": {
+          "mean": -0.05354874600510682,
+          "sd": 2.426546523521799,
+          "min": -3.5147231643000985,
+          "max": 2.4338223811737594,
+          "n_seeds": 5
+        }
+      }
+    }
+  },
+  "context": {
+    "mean_pct_diff": {
+      "candidate_pct": 1.8477489952384396,
+      "noise_pct": 0.34662542399726326,
+      "candidate_abs_pct": 1.8477489952384396,
+      "noise_abs_pct": 0.34662542399726326,
+      "within_noise_anchor": false,
+      "within_5pct_criterion": true
+    },
+    "median_pct_diff": {
+      "candidate_pct": 1.0171410947686295,
+      "noise_pct": 0.18911883849670671,
+      "candidate_abs_pct": 1.0171410947686295,
+      "noise_abs_pct": 0.18911883849670671,
+      "within_noise_anchor": false,
+      "within_5pct_criterion": true
+    },
+    "deciles": {
+      "d1": {
+        "candidate_pct": 32.63216691239183,
+        "noise_pct": 4.116259334616311,
+        "candidate_abs_pct": 32.63216691239183,
+        "noise_abs_pct": 4.116259334616311,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": false
+      },
+      "d2": {
+        "candidate_pct": 4.791372500931776,
+        "noise_pct": 1.1340070238578612,
+        "candidate_abs_pct": 4.791372500931776,
+        "noise_abs_pct": 1.1340070238578612,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d3": {
+        "candidate_pct": 1.702599852750931,
+        "noise_pct": 0.95713014764412,
+        "candidate_abs_pct": 1.702599852750931,
+        "noise_abs_pct": 0.95713014764412,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d4": {
+        "candidate_pct": 1.5067224076145052,
+        "noise_pct": 0.2343167437050349,
+        "candidate_abs_pct": 1.5067224076145052,
+        "noise_abs_pct": 0.2343167437050349,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d5": {
+        "candidate_pct": 1.0171410947686295,
+        "noise_pct": 0.18911883849670671,
+        "candidate_abs_pct": 1.0171410947686295,
+        "noise_abs_pct": 0.18911883849670671,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d6": {
+        "candidate_pct": 0.9198452310528872,
+        "noise_pct": 0.3807483536638,
+        "candidate_abs_pct": 0.9198452310528872,
+        "noise_abs_pct": 0.3807483536638,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d7": {
+        "candidate_pct": 0.9779365240743185,
+        "noise_pct": 0.7540461441988309,
+        "candidate_abs_pct": 0.9779365240743185,
+        "noise_abs_pct": 0.7540461441988309,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d8": {
+        "candidate_pct": 0.9415373155768894,
+        "noise_pct": 0.7885185328837441,
+        "candidate_abs_pct": 0.9415373155768894,
+        "noise_abs_pct": 0.7885185328837441,
+        "within_noise_anchor": false,
+        "within_5pct_criterion": true
+      },
+      "d9": {
+        "candidate_pct": -0.02702002869360607,
+        "noise_pct": -0.05354874600510682,
+        "candidate_abs_pct": 0.02702002869360607,
+        "noise_abs_pct": 0.05354874600510682,
+        "within_noise_anchor": true,
+        "within_5pct_criterion": true
+      }
+    },
+    "ks_distance": {
+      "candidate": 0.02535050245252706,
+      "noise": 0.028333470832279984,
+      "within_noise_anchor": true
+    },
+    "gini_difference": {
+      "candidate": -0.012838825337283089,
+      "noise": -0.002117560790924622,
+      "within_noise_anchor": false
+    },
+    "summary": {
+      "success_criterion_pct": 5.0,
+      "success_criterion_text": "AIME distribution for retired workers: within 5 percent on key percentiles (paper Phase-1 acceptance table, docs/evaluation-and-model-selection.md 'AIME key percentiles: within 5 percent'). The PIA-proxy is a monotone statute-shaped transform of the AIME-proxy, so its percentile gaps map onto this criterion.",
+      "all_distribution_gaps_within_noise_anchor": false,
+      "all_percent_gaps_within_5pct_criterion": false
+    }
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "0f5cc2837f0839d4c8276d9ea1b9b7617a808e34",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "downstream_relevance_c7.v1"
+  },
+  "elapsed_seconds": 66.9
+}
