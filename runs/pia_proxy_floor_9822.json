@@ -1,0 +1,850 @@
+{
+  "schema_version": "pia_proxy_floor.v1",
+  "run": "pia_proxy_floor_9822",
+  "reported_anchor_not_gated": true,
+  "purpose": "Real-vs-real PIA-proxy distribution gaps at deployment scale: the empirical anchor the gate-1 amendment proposal cites for the proposed benefit_space KS threshold and the scale against which every proposed benefit-space band is judged. This reads no gate and changes no gate on its own; the amendment that would use it requires a fresh referee round and maintainer ratification.",
+  "not_full_415b": "The functional is a STATUTE-SHAPED PROXY, not the full 42 USC 415(b) AIME: the filtered panel's careers are partial (biennial PSID, prime age 25-59, reference years 1998-2022), so a faithful highest-35 AIME cannot be formed. The proxy is monotone in lifetime earnings, routes through the exact 415(a)/415(g) PIA bend-point formula, and uses a constant scale (top min(10,n) indexed years / (count*12*2)) that cancels in every real-vs-real and real-vs-candidate comparison. It is byte-for-byte the functional in scripts/build_downstream_relevance.py.",
+  "functional": {
+    "source": "scripts/build_downstream_relevance.py:person_pia_proxy (imported, not re-implemented; single source of truth)",
+    "steps": [
+      "positive-earnings periods only, within the locked filter (age 25-59, periods 1998-2022)",
+      "cap each year at that year's wage base (wage_base_for)",
+      "index each to 2022 by nawi[2022]/nawi[year]",
+      "AIME-proxy = sum(top min(10, n_pos) indexed) / (min(10, n_pos) * 12 * 2)",
+      "PIA-proxy = pia(AIME-proxy, 2022, params) [2022-eligibility 415(a)/415(g)]",
+      "zero positive observations -> PIA-proxy 0 (person included)"
+    ],
+    "weight": "each person weighted by their anchor-period weight (the weight on their chronologically last observed period)",
+    "q0_definition": "Q0 = zero anchor earnings (no earnings in the person's last observed period); membership fixed once on the full filtered panel (seed-stable), so each seed's disjoint halves partition the same population map",
+    "positive_anchor_quartile_cutpoints": [
+      26000.0,
+      46000.0,
+      77000.0
+    ]
+  },
+  "oracle": {
+    "source": "policyengine-us (loaded once via load_ssa_parameters)",
+    "pe_us_revision": "bf71be3b",
+    "pe_us_dir_env": "POPULACE_DYNAMICS_PE_US_DIR",
+    "eligibility_year": 2022,
+    "bend_points_2022": [
+      1024.0,
+      6172.0
+    ],
+    "pia_factors": [
+      0.9,
+      0.32,
+      0.15
+    ],
+    "nawi_2022": 63795.13
+  },
+  "data": "PSID family-file head/spouse labor income attached to persons; age 25-59, reference years 1998-2022, positive weights; the FULL locked filtered panel (deployment scale, not a train split)",
+  "method": "candidate-context (ctx20) real-vs-real floor at deployment scale: per seed s, draw 40% of persons (split_panel_by_person, fraction=0.4, seed=1000+s), halve it person-disjointly (fraction=0.5, seed=s), push both disjoint halves through the pinned PIA-proxy functional, and measure the distribution gap of the two PIA-proxy samples plus the Q0 subgroup mean % gap -- real vs real at the ~20%-of-persons scale a candidate is scored at",
+  "n_person_periods": 126867,
+  "n_persons": 22300,
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "measurements": [
+      "distribution gaps of the two disjoint PIA-proxy samples: |mean % gap|, |median % gap|, decile % gaps, weighted KS",
+      "Q0 (zero-anchor-earnings) subgroup real-vs-real mean % gap"
+    ],
+    "note": "disjoint persons across the two halves, so only distribution-gap measures apply; there is no person-level alignment (that is candidate-vs-real only)"
+  },
+  "success_criterion": {
+    "pct": 5.0,
+    "text": "AIME distribution for retired workers: within 5 percent on key percentiles (paper Phase-1 acceptance table, docs/evaluation-and-model-selection.md 'AIME key percentiles: within 5 percent'). The PIA-proxy is a monotone statute-shaped transform of the AIME-proxy, so its percentile gaps map onto this criterion."
+  },
+  "noise_floor_seeds_0_4": {
+    "ks_distance": {
+      "mean": 0.02883718333942355,
+      "sd": 0.007767919448459656,
+      "min": 0.017889723298512655,
+      "max": 0.03786900987972375,
+      "n_seeds": 5,
+      "values": [
+        0.03283845107979355,
+        0.017889723298512655,
+        0.031092580858440633,
+        0.024496151580647163,
+        0.03786900987972375
+      ]
+    }
+  },
+  "floor_seeds_0_4": {
+    "ks_distance": {
+      "mean": 0.02883718333942355,
+      "sd": 0.007767919448459656,
+      "min": 0.017889723298512655,
+      "max": 0.03786900987972375,
+      "n_seeds": 5,
+      "values": [
+        0.03283845107979355,
+        0.017889723298512655,
+        0.031092580858440633,
+        0.024496151580647163,
+        0.03786900987972375
+      ]
+    },
+    "abs_mean_pct_diff": {
+      "mean": 1.8644347819739984,
+      "sd": 0.7559466831874642,
+      "min": 0.7001999304298426,
+      "max": 2.6700395649256885,
+      "n_seeds": 5,
+      "values": [
+        2.382204443111202,
+        0.7001999304298426,
+        1.7670946667393257,
+        1.802635304663934,
+        2.6700395649256885
+      ]
+    },
+    "abs_median_pct_diff": {
+      "mean": 1.6049638275345046,
+      "sd": 0.9866546913757904,
+      "min": 0.21365348736434905,
+      "max": 2.508621288938615,
+      "n_seeds": 5,
+      "values": [
+        2.508621288938615,
+        0.21365348736434905,
+        2.280070844379691,
+        0.933192798789183,
+        2.089280718200684
+      ]
+    },
+    "abs_q0_mean_pct_diff": {
+      "mean": 5.247858718959706,
+      "sd": 4.528307925997263,
+      "min": 1.0576208914347542,
+      "max": 12.80404297133378,
+      "n_seeds": 5,
+      "values": [
+        2.742973797756165,
+        5.4186245905053205,
+        4.216031343768511,
+        12.80404297133378,
+        1.0576208914347542
+      ]
+    },
+    "abs_decile_pct_diff": {
+      "d1": {
+        "mean": 19.245627815466094,
+        "sd": 8.059703803884663,
+        "min": 6.546368262123657,
+        "max": 27.2815408536876,
+        "n_seeds": 5,
+        "values": [
+          6.546368262123657,
+          19.554264857102453,
+          17.929330742017786,
+          27.2815408536876,
+          24.91663436239897
+        ]
+      },
+      "d2": {
+        "mean": 6.118132801929934,
+        "sd": 3.5016269410656515,
+        "min": 1.1736342288924155,
+        "max": 9.954112223053569,
+        "n_seeds": 5,
+        "values": [
+          6.807971431862691,
+          1.1736342288924155,
+          8.486087972352285,
+          4.168858153488713,
+          9.954112223053569
+        ]
+      },
+      "d3": {
+        "mean": 1.8094675844362276,
+        "sd": 0.5805971375083384,
+        "min": 1.3010511335283486,
+        "max": 2.506929072266781,
+        "n_seeds": 5,
+        "values": [
+          1.368968267961967,
+          1.3010511335283486,
+          1.5005810712947203,
+          2.506929072266781,
+          2.36980837712932
+        ]
+      },
+      "d4": {
+        "mean": 1.9279336671907412,
+        "sd": 0.9156245340308813,
+        "min": 0.4687687789269363,
+        "max": 2.714437006349537,
+        "n_seeds": 5,
+        "values": [
+          2.714437006349537,
+          0.4687687789269363,
+          2.610186727622913,
+          1.6583660865406429,
+          2.187909736513677
+        ]
+      },
+      "d5": {
+        "mean": 1.6049638275345046,
+        "sd": 0.9866546913757904,
+        "min": 0.21365348736434905,
+        "max": 2.508621288938615,
+        "n_seeds": 5,
+        "values": [
+          2.508621288938615,
+          0.21365348736434905,
+          2.280070844379691,
+          0.933192798789183,
+          2.089280718200684
+        ]
+      },
+      "d6": {
+        "mean": 1.4634365906357243,
+        "sd": 0.8174388132069291,
+        "min": 0.559463773639562,
+        "max": 2.4390645337233083,
+        "n_seeds": 5,
+        "values": [
+          2.4390645337233083,
+          0.559463773639562,
+          2.0755191003874796,
+          0.737240737450477,
+          1.5058948079777945
+        ]
+      },
+      "d7": {
+        "mean": 0.6119327739574232,
+        "sd": 0.6237877126475643,
+        "min": 0.028610691732468264,
+        "max": 1.3381298379468187,
+        "n_seeds": 5,
+        "values": [
+          1.3381298379468187,
+          0.4403476837163279,
+          0.052282586022462586,
+          0.028610691732468264,
+          1.2002930703690387
+        ]
+      },
+      "d8": {
+        "mean": 1.7874100736555156,
+        "sd": 0.277761783146216,
+        "min": 1.4656748403083897,
+        "max": 2.207485422094332,
+        "n_seeds": 5,
+        "values": [
+          1.8013545294279762,
+          1.6260746000184139,
+          1.4656748403083897,
+          1.8364609764284665,
+          2.207485422094332
+        ]
+      },
+      "d9": {
+        "mean": 2.004731338169672,
+        "sd": 1.9206516856930975,
+        "min": 0.30089725225928143,
+        "max": 4.814618305928077,
+        "n_seeds": 5,
+        "values": [
+          3.173219441620275,
+          0.8176440194113943,
+          4.814618305928077,
+          0.30089725225928143,
+          0.9172776716293327
+        ]
+      }
+    },
+    "pooled_abs_q0_mean_pct_diff": 2.6573605261836764,
+    "signed_mean_pct_diff": {
+      "mean": -0.20471513803378744,
+      "sd": 2.2054968484311934,
+      "min": -2.6700395649256885,
+      "max": 2.382204443111202,
+      "n_seeds": 5,
+      "values": [
+        2.382204443111202,
+        -0.7001999304298426,
+        1.7670946667393257,
+        -1.802635304663934,
+        -2.6700395649256885
+      ]
+    },
+    "signed_median_pct_diff": {
+      "mean": 0.3959744207385577,
+      "sd": 1.9993446206901322,
+      "min": -2.089280718200684,
+      "max": 2.508621288938615,
+      "n_seeds": 5,
+      "values": [
+        2.508621288938615,
+        0.21365348736434905,
+        2.280070844379691,
+        -0.933192798789183,
+        -2.089280718200684
+      ]
+    },
+    "signed_q0_mean_pct_diff": {
+      "mean": -2.6573605261836764,
+      "sd": 6.789966338848995,
+      "min": -12.80404297133378,
+      "max": 5.4186245905053205,
+      "n_seeds": 5,
+      "values": [
+        -2.742973797756165,
+        5.4186245905053205,
+        -4.216031343768511,
+        -12.80404297133378,
+        1.0576208914347542
+      ]
+    },
+    "signed_decile_pct_diff": {
+      "d1": {
+        "mean": -16.62708051061663,
+        "sd": 13.50469566623019,
+        "min": -27.2815408536876,
+        "max": 6.546368262123657,
+        "n_seeds": 5,
+        "values": [
+          6.546368262123657,
+          -19.554264857102453,
+          -17.929330742017786,
+          -27.2815408536876,
+          -24.91663436239897
+        ]
+      },
+      "d2": {
+        "mean": 0.46894465131302177,
+        "sd": 7.666546882688889,
+        "min": -9.954112223053569,
+        "max": 8.486087972352285,
+        "n_seeds": 5,
+        "values": [
+          6.807971431862691,
+          1.1736342288924155,
+          8.486087972352285,
+          -4.168858153488713,
+          -9.954112223053569
+        ]
+      },
+      "d3": {
+        "mean": -0.14122739532221296,
+        "sd": 2.0987800595829116,
+        "min": -2.506929072266781,
+        "max": 1.5005810712947203,
+        "n_seeds": 5,
+        "values": [
+          1.368968267961967,
+          1.3010511335283486,
+          1.5005810712947203,
+          -2.506929072266781,
+          -2.36980837712932
+        ]
+      },
+      "d4": {
+        "mean": 0.3894233379690132,
+        "sd": 2.301079181272351,
+        "min": -2.187909736513677,
+        "max": 2.714437006349537,
+        "n_seeds": 5,
+        "values": [
+          2.714437006349537,
+          0.4687687789269363,
+          2.610186727622913,
+          -1.6583660865406429,
+          -2.187909736513677
+        ]
+      },
+      "d5": {
+        "mean": 0.3959744207385577,
+        "sd": 1.9993446206901322,
+        "min": -2.089280718200684,
+        "max": 2.508621288938615,
+        "n_seeds": 5,
+        "values": [
+          2.508621288938615,
+          0.21365348736434905,
+          2.280070844379691,
+          -0.933192798789183,
+          -2.089280718200684
+        ]
+      },
+      "d6": {
+        "mean": 0.6372931579887815,
+        "sd": 1.684513674722589,
+        "min": -1.5058948079777945,
+        "max": 2.4390645337233083,
+        "n_seeds": 5,
+        "values": [
+          2.4390645337233083,
+          -0.559463773639562,
+          2.0755191003874796,
+          0.737240737450477,
+          -1.5058948079777945
+        ]
+      },
+      "d7": {
+        "mean": -0.07668083877869572,
+        "sd": 0.9218667590597668,
+        "min": -1.2002930703690387,
+        "max": 1.3381298379468187,
+        "n_seeds": 5,
+        "values": [
+          1.3381298379468187,
+          -0.4403476837163279,
+          -0.052282586022462586,
+          -0.028610691732468264,
+          -1.2002930703690387
+        ]
+      },
+      "d8": {
+        "mean": -0.4805983257609693,
+        "sd": 1.9447304785053834,
+        "min": -2.207485422094332,
+        "max": 1.8013545294279762,
+        "n_seeds": 5,
+        "values": [
+          1.8013545294279762,
+          -1.6260746000184139,
+          1.4656748403083897,
+          -1.8364609764284665,
+          -2.207485422094332
+        ]
+      },
+      "d9": {
+        "mean": 1.557314829501402,
+        "sd": 2.3834954841207416,
+        "min": -0.8176440194113943,
+        "max": 4.814618305928077,
+        "n_seeds": 5,
+        "values": [
+          3.173219441620275,
+          -0.8176440194113943,
+          4.814618305928077,
+          -0.30089725225928143,
+          0.9172776716293327
+        ]
+      }
+    },
+    "decile_seeds_clipping_5pct": {
+      "d1": 5,
+      "d2": 3,
+      "d3": 0,
+      "d4": 0,
+      "d5": 0,
+      "d6": 0,
+      "d7": 0,
+      "d8": 0,
+      "d9": 0
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "construction": "ctx20 on the full filtered panel: split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 4429,
+      "n_persons_side_b": 4403,
+      "n_persons_q0_side_a": 894,
+      "n_persons_q0_side_b": 900,
+      "distribution": {
+        "mean": {
+          "candidate": 1342.8523084482079,
+          "real": 1311.6071447693485,
+          "pct_diff": 2.382204443111202
+        },
+        "median": {
+          "candidate": 1312.2128611197031,
+          "real": 1280.1,
+          "pct_diff": 2.508621288938615
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 389.7239064844799,
+            "real": 365.7786866331168,
+            "pct_diff": 6.546368262123657
+          },
+          "d2": {
+            "candidate": 927.2,
+            "real": 868.1,
+            "pct_diff": 6.807971431862691
+          },
+          "d3": {
+            "candidate": 1054.9014285339008,
+            "real": 1040.6551892146526,
+            "pct_diff": 1.368968267961967
+          },
+          "d4": {
+            "candidate": 1189.5997538056756,
+            "real": 1158.1621712361016,
+            "pct_diff": 2.714437006349537
+          },
+          "d5": {
+            "candidate": 1312.2128611197031,
+            "real": 1280.1,
+            "pct_diff": 2.508621288938615
+          },
+          "d6": {
+            "candidate": 1459.543352282821,
+            "real": 1424.7917617427422,
+            "pct_diff": 2.4390645337233083
+          },
+          "d7": {
+            "candidate": 1632.5710849309198,
+            "real": 1611.0136308432163,
+            "pct_diff": 1.3381298379468187
+          },
+          "d8": {
+            "candidate": 1897.6999460964873,
+            "real": 1864.1205265573499,
+            "pct_diff": 1.8013545294279762
+          },
+          "d9": {
+            "candidate": 2305.5243487541575,
+            "real": 2234.6151077108916,
+            "pct_diff": 3.173219441620275
+          }
+        },
+        "gini": {
+          "candidate": 0.27943375884665755,
+          "real": 0.28155351432551057,
+          "difference": -0.0021197554788530137
+        },
+        "ks_distance": 0.03283845107979355
+      },
+      "q0_zero_anchor": {
+        "definition": "zero anchor earnings (no earnings in the person's last observed period); real side-A Q0 persons vs real side-B Q0 persons -- the real-vs-real floor for the subgroup candidate 7 misses by +9.3%",
+        "mean_pct_diff": -2.742973797756165,
+        "median_pct_diff": -7.343366462190245,
+        "ks_distance": 0.03496767603429146
+      }
+    },
+    {
+      "seed": 1,
+      "construction": "ctx20 on the full filtered panel: split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 4357,
+      "n_persons_side_b": 4473,
+      "n_persons_q0_side_a": 914,
+      "n_persons_q0_side_b": 849,
+      "distribution": {
+        "mean": {
+          "candidate": 1317.1463084599238,
+          "real": 1326.4339983938755,
+          "pct_diff": -0.7001999304298426
+        },
+        "median": {
+          "candidate": 1284.4274389238344,
+          "real": 1281.6890655381446,
+          "pct_diff": 0.21365348736434905
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 356.44741020081074,
+            "real": 443.090500158455,
+            "pct_diff": -19.554264857102453
+          },
+          "d2": {
+            "candidate": 886.9075577698985,
+            "real": 876.6192541461776,
+            "pct_diff": 1.1736342288924155
+          },
+          "d3": {
+            "candidate": 1048.9,
+            "real": 1035.4285451761102,
+            "pct_diff": 1.3010511335283486
+          },
+          "d4": {
+            "candidate": 1167.7484995174677,
+            "real": 1162.3,
+            "pct_diff": 0.4687687789269363
+          },
+          "d5": {
+            "candidate": 1284.4274389238344,
+            "real": 1281.6890655381446,
+            "pct_diff": 0.21365348736434905
+          },
+          "d6": {
+            "candidate": 1430.8,
+            "real": 1438.8498436321916,
+            "pct_diff": -0.559463773639562
+          },
+          "d7": {
+            "candidate": 1614.7886566870197,
+            "real": 1621.9307913582477,
+            "pct_diff": -0.4403476837163279
+          },
+          "d8": {
+            "candidate": 1854.9,
+            "real": 1885.5606223479492,
+            "pct_diff": -1.6260746000184139
+          },
+          "d9": {
+            "candidate": 2266.9851262680113,
+            "real": 2285.673801408481,
+            "pct_diff": -0.8176440194113943
+          }
+        },
+        "gini": {
+          "candidate": 0.28312503429000246,
+          "real": 0.27902765267941143,
+          "difference": 0.004097381610591033
+        },
+        "ks_distance": 0.017889723298512655
+      },
+      "q0_zero_anchor": {
+        "definition": "zero anchor earnings (no earnings in the person's last observed period); real side-A Q0 persons vs real side-B Q0 persons -- the real-vs-real floor for the subgroup candidate 7 misses by +9.3%",
+        "mean_pct_diff": 5.4186245905053205,
+        "median_pct_diff": -0.18941364687697393,
+        "ks_distance": 0.03806293416810491
+      }
+    },
+    {
+      "seed": 2,
+      "construction": "ctx20 on the full filtered panel: split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 4584,
+      "n_persons_side_b": 4498,
+      "n_persons_q0_side_a": 925,
+      "n_persons_q0_side_b": 907,
+      "distribution": {
+        "mean": {
+          "candidate": 1311.1047075617378,
+          "real": 1288.3385458288492,
+          "pct_diff": 1.7670946667393257
+        },
+        "median": {
+          "candidate": 1291.495730540731,
+          "real": 1262.7051583741634,
+          "pct_diff": 2.280070844379691
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 303.93011627907055,
+            "real": 370.32732768839975,
+            "pct_diff": -17.929330742017786
+          },
+          "d2": {
+            "candidate": 899.4362011661807,
+            "real": 829.0797631078764,
+            "pct_diff": 8.486087972352285
+          },
+          "d3": {
+            "candidate": 1044.878525242381,
+            "real": 1029.4310773535879,
+            "pct_diff": 1.5005810712947203
+          },
+          "d4": {
+            "candidate": 1169.2962311336887,
+            "real": 1139.5518012627408,
+            "pct_diff": 2.610186727622913
+          },
+          "d5": {
+            "candidate": 1291.495730540731,
+            "real": 1262.7051583741634,
+            "pct_diff": 2.280070844379691
+          },
+          "d6": {
+            "candidate": 1432.515016079198,
+            "real": 1403.3874416747983,
+            "pct_diff": 2.0755191003874796
+          },
+          "d7": {
+            "candidate": 1582.6509685078597,
+            "real": 1583.4788522009092,
+            "pct_diff": -0.052282586022462586
+          },
+          "d8": {
+            "candidate": 1833.440631607119,
+            "real": 1806.956524452902,
+            "pct_diff": 1.4656748403083897
+          },
+          "d9": {
+            "candidate": 2266.459359603912,
+            "real": 2162.3504395051796,
+            "pct_diff": 4.814618305928077
+          }
+        },
+        "gini": {
+          "candidate": 0.28430744336914904,
+          "real": 0.28163203045391494,
+          "difference": 0.002675412915234099
+        },
+        "ks_distance": 0.031092580858440633
+      },
+      "q0_zero_anchor": {
+        "definition": "zero anchor earnings (no earnings in the person's last observed period); real side-A Q0 persons vs real side-B Q0 persons -- the real-vs-real floor for the subgroup candidate 7 misses by +9.3%",
+        "mean_pct_diff": -4.216031343768511,
+        "median_pct_diff": -9.126832337525345,
+        "ks_distance": 0.03440614354288396
+      }
+    },
+    {
+      "seed": 3,
+      "construction": "ctx20 on the full filtered panel: split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 4500,
+      "n_persons_side_b": 4425,
+      "n_persons_q0_side_a": 882,
+      "n_persons_q0_side_b": 905,
+      "distribution": {
+        "mean": {
+          "candidate": 1292.2241978396132,
+          "real": 1315.9459032824616,
+          "pct_diff": -1.802635304663934
+        },
+        "median": {
+          "candidate": 1269.8028153153155,
+          "real": 1281.7641460234681,
+          "pct_diff": -0.933192798789183
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 305.53263903462755,
+            "real": 420.15829628606934,
+            "pct_diff": -27.2815408536876
+          },
+          "d2": {
+            "candidate": 828.6694076021028,
+            "real": 864.7182863889358,
+            "pct_diff": -4.168858153488713
+          },
+          "d3": {
+            "candidate": 1018.4343165516308,
+            "real": 1044.6222555719326,
+            "pct_diff": -2.506929072266781
+          },
+          "d4": {
+            "candidate": 1143.260481927711,
+            "real": 1162.5396451453921,
+            "pct_diff": -1.6583660865406429
+          },
+          "d5": {
+            "candidate": 1269.8028153153155,
+            "real": 1281.7641460234681,
+            "pct_diff": -0.933192798789183
+          },
+          "d6": {
+            "candidate": 1427.3385397722257,
+            "real": 1416.8926300972155,
+            "pct_diff": 0.737240737450477
+          },
+          "d7": {
+            "candidate": 1590.9446894517696,
+            "real": 1591.4,
+            "pct_diff": -0.028610691732468264
+          },
+          "d8": {
+            "candidate": 1818.1282091614412,
+            "real": 1852.1420756079942,
+            "pct_diff": -1.8364609764284665
+          },
+          "d9": {
+            "candidate": 2253.411353557163,
+            "real": 2260.2122701733415,
+            "pct_diff": -0.30089725225928143
+          }
+        },
+        "gini": {
+          "candidate": 0.2918023902639615,
+          "real": 0.27844527654030093,
+          "difference": 0.013357113723660552
+        },
+        "ks_distance": 0.024496151580647163
+      },
+      "q0_zero_anchor": {
+        "definition": "zero anchor earnings (no earnings in the person's last observed period); real side-A Q0 persons vs real side-B Q0 persons -- the real-vs-real floor for the subgroup candidate 7 misses by +9.3%",
+        "mean_pct_diff": -12.80404297133378,
+        "median_pct_diff": -29.408299261834987,
+        "ks_distance": 0.10098783144925616
+      }
+    },
+    {
+      "seed": 4,
+      "construction": "ctx20 on the full filtered panel: split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); side A scored against side B",
+      "n_persons_side_a": 4348,
+      "n_persons_side_b": 4348,
+      "n_persons_q0_side_a": 872,
+      "n_persons_q0_side_b": 810,
+      "distribution": {
+        "mean": {
+          "candidate": 1309.3418788538638,
+          "real": 1345.260876508096,
+          "pct_diff": -2.6700395649256885
+        },
+        "median": {
+          "candidate": 1281.7110562232633,
+          "real": 1309.0610156119253,
+          "pct_diff": -2.089280718200684
+        },
+        "deciles": {
+          "d1": {
+            "candidate": 367.06774665854863,
+            "real": 488.8802513598626,
+            "pct_diff": -24.91663436239897
+          },
+          "d2": {
+            "candidate": 849.2399514057619,
+            "real": 943.1190833605002,
+            "pct_diff": -9.954112223053569
+          },
+          "d3": {
+            "candidate": 1035.9,
+            "real": 1061.0447268213002,
+            "pct_diff": -2.36980837712932
+          },
+          "d4": {
+            "candidate": 1157.6669365225391,
+            "real": 1183.5622093383492,
+            "pct_diff": -2.187909736513677
+          },
+          "d5": {
+            "candidate": 1281.7110562232633,
+            "real": 1309.0610156119253,
+            "pct_diff": -2.089280718200684
+          },
+          "d6": {
+            "candidate": 1434.7443358741486,
+            "real": 1456.6804105453812,
+            "pct_diff": -1.5058948079777945
+          },
+          "d7": {
+            "candidate": 1603.5128412537917,
+            "real": 1622.993520006974,
+            "pct_diff": -1.2002930703690387
+          },
+          "d8": {
+            "candidate": 1843.3501131221724,
+            "real": 1884.9603377911726,
+            "pct_diff": -2.207485422094332
+          },
+          "d9": {
+            "candidate": 2266.8263250405626,
+            "real": 2246.2222300689655,
+            "pct_diff": 0.9172776716293327
+          }
+        },
+        "gini": {
+          "candidate": 0.2843242333823979,
+          "real": 0.26855999352331406,
+          "difference": 0.015764239859083817
+        },
+        "ks_distance": 0.03786900987972375
+      },
+      "q0_zero_anchor": {
+        "definition": "zero anchor earnings (no earnings in the person's last observed period); real side-A Q0 persons vs real side-B Q0 persons -- the real-vs-real floor for the subgroup candidate 7 misses by +9.3%",
+        "mean_pct_diff": 1.0576208914347542,
+        "median_pct_diff": 4.716655016683368,
+        "ks_distance": 0.031931391268353315
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "4b872963b39c4fbbd094246f2e6c7a7652012c9a",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "pia_proxy_floor.v1"
+  },
+  "elapsed_seconds": 7.9
+}
