@@ -1,0 +1,547 @@
+{
+ "run": "imputation_sensitivity_v1",
+ "reported_not_gated": true,
+ "statement": "Reported, not gated. This artifact changes NO gate, NO threshold, and NO committed floor or reference artifact. It recomputes the locked gate-1 battery references and the deployment-scale geometry floors on the held-out PSID family panel with PSID income-assignment (accuracy) observations excluded, and reports the movement. Any future amendment to a gate on the strength of these numbers requires a fresh referee round.",
+ "headline": "Does excluding assigned observations move the 10-year log-earnings autocorrelation reference toward the candidates? Committed/full reference 0.5389; excluding any assigned observation raises it to 0.5504 (+0.0115), excluding only code-1 to 0.5416 (+0.0027). Candidate 2 lands at 0.615-0.668 and candidate 3 at 0.632-0.666, so the exclusion moves the reference toward the candidates by only a small fraction of the gap.",
+ "filter": "age 25-59, reference years 1998-2022, positive weights (applied before anything)",
+ "battery_code_path": "populace_dynamics.harness.moments, identical definitions to scripts/run_gate1_baseline.py compute_battery; populace.fit is NOT imported",
+ "battery_reference_run": "runs/noise_floor_psid_family_9822.json",
+ "battery_reference_reproduction": {
+  "all_committed_values_reproduced_exactly": true,
+  "checks": {
+   "autocorr_log_2yr": {
+    "committed": 0.7301235102305604,
+    "recomputed": 0.7301235102305604,
+    "exact_float_match": true
+   },
+   "autocorr_log_4yr": {
+    "committed": 0.657166897978905,
+    "recomputed": 0.657166897978905,
+    "exact_float_match": true
+   },
+   "autocorr_log_10yr": {
+    "committed": 0.538879427219318,
+    "recomputed": 0.538879427219318,
+    "exact_float_match": true
+   },
+   "mobility_diagonal_mean": {
+    "committed": 0.6040519205702761,
+    "recomputed": 0.6040519205702761,
+    "exact_float_match": true
+   },
+   "zero_persistence": {
+    "committed": 0.7010206920609328,
+    "recomputed": 0.7010206920609328,
+    "exact_float_match": true
+   },
+   "entry_rate": {
+    "committed": 0.06672228841044435,
+    "recomputed": 0.06672228841044435,
+    "exact_float_match": true
+   },
+   "exit_rate": {
+    "committed": 0.29897930793906724,
+    "recomputed": 0.29897930793906724,
+    "exact_float_match": true
+   },
+   "mean_spell_length": {
+    "committed": 2.087148386008407,
+    "recomputed": 2.087148386008407,
+    "exact_float_match": true
+   }
+  }
+ },
+ "n_person_periods": {
+  "full_filtered": 126867,
+  "excl_any_flag": 117581,
+  "excl_code_1": 124302,
+  "dropped_excl_any_flag": 9286,
+  "dropped_excl_code_1": 2565
+ },
+ "battery": {
+  "autocorr_log_2yr": {
+   "committed_reference": 0.7301235102305604,
+   "full_panel_recomputed": 0.7301235102305604,
+   "excl_any_flag": 0.7474199069071102,
+   "excl_code_1": 0.7369113241583384,
+   "deltas": {
+    "excl_any_flag_minus_committed": 0.017296396676549808,
+    "excl_code_1_minus_committed": 0.0067878139277779415,
+    "excl_any_flag_minus_full": 0.017296396676549808,
+    "excl_code_1_minus_full": 0.0067878139277779415
+   }
+  },
+  "autocorr_log_4yr": {
+   "committed_reference": 0.657166897978905,
+   "full_panel_recomputed": 0.657166897978905,
+   "excl_any_flag": 0.670406966519965,
+   "excl_code_1": 0.6616634962012583,
+   "deltas": {
+    "excl_any_flag_minus_committed": 0.013240068541059968,
+    "excl_code_1_minus_committed": 0.004496598222353265,
+    "excl_any_flag_minus_full": 0.013240068541059968,
+    "excl_code_1_minus_full": 0.004496598222353265
+   }
+  },
+  "autocorr_log_10yr": {
+   "committed_reference": 0.538879427219318,
+   "full_panel_recomputed": 0.538879427219318,
+   "excl_any_flag": 0.550391212047823,
+   "excl_code_1": 0.5416059303882,
+   "deltas": {
+    "excl_any_flag_minus_committed": 0.011511784828505012,
+    "excl_code_1_minus_committed": 0.0027265031688820107,
+    "excl_any_flag_minus_full": 0.011511784828505012,
+    "excl_code_1_minus_full": 0.0027265031688820107
+   }
+  },
+  "mobility_diagonal_mean": {
+   "committed_reference": 0.6040519205702761,
+   "full_panel_recomputed": 0.6040519205702761,
+   "excl_any_flag": 0.6166753702758904,
+   "excl_code_1": 0.6076204913666953,
+   "deltas": {
+    "excl_any_flag_minus_committed": 0.012623449705614243,
+    "excl_code_1_minus_committed": 0.003568570796419146,
+    "excl_any_flag_minus_full": 0.012623449705614243,
+    "excl_code_1_minus_full": 0.003568570796419146
+   }
+  },
+  "zero_persistence": {
+   "committed_reference": 0.7010206920609328,
+   "full_panel_recomputed": 0.7010206920609328,
+   "excl_any_flag": 0.7263126397132984,
+   "excl_code_1": 0.7099318325196241,
+   "deltas": {
+    "excl_any_flag_minus_committed": 0.025291947652365643,
+    "excl_code_1_minus_committed": 0.008911140458691347,
+    "excl_any_flag_minus_full": 0.025291947652365643,
+    "excl_code_1_minus_full": 0.008911140458691347
+   }
+  },
+  "entry_rate": {
+   "committed_reference": 0.06672228841044435,
+   "full_panel_recomputed": 0.06672228841044435,
+   "excl_any_flag": 0.06674927515948982,
+   "excl_code_1": 0.0666169082453047,
+   "deltas": {
+    "excl_any_flag_minus_committed": 2.698674904547116e-05,
+    "excl_code_1_minus_committed": -0.00010538016513965409,
+    "excl_any_flag_minus_full": 2.698674904547116e-05,
+    "excl_code_1_minus_full": -0.00010538016513965409
+   }
+  },
+  "exit_rate": {
+   "committed_reference": 0.29897930793906724,
+   "full_panel_recomputed": 0.29897930793906724,
+   "excl_any_flag": 0.27368736028670154,
+   "excl_code_1": 0.2900681674803759,
+   "deltas": {
+    "excl_any_flag_minus_committed": -0.0252919476523657,
+    "excl_code_1_minus_committed": -0.008911140458691347,
+    "excl_any_flag_minus_full": -0.0252919476523657,
+    "excl_code_1_minus_full": -0.008911140458691347
+   }
+  },
+  "mean_spell_length": {
+   "committed_reference": 2.087148386008407,
+   "full_panel_recomputed": 2.087148386008407,
+   "excl_any_flag": 2.087072400738457,
+   "excl_code_1": 2.087148386008407,
+   "deltas": {
+    "excl_any_flag_minus_committed": -7.59852699498964e-05,
+    "excl_code_1_minus_committed": 0.0,
+    "excl_any_flag_minus_full": -7.59852699498964e-05,
+    "excl_code_1_minus_full": 0.0
+   }
+  }
+ },
+ "flag_shares": {
+  "overall_among_positive": {
+   "n_positive": 106795,
+   "any_flag": {
+    "unweighted": 0.08694227257830422,
+    "weighted": 0.06737077860540179,
+    "n": 9285
+   },
+   "code_1": {
+    "unweighted": 0.024017978369773867,
+    "weighted": 0.020076568436045227,
+    "n": 2565
+   }
+  },
+  "by_wave_among_positive": {
+   "1998": {
+    "n_positive": 7254,
+    "any_flag": {
+     "unweighted": 0.06575682382133995,
+     "weighted": 0.04856234367815579,
+     "n": 477
+    },
+    "code_1": {
+     "unweighted": 0.060656189688447756,
+     "weighted": 0.044784375906215826,
+     "n": 440
+    }
+   },
+   "2000": {
+    "n_positive": 7769,
+    "any_flag": {
+     "unweighted": 0.06255631355386794,
+     "weighted": 0.04442119079853617,
+     "n": 486
+    },
+    "code_1": {
+     "unweighted": 0.0,
+     "weighted": 0.0,
+     "n": 0
+    }
+   },
+   "2002": {
+    "n_positive": 8115,
+    "any_flag": {
+     "unweighted": 0.0707332101047443,
+     "weighted": 0.05195215663611293,
+     "n": 574
+    },
+    "code_1": {
+     "unweighted": 0.0,
+     "weighted": 0.0,
+     "n": 0
+    }
+   },
+   "2004": {
+    "n_positive": 8202,
+    "any_flag": {
+     "unweighted": 0.07376249695196294,
+     "weighted": 0.050301093373602675,
+     "n": 605
+    },
+    "code_1": {
+     "unweighted": 0.0,
+     "weighted": 0.0,
+     "n": 0
+    }
+   },
+   "2006": {
+    "n_positive": 8331,
+    "any_flag": {
+     "unweighted": 0.07598127475693194,
+     "weighted": 0.051862459266903374,
+     "n": 633
+    },
+    "code_1": {
+     "unweighted": 0.0,
+     "weighted": 0.0,
+     "n": 0
+    }
+   },
+   "2008": {
+    "n_positive": 8557,
+    "any_flag": {
+     "unweighted": 0.08519340890499007,
+     "weighted": 0.05927823258000827,
+     "n": 729
+    },
+    "code_1": {
+     "unweighted": 0.009699661096178567,
+     "weighted": 0.00683797976050594,
+     "n": 83
+    }
+   },
+   "2010": {
+    "n_positive": 8230,
+    "any_flag": {
+     "unweighted": 0.06512758201701094,
+     "weighted": 0.049776104492790726,
+     "n": 536
+    },
+    "code_1": {
+     "unweighted": 0.015066828675577158,
+     "weighted": 0.010539352801132194,
+     "n": 124
+    }
+   },
+   "2012": {
+    "n_positive": 8347,
+    "any_flag": {
+     "unweighted": 0.06265724212291841,
+     "weighted": 0.046032974519634,
+     "n": 523
+    },
+    "code_1": {
+     "unweighted": 0.016892296633521025,
+     "weighted": 0.014272752734276714,
+     "n": 141
+    }
+   },
+   "2014": {
+    "n_positive": 8230,
+    "any_flag": {
+     "unweighted": 0.06840826245443499,
+     "weighted": 0.04897525555275102,
+     "n": 563
+    },
+    "code_1": {
+     "unweighted": 0.018104495747266098,
+     "weighted": 0.013303286493384437,
+     "n": 149
+    }
+   },
+   "2016": {
+    "n_positive": 8887,
+    "any_flag": {
+     "unweighted": 0.0849555530550242,
+     "weighted": 0.06574655910666301,
+     "n": 755
+    },
+    "code_1": {
+     "unweighted": 0.02374254529087431,
+     "weighted": 0.0191101031212068,
+     "n": 211
+    }
+   },
+   "2018": {
+    "n_positive": 8788,
+    "any_flag": {
+     "unweighted": 0.09080564406008193,
+     "weighted": 0.0755070129331148,
+     "n": 798
+    },
+    "code_1": {
+     "unweighted": 0.028561675011379153,
+     "weighted": 0.023707382461537158,
+     "n": 251
+    }
+   },
+   "2020": {
+    "n_positive": 8022,
+    "any_flag": {
+     "unweighted": 0.14086262777362255,
+     "weighted": 0.12291816498674042,
+     "n": 1130
+    },
+    "code_1": {
+     "unweighted": 0.05646970830216903,
+     "weighted": 0.05311936009255316,
+     "n": 453
+    }
+   },
+   "2022": {
+    "n_positive": 8063,
+    "any_flag": {
+     "unweighted": 0.1830584149820166,
+     "weighted": 0.16129343812613306,
+     "n": 1476
+    },
+    "code_1": {
+     "unweighted": 0.08842862458142131,
+     "weighted": 0.07815251816727921,
+     "n": 713
+    }
+   }
+  },
+  "code_distribution_among_positive": {
+   "0": 97510,
+   "1": 2565,
+   "2": 2284,
+   "3": 1784,
+   "4": 4,
+   "5": 2648
+  }
+ },
+ "geometry_floors_excl_any_flag": {
+  "note": "committed floors are the full-panel ctx20 derivations; excl_any_flag recomputes the identical construction on the panel with earnings_acc>0 person-periods removed",
+  "ctx20_pairs_window2": {
+   "n_persons_per_side_mean_excl": 4317.8,
+   "c2st_auc": {
+    "committed_mean": 0.5108054329908959,
+    "committed_sd": 0.004553500908938964,
+    "excl_any_flag_mean": 0.5107104293182729,
+    "excl_any_flag_sd": 0.007874163275607032,
+    "excl_any_flag_values": [
+     0.5054016266109966,
+     0.5193990190227329,
+     0.5029416403424068,
+     0.5190020222615895,
+     0.5068078383536385
+    ],
+    "delta_mean": -9.500367262293974e-05
+   },
+   "prdc_coverage": {
+    "committed_mean": 0.95771484375,
+    "committed_sd": 0.005936182779464505,
+    "excl_any_flag_mean": 0.96044921875,
+    "excl_any_flag_sd": 0.006931186311805854,
+    "excl_any_flag_values": [
+     0.9677734375,
+     0.95458984375,
+     0.96435546875,
+     0.9638671875,
+     0.95166015625
+    ],
+    "delta_mean": 0.0027343749999999556
+   },
+   "energy_distance": {
+    "committed_mean": 0.003379336446512271,
+    "committed_sd": 0.002514258848837629,
+    "excl_any_flag_mean": 0.0023410463629008225,
+    "excl_any_flag_sd": 0.0007374916217423356,
+    "excl_any_flag_values": [
+     0.0022630302241111178,
+     0.0035672430380147002,
+     0.002038842054615131,
+     0.0015888429458965625,
+     0.002247273551866602
+    ],
+    "delta_mean": -0.0010382900836114484
+   }
+  },
+  "ctx20_runs_window3": {
+   "n_persons_per_side_mean_excl": 4317.8,
+   "c2st_auc": {
+    "committed_mean": 0.5091815512444192,
+    "committed_sd": 0.007222584466272694,
+    "excl_any_flag_mean": 0.5118423282833172,
+    "excl_any_flag_sd": 0.0059986264314048875,
+    "excl_any_flag_values": [
+     0.5154359191213995,
+     0.5138228212725349,
+     0.5025525242291355,
+     0.5178168667236978,
+     0.5095835100698186
+    ],
+    "delta_mean": 0.002660777038897999
+   },
+   "prdc_coverage": {
+    "committed_mean": 0.95068359375,
+    "committed_sd": 0.012539419959371346,
+    "excl_any_flag_mean": 0.94970703125,
+    "excl_any_flag_sd": 0.006514484406311687,
+    "excl_any_flag_values": [
+     0.95849609375,
+     0.94580078125,
+     0.94873046875,
+     0.94189453125,
+     0.95361328125
+    ],
+    "delta_mean": -0.0009765625
+   },
+   "energy_distance": {
+    "committed_mean": 0.0025702630866115683,
+    "committed_sd": 0.0013759803838083796,
+    "excl_any_flag_mean": 0.00328645431295036,
+    "excl_any_flag_sd": 0.000517305037238937,
+    "excl_any_flag_values": [
+     0.0026563686518601415,
+     0.0036028724312835436,
+     0.002881953049889585,
+     0.0033700526439359724,
+     0.003921024787782557
+    ],
+    "delta_mean": 0.0007161912263387916
+   }
+  }
+ },
+ "candidate_context": {
+  "note": "per-seed contested-statistic values from the committed candidate runs; shows where candidates landed on the statistics the exclusion perturbs, so the artifact can be read against whether the reference moves toward them",
+  "runs": {
+   "baseline": {
+    "source": "runs/gate1_qrf_baseline_v1.json",
+    "n_seeds": 5,
+    "per_stat": {
+     "autocorr_log_2yr": {
+      "values": [
+       0.7275193690904331,
+       0.7283602824288486,
+       0.7258119179020871,
+       0.7119125030338412,
+       0.7346752230512025
+      ],
+      "min": 0.7119125030338412,
+      "max": 0.7346752230512025
+     },
+     "autocorr_log_4yr": {
+      "values": [
+       0.5773568517888025,
+       0.5646169092943996,
+       0.5731913717033367,
+       0.556687931274736,
+       0.5909045332243354
+      ],
+      "min": 0.556687931274736,
+      "max": 0.5909045332243354
+     },
+     "autocorr_log_10yr": {
+      "values": [
+       0.3090069825486725,
+       0.3197064963292538,
+       0.36816042451794234,
+       0.3189555695012759,
+       0.348427859009467
+      ],
+      "min": 0.3090069825486725,
+      "max": 0.36816042451794234
+     }
+    }
+   },
+   "candidate2_latent_perm_v1": {
+    "source": "runs/gate1_qrf_latent_perm_v1.json",
+    "n_seeds": 5,
+    "per_stat": {
+     "autocorr_log_2yr": {
+      "values": [
+       0.7221370522624075,
+       0.7328749091083101,
+       0.7354507298699616,
+       0.7021457990273479,
+       0.7382482756460211
+      ],
+      "min": 0.7021457990273479,
+      "max": 0.7382482756460211
+     },
+     "autocorr_log_4yr": {
+      "values": [
+       0.6945385023091939,
+       0.683659867982612,
+       0.699290956512768,
+       0.6553406634272277,
+       0.7091461424823169
+      ],
+      "min": 0.6553406634272277,
+      "max": 0.7091461424823169
+     },
+     "autocorr_log_10yr": {
+      "values": [
+       0.6381965846256861,
+       0.6607879293874759,
+       0.6684153900815142,
+       0.6149941846577712,
+       0.6615292227000146
+      ],
+      "min": 0.6149941846577712,
+      "max": 0.6684153900815142
+     }
+    }
+   },
+   "candidate3_latent_perm_v2": {
+    "source": "runs/gate1_qrf_latent_perm_v2.json (absent on this branch; autocorr_log_10yr read from branch gate1-candidate3-pa-decomp commit a6021de on 2026-07-05)",
+    "n_seeds": 5,
+    "per_stat": {
+     "autocorr_log_10yr": {
+      "values": [
+       0.6323197072287733,
+       0.6336811468334078,
+       0.6581682829049901,
+       0.6433569252098327,
+       0.666373460961008
+      ],
+      "min": 0.6323197072287733,
+      "max": 0.666373460961008
+     }
+    }
+   }
+  }
+ },
+ "elapsed_seconds": 28.2
+}
