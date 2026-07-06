@@ -119,6 +119,10 @@ def _amendment() -> dict | None:
 
 
 def _benefit_space_change() -> dict | None:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    ratified = gates["gates"]["gate_1"]["thresholds"].get("benefit_space")
+    if ratified is not None:
+        return ratified
     amendment = _amendment()
     if amendment is None:
         return None

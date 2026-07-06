@@ -210,13 +210,18 @@ gates:
                 { key: q90_ratio.earnings_t1, k: [-3.3, 3.0] }
               w1_over_sd_max: { key: w1_over_sd.earnings_t1, k: 1.9 }
         psid_family_earnings_runs:
+          # Amendment ratified 2026-07-06 (PR #57, merge 0c324a71):
+          # c2st_auc moved from gated to reported-not-gated on this
+          # view; the full flip disclosure lives in the ratified
+          # benefit_space block below. Evidence: PR #56 (the window-3
+          # texture residual is benefit-immaterial).
           geometry:
-            c2st_auc_max: 0.54
             prdc_coverage_min: 0.90
+          reported_not_gated:
+            - c2st_auc
           derivations:
             floor_run: runs/noise_floor_psid_family_runs_ctx20_9822.json
             rules:
-              c2st_auc_max: { key: c2st_auc, k: 4.3 }
               prdc_coverage_min: { key: prdc_coverage, k: -4.0 }
       battery:
         # Absolute bands around the committed reference values in
@@ -257,6 +262,140 @@ gates:
         - change_moments sd, skew, kurtosis
         - age_profile quantiles
         - mobility_matrix horizon 2
+      benefit_space:
+        # RATIFIED AMENDMENT (proposed 2026-07-06; adversarially
+        # refereed on PR #57 — review comment 4898105589, fixes
+        # d02cdf5, verification 4898186646, verdict RATIFY AS-IS;
+        # ratified by maintainer merge 0c324a71; flipped live by
+        # this follow-up). Gated benefit-space block, scored on the
+        # pairs-view candidate panels; the runs-view c2st demotion
+        # it pairs with is annotated on the view above.
+        rationale: >-
+          The population-view geometry does not see the one place the
+          candidate-7 residual is benefit-material: the Q0
+          zero-anchor-earnings subgroup, +9.30% in PIA-proxy space (PR
+          #56), which the progressive 415(a) formula (90% replacement
+          below the first bend point) weights most. This block ADDS a
+          gate exactly there. It is recalibration toward
+          decision-relevance, NOT relaxation: candidate 7 passes every
+          population-view pairs threshold on all five seeds yet FAILS
+          this block on Q0, so the amendment nets MORE strictness where
+          the evidence says it matters. The percent bands are this
+          amendment's OWN proposal-time criterion (see
+          a_priori_source — the referee round corrected an earlier
+          misattribution to the paper); the KS band alone is derived
+          from the committed real-vs-real anchor (see derivations),
+          matching how the locked geometry thresholds derive from
+          their floors.
+        a_priori_source: >-
+          The +/-5% percent bands are ADOPTED BY THIS AMENDMENT at
+          proposal time (2026-07-06), before any candidate was scored
+          against them. Provenance, stated exactly: the 5% figure
+          originates in the project's DRAFT Phase-1 acceptance tables
+          ("AIME distribution for retired workers ... within 5
+          percent on key percentiles",
+          docs/operationalizing-longitudinal-construction.md and
+          docs/evaluation-and-model-selection.md), which are draft
+          design documents in AIME units; the paper itself carries no
+          such criterion (an earlier draft of this subsection
+          misattributed it — corrected per the amendment referee
+          round, PR #57 review). Because the PIA formula is concave,
+          a 5% band in PIA-proxy space is STRICTER than the draft
+          tables' 5% in AIME space (roughly 7-9% AIME-equivalent at
+          the 2022 bend points), so adopting 5% here tightens rather
+          than relaxes the draft figure. The committed anchor shows
+          reality inside 2.7% on every gated statistic of this
+          block.
+        demotion_disclosure: >-
+          Moving the runs-view c2st from gated to reported changes
+          the GEOMETRY-block verdicts of four of the nine committed
+          runs, disclosed here in full (per the amendment referee
+          round): the baseline (PR #40) geometry 0/5 -> 5/5 (its only
+          geometry failures were runs-view c2st), candidate 2 (PR
+          #43) 3/5 -> 5/5, candidate 3 (PR #44) 4/5 (seed 3 also
+          fails pairs c2st, which stays gated), candidate 7 (PR #55)
+          2/5 -> 5/5. NO committed run's overall gate-1 verdict
+          flips to pass: every one of the four still fails the
+          battery (baseline/c2/c3 on the autocorrelation ladder;
+          candidate 7 on the 10-year rung 3/5) and, under this
+          amendment, the benefit-space block (referee-verified:
+          baseline pooled Q0 +19.0, candidate 7 +9.3, vs reality
+          2.66 and the 5 band). Guard concentration, acknowledged:
+          after the demotion the anti-persistence duty rests on the
+          battery autocorrelation bands plus the pooled-Q0 benefit
+          band; across all nine committed runs the battery ladder
+          alone failed every persistence-broken candidate on 5/5
+          seeds, so the duty is carried by the block with the
+          strongest demonstrated bite.
+        anchor_artifact: runs/pia_proxy_floor_9822.json
+        scored_on: >-
+          the pairs-view candidate PIA-proxy panels per gate seed:
+          each seed's holdout persons pushed through the pinned
+          PIA-proxy functional (scripts/build_downstream_relevance.py),
+          candidate vs real, anchor-weighted; Q0 = zero anchor earnings
+          (seed-stable full-panel quintile edges).
+        metrics:
+          abs_mean_pct_diff_max:
+            value: 5
+            scope: per_seed
+            a_priori_source: amendment_5pct_criterion
+          abs_median_pct_diff_max:
+            value: 5
+            scope: per_seed
+            a_priori_source: amendment_5pct_criterion
+          decile_pct_diff_max:
+            value: 5
+            scope: per_seed
+            deciles_gated: [d3, d4, d5, d6, d7, d8, d9]
+            a_priori_source: amendment_5pct_criterion
+          weighted_ks_max:
+            value: 0.0599
+            scope: per_seed
+          abs_q0_mean_pct_diff_max:
+            value: 5
+            scope: pooled_across_seeds
+            a_priori_source: amendment_5pct_criterion
+        reported_not_gated:
+          - d1  # bottom decile: near-zero PIA-proxy denominator
+          - d2  # second decile: same denominator fragility (see note)
+        derivations:
+          # Machine-checkable, exactly like the locked geometry
+          # derivations: the KS band equals the committed real-vs-real
+          # anchor's mean + k*sd (tests/test_gates_derivations.py binds
+          # this). Only KS is floor-derived; the percent bands are the
+          # a-priori paper criterion (a_priori_source), not derived.
+          anchor_run: runs/pia_proxy_floor_9822.json
+          rules:
+            weighted_ks_max:
+              key: ks_distance
+              k: 4
+              rounding: 4
+        reported_not_gated_rationale: >-
+          d1 and d2 are denominator-fragile: at the bottom the
+          PIA-proxy is ~$290-500/mo, so ~$80-145 absolute differences
+          read as huge percents. The committed anchor
+          (runs/pia_proxy_floor_9822.json, decile_seeds_clipping_5pct)
+          shows the REAL-VS-REAL floor itself exceeds the +/-5% band on
+          5/5 seeds at d1 and 3/5 at d2 -- gating either would reject
+          reality. d1 was already flagged denominator-fragile in PR
+          #56; the new anchor extends the same finding to d2. d3-d9,
+          whose real-vs-real floor clips 0/5, are gated.
+        q0_gate_basis: >-
+          The Q0 gate is on the POOLED (across-seed mean) absolute
+          gap, not per-seed. The Q0 subgroup is ~900 persons/side with
+          near-zero denominators, so the per-seed real-vs-real Q0 floor
+          is noisy (reaches ~12.8% on one seed) and a per-seed 5% gate
+          would reject reality; the across-seed mean cancels that noise
+          (real is unbiased: |pooled| ~2.7%,
+          pooled_abs_q0_mean_pct_diff in the anchor) and cleanly
+          separates real from the candidate-7 residual (+9.30%). The
+          5% band is the a-priori paper criterion.
+        candidate_7_would_still_fail: >-
+          Under this proposed block candidate 7 FAILS: it passes the
+          seed-level central/decile/KS gates on all five seeds (its
+          benefit-space central gaps and KS are inside the noise
+          floor), but its pooled Q0 gap is +9.30% > 5. Adopting the
+          amendment does not retroactively pass the ninth run.
       protocol:
         seeds: [0, 1, 2, 3, 4]
         split: >-
@@ -280,245 +419,37 @@ gates:
           not to a pooled holdout, which the harness does not
           define (the five 20% draws overlap).
         pass_rule: >-
-          Seed-level conjunction. Seed s passes geometry iff every
-          locked threshold on every locked view holds at seed s;
-          seed s passes the battery iff every locked tolerance
-          holds at seed s. The gate passes iff at least 4 of 5
-          seeds pass geometry and at least 4 of 5 seeds pass the
-          battery.
-    amendment_proposed:
-      # PUBLIC AMENDMENT PROPOSAL under this file's amendment rule
-      # (header: "locked thresholds change only through a public
-      # amendment noted in this file's history"). This subsection is
-      # the amendment OBJECT: it PROPOSES changes and changes NOTHING.
-      # The locked `thresholds` block above is untouched (locked: true
-      # stays; every locked value is byte-identical). No model reads
-      # this subsection; the harness scores only the locked block.
-      #
-      # Status: proposed, pending (1) a FRESH adversarial referee round
-      # run against this proposal and (2) maintainer RATIFICATION by
-      # merge. Until that merge, this proposal is inert. Ratification
-      # would move these proposed lines into the locked block through a
-      # follow-up that flips them live, exactly as PR #33/#39 did for
-      # the original lock.
-      #
-      # Evidence chain (all reported-not-gated; none touched a gate):
-      # - PR #54 (C2ST forensics): at the locked pairs-view c2st ~0.547
-      #   the two best candidates fail through STRUCTURALLY DIFFERENT
-      #   defects at the same AUC; the classifier reads a window-3
-      #   texture coordinate, not a benefit-space divergence.
-      # - PR #55 (candidate 7, the ninth run): FAIL, geometry 2/5 and
-      #   battery 2/5; the best classifier scores of any candidate (first
-      #   to pull pairs-view c2st under threshold on all five seeds), but
-      #   the runs-view c2st and 10-year autocorrelation each clip 3/5.
-      # - PR #56 (downstream relevance): the candidate-7 residual mapped
-      #   into PIA-proxy benefit space. Central benefit gaps are small
-      #   (mean +1.85%, median +1.02%, both well inside the +/-5%
-      #   criterion) and the weighted KS 0.025 sits INSIDE the 0.028
-      #   real-vs-real noise floor; the ONE material miss is the Q0
-      #   zero-anchor-earnings subgroup at +9.30% (the progressive PIA
-      #   formula weights that corner most). runs/pia_proxy_floor_9822
-      #   .json is the real-vs-real anchor at deployment scale this
-      #   proposal cites.
-      #
-      # The two proposed changes below are a joint RECALIBRATION toward
-      # decision-relevance: move one benefit-immaterial classifier
-      # threshold to reported-not-gated, and ADD a benefit-space block
-      # that gates exactly where the evidence says the residual bites
-      # (Q0). Net strictness where it matters INCREASES; this is not a
-      # relaxation. See each change's rationale.
-      status: proposed_pending_referee_round_and_ratification
-      amendment_rule_reference: >-
-        gates.yaml header ("Numeric thresholds ... change only through
-        a public amendment noted in this file's history") and CLAUDE.md
-        ("gate-1 thresholds are locked ... and change only through a
-        public amendment plus a fresh referee round").
-      evidence_chain:
-        forensics_pr: 54
-        candidate_7_run_pr: 55
-        downstream_relevance_pr: 56
-        model_registry_issue: 42
-      changes:
-        - id: 1
-          title: >-
-            runs-view c2st_auc_max moves from gated to
-            reported-not-gated
-          type: move_to_reported_not_gated
-          target:
-            view: psid_family_earnings_runs
-            metric: c2st_auc_max
-            currently_locked_value: 0.54
-          proposed: reported_not_gated
-          rationale: >-
-            The window-3 runs-view c2st is the single threshold on which
-            candidate 7 clips (3/5 seeds), yet PR #56 shows that residual
-            is benefit-immaterial: pushed through the PIA-proxy the
-            candidate's KS (0.025) sits INSIDE the real-vs-real noise
-            floor (0.028) and its central percent gaps (mean +1.85%,
-            median +1.02%) are well within the +/-5% criterion. PR #54
-            attributes the runs-view signal to a window-3 TEXTURE
-            coordinate (a two-transition persistence-shape residual), not
-            a distributional divergence that reaches benefits. Gating a
-            benefit-immaterial texture residual makes the gate reject
-            faithful-in-benefit-space candidates for a defect that does
-            not propagate. It moves to reported-not-gated (still
-            published every run); the runs view was already annotated in
-            the lock as a SUPPORTING check (a chained one-period clone
-            straddles it), and the pre-registered guard for chained-model
-            persistence understatement is the battery's autocorrelation
-            and spell tolerances, which stay gated and fail such clones
-            5/5. The pairs-view c2st stays gated.
-        - id: 2
-          title: >-
-            add a gated benefit_space block scored on the candidate
-            PIA-proxy panels
-          type: add_gated_block
-          rationale: >-
-            The population-view geometry does not see the one place the
-            candidate-7 residual is benefit-material: the Q0
-            zero-anchor-earnings subgroup, +9.30% in PIA-proxy space (PR
-            #56), which the progressive 415(a) formula (90% replacement
-            below the first bend point) weights most. This block ADDS a
-            gate exactly there. It is recalibration toward
-            decision-relevance, NOT relaxation: candidate 7 passes every
-            population-view pairs threshold on all five seeds yet FAILS
-            this block on Q0, so the amendment nets MORE strictness where
-            the evidence says it matters. The percent bands are this
-            amendment's OWN proposal-time criterion (see
-            a_priori_source — the referee round corrected an earlier
-            misattribution to the paper); the KS band alone is derived
-            from the committed real-vs-real anchor (see derivations),
-            matching how the locked geometry thresholds derive from
-            their floors.
-          a_priori_source: >-
-            The +/-5% percent bands are ADOPTED BY THIS AMENDMENT at
-            proposal time (2026-07-06), before any candidate was scored
-            against them. Provenance, stated exactly: the 5% figure
-            originates in the project's DRAFT Phase-1 acceptance tables
-            ("AIME distribution for retired workers ... within 5
-            percent on key percentiles",
-            docs/operationalizing-longitudinal-construction.md and
-            docs/evaluation-and-model-selection.md), which are draft
-            design documents in AIME units; the paper itself carries no
-            such criterion (an earlier draft of this subsection
-            misattributed it — corrected per the amendment referee
-            round, PR #57 review). Because the PIA formula is concave,
-            a 5% band in PIA-proxy space is STRICTER than the draft
-            tables' 5% in AIME space (roughly 7-9% AIME-equivalent at
-            the 2022 bend points), so adopting 5% here tightens rather
-            than relaxes the draft figure. The committed anchor shows
-            reality inside 2.7% on every gated statistic of this
-            block.
-          demotion_disclosure: >-
-            Moving the runs-view c2st from gated to reported changes
-            the GEOMETRY-block verdicts of four of the nine committed
-            runs, disclosed here in full (per the amendment referee
-            round): the baseline (PR #40) geometry 0/5 -> 5/5 (its only
-            geometry failures were runs-view c2st), candidate 2 (PR
-            #43) 3/5 -> 5/5, candidate 3 (PR #44) 4/5 (seed 3 also
-            fails pairs c2st, which stays gated), candidate 7 (PR #55)
-            2/5 -> 5/5. NO committed run's overall gate-1 verdict
-            flips to pass: every one of the four still fails the
-            battery (baseline/c2/c3 on the autocorrelation ladder;
-            candidate 7 on the 10-year rung 3/5) and, under this
-            amendment, the benefit-space block (referee-verified:
-            baseline pooled Q0 +19.0, candidate 7 +9.3, vs reality
-            2.66 and the 5 band). Guard concentration, acknowledged:
-            after the demotion the anti-persistence duty rests on the
-            battery autocorrelation bands plus the pooled-Q0 benefit
-            band; across all nine committed runs the battery ladder
-            alone failed every persistence-broken candidate on 5/5
-            seeds, so the duty is carried by the block with the
-            strongest demonstrated bite.
-          anchor_artifact: runs/pia_proxy_floor_9822.json
-          scored_on: >-
-            the pairs-view candidate PIA-proxy panels per gate seed:
-            each seed's holdout persons pushed through the pinned
-            PIA-proxy functional (scripts/build_downstream_relevance.py),
-            candidate vs real, anchor-weighted; Q0 = zero anchor earnings
-            (seed-stable full-panel quintile edges).
-          metrics:
-            abs_mean_pct_diff_max:
-              value: 5
-              scope: per_seed
-              a_priori_source: amendment_5pct_criterion
-            abs_median_pct_diff_max:
-              value: 5
-              scope: per_seed
-              a_priori_source: amendment_5pct_criterion
-            decile_pct_diff_max:
-              value: 5
-              scope: per_seed
-              deciles_gated: [d3, d4, d5, d6, d7, d8, d9]
-              a_priori_source: amendment_5pct_criterion
-            weighted_ks_max:
-              value: 0.0599
-              scope: per_seed
-            abs_q0_mean_pct_diff_max:
-              value: 5
-              scope: pooled_across_seeds
-              a_priori_source: amendment_5pct_criterion
-          reported_not_gated:
-            - d1  # bottom decile: near-zero PIA-proxy denominator
-            - d2  # second decile: same denominator fragility (see note)
-          derivations:
-            # Machine-checkable, exactly like the locked geometry
-            # derivations: the KS band equals the committed real-vs-real
-            # anchor's mean + k*sd (tests/test_gates_derivations.py binds
-            # this). Only KS is floor-derived; the percent bands are the
-            # a-priori paper criterion (a_priori_source), not derived.
-            anchor_run: runs/pia_proxy_floor_9822.json
-            rules:
-              weighted_ks_max:
-                key: ks_distance
-                k: 4
-                rounding: 4
-          reported_not_gated_rationale: >-
-            d1 and d2 are denominator-fragile: at the bottom the
-            PIA-proxy is ~$290-500/mo, so ~$80-145 absolute differences
-            read as huge percents. The committed anchor
-            (runs/pia_proxy_floor_9822.json, decile_seeds_clipping_5pct)
-            shows the REAL-VS-REAL floor itself exceeds the +/-5% band on
-            5/5 seeds at d1 and 3/5 at d2 -- gating either would reject
-            reality. d1 was already flagged denominator-fragile in PR
-            #56; the new anchor extends the same finding to d2. d3-d9,
-            whose real-vs-real floor clips 0/5, are gated.
-          q0_gate_basis: >-
-            The Q0 gate is on the POOLED (across-seed mean) absolute
-            gap, not per-seed. The Q0 subgroup is ~900 persons/side with
-            near-zero denominators, so the per-seed real-vs-real Q0 floor
-            is noisy (reaches ~12.8% on one seed) and a per-seed 5% gate
-            would reject reality; the across-seed mean cancels that noise
-            (real is unbiased: |pooled| ~2.7%,
-            pooled_abs_q0_mean_pct_diff in the anchor) and cleanly
-            separates real from the candidate-7 residual (+9.30%). The
-            5% band is the a-priori paper criterion.
-          candidate_7_would_still_fail: >-
-            Under this proposed block candidate 7 FAILS: it passes the
-            seed-level central/decile/KS gates on all five seeds (its
-            benefit-space central gaps and KS are inside the noise
-            floor), but its pooled Q0 gap is +9.30% > 5. Adopting the
-            amendment does not retroactively pass the ninth run.
-      pass_rule: >-
-        Proposed benefit_space verdict, folded into the existing
-        seed-level geometry conjunction: seed s passes benefit_space
-        iff every per-seed gated metric (abs mean %, abs median %, each
-        gated decile d3-d9 %, weighted KS) holds at seed s, AND the
-        pooled Q0 gate (abs pooled-mean Q0 % <= 5) holds across seeds;
-        the block passes iff at least 4 of 5 seeds pass the per-seed
-        metrics AND the pooled Q0 gate holds. Combined with change 1, a
-        seed passes gate-1 geometry iff every remaining locked geometry
-        threshold AND every per-seed benefit_space metric hold at that
-        seed; the gate passes iff >= 4 of 5 seeds pass geometry, >= 4
-        of 5 pass the battery, and the pooled Q0 gate holds.
-      validation_note: >-
-        Discriminator check on committed evidence (real-vs-real anchor
-        runs/pia_proxy_floor_9822.json vs candidate-7
-        runs/downstream_relevance_c7_v1.json): real-vs-real PASSES this
-        block (seed-level 5/5; pooled |Q0| 2.66% <= 5) and candidate 7
-        FAILS it (pooled |Q0| 9.30% > 5). A proposed gate that passes
-        reality and fails the ninth run is a valid discriminator; a
-        fresh referee round must confirm this.
+          Seed-level conjunction, as amended 2026-07-06. Seed s
+          passes geometry iff every locked geometry threshold on
+          every locked view holds at seed s AND every per-seed
+          benefit_space metric (abs mean %, abs median %, each
+          gated decile d3-d9 %, weighted KS) holds at seed s; seed
+          s passes the battery iff every locked tolerance holds at
+          seed s. The gate passes iff at least 4 of 5 seeds pass
+          geometry, at least 4 of 5 seeds pass the battery, AND
+          the pooled Q0 gate of the benefit_space block (abs
+          pooled-mean Q0 % <= 5 across seeds) holds.
+    amendment_history:
+      - id: 2026-07-06-decision-relevant-recalibration
+        proposed: 2026-07-06
+        referee_round:
+          review: PR 57 comment 4898105589 (verdict AMEND, two
+            text-level findings)
+          fixes: d02cdf5
+          verification: PR 57 comment 4898186646 (verdict RATIFY
+            AS-IS)
+        ratified: 2026-07-06 by maintainer merge of PR 57 (merge
+          commit 0c324a71)
+        flipped_live: this pull request
+        content: >-
+          Runs-view c2st_auc moved from gated to reported-not-gated
+          (disclosure retained in the benefit_space block); a gated
+          benefit_space block added to the locked thresholds (the
+          block itself, its metrics, derivations, provenance, and
+          disclosures now live under thresholds.benefit_space).
+          Evidence chain: PR 54 (forensics), PR 55 (candidate 7),
+          PR 56 (downstream relevance), anchor artifact
+          runs/pia_proxy_floor_9822.json.
   gate_2:
     name: family and benefit outputs
     description: >-

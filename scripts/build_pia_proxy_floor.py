@@ -1,7 +1,7 @@
 """Build the PIA-proxy anchor floor: real-vs-real at deployment scale.
 
 This artifact is the empirical anchor the gate-1 amendment proposal
-(:mod:`gates.yaml`, ``gate_1.thresholds.amendment_proposed``) cites for
+(:mod:`gates.yaml`, ``gate_1.thresholds.benefit_space (ratified amendment)``) cites for
 the KS threshold of the proposed ``benefit_space`` block. It answers one
 question: how far apart do two independent real PSID samples look in
 PIA-proxy space, at the deployment scale a Social Security analysis
@@ -272,7 +272,7 @@ def pool_floor(rows: list[dict[str, Any]]) -> dict[str, Any]:
     # gap cancels that noise (real is unbiased) and cleanly separates real
     # (|pooled| ~2.7%) from the candidate-7 residual (+9.3%). The proposed
     # Q0 gate is therefore on this pooled magnitude, at the a-priori 5%
-    # band -- see gates.yaml gate_1.thresholds.amendment_proposed.
+    # band -- see gates.yaml gate_1.thresholds.benefit_space (ratified amendment).
     pooled_abs_q0 = abs(float(np.mean(q0_signed))) if q0_signed else 0.0
 
     return {
