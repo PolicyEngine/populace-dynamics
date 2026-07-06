@@ -473,6 +473,115 @@ validation and cohort tables; what outsiders cannot do is rerun the
 pipeline, vary its assumptions, or audit the intermediate states
 behind the published numbers.
 
+# Gate 1 in practice: the first pre-registered runs {#sec-gate1}
+
+The protocol of @sec-scoring stopped being a design in July 2026.
+This section reports what it produced: a locked gate, five
+registered model runs, and the findings the failures purchased.
+Every number below recomputes from committed artifacts in the
+project repository; the run log lives in the repository's pull
+requests and the candidate registry in
+[issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42).
+
+## The lock
+
+Gate 1 — earnings-history credibility — locked on 2026-07-05.
+Thresholds derive from committed noise-floor artifacts measured at
+the scale the protocol scores at (two disjoint 20%-of-persons
+samples of the PSID family earnings panel scored against each
+other), with every derivation stated as floor mean plus a named
+multiple of the floor's seed standard deviation and enforced by a
+test: a floor rebuild that shifts any artifact fails continuous
+integration rather than silently orphaning the rationale. Before
+ratification the proposed thresholds went through three rounds of
+adversarial review, published in full on the ratification pull
+request. Round one found that the proposed numbers did not follow
+their own stated rule and were calibrated against a floor at five
+times deployment scale; round two found the same wrong-scale defect
+reintroduced on a second view and demonstrated that no window-2
+statistic can catch a chained one-period model, forcing the
+persistence guard onto the battery's long-horizon autocorrelation
+bands; round three verified the amendments and ratified. The merge
+of the ratification pull request is the lock event; the thresholds
+have not changed since, and any change requires a public amendment
+and a fresh review round.
+
+## Five runs, four failures, and what they isolated
+
+Each candidate registers its complete specification — every
+modeling degree of freedom pinned — before its single scored run.
+The log autocorrelation ladder at 2, 4, and 10 years (locked bands
+0.730±0.05, 0.657±0.06, 0.539±0.07) tells most of the story:
+
+| candidate | 2yr | 4yr | 10yr | verdict |
+|---|---|---|---|---|
+| chained weighted QRF (baseline) | 0.726 | 0.573 | 0.333 | fail |
+| + person effect as feature | 0.726 | 0.688 | 0.649 | fail |
+| + persistence-aware decomposition | 0.722 | 0.695 | 0.647 | fail |
+| structural three-component assembly | 0.464 | 0.401 | 0.354 | fail |
+| donor splicing (registered) | — | — | — | pending |
+
+The baseline failed exactly where the pre-lock review predicted a
+one-step chain must: window-2 geometry passed on every seed while
+the 10-year autocorrelation collapsed toward the Markov value. The
+second and third candidates added a latent person effect as a
+conditioning feature — first from a naive variance decomposition,
+then from a persistence-aware one that halved the drawn variance —
+and produced statistically identical ladders. That invariance is
+the program's sharpest finding to date: a quantile forest rescales
+its response to a person-effect feature inversely to the feature's
+scale, so conditional-draw generation transmits the raw
+within-panel person-mean variance share (0.647 on the training
+splits, inflated by transitory persistence over few biennial
+observations) no matter how the feature is constructed. No
+feature-side dial can set person-level variance. The fourth
+candidate set the variance structurally — assembling log earnings
+from an age profile, a person effect drawn at the decomposed
+permanent variance, a chained transitory component, and an
+observation-noise layer — and the variance landed as designed while
+the marginal distribution broke: parametric lognormal assembly
+inflated levels where the earlier candidates had inherited the
+data's marginal from empirical conditional draws by construction.
+
+The symmetry across the four failures defines the remaining design
+problem. Conditional-draw candidates preserve the marginal but
+cannot set person-level variance; the structural candidate set the
+variance and lost the marginal. The data demand both at once. The
+fifth registered candidate is the field's standard answer — donor
+splicing, the strategy of the Social Security Administration's MINT
+model, which inherits marginal and person-level dependence together
+by reusing whole observed careers — run as a benchmark the
+generative track must beat on conditioning flexibility. The
+generative track's next design combines empirical quantile
+marginals with persistent dynamics in rank space, with innovation
+dispersion calibrated so iterated — not one-step — dynamics match
+the data's ladder [@arellanoblundellbonhomme2017; @guvenen2021].
+
+Two auxiliary results harden the target. Excluding every
+PSID observation carrying an income-assignment flag (8.7% of
+positive-earnings person-periods overall, rising to 14–18% in the
+2020 and 2022 waves) moves the 10-year reference by +0.012 —
+survey imputation does not explain the gap the candidates must
+close. And the statutory-resolution surface of @sec-scoring
+produced its first artifact: the project's Python benefit oracle
+and the Axiom rules engine compute identical primary insurance
+amounts — 240 of 240 synthetic careers exact to the cent, both
+code paths pinned by revision — after the cross-engine comparison
+surfaced and fixed a statutory off-by-one in the elapsed-year
+count and a rounding-direction error in a test fixture that no
+single-engine test had caught.
+
+## What failure buys
+
+Four failed runs in one week is the protocol working as designed.
+Each failure published with the same prominence as a pass would,
+each narrowed the design space with a finding that transfers beyond
+this project, and none required trusting the authors: the
+registrations predate the runs, the artifacts recompute, and the
+thresholds cannot drift to accommodate a result. The contrast with
+validation by fidelity — where a model meets the tables it was fit
+to and the first hard test arrives after adoption — is the point.
+
 # Related work {#sec-related}
 
 Dynamic microsimulation originates with @orcutt1961; @li2013 survey
