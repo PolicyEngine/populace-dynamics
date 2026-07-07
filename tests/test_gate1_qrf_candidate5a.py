@@ -1,18 +1,23 @@
-"""Tests for the gate-1 candidate-2 latent-permanent chained-QRF run.
+"""Tests for the gate-1 candidate-5a MINT-style donor-splicing run.
 
-Mirrors the baseline run's tests (``test_gate1_qrf_baseline``):
+Mirrors the prior runs' tests (``test_gate1_qrf_candidate4`` and its
+predecessors), adapted for a DETERMINISTIC candidate that fits no model
+and needs no populace-fit:
 
-* :func:`test_seed0_reproduces_committed_artifact` (skipped when the
-  PSID family files are absent AND when populace-fit is not importable —
-  the dedicated-venv pattern, since populace-fit pins scikit-learn < 1.9)
-  reruns seed 0 through the runner's stages and pins the committed
-  artifact's seed-0 geometry and battery values to float precision — the
-  run is reproducible from the seeds alone.
-* The always-runnable consistency tests touch only the committed
-  artifact and ``gates.yaml``: every reported pass/fail recomputes from
-  its own stored score against its stored threshold, the stored
-  thresholds equal the locked ones in ``gates.yaml``, and the gate
-  verdict recomputes from the seed-conjunction table.
+* :func:`test_seed0_reproduces_committed_artifact` (skipped when the PSID
+  family files are absent) reruns seed 0 through the candidate-5a
+  matching + splicing and pins the committed artifact's seed-0 splice
+  diagnostics, geometry, and battery values to float precision. There is
+  NO populace-fit gate on this test -- candidate 5a is fully
+  deterministic donor matching + splicing under the repo ``.venv`` -- and
+  no populace-fit importorskip, per the frozen spec (the gate seed enters
+  only through the split).
+* The always-runnable consistency tests touch only the committed artifact
+  and ``gates.yaml``: every reported pass/fail recomputes from its own
+  stored score against its stored threshold, the stored thresholds equal
+  the locked ones in ``gates.yaml``, the gate verdict recomputes from the
+  seed-conjunction table, and the splice diagnostics are
+  reported-not-gated.
 """
 
 from __future__ import annotations
@@ -25,13 +30,18 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ARTIFACT = ROOT / "runs" / "gate1_qrf_latent_perm_v1.json"
+ARTIFACT = ROOT / "runs" / "gate1_splice_v1.json"
 SCRIPTS = ROOT / "scripts"
 
 REAL_DATA = Path("~/PolicyEngine/psid-data").expanduser()
 needs_real_family = pytest.mark.skipif(
     not (REAL_DATA / "family" / "2023").is_dir(),
     reason="PSID family files not staged",
+)
+
+SPEC_URL = (
+    "https://github.com/PolicyEngine/populace-dynamics/issues/42"
+    "#issuecomment-4891949761"
 )
 
 
@@ -45,19 +55,19 @@ def _gate1_thresholds() -> dict:
 
 
 # --------------------------------------------------------------------------
-# Reproduction (needs the staged PSID family files AND populace-fit)
+# Reproduction (needs the staged PSID family files; NO populace-fit needed)
 # --------------------------------------------------------------------------
 @needs_real_family
 def test_seed0_reproduces_committed_artifact():
-    """Rerun seed 0 and match the committed artifact to float precision."""
-    pytest.importorskip(
-        "populace.fit",
-        reason="populace-fit not installed (it pins scikit-learn<1.9, "
-        "so gate runs use a dedicated venv)",
-    )
+    """Rerun seed 0 and match the committed artifact to float precision.
+
+    Candidate 5a is deterministic (no RNG, no model fit, no populace-fit),
+    so seed 0 must reproduce exactly under the repo ``.venv``. The gate
+    seed enters only through ``split_holdout_train``.
+    """
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
-    import run_gate1_candidate2 as runner
+    import run_gate1_candidate5a as runner
 
     artifact = _artifact()
     seed0 = next(s for s in artifact["per_seed"] if s["seed"] == 0)
@@ -75,40 +85,13 @@ def test_seed0_reproduces_committed_artifact():
 
     # Anchors on the full filtered panel, sliced per split.
     all_anchor = runner.anchor_rows(panel)
-    train_ids = train["person_id"].unique()
-    holdout_ids = holdout["person_id"].unique()
-    train_anchor = all_anchor[all_anchor.person_id.isin(train_ids)]
-    holdout_anchor = all_anchor[all_anchor.person_id.isin(holdout_ids)]
-
-    # Stage 0-1: residualize, MoM lambda, empirical-Bayes person effects.
-    beta = runner.fit_age_residualizer(train)
-    resid_train = runner.add_residuals(train, beta)
-    resid_pos = resid_train.loc[resid_train["is_pos"], ["person_id", "r"]]
-    mom = runner.method_of_moments_lambda(resid_pos)
-    assert mom["lambda"] == pytest.approx(seed0["lambda"], rel=0, abs=1e-9)
-    perm_train = runner.person_effects(resid_pos, mom["lambda"], train_ids)
-
-    # Stage 2: fit P(perm | anchor), draw holdout perms.
-    perm_model = runner.fit_perm_model(train_anchor, perm_train, 0)
-    holdout_perm = runner.draw_holdout_perm(perm_model, holdout_anchor)
-
-    # Stage 3: perm-conditioned backward chain.
-    pairs = runner.build_backward_pairs_with_perm(train, perm_train)
-    assert int(len(pairs)) == seed0["n_train_pairs"]
-    fitted = runner.fit_backward_model_with_perm(pairs, 0)
-    candidate = runner.generate_candidate_with_perm(
-        fitted, holdout, holdout_perm
+    candidate, diagnostics = runner.generate_candidate(
+        holdout, train, all_anchor
     )
 
-    # Perm-share diagnostic reproduces.
-    diag = runner.perm_share_diagnostic(
-        beta, train, holdout_perm, holdout_anchor, mom
-    )
-    stored_diag = seed0["perm_share_diagnostic"]
-    for key, stored_value in stored_diag.items():
-        assert diag[key] == pytest.approx(
-            stored_value, rel=0, abs=1e-9
-        ), f"perm-share {key}: {diag[key]} != {stored_value}"
+    # Splice diagnostics reproduce exactly (deterministic). JSON coerces
+    # integer dict keys to strings, so compare through a round-trip.
+    assert json.loads(json.dumps(diagnostics)) == seed0["splice_diagnostics"]
 
     # Geometry: rescore both locked views and match every stored score.
     views_cfg = _gate1_thresholds()["views"]
@@ -145,12 +128,75 @@ def test_seed0_reproduces_committed_artifact():
         ), f"battery {stat}: {battery[stat]} != {stored_value}"
 
 
+@needs_real_family
+def test_candidate_is_deterministic_and_pins_the_panel():
+    """Two generations agree bit-for-bit; the candidate panel is pinned.
+
+    The candidate holds exactly the holdout persons on exactly their
+    observed periods (only earnings generated); the anchor keeps its real
+    value. Both are structural guarantees of the frozen spec, so they are
+    checked directly (no populace-fit needed).
+    """
+    if str(SCRIPTS) not in sys.path:
+        sys.path.insert(0, str(SCRIPTS))
+    import numpy as np
+    import run_gate1_candidate5a as runner
+
+    panel = runner.load_filtered_panel()
+    all_anchor = runner.anchor_rows(panel)
+    holdout, train = runner.split_holdout_train(panel, 0)
+    # A subsample keeps the test quick while exercising the full path.
+    sub = np.sort(holdout.person_id.unique())[:400]
+    h = holdout[holdout.person_id.isin(sub)].copy()
+
+    c1, d1 = runner.generate_candidate(h, train, all_anchor)
+    c2, d2 = runner.generate_candidate(h, train, all_anchor)
+    c1s = c1.sort_values(["person_id", "period"]).reset_index(drop=True)
+    c2s = c2.sort_values(["person_id", "period"]).reset_index(drop=True)
+    assert (c1s["earnings"].values == c2s["earnings"].values).all()
+    assert d1 == d2
+
+    # Panel pin: same rows, same person/period/age/weight as the holdout.
+    hs = h.sort_values(["person_id", "period"]).reset_index(drop=True)
+    assert (c1s["person_id"].values == hs["person_id"].values).all()
+    assert (c1s["period"].values == hs["period"].values).all()
+    assert (c1s["age"].values == hs["age"].values).all()
+    assert np.allclose(c1s["weight"].values, hs["weight"].values)
+
+    # Anchor kept at its real value.
+    anc = all_anchor[all_anchor.person_id.isin(sub)]
+    merged = anc.merge(
+        c1s, on=["person_id", "period"], suffixes=("_real", "_gen")
+    )
+    assert np.allclose(merged["earnings_real"], merged["earnings_gen"])
+
+
+@needs_real_family
+def test_nearest_age_fallback_ties_break_to_younger():
+    """The nearest-observed-age rule breaks age ties toward the younger."""
+    if str(SCRIPTS) not in sys.path:
+        sys.path.insert(0, str(SCRIPTS))
+    import numpy as np
+    import run_gate1_candidate5a as runner
+
+    ages = np.array([25.0, 27.0, 29.0])
+    earn = np.array([100.0, 200.0, 300.0])
+    # Equidistant between 25 and 27 -> younger (25).
+    assert runner.donor_earnings_at_age(ages, earn, 26.0) == (100.0, True)
+    # Equidistant between 27 and 29 -> younger (27).
+    assert runner.donor_earnings_at_age(ages, earn, 28.0) == (200.0, True)
+    # Exact age hit -> no fallback.
+    assert runner.donor_earnings_at_age(ages, earn, 27.0) == (200.0, False)
+    # Beyond the observed range -> nearest end, fallback.
+    assert runner.donor_earnings_at_age(ages, earn, 40.0) == (300.0, True)
+
+
 # --------------------------------------------------------------------------
 # Internal consistency (always runnable; committed files only)
 # --------------------------------------------------------------------------
 def test_artifact_present_and_locked():
     artifact = _artifact()
-    assert artifact["schema_version"] == "gate1_qrf_latent_perm.v1"
+    assert artifact["schema_version"] == "gate1_splice.v1"
     assert artifact["gate"] == "gate_1"
     assert artifact["revision_pins"]["gates_yaml_locked"] is True
     assert _gate1_thresholds()["locked"] is True
@@ -158,11 +204,14 @@ def test_artifact_present_and_locked():
 
 def test_spec_registration_recorded():
     """The frozen-spec issue-comment URL is carried in the artifact."""
-    artifact = _artifact()
-    assert artifact["spec_registration"] == (
-        "https://github.com/PolicyEngine/populace-dynamics/issues/42"
-        "#issuecomment-4886538087"
-    )
+    assert _artifact()["spec_registration"] == SPEC_URL
+
+
+def test_candidate_uses_no_populace_fit():
+    """The artifact attests the deterministic, no-populace-fit design."""
+    model = _artifact()["model"]
+    assert model["stochastic"] is False
+    assert model["populace_fit_used"] is False
 
 
 def test_battery_reference_reproduced_exactly_in_artifact():
@@ -200,13 +249,9 @@ def test_stored_thresholds_match_locked_gates_yaml():
         for k, v in _gate1_thresholds()["battery"].items()
         if k.endswith("_tolerance")
     }
-    alias = {"mobility_diagonal": "mobility_diagonal"}
     for seed in artifact["per_seed"]:
         for stat, chk in seed["battery_checks"].items():
-            locked_stat = alias.get(stat, stat)
-            assert chk["tolerance"] == pytest.approx(
-                battery_tol[locked_stat], abs=0
-            )
+            assert chk["tolerance"] == pytest.approx(battery_tol[stat], abs=0)
 
 
 def _recompute_geometry_pass(check: dict) -> bool:
@@ -301,12 +346,12 @@ def test_verdict_recomputes_from_seed_conjunction():
 
 
 def test_candidate_panel_pin_metadata_consistent():
-    """Each seed's candidate window counts equal the holdout window counts.
+    """Each seed's window counts are positive and pairs >= runs.
 
     The candidate panel holds exactly the holdout persons on exactly
-    their observed periods, so its projected window counts are a
-    property of the holdout support; the stored counts are recorded per
-    view and must be positive and consistent with the person count.
+    their observed periods, so its projected window counts are a property
+    of the holdout support; the stored counts are recorded per view and
+    must be positive and consistent with the person count.
     """
     for seed in _artifact()["per_seed"]:
         assert seed["n_persons"] > 0
@@ -324,30 +369,69 @@ def test_candidate_panel_pin_metadata_consistent():
         )
 
 
-def test_perm_share_context_consistent_and_reported_not_gated():
-    """The perm-share diagnostics are recorded per seed and not gated.
+def test_splice_diagnostics_reported_not_gated_and_consistent():
+    """The splice diagnostics are recorded per seed and never gated.
 
-    Every seed carries a MoM lambda and a measured perm share; the
-    top-level context block mirrors the per-seed diagnostics and records
-    the memo's 0.467 back-out. These are context only — they never enter
-    the geometry or battery pass/fail, and the verdict rule names only
-    those two families.
+    Each seed carries an age-window-widening distribution, a nearest-age
+    fallback rate, a scaling-clip rate, and a donor-reuse distribution.
+    The top-level context block mirrors the per-seed diagnostics. None of
+    them enters the geometry or battery pass/fail; the verdict rule names
+    only those two families.
     """
     artifact = _artifact()
-    ctx = artifact["perm_share_context"]
-    assert ctx["memo_backout_perm_share"] == pytest.approx(0.467, abs=0)
+    ctx = artifact["splice_diagnostics_context"]
     by_seed = {s["seed"]: s for s in artifact["per_seed"]}
     for row in ctx["per_seed"]:
-        seed = by_seed[row["seed"]]
-        diag = seed["perm_share_diagnostic"]
-        assert row["lambda"] == pytest.approx(seed["lambda"], abs=0)
-        assert row["perm_share"] == pytest.approx(diag["perm_share"], abs=0)
-        assert row["mom_perm_share"] == pytest.approx(
-            diag["mom_perm_share"], abs=0
+        diag = by_seed[row["seed"]]["splice_diagnostics"]
+        assert row["age_window_widening"] == diag["age_window_widening"]
+        assert row["nearest_age_fallback_rate"] == pytest.approx(
+            diag["nearest_age_fallback"]["rate"], abs=0
         )
-        assert diag["memo_backout_perm_share"] == pytest.approx(0.467, abs=0)
+        assert row["scaling_clip_rate_over_holdout"] == pytest.approx(
+            diag["scaling_clip"]["rate_over_holdout"], abs=0
+        )
+        assert row["donor_reuse"] == diag["donor_reuse"]
+
+    # Internal arithmetic of each diagnostic is self-consistent.
+    for seed in artifact["per_seed"]:
+        diag = seed["splice_diagnostics"]
+        n = diag["n_holdout_persons"]
+        assert n == seed["n_persons"]
+
+        fb = diag["nearest_age_fallback"]
+        assert (
+            0 <= fb["n_fallback_observations"] <= fb["n_spliced_observations"]
+        )
+        if fb["n_spliced_observations"] > 0:
+            assert fb["rate"] == pytest.approx(
+                fb["n_fallback_observations"] / fb["n_spliced_observations"],
+                abs=1e-12,
+            )
+
+        sc = diag["scaling_clip"]
+        assert 0 <= sc["n_clipped_persons"] <= sc["n_scaled_persons"] <= n
+        if sc["n_scaled_persons"] > 0:
+            assert sc["rate_over_scaled"] == pytest.approx(
+                sc["n_clipped_persons"] / sc["n_scaled_persons"], abs=1e-12
+            )
+        assert sc["clip_bounds"] == [0.2, 5.0]
+
+        reuse = diag["donor_reuse"]
+        # Every holdout person has exactly one matched donor, so the
+        # reuse counts partition the holdout persons.
+        total = sum(
+            int(k) * v for k, v in reuse["reuse_count_distribution"].items()
+        )
+        assert total == n
+        assert reuse["n_distinct_donors"] == sum(
+            reuse["reuse_count_distribution"].values()
+        )
+
+        widen = diag["age_window_widening"]
+        assert sum(widen["distribution"].values()) == n
+
     # The gate rule is the seed-level conjunction over geometry AND
-    # battery only; the perm share is nowhere in it.
+    # battery only; no splice diagnostic is in it.
     assert artifact["verdict"]["rule"] == (
         ">=4/5 seeds geometry AND >=4/5 seeds battery"
     )

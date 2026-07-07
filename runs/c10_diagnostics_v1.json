@@ -1,0 +1,1515 @@
+{
+  "schema_version": "c10_diagnostics.v1",
+  "run": "c10_diagnostics_v1",
+  "reported_not_gated": true,
+  "candidate": "gate-1 candidate 10 (run 12, PR #64)",
+  "diagnostic_1_seed_extension": {
+    "what_this_is": "MEASUREMENT of the committed candidate 10 (run 12, PR #64) on protocol-identical splits at seeds beyond the pre-registered 0-4. NOT a gate run: the locked gate's seeds and verdict (runs/gate1_rank_knn_v4.json, gate_1_pass=False, 3/5 geometry) are untouched; no seed here enters any pass/fail. The focal number is the pairs-view c2st_auc, the single gated geometry threshold the near-miss failed.",
+    "candidate_spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4902561460",
+    "committed_gate_artifact": "runs/gate1_rank_knn_v4.json",
+    "committed_floor_artifact": "runs/noise_floor_psid_family_ctx20_9822.json",
+    "pairs_c2st_threshold": 0.53,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "n_committed": 5,
+    "n_fresh": 15,
+    "per_seed": [
+      {
+        "seed": 0,
+        "source": "committed (gate seeds 0-4)",
+        "candidate_pairs_c2st": 0.5315039453161079,
+        "floor_pairs_c2st": 0.5157879146508975,
+        "excess_over_floor": 0.015716030665210434,
+        "candidate_over_threshold": true
+      },
+      {
+        "seed": 1,
+        "source": "committed (gate seeds 0-4)",
+        "candidate_pairs_c2st": 0.5330392049688699,
+        "floor_pairs_c2st": 0.5063309022388951,
+        "excess_over_floor": 0.02670830272997482,
+        "candidate_over_threshold": true
+      },
+      {
+        "seed": 2,
+        "source": "committed (gate seeds 0-4)",
+        "candidate_pairs_c2st": 0.5243776409851972,
+        "floor_pairs_c2st": 0.5148259624107501,
+        "excess_over_floor": 0.009551678574447164,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 3,
+        "source": "committed (gate seeds 0-4)",
+        "candidate_pairs_c2st": 0.5260230398945728,
+        "floor_pairs_c2st": 0.5046042377579345,
+        "excess_over_floor": 0.02141880213663827,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 4,
+        "source": "committed (gate seeds 0-4)",
+        "candidate_pairs_c2st": 0.5244221289062465,
+        "floor_pairs_c2st": 0.5114897967977822,
+        "excess_over_floor": 0.01293233210846434,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 5,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5275000951296234,
+        "floor_pairs_c2st": 0.5049823254795852,
+        "excess_over_floor": 0.022517769650038155,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 6,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.524982121828563,
+        "floor_pairs_c2st": 0.5100989166186372,
+        "excess_over_floor": 0.01488320520992581,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 7,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5254589153945526,
+        "floor_pairs_c2st": 0.5146135660566256,
+        "excess_over_floor": 0.010845349337927024,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 8,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5238482400790027,
+        "floor_pairs_c2st": 0.513490239618705,
+        "excess_over_floor": 0.010358000460297667,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 9,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5196859888756766,
+        "floor_pairs_c2st": 0.5224677003060025,
+        "excess_over_floor": -0.002781711430325906,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 10,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5250663575842706,
+        "floor_pairs_c2st": 0.5070673436621889,
+        "excess_over_floor": 0.017999013922081697,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 11,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5055748378184168,
+        "floor_pairs_c2st": 0.509281510573586,
+        "excess_over_floor": -0.003706672755169116,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 12,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.520722999390791,
+        "floor_pairs_c2st": 0.5099457919214658,
+        "excess_over_floor": 0.0107772074693252,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 13,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5226491093587059,
+        "floor_pairs_c2st": 0.500131549196914,
+        "excess_over_floor": 0.02251756016179185,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 14,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5225012175002318,
+        "floor_pairs_c2st": 0.5051294688882114,
+        "excess_over_floor": 0.0173717486120204,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 15,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5142057474342153,
+        "floor_pairs_c2st": 0.5091089524296709,
+        "excess_over_floor": 0.005096795004544408,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 16,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5274941777284258,
+        "floor_pairs_c2st": 0.5126716466515359,
+        "excess_over_floor": 0.014822531076889911,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 17,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5265948350586108,
+        "floor_pairs_c2st": 0.5171338508895774,
+        "excess_over_floor": 0.009460984169033404,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 18,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5227637825480113,
+        "floor_pairs_c2st": 0.5130608482688666,
+        "excess_over_floor": 0.009702934279144704,
+        "candidate_over_threshold": false
+      },
+      {
+        "seed": 19,
+        "source": "fresh",
+        "candidate_pairs_c2st": 0.5191133792058938,
+        "floor_pairs_c2st": 0.5171502058896589,
+        "excess_over_floor": 0.0019631733162349674,
+        "candidate_over_threshold": false
+      }
+    ],
+    "candidate_c2st_distribution": {
+      "n": 20,
+      "mean": 0.5233763882502994,
+      "sd": 0.005913144616719785,
+      "min": 0.5055748378184168,
+      "max": 0.5330392049688699
+    },
+    "floor_c2st_distribution": {
+      "n": 20,
+      "mean": 0.5109686365153745,
+      "sd": 0.005362951246988379,
+      "min": 0.500131549196914,
+      "max": 0.5224677003060025
+    },
+    "excess_over_floor_distribution": {
+      "n": 20,
+      "mean": 0.01240775173492476,
+      "sd": 0.008129218059733514,
+      "min": -0.003706672755169116,
+      "max": 0.02670830272997482,
+      "se_mean": 0.001817748418548308,
+      "mean_over_se": 6.825890540360833
+    },
+    "n_candidate_over_threshold": 2,
+    "clip_inference": {
+      "threshold": 0.53,
+      "n_seeds": 20,
+      "mean": 0.5233763882502994,
+      "sd": 0.005913144616719785,
+      "se_mean": 0.0013222193323772378,
+      "mean_minus_threshold": -0.006623611749700609,
+      "mean_below_threshold": true,
+      "margin_below_line_in_se": 5.009465213151829,
+      "prob_true_mean_below_threshold_one_sided": 0.9999997270925449,
+      "single_seed_clip_prob_parametric": 0.1313248222172026,
+      "single_seed_clip_prob_empirical": 0.1,
+      "n_seeds_over_threshold": 2,
+      "run12_outcome_prob_ge2_of_5_clip_parametric": 0.13147021803449538,
+      "run12_outcome_prob_ge2_of_5_clip_empirical": 0.08146,
+      "prob_le1_of_5_clip_parametric": 0.8685297819655047,
+      "prob_le1_of_5_clip_empirical": 0.91854,
+      "prob_le1_of_5_clip_note": "P(<=1 of 5 seeds over the line) is the pairs-C2ST condition for the geometry gate's >=4/5 rule; the OTHER geometry thresholds and the battery must also hold for a seed to pass."
+    },
+    "floor_provenance": {
+      "note": "The floor for EVERY seed here is recomputed under the GATE venv (.venv-gate) via the committed floor generator's construction (build_gate1_floor_artifacts ctx20), so it is matched to the candidate's classifier version -- required for a matched-noise excess. The committed ctx20 floor artifact was built under the plain .venv (scikit-learn 1.9.0, per build_gate1_floor_artifacts) and reproduces there exactly; but the C2ST HistGradientBoosting classifier is scikit-learn-version-sensitive, and the gate candidates require populace-fit, which pins scikit-learn <1.9, so they -- and this diagnostic -- run under .venv-gate (scikit-learn 1.8.0). Per-seed floor c2st therefore shifts ~+-0.002-0.006 between the versions (seed 0: 0.517505 under .venv vs 0.515788 under .venv-gate), though the floor MEAN is stable (~0.5109). The candidate-10 gate artifact (also .venv-gate) reproduces exactly, so candidate and this recomputed floor share one classifier version; the committed floor does not (it is the 1.9.0 value). This cross-venv mismatch between floor derivation (1.9.0) and gate scoring (1.8.0) is filed as a separate task; NOT changed here (the locked 0.53 threshold was derived from the 1.9.0 floor and moving it needs the amendment ceremony).",
+      "recompute_venv_sklearn": "1.8.0",
+      "committed_floor_venv_sklearn": "1.9.0 (.venv; per build_gate1_floor_artifacts)",
+      "committed_floor_seeds_0_4": {
+        "0": 0.5175048392363439,
+        "1": 0.5077230022987244,
+        "2": 0.5089995180753141,
+        "3": 0.5064609522436315,
+        "4": 0.5133388531004653
+      },
+      "recomputed_floor_seeds_0_4": {
+        "0": 0.5157879146508975,
+        "1": 0.5063309022388951,
+        "2": 0.5148259624107501,
+        "3": 0.5046042377579345,
+        "4": 0.5114897967977822
+      },
+      "seed_0_4_committed_minus_recomputed": {
+        "0": 0.0017169245854464776,
+        "1": 0.0013921000598292599,
+        "2": -0.0058264443354359985,
+        "3": 0.0018567144856970197,
+        "4": 0.001849056302683172
+      }
+    }
+  },
+  "diagnostic_2_microtexture_forensics": {
+    "what_this_is": "Microtexture forensics of the committed candidate 10 (run 12, PR #64) on the pairs view -- the binding gated geometry view (runs-view c2st is demoted). Regenerates the candidate at failing seeds 0,1 and passing seeds 2,4 and names what the gate's C2ST classifier reads, comparing failing vs passing. NOT a gate run.",
+    "reported_not_gated": true,
+    "holdout_contact": false,
+    "holdout_contact_note": "Every reported forensic value compares a candidate against that seed's TRAIN persons' real windows (or two train halves). The holdout is projected only in each seed's sanity anchor to prove the mirrored classifier equals the harness C2ST bit-for-bit; that check touches no locked threshold and makes no gate decision. gates.yaml and committed runs/ artifacts are untouched (the PR #54 precedent).",
+    "precedent": "mirrors scripts/run_c2st_forensics.py (PR #54) and reuses scripts/c2st_forensics_lib.py verbatim",
+    "view": "psid_family_earnings_pairs",
+    "classifier": "HistGradientBoostingClassifier(random_state=seed), weighted 5-fold stratified-CV ROC AUC, equal class mass, real class 0 / candidate class 1; mirrors populace_dynamics.harness.metrics.classifier_two_sample_auc.",
+    "candidate_source": "run_gate1_candidate10.generate_candidate (PR #64), regenerated per seed from the locked split",
+    "failing_seeds": [
+      0,
+      1
+    ],
+    "passing_seeds": [
+      2,
+      4
+    ],
+    "per_seed": [
+      {
+        "seed": 0,
+        "is_failing": true,
+        "n_train_persons": 17873,
+        "n_holdout_persons": 4427,
+        "n_candidate_windows": 20129,
+        "n_train_windows": 81841,
+        "sanity_anchor": {
+          "harness_c2st_vs_holdout": 0.5315039453161079,
+          "mirror_c2st_vs_holdout": 0.5315039453161079,
+          "mirror_equals_harness": true,
+          "mirror_c2st_vs_train": 0.5359501654590988
+        },
+        "noise_floor_vs_train_halves": 0.5048556563127302,
+        "feature_attribution": {
+          "dimension_names": [
+            "earnings_t0",
+            "earnings_t1",
+            "age"
+          ],
+          "n_windows_real": 81841,
+          "n_windows_candidate": 20129,
+          "full_auc": 0.5359501654590988,
+          "marginal_auc": {
+            "earnings_t0": 0.5157865442812806,
+            "earnings_t1": 0.512317213853692,
+            "age": 0.4957622499666045
+          },
+          "pairwise_auc": {
+            "earnings_t0+earnings_t1": 0.5298708240714521,
+            "earnings_t0+age": 0.5200627133876632,
+            "earnings_t1+age": 0.509797708972449
+          },
+          "earnings_only_auc": 0.5298708240714521
+        },
+        "permutation_importance": {
+          "earnings_t0": {
+            "importance_mean": 0.07115990485858066,
+            "importance_sd": 0.0016923586667190673
+          },
+          "earnings_t1": {
+            "importance_mean": 0.06405700247692749,
+            "importance_sd": 0.001685593793162069
+          },
+          "age": {
+            "importance_mean": 0.03579167552326403,
+            "importance_sd": 0.0020482115117616117
+          }
+        },
+        "distributional": {
+          "earlier_col": "earnings_t1",
+          "round_number": {
+            "train": {
+              "n_positive": 68567,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12664984613589628,
+              "mult_100_share": 0.8749589862747882,
+              "mult_1000_share": 0.7536741286934937,
+              "mult_5000_share": 0.3359326190351678
+            },
+            "candidate": {
+              "n_positive": 16586,
+              "non_integer_share": 0.2951350539804628,
+              "distinct_ratio": 0.3385385264681056,
+              "mult_100_share": 0.6760061969038579,
+              "mult_1000_share": 0.6340178621243421,
+              "mult_5000_share": 0.3085838539036954
+            }
+          },
+          "level_quantiles": {
+            "train": {
+              "q10": 0.0,
+              "q25": 12000.0,
+              "q50": 34495.655897615965,
+              "q75": 60382.24144400077,
+              "q90": 100000.0,
+              "q99": 260000.0
+            },
+            "candidate": {
+              "q10": 0.0,
+              "q25": 9000.0,
+              "q50": 32997.240637448216,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 280230.9928853754
+            }
+          },
+          "joint_dependence": {
+            "train": {
+              "both_positive_share": 0.7946257756715288,
+              "logchange_mean": -0.08610828447532996,
+              "logchange_sd": 0.7134132248875668,
+              "log_persistence_corr": 0.7303960461937482
+            },
+            "candidate": {
+              "both_positive_share": 0.7699778800472508,
+              "logchange_mean": -0.09411819782063209,
+              "logchange_sd": 0.6343027314901093,
+              "log_persistence_corr": 0.7896186162792509
+            }
+          }
+        },
+        "rounding_repair": {
+          "raw": 0.5359501654590988,
+          "snap_100": 0.5347164616924618,
+          "snap_1000": 0.572987187959354,
+          "snap_5000": 0.9082714852394433
+        },
+        "decision_region": {
+          "top_decile_threshold": 0.5417132729616992,
+          "top_decile_mean_prob": 0.5572857399638568,
+          "candidate_top_decile": {
+            "n": 2024,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 0.0,
+              "q50": 0.0,
+              "q75": 56217.78891404437,
+              "q90": 189914.10372659142,
+              "q99": 769600.5988116729
+            },
+            "round_number": {
+              "n_positive": 912,
+              "non_integer_share": 0.38188164214410564,
+              "distinct_ratio": 0.5921052631578947,
+              "mult_100_share": 0.5928797695286235,
+              "mult_1000_share": 0.5360822490103537,
+              "mult_5000_share": 0.31892361547609116
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.36437402282853293,
+              "logchange_mean": -0.029358489463545922,
+              "logchange_sd": 0.6421773144019005,
+              "log_persistence_corr": 0.8956101801549374
+            }
+          },
+          "candidate_rest": {
+            "n": 18105,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 14388.64314024559,
+              "q50": 35000.0,
+              "q75": 60000.0,
+              "q90": 93142.92369484153,
+              "q99": 200000.0
+            },
+            "round_number": {
+              "n_positive": 15674,
+              "non_integer_share": 0.288337402944279,
+              "distinct_ratio": 0.3335459997448003,
+              "mult_100_share": 0.6825201642787541,
+              "mult_1000_share": 0.6416923094548552,
+              "mult_5000_share": 0.30777360773200857
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.8248308885849844,
+              "logchange_mean": -0.09798708220321933,
+              "logchange_sd": 0.6336197014174086,
+              "log_persistence_corr": 0.7678137240706447
+            }
+          },
+          "train_reference": {
+            "n": 81841,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 12000.0,
+              "q50": 34495.655897615965,
+              "q75": 60382.24144400077,
+              "q90": 100000.0,
+              "q99": 260000.0
+            },
+            "round_number": {
+              "n_positive": 68567,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12664984613589628,
+              "mult_100_share": 0.8749589862747882,
+              "mult_1000_share": 0.7536741286934937,
+              "mult_5000_share": 0.3359326190351678
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7946257756715288,
+              "logchange_mean": -0.08610828447532996,
+              "logchange_sd": 0.7134132248875668,
+              "log_persistence_corr": 0.7303960461937482
+            }
+          }
+        },
+        "generation_signal": {
+          "donor_reuse": {
+            "n_pair_records": 64603,
+            "n_triple_records": 49220,
+            "n_reentry_records": 4994,
+            "n_reentry_records_q0": 2955,
+            "pair_draws_per_record": 0.057814652570314075,
+            "triple_draws_per_record": 0.24878098334010565,
+            "reentry_draws_per_record": 0.24249098918702444,
+            "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+          },
+          "neighbor_distance_distribution": {
+            "p0": 0.0,
+            "p10": 0.0019454392959251943,
+            "p25": 0.003991162407179668,
+            "p50": 0.014730312578533508,
+            "p75": 0.024197028978502996,
+            "p90": 0.03654973963449028,
+            "p100": 0.1697021587259331,
+            "mean": 0.017610465489864904
+          },
+          "drawn_corner_mass_by_anchor_quintile": {
+            "Q0": {
+              "n": 5216,
+              "bottom_share": 0.14206288343558282,
+              "top_share": 0.012078220858895705
+            },
+            "Q1": {
+              "n": 3072,
+              "bottom_share": 0.0361328125,
+              "top_share": 0.006510416666666667
+            },
+            "Q2": {
+              "n": 3233,
+              "bottom_share": 0.011135168574079802,
+              "top_share": 0.004021033096195484
+            },
+            "Q3": {
+              "n": 2896,
+              "bottom_share": 0.0055248618784530384,
+              "top_share": 0.012776243093922652
+            },
+            "Q4": {
+              "n": 2774,
+              "bottom_share": 0.003604902667627974,
+              "top_share": 0.22602739726027396
+            }
+          },
+          "triple_pair_usage": {
+            "n_triple_draws": 12245,
+            "n_pair_draws": 3735,
+            "n_reentry_draws": 1211,
+            "triple_share_of_positive": 0.766270337922403
+          },
+          "clamped_rank_share": 0.0004653597812809028
+        }
+      },
+      {
+        "seed": 1,
+        "is_failing": true,
+        "n_train_persons": 17805,
+        "n_holdout_persons": 4495,
+        "n_candidate_windows": 20479,
+        "n_train_windows": 81491,
+        "sanity_anchor": {
+          "harness_c2st_vs_holdout": 0.5330392049688699,
+          "mirror_c2st_vs_holdout": 0.5330392049688699,
+          "mirror_equals_harness": true,
+          "mirror_c2st_vs_train": 0.5342883790412701
+        },
+        "noise_floor_vs_train_halves": 0.5121853704981179,
+        "feature_attribution": {
+          "dimension_names": [
+            "earnings_t0",
+            "earnings_t1",
+            "age"
+          ],
+          "n_windows_real": 81491,
+          "n_windows_candidate": 20479,
+          "full_auc": 0.5342883790412701,
+          "marginal_auc": {
+            "earnings_t0": 0.5177037438183653,
+            "earnings_t1": 0.5160922581699235,
+            "age": 0.5034742750257568
+          },
+          "pairwise_auc": {
+            "earnings_t0+earnings_t1": 0.5281367608934107,
+            "earnings_t0+age": 0.5194706093660113,
+            "earnings_t1+age": 0.5146958402176735
+          },
+          "earnings_only_auc": 0.5281367608934107
+        },
+        "permutation_importance": {
+          "earnings_t0": {
+            "importance_mean": 0.08445310413654575,
+            "importance_sd": 0.002018359310081812
+          },
+          "earnings_t1": {
+            "importance_mean": 0.07526026647766042,
+            "importance_sd": 0.0024550716022337738
+          },
+          "age": {
+            "importance_mean": 0.055076133069783026,
+            "importance_sd": 0.0018504394448738417
+          }
+        },
+        "distributional": {
+          "earlier_col": "earnings_t1",
+          "round_number": {
+            "train": {
+              "n_positive": 68122,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12587710284489592,
+              "mult_100_share": 0.8793357882813827,
+              "mult_1000_share": 0.7577223946624007,
+              "mult_5000_share": 0.33921085386955413
+            },
+            "candidate": {
+              "n_positive": 16951,
+              "non_integer_share": 0.29220447803932265,
+              "distinct_ratio": 0.33921302578018997,
+              "mult_100_share": 0.6748816621317624,
+              "mult_1000_share": 0.6355236186298436,
+              "mult_5000_share": 0.29992045522941563
+            }
+          },
+          "level_quantiles": {
+            "train": {
+              "q10": 0.0,
+              "q25": 12000.0,
+              "q50": 35000.0,
+              "q75": 61000.0,
+              "q90": 100000.0,
+              "q99": 269628.7904027431
+            },
+            "candidate": {
+              "q10": 0.0,
+              "q25": 9530.885986003457,
+              "q50": 32000.0,
+              "q75": 59464.22508008433,
+              "q90": 100000.0,
+              "q99": 264429.3251386334
+            }
+          },
+          "joint_dependence": {
+            "train": {
+              "both_positive_share": 0.7940289586225228,
+              "logchange_mean": -0.08709944684474728,
+              "logchange_sd": 0.716144250815117,
+              "log_persistence_corr": 0.7285659424926022
+            },
+            "candidate": {
+              "both_positive_share": 0.7783747925539214,
+              "logchange_mean": -0.08416656893867608,
+              "logchange_sd": 0.6663241279697824,
+              "log_persistence_corr": 0.7761455842914614
+            }
+          }
+        },
+        "rounding_repair": {
+          "raw": 0.5342883790412701,
+          "snap_100": 0.535928246605606,
+          "snap_1000": 0.5726079101411112,
+          "snap_5000": 0.9129514496493053
+        },
+        "decision_region": {
+          "top_decile_threshold": 0.5470991289231512,
+          "top_decile_mean_prob": 0.5694843525787612,
+          "candidate_top_decile": {
+            "n": 2048,
+            "earlier_quantiles": {
+              "q10": 5000.0,
+              "q25": 10000.0,
+              "q50": 22000.0,
+              "q75": 52869.927208573165,
+              "q90": 149305.75324614855,
+              "q99": 301122.74234906666
+            },
+            "round_number": {
+              "n_positive": 1967,
+              "non_integer_share": 0.32483731111114866,
+              "distinct_ratio": 0.4509405185561769,
+              "mult_100_share": 0.6433683831303046,
+              "mult_1000_share": 0.5998672111769666,
+              "mult_5000_share": 0.2398810665080123
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.8771846419341566,
+              "logchange_mean": -0.09557653251781287,
+              "logchange_sd": 0.7332664521708011,
+              "log_persistence_corr": 0.8300423459339484
+            }
+          },
+          "candidate_rest": {
+            "n": 18431,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 9000.0,
+              "q50": 33000.0,
+              "q75": 60000.0,
+              "q90": 97991.35681558042,
+              "q99": 258005.116101286
+            },
+            "round_number": {
+              "n_positive": 14984,
+              "non_integer_share": 0.28756196862951416,
+              "distinct_ratio": 0.3362920448478377,
+              "mult_100_share": 0.6793648982018938,
+              "mult_1000_share": 0.64059627679457,
+              "mult_5000_share": 0.3084619577855916
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7664674444665295,
+              "logchange_mean": -0.08259296158415597,
+              "logchange_sd": 0.6565408465508381,
+              "log_persistence_corr": 0.7573733931395883
+            }
+          },
+          "train_reference": {
+            "n": 81491,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 12000.0,
+              "q50": 35000.0,
+              "q75": 61000.0,
+              "q90": 100000.0,
+              "q99": 269628.7904027431
+            },
+            "round_number": {
+              "n_positive": 68122,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12587710284489592,
+              "mult_100_share": 0.8793357882813827,
+              "mult_1000_share": 0.7577223946624007,
+              "mult_5000_share": 0.33921085386955413
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7940289586225228,
+              "logchange_mean": -0.08709944684474728,
+              "logchange_sd": 0.716144250815117,
+              "log_persistence_corr": 0.7285659424926022
+            }
+          }
+        },
+        "generation_signal": {
+          "donor_reuse": {
+            "n_pair_records": 64263,
+            "n_triple_records": 49007,
+            "n_reentry_records": 4927,
+            "n_reentry_records_q0": 2989,
+            "pair_draws_per_record": 0.05922537074210665,
+            "triple_draws_per_record": 0.2558205970575632,
+            "reentry_draws_per_record": 0.2405114674243962,
+            "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+          },
+          "neighbor_distance_distribution": {
+            "p0": 0.0,
+            "p10": 0.0019732160348206462,
+            "p25": 0.004239091523891876,
+            "p50": 0.014558057793389034,
+            "p75": 0.024228820607406235,
+            "p90": 0.037036078300561534,
+            "p100": 0.13207456881637164,
+            "mean": 0.017575686296553587
+          },
+          "drawn_corner_mass_by_anchor_quintile": {
+            "Q0": {
+              "n": 5334,
+              "bottom_share": 0.1494188226471691,
+              "top_share": 0.009373828271466067
+            },
+            "Q1": {
+              "n": 3356,
+              "bottom_share": 0.03069129916567342,
+              "top_share": 0.00864123957091776
+            },
+            "Q2": {
+              "n": 3053,
+              "bottom_share": 0.014412053717654767,
+              "top_share": 0.002947920078611202
+            },
+            "Q3": {
+              "n": 3068,
+              "bottom_share": 0.009452411994784877,
+              "top_share": 0.010104302477183833
+            },
+            "Q4": {
+              "n": 2717,
+              "bottom_share": 0.00368052999631947,
+              "top_share": 0.2583732057416268
+            }
+          },
+          "triple_pair_usage": {
+            "n_triple_draws": 12537,
+            "n_pair_draws": 3806,
+            "n_reentry_draws": 1185,
+            "triple_share_of_positive": 0.76711742030227
+          },
+          "clamped_rank_share": 0.00039936102236421724
+        }
+      },
+      {
+        "seed": 2,
+        "is_failing": false,
+        "n_train_persons": 17823,
+        "n_holdout_persons": 4477,
+        "n_candidate_windows": 20411,
+        "n_train_windows": 81559,
+        "sanity_anchor": {
+          "harness_c2st_vs_holdout": 0.5243776409851972,
+          "mirror_c2st_vs_holdout": 0.5243776409851972,
+          "mirror_equals_harness": true,
+          "mirror_c2st_vs_train": 0.5312792354551398
+        },
+        "noise_floor_vs_train_halves": 0.5100974515831409,
+        "feature_attribution": {
+          "dimension_names": [
+            "earnings_t0",
+            "earnings_t1",
+            "age"
+          ],
+          "n_windows_real": 81559,
+          "n_windows_candidate": 20411,
+          "full_auc": 0.5312792354551398,
+          "marginal_auc": {
+            "earnings_t0": 0.5114585275528928,
+            "earnings_t1": 0.5067294454291366,
+            "age": 0.49794697543889
+          },
+          "pairwise_auc": {
+            "earnings_t0+earnings_t1": 0.5180637115671585,
+            "earnings_t0+age": 0.5180338449279157,
+            "earnings_t1+age": 0.5170881934539209
+          },
+          "earnings_only_auc": 0.5180637115671585
+        },
+        "permutation_importance": {
+          "earnings_t0": {
+            "importance_mean": 0.08603588459278973,
+            "importance_sd": 0.002082140775995014
+          },
+          "earnings_t1": {
+            "importance_mean": 0.07907728196453523,
+            "importance_sd": 0.0022796262216587555
+          },
+          "age": {
+            "importance_mean": 0.06760020874651987,
+            "importance_sd": 0.002768116583240763
+          }
+        },
+        "distributional": {
+          "earlier_col": "earnings_t1",
+          "round_number": {
+            "train": {
+              "n_positive": 68466,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12581427277772908,
+              "mult_100_share": 0.8758627310972786,
+              "mult_1000_share": 0.7554092016072825,
+              "mult_5000_share": 0.3384825004944277
+            },
+            "candidate": {
+              "n_positive": 16711,
+              "non_integer_share": 0.2982523168982808,
+              "distinct_ratio": 0.34677757165938605,
+              "mult_100_share": 0.6693981542320012,
+              "mult_1000_share": 0.6299439242668735,
+              "mult_5000_share": 0.3017249058817399
+            }
+          },
+          "level_quantiles": {
+            "train": {
+              "q10": 0.0,
+              "q25": 11960.0,
+              "q50": 34500.0,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 260000.0
+            },
+            "candidate": {
+              "q10": 0.0,
+              "q25": 9936.10266254832,
+              "q50": 32766.337034983004,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 280000.0
+            }
+          },
+          "joint_dependence": {
+            "train": {
+              "both_positive_share": 0.7950031997083087,
+              "logchange_mean": -0.08477712772928735,
+              "logchange_sd": 0.7168228129700184,
+              "log_persistence_corr": 0.7311260352493661
+            },
+            "candidate": {
+              "both_positive_share": 0.7736750146633465,
+              "logchange_mean": -0.08838224593330567,
+              "logchange_sd": 0.6862246323671216,
+              "log_persistence_corr": 0.762705989014374
+            }
+          }
+        },
+        "rounding_repair": {
+          "raw": 0.5312792354551398,
+          "snap_100": 0.5312917226369981,
+          "snap_1000": 0.5674690086543379,
+          "snap_5000": 0.9104895334266605
+        },
+        "decision_region": {
+          "top_decile_threshold": 0.5577371098357065,
+          "top_decile_mean_prob": 0.5855453761417928,
+          "candidate_top_decile": {
+            "n": 2062,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 14078.282158604912,
+              "q50": 38293.649918880794,
+              "q75": 112905.70004823245,
+              "q90": 198530.65895532025,
+              "q99": 770192.7332066747
+            },
+            "round_number": {
+              "n_positive": 1693,
+              "non_integer_share": 0.3483501746883951,
+              "distinct_ratio": 0.4849379799173066,
+              "mult_100_share": 0.6141384723009935,
+              "mult_1000_share": 0.5824731350747613,
+              "mult_5000_share": 0.3034418093823377
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7555366103813241,
+              "logchange_mean": -0.22267809594454732,
+              "logchange_sd": 0.6423452190205141,
+              "log_persistence_corr": 0.8611647029242131
+            }
+          },
+          "candidate_rest": {
+            "n": 18349,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 8886.675782753948,
+              "q50": 31313.390617567173,
+              "q75": 57146.5459580285,
+              "q90": 90000.0,
+              "q99": 208261.20371916337
+            },
+            "round_number": {
+              "n_positive": 15018,
+              "non_integer_share": 0.29165378440681644,
+              "distinct_ratio": 0.3441203888666933,
+              "mult_100_share": 0.676676565381184,
+              "mult_1000_share": 0.6361964380208931,
+              "mult_5000_share": 0.3014987675989242
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7760010792424556,
+              "logchange_mean": -0.07161435382139346,
+              "logchange_sd": 0.6896738702368405,
+              "log_persistence_corr": 0.7402072347695303
+            }
+          },
+          "train_reference": {
+            "n": 81559,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 11960.0,
+              "q50": 34500.0,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 260000.0
+            },
+            "round_number": {
+              "n_positive": 68466,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.12581427277772908,
+              "mult_100_share": 0.8758627310972786,
+              "mult_1000_share": 0.7554092016072825,
+              "mult_5000_share": 0.3384825004944277
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7950031997083087,
+              "logchange_mean": -0.08477712772928735,
+              "logchange_sd": 0.7168228129700184,
+              "log_persistence_corr": 0.7311260352493661
+            }
+          }
+        },
+        "generation_signal": {
+          "donor_reuse": {
+            "n_pair_records": 64557,
+            "n_triple_records": 49230,
+            "n_reentry_records": 4902,
+            "n_reentry_records_q0": 2945,
+            "pair_draws_per_record": 0.058676828229316726,
+            "triple_draws_per_record": 0.24897420272191753,
+            "reentry_draws_per_record": 0.26193390452876375,
+            "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+          },
+          "neighbor_distance_distribution": {
+            "p0": 0.0,
+            "p10": 0.0018886508337901593,
+            "p25": 0.003823756147540918,
+            "p50": 0.014489095282365722,
+            "p75": 0.02400842336115805,
+            "p90": 0.03773544874582211,
+            "p100": 0.17739646491683286,
+            "mean": 0.017642645583675544
+          },
+          "drawn_corner_mass_by_anchor_quintile": {
+            "Q0": {
+              "n": 5165,
+              "bottom_share": 0.15876089060987417,
+              "top_share": 0.0050338818973862534
+            },
+            "Q1": {
+              "n": 3058,
+              "bottom_share": 0.03564421190320471,
+              "top_share": 0.010464355788096796
+            },
+            "Q2": {
+              "n": 3253,
+              "bottom_share": 0.01936673839532739,
+              "top_share": 0.00891484783276975
+            },
+            "Q3": {
+              "n": 3027,
+              "bottom_share": 0.006276841757515692,
+              "top_share": 0.008919722497522299
+            },
+            "Q4": {
+              "n": 2826,
+              "bottom_share": 0.007077140835102618,
+              "top_share": 0.22116065109695682
+            }
+          },
+          "triple_pair_usage": {
+            "n_triple_draws": 12257,
+            "n_pair_draws": 3788,
+            "n_reentry_draws": 1284,
+            "triple_share_of_positive": 0.7639139918977875
+          },
+          "clamped_rank_share": 0.0005770673437590167
+        }
+      },
+      {
+        "seed": 4,
+        "is_failing": false,
+        "n_train_persons": 17770,
+        "n_holdout_persons": 4530,
+        "n_candidate_windows": 20935,
+        "n_train_windows": 81035,
+        "sanity_anchor": {
+          "harness_c2st_vs_holdout": 0.5244221289062465,
+          "mirror_c2st_vs_holdout": 0.5244221289062465,
+          "mirror_equals_harness": true,
+          "mirror_c2st_vs_train": 0.5255451017136967
+        },
+        "noise_floor_vs_train_halves": 0.5080429597609281,
+        "feature_attribution": {
+          "dimension_names": [
+            "earnings_t0",
+            "earnings_t1",
+            "age"
+          ],
+          "n_windows_real": 81035,
+          "n_windows_candidate": 20935,
+          "full_auc": 0.5255451017136967,
+          "marginal_auc": {
+            "earnings_t0": 0.5091279225338452,
+            "earnings_t1": 0.5029681524519175,
+            "age": 0.5005262633698712
+          },
+          "pairwise_auc": {
+            "earnings_t0+earnings_t1": 0.5220819595291373,
+            "earnings_t0+age": 0.514493114396204,
+            "earnings_t1+age": 0.5023517939591459
+          },
+          "earnings_only_auc": 0.5220819595291373
+        },
+        "permutation_importance": {
+          "earnings_t0": {
+            "importance_mean": 0.07924779057879475,
+            "importance_sd": 0.0022527096553143617
+          },
+          "earnings_t1": {
+            "importance_mean": 0.06209703746000241,
+            "importance_sd": 0.001875360486670622
+          },
+          "age": {
+            "importance_mean": 0.058698203090492576,
+            "importance_sd": 0.001877247198293778
+          }
+        },
+        "distributional": {
+          "earlier_col": "earnings_t1",
+          "round_number": {
+            "train": {
+              "n_positive": 67781,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.1261267906935572,
+              "mult_100_share": 0.8765197495583461,
+              "mult_1000_share": 0.7535242111162892,
+              "mult_5000_share": 0.33789237252159077
+            },
+            "candidate": {
+              "n_positive": 17337,
+              "non_integer_share": 0.2950049779844693,
+              "distinct_ratio": 0.34008190575070657,
+              "mult_100_share": 0.6725466197863662,
+              "mult_1000_share": 0.6344076541029283,
+              "mult_5000_share": 0.3028154473227302
+            }
+          },
+          "level_quantiles": {
+            "train": {
+              "q10": 0.0,
+              "q25": 11300.0,
+              "q50": 34000.0,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 265000.0
+            },
+            "candidate": {
+              "q10": 0.0,
+              "q25": 11872.402100216857,
+              "q50": 35000.0,
+              "q75": 61947.169711776594,
+              "q90": 100000.0,
+              "q99": 273868.7718580193
+            }
+          },
+          "joint_dependence": {
+            "train": {
+              "both_positive_share": 0.7920212667466405,
+              "logchange_mean": -0.08560163847193321,
+              "logchange_sd": 0.7231871358043378,
+              "log_persistence_corr": 0.7275510337290912
+            },
+            "candidate": {
+              "both_positive_share": 0.7893628302055156,
+              "logchange_mean": -0.08485705814642236,
+              "logchange_sd": 0.6534105818632577,
+              "log_persistence_corr": 0.7623427707003178
+            }
+          }
+        },
+        "rounding_repair": {
+          "raw": 0.5255451017136967,
+          "snap_100": 0.5273564367298615,
+          "snap_1000": 0.5666866535702146,
+          "snap_5000": 0.9138855358787931
+        },
+        "decision_region": {
+          "top_decile_threshold": 0.5334112910247014,
+          "top_decile_mean_prob": 0.5658000455088539,
+          "candidate_top_decile": {
+            "n": 2094,
+            "earlier_quantiles": {
+              "q10": 7327.893658914412,
+              "q25": 32000.0,
+              "q50": 65000.0,
+              "q75": 120000.0,
+              "q90": 170000.0,
+              "q99": 465459.43360485026
+            },
+            "round_number": {
+              "n_positive": 2003,
+              "non_integer_share": 0.3342815289619851,
+              "distinct_ratio": 0.48427358961557665,
+              "mult_100_share": 0.625375192206394,
+              "mult_1000_share": 0.5882228884883561,
+              "mult_5000_share": 0.350622936358182
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.8843648443632202,
+              "logchange_mean": -0.09315788764205746,
+              "logchange_sd": 0.6828256247357218,
+              "log_persistence_corr": 0.811404571420608
+            }
+          },
+          "candidate_rest": {
+            "n": 18841,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 10000.0,
+              "q50": 32000.0,
+              "q75": 56000.0,
+              "q90": 90000.0,
+              "q99": 229644.99174791414
+            },
+            "round_number": {
+              "n_positive": 15334,
+              "non_integer_share": 0.28858701295769795,
+              "distinct_ratio": 0.3339637407069258,
+              "mult_100_share": 0.6802546431472883,
+              "mult_1000_share": 0.6419544524624289,
+              "mult_5000_share": 0.2950034886600938
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7760810885546104,
+              "logchange_mean": -0.08353464219895142,
+              "logchange_sd": 0.6485914437643568,
+              "log_persistence_corr": 0.7442617563440568
+            }
+          },
+          "train_reference": {
+            "n": 81035,
+            "earlier_quantiles": {
+              "q10": 0.0,
+              "q25": 11300.0,
+              "q50": 34000.0,
+              "q75": 60000.0,
+              "q90": 100000.0,
+              "q99": 265000.0
+            },
+            "round_number": {
+              "n_positive": 67781,
+              "non_integer_share": 0.0,
+              "distinct_ratio": 0.1261267906935572,
+              "mult_100_share": 0.8765197495583461,
+              "mult_1000_share": 0.7535242111162892,
+              "mult_5000_share": 0.33789237252159077
+            },
+            "joint_dependence": {
+              "both_positive_share": 0.7920212667466405,
+              "logchange_mean": -0.08560163847193321,
+              "logchange_sd": 0.7231871358043378,
+              "log_persistence_corr": 0.7275510337290912
+            }
+          }
+        },
+        "generation_signal": {
+          "donor_reuse": {
+            "n_pair_records": 63865,
+            "n_triple_records": 48643,
+            "n_reentry_records": 4934,
+            "n_reentry_records_q0": 2952,
+            "pair_draws_per_record": 0.059954591716902844,
+            "triple_draws_per_record": 0.2648685319573217,
+            "reentry_draws_per_record": 0.2464531820024321,
+            "note": "mean draws per donor record per pool (a reuse proxy; the k-NN draw is with replacement across query steps)"
+          },
+          "neighbor_distance_distribution": {
+            "p0": 0.0,
+            "p10": 0.001978238809351757,
+            "p25": 0.004538641768599954,
+            "p50": 0.014854035195797075,
+            "p75": 0.024016000533457205,
+            "p90": 0.036811628554965684,
+            "p100": 0.186258518475622,
+            "mean": 0.01769894663919946
+          },
+          "drawn_corner_mass_by_anchor_quintile": {
+            "Q0": {
+              "n": 5189,
+              "bottom_share": 0.14357294276353824,
+              "top_share": 0.006745037579495085
+            },
+            "Q1": {
+              "n": 2943,
+              "bottom_share": 0.02820251444104655,
+              "top_share": 0.008494733265375467
+            },
+            "Q2": {
+              "n": 3417,
+              "bottom_share": 0.01726660813579163,
+              "top_share": 0.004682470002926544
+            },
+            "Q3": {
+              "n": 3551,
+              "bottom_share": 0.006758659532526049,
+              "top_share": 0.011264432554210082
+            },
+            "Q4": {
+              "n": 2829,
+              "bottom_share": 0.003888299752562743,
+              "top_share": 0.23117709437963946
+            }
+          },
+          "triple_pair_usage": {
+            "n_triple_draws": 12884,
+            "n_pair_draws": 3829,
+            "n_reentry_draws": 1216,
+            "triple_share_of_positive": 0.7708969065996529
+          },
+          "clamped_rank_share": 0.00039042891404986337
+        }
+      }
+    ],
+    "contrast_failing_vs_passing": {
+      "failing_seeds": [
+        0,
+        1
+      ],
+      "passing_seeds": [
+        2,
+        4
+      ],
+      "scalar_signals": {
+        "gate_c2st_vs_holdout": {
+          "failing_mean": 0.5322715751424889,
+          "passing_mean": 0.5243998849457219,
+          "failing_minus_passing": 0.007871690196767034,
+          "failing_values": [
+            0.5315039453161079,
+            0.5330392049688699
+          ],
+          "passing_values": [
+            0.5243776409851972,
+            0.5244221289062465
+          ]
+        },
+        "c2st_vs_train": {
+          "failing_mean": 0.5351192722501845,
+          "passing_mean": 0.5284121685844183,
+          "failing_minus_passing": 0.006707103665766212,
+          "failing_values": [
+            0.5359501654590988,
+            0.5342883790412701
+          ],
+          "passing_values": [
+            0.5312792354551398,
+            0.5255451017136967
+          ]
+        },
+        "noise_floor_train_halves": {
+          "failing_mean": 0.508520513405424,
+          "passing_mean": 0.5090702056720344,
+          "failing_minus_passing": -0.0005496922666103909,
+          "failing_values": [
+            0.5048556563127302,
+            0.5121853704981179
+          ],
+          "passing_values": [
+            0.5100974515831409,
+            0.5080429597609281
+          ]
+        },
+        "full_auc_vs_train": {
+          "failing_mean": 0.5351192722501845,
+          "passing_mean": 0.5284121685844183,
+          "failing_minus_passing": 0.006707103665766212,
+          "failing_values": [
+            0.5359501654590988,
+            0.5342883790412701
+          ],
+          "passing_values": [
+            0.5312792354551398,
+            0.5255451017136967
+          ]
+        },
+        "earnings_only_auc": {
+          "failing_mean": 0.5290037924824313,
+          "passing_mean": 0.5200728355481479,
+          "failing_minus_passing": 0.008930956934283474,
+          "failing_values": [
+            0.5298708240714521,
+            0.5281367608934107
+          ],
+          "passing_values": [
+            0.5180637115671585,
+            0.5220819595291373
+          ]
+        },
+        "cand_distinct_ratio": {
+          "failing_mean": 0.33887577612414777,
+          "passing_mean": 0.34342973870504634,
+          "failing_minus_passing": -0.004553962580898574,
+          "failing_values": [
+            0.3385385264681056,
+            0.33921302578018997
+          ],
+          "passing_values": [
+            0.34677757165938605,
+            0.34008190575070657
+          ]
+        },
+        "train_distinct_ratio": {
+          "failing_mean": 0.1262634744903961,
+          "passing_mean": 0.12597053173564315,
+          "failing_minus_passing": 0.00029294275475294507,
+          "failing_values": [
+            0.12664984613589628,
+            0.12587710284489592
+          ],
+          "passing_values": [
+            0.12581427277772908,
+            0.1261267906935572
+          ]
+        },
+        "cand_non_integer_share": {
+          "failing_mean": 0.2936697660098927,
+          "passing_mean": 0.29662864744137507,
+          "failing_minus_passing": -0.002958881431482374,
+          "failing_values": [
+            0.2951350539804628,
+            0.29220447803932265
+          ],
+          "passing_values": [
+            0.2982523168982808,
+            0.2950049779844693
+          ]
+        },
+        "cand_log_persistence_corr": {
+          "failing_mean": 0.7828821002853561,
+          "passing_mean": 0.7625243798573459,
+          "failing_minus_passing": 0.020357720428010206,
+          "failing_values": [
+            0.7896186162792509,
+            0.7761455842914614
+          ],
+          "passing_values": [
+            0.762705989014374,
+            0.7623427707003178
+          ]
+        },
+        "train_log_persistence_corr": {
+          "failing_mean": 0.7294809943431753,
+          "passing_mean": 0.7293385344892287,
+          "failing_minus_passing": 0.0001424598539465638,
+          "failing_values": [
+            0.7303960461937482,
+            0.7285659424926022
+          ],
+          "passing_values": [
+            0.7311260352493661,
+            0.7275510337290912
+          ]
+        },
+        "cand_both_positive_share": {
+          "failing_mean": 0.774176336300586,
+          "passing_mean": 0.781518922434431,
+          "failing_minus_passing": -0.007342586133844975,
+          "failing_values": [
+            0.7699778800472508,
+            0.7783747925539214
+          ],
+          "passing_values": [
+            0.7736750146633465,
+            0.7893628302055156
+          ]
+        },
+        "top_decile_distinct_ratio": {
+          "failing_mean": 0.5215228908570357,
+          "passing_mean": 0.4846057847664416,
+          "failing_minus_passing": 0.03691710609059412,
+          "failing_values": [
+            0.5921052631578947,
+            0.4509405185561769
+          ],
+          "passing_values": [
+            0.4849379799173066,
+            0.48427358961557665
+          ]
+        },
+        "top_decile_both_positive_share": {
+          "failing_mean": 0.6207793323813448,
+          "passing_mean": 0.8199507273722721,
+          "failing_minus_passing": -0.1991713949909274,
+          "failing_values": [
+            0.36437402282853293,
+            0.8771846419341566
+          ],
+          "passing_values": [
+            0.7555366103813241,
+            0.8843648443632202
+          ]
+        }
+      },
+      "marginal_auc_by_feature": {
+        "earnings_t0": {
+          "failing_mean": 0.516745144049823,
+          "passing_mean": 0.5102932250433689,
+          "failing_minus_passing": 0.006451919006454032,
+          "all_seed_mean": 0.513519184546596
+        },
+        "earnings_t1": {
+          "failing_mean": 0.5142047360118078,
+          "passing_mean": 0.504848798940527,
+          "failing_minus_passing": 0.009355937071280795,
+          "all_seed_mean": 0.5095267674761674
+        },
+        "age": {
+          "failing_mean": 0.4996182624961807,
+          "passing_mean": 0.4992366194043806,
+          "failing_minus_passing": 0.00038164309180011013,
+          "all_seed_mean": 0.4994274409502806
+        }
+      },
+      "signal_ranking_by_separation": [
+        {
+          "feature": "earnings_t0",
+          "all_seed_marginal_auc": 0.513519184546596,
+          "separation_over_half": 0.013519184546595953,
+          "failing_minus_passing": 0.006451919006454032
+        },
+        {
+          "feature": "earnings_t1",
+          "all_seed_marginal_auc": 0.5095267674761674,
+          "separation_over_half": 0.00952676747616743,
+          "failing_minus_passing": 0.009355937071280795
+        },
+        {
+          "feature": "age",
+          "all_seed_marginal_auc": 0.4994274409502806,
+          "separation_over_half": -0.0005725590497194233,
+          "failing_minus_passing": 0.00038164309180011013
+        }
+      ],
+      "gate_c2st_failing_minus_passing": 0.007871690196767034,
+      "vs_train_full_auc_failing_minus_passing": 0.006707103665766212,
+      "coherence_note": "If the vs-train forensic signal (full AUC and the per-feature marginal profile) barely separates failing from passing seeds while the gate c2st-vs-holdout gap is ~+0.0079, no coherent candidate-side signal distinguishes the clipping seeds -- the clip is holdout-split sampling noise (supports the diagnostic-1 noise reading). A large, consistent failing-vs-passing gap in a named signal would instead be real split-dependent texture and would design candidate 11."
+    },
+    "elapsed_seconds": 233.7
+  },
+  "verdict": {
+    "reading": "noise",
+    "one_line": "The run-12 pairs-C2ST clipping is sampling noise around a sub-threshold mean; no split-dependent signal distinguishes the clipping seeds from the passing ones.",
+    "diagnostic_1_key": {
+      "n_seeds": 20,
+      "candidate_mean_c2st": 0.5233763882502994,
+      "candidate_sd_c2st": 0.005913144616719785,
+      "threshold": 0.53,
+      "margin_below_line_in_se": 5.009465213151829,
+      "n_seeds_over_threshold": 2,
+      "run12_outcome_prob_ge2_of_5_clip_parametric": 0.13147021803449538,
+      "prob_5seed_gate_passes_pairs_c2st_parametric": 0.8685297819655047,
+      "excess_over_floor_mean": 0.01240775173492476,
+      "excess_over_floor_mean_over_se": 6.825890540360833
+    },
+    "diagnostic_2_key": {
+      "top_signal_feature": "earnings_t0",
+      "top_signal_all_seed_marginal_auc": 0.513519184546596,
+      "gate_c2st_failing_minus_passing": 0.007871690196767034,
+      "vs_train_full_auc_failing_minus_passing": 0.006707103665766212,
+      "signal_is_same_across_seeds": true,
+      "coherent_failing_vs_passing_signal": false,
+      "signal_summary": "The same seed-invariant residual drives the C2ST in every seed: generated earnings carry ~2.7x too many distinct values (distinct_ratio ~0.34 vs real ~0.13) and ~29% non-integer dollars (real is whole-dollar) with mildly excess year-to-year persistence, all read off the earnings marginals (age at chance). The only large failing-vs-passing deltas are seed-0 top-decile descriptives that reverse in seed 1 -- single-seed variance, not a split-dependent defect."
+    },
+    "decision_implied": "Feeds the second gate amendment (mean-based classifier gating) as the noise measurement -- NOT proposed or drafted here. No candidate-11 split-dependent lead: the forensics find no coherent signal separating the clipping seeds. The shared residual (+0.0124 over the real-vs-real floor) is the only real defect and is not what the gate line turns on."
+  }
+}

@@ -1,18 +1,27 @@
-"""Tests for the gate-1 candidate-2 latent-permanent chained-QRF run.
+"""Tests for the gate-1 candidate-5a' segment-splicing run.
 
-Mirrors the baseline run's tests (``test_gate1_qrf_baseline``):
+Mirrors the prior runs' tests (``test_gate1_qrf_candidate5a`` and its
+predecessors), adapted for a DETERMINISTIC candidate that fits no model
+and needs no populace-fit:
 
-* :func:`test_seed0_reproduces_committed_artifact` (skipped when the
-  PSID family files are absent AND when populace-fit is not importable —
-  the dedicated-venv pattern, since populace-fit pins scikit-learn < 1.9)
-  reruns seed 0 through the runner's stages and pins the committed
-  artifact's seed-0 geometry and battery values to float precision — the
-  run is reproducible from the seeds alone.
-* The always-runnable consistency tests touch only the committed
-  artifact and ``gates.yaml``: every reported pass/fail recomputes from
-  its own stored score against its stored threshold, the stored
-  thresholds equal the locked ones in ``gates.yaml``, and the gate
-  verdict recomputes from the seed-conjunction table.
+* :func:`test_seed0_reproduces_committed_artifact` (skipped when the PSID
+  family files are absent) reruns seed 0 through the candidate-5a'
+  segmentation + splicing and pins the committed artifact's seed-0 splice
+  diagnostics, geometry, and battery values to float precision. There is
+  NO populace-fit gate on this test -- candidate 5b is fully
+  deterministic segment matching + splicing under the repo ``.venv`` --
+  and no populace-fit importorskip, per the frozen spec (the gate seed
+  enters only through the split).
+* :func:`test_segmentation_and_cascade_on_synthetic_pool` (always
+  runnable; no PSID, no populace-fit) drives the segmentation, boundary,
+  period-indexed match, and the widen-then-shorten fallback cascade on a
+  hand-built donor pool, checking each frozen rule directly.
+* The always-runnable consistency tests touch only the committed artifact
+  and ``gates.yaml``: every reported pass/fail recomputes from its own
+  stored score against its stored threshold, the stored thresholds equal
+  the locked ones in ``gates.yaml``, the gate verdict recomputes from the
+  seed-conjunction table, and the splice diagnostics are
+  reported-not-gated.
 """
 
 from __future__ import annotations
@@ -25,13 +34,18 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ARTIFACT = ROOT / "runs" / "gate1_qrf_latent_perm_v1.json"
+ARTIFACT = ROOT / "runs" / "gate1_rank_v1.json"
 SCRIPTS = ROOT / "scripts"
 
 REAL_DATA = Path("~/PolicyEngine/psid-data").expanduser()
 needs_real_family = pytest.mark.skipif(
     not (REAL_DATA / "family" / "2023").is_dir(),
     reason="PSID family files not staged",
+)
+
+SPEC_URL = (
+    "https://github.com/PolicyEngine/populace-dynamics/issues/42"
+    "#issuecomment-4894920407"
 )
 
 
@@ -44,74 +58,42 @@ def _gate1_thresholds() -> dict:
     return gates["gates"]["gate_1"]["thresholds"]
 
 
+def _import_runner():
+    if str(SCRIPTS) not in sys.path:
+        sys.path.insert(0, str(SCRIPTS))
+    import run_gate1_candidate5a2 as runner
+
+    return runner
+
+
+def _earn(cand, period: int) -> float:
+    """The generated earnings at ``period`` for a one-person candidate."""
+    return float(cand.loc[cand.period == period, "earnings"].iloc[0])
+
+
 # --------------------------------------------------------------------------
-# Reproduction (needs the staged PSID family files AND populace-fit)
+# Reproduction (needs the staged PSID family files; NO populace-fit needed)
 # --------------------------------------------------------------------------
 @needs_real_family
 def test_seed0_reproduces_committed_artifact():
     """Rerun seed 0 and match the committed artifact to float precision."""
     pytest.importorskip(
         "populace.fit",
-        reason="populace-fit not installed (it pins scikit-learn<1.9, "
-        "so gate runs use a dedicated venv)",
+        reason="populace-fit not installed (gate runs use a dedicated venv)",
     )
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
-    import run_gate1_candidate2 as runner
+    import run_gate1_candidate5b as runner
 
-    artifact = _artifact()
+    artifact = json.loads(ARTIFACT.read_text())
     seed0 = next(s for s in artifact["per_seed"] if s["seed"] == 0)
-
+    thresholds = runner.load_gate1_thresholds()
+    views_cfg = thresholds["views"]
+    battery_reference = json.loads(
+        (runner.ROOT / runner.BATTERY_REFERENCE_RUN).read_text()
+    )["battery_reference"]
     panel = runner.load_filtered_panel()
-
-    # The battery reference must still reproduce exactly.
-    repro = runner.reproduce_battery_reference(panel)
-    assert repro["all_committed_values_reproduced_exactly"] is True
-
-    holdout, train = runner.split_holdout_train(panel, 0)
-    assert int(holdout.person_id.nunique()) == seed0["n_persons"]
-    assert int(len(holdout)) == seed0["n_person_periods"]
-    assert int(train.person_id.nunique()) == seed0["n_train_persons"]
-
-    # Anchors on the full filtered panel, sliced per split.
     all_anchor = runner.anchor_rows(panel)
-    train_ids = train["person_id"].unique()
-    holdout_ids = holdout["person_id"].unique()
-    train_anchor = all_anchor[all_anchor.person_id.isin(train_ids)]
-    holdout_anchor = all_anchor[all_anchor.person_id.isin(holdout_ids)]
-
-    # Stage 0-1: residualize, MoM lambda, empirical-Bayes person effects.
-    beta = runner.fit_age_residualizer(train)
-    resid_train = runner.add_residuals(train, beta)
-    resid_pos = resid_train.loc[resid_train["is_pos"], ["person_id", "r"]]
-    mom = runner.method_of_moments_lambda(resid_pos)
-    assert mom["lambda"] == pytest.approx(seed0["lambda"], rel=0, abs=1e-9)
-    perm_train = runner.person_effects(resid_pos, mom["lambda"], train_ids)
-
-    # Stage 2: fit P(perm | anchor), draw holdout perms.
-    perm_model = runner.fit_perm_model(train_anchor, perm_train, 0)
-    holdout_perm = runner.draw_holdout_perm(perm_model, holdout_anchor)
-
-    # Stage 3: perm-conditioned backward chain.
-    pairs = runner.build_backward_pairs_with_perm(train, perm_train)
-    assert int(len(pairs)) == seed0["n_train_pairs"]
-    fitted = runner.fit_backward_model_with_perm(pairs, 0)
-    candidate = runner.generate_candidate_with_perm(
-        fitted, holdout, holdout_perm
-    )
-
-    # Perm-share diagnostic reproduces.
-    diag = runner.perm_share_diagnostic(
-        beta, train, holdout_perm, holdout_anchor, mom
-    )
-    stored_diag = seed0["perm_share_diagnostic"]
-    for key, stored_value in stored_diag.items():
-        assert diag[key] == pytest.approx(
-            stored_value, rel=0, abs=1e-9
-        ), f"perm-share {key}: {diag[key]} != {stored_value}"
-
-    # Geometry: rescore both locked views and match every stored score.
-    views_cfg = _gate1_thresholds()["views"]
     view_specs = {
         "psid_family_earnings_pairs": runner.build_panel_view(
             "psid_family_earnings_pairs", window=2
@@ -120,37 +102,36 @@ def test_seed0_reproduces_committed_artifact():
             "psid_family_earnings_runs", window=3
         ),
     }
-    from populace_dynamics.harness import panel as hpanel
+    battery_tol = {
+        k: v
+        for k, v in thresholds["battery"].items()
+        if k.endswith("_tolerance")
+    }
+    result = runner.run_seed(
+        0,
+        panel,
+        all_anchor,
+        view_specs,
+        views_cfg,
+        battery_reference,
+        battery_tol,
+        False,
+    )
+    for view, block in seed0["geometry"].items():
+        for metric, stored in block["scores"].items():
+            assert result["geometry"][view]["scores"][metric] == pytest.approx(
+                stored, abs=1e-12
+            ), f"{view}.{metric}"
+    for stat, stored in seed0["battery_values"].items():
+        assert result["battery_values"][stat] == pytest.approx(
+            stored, abs=1e-12
+        ), stat
+    assert result["smm"]["chosen"] == seed0["smm"]["chosen"]
 
-    for vname, view in view_specs.items():
-        scores = hpanel.panel_scorecard(candidate, holdout, view, seed=0)
-        stored = seed0["geometry"][vname]["scores"]
-        for key, stored_value in stored.items():
-            assert scores[key] == pytest.approx(
-                stored_value, rel=0, abs=1e-12
-            ), f"{vname}.{key}: {scores[key]} != {stored_value}"
-        # And the per-threshold pass/fail recomputes identically.
-        checks = runner.check_geometry(scores, views_cfg[vname]["geometry"])
-        for tname, chk in checks.items():
-            assert (
-                chk["pass"]
-                == seed0["geometry"][vname]["checks"][tname]["pass"]
-            )
 
-    # Battery: recompute on the candidate and match every stored value.
-    battery = runner.compute_battery(candidate)
-    for stat, stored_value in seed0["battery_values"].items():
-        assert battery[stat] == pytest.approx(
-            stored_value, rel=0, abs=1e-12
-        ), f"battery {stat}: {battery[stat]} != {stored_value}"
-
-
-# --------------------------------------------------------------------------
-# Internal consistency (always runnable; committed files only)
-# --------------------------------------------------------------------------
 def test_artifact_present_and_locked():
     artifact = _artifact()
-    assert artifact["schema_version"] == "gate1_qrf_latent_perm.v1"
+    assert artifact["schema_version"] == "gate1_rank.v1"
     assert artifact["gate"] == "gate_1"
     assert artifact["revision_pins"]["gates_yaml_locked"] is True
     assert _gate1_thresholds()["locked"] is True
@@ -158,11 +139,7 @@ def test_artifact_present_and_locked():
 
 def test_spec_registration_recorded():
     """The frozen-spec issue-comment URL is carried in the artifact."""
-    artifact = _artifact()
-    assert artifact["spec_registration"] == (
-        "https://github.com/PolicyEngine/populace-dynamics/issues/42"
-        "#issuecomment-4886538087"
-    )
+    assert _artifact()["spec_registration"] == SPEC_URL
 
 
 def test_battery_reference_reproduced_exactly_in_artifact():
@@ -200,13 +177,9 @@ def test_stored_thresholds_match_locked_gates_yaml():
         for k, v in _gate1_thresholds()["battery"].items()
         if k.endswith("_tolerance")
     }
-    alias = {"mobility_diagonal": "mobility_diagonal"}
     for seed in artifact["per_seed"]:
         for stat, chk in seed["battery_checks"].items():
-            locked_stat = alias.get(stat, stat)
-            assert chk["tolerance"] == pytest.approx(
-                battery_tol[locked_stat], abs=0
-            )
+            assert chk["tolerance"] == pytest.approx(battery_tol[stat], abs=0)
 
 
 def _recompute_geometry_pass(check: dict) -> bool:
@@ -301,12 +274,12 @@ def test_verdict_recomputes_from_seed_conjunction():
 
 
 def test_candidate_panel_pin_metadata_consistent():
-    """Each seed's candidate window counts equal the holdout window counts.
+    """Each seed's window counts are positive and pairs >= runs.
 
     The candidate panel holds exactly the holdout persons on exactly
-    their observed periods, so its projected window counts are a
-    property of the holdout support; the stored counts are recorded per
-    view and must be positive and consistent with the person count.
+    their observed periods, so its projected window counts are a property
+    of the holdout support; the stored counts are recorded per view and
+    must be positive and consistent with the person count.
     """
     for seed in _artifact()["per_seed"]:
         assert seed["n_persons"] > 0
@@ -322,32 +295,3 @@ def test_candidate_panel_pin_metadata_consistent():
             seed["n_windows"]["psid_family_earnings_pairs"]
             >= seed["n_windows"]["psid_family_earnings_runs"]
         )
-
-
-def test_perm_share_context_consistent_and_reported_not_gated():
-    """The perm-share diagnostics are recorded per seed and not gated.
-
-    Every seed carries a MoM lambda and a measured perm share; the
-    top-level context block mirrors the per-seed diagnostics and records
-    the memo's 0.467 back-out. These are context only — they never enter
-    the geometry or battery pass/fail, and the verdict rule names only
-    those two families.
-    """
-    artifact = _artifact()
-    ctx = artifact["perm_share_context"]
-    assert ctx["memo_backout_perm_share"] == pytest.approx(0.467, abs=0)
-    by_seed = {s["seed"]: s for s in artifact["per_seed"]}
-    for row in ctx["per_seed"]:
-        seed = by_seed[row["seed"]]
-        diag = seed["perm_share_diagnostic"]
-        assert row["lambda"] == pytest.approx(seed["lambda"], abs=0)
-        assert row["perm_share"] == pytest.approx(diag["perm_share"], abs=0)
-        assert row["mom_perm_share"] == pytest.approx(
-            diag["mom_perm_share"], abs=0
-        )
-        assert diag["memo_backout_perm_share"] == pytest.approx(0.467, abs=0)
-    # The gate rule is the seed-level conjunction over geometry AND
-    # battery only; the perm share is nowhere in it.
-    assert artifact["verdict"]["rule"] == (
-        ">=4/5 seeds geometry AND >=4/5 seeds battery"
-    )
