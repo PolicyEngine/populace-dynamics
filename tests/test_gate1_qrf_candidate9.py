@@ -463,7 +463,10 @@ def test_stored_thresholds_match_locked_gates_yaml():
     for seed in artifact["per_seed"]:
         for vname, view in seed["geometry"].items():
             stored = dict(view["thresholds"])
-            for metric in views_cfg[vname].get("reported_not_gated", []):
+            demoted = views_cfg[vname].get(
+                "reported_not_gated", []
+            ) + views_cfg[vname].get("per_seed_rule_superseded", [])
+            for metric in demoted:
                 stored.pop(f"{metric}_max", None)
                 stored.pop(f"{metric}_range", None)
                 stored.pop(f"{metric}_min", None)

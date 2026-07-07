@@ -165,7 +165,10 @@ def test_stored_thresholds_match_locked_gates_yaml():
             # Ratified amendments may demote a metric after this run
             # published (gates.yaml amendment_history); the stored
             # thresholds remain the correct record of the gate AS RUN.
-            for metric in views_cfg[vname].get("reported_not_gated", []):
+            demoted = views_cfg[vname].get(
+                "reported_not_gated", []
+            ) + views_cfg[vname].get("per_seed_rule_superseded", [])
+            for metric in demoted:
                 stored.pop(f"{metric}_max", None)
                 stored.pop(f"{metric}_range", None)
                 stored.pop(f"{metric}_min", None)

@@ -117,9 +117,12 @@ def test_d1_threshold_matches_locked_gates_yaml():
     import yaml
 
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
-    thr = gates["gates"]["gate_1"]["thresholds"]["views"][PAIRS]["geometry"][
-        "c2st_auc_max"
-    ]
+    view = gates["gates"]["gate_1"]["thresholds"]["views"][PAIRS]
+    # Amendment 2 (2026-07-07) superseded the per-seed c2st_auc_max
+    # with the 20-seed mean rule at the SAME ratified 0.53 line; the
+    # diagnostics artifact predates the flip and measured that line.
+    thr = view["c2st_mean_rule"]["value_max"]
+    assert "c2st_auc" in view["per_seed_rule_superseded"]
     assert _d1()["pairs_c2st_threshold"] == pytest.approx(thr, abs=0)
 
 
