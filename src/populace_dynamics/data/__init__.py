@@ -6,6 +6,10 @@ SPSS setup files) via :mod:`populace_dynamics.data.psid`.
 
 from __future__ import annotations
 
+from populace_dynamics.data.deaths import (
+    decode_death_code,
+    read_death_records,
+)
 from populace_dynamics.data.family import (
     FAMILY_WAVES,
     family_earnings_panel,
@@ -27,6 +31,8 @@ from populace_dynamics.data.psid import (
 )
 
 __all__ = [
+    "decode_death_code",
+    "read_death_records",
     "FAMILY_WAVES",
     "family_earnings_panel",
     "read_family_labor",
