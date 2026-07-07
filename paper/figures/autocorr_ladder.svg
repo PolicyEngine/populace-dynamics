@@ -1,0 +1,48 @@
+<svg viewBox='0 0 760 430' width='760' height='430' xmlns='http://www.w3.org/2000/svg' style='max-width:100%;height:auto;background:#ffffff'>
+<line x1='58' y1='371.3' x2='542' y2='371.3' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='375.3' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.3</text>
+<line x1='58' y1='307.7' x2='542' y2='307.7' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='311.7' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.4</text>
+<line x1='58' y1='244.1' x2='542' y2='244.1' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='248.1' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.5</text>
+<line x1='58' y1='180.6' x2='542' y2='180.6' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='184.6' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.6</text>
+<line x1='58' y1='117.0' x2='542' y2='117.0' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='121.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.7</text>
+<line x1='58' y1='53.4' x2='542' y2='53.4' stroke='#e8e7e3' stroke-width='1'/>
+<text x='52.0' y='57.4' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='end' font-weight='normal'>0.8</text>
+<text x='16' y='206' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' transform='rotate(-90 16 206)'>autocorrelation of log earnings</text>
+<rect x='34.0' y='66.1' width='60' height='63.6' fill='#52514e' opacity='0.10' rx='3'/>
+<line x1='34.0' y1='97.9' x2='94.0' y2='97.9' stroke='#52514e' stroke-width='1.5' stroke-dasharray='4 3'/>
+<text x='64.0' y='406.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>2-year lag</text>
+<rect x='253.0' y='106.1' width='60' height='76.3' fill='#52514e' opacity='0.10' rx='3'/>
+<line x1='253.0' y1='144.2' x2='313.0' y2='144.2' stroke='#52514e' stroke-width='1.5' stroke-dasharray='4 3'/>
+<text x='283.0' y='406.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>4-year lag</text>
+<rect x='472.0' y='174.9' width='60' height='89.0' fill='#52514e' opacity='0.10' rx='3'/>
+<line x1='472.0' y1='219.4' x2='532.0' y2='219.4' stroke='#52514e' stroke-width='1.5' stroke-dasharray='4 3'/>
+<text x='502.0' y='406.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>10-year lag</text>
+<text x='540.0' y='185.4' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>locked band</text>
+<text x='540.0' y='199.4' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>(PSID reference ± tolerance)</text>
+<polyline points='64.0,100.4 283.0,124.4 502.0,149.6' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,103.3 283.0,120.3 502.0,150.8' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,266.9 283.0,307.0 502.0,336.6' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,66.6 283.0,114.2 502.0,170.2' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,104.1 283.0,160.9 502.0,250.5' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,107.3 283.0,149.0 502.0,240.0' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,122.3 283.0,213.5 502.0,319.7' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,104.9 283.0,157.5 502.0,270.2' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,59.0 283.0,96.3 502.0,136.2' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,80.6 283.0,131.5 502.0,235.5' fill='none' stroke='#b2b0a9' stroke-width='1.5' opacity='0.75' stroke-linejoin='round'/>
+<polyline points='64.0,100.7 283.0,198.0 502.0,350.4' fill='none' stroke='#eb6834' stroke-width='2.5' opacity='1.0' stroke-linejoin='round'/>
+<circle cx='64.0' cy='100.7' r='4.5' fill='#eb6834'/>
+<circle cx='283.0' cy='198.0' r='4.5' fill='#eb6834'/>
+<circle cx='502.0' cy='350.4' r='4.5' fill='#eb6834'/>
+<polyline points='64.0,70.8 283.0,120.4 502.0,237.8' fill='none' stroke='#2a78d6' stroke-width='2.5' opacity='1.0' stroke-linejoin='round'/>
+<circle cx='64.0' cy='70.8' r='4.5' fill='#2a78d6'/>
+<circle cx='283.0' cy='120.4' r='4.5' fill='#2a78d6'/>
+<circle cx='502.0' cy='237.8' r='4.5' fill='#2a78d6'/>
+<text x='540.0' y='140.2' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>run 10: permanent-rank matching</text>
+<text x='540.0' y='241.8' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#2a78d6' text-anchor='start' font-weight='600'>run 12: inner-validated composition</text>
+<text x='540.0' y='354.4' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#eb6834' text-anchor='start' font-weight='600'>run 1: chained QRF baseline</text>
+<text x='64.0' y='20.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>other registered runs shown in grey</text>
+</svg>

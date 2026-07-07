@@ -529,6 +529,12 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | calibrated blend + Q0 regime | 0.757 | 0.677 | 0.514 | fail |
 | inner-validated composition | 0.773 | 0.695 | 0.510 | fail |
 
+![The autocorrelation ladder across the twelve registered runs.
+Shaded bands are the locked tolerances around the committed PSID
+reference at each horizon. Every value is computed from the
+committed run artifacts at figure-build time
+(`scripts/build_paper_figures.py`).](figures/autocorr_ladder.svg){#fig-ladder}
+
 The baseline failed exactly where the pre-lock review predicted a
 one-step chain must: window-2 geometry passed on every seed while
 the 10-year autocorrelation collapsed toward the Markov value. The
@@ -577,6 +583,13 @@ their estimated permanent rank rather than their observed anchor
 converted anchor noise into permanent signal and overshot every
 rung: the tenth registration, and the second time the program
 measured the same lesson from the opposite side.
+
+![Per-seed gate conjunction for the twelve registered runs, from
+the committed run artifacts. Each cell shows the five locked
+holdout seeds; gate 1 requires at least four of five on geometry
+and on battery jointly, and runs 11--12 were additionally scored
+on the amended benefit-space block and the pooled zero-anchor
+gate.](figures/gate_scorecard.svg){#fig-scorecard}
 
 ## How existing models solve the joint problem
 
@@ -749,11 +762,30 @@ the pairs-view classifier by 0.0015 and 0.0030. Twelve registered
 runs in, the program's entire remaining distance to its own gate is
 a classifier residual of thousandths on one view.
 
+A twenty-seed extension of that measurement — reported, not gated —
+placed the residual against the matched real-vs-real floor
+(@fig-noise). The twenty-seed mean sits 0.0066 below the locked
+0.53 line; the five locked gate seeds alone average 0.0021 below
+it, and the two seeds that clip the line are the two largest
+candidate scores across all twenty. Whether that pattern is seed
+noise or a seed-set property is exactly the question the second
+amendment proposal put to a fresh referee round, and the referee's
+findings — including that the locked seeds are not exchangeable
+with the fresh ones in the damaging direction — are public on the
+proposal record.
+
+![The twenty-seed extension of the run-12 pairs-view classifier
+measurement (reported, not gated), from the committed diagnostics
+artifact. Blue: candidate 10 scored against real holdouts; grey:
+the matched real-vs-real floor. Ringed points are the five locked
+gate seeds; both the twenty-seed and locked-five candidate means
+are marked.](figures/c2st_noise.svg){#fig-noise}
+
 ## What failure buys
 
-Twelve registered runs, twelve published failures, one refereed
-amendment, and two graded forecasts is the protocol working as
-designed. Each failure published with the same prominence as a pass would,
+Twelve registered runs, twelve published failures, one ratified
+amendment with a second proposal under adversarial review, and two
+graded forecasts is the protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the

@@ -1,0 +1,201 @@
+<svg viewBox='0 0 760 446' width='760' height='446' xmlns='http://www.w3.org/2000/svg' style='max-width:100%;height:auto;background:#ffffff'>
+<text x='20.0' y='24.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>registered run</text>
+<text x='388.0' y='24.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>geometry</text>
+<text x='508.0' y='24.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>battery</text>
+<text x='388.0' y='40.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>seeds passed (of 5)</text>
+<text x='508.0' y='40.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>seeds passed (of 5)</text>
+<text x='618.0' y='24.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>pooled Q0</text>
+<text x='686.0' y='24.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='middle' font-weight='normal'>gate 1</text>
+<rect x='10' y='47' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='64.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>1.</text>
+<text x='44.0' y='64.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>chained weighted QRF (baseline)</text>
+<circle cx='358' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='60' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='64.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='64.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='64.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='91.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>2.</text>
+<text x='44.0' y='91.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>+ person effect as feature</text>
+<circle cx='358' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='87' r='5' fill='#2a78d6'/>
+<circle cx='388' cy='87' r='5' fill='#2a78d6'/>
+<circle cx='403' cy='87' r='5' fill='#2a78d6'/>
+<circle cx='418' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='87' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='91.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='91.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='91.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<rect x='10' y='101' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='118.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>3.</text>
+<text x='44.0' y='118.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>+ persistence-aware decomposition</text>
+<circle cx='358' cy='114' r='5' fill='#2a78d6'/>
+<circle cx='373' cy='114' r='5' fill='#2a78d6'/>
+<circle cx='388' cy='114' r='5' fill='#2a78d6'/>
+<circle cx='403' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='114' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='118.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='118.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='118.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='145.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>4.</text>
+<text x='44.0' y='145.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>structural three-component assembly</text>
+<circle cx='358' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='141' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='145.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='145.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='145.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<rect x='10' y='155' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='172.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>5.</text>
+<text x='44.0' y='172.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>donor splicing (single-donor)</text>
+<circle cx='358' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='168' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='172.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='172.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='172.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='199.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>6.</text>
+<text x='44.0' y='199.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>donor splicing (segments)</text>
+<circle cx='358' cy='195' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='195' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='195' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='195' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='195' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='195' r='5' fill='#2a78d6'/>
+<circle cx='493' cy='195' r='5' fill='#2a78d6'/>
+<circle cx='508' cy='195' r='5' fill='#2a78d6'/>
+<circle cx='523' cy='195' r='5' fill='#2a78d6'/>
+<circle cx='538' cy='195' r='5' fill='#2a78d6'/>
+<text x='618.0' y='199.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='199.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='199.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<rect x='10' y='209' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='226.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>7.</text>
+<text x='44.0' y='226.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>Gaussian-copula rank dynamics</text>
+<circle cx='358' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='222' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='226.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='226.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='226.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='253.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>8.</text>
+<text x='44.0' y='253.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>empirical rank kernel</text>
+<circle cx='358' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='249' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='253.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='253.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='253.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<rect x='10' y='263' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='280.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>9.</text>
+<text x='44.0' y='280.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>k-NN rank bootstrap</text>
+<circle cx='358' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='276' r='5' fill='#2a78d6'/>
+<circle cx='388' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='276' r='5' fill='#2a78d6'/>
+<circle cx='418' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='276' r='5' fill='#2a78d6'/>
+<circle cx='493' cy='276' r='5' fill='#2a78d6'/>
+<circle cx='508' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='276' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='280.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='280.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='280.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='307.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>10.</text>
+<text x='44.0' y='307.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>permanent-rank matching</text>
+<circle cx='358' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='523' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='538' cy='303' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='307.0' font-family='system-ui, -apple-system, sans-serif' font-size='10' fill='#52514e' text-anchor='middle' font-weight='normal'>not scored</text>
+<text x='672.0' y='307.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='307.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<rect x='10' y='317' width='740' height='27' fill='#52514e' opacity='0.05' rx='3'/>
+<text x='20.0' y='334.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>11.</text>
+<text x='44.0' y='334.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>calibrated blend + Q0 regime</text>
+<circle cx='358' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='403' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='418' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='478' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='508' cy='330' r='5' fill='#2a78d6'/>
+<circle cx='523' cy='330' r='5' fill='#2a78d6'/>
+<circle cx='538' cy='330' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='618.0' y='334.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='672.0' y='334.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='334.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<text x='20.0' y='361.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#52514e' text-anchor='start' font-weight='normal'>12.</text>
+<text x='44.0' y='361.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='normal'>inner-validated composition</text>
+<circle cx='358' cy='357' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='373' cy='357' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='388' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='403' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='418' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='478' cy='357' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<circle cx='493' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='508' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='523' cy='357' r='5' fill='#2a78d6'/>
+<circle cx='538' cy='357' r='5' fill='#2a78d6'/>
+<text x='618.0' y='361.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#0ca30c' text-anchor='middle' font-weight='700'>✓</text>
+<text x='672.0' y='361.0' font-family='system-ui, -apple-system, sans-serif' font-size='13' fill='#e34948' text-anchor='middle' font-weight='700'>✕</text>
+<text x='684.0' y='361.0' font-family='system-ui, -apple-system, sans-serif' font-size='12' fill='#e34948' text-anchor='start' font-weight='normal'>fail</text>
+<circle cx='24' cy='390' r='5' fill='#2a78d6'/>
+<text x='34.0' y='394.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>seed passed</text>
+<circle cx='124' cy='390' r='5' fill='none' stroke='#b2b0a9' stroke-width='1.5'/>
+<text x='134.0' y='394.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>seed failed</text>
+<text x='20.0' y='414.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>gate 1 requires ≥4/5 seeds on geometry AND ≥4/5 on battery;</text>
+<text x='20.0' y='428.0' font-family='system-ui, -apple-system, sans-serif' font-size='11' fill='#52514e' text-anchor='start' font-weight='normal'>runs 11–12 were also scored on the amended benefit-space block and pooled Q0.</text>
+</svg>
