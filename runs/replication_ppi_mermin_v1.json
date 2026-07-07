@@ -1,0 +1,2140 @@
+{
+  "schema_version": "replication_ppi_mermin.v1",
+  "run": "replication_ppi_mermin_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4907444903",
+  "registration_pointer": "#42 comment 4907444903",
+  "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+  "reform_delta_reference": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4906177609",
+  "purpose": "Phase-A external-anchor replication: can the certified earnings generator (candidate 11) reproduce the incidence structure of Mermin (2005)'s price-indexing and progressive-price-indexing tables (percent of scheduled by career-average-earnings quintile)? Reads no gate, changes no gate; publishes regardless of outcome.",
+  "deviation_from_registration": "Careers and AIME deviate from the registration by task-coordinator direction, because the certified generator (candidate 11) is native to the gate-filtered panel (ages 25-59, periods 1998-2022, biennial) and cannot be run on the fuller pia_observed support without re-parameterizing a locked, gate-certified object. Both real and generated careers are therefore evaluated on the COMMON gate-filtered support, for the same persons, with one identical AIME convention (the committed PIA-proxy biennial convention through the full statutory 415(a) formula at the 2050 transport). The restriction is SYMMETRIC, so the real-vs-generated comparison stays clean; the DYNASIM comparison gains a named truncated-observation-window population delta. Person selection uses the pia_observed coverage rule (coverage_floor 0.8, long-stayer) remapped to a span-based coverage on the gate window (the pia_observed cohort, eligible 2005-2019, overlaps the gate window only at ages ~41-59 and is 30-45 years older than Mermin's 2050 retirees). Empirical consequence, documented: our common-support AIME distribution is compressed relative to bends (~90% below the second bend), so the incidence gradient is flatter and higher than DYNASIM's and the registration's +/-4pp-at-Q2-Q4 expectation is not met -- by construction of the support restriction, not by model failure.",
+  "anchor_provenance": {
+    "paper": "Mermin, G. B. T. (2005). The Effect of Benefit Reductions on the Distribution of Social Security Benefits. Urban Institute report 411260. DYNASIM3, Runid 432. 2005 Trustees intermediate assumptions; CBO (2005) solvency scoring.",
+    "source_files": [
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.pdf",
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.txt"
+    ],
+    "pi_mechanics": {
+      "citation": "printed p.2 (Policy Scenarios) and p.4 (Implementation of Indexing Proposals)",
+      "quote_start": "Beginning in 2012, initial benefit growth is indexed to prices instead of wages.",
+      "quote_mechanism": "The indexing proposals continue to index the bend points to the growth in wages but reduce the growth of initial benefits by reducing the formula factors. Price indexing reduces all of the formula factors each year by the growth in inflation-adjusted wages.",
+      "encoding": "all PIA formula factors scaled by the cumulative wedge W from 2012 to the 2050 eligibility year; bend points remain wage-indexed; PI/scheduled = W (quintile invariant)"
+    },
+    "ppi_mechanics": {
+      "citation": "printed p.2 (Policy Scenarios) and p.4",
+      "quote": "Progressive price indexing adds a new bend point at the 30th percentile of career average earnings. Factors beyond the new bend point are reduced such that starting benefits for workers who always earn the maximum amount covered by Social Security remain constant over time in inflation-adjusted dollars.",
+      "encoding": "new bend at the weighted 30th percentile of the study population's own AIME; factors below unchanged; factors above scaled by the same wedge W; continuous at the bend",
+      "reference_population_gap": "the paper does NOT name the population defining the 30th percentile; we use each side's own AIME distribution"
+    },
+    "population_and_quintile": {
+      "citation": "Table 2 title + notes (PDF p.16); p.3 (Methodology) and fn.9",
+      "population": "retired workers aged 62-67 in 2050, own-record benefits only, N=5351",
+      "quintile_variable_paper": "SHARED lifetime income quintile: a worker's entire earnings in single years plus half of both spouses' earnings in married years, wage-indexed like AIME (p.3, fn.9)",
+      "career_average_definition": "career average annual earnings = average indexed monthly earnings * 12 (Figure 1 note, PDF p.14)",
+      "phase_a_analogue": "Phase A has no marriage/survivorship (gate-C territory), so the quintile variable here is the INDIVIDUAL own-record career-average earnings (AIME*12), a named population delta vs the paper's spouse-shared measure"
+    },
+    "table2_retired_workers_62_67_in_2050": {
+      "citation": "Table 2, PDF p.16 (Percent of Scheduled Benefits)",
+      "quintile_order": "lowest -> highest shared-lifetime-income",
+      "scheduled_mean_2005usd": {
+        "by_quintile": [
+          9200,
+          13900,
+          18100,
+          21900,
+          25600
+        ],
+        "all": 17700
+      },
+      "price_indexing_pct": {
+        "by_quintile": [
+          67.8,
+          67.8,
+          67.9,
+          67.8,
+          67.8
+        ],
+        "all": 67.8
+      },
+      "progressive_price_indexing_pct": {
+        "by_quintile": [
+          98.7,
+          90.4,
+          81.3,
+          75.7,
+          71.7
+        ],
+        "all": 80.4
+      }
+    },
+    "table1_75yr_payroll_effect_pct": {
+      "citation": "Table 1, PDF p.15 (percent of taxable payroll, CBO 2005 scoring)",
+      "values": {
+        "scheduled_deficit": -1.69,
+        "price_indexing": 0.68,
+        "progressive_price_indexing": -0.14
+      }
+    },
+    "wedge_source": {
+      "paper_states_number": false,
+      "citation": "printed p.3 (2005 TR intermediate assumptions); fn.6 (2.8% current-law COLA)",
+      "fallback": "the paper states no numeric real-wage differential; we use the 2005 OASDI Trustees Report intermediate ULTIMATE real-wage differential of 1.1 percentage points (nominal average-wage growth 3.9% over CPI 2.8%), consistent with Mermin fn.6's 2.8% COLA. Not tuned to DYNASIM's 67.8.",
+      "wedge_formula": "W = (1.028/1.039)**(2050-2012)"
+    },
+    "named_population_deltas": [
+      "observed PSID prime-age biennial careers (this study) vs DYNASIM's full projected 2050 careers (Mermin)",
+      "individual own-record career-average earnings (this study) vs spouse-shared lifetime earnings quintiles (Mermin)",
+      "truncated observation window: gate-filtered ages 25-59, 1998-2022 biennial (this study) vs full 415(b) careers (Mermin)",
+      "2005 Trustees vintage wedge applied to a single 2050-transport cohort (this study) vs Mermin's 62-67-in-2050 mixed-eligibility cohort (mean eligibility ~2047)"
+    ]
+  },
+  "transport_and_conventions": {
+    "eligibility_year": 2050,
+    "index_year": 2048,
+    "index_nawi": 169240.76360352724,
+    "nawi_last_in_pe_us": 2035,
+    "nawi_projection": "NAWI extended past its last pe-us entry to the 2048 indexing year at the 2005 TR nominal average-wage growth (CPI 2.8% + 1.1pp = 3.9%); 2050 bend points derived per 415(a)(1)(B) from the projected AWI. Every incidence RATIO is invariant to the projection level (AIME and bends both scale with NAWI[2048]).",
+    "bend_points_2050": [
+      3115.0,
+      18777.0
+    ],
+    "pia_factors": [
+      0.9,
+      0.32,
+      0.15
+    ],
+    "wedge": 0.6673406036884157,
+    "wedge_years": 38,
+    "wedge_formula": "(1.028/1.039)**(2050-2012)",
+    "aime_convention": "committed PIA-proxy biennial convention (cap at historical wage base; NAWI-index to 2048; top min(10,n) over count*12*2; 415(b) dollar floor)",
+    "ppi_bend": "weighted 30th percentile of each side's own transported AIME",
+    "quintile_variable": "own-distribution career-average earnings (AIME*12); weighted 20% quintiles",
+    "ratio_415g_note": "incidence ratio uses the pre-415(g) PIA amount; the sub-$0.10 dime rounding is omitted from the ratio only"
+  },
+  "person_selection": {
+    "rule": "pia_observed coverage rule remapped to the gate window: positive-earnings biennial coverage >= 0.8 over the person's observed in-window span AND >= 8 positive biennial observations",
+    "coverage_floor": 0.8,
+    "min_positive_biennial_obs": 8,
+    "n_selected": 4835
+  },
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "common_support": "gate-filtered ages 25-59, 1998-2022 biennial",
+    "generation": "candidate 11 (run 13) fit on the seed's train complement, generated on the holdout support -- imported byte-for-byte from reform_delta_diagnostic.fit_and_generate_candidate11",
+    "floor": "real-vs-real ctx20 on the coverage-selected panel (fraction=0.4 seed=1000+s, then fraction=0.5 seed=s); two disjoint ~20%-of-selected halves, per-quintile A-vs-B gap",
+    "metric": "weighted-mean reform/scheduled PIA ratio (percent) by own AIME quintile, per provision (PI, PPI), per side (real, generated), per seed; pooled across seeds; floors per quintile"
+  },
+  "three_way_comparison": {
+    "ppi_by_quintile": [
+      {
+        "quintile": 1,
+        "dynasim_pct": 98.7,
+        "real_pooled": {
+          "mean": 100.0,
+          "sd": 0.0,
+          "min": 100.0,
+          "max": 100.0,
+          "n_seeds": 5,
+          "values": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ]
+        },
+        "generated_pooled": {
+          "mean": 100.0,
+          "sd": 0.0,
+          "min": 100.0,
+          "max": 100.0,
+          "n_seeds": 5,
+          "values": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ]
+        },
+        "realgen_gap": {
+          "per_seed_signed": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "abs": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "signed": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "floor_gap": {
+          "per_seed_signed": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "abs": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "signed": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "realgen_scale": 0.0,
+        "floor_scale": 0.0,
+        "generated_cut_smaller_than_real": false,
+        "gap_exceeds_floor": false
+      },
+      {
+        "quintile": 2,
+        "dynasim_pct": 90.4,
+        "real_pooled": {
+          "mean": 99.32791659885845,
+          "sd": 0.06370175416605667,
+          "min": 99.25192292941533,
+          "max": 99.38191549065827,
+          "n_seeds": 5,
+          "values": [
+            99.38191549065827,
+            99.36459633805687,
+            99.25192292941533,
+            99.37574434786418,
+            99.26540388829754
+          ]
+        },
+        "generated_pooled": {
+          "mean": 99.37730734269621,
+          "sd": 0.08906272274617916,
+          "min": 99.30732127394435,
+          "max": 99.52302791456547,
+          "n_seeds": 5,
+          "values": [
+            99.52302791456547,
+            99.30732127394435,
+            99.39566351043617,
+            99.35066621493789,
+            99.30985779959714
+          ]
+        },
+        "realgen_gap": {
+          "per_seed_signed": [
+            0.14111242390720236,
+            -0.057275064112516816,
+            0.1437405810208361,
+            -0.025078132926296348,
+            0.0444539112995983
+          ],
+          "abs": {
+            "mean": 0.08233202265328998,
+            "sd": 0.05605077384001647,
+            "min": 0.025078132926296348,
+            "max": 0.1437405810208361,
+            "n_seeds": 5,
+            "values": [
+              0.14111242390720236,
+              0.057275064112516816,
+              0.1437405810208361,
+              0.025078132926296348,
+              0.0444539112995983
+            ]
+          },
+          "signed": {
+            "mean": 0.04939074383776472,
+            "sd": 0.09255044418981671,
+            "min": -0.057275064112516816,
+            "max": 0.1437405810208361,
+            "n_seeds": 5,
+            "values": [
+              0.14111242390720236,
+              -0.057275064112516816,
+              0.1437405810208361,
+              -0.025078132926296348,
+              0.0444539112995983
+            ]
+          }
+        },
+        "floor_gap": {
+          "per_seed_signed": [
+            -0.05212498072000926,
+            0.08269471312119947,
+            -0.2633302007192242,
+            -0.19654505587206472,
+            -0.005634832241469212
+          ],
+          "abs": {
+            "mean": 0.12006595653479338,
+            "sd": 0.10663109834043936,
+            "min": 0.005634832241469212,
+            "max": 0.2633302007192242,
+            "n_seeds": 5,
+            "values": [
+              0.05212498072000926,
+              0.08269471312119947,
+              0.2633302007192242,
+              0.19654505587206472,
+              0.005634832241469212
+            ]
+          },
+          "signed": {
+            "mean": -0.08698807128631358,
+            "sd": 0.14117835474645574,
+            "min": -0.2633302007192242,
+            "max": 0.08269471312119947,
+            "n_seeds": 5,
+            "values": [
+              -0.05212498072000926,
+              0.08269471312119947,
+              -0.2633302007192242,
+              -0.19654505587206472,
+              -0.005634832241469212
+            ]
+          }
+        },
+        "realgen_scale": 0.08233202265328998,
+        "floor_scale": 0.12006595653479338,
+        "generated_cut_smaller_than_real": true,
+        "gap_exceeds_floor": false
+      },
+      {
+        "quintile": 3,
+        "dynasim_pct": 81.3,
+        "real_pooled": {
+          "mean": 94.84416373149558,
+          "sd": 0.3791405568285508,
+          "min": 94.20153931540243,
+          "max": 95.17019649229735,
+          "n_seeds": 5,
+          "values": [
+            95.02360789728868,
+            94.82870825371194,
+            94.20153931540243,
+            95.17019649229735,
+            94.99676669877755
+          ]
+        },
+        "generated_pooled": {
+          "mean": 94.67831988938846,
+          "sd": 0.5167931947871607,
+          "min": 94.21121622044556,
+          "max": 95.34915138172566,
+          "n_seeds": 5,
+          "values": [
+            95.34915138172566,
+            94.21121622044556,
+            94.26717761371802,
+            95.10571813155265,
+            94.45833609950043
+          ]
+        },
+        "realgen_gap": {
+          "per_seed_signed": [
+            0.32554348443697734,
+            -0.6174920332663731,
+            0.06563829831559076,
+            -0.06447836074470104,
+            -0.5384305992771203
+          ],
+          "abs": {
+            "mean": 0.3223165552081525,
+            "sd": 0.2579769941528543,
+            "min": 0.06447836074470104,
+            "max": 0.6174920332663731,
+            "n_seeds": 5,
+            "values": [
+              0.32554348443697734,
+              0.6174920332663731,
+              0.06563829831559076,
+              0.06447836074470104,
+              0.5384305992771203
+            ]
+          },
+          "signed": {
+            "mean": -0.16584384210712527,
+            "sd": 0.40253180837995645,
+            "min": -0.6174920332663731,
+            "max": 0.32554348443697734,
+            "n_seeds": 5,
+            "values": [
+              0.32554348443697734,
+              -0.6174920332663731,
+              0.06563829831559076,
+              -0.06447836074470104,
+              -0.5384305992771203
+            ]
+          }
+        },
+        "floor_gap": {
+          "per_seed_signed": [
+            -0.1337524674745083,
+            -0.08296968086338552,
+            -0.7061709694369256,
+            -0.16263352257865904,
+            0.6699848816402607
+          ],
+          "abs": {
+            "mean": 0.35110230439874784,
+            "sd": 0.309199123582151,
+            "min": 0.08296968086338552,
+            "max": 0.7061709694369256,
+            "n_seeds": 5,
+            "values": [
+              0.1337524674745083,
+              0.08296968086338552,
+              0.7061709694369256,
+              0.16263352257865904,
+              0.6699848816402607
+            ]
+          },
+          "signed": {
+            "mean": -0.08310835174264355,
+            "sd": 0.49098002561701565,
+            "min": -0.7061709694369256,
+            "max": 0.6699848816402607,
+            "n_seeds": 5,
+            "values": [
+              -0.1337524674745083,
+              -0.08296968086338552,
+              -0.7061709694369256,
+              -0.16263352257865904,
+              0.6699848816402607
+            ]
+          }
+        },
+        "realgen_scale": 0.3223165552081525,
+        "floor_scale": 0.35110230439874784,
+        "generated_cut_smaller_than_real": false,
+        "gap_exceeds_floor": false
+      },
+      {
+        "quintile": 4,
+        "dynasim_pct": 75.7,
+        "real_pooled": {
+          "mean": 90.00971976042061,
+          "sd": 0.3192044022149367,
+          "min": 89.68858905510984,
+          "max": 90.41426957918802,
+          "n_seeds": 5,
+          "values": [
+            89.74478276572336,
+            89.93598807205069,
+            89.68858905510984,
+            90.26496933003114,
+            90.41426957918802
+          ]
+        },
+        "generated_pooled": {
+          "mean": 89.83481557069624,
+          "sd": 0.5475700296592867,
+          "min": 89.30223105237977,
+          "max": 90.54761926740686,
+          "n_seeds": 5,
+          "values": [
+            90.2766585585252,
+            89.42659787556212,
+            89.30223105237977,
+            90.54761926740686,
+            89.62097109960722
+          ]
+        },
+        "realgen_gap": {
+          "per_seed_signed": [
+            0.5318757928018414,
+            -0.5093901964885674,
+            -0.38635800273007703,
+            0.28264993737572297,
+            -0.7932984795807982
+          ],
+          "abs": {
+            "mean": 0.5007144817954015,
+            "sd": 0.19188619083088176,
+            "min": 0.28264993737572297,
+            "max": 0.7932984795807982,
+            "n_seeds": 5,
+            "values": [
+              0.5318757928018414,
+              0.5093901964885674,
+              0.38635800273007703,
+              0.28264993737572297,
+              0.7932984795807982
+            ]
+          },
+          "signed": {
+            "mean": -0.17490418972437566,
+            "sd": 0.5585469596213077,
+            "min": -0.7932984795807982,
+            "max": 0.5318757928018414,
+            "n_seeds": 5,
+            "values": [
+              0.5318757928018414,
+              -0.5093901964885674,
+              -0.38635800273007703,
+              0.28264993737572297,
+              -0.7932984795807982
+            ]
+          }
+        },
+        "floor_gap": {
+          "per_seed_signed": [
+            -0.7943772492286314,
+            -0.15343857512982595,
+            -0.26814372982872214,
+            -0.950067701064711,
+            -0.1950284142316434
+          ],
+          "abs": {
+            "mean": 0.47221113389670677,
+            "sd": 0.371560094184105,
+            "min": 0.15343857512982595,
+            "max": 0.950067701064711,
+            "n_seeds": 5,
+            "values": [
+              0.7943772492286314,
+              0.15343857512982595,
+              0.26814372982872214,
+              0.950067701064711,
+              0.1950284142316434
+            ]
+          },
+          "signed": {
+            "mean": -0.47221113389670677,
+            "sd": 0.371560094184105,
+            "min": -0.950067701064711,
+            "max": -0.15343857512982595,
+            "n_seeds": 5,
+            "values": [
+              -0.7943772492286314,
+              -0.15343857512982595,
+              -0.26814372982872214,
+              -0.950067701064711,
+              -0.1950284142316434
+            ]
+          }
+        },
+        "realgen_scale": 0.5007144817954015,
+        "floor_scale": 0.47221113389670677,
+        "generated_cut_smaller_than_real": false,
+        "gap_exceeds_floor": true
+      },
+      {
+        "quintile": 5,
+        "dynasim_pct": 71.7,
+        "real_pooled": {
+          "mean": 84.65031922800884,
+          "sd": 0.39612010767680106,
+          "min": 84.1926726987562,
+          "max": 85.15627670348107,
+          "n_seeds": 5,
+          "values": [
+            84.1926726987562,
+            84.50993234048127,
+            84.43342776095494,
+            84.95928663637068,
+            85.15627670348107
+          ]
+        },
+        "generated_pooled": {
+          "mean": 84.42121897138956,
+          "sd": 0.32120659276730534,
+          "min": 84.02318179296525,
+          "max": 84.81724039184033,
+          "n_seeds": 5,
+          "values": [
+            84.64948626961359,
+            84.20877728885966,
+            84.02318179296525,
+            84.81724039184033,
+            84.40740911366902
+          ]
+        },
+        "realgen_gap": {
+          "per_seed_signed": [
+            0.45681357085739194,
+            -0.30115505162160616,
+            -0.41024596798969526,
+            -0.14204624453034853,
+            -0.7488675898120505
+          ],
+          "abs": {
+            "mean": 0.4118256849622185,
+            "sd": 0.2239713076331312,
+            "min": 0.14204624453034853,
+            "max": 0.7488675898120505,
+            "n_seeds": 5,
+            "values": [
+              0.45681357085739194,
+              0.30115505162160616,
+              0.41024596798969526,
+              0.14204624453034853,
+              0.7488675898120505
+            ]
+          },
+          "signed": {
+            "mean": -0.2291002566192617,
+            "sd": 0.44334521612100514,
+            "min": -0.7488675898120505,
+            "max": 0.45681357085739194,
+            "n_seeds": 5,
+            "values": [
+              0.45681357085739194,
+              -0.30115505162160616,
+              -0.41024596798969526,
+              -0.14204624453034853,
+              -0.7488675898120505
+            ]
+          }
+        },
+        "floor_gap": {
+          "per_seed_signed": [
+            -1.0755643684192933,
+            -0.38337166630097386,
+            0.057289795980523195,
+            -0.6696118344275988,
+            0.13891407932970878
+          ],
+          "abs": {
+            "mean": 0.46495034889161957,
+            "sd": 0.41649659705344205,
+            "min": 0.057289795980523195,
+            "max": 1.0755643684192933,
+            "n_seeds": 5,
+            "values": [
+              1.0755643684192933,
+              0.38337166630097386,
+              0.057289795980523195,
+              0.6696118344275988,
+              0.13891407932970878
+            ]
+          },
+          "signed": {
+            "mean": -0.38646879876752677,
+            "sd": 0.5069470223791899,
+            "min": -1.0755643684192933,
+            "max": 0.13891407932970878,
+            "n_seeds": 5,
+            "values": [
+              -1.0755643684192933,
+              -0.38337166630097386,
+              0.057289795980523195,
+              -0.6696118344275988,
+              0.13891407932970878
+            ]
+          }
+        },
+        "realgen_scale": 0.4118256849622185,
+        "floor_scale": 0.46495034889161957,
+        "generated_cut_smaller_than_real": false,
+        "gap_exceeds_floor": false
+      }
+    ],
+    "ppi_all": {
+      "dynasim_pct": 80.4,
+      "note": "our common-support 'all' is the weighted mean over careers of the PPI ratio; recorded in per_seed overall_ppi_ratio_pct"
+    },
+    "pi_scalars": {
+      "real_pooled_mean_pct": {
+        "mean": 66.73406036884157,
+        "sd": 7.105427357601002e-15,
+        "min": 66.73406036884157,
+        "max": 66.73406036884158,
+        "n_seeds": 5,
+        "values": [
+          66.73406036884157,
+          66.73406036884158,
+          66.73406036884157,
+          66.73406036884157,
+          66.73406036884157
+        ]
+      },
+      "generated_pooled_mean_pct": {
+        "mean": 66.73406036884157,
+        "sd": 0.0,
+        "min": 66.73406036884157,
+        "max": 66.73406036884157,
+        "n_seeds": 5,
+        "values": [
+          66.73406036884157,
+          66.73406036884157,
+          66.73406036884157,
+          66.73406036884157,
+          66.73406036884157
+        ]
+      },
+      "real_by_quintile_pooled": [
+        {
+          "mean": 66.73406036884157,
+          "sd": 7.105427357601002e-15,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884158
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 1.0048591735576161e-14,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884158,
+            66.73406036884158,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 0.0,
+          "min": 66.73406036884157,
+          "max": 66.73406036884157,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 0.0,
+          "min": 66.73406036884157,
+          "max": 66.73406036884157,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 0.0,
+          "min": 66.73406036884157,
+          "max": 66.73406036884157,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        }
+      ],
+      "generated_by_quintile_pooled": [
+        {
+          "mean": 66.73406036884157,
+          "sd": 7.105427357601002e-15,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884158
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 7.105427357601002e-15,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884158
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 0.0,
+          "min": 66.73406036884157,
+          "max": 66.73406036884157,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 7.105427357601002e-15,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884158,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157
+          ]
+        },
+        {
+          "mean": 66.73406036884157,
+          "sd": 7.105427357601002e-15,
+          "min": 66.73406036884157,
+          "max": 66.73406036884158,
+          "n_seeds": 5,
+          "values": [
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884157,
+            66.73406036884158
+          ]
+        }
+      ],
+      "wedge_implied_scalar_pct": 66.73406036884157,
+      "dynasim_pct": 67.8
+    },
+    "directional_prediction": {
+      "prediction": "generated top-quintile (Q5) cut smaller than real (under-concentrated cap-riding careers -> too-low top AIME -> less exposure above the bend); real-vs-generated gap exceeds its floor at Q5 only, not at Q1-Q3",
+      "q5_generated_cut_smaller": false,
+      "q5_gap_exceeds_floor": false,
+      "q1_q3_gaps_within_floor": true,
+      "prediction_held": false
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_selected_holdout_persons": 958,
+      "real": {
+        "n_persons": 958,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 5625.075085700776,
+        "quintile_cutpoints_aime": [
+          4552.149055132281,
+          6550.455893885044,
+          8731.872405598098,
+          13255.701364337407
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.66442795559263,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 218,
+            "n_positive": 218,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3464.71171455428,
+            "mean_scheduled_amount": 2793.561441999262
+          },
+          {
+            "quintile": 2,
+            "n_persons": 215,
+            "n_positive": 215,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.38191549065827,
+            "mean_aime": 5550.386038150524,
+            "mean_scheduled_amount": 3582.823532208167
+          },
+          {
+            "quintile": 3,
+            "n_persons": 203,
+            "n_positive": 203,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 95.02360789728868,
+            "mean_aime": 7633.153250852421,
+            "mean_scheduled_amount": 4249.309040272774
+          },
+          {
+            "quintile": 4,
+            "n_persons": 177,
+            "n_positive": 177,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.74478276572336,
+            "mean_aime": 10733.395452786186,
+            "mean_scheduled_amount": 5241.386544891579
+          },
+          {
+            "quintile": 5,
+            "n_persons": 145,
+            "n_positive": 145,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.1926726987562,
+            "mean_aime": 15913.807450419685,
+            "mean_scheduled_amount": 6899.1183841343
+          }
+        ]
+      },
+      "generated": {
+        "n_persons": 958,
+        "n_zero_scheduled_excluded": 1,
+        "bend30_aime": 5500.779597352968,
+        "quintile_cutpoints_aime": [
+          4376.401452357686,
+          6266.647861943475,
+          8539.428591352858,
+          12260.359232409382
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.9392676684584,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 211,
+            "n_positive": 210,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 2833.8100330167217,
+            "mean_scheduled_amount": 2379.74915206192
+          },
+          {
+            "quintile": 2,
+            "n_persons": 193,
+            "n_positive": 193,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.52302791456547,
+            "mean_aime": 5356.762844227974,
+            "mean_scheduled_amount": 3520.8641101529515
+          },
+          {
+            "quintile": 3,
+            "n_persons": 195,
+            "n_positive": 195,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 95.34915138172566,
+            "mean_aime": 7348.109150627375,
+            "mean_scheduled_amount": 4158.09492820076
+          },
+          {
+            "quintile": 4,
+            "n_persons": 207,
+            "n_positive": 207,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.2766585585252,
+            "mean_aime": 10188.172545586385,
+            "mean_scheduled_amount": 5066.915214587643
+          },
+          {
+            "quintile": 5,
+            "n_persons": 152,
+            "n_positive": 152,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.64948626961359,
+            "mean_aime": 15179.843334346144,
+            "mean_scheduled_amount": 6664.249866990766
+          }
+        ]
+      },
+      "floor": {
+        "n_persons_side_a": 964,
+        "n_persons_side_b": 954,
+        "side_a": {
+          "n_persons": 964,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5312.936995774106,
+          "quintile_cutpoints_aime": [
+            4509.142340616212,
+            6405.155517057569,
+            8606.776928202036,
+            12545.42185403259
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.47883926066443,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 221,
+              "n_positive": 221,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3219.4559973250907,
+              "mean_scheduled_amount": 2666.3774238923447
+            },
+            {
+              "quintile": 2,
+              "n_persons": 205,
+              "n_positive": 205,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 99.23519761444572,
+              "mean_aime": 5351.137498037935,
+              "mean_scheduled_amount": 3519.0639993721393
+            },
+            {
+              "quintile": 3,
+              "n_persons": 194,
+              "n_positive": 194,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.59892250509866,
+              "mean_aime": 7470.035426843867,
+              "mean_scheduled_amount": 4197.111336590037
+            },
+            {
+              "quintile": 4,
+              "n_persons": 194,
+              "n_positive": 194,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.45365961433544,
+              "mean_aime": 10471.71280759093,
+              "mean_scheduled_amount": 5157.648098429097
+            },
+            {
+              "quintile": 5,
+              "n_persons": 150,
+              "n_positive": 150,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.03371319699994,
+              "mean_aime": 15560.350516894849,
+              "mean_scheduled_amount": 6786.012165406352
+            }
+          ]
+        },
+        "side_b": {
+          "n_persons": 954,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5925.531209968557,
+          "quintile_cutpoints_aime": [
+            4970.106200122775,
+            7094.137797517367,
+            9342.735040725735,
+            12622.51887267237
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.86563059482714,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 250,
+              "n_positive": 250,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3386.514854392796,
+              "mean_scheduled_amount": 2701.6377741901533
+            },
+            {
+              "quintile": 2,
+              "n_persons": 208,
+              "n_positive": 208,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.28732259516573,
+              "mean_aime": 5938.052948284769,
+              "mean_scheduled_amount": 3706.8769434511255
+            },
+            {
+              "quintile": 3,
+              "n_persons": 185,
+              "n_positive": 185,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.73267497257316,
+              "mean_aime": 8133.599219393838,
+              "mean_scheduled_amount": 4409.451750206028
+            },
+            {
+              "quintile": 4,
+              "n_persons": 159,
+              "n_positive": 159,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 90.24803686356407,
+              "mean_aime": 10779.046568038966,
+              "mean_scheduled_amount": 5255.994901772468
+            },
+            {
+              "quintile": 5,
+              "n_persons": 152,
+              "n_positive": 152,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 85.10927756541923,
+              "mean_aime": 15425.124584548215,
+              "mean_scheduled_amount": 6742.7398670554285
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "n_selected_holdout_persons": 986,
+      "real": {
+        "n_persons": 986,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 5412.869414590359,
+        "quintile_cutpoints_aime": [
+          4501.497589579191,
+          6356.386521389541,
+          8688.256512605041,
+          12465.31275020565
+        ],
+        "overall_pi_ratio_pct": 66.73406036884158,
+        "overall_ppi_ratio_pct": 93.73048440696991,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 233,
+            "n_positive": 233,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3212.506811056921,
+            "mean_scheduled_amount": 2624.0318702827467
+          },
+          {
+            "quintile": 2,
+            "n_persons": 208,
+            "n_positive": 208,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.36459633805687,
+            "mean_aime": 5370.991920603614,
+            "mean_scheduled_amount": 3525.4174145931565
+          },
+          {
+            "quintile": 3,
+            "n_persons": 210,
+            "n_positive": 210,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.82870825371194,
+            "mean_aime": 7479.646425684758,
+            "mean_scheduled_amount": 4200.186856219122
+          },
+          {
+            "quintile": 4,
+            "n_persons": 180,
+            "n_positive": 180,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.93598807205069,
+            "mean_aime": 10276.455459482848,
+            "mean_scheduled_amount": 5095.165747034512
+          },
+          {
+            "quintile": 5,
+            "n_persons": 155,
+            "n_positive": 155,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.50993234048127,
+            "mean_aime": 15182.582887431574,
+            "mean_scheduled_amount": 6665.126523978104
+          }
+        ]
+      },
+      "generated": {
+        "n_persons": 986,
+        "n_zero_scheduled_excluded": 3,
+        "bend30_aime": 5217.044953868795,
+        "quintile_cutpoints_aime": [
+          4395.677694070053,
+          6317.850511587232,
+          8667.995438143182,
+          12287.695614437212
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.41248248247544,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 229,
+            "n_positive": 226,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 2992.398169633367,
+            "mean_scheduled_amount": 2503.5068351886866
+          },
+          {
+            "quintile": 2,
+            "n_persons": 207,
+            "n_positive": 207,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.30732127394435,
+            "mean_aime": 5236.545521247939,
+            "mean_scheduled_amount": 3482.3945667993407
+          },
+          {
+            "quintile": 3,
+            "n_persons": 187,
+            "n_positive": 187,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.21121622044556,
+            "mean_aime": 7537.368480846809,
+            "mean_scheduled_amount": 4218.657913870979
+          },
+          {
+            "quintile": 4,
+            "n_persons": 187,
+            "n_positive": 187,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 89.42659787556212,
+            "mean_aime": 10345.963042248424,
+            "mean_scheduled_amount": 5117.408173519496
+          },
+          {
+            "quintile": 5,
+            "n_persons": 176,
+            "n_positive": 176,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.20877728885966,
+            "mean_aime": 15173.63061790848,
+            "mean_scheduled_amount": 6662.261797730714
+          }
+        ]
+      },
+      "floor": {
+        "n_persons_side_a": 993,
+        "n_persons_side_b": 986,
+        "side_a": {
+          "n_persons": 993,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5471.118431141256,
+          "quintile_cutpoints_aime": [
+            4431.977276119403,
+            6597.764749048493,
+            8868.59465813452,
+            12437.983057602056
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.58872466487324,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 229,
+              "n_positive": 229,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3052.9499242019424,
+              "mean_scheduled_amount": 2546.5230671004524
+            },
+            {
+              "quintile": 2,
+              "n_persons": 241,
+              "n_positive": 241,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.26819403821904,
+              "mean_aime": 5426.645648281172,
+              "mean_scheduled_amount": 3543.226607449975
+            },
+            {
+              "quintile": 3,
+              "n_persons": 192,
+              "n_positive": 192,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.5119884596255,
+              "mean_aime": 7701.112039580969,
+              "mean_scheduled_amount": 4271.05585266591
+            },
+            {
+              "quintile": 4,
+              "n_persons": 178,
+              "n_positive": 178,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.79891093787144,
+              "mean_aime": 10458.578546168379,
+              "mean_scheduled_amount": 5153.445134773881
+            },
+            {
+              "quintile": 5,
+              "n_persons": 153,
+              "n_positive": 153,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 84.40051946461011,
+              "mean_aime": 15405.398613003983,
+              "mean_scheduled_amount": 6736.427556161275
+            }
+          ]
+        },
+        "side_b": {
+          "n_persons": 986,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5766.0,
+          "quintile_cutpoints_aime": [
+            4833.086031583002,
+            6980.925861741825,
+            9280.618638153632,
+            12861.122115790296
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.7027047651331,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 241,
+              "n_positive": 241,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3476.140913449484,
+              "mean_scheduled_amount": 2757.0753364384436
+            },
+            {
+              "quintile": 2,
+              "n_persons": 212,
+              "n_positive": 212,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 99.18549932509784,
+              "mean_aime": 5800.607547521522,
+              "mean_scheduled_amount": 3662.894415206887
+            },
+            {
+              "quintile": 3,
+              "n_persons": 208,
+              "n_positive": 208,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.59495814048888,
+              "mean_aime": 8016.885912678216,
+              "mean_scheduled_amount": 4372.103492057029
+            },
+            {
+              "quintile": 4,
+              "n_persons": 174,
+              "n_positive": 174,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.95234951300127,
+              "mean_aime": 10765.526362539142,
+              "mean_scheduled_amount": 5251.6684360125255
+            },
+            {
+              "quintile": 5,
+              "n_persons": 151,
+              "n_positive": 151,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.78389113091109,
+              "mean_aime": 15510.508643114099,
+              "mean_scheduled_amount": 6770.0627657965115
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "n_selected_holdout_persons": 929,
+      "real": {
+        "n_persons": 929,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 5620.859469887159,
+        "quintile_cutpoints_aime": [
+          4712.0,
+          6831.517452634491,
+          9141.4546566083,
+          12783.856949336225
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.51635592994569,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 220,
+            "n_positive": 220,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3385.9519192199878,
+            "mean_scheduled_amount": 2734.418882772058
+          },
+          {
+            "quintile": 2,
+            "n_persons": 208,
+            "n_positive": 208,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.25192292941533,
+            "mean_aime": 5639.546814356499,
+            "mean_scheduled_amount": 3611.3549805940793
+          },
+          {
+            "quintile": 3,
+            "n_persons": 187,
+            "n_positive": 187,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.20153931540243,
+            "mean_aime": 8027.435963412635,
+            "mean_scheduled_amount": 4375.479508292044
+          },
+          {
+            "quintile": 4,
+            "n_persons": 168,
+            "n_positive": 168,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.68858905510984,
+            "mean_aime": 10744.720322052768,
+            "mean_scheduled_amount": 5245.010503056886
+          },
+          {
+            "quintile": 5,
+            "n_persons": 146,
+            "n_positive": 146,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.43342776095494,
+            "mean_aime": 15646.597842533174,
+            "mean_scheduled_amount": 6813.6113096106155
+          }
+        ]
+      },
+      "generated": {
+        "n_persons": 929,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 5400.7141172726815,
+        "quintile_cutpoints_aime": [
+          4336.482130296433,
+          6350.1850948783895,
+          9250.526183465,
+          13143.999525017296
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.3926268109857,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 215,
+            "n_positive": 215,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 2929.5809491403547,
+            "mean_scheduled_amount": 2461.868200631414
+          },
+          {
+            "quintile": 2,
+            "n_persons": 182,
+            "n_positive": 182,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.39566351043617,
+            "mean_aime": 5356.729934884748,
+            "mean_scheduled_amount": 3520.8535791631193
+          },
+          {
+            "quintile": 3,
+            "n_persons": 208,
+            "n_positive": 208,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.26717761371802,
+            "mean_aime": 7759.366864193479,
+            "mean_scheduled_amount": 4289.697396541913
+          },
+          {
+            "quintile": 4,
+            "n_persons": 173,
+            "n_positive": 173,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.30223105237977,
+            "mean_aime": 10704.578265244969,
+            "mean_scheduled_amount": 5232.16504487839
+          },
+          {
+            "quintile": 5,
+            "n_persons": 151,
+            "n_positive": 151,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.02318179296525,
+            "mean_aime": 15701.605410053082,
+            "mean_scheduled_amount": 6831.213731216985
+          }
+        ]
+      },
+      "floor": {
+        "n_persons_side_a": 966,
+        "n_persons_side_b": 966,
+        "side_a": {
+          "n_persons": 966,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5432.0,
+          "quintile_cutpoints_aime": [
+            4495.955327218813,
+            6698.0463806614425,
+            9197.71433079148,
+            12758.617930908982
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.29992585735232,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 231,
+              "n_positive": 231,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3172.378831252313,
+              "mean_scheduled_amount": 2623.115411462477
+            },
+            {
+              "quintile": 2,
+              "n_persons": 222,
+              "n_positive": 222,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.0671538009059,
+              "mean_aime": 5498.311624898144,
+              "mean_scheduled_amount": 3566.159719967406
+            },
+            {
+              "quintile": 3,
+              "n_persons": 209,
+              "n_positive": 209,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 93.9456384918179,
+              "mean_aime": 7935.983838332271,
+              "mean_scheduled_amount": 4346.214828266327
+            },
+            {
+              "quintile": 4,
+              "n_persons": 154,
+              "n_positive": 154,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.27551636023597,
+              "mean_aime": 10763.685034514378,
+              "mean_scheduled_amount": 5251.079211044601
+            },
+            {
+              "quintile": 5,
+              "n_persons": 150,
+              "n_positive": 150,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.206911665897,
+              "mean_aime": 15557.784284265435,
+              "mean_scheduled_amount": 6785.190970964939
+            }
+          ]
+        },
+        "side_b": {
+          "n_persons": 966,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5507.502967689198,
+          "quintile_cutpoints_aime": [
+            4611.762493177601,
+            6530.143116634799,
+            8909.427218853125,
+            13129.97125733339
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.54121914664998,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 219,
+              "n_positive": 219,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3280.7852880554547,
+              "mean_scheduled_amount": 2658.6300507759183
+            },
+            {
+              "quintile": 2,
+              "n_persons": 217,
+              "n_positive": 217,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.33048400162512,
+              "mean_aime": 5507.343987114074,
+              "mean_scheduled_amount": 3569.0500758765033
+            },
+            {
+              "quintile": 3,
+              "n_persons": 190,
+              "n_positive": 190,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.65180946125483,
+              "mean_aime": 7679.189340302242,
+              "mean_scheduled_amount": 4264.040588896718
+            },
+            {
+              "quintile": 4,
+              "n_persons": 185,
+              "n_positive": 185,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.54366009006469,
+              "mean_aime": 10701.934945688108,
+              "mean_scheduled_amount": 5231.319182620195
+            },
+            {
+              "quintile": 5,
+              "n_persons": 155,
+              "n_positive": 155,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.14962186991647,
+              "mean_aime": 15741.679932736472,
+              "mean_scheduled_amount": 6844.037578475671
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "n_selected_holdout_persons": 919,
+      "real": {
+        "n_persons": 919,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 6053.654555987499,
+        "quintile_cutpoints_aime": [
+          4855.263559605019,
+          7004.8293144883055,
+          9150.381550107611,
+          13063.664251173874
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.9571925814118,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 231,
+            "n_positive": 231,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3460.0212806935024,
+            "mean_scheduled_amount": 2748.1925788720355
+          },
+          {
+            "quintile": 2,
+            "n_persons": 213,
+            "n_positive": 213,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.37574434786418,
+            "mean_aime": 5959.162614355131,
+            "mean_scheduled_amount": 3713.632036593642
+          },
+          {
+            "quintile": 3,
+            "n_persons": 169,
+            "n_positive": 169,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 95.17019649229735,
+            "mean_aime": 8072.667729276012,
+            "mean_scheduled_amount": 4389.9536733683235
+          },
+          {
+            "quintile": 4,
+            "n_persons": 153,
+            "n_positive": 153,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.26496933003114,
+            "mean_aime": 10973.009785920163,
+            "mean_scheduled_amount": 5318.063131494452
+          },
+          {
+            "quintile": 5,
+            "n_persons": 153,
+            "n_positive": 153,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.95928663637068,
+            "mean_aime": 15810.413150158432,
+            "mean_scheduled_amount": 6866.032208050697
+          }
+        ]
+      },
+      "generated": {
+        "n_persons": 919,
+        "n_zero_scheduled_excluded": 1,
+        "bend30_aime": 5769.0420858979305,
+        "quintile_cutpoints_aime": [
+          4687.402132537186,
+          6713.296528228423,
+          8731.231821891599,
+          12672.22726422876
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.964377680797,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 219,
+            "n_positive": 218,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3087.6791781132033,
+            "mean_scheduled_amount": 2489.188137940856
+          },
+          {
+            "quintile": 2,
+            "n_persons": 194,
+            "n_positive": 194,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.35066621493789,
+            "mean_aime": 5705.414480107293,
+            "mean_scheduled_amount": 3632.4326336343333
+          },
+          {
+            "quintile": 3,
+            "n_persons": 166,
+            "n_positive": 166,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 95.10571813155265,
+            "mean_aime": 7763.379667957733,
+            "mean_scheduled_amount": 4290.981493746474
+          },
+          {
+            "quintile": 4,
+            "n_persons": 180,
+            "n_positive": 180,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.54761926740686,
+            "mean_aime": 10369.633747286549,
+            "mean_scheduled_amount": 5124.982799131695
+          },
+          {
+            "quintile": 5,
+            "n_persons": 160,
+            "n_positive": 160,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.81724039184033,
+            "mean_aime": 15464.601358222933,
+            "mean_scheduled_amount": 6755.372434631338
+          }
+        ]
+      },
+      "floor": {
+        "n_persons_side_a": 963,
+        "n_persons_side_b": 957,
+        "side_a": {
+          "n_persons": 963,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5554.787413504261,
+          "quintile_cutpoints_aime": [
+            4577.573872869205,
+            6699.061664,
+            9243.198025150548,
+            13003.997575582429
+          ],
+          "overall_pi_ratio_pct": 66.73406036884158,
+          "overall_ppi_ratio_pct": 93.41684652161082,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 222,
+              "n_positive": 222,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3194.5757782409937,
+              "mean_scheduled_amount": 2618.488386625348
+            },
+            {
+              "quintile": 2,
+              "n_persons": 218,
+              "n_positive": 218,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.2504504130296,
+              "mean_aime": 5517.59006802637,
+              "mean_scheduled_amount": 3572.3288217684385
+            },
+            {
+              "quintile": 3,
+              "n_persons": 215,
+              "n_positive": 215,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.47686329570728,
+              "mean_aime": 7821.1194032730255,
+              "mean_scheduled_amount": 4309.458209047367
+            },
+            {
+              "quintile": 4,
+              "n_persons": 163,
+              "n_positive": 163,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 89.15839887979195,
+              "mean_aime": 11034.958961083204,
+              "mean_scheduled_amount": 5337.886867546626
+            },
+            {
+              "quintile": 5,
+              "n_persons": 145,
+              "n_positive": 145,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.20309279506985,
+              "mean_aime": 15778.796114734645,
+              "mean_scheduled_amount": 6855.914756715086
+            }
+          ]
+        },
+        "side_b": {
+          "n_persons": 957,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5535.069526991384,
+          "quintile_cutpoints_aime": [
+            4503.0,
+            6514.71863055586,
+            8980.96984703745,
+            11980.616902735965
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.81016834223192,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 231,
+              "n_positive": 231,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3215.0751318341363,
+              "mean_scheduled_amount": 2633.1418609143166
+            },
+            {
+              "quintile": 2,
+              "n_persons": 217,
+              "n_positive": 217,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 99.44699546890166,
+              "mean_aime": 5437.052829122547,
+              "mean_scheduled_amount": 3546.556905319215
+            },
+            {
+              "quintile": 3,
+              "n_persons": 206,
+              "n_positive": 206,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 94.63949681828593,
+              "mean_aime": 7722.477297557855,
+              "mean_scheduled_amount": 4277.892735218514
+            },
+            {
+              "quintile": 4,
+              "n_persons": 152,
+              "n_positive": 152,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 90.10846658085666,
+              "mean_aime": 10312.913893046842,
+              "mean_scheduled_amount": 5106.832445774989
+            },
+            {
+              "quintile": 5,
+              "n_persons": 151,
+              "n_positive": 151,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.87270462949745,
+              "mean_aime": 15008.345267819506,
+              "mean_scheduled_amount": 6609.370485702241
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "n_selected_holdout_persons": 1027,
+      "real": {
+        "n_persons": 1027,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_aime": 5989.898290549426,
+        "quintile_cutpoints_aime": [
+          4869.592790313704,
+          7082.582262716308,
+          9203.777079756517,
+          13149.240687053458
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.97234772392649,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 259,
+            "n_positive": 259,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3390.817367688727,
+            "mean_scheduled_amount": 2702.9135768297515
+          },
+          {
+            "quintile": 2,
+            "n_persons": 236,
+            "n_positive": 236,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.26540388829754,
+            "mean_aime": 6003.219147641675,
+            "mean_scheduled_amount": 3727.7301272453356
+          },
+          {
+            "quintile": 3,
+            "n_persons": 195,
+            "n_positive": 195,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.99676669877755,
+            "mean_aime": 8077.412953173763,
+            "mean_scheduled_amount": 4391.472145015604
+          },
+          {
+            "quintile": 4,
+            "n_persons": 186,
+            "n_positive": 186,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.41426957918802,
+            "mean_aime": 10780.062248707323,
+            "mean_scheduled_amount": 5256.319919586344
+          },
+          {
+            "quintile": 5,
+            "n_persons": 151,
+            "n_positive": 151,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 85.15627670348107,
+            "mean_aime": 15463.656682123983,
+            "mean_scheduled_amount": 6755.070138279675
+          }
+        ]
+      },
+      "generated": {
+        "n_persons": 1027,
+        "n_zero_scheduled_excluded": 1,
+        "bend30_aime": 5515.601326264527,
+        "quintile_cutpoints_aime": [
+          4535.060706809506,
+          6477.455172997925,
+          9056.882041805446,
+          12809.415245644761
+        ],
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.55971756955992,
+        "quintiles": [
+          {
+            "quintile": 1,
+            "n_persons": 237,
+            "n_positive": 236,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 100.0,
+            "mean_aime": 3303.808829625739,
+            "mean_scheduled_amount": 2672.2002285914828
+          },
+          {
+            "quintile": 2,
+            "n_persons": 207,
+            "n_positive": 207,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.30985779959714,
+            "mean_aime": 5534.837988385959,
+            "mean_scheduled_amount": 3577.8481562835073
+          },
+          {
+            "quintile": 3,
+            "n_persons": 215,
+            "n_positive": 215,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.45833609950043,
+            "mean_aime": 7792.825675089802,
+            "mean_scheduled_amount": 4300.404216028737
+          },
+          {
+            "quintile": 4,
+            "n_persons": 197,
+            "n_positive": 197,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.62097109960722,
+            "mean_aime": 10646.910429600468,
+            "mean_scheduled_amount": 5213.711337472151
+          },
+          {
+            "quintile": 5,
+            "n_persons": 171,
+            "n_positive": 171,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 84.40740911366902,
+            "mean_aime": 15478.695566801667,
+            "mean_scheduled_amount": 6759.882581376533
+          }
+        ]
+      },
+      "floor": {
+        "n_persons_side_a": 918,
+        "n_persons_side_b": 938,
+        "side_a": {
+          "n_persons": 918,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5852.375631733594,
+          "quintile_cutpoints_aime": [
+            4799.453251866938,
+            7059.986787609106,
+            9329.437203190417,
+            13709.892784920316
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.58462519399146,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 239,
+              "n_positive": 239,
+              "pi_ratio_pct": 66.73406036884158,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 3395.8798100543136,
+              "mean_scheduled_amount": 2707.8018130901924
+            },
+            {
+              "quintile": 2,
+              "n_persons": 207,
+              "n_positive": 207,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.18340282544548,
+              "mean_aime": 5892.377786819845,
+              "mean_scheduled_amount": 3692.260891782351
+            },
+            {
+              "quintile": 3,
+              "n_persons": 172,
+              "n_positive": 172,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.82526647802005,
+              "mean_aime": 8004.780920528671,
+              "mean_scheduled_amount": 4368.229894569175
+            },
+            {
+              "quintile": 4,
+              "n_persons": 168,
+              "n_positive": 168,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.34952340721928,
+              "mean_aime": 11365.69571026692,
+              "mean_scheduled_amount": 5443.722627285414
+            },
+            {
+              "quintile": 5,
+              "n_persons": 132,
+              "n_positive": 132,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.56110180953698,
+              "mean_aime": 15880.83542400895,
+              "mean_scheduled_amount": 6888.567335682864
+            }
+          ]
+        },
+        "side_b": {
+          "n_persons": 938,
+          "n_zero_scheduled_excluded": 0,
+          "bend30_aime": 5614.138288644781,
+          "quintile_cutpoints_aime": [
+            4508.1047322253,
+            6698.182368,
+            9374.567180752621,
+            12636.990802632365
+          ],
+          "overall_pi_ratio_pct": 66.73406036884157,
+          "overall_ppi_ratio_pct": 93.46285363024563,
+          "quintiles": [
+            {
+              "quintile": 1,
+              "n_persons": 207,
+              "n_positive": 207,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 100.0,
+              "mean_aime": 2990.909475505609,
+              "mean_scheduled_amount": 2504.3655517444545
+            },
+            {
+              "quintile": 2,
+              "n_persons": 224,
+              "n_positive": 224,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 99.18903765768695,
+              "mean_aime": 5624.59272194329,
+              "mean_scheduled_amount": 3606.5696710218526
+            },
+            {
+              "quintile": 3,
+              "n_persons": 193,
+              "n_positive": 193,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 94.1552815963798,
+              "mean_aime": 8056.493813657468,
+              "mean_scheduled_amount": 4384.77802037039
+            },
+            {
+              "quintile": 4,
+              "n_persons": 159,
+              "n_positive": 159,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 89.54455182145092,
+              "mean_aime": 10822.253168738289,
+              "mean_scheduled_amount": 5269.821013996252
+            },
+            {
+              "quintile": 5,
+              "n_persons": 155,
+              "n_positive": 155,
+              "pi_ratio_pct": 66.73406036884157,
+              "ppi_ratio_pct": 84.42218773020727,
+              "mean_aime": 15647.821747574846,
+              "mean_scheduled_amount": 6814.002959223951
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "542785395507fb55e8c00d74ecde75aac9e2516a",
+    "pe_us_revision": "bf71be3b",
+    "sklearn_version": "1.8.0",
+    "artifact_schema_version": "replication_ppi_mermin.v1",
+    "gates_yaml": {
+      "gate_1_locked": true,
+      "amendments_ratified": [
+        {
+          "id": "2026-07-06-decision-relevant-recalibration",
+          "ratified": "2026-07-06 by maintainer merge of PR 57 (merge commit 0c324a71)"
+        },
+        {
+          "id": "2026-07-07-mean-based-classifier-gating",
+          "ratified": "2026-07-07 by merge of PR 67 (merge commit 4e06e244), under the maintainer's standing delegation of 2026-07-06, exercised only after the full ceremony (adversarial round, fixes, verification RATIFY AS-IS)"
+        }
+      ],
+      "amendment_rules": [
+        "classifier_version_pin",
+        "no_self_rescue"
+      ]
+    }
+  },
+  "elapsed_seconds": 141.5
+}
