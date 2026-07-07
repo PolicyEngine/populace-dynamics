@@ -299,16 +299,19 @@ def test_amendment_reported_not_gated_deciles_are_denominator_fragile():
 # --------------------------------------------------------------------------
 # Amendment proposal 2 binding (gate_1.amendment_proposed, proposal_number 2)
 #
-# Mean-based classifier gating: the pairs-view c2st gate moves from
-# per-seed to the across-seed mean at the same ratified 0.53 line, plus a
-# machine-derived per-seed catastrophe cap and a sklearn version-pin
-# clause. Like amendment 1, this proposal is an inert public OBJECT: it
-# changes no locked value and no model reads it. These tests bind its
-# arithmetic (the cap derivation, the unchanged mean line, the
-# considered-and-rejected tighter line) and, critically, verify the
-# verdict-recomputation disclosure against a fresh recomputation from the
-# committed run artifacts. All are no-ops (skip) until the amendment_2
-# subsection exists. They touch only committed files.
+# Reworked per the adversarial referee's AMEND verdict (PR #67). The
+# pairs-view c2st gate moves from per-seed on the locked 5 to the
+# across-seed mean over 20 pre-registered seeds (fix B), guarded by a
+# VERSION-MATCHED per-seed catastrophe cap (fix C), and the amendment
+# rescues NO committed verdict (fix A). Like amendment 1 this proposal is
+# an inert public OBJECT: it changes no locked value and no model reads it.
+# These tests bind its arithmetic (the version-matched cap, the unchanged
+# mean line, the 20-seed set, the operating-characteristic table, the
+# considered-and-rejected lines) and verify the illustrative retroactive
+# disclosure -- applied: false, no committed verdict changed -- against a
+# fresh recomputation from the committed run artifacts. All are no-ops
+# (skip) until the amendment_2 subsection exists. They touch only committed
+# files.
 # --------------------------------------------------------------------------
 PAIRS_VIEW = "psid_family_earnings_pairs"
 
@@ -330,42 +333,58 @@ def _amend2_change(change_id: int) -> dict | None:
     return None
 
 
-def test_amendment2_cap_derivation_binds():
-    """The proposed per-seed cap == round(floor mean + k * floor sd).
+def _amend2_rejected(entry_id: str) -> dict | None:
+    amendment = _amendment_2()
+    if amendment is None:
+        return None
+    for entry in amendment.get("considered_and_rejected", []):
+        if entry.get("id") == entry_id:
+            return entry
+    return None
 
-    Machine-derived from the committed ctx20 pairs floor exactly like
-    every locked geometry threshold. The stated ``k`` and ``rounding``
-    must reproduce the value from the committed artifact -- pinning that
-    the cap is 0.547 (the exact committed-artifact derivation), not a
-    rounded-input hand computation.
+
+def _floor_at_path(run_path: str, path: list[str]) -> tuple[float, float]:
+    """Return (mean, sd) from a nested node that stores them directly."""
+    node = json.loads((ROOT / run_path).read_text())
+    for key in path:
+        node = node[key]
+    return node["mean"], node["sd"]
+
+
+def _normal_cdf(z: float) -> float:
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def test_amendment2_cap_derivation_binds_to_version_matched_floor():
+    """The per-seed cap == round(matched floor mean + 8*sd, 3) == 0.554.
+
+    Fix C: the cap derives from the VERSION-MATCHED (sklearn 1.8.0) floor
+    -- the 20-seed floor_c2st_distribution in the diagnostics artifact --
+    not the committed 1.9.0 floor. The stated k/rounding and the floor at
+    the stated path must reproduce 0.554 from the committed artifact, not
+    the version-mismatched 0.547.
     """
     change = _amend2_change(2)
     if change is None:
         pytest.skip("no amendment_proposed proposal 2 with a cap change")
     deriv = change["proposed"]["derivation"]
+    mean, sd = _floor_at_path(deriv["floor_run"], deriv["floor_path"])
     rule = deriv["rule"]
-    derived = _derive(
-        deriv["floor_run"],
-        rule["key"],
-        rule["k"],
-        rule.get("rounding", 2),
-    )
+    derived = round(mean + rule["k"] * sd, rule.get("rounding", 3))
     stated = change["proposed"]["value"]
     assert derived == pytest.approx(
         stated
-    ), f"proposed cap derived {derived} != stated {stated}"
-    # The exact committed-artifact value is 0.547, not the rounded-input
-    # 0.548; pin it so a future rebuild cannot silently drift the cap.
-    assert stated == 0.547
+    ), f"cap derived {derived} != stated {stated}"
+    assert stated == 0.554
 
 
-def test_amendment2_mean_rule_keeps_ratified_line():
-    """The mean rule holds the ratified 0.53 with the ratified derivation.
+def test_amendment2_mean_rule_keeps_ratified_line_new_estimator():
+    """The mean line holds the ratified 0.53 with the ratified derivation.
 
     Change 1 re-reads the SAME line as an across-seed mean; its value and
-    its floor/key/k derivation must equal the ratified per-seed pairs
-    c2st derivation. A tightening (a different value or k) would be a new
-    number that no referee round ratified.
+    its floor/key/k derivation equal the ratified per-seed pairs-c2st
+    derivation (unchanged number). The amendment must RECORD that only the
+    estimator changed: per_seed -> across_seed_mean, same value.
     """
     change = _amend2_change(1)
     if change is None:
@@ -386,39 +405,162 @@ def test_amendment2_mean_rule_keeps_ratified_line():
     assert proposed["derivation"]["floor_run"] == ratified["floor_run"]
     assert rule["key"] == ratified_rule["key"]
     assert rule["k"] == ratified_rule["k"]
+    # The amendment records an estimator change, not a new number.
+    assert change["currently_locked"]["statistic"] == "per_seed"
+    assert proposed["statistic"] == "across_seed_mean"
+    assert change["currently_locked"]["value"] == proposed["value"]
 
 
-def test_amendment2_considered_line_binds():
-    """The considered-and-rejected tighter mean-of-5 line reproduces.
+def test_amendment2_mean_gates_over_twenty_preregistered_seeds():
+    """Fix B: the mean is over exactly seeds 0-19, not the 5 locked."""
+    change = _amend2_change(1)
+    if change is None:
+        pytest.skip("no amendment_proposed proposal 2 with a mean change")
+    assert change["proposed"]["seed_set"] == list(range(20))
 
-    Even the line the amendment DECLINES to propose is machine-checked:
-    round(floor mean + k * sd / sqrt(n), rounding). Pins the exact
-    committed-artifact value 0.5194 (a rounded-input hand computation
-    reads ~0.5196), so the referee weighs the real number.
+
+def test_amendment2_operating_characteristics_recompute():
+    """Every OC pass-probability recomputes from the stated normal approx.
+
+    Fix B evidence, as data: pass probability at each hypothetical true
+    mean under the per-seed >=4/5 rule, the rejected mean-of-5, and the
+    proposed mean-of-20, all at the 0.53 line. Recomputed with math.erf
+    (no scipy) and rounded to 2 decimals, they must equal the stored
+    table. The proposed mean-of-20 must SHARPEN the operating
+    characteristic at the line (referee finding 2): 0.50 at 0.530, and
+    TIGHTER than the per-seed rule above the line where a mean-of-5 would
+    LOOSEN it.
     """
     change = _amend2_change(1)
     if change is None:
         pytest.skip("no amendment_proposed proposal 2 with a mean change")
-    considered = change["considered_not_proposed"]
-    rule = considered["derivation"]["rule"]
-    mean, sd = _floor_stats(considered["derivation"]["floor_run"], rule["key"])
+    oc = change["operating_characteristics"]
+    sd = oc["per_seed_sd"]
+    line = oc["line"]
+    means = oc["true_means"]
+
+    def per_seed_ge_4_of_5(mu, n):
+        p = _normal_cdf((line - mu) / sd)
+        return p**5 + 5 * p**4 * (1 - p)
+
+    def mean_le_line(mu, n):
+        se = sd / math.sqrt(n)
+        return _normal_cdf((line - mu) / se)
+
+    fns = {
+        "per_seed_ge_4_of_5": per_seed_ge_4_of_5,
+        "mean_le_line": mean_le_line,
+    }
+    for name, spec in oc["estimators"].items():
+        fn = fns[spec["statistic"]]
+        recomputed = [round(fn(mu, spec["n"]), 2) for mu in means]
+        assert recomputed == pytest.approx(spec["pass_prob"]), (
+            f"OC {name}: recomputed {recomputed} != stored "
+            f"{spec['pass_prob']}"
+        )
+
+    idx_line = means.index(0.530)
+    idx_above = means.index(0.533)
+    ps = oc["estimators"]["per_seed_4_of_5"]["pass_prob"]
+    m20 = oc["estimators"]["mean_of_20_proposed"]["pass_prob"]
+    m5 = oc["estimators"]["mean_of_5_rejected"]["pass_prob"]
+    assert m20[idx_line] == 0.50  # 50% at the line by symmetry
+    assert m20[idx_above] < ps[idx_above]  # mean-of-20 sharper (tighter)
+    assert m5[idx_above] > ps[idx_above]  # mean-of-5 would loosen
+
+
+def test_amendment2_considered_line_binds():
+    """The rejected tighter mean-of-5 line reproduces exactly (0.5194).
+
+    Even the line the amendment DECLINES to propose is machine-checked:
+    round(floor mean + k * sd / sqrt(n), rounding). Kept in
+    considered_and_rejected; a rounded-input hand computation reads
+    ~0.5196, so the referee weighs the exact committed-artifact value.
+    """
+    entry = _amend2_rejected("mean_of_five_standard_error_line")
+    if entry is None:
+        pytest.skip("no amendment 2 rejected mean-of-5 line")
+    rule = entry["derivation"]["rule"]
+    mean, sd = _floor_stats(entry["derivation"]["floor_run"], rule["key"])
     derived = round(
         mean + rule["k"] * sd / math.sqrt(rule["divide_by_sqrt_n"]),
         rule["rounding"],
     )
-    assert derived == pytest.approx(considered["value"])
-    assert considered["value"] == 0.5194
+    assert derived == pytest.approx(entry["value"])
+    assert entry["value"] == 0.5194
+
+
+def test_amendment2_rejected_cap_binds_to_unmatched_floor():
+    """The rejected 0.547 cap reproduces from the 1.9.0 floor sd.
+
+    Disclosure that the original cap was off the wrong version:
+    round(1.9.0 floor mean + 8*sd, 3) = 0.547, which the version-matched
+    0.554 (change 2) replaces per fix C.
+    """
+    entry = _amend2_rejected("cap_from_1_9_0_floor_sd")
+    if entry is None:
+        pytest.skip("no amendment 2 rejected 1.9.0 cap")
+    rule = entry["derivation"]["rule"]
+    derived = _derive(
+        entry["derivation"]["floor_run"],
+        rule["key"],
+        rule["k"],
+        rule.get("rounding", 3),
+    )
+    assert derived == pytest.approx(entry["value"])
+    assert entry["value"] == 0.547
+    # It must differ from the adopted, version-matched cap.
+    assert _amend2_change(2)["proposed"]["value"] != entry["value"]
+
+
+def test_amendment2_no_self_rescue_clause_present():
+    """Fix A: the verbatim no-self-rescue principle is recorded."""
+    amendment = _amendment_2()
+    if amendment is None:
+        pytest.skip("no amendment_proposed proposal 2")
+    clause = amendment.get("no_self_rescue", "")
+    assert (
+        "committed run verdict changes under a rule proposed after" in clause
+    )
+    assert "applies only to runs registered after its ratification" in clause
+
+
+def test_amendment2_illustrative_block_is_not_applied():
+    """Fix A: the retroactive table is disclosure only -- applied: false.
+
+    No committed verdict changes: every run's committed_verdict is FAIL,
+    the old applied-recomputation key is gone, and candidate 10 -- the
+    sole would-flip -- stays FAIL.
+    """
+    amendment = _amendment_2()
+    if amendment is None:
+        pytest.skip("no amendment_proposed proposal 2")
+    # The old applied verdict-recomputation key must not exist.
+    assert "verdict_recomputation" not in amendment
+    block = amendment["illustrative_retroactive_application"]
+    assert block["applied"] is False
+    for entry in block["runs"]:
+        assert entry["committed_verdict"] == "FAIL", entry["run"]
+    assert block["would_flip_if_applied"]["runs"] == ["candidate 10 (PR #64)"]
+
+
+def test_amendment2_path_to_pass_requires_fresh_registration():
+    """Fix A: a pass needs a fresh registration on seeds 0-19."""
+    amendment = _amendment_2()
+    if amendment is None:
+        pytest.skip("no amendment_proposed proposal 2")
+    p = amendment["path_to_pass"]
+    assert "FRESH" in p or "fresh" in p
+    assert "runs/c10_diagnostics_v1.json" in p
+    assert "0.5234" in p
 
 
 def _recompute_amended_verdict(entry: dict, mean_line: float, cap: float):
     """Recompute the four amended sub-verdicts from a committed artifact.
 
-    Returns (pairs_mean, pairs_max, mean_rule_pass, cap_pass,
-    battery_seeds_pass, battery_gate_pass, pooled_q0, q0_pass,
-    old_gate_1_pass). Pairs mean/max/battery come from the run's own gate
-    artifact; pooled Q0 comes from that artifact's benefit_space_gated
-    block (candidates 9-10) or the committed downstream-relevance artifact
-    (candidate 7).
+    Pairs mean/max/battery come from the run's own gate artifact; pooled
+    Q0 comes from that artifact's benefit_space_gated block (candidates
+    9-10) or the committed downstream-relevance artifact (candidate 7).
     """
     art = json.loads((ROOT / entry["artifact"]).read_text())
     per_seed = art["per_seed"]
@@ -452,30 +594,31 @@ def _recompute_amended_verdict(entry: dict, mean_line: float, cap: float):
     }
 
 
-def test_amendment2_verdict_recomputation_matches_artifacts():
-    """Every disclosed verdict recomputes from the committed artifacts.
+def test_amendment2_illustrative_recomputation_matches_artifacts():
+    """Every disclosed number recomputes from the committed artifacts.
 
-    The load-bearing honesty section: for each committed run the
-    disclosed pairs mean, pairs max/cap, battery pass count, and pooled
-    Q0 (plus their pass/fail) must equal a fresh recomputation from the
-    run's committed artifact under the amended rule. The amended overall
-    verdict must be consistent -- a PASS satisfies all four recomputed
-    sub-verdicts; a FAIL is backed by at least one recomputed failing
-    sub-verdict -- and the amendment may flip exactly the runs it
-    discloses (here: candidate 10 alone, FAIL -> PASS).
+    The load-bearing honesty section, now disclosure-only (applied:
+    false): for each committed run the disclosed pairs mean, pairs
+    max/cap, battery pass count, and pooled Q0 (plus pass/fail) equal a
+    fresh recomputation from the run's committed artifact under the
+    amended rule (mean line 0.53, version-matched cap 0.554). The
+    would-be verdict is consistent -- a PASS satisfies all four
+    sub-verdicts; a FAIL is backed by >= 1 failing sub-verdict -- the
+    sole would-flip is candidate 10, and NO committed verdict moves.
     """
     amendment = _amendment_2()
     if amendment is None:
         pytest.skip("no amendment_proposed proposal 2")
-    vr = amendment["verdict_recomputation"]
-    mean_line = vr["mean_line"]
-    cap = vr["cap_value"]
+    block = amendment["illustrative_retroactive_application"]
+    assert block["applied"] is False
+    mean_line = block["mean_line"]
+    cap = block["cap_value"]
     # The disclosure's own line/cap must equal the change derivations.
     assert mean_line == _amend2_change(1)["proposed"]["value"]
     assert cap == _amend2_change(2)["proposed"]["value"]
 
     flips = []
-    for entry in vr["runs"]:
+    for entry in block["runs"]:
         rc = _recompute_amended_verdict(entry, mean_line, cap)
         label = f"{entry['run']} (PR #{entry['pr']})"
 
@@ -494,12 +637,12 @@ def test_amendment2_verdict_recomputation_matches_artifacts():
             assert stated_q0 == round(rc["pooled_q0"], 4), label
             assert entry["q0_pass"] == rc["q0_pass"], label
 
-        # Old verdict is FAIL for every committed run (no run has ever
-        # passed gate 1); pin against the artifact's own recorded verdict.
-        assert entry["old_verdict"] == "FAIL", label
+        # Committed verdict is FAIL for every run and is NOT changed by
+        # this amendment (no_self_rescue / applied: false).
+        assert entry["committed_verdict"] == "FAIL", label
         assert rc["old_gate_1_pass"] is False, label
 
-        # Amended verdict consistency.
+        # Would-be (illustrative) verdict consistency.
         sub_pass = [
             rc["mean_rule_pass"],
             rc["cap_pass"],
@@ -507,21 +650,20 @@ def test_amendment2_verdict_recomputation_matches_artifacts():
         ]
         if rc["q0_pass"] is not None:
             sub_pass.append(rc["q0_pass"])
-        if entry["amended_verdict"] == "PASS":
-            assert all(sub_pass), f"{label}: PASS but a sub-verdict fails"
+        if entry["would_be_verdict_if_applied"] == "PASS":
+            assert all(
+                sub_pass
+            ), f"{label}: would-PASS but a sub-verdict fails"
             flips.append(label)
         else:
-            assert entry["amended_verdict"] == "FAIL", label
+            assert entry["would_be_verdict_if_applied"] == "FAIL", label
             assert not all(
                 sub_pass
-            ), f"{label}: FAIL but every recomputed sub-verdict passes"
+            ), f"{label}: would-FAIL but every sub-verdict passes"
 
-    # Exactly one committed run flips to PASS, and it is candidate 10.
+    # Exactly one committed run WOULD flip, and it is candidate 10 -- but
+    # only illustratively; its committed verdict stays FAIL (asserted
+    # above for every run).
     assert flips == ["candidate 10 (PR #64)"], flips
-    disclosed_flips = [
-        f"{e['run']} (PR #{e['pr']})"
-        for e in vr["runs"]
-        if e["amended_verdict"] == "PASS"
-    ]
-    assert disclosed_flips == vr["flips_to_pass"]["runs"]
-    assert vr["flips_to_pass"]["count"] == len(flips)
+    assert flips == block["would_flip_if_applied"]["runs"]
+    assert block["would_flip_if_applied"]["count"] == len(flips)
