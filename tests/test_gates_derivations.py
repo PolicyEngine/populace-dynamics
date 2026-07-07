@@ -667,3 +667,112 @@ def test_amendment2_illustrative_recomputation_matches_artifacts():
     assert flips == ["candidate 10 (PR #64)"], flips
     assert flips == block["would_flip_if_applied"]["runs"]
     assert block["would_flip_if_applied"]["count"] == len(flips)
+
+
+# --------------------------------------------------------------------------
+# Amendment 2 RATIFIED bindings (live thresholds)
+#
+# Amendment 2 (proposed PR #67, referee AMEND -> fixes ae0c166 ->
+# verification RATIFY AS-IS -> ratified by merge 4e06e244, flipped live
+# 2026-07-07). The proposal-object tests above go dormant once the
+# amendment_proposed subsection is removed; these tests bind the SAME
+# guarantees at their ratified locations, so a rebuild that shifted a
+# floor -- or an edit that quietly reapplied the amendment retroactively
+# -- breaks loudly. They touch only committed files.
+# --------------------------------------------------------------------------
+def _pairs_view() -> dict:
+    return _gate_1()["views"]["psid_family_earnings_pairs"]
+
+
+def test_ratified_mean_rule_keeps_line_and_derivation():
+    """The live 20-seed mean rule holds the ratified 0.53 derivation."""
+    rule = _pairs_view()["c2st_mean_rule"]
+    deriv = rule["derivations"]["rules"]["c2st_auc_mean_max"]
+    derived = _derive(
+        rule["derivations"]["floor_run"],
+        deriv["key"],
+        deriv["k"],
+        deriv.get("rounding", 2),
+    )
+    assert derived == pytest.approx(rule["value_max"])
+    assert rule["value_max"] == 0.53
+    assert deriv["k"] == 4.2  # the ratified per-seed k, unchanged
+    assert rule["statistic"] == "across_seed_mean"
+    assert rule["seed_set"] == list(range(20))
+
+
+def test_ratified_cap_binds_to_version_matched_floor():
+    """The live per-seed cap == round(matched mean + 8*sd, 3) == 0.554."""
+    cap = _pairs_view()["c2st_per_seed_cap"]
+    deriv = cap["derivations"]
+    mean, sd = _floor_at_path(deriv["floor_run"], deriv["floor_path"])
+    rule = deriv["rules"]["c2st_auc_cap"]
+    derived = round(mean + rule["k"] * sd, rule.get("rounding", 3))
+    assert derived == pytest.approx(cap["value_max"])
+    assert cap["value_max"] == 0.554
+    assert derived != 0.547  # the rejected version-mismatched cap
+
+
+def test_ratified_per_seed_c2st_is_superseded_not_gated():
+    """c2st_auc left the per-seed geometry; the supersession is recorded."""
+    view = _pairs_view()
+    assert "c2st_auc_max" not in view["geometry"]
+    assert "c2st_auc_max" not in view["derivations"]["rules"]
+    assert view["per_seed_rule_superseded"] == ["c2st_auc"]
+    # geometry <-> derivations equality still holds after the removal.
+    assert set(view["geometry"]) == set(view["derivations"]["rules"])
+
+
+def test_ratified_operating_characteristics_recompute():
+    """Every live OC pass-probability recomputes via the normal approx."""
+    oc = _pairs_view()["c2st_mean_rule"]["operating_characteristics"]
+    sd, line = oc["per_seed_sd"], oc["line"]
+    for name, est in oc["estimators"].items():
+        for mu, stored in zip(oc["true_means"], est["pass_prob"], strict=True):
+            p = _normal_cdf((line - mu) / sd)
+            if est["statistic"] == "per_seed_ge_4_of_5":
+                prob = p**5 + 5 * p**4 * (1 - p)
+            else:
+                se = sd / math.sqrt(est["n"])
+                prob = _normal_cdf((line - mu) / se)
+            assert round(prob, 2) == pytest.approx(stored), (name, mu)
+    # The sharpening claim: above the line the 20-seed mean is
+    # STRICTER than the old per-seed rule; the rejected mean-of-5
+    # would have been looser.
+    at_533 = {
+        name: est["pass_prob"][-1] for name, est in oc["estimators"].items()
+    }
+    assert at_533["mean_of_20_proposed"] < at_533["per_seed_4_of_5"]
+    assert at_533["per_seed_4_of_5"] < at_533["mean_of_5_rejected"]
+
+
+def test_ratified_amendment_is_prospective_no_verdict_changed():
+    """No committed run's verdict changed at the flip: all 12 stand FAIL.
+
+    The strongest live form of no_self_rescue: every committed gate-run
+    artifact -- candidate 10 included -- still records gate_1_pass false.
+    A retroactive application would have flipped candidate 10.
+    """
+    runs = sorted(ROOT.glob("runs/gate1_*.json"))
+    assert len(runs) == 12
+    for path in runs:
+        verdict = json.loads(path.read_text())["verdict"]
+        assert verdict["gate_1_pass"] is False, path.name
+
+
+def test_ratified_standing_rules_and_history_record():
+    """no_self_rescue + version pin stand; history entry 2 is complete."""
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    gate_1 = gates["gates"]["gate_1"]
+    rules = gate_1["amendment_rules"]
+    assert "No candidate's committed run verdict changes" in (
+        rules["no_self_rescue"]
+    )
+    assert "scikit-learn" in rules["classifier_version_pin"]
+    entry = gate_1["amendment_history"][1]
+    assert entry["id"] == "2026-07-07-mean-based-classifier-gating"
+    for key in ("referee_round", "ratified", "flipped_live", "content"):
+        assert entry[key], key
+    assert "PROSPECTIVE ONLY" in entry["content"]
+    assert "4904161939" in entry["referee_round"]["review"]
+    assert "4905067301" in entry["referee_round"]["verification"]
