@@ -1,0 +1,1196 @@
+{
+  "schema_version": "q0_forensics.v1",
+  "run": "q0_forensics_v1",
+  "reported_not_gated": true,
+  "no_holdout_real_contact": "the only holdout-real quantity read is the pooled Q0 PIA-proxy mean the ratified benefit-space gate already scores; the design-relevant comparison population is TRAIN zero-anchor persons",
+  "purpose": "Localize the candidate-7 Q0 PIA-proxy overstatement (+9.30% pooled, PR #56) mechanically so candidate 9's Q0 component is designed against the cause, not against candidate 8's failed age+observed-span conditioning (PR #58, +12.2%).",
+  "definitions": {
+    "pia_proxy": "build_downstream_relevance.person_pia_proxy: top min(10,n_pos) wage-base-capped NAWI-indexed positive years AVERAGED over that count, then 2022 415(a)/415(g) PIA; an average, so extra positive years do not inflate it directly except via a zero->positive crossing or the top-N selection when n_pos>10",
+    "q0_subgroup": "holdout persons with zero anchor earnings (benefit-block definition, seed-stable full-panel quintile edges)",
+    "comparison_population": "TRAIN persons with zero anchor earnings (their real careers) for the covariate block; no other holdout-real contact"
+  },
+  "candidate7_reference": {
+    "path": "runs/gate1_rank_knn_v1.json",
+    "committed_pooled_q0_mean_pct": 9.295292319680367
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_q0_holdout": 883,
+      "n_q0_train": 3576,
+      "q1_participation_vs_level": {
+        "real_weighted_mean_pia": 750.3889785859828,
+        "gen_weighted_mean_pia": 796.9557480713589,
+        "total_gap_abs": 46.566769485376085,
+        "total_gap_pct": 6.205684093751686,
+        "by_category": {
+          "zero_to_zero": {
+            "n_persons": 164,
+            "weight_share": 0.16108127587168075,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": 0.0,
+            "gap_contribution_pct_of_real_mean": 0.0
+          },
+          "zero_to_positive": {
+            "n_persons": 111,
+            "weight_share": 0.13157539169170468,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 137.7824835808469,
+            "gap_contribution_abs": 137.7824835808469,
+            "gap_contribution_pct_of_real_mean": 18.36147485008126
+          },
+          "positive_to_zero": {
+            "n_persons": 68,
+            "weight_share": 0.06491795428485003,
+            "real_mean_contribution": 58.316088958501,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": -58.316088958501,
+            "gap_contribution_pct_of_real_mean": -7.771447958682789
+          },
+          "positive_to_positive": {
+            "n_persons": 540,
+            "weight_share": 0.6424253781517645,
+            "real_mean_contribution": 692.0728896274819,
+            "gen_mean_contribution": 659.173264490512,
+            "gap_contribution_abs": -32.899625136969796,
+            "gap_contribution_pct_of_real_mean": -4.384342797646783
+          }
+        },
+        "participation_channel_abs": 79.4663946223459,
+        "level_channel_abs": -32.899625136969796,
+        "participation_channel_pct_of_real_mean": 10.590026891398471,
+        "level_channel_pct_of_real_mean": -4.384342797646783,
+        "participation_share_of_total_gap": 1.706504348499023,
+        "level_share_of_total_gap": -0.7065043484990225
+      },
+      "q1_counterfactual_swap": {
+        "description": "monotone within-Q0 weighted-rank transport isolates each channel: 'gen_participation_real_levels' keeps the candidate participation pattern but maps its positive values onto the real Q0 positive-level distribution; 'real_participation_gen_levels' is the mirror",
+        "real_weighted_mean_pia": 750.3889785859828,
+        "gen_participation_real_levels": {
+          "weighted_mean_pia": 799.1339479409767,
+          "pct_diff_vs_real": 6.495960194784287
+        },
+        "real_participation_gen_levels": {
+          "weighted_mean_pia": 760.9936166943045,
+          "pct_diff_vs_real": 1.413218798642911
+        }
+      },
+      "q1_topn_selection": {
+        "weight_share_real_over_top_n": 0.01987684287663384,
+        "weight_share_gen_over_top_n": 0.025098210158513348,
+        "both_positive_over_top_n": {
+          "n_persons": 35,
+          "weight_share_of_q0": 0.04309867102711368,
+          "real_mean": 1151.3337498330927,
+          "gen_mean": 1213.8354495583312,
+          "pct_diff": 5.428634375940016
+        },
+        "both_positive_le_top_n": {
+          "n_persons": 505,
+          "weight_share_of_q0": 0.5993267071246509,
+          "real_mean": 1071.9561258720812,
+          "gen_mean": 1012.5672067584526,
+          "pct_diff": -5.540237858644937
+        },
+        "note": "selection can only bite when n_pos > top_n; the le_top_n block is the control where the AIME-proxy averages every positive year"
+      },
+      "q2_reentry_channel": {
+        "definition": "drawn = the all-bins re-entry pool u_prev law candidate 7 draws from for a zero-anchor person (u_A=p0/2 is near-constant, so |u_A-a| selects near-uniformly across the pool); train_real = the rank (in the earlier period's own cell) of positive observations immediately before a zero, restricted to TRAIN persons whose OWN anchor is zero (the honest conditional the constant u_A discards)",
+        "drawn_reentry_rank": {
+          "n_pool_records": 4994,
+          "weighted_mean": 0.30316830040825776,
+          "weighted_deciles": [
+            0.018221379705478737,
+            0.043671764863455184,
+            0.08145859328841772,
+            0.1297895932279396,
+            0.19802281151839482,
+            0.2995163007734527,
+            0.4297635871912253,
+            0.5696118959741854,
+            0.778891872039229
+          ]
+        },
+        "train_real_zero_anchor_pre_gap_rank": {
+          "n_records": 2955,
+          "weighted_mean": 0.2777283733716132,
+          "weighted_deciles": [
+            0.016189943005888975,
+            0.03777862353603045,
+            0.06944930575443965,
+            0.10884596478473137,
+            0.17016579918946514,
+            0.2751042118113413,
+            0.3845761010122714,
+            0.5187204853120349,
+            0.7143587707427413
+          ]
+        },
+        "drawn_minus_real_mean_rank_gap": 0.02543992703664455,
+        "pool_composition": {
+          "zero_anchor_weight_share_of_reentry_pool": 0.6040058730759091,
+          "positive_anchor_part_mean_pre_gap_rank": 0.3419715661539173,
+          "note": "the pool mixes all anchor bins; if positive-anchor (attached) persons dominate by weight and carry higher pre-gap ranks, the near-constant u_A conditioning imports them into zero-anchor generation"
+        }
+      },
+      "q3_participation_channel": {
+        "n_q0_holdout_persons": 883,
+        "generated": {
+          "weighted_share_all_zero": 0.22599923015653078,
+          "weighted_mean_n_pos": 3.5983415863071286,
+          "weighted_mean_n_spells": 0.9217708377490451,
+          "weighted_mean_longest_zero_run": 2.6383292727021757
+        },
+        "holdout_real": {
+          "weighted_share_all_zero": 0.29265666756338543,
+          "weighted_mean_n_pos": 2.9956692454828837,
+          "weighted_mean_n_spells": 0.9055729194064344,
+          "weighted_mean_longest_zero_run": 3.1858666206068245,
+          "note": "holdout-real shown only as the aggregate attachment the gate already reports on; the design target is the train-real block"
+        },
+        "train_real_zero_anchor": {
+          "n_persons": 3576,
+          "weighted_share_all_zero": 0.30008193651670145,
+          "weighted_mean_n_pos": 2.9390714529338777,
+          "weighted_mean_n_spells": 0.8900171705289912,
+          "weighted_mean_longest_zero_run": 3.009861322009456
+        },
+        "gen_minus_train_real_share_all_zero": -0.07408270636017067,
+        "gen_minus_train_real_mean_n_pos": 0.6592701333732509
+      },
+      "q4_covariate_discrimination": {
+        "n_train_q0_persons": 3576,
+        "weighted_r2": {
+          "age_only": 0.03948305233392391,
+          "span_only": 0.1308988885421396,
+          "anchor_position_only": 0.01121091824596887,
+          "age_plus_span": 0.1336784079633785,
+          "age_span_position": 0.13575443477654558,
+          "n_pos_only_NOT_production": 0.3185104210249219,
+          "all_incl_n_pos": 0.32980628714473004
+        },
+        "grouped_mean_pia_by_span_tercile": {
+          "low": {
+            "n": 1192,
+            "weight_share": 0.2931667557175168,
+            "weighted_mean_pia": 355.3282293279926
+          },
+          "mid": {
+            "n": 1192,
+            "weight_share": 0.31461878306527424,
+            "weighted_mean_pia": 839.8303637513836
+          },
+          "high": {
+            "n": 1192,
+            "weight_share": 0.39221446121720893,
+            "weighted_mean_pia": 980.5872357774948
+          }
+        },
+        "grouped_mean_pia_by_any_positive": {
+          "False": {
+            "n": 1120,
+            "weight_share": 0.30008193651670145,
+            "weighted_mean_pia": 0.0
+          },
+          "True": {
+            "n": 2456,
+            "weight_share": 0.6999180634832985,
+            "weighted_mean_pia": 1075.8363941075434
+          }
+        },
+        "interpretation": "production-available = {age_at_anchor, n_observed_periods, anchor_position}; candidate 8's failed Q0 fix used age + observed-span. n_pos_only_NOT_production is the ceiling a participation-fix would need to capture -- it is unknown at generation, so if age+span R^2 is small while n_pos R^2 is large, no production covariate discriminates and the participation LAW itself (not its conditioning) must change"
+      },
+      "candidate8_cross_check": {
+        "total_gap_pct": 12.19263044534867,
+        "participation_channel_pct_of_real_mean": 9.999274281444801,
+        "level_channel_pct_of_real_mean": 2.193356163903862,
+        "gen_share_all_zero": 0.22599923015653078,
+        "note": "candidate 8 reuses candidate 7's participation gate verbatim; gen_share_all_zero should equal candidate 7's, isolating its change to the level channel",
+        "gen_share_all_zero_matches_c7": true
+      }
+    },
+    {
+      "seed": 1,
+      "n_q0_holdout": 851,
+      "n_q0_train": 3608,
+      "q1_participation_vs_level": {
+        "real_weighted_mean_pia": 733.3866356123269,
+        "gen_weighted_mean_pia": 804.7853281685968,
+        "total_gap_abs": 71.3986925562699,
+        "total_gap_pct": 9.735477726105133,
+        "by_category": {
+          "zero_to_zero": {
+            "n_persons": 168,
+            "weight_share": 0.17044996030365625,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": 0.0,
+            "gap_contribution_pct_of_real_mean": 0.0
+          },
+          "zero_to_positive": {
+            "n_persons": 113,
+            "weight_share": 0.14649222889585142,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 154.19676059687157,
+            "gap_contribution_abs": 154.19676059687157,
+            "gap_contribution_pct_of_real_mean": 21.02530276790877
+          },
+          "positive_to_zero": {
+            "n_persons": 71,
+            "weight_share": 0.06456664160451586,
+            "real_mean_contribution": 81.18496737369296,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": -81.18496737369296,
+            "gap_contribution_pct_of_real_mean": -11.069872756258933
+          },
+          "positive_to_positive": {
+            "n_persons": 499,
+            "weight_share": 0.6184911691959765,
+            "real_mean_contribution": 652.2016682386339,
+            "gen_mean_contribution": 650.5885675717252,
+            "gap_contribution_abs": -1.6131006669087509,
+            "gap_contribution_pct_of_real_mean": -0.21995228554470778
+          }
+        },
+        "participation_channel_abs": 73.01179322317861,
+        "level_channel_abs": -1.6131006669087509,
+        "participation_channel_pct_of_real_mean": 9.955430011649835,
+        "level_channel_pct_of_real_mean": -0.21995228554470778,
+        "participation_share_of_total_gap": 1.0225928600252365,
+        "level_share_of_total_gap": -0.022592860025237194
+      },
+      "q1_counterfactual_swap": {
+        "description": "monotone within-Q0 weighted-rank transport isolates each channel: 'gen_participation_real_levels' keeps the candidate participation pattern but maps its positive values onto the real Q0 positive-level distribution; 'real_participation_gen_levels' is the mirror",
+        "real_weighted_mean_pia": 733.3866356123269,
+        "gen_participation_real_levels": {
+          "weighted_mean_pia": 849.4204134610378,
+          "pct_diff_vs_real": 15.821637893882636
+        },
+        "real_participation_gen_levels": {
+          "weighted_mean_pia": 710.0518527447973,
+          "pct_diff_vs_real": -3.181784577795952
+        }
+      },
+      "q1_topn_selection": {
+        "weight_share_real_over_top_n": 0.02279872707114253,
+        "weight_share_gen_over_top_n": 0.027670242701461276,
+        "both_positive_over_top_n": {
+          "n_persons": 29,
+          "weight_share_of_q0": 0.04389409853343168,
+          "real_mean": 1283.613035355487,
+          "gen_mean": 1175.256566846986,
+          "pct_diff": -8.441521356044225
+        },
+        "both_positive_le_top_n": {
+          "n_persons": 470,
+          "weight_share_of_q0": 0.5745970706625447,
+          "real_mean": 1037.0025564155455,
+          "gen_mean": 1042.4726658174504,
+          "pct_diff": 0.5274923738676803
+        },
+        "note": "selection can only bite when n_pos > top_n; the le_top_n block is the control where the AIME-proxy averages every positive year"
+      },
+      "q2_reentry_channel": {
+        "definition": "drawn = the all-bins re-entry pool u_prev law candidate 7 draws from for a zero-anchor person (u_A=p0/2 is near-constant, so |u_A-a| selects near-uniformly across the pool); train_real = the rank (in the earlier period's own cell) of positive observations immediately before a zero, restricted to TRAIN persons whose OWN anchor is zero (the honest conditional the constant u_A discards)",
+        "drawn_reentry_rank": {
+          "n_pool_records": 4927,
+          "weighted_mean": 0.29967008441644916,
+          "weighted_deciles": [
+            0.01989741939675104,
+            0.04662490075864308,
+            0.08045255129110487,
+            0.1308497261718508,
+            0.19994742431276416,
+            0.2957820009009649,
+            0.42030011910359555,
+            0.5573327582152963,
+            0.7642618244450884
+          ]
+        },
+        "train_real_zero_anchor_pre_gap_rank": {
+          "n_records": 2989,
+          "weighted_mean": 0.2712025873124751,
+          "weighted_deciles": [
+            0.017060805639633216,
+            0.0399423405544769,
+            0.06776236402260602,
+            0.10840462406075434,
+            0.17064034281039425,
+            0.2632817545188422,
+            0.3738984837474997,
+            0.49496983617399487,
+            0.6897938768316443
+          ]
+        },
+        "drawn_minus_real_mean_rank_gap": 0.02846749710397406,
+        "pool_composition": {
+          "zero_anchor_weight_share_of_reentry_pool": 0.6149898421878099,
+          "positive_anchor_part_mean_pre_gap_rank": 0.3451421874148201,
+          "note": "the pool mixes all anchor bins; if positive-anchor (attached) persons dominate by weight and carry higher pre-gap ranks, the near-constant u_A conditioning imports them into zero-anchor generation"
+        }
+      },
+      "q3_participation_channel": {
+        "n_q0_holdout_persons": 851,
+        "generated": {
+          "weighted_share_all_zero": 0.2350166019081721,
+          "weighted_mean_n_pos": 3.4596209062774497,
+          "weighted_mean_n_spells": 0.9415694582555759,
+          "weighted_mean_longest_zero_run": 2.6325972365374612
+        },
+        "holdout_real": {
+          "weighted_share_all_zero": 0.3169421891995077,
+          "weighted_mean_n_pos": 2.999256530985621,
+          "weighted_mean_n_spells": 0.9192960017530503,
+          "weighted_mean_longest_zero_run": 2.980915056269419,
+          "note": "holdout-real shown only as the aggregate attachment the gate already reports on; the design target is the train-real block"
+        },
+        "train_real_zero_anchor": {
+          "n_persons": 3608,
+          "weighted_share_all_zero": 0.2942564558064322,
+          "weighted_mean_n_pos": 2.9388423033998903,
+          "weighted_mean_n_spells": 0.8869414915547879,
+          "weighted_mean_longest_zero_run": 3.0602642961078246
+        },
+        "gen_minus_train_real_share_all_zero": -0.059239853898260114,
+        "gen_minus_train_real_mean_n_pos": 0.5207786028775594
+      },
+      "q4_covariate_discrimination": {
+        "n_train_q0_persons": 3608,
+        "weighted_r2": {
+          "age_only": 0.04012994659971525,
+          "span_only": 0.13072250572298916,
+          "anchor_position_only": 0.00881361208747855,
+          "age_plus_span": 0.1337524051064355,
+          "age_span_position": 0.1378392321717733,
+          "n_pos_only_NOT_production": 0.31376263831721396,
+          "all_incl_n_pos": 0.32583757616728737
+        },
+        "grouped_mean_pia_by_span_tercile": {
+          "low": {
+            "n": 1203,
+            "weight_share": 0.30003918806784413,
+            "weighted_mean_pia": 389.3239571469791
+          },
+          "mid": {
+            "n": 1202,
+            "weight_share": 0.31260456311020995,
+            "weighted_mean_pia": 827.4483856507766
+          },
+          "high": {
+            "n": 1203,
+            "weight_share": 0.38735624882194597,
+            "weighted_mean_pia": 984.9169676756836
+          }
+        },
+        "grouped_mean_pia_by_any_positive": {
+          "False": {
+            "n": 1114,
+            "weight_share": 0.2942564558064322,
+            "weighted_mean_pia": 0.0
+          },
+          "True": {
+            "n": 2494,
+            "weight_share": 0.7057435441935678,
+            "weighted_mean_pia": 1072.613888314456
+          }
+        },
+        "interpretation": "production-available = {age_at_anchor, n_observed_periods, anchor_position}; candidate 8's failed Q0 fix used age + observed-span. n_pos_only_NOT_production is the ceiling a participation-fix would need to capture -- it is unknown at generation, so if age+span R^2 is small while n_pos R^2 is large, no production covariate discriminates and the participation LAW itself (not its conditioning) must change"
+      },
+      "candidate8_cross_check": {
+        "total_gap_pct": 14.693314904677212,
+        "participation_channel_pct_of_real_mean": 10.863814237342714,
+        "level_channel_pct_of_real_mean": 3.8295006673344956,
+        "gen_share_all_zero": 0.2350166019081721,
+        "note": "candidate 8 reuses candidate 7's participation gate verbatim; gen_share_all_zero should equal candidate 7's, isolating its change to the level channel",
+        "gen_share_all_zero_matches_c7": true
+      }
+    },
+    {
+      "seed": 2,
+      "n_q0_holdout": 916,
+      "n_q0_train": 3543,
+      "q1_participation_vs_level": {
+        "real_weighted_mean_pia": 731.7380817571774,
+        "gen_weighted_mean_pia": 816.9143125833075,
+        "total_gap_abs": 85.17623082613011,
+        "total_gap_pct": 11.640262130623302,
+        "by_category": {
+          "zero_to_zero": {
+            "n_persons": 166,
+            "weight_share": 0.1528618974445107,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": 0.0,
+            "gap_contribution_pct_of_real_mean": 0.0
+          },
+          "zero_to_positive": {
+            "n_persons": 130,
+            "weight_share": 0.16272060207142525,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 192.77405660445461,
+            "gap_contribution_abs": 192.77405660445461,
+            "gap_contribution_pct_of_real_mean": 26.34468007207331
+          },
+          "positive_to_zero": {
+            "n_persons": 69,
+            "weight_share": 0.05844967313844682,
+            "real_mean_contribution": 64.14676333189439,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": -64.14676333189439,
+            "gap_contribution_pct_of_real_mean": -8.766355740001117
+          },
+          "positive_to_positive": {
+            "n_persons": 551,
+            "weight_share": 0.6259678273456173,
+            "real_mean_contribution": 667.591318425283,
+            "gen_mean_contribution": 624.1402559788529,
+            "gap_contribution_abs": -43.45106244643011,
+            "gap_contribution_pct_of_real_mean": -5.938062201448887
+          }
+        },
+        "participation_channel_abs": 128.62729327256022,
+        "level_channel_abs": -43.45106244643011,
+        "participation_channel_pct_of_real_mean": 17.578324332072192,
+        "level_channel_pct_of_real_mean": -5.938062201448887,
+        "participation_share_of_total_gap": 1.5101313127499922,
+        "level_share_of_total_gap": -0.5101313127499922
+      },
+      "q1_counterfactual_swap": {
+        "description": "monotone within-Q0 weighted-rank transport isolates each channel: 'gen_participation_real_levels' keeps the candidate participation pattern but maps its positive values onto the real Q0 positive-level distribution; 'real_participation_gen_levels' is the mirror",
+        "real_weighted_mean_pia": 731.7380817571774,
+        "gen_participation_real_levels": {
+          "weighted_mean_pia": 850.4883431998985,
+          "pct_diff_vs_real": 16.22852006793978
+        },
+        "real_participation_gen_levels": {
+          "weighted_mean_pia": 713.6300551568344,
+          "pct_diff_vs_real": -2.474659588149198
+        }
+      },
+      "q1_topn_selection": {
+        "weight_share_real_over_top_n": 0.020391088472794316,
+        "weight_share_gen_over_top_n": 0.01933079967704465,
+        "both_positive_over_top_n": {
+          "n_persons": 28,
+          "weight_share_of_q0": 0.037991128513354636,
+          "real_mean": 1177.143931687811,
+          "gen_mean": 1060.6670481728029,
+          "pct_diff": -9.8948718486788
+        },
+        "both_positive_le_top_n": {
+          "n_persons": 523,
+          "weight_share_of_q0": 0.5879766988322627,
+          "real_mean": 1059.345197309439,
+          "gen_mean": 992.9718626628738,
+          "pct_diff": -6.265505787456486
+        },
+        "note": "selection can only bite when n_pos > top_n; the le_top_n block is the control where the AIME-proxy averages every positive year"
+      },
+      "q2_reentry_channel": {
+        "definition": "drawn = the all-bins re-entry pool u_prev law candidate 7 draws from for a zero-anchor person (u_A=p0/2 is near-constant, so |u_A-a| selects near-uniformly across the pool); train_real = the rank (in the earlier period's own cell) of positive observations immediately before a zero, restricted to TRAIN persons whose OWN anchor is zero (the honest conditional the constant u_A discards)",
+        "drawn_reentry_rank": {
+          "n_pool_records": 4902,
+          "weighted_mean": 0.3036293757435945,
+          "weighted_deciles": [
+            0.01912602279389631,
+            0.04577944182934087,
+            0.08202777950423182,
+            0.13262833990791661,
+            0.2059659243884029,
+            0.3024867283767946,
+            0.42632062314931224,
+            0.5720752229537559,
+            0.773005211365143
+          ]
+        },
+        "train_real_zero_anchor_pre_gap_rank": {
+          "n_records": 2945,
+          "weighted_mean": 0.2742452258826727,
+          "weighted_deciles": [
+            0.01647178613721607,
+            0.037462967887618326,
+            0.06895549099542982,
+            0.10989107055879153,
+            0.17121841396580578,
+            0.269999629013719,
+            0.3717652301447595,
+            0.5061582115703188,
+            0.7092222278367705
+          ]
+        },
+        "drawn_minus_real_mean_rank_gap": 0.029384149860921804,
+        "pool_composition": {
+          "zero_anchor_weight_share_of_reentry_pool": 0.6141450538930294,
+          "positive_anchor_part_mean_pre_gap_rank": 0.35039858391887024,
+          "note": "the pool mixes all anchor bins; if positive-anchor (attached) persons dominate by weight and carry higher pre-gap ranks, the near-constant u_A conditioning imports them into zero-anchor generation"
+        }
+      },
+      "q3_participation_channel": {
+        "n_q0_holdout_persons": 916,
+        "generated": {
+          "weighted_share_all_zero": 0.21131157058295752,
+          "weighted_mean_n_pos": 3.349290603510383,
+          "weighted_mean_n_spells": 0.9630361941960759,
+          "weighted_mean_longest_zero_run": 2.552208655594874
+        },
+        "holdout_real": {
+          "weighted_share_all_zero": 0.3155824995159359,
+          "weighted_mean_n_pos": 2.823758891017648,
+          "weighted_mean_n_spells": 0.8789580759612422,
+          "weighted_mean_longest_zero_run": 3.094027860594041,
+          "note": "holdout-real shown only as the aggregate attachment the gate already reports on; the design target is the train-real block"
+        },
+        "train_real_zero_anchor": {
+          "n_persons": 3543,
+          "weighted_share_all_zero": 0.29428962343592924,
+          "weighted_mean_n_pos": 2.9825029406279953,
+          "weighted_mean_n_spells": 0.8967232252890408,
+          "weighted_mean_longest_zero_run": 3.032678806927029
+        },
+        "gen_minus_train_real_share_all_zero": -0.08297805285297172,
+        "gen_minus_train_real_mean_n_pos": 0.3667876628823876
+      },
+      "q4_covariate_discrimination": {
+        "n_train_q0_persons": 3543,
+        "weighted_r2": {
+          "age_only": 0.042711797146120944,
+          "span_only": 0.13402976895943042,
+          "anchor_position_only": 0.008842686172218284,
+          "age_plus_span": 0.13734382206819318,
+          "age_span_position": 0.1425985000351031,
+          "n_pos_only_NOT_production": 0.30857678077541173,
+          "all_incl_n_pos": 0.3214701643435629
+        },
+        "grouped_mean_pia_by_span_tercile": {
+          "low": {
+            "n": 1181,
+            "weight_share": 0.29374459539445613,
+            "weighted_mean_pia": 375.82511127396936
+          },
+          "mid": {
+            "n": 1181,
+            "weight_share": 0.309287126136313,
+            "weighted_mean_pia": 807.9232638914685
+          },
+          "high": {
+            "n": 1181,
+            "weight_share": 0.3969682784692309,
+            "weighted_mean_pia": 1001.2274135844234
+          }
+        },
+        "grouped_mean_pia_by_any_positive": {
+          "False": {
+            "n": 1099,
+            "weight_share": 0.29428962343592924,
+            "weighted_mean_pia": 0.0
+          },
+          "True": {
+            "n": 2444,
+            "weight_share": 0.7057103765640708,
+            "weighted_mean_pia": 1073.7158012241957
+          }
+        },
+        "interpretation": "production-available = {age_at_anchor, n_observed_periods, anchor_position}; candidate 8's failed Q0 fix used age + observed-span. n_pos_only_NOT_production is the ceiling a participation-fix would need to capture -- it is unknown at generation, so if age+span R^2 is small while n_pos R^2 is large, no production covariate discriminates and the participation LAW itself (not its conditioning) must change"
+      },
+      "candidate8_cross_check": {
+        "total_gap_pct": 15.451340018490319,
+        "participation_channel_pct_of_real_mean": 15.41612601080156,
+        "level_channel_pct_of_real_mean": 0.03521400768874795,
+        "gen_share_all_zero": 0.21131157058295752,
+        "note": "candidate 8 reuses candidate 7's participation gate verbatim; gen_share_all_zero should equal candidate 7's, isolating its change to the level channel",
+        "gen_share_all_zero_matches_c7": true
+      }
+    },
+    {
+      "seed": 3,
+      "n_q0_holdout": 969,
+      "n_q0_train": 3490,
+      "q1_participation_vs_level": {
+        "real_weighted_mean_pia": 755.3599811921619,
+        "gen_weighted_mean_pia": 785.6278546498266,
+        "total_gap_abs": 30.26787345766479,
+        "total_gap_pct": 4.007079301433724,
+        "by_category": {
+          "zero_to_zero": {
+            "n_persons": 181,
+            "weight_share": 0.17635450208852288,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": 0.0,
+            "gap_contribution_pct_of_real_mean": 0.0
+          },
+          "zero_to_positive": {
+            "n_persons": 115,
+            "weight_share": 0.12586323033677124,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 135.70350259004007,
+            "gap_contribution_abs": 135.70350259004007,
+            "gap_contribution_pct_of_real_mean": 17.96540801325791
+          },
+          "positive_to_zero": {
+            "n_persons": 93,
+            "weight_share": 0.09046811667652216,
+            "real_mean_contribution": 96.56511774710475,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": -96.56511774710475,
+            "gap_contribution_pct_of_real_mean": -12.783986463606258
+          },
+          "positive_to_positive": {
+            "n_persons": 580,
+            "weight_share": 0.6073141508981837,
+            "real_mean_contribution": 658.7948634450571,
+            "gen_mean_contribution": 649.9243520597865,
+            "gap_contribution_abs": -8.8705113852705,
+            "gap_contribution_pct_of_real_mean": -1.1743422482179213
+          }
+        },
+        "participation_channel_abs": 39.138384842935324,
+        "level_channel_abs": -8.8705113852705,
+        "participation_channel_pct_of_real_mean": 5.18142154965165,
+        "level_channel_pct_of_real_mean": -1.1743422482179213,
+        "participation_share_of_total_gap": 1.2930668848499576,
+        "level_share_of_total_gap": -0.29306688484995647
+      },
+      "q1_counterfactual_swap": {
+        "description": "monotone within-Q0 weighted-rank transport isolates each channel: 'gen_participation_real_levels' keeps the candidate participation pattern but maps its positive values onto the real Q0 positive-level distribution; 'real_participation_gen_levels' is the mirror",
+        "real_weighted_mean_pia": 755.3599811921619,
+        "gen_participation_real_levels": {
+          "weighted_mean_pia": 800.0124359056122,
+          "pct_diff_vs_real": 5.911413872227741
+        },
+        "real_participation_gen_levels": {
+          "weighted_mean_pia": 751.9598846170827,
+          "pct_diff_vs_real": -0.45012929725412204
+        }
+      },
+      "q1_topn_selection": {
+        "weight_share_real_over_top_n": 0.012545552591568398,
+        "weight_share_gen_over_top_n": 0.037785339320344204,
+        "both_positive_over_top_n": {
+          "n_persons": 34,
+          "weight_share_of_q0": 0.04072364893192687,
+          "real_mean": 1154.453740131213,
+          "gen_mean": 1169.0065493532009,
+          "pct_diff": 1.2605796764393398
+        },
+        "both_positive_le_top_n": {
+          "n_persons": 546,
+          "weight_share_of_q0": 0.5665905019662568,
+          "real_mean": 1079.7591779260679,
+          "gen_mean": 1063.0572479675532,
+          "pct_diff": -1.5468199113245515
+        },
+        "note": "selection can only bite when n_pos > top_n; the le_top_n block is the control where the AIME-proxy averages every positive year"
+      },
+      "q2_reentry_channel": {
+        "definition": "drawn = the all-bins re-entry pool u_prev law candidate 7 draws from for a zero-anchor person (u_A=p0/2 is near-constant, so |u_A-a| selects near-uniformly across the pool); train_real = the rank (in the earlier period's own cell) of positive observations immediately before a zero, restricted to TRAIN persons whose OWN anchor is zero (the honest conditional the constant u_A discards)",
+        "drawn_reentry_rank": {
+          "n_pool_records": 4846,
+          "weighted_mean": 0.30110257640314103,
+          "weighted_deciles": [
+            0.019946431388285616,
+            0.045953056439537995,
+            0.08226778287884048,
+            0.13237780740558827,
+            0.20130795308781413,
+            0.2983405034205392,
+            0.4237934445989886,
+            0.5592995584347972,
+            0.7656682762984898
+          ]
+        },
+        "train_real_zero_anchor_pre_gap_rank": {
+          "n_records": 2884,
+          "weighted_mean": 0.27218187600131283,
+          "weighted_deciles": [
+            0.016320396236528756,
+            0.03846234111509269,
+            0.06869925637511637,
+            0.11041671829907374,
+            0.17531065195411857,
+            0.2693623189546015,
+            0.37086650728351284,
+            0.5031636173985441,
+            0.6881399917765103
+          ]
+        },
+        "drawn_minus_real_mean_rank_gap": 0.028920700401828203,
+        "pool_composition": {
+          "zero_anchor_weight_share_of_reentry_pool": 0.6061630378304328,
+          "positive_anchor_part_mean_pre_gap_rank": 0.3456150556665986,
+          "note": "the pool mixes all anchor bins; if positive-anchor (attached) persons dominate by weight and carry higher pre-gap ranks, the near-constant u_A conditioning imports them into zero-anchor generation"
+        }
+      },
+      "q3_participation_channel": {
+        "n_q0_holdout_persons": 969,
+        "generated": {
+          "weighted_share_all_zero": 0.26682261876504504,
+          "weighted_mean_n_pos": 3.3490391360771996,
+          "weighted_mean_n_spells": 0.8704441087579091,
+          "weighted_mean_longest_zero_run": 2.5845022507895403
+        },
+        "holdout_real": {
+          "weighted_share_all_zero": 0.30221773242529415,
+          "weighted_mean_n_pos": 2.925681416203043,
+          "weighted_mean_n_spells": 0.8937268840763196,
+          "weighted_mean_longest_zero_run": 2.9375246937782813,
+          "note": "holdout-real shown only as the aggregate attachment the gate already reports on; the design target is the train-real block"
+        },
+        "train_real_zero_anchor": {
+          "n_persons": 3490,
+          "weighted_share_all_zero": 0.2976043152047359,
+          "weighted_mean_n_pos": 2.9571655570451894,
+          "weighted_mean_n_spells": 0.8929671090688776,
+          "weighted_mean_longest_zero_run": 3.074533598210985
+        },
+        "gen_minus_train_real_share_all_zero": -0.030781696439690864,
+        "gen_minus_train_real_mean_n_pos": 0.39187357903201026
+      },
+      "q4_covariate_discrimination": {
+        "n_train_q0_persons": 3490,
+        "weighted_r2": {
+          "age_only": 0.031718293271339126,
+          "span_only": 0.12199577233637537,
+          "anchor_position_only": 0.011861747634480002,
+          "age_plus_span": 0.12331326689056143,
+          "age_span_position": 0.1258445661893931,
+          "n_pos_only_NOT_production": 0.31314327453524926,
+          "all_incl_n_pos": 0.3242107869742161
+        },
+        "grouped_mean_pia_by_span_tercile": {
+          "low": {
+            "n": 1164,
+            "weight_share": 0.29061106748553267,
+            "weighted_mean_pia": 373.15532722836576
+          },
+          "mid": {
+            "n": 1163,
+            "weight_share": 0.31539646393955423,
+            "weighted_mean_pia": 833.6267599366698
+          },
+          "high": {
+            "n": 1163,
+            "weight_share": 0.3939924685749131,
+            "weighted_mean_pia": 965.296508073845
+          }
+        },
+        "grouped_mean_pia_by_any_positive": {
+          "False": {
+            "n": 1099,
+            "weight_share": 0.2976043152047359,
+            "weighted_mean_pia": 0.0
+          },
+          "True": {
+            "n": 2391,
+            "weight_share": 0.702395684795264,
+            "weighted_mean_pia": 1070.1739357282963
+          }
+        },
+        "interpretation": "production-available = {age_at_anchor, n_observed_periods, anchor_position}; candidate 8's failed Q0 fix used age + observed-span. n_pos_only_NOT_production is the ceiling a participation-fix would need to capture -- it is unknown at generation, so if age+span R^2 is small while n_pos R^2 is large, no production covariate discriminates and the participation LAW itself (not its conditioning) must change"
+      },
+      "candidate8_cross_check": {
+        "total_gap_pct": 7.793784005058838,
+        "participation_channel_pct_of_real_mean": 5.7366717692843725,
+        "level_channel_pct_of_real_mean": 2.057112235774475,
+        "gen_share_all_zero": 0.26682261876504504,
+        "note": "candidate 8 reuses candidate 7's participation gate verbatim; gen_share_all_zero should equal candidate 7's, isolating its change to the level channel",
+        "gen_share_all_zero_matches_c7": true
+      }
+    },
+    {
+      "seed": 4,
+      "n_q0_holdout": 913,
+      "n_q0_train": 3546,
+      "q1_participation_vs_level": {
+        "real_weighted_mean_pia": 743.4582982899641,
+        "gen_weighted_mean_pia": 854.1440600628824,
+        "total_gap_abs": 110.68576177291834,
+        "total_gap_pct": 14.887958346487997,
+        "by_category": {
+          "zero_to_zero": {
+            "n_persons": 163,
+            "weight_share": 0.1698584716306109,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": 0.0,
+            "gap_contribution_pct_of_real_mean": 0.0
+          },
+          "zero_to_positive": {
+            "n_persons": 114,
+            "weight_share": 0.11866048284885425,
+            "real_mean_contribution": 0.0,
+            "gen_mean_contribution": 146.35722650600025,
+            "gap_contribution_abs": 146.35722650600025,
+            "gap_contribution_pct_of_real_mean": 19.6860034843431
+          },
+          "positive_to_zero": {
+            "n_persons": 90,
+            "weight_share": 0.0917295130394576,
+            "real_mean_contribution": 92.0568764080937,
+            "gen_mean_contribution": 0.0,
+            "gap_contribution_abs": -92.0568764080937,
+            "gap_contribution_pct_of_real_mean": -12.382251515631024
+          },
+          "positive_to_positive": {
+            "n_persons": 546,
+            "weight_share": 0.6197515324810773,
+            "real_mean_contribution": 651.4014218818704,
+            "gen_mean_contribution": 707.7868335568822,
+            "gap_contribution_abs": 56.38541167501177,
+            "gap_contribution_pct_of_real_mean": 7.584206377775918
+          }
+        },
+        "participation_channel_abs": 54.300350097906545,
+        "level_channel_abs": 56.38541167501177,
+        "participation_channel_pct_of_real_mean": 7.303751968712076,
+        "level_channel_pct_of_real_mean": 7.584206377775918,
+        "participation_share_of_total_gap": 0.4905811662507101,
+        "level_share_of_total_gap": 0.5094188337492896
+      },
+      "q1_counterfactual_swap": {
+        "description": "monotone within-Q0 weighted-rank transport isolates each channel: 'gen_participation_real_levels' keeps the candidate participation pattern but maps its positive values onto the real Q0 positive-level distribution; 'real_participation_gen_levels' is the mirror",
+        "real_weighted_mean_pia": 743.4582982899641,
+        "gen_participation_real_levels": {
+          "weighted_mean_pia": 785.3035602451298,
+          "pct_diff_vs_real": 5.628461213145973
+        },
+        "real_participation_gen_levels": {
+          "weighted_mean_pia": 822.0105301273918,
+          "pct_diff_vs_real": 10.565788561121249
+        }
+      },
+      "q1_topn_selection": {
+        "weight_share_real_over_top_n": 0.02934157081262169,
+        "weight_share_gen_over_top_n": 0.030883244006110616,
+        "both_positive_over_top_n": {
+          "n_persons": 39,
+          "weight_share_of_q0": 0.054739346001496596,
+          "real_mean": 1130.5005238653164,
+          "gen_mean": 1274.2130866647449,
+          "pct_diff": 12.712295108723882
+        },
+        "both_positive_le_top_n": {
+          "n_persons": 507,
+          "weight_share_of_q0": 0.5650121864795806,
+          "real_mean": 1043.3731814250677,
+          "gen_mean": 1129.2450991220599,
+          "pct_diff": 8.230220905209189
+        },
+        "note": "selection can only bite when n_pos > top_n; the le_top_n block is the control where the AIME-proxy averages every positive year"
+      },
+      "q2_reentry_channel": {
+        "definition": "drawn = the all-bins re-entry pool u_prev law candidate 7 draws from for a zero-anchor person (u_A=p0/2 is near-constant, so |u_A-a| selects near-uniformly across the pool); train_real = the rank (in the earlier period's own cell) of positive observations immediately before a zero, restricted to TRAIN persons whose OWN anchor is zero (the honest conditional the constant u_A discards)",
+        "drawn_reentry_rank": {
+          "n_pool_records": 4934,
+          "weighted_mean": 0.3039161961673339,
+          "weighted_deciles": [
+            0.01922680821974925,
+            0.04549033283432184,
+            0.08349032359771417,
+            0.13561765580621024,
+            0.20851735636367214,
+            0.306921439602889,
+            0.43305620467726513,
+            0.5636615045611761,
+            0.7620007606383099
+          ]
+        },
+        "train_real_zero_anchor_pre_gap_rank": {
+          "n_records": 2952,
+          "weighted_mean": 0.2816142373126586,
+          "weighted_deciles": [
+            0.016508431147639686,
+            0.03966958440949806,
+            0.0716288934253675,
+            0.11417290319204959,
+            0.17920730643467989,
+            0.27949345736835246,
+            0.39508223953534144,
+            0.52121025754793,
+            0.713026908290952
+          ]
+        },
+        "drawn_minus_real_mean_rank_gap": 0.022301958854675286,
+        "pool_composition": {
+          "zero_anchor_weight_share_of_reentry_pool": 0.6112560917969745,
+          "positive_anchor_part_mean_pre_gap_rank": 0.3389835192076893,
+          "note": "the pool mixes all anchor bins; if positive-anchor (attached) persons dominate by weight and carry higher pre-gap ranks, the near-constant u_A conditioning imports them into zero-anchor generation"
+        }
+      },
+      "q3_participation_channel": {
+        "n_q0_holdout_persons": 913,
+        "generated": {
+          "weighted_share_all_zero": 0.2615879846700685,
+          "weighted_mean_n_pos": 3.609070461306563,
+          "weighted_mean_n_spells": 0.9083327750906578,
+          "weighted_mean_longest_zero_run": 2.503010648919754
+        },
+        "holdout_real": {
+          "weighted_share_all_zero": 0.28851895447946513,
+          "weighted_mean_n_pos": 3.0925027421048115,
+          "weighted_mean_n_spells": 0.8958258726088535,
+          "weighted_mean_longest_zero_run": 2.9599928880722595,
+          "note": "holdout-real shown only as the aggregate attachment the gate already reports on; the design target is the train-real block"
+        },
+        "train_real_zero_anchor": {
+          "n_persons": 3546,
+          "weighted_share_all_zero": 0.3010095267236882,
+          "weighted_mean_n_pos": 2.9163616261093472,
+          "weighted_mean_n_spells": 0.892484787649809,
+          "weighted_mean_longest_zero_run": 3.0654676408420567
+        },
+        "gen_minus_train_real_share_all_zero": -0.039421542053619696,
+        "gen_minus_train_real_mean_n_pos": 0.6927088351972159
+      },
+      "q4_covariate_discrimination": {
+        "n_train_q0_persons": 3546,
+        "weighted_r2": {
+          "age_only": 0.0332828277801841,
+          "span_only": 0.12698911234175259,
+          "anchor_position_only": 0.012505939228859897,
+          "age_plus_span": 0.12854646956932025,
+          "age_span_position": 0.13125023118133916,
+          "n_pos_only_NOT_production": 0.32465474528340776,
+          "all_incl_n_pos": 0.3359714340060541
+        },
+        "grouped_mean_pia_by_span_tercile": {
+          "low": {
+            "n": 1182,
+            "weight_share": 0.2981932495929302,
+            "weighted_mean_pia": 377.27933244695413
+          },
+          "mid": {
+            "n": 1182,
+            "weight_share": 0.3128599278679977,
+            "weighted_mean_pia": 839.4959811581199
+          },
+          "high": {
+            "n": 1182,
+            "weight_share": 0.38894682253907215,
+            "weighted_mean_pia": 975.6816312351185
+          }
+        },
+        "grouped_mean_pia_by_any_positive": {
+          "False": {
+            "n": 1118,
+            "weight_share": 0.3010095267236882,
+            "weighted_mean_pia": 0.0
+          },
+          "True": {
+            "n": 2428,
+            "weight_share": 0.6989904732763118,
+            "weighted_mean_pia": 1079.6070924954392
+          }
+        },
+        "interpretation": "production-available = {age_at_anchor, n_observed_periods, anchor_position}; candidate 8's failed Q0 fix used age + observed-span. n_pos_only_NOT_production is the ceiling a participation-fix would need to capture -- it is unknown at generation, so if age+span R^2 is small while n_pos R^2 is large, no production covariate discriminates and the participation LAW itself (not its conditioning) must change"
+      },
+      "candidate8_cross_check": {
+        "total_gap_pct": 10.668812107729181,
+        "participation_channel_pct_of_real_mean": 4.027755532702863,
+        "level_channel_pct_of_real_mean": 6.641056575026323,
+        "gen_share_all_zero": 0.2615879846700685,
+        "note": "candidate 8 reuses candidate 7's participation gate verbatim; gen_share_all_zero should equal candidate 7's, isolating its change to the level channel",
+        "gen_share_all_zero_matches_c7": true
+      }
+    }
+  ],
+  "pooled": {
+    "q1_total_gap_pct": {
+      "mean": 9.295292319680367,
+      "sd": 4.315131394573946,
+      "min": 4.007079301433724,
+      "max": 14.887958346487997,
+      "n_seeds": 5
+    },
+    "q1_participation_channel_pct": {
+      "mean": 10.121790950696845,
+      "sd": 4.6956204182338785,
+      "min": 5.18142154965165,
+      "max": 17.578324332072192,
+      "n_seeds": 5
+    },
+    "q1_level_channel_pct": {
+      "mean": -0.8264986310164764,
+      "sd": 5.244406297302762,
+      "min": -5.938062201448887,
+      "max": 7.584206377775918,
+      "n_seeds": 5
+    },
+    "q1_participation_share_of_gap": {
+      "mean": 1.2045753144749838,
+      "sd": 0.47329516127138666,
+      "min": 0.4905811662507101,
+      "max": 1.706504348499023,
+      "n_seeds": 5
+    },
+    "q1_zero_to_positive_contrib_pct": {
+      "mean": 20.67657383753287,
+      "sd": 3.3889664068101872,
+      "min": 17.96540801325791,
+      "max": 26.34468007207331,
+      "n_seeds": 5
+    },
+    "q1_positive_to_zero_contrib_pct": {
+      "mean": -10.554782886836026,
+      "sd": 2.2090570800293396,
+      "min": -12.783986463606258,
+      "max": -7.771447958682789,
+      "n_seeds": 5
+    },
+    "q1_swap_gen_partic_real_levels_pct": {
+      "mean": 10.017198648396084,
+      "sd": 5.495216872026131,
+      "min": 5.628461213145973,
+      "max": 16.22852006793978,
+      "n_seeds": 5
+    },
+    "q1_swap_real_partic_gen_levels_pct": {
+      "mean": 1.1744867793129774,
+      "sd": 5.549465940030151,
+      "min": -3.181784577795952,
+      "max": 10.565788561121249,
+      "n_seeds": 5
+    },
+    "q2_drawn_reentry_mean_rank": {
+      "mean": 0.3022973066277553,
+      "sd": 0.001835995540135569,
+      "min": 0.29967008441644916,
+      "max": 0.3039161961673339,
+      "n_seeds": 5
+    },
+    "q2_train_real_pre_gap_mean_rank": {
+      "mean": 0.27539445997614653,
+      "sd": 0.004282114345703677,
+      "min": 0.2712025873124751,
+      "max": 0.2816142373126586,
+      "n_seeds": 5
+    },
+    "q2_drawn_minus_real_rank_gap": {
+      "mean": 0.026902846651608782,
+      "sd": 0.0029993762989881417,
+      "min": 0.022301958854675286,
+      "max": 0.029384149860921804,
+      "n_seeds": 5
+    },
+    "q2_reentry_pool_zero_anchor_weight_share": {
+      "mean": 0.6101119797568311,
+      "sd": 0.004854042191331209,
+      "min": 0.6040058730759091,
+      "max": 0.6149898421878099,
+      "n_seeds": 5
+    },
+    "q3_gen_share_all_zero": {
+      "mean": 0.24014760121655482,
+      "sd": 0.023607556121412035,
+      "min": 0.21131157058295752,
+      "max": 0.26682261876504504,
+      "n_seeds": 5
+    },
+    "q3_train_real_share_all_zero": {
+      "mean": 0.29744837153749737,
+      "sd": 0.0031546721220499763,
+      "min": 0.2942564558064322,
+      "max": 0.3010095267236882,
+      "n_seeds": 5
+    },
+    "q3_gen_mean_n_pos": {
+      "mean": 3.4730725386957446,
+      "sd": 0.12754897892770986,
+      "min": 3.3490391360771996,
+      "max": 3.609070461306563,
+      "n_seeds": 5
+    },
+    "q3_train_real_mean_n_pos": {
+      "mean": 2.9467887760232605,
+      "sd": 0.02465610518966244,
+      "min": 2.9163616261093472,
+      "max": 2.9825029406279953,
+      "n_seeds": 5
+    },
+    "q4_r2_age_plus_span": {
+      "mean": 0.13132687431957776,
+      "sd": 0.005467291945907263,
+      "min": 0.12331326689056143,
+      "max": 0.13734382206819318,
+      "n_seeds": 5
+    },
+    "q4_r2_age_span_position": {
+      "mean": 0.13465739287083084,
+      "sd": 0.00639655083169385,
+      "min": 0.1258445661893931,
+      "max": 0.1425985000351031,
+      "n_seeds": 5
+    },
+    "q4_r2_n_pos_NOT_production": {
+      "mean": 0.31572957198724094,
+      "sd": 0.006105571726494293,
+      "min": 0.30857678077541173,
+      "max": 0.32465474528340776,
+      "n_seeds": 5
+    },
+    "c8_total_gap_pct": {
+      "mean": 12.159976296260844,
+      "sd": 3.103995478059891,
+      "min": 7.793784005058838,
+      "max": 15.451340018490319,
+      "n_seeds": 5
+    },
+    "c8_participation_channel_pct": {
+      "mean": 9.208728366315261,
+      "sd": 4.494266183616413,
+      "min": 4.027755532702863,
+      "max": 15.41612601080156,
+      "n_seeds": 5
+    },
+    "c8_level_channel_pct": {
+      "mean": 2.9512479299455805,
+      "sd": 2.4628818542725996,
+      "min": 0.03521400768874795,
+      "max": 6.641056575026323,
+      "n_seeds": 5
+    },
+    "c8_gate_match_all_seeds": true
+  },
+  "ranked_mechanisms": {
+    "ranked_by_abs_pooled_gap_pct": [
+      {
+        "mechanism": "participation: net zero<->positive conversion (candidate resurrects never-workers)",
+        "pooled_gap_pct": 10.121790950696845
+      },
+      {
+        "mechanism": "positive-earnings level among both-positive (top-N average)",
+        "pooled_gap_pct": -0.8264986310164764
+      }
+    ],
+    "participation_subsplit": {
+      "zero_to_positive_pct": 20.67657383753287,
+      "positive_to_zero_pct": -10.554782886836026,
+      "net_participation_pct": 10.121790950696845
+    },
+    "total_gap_pct": 9.295292319680367,
+    "candidate8_consistency": {
+      "c8_total_gap_pct": 12.159976296260844,
+      "c8_participation_channel_pct": 9.208728366315261,
+      "c8_level_channel_pct": 2.9512479299455805,
+      "c7_participation_channel_pct": 10.121790950696845,
+      "c7_level_channel_pct": -0.8264986310164764,
+      "participation_gate_byte_identical_all_seeds": true,
+      "verdict": "consistent: candidate 8 reuses candidate 7's participation gate byte-for-byte (gen all-zero share identical every seed), so its participation channel is unchanged; its age+span-conditioned zero-anchor donor restriction moved only the LEVEL channel, and moved it the WRONG way (candidate 7 level ~0, candidate 8 level positive), so the total gap grew. Fixing the non-driving channel with the covariates Q4 shows are near-useless is exactly why candidate 8 worsened."
+    },
+    "note": "the participation and level channels sum to the total Q0 gap by construction (an exact additive decomposition of the weighted-mean PIA-proxy difference)"
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "b7ac059a10ae4c193e8a0c622eaa0035c9319f40",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "q0_forensics.v1"
+  },
+  "elapsed_seconds": 134.9
+}
