@@ -815,6 +815,28 @@ better model but from a better-measured gate — and the record
 distinguishes those two things explicitly, which is the point of
 keeping one.
 
+A registered reform-delta diagnostic followed the pass (reported,
+not gated): two opposite-incidence mechanical reforms — the first
+PIA factor raised from 90 to 95 percent, and the taxable maximum
+removed from the AIME step — computed on real versus generated
+histories under the locked holdout protocol, each gap measured
+against a real-vs-real half-split floor. The aggregates a reform
+score leads with land inside the floor on both reforms: mean
+benefit change (gap \$0.29 against a \$0.48 floor bottom-loaded;
+\$4.02 against \$7.77 top-loaded), winners share, and the
+zero-anchor subgroup. The fine incidence curve is not fully
+reproduced: the bottom-loaded reform misses only the concave
+first-bend decile (1.9 times its floor, about one percent of the
+flat \$51 monthly delta), while cap removal shifts roughly a
+quarter of the top compared decile's gains downward — real
++\$75.76 a month at the ninth decile against generated +\$55.33 —
+with six of seven compared deciles individually outside their
+floors. The named mechanism is that the generator
+under-concentrates cap-riding careers, diluting the extreme top of
+the earnings distribution, consistent with the run-12 microtexture
+forensics; it is the program's next target, found by the
+protocol's own diagnostics rather than by a downstream user.
+
 ![The twenty-seed extension of the run-12 pairs-view classifier
 measurement (reported, not gated), from the committed diagnostics
 artifact. Blue: candidate 10 scored against real holdouts; grey:
