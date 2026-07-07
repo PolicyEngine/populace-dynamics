@@ -36,10 +36,12 @@ def _ssa_official_2026_params():
         nawi={1977: 9_779.44, 2024: 69_846.57},
         wage_base={},
         pia_factors=(0.90, 0.32, 0.15),
-        fra_months_by_birth_year=[(1900, 780)],
+        fra_months_by_birth_year=[(1900, 780), (1943, 792), (1960, 804)],
         early_monthly_rates=(0.00555556, 0.00416667),
         early_first_bracket_months=36,
         pe_us_revision="ssa-official-anchor",
+        delayed_credit_by_birth_year=[(1900, 0.03), (1943, 0.08)],
+        max_delayed_months=48,
     )
 
 
@@ -111,3 +113,29 @@ def test_fra_schedule_matches_statute():
     assert PARAMS.fra_months(1943) == 66 * 12
     assert PARAMS.fra_months(1960) == 67 * 12
     assert PARAMS.fra_months(1990) == 67 * 12
+
+
+def test_delayed_credit_pure_bundle():
+    # FRA 66 (born 1943): claiming at 70 is 48 months late = 4 years of
+    # the 8%/yr credit = 32%.
+    p = _ssa_official_2026_params()
+    assert benefits.delayed_credit(48, 1943, p) == pytest.approx(0.32)
+    # No credit at or before FRA.
+    assert benefits.delayed_credit(0, 1943, p) == 0.0
+    assert benefits.delayed_credit(-5, 1943, p) == 0.0
+    # FRA 67 (born 1960): credits stop at age 70, so the window is only
+    # 36 months even though max_delayed_months is 48 -> 3 * 8% = 24%.
+    assert benefits.delayed_credit(48, 1960, p) == pytest.approx(0.24)
+    assert benefits.delayed_credit(24, 1960, p) == pytest.approx(0.16)
+
+
+@needs_pe_us
+def test_delayed_credit_rate_loads_from_pe_us():
+    # 42 USC 402(w): 8% per year for 1943 and later; 3% for the earliest
+    # cohorts.
+    assert PARAMS.delayed_credit_annual_rate(1943) == pytest.approx(0.08)
+    assert PARAMS.delayed_credit_annual_rate(1990) == pytest.approx(0.08)
+    assert PARAMS.delayed_credit_annual_rate(1917) == pytest.approx(0.03)
+    assert PARAMS.max_delayed_months == 48
+    # Born 1943 (FRA 66) claiming at 70 -> +32% of PIA.
+    assert benefits.delayed_credit(48, 1943, PARAMS) == pytest.approx(0.32)

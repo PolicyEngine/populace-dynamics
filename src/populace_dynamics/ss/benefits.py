@@ -13,6 +13,9 @@ SSAParameters`. Statute references:
 * 402(q): early-claiming reduction — 5/9 of one percent per month
   for the first 36 months before full retirement age, 5/12 of one
   percent per month beyond.
+* 402(w): delayed-retirement credit — an increase per month of delay
+  past full retirement age at the birth cohort's annual rate (8 percent
+  per year for 1943 and later), stopping at age 70.
 """
 
 from __future__ import annotations
@@ -27,6 +30,7 @@ __all__ = [
     "aime",
     "pia",
     "early_reduction",
+    "delayed_credit",
     "age62_monthly_benefit",
 ]
 
@@ -34,6 +38,7 @@ _COMPUTATION_YEARS = 35
 _MONTHS = 12
 _INDEXING_AGE = 60
 _EARLIEST_CLAIM_MONTHS = 62 * 12
+_AGE_70_MONTHS = 70 * 12
 
 
 def creditable_history(
@@ -112,6 +117,27 @@ def early_reduction(months_early: int, params: SSAParameters) -> float:
     first = min(months_early, cap)
     later = max(0, months_early - cap)
     return first * first_rate + later * later_rate
+
+
+def delayed_credit(
+    months_late: int, birth_year: int, params: SSAParameters
+) -> float:
+    """Fractional delayed-retirement credit for claiming ``months_late``
+    months after full retirement age (42 USC 402(w)).
+
+    Credits accrue at the birth cohort's annual rate (a twelfth per
+    month) and stop at age 70; the accrual window is additionally capped
+    at the statutory maximum (``max_delayed_years``). Returns 0 for a
+    claim at or before full retirement age.
+    """
+    if months_late <= 0:
+        return 0.0
+    fra = params.fra_months(birth_year)
+    window = min(params.max_delayed_months, _AGE_70_MONTHS - fra)
+    credited = min(months_late, window)
+    if credited <= 0:
+        return 0.0
+    return (credited / _MONTHS) * params.delayed_credit_annual_rate(birth_year)
 
 
 def age62_monthly_benefit(
