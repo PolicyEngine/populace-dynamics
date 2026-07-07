@@ -54,6 +54,8 @@ __all__ = [
     "parse_sps_layout",
     "parse_sps_labels",
     "find_variables",
+    "verify_labels",
+    "product_sps_path",
     "read_psid",
 ]
 
@@ -232,6 +234,57 @@ def find_variables(labels: dict[str, str], pattern: str) -> dict[str, str]:
     return {
         name: label for name, label in labels.items() if regex.search(label)
     }
+
+
+def verify_labels(
+    labels: dict[str, str],
+    expected: dict[str, str],
+    *,
+    context: str,
+) -> None:
+    """Assert each variable's label matches the expected text, or raise.
+
+    This is the label-verification discipline the demographic readers
+    (:mod:`populace_dynamics.data.marriage`, ``births``, ``relmap``)
+    share: PSID variable names are opaque codes, so a reader that hard
+    maps ``MH12 -> "how the marriage ended"`` is only correct while the
+    release's column-to-name assignment holds. Checking the label at
+    read time turns a re-layout (a shifted or renamed column) into a
+    loud failure instead of a silently mismapped column.
+
+    Comparison normalizes runs of whitespace, because PSID pads label
+    columns with variable spacing. Raises :class:`ValueError` naming the
+    first mismatching variable, its actual label, and the expected one;
+    ``context`` names the product in the message (e.g. ``"mh85_23"``).
+    """
+    for var, want in expected.items():
+        actual = " ".join(labels.get(var, "").split())
+        wanted = " ".join(want.split())
+        if actual != wanted:
+            raise ValueError(
+                f"{context}: variable {var} label {actual!r} does not "
+                f"match the expected layout ({wanted!r}). The release "
+                "layout may have changed."
+            )
+
+
+def product_sps_path(product: str, data_dir: Path | None = None) -> Path:
+    """Resolve the ``.sps`` setup path for a staged product.
+
+    Convenience for readers that need the labels (via
+    :func:`parse_sps_labels`) before reading columns, without
+    re-deriving the staged-directory layout.
+
+    Raises:
+        KeyError: If ``product`` is not a recognized product key.
+    """
+    if product not in PRODUCTS:
+        raise KeyError(
+            f"Unknown PSID product {product!r}; expected one of "
+            f"{sorted(PRODUCTS)}"
+        )
+    subdir, _, sps_name = PRODUCTS[product]
+    return _resolve_data_dir(data_dir) / subdir / sps_name
 
 
 def read_psid(
