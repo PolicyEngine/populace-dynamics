@@ -450,6 +450,712 @@ gates:
           Evidence chain: PR 54 (forensics), PR 55 (candidate 7),
           PR 56 (downstream relevance), anchor artifact
           runs/pia_proxy_floor_9822.json.
+    amendment_proposed:
+      # PUBLIC AMENDMENT PROPOSAL #2 under this file's amendment rule
+      # (header: "locked thresholds change only through a public
+      # amendment noted in this file's history"). This subsection is the
+      # amendment OBJECT: it PROPOSES changes and changes NOTHING. The
+      # locked `thresholds` block above is untouched (locked: true stays;
+      # every locked value is byte-identical, including the pairs-view
+      # c2st_auc_max: 0.53 line this proposal reinterprets). No model
+      # reads this subsection; the harness scores only the locked block.
+      #
+      # REWORKED 2026-07-07 per the adversarial referee's AMEND-BEFORE-
+      # RATIFYING verdict (PR #67). The three required fixes are
+      # implemented here:
+      #   A (no self-rescue): the amendment changes NO committed verdict;
+      #     candidate 10 REMAINS FAIL; the first pass must come from a
+      #     FRESH seed registration (see no_self_rescue, path_to_pass,
+      #     illustrative_retroactive_application.applied=false).
+      #   B (larger pre-registered seed set): the pairs-c2st mean is
+      #     gated over 20 pre-registered seeds (0-19), not the 5 locked
+      #     seeds that happen to contain both global-max clippers; this
+      #     SHARPENS the operating characteristic at 0.53 (see change 1
+      #     and its operating_characteristics block).
+      #   C (version-matched cap): the per-seed catastrophe cap derives
+      #     from the VERSION-MATCHED (sklearn 1.8.0) floor, giving 0.554,
+      #     not the 0.547 the version-mismatched 1.9.0 sd produced (the
+      #     rejected 0.547 is disclosed in considered_and_rejected).
+      #
+      # Status: proposed, pending (1) a FRESH adversarial referee round
+      # run against this reworked proposal and (2) maintainer
+      # RATIFICATION by merge. Until that merge this proposal is inert.
+      # Ratification would move these proposed lines into the locked
+      # block through a follow-up that flips them live, exactly as PR
+      # #33/#39 did for the original lock and PR #57/#59 did for
+      # amendment 1.
+      #
+      # What it proposes (a recalibration of ONE geometry threshold's
+      # ESTIMATOR, at the SAME ratified line): the pairs-view c2st gate
+      # is evaluated as the ACROSS-SEED MEAN over 20 pre-registered seeds
+      # rather than per-seed on the locked 5, guarded by a per-seed
+      # version-matched catastrophe cap, plus a protocol clause pinning
+      # the classifier's scikit-learn version. The ratified 0.53
+      # distinguishability allowance is UNCHANGED; only the estimator of
+      # it changes. This is proposed AFTER run 12's near-miss (candidate
+      # 10, PR #64); the goalpost-timing question is adjudicated by the
+      # fresh referee round (see illustrative_retroactive_application
+      # .process_statement).
+      status: proposed_pending_referee_round_and_ratification
+      proposal_number: 2
+      amendment_rule_reference: >-
+        gates.yaml header ("Numeric thresholds ... change only through a
+        public amendment noted in this file's history") and CLAUDE.md
+        ("gate-1 thresholds are locked ... and change only through a
+        public amendment plus a fresh referee round").
+      no_self_rescue: >-
+        No candidate's committed run verdict changes under a rule
+        proposed after that run. A gate rule amendment applies only to
+        runs registered after its ratification.
+      evidence_chain:
+        twenty_seed_measurement_pr: 66
+        run_12_gate_pr: 64
+        inner_validation_pr: 63
+        model_registry_issue: 42
+        referee_verdict_pr: 67
+      evidence_summary: >-
+        PR #66 (the 20-seed measurement, runs/c10_diagnostics_v1.json):
+        the committed candidate 10 (run 12, PR #64) scored on 20
+        protocol-identical splits has pairs-view c2st mean 0.5234 +/-
+        0.0059 (per-seed sd), i.e. the 20-SEED MEAN sits 5.0 standard
+        errors of the mean below the 0.53 line
+        (margin_below_line_in_se 5.009). Read the disclosure block
+        below before that headline: the statistic the LOCKED per-seed
+        rule actually gated on is the locked-5 mean 0.5279, which is
+        only ~0.80-1.16 SE below the line -- the 20-seed cushion pools
+        15 fresh seeds drawn AFTER this candidate. Only 2 of the 20
+        seeds clip 0.53, and both are locked seeds 0-1, which are the
+        2nd-max and max of all 20. The microtexture forensics
+        (diagnostic 2) show the clipping carries no split-dependent
+        signal: the same seed-invariant sub-threshold residual (top
+        marginal feature earnings_t0, all-seed marginal AUC 0.514)
+        drives the classifier in every seed
+        (coherent_failing_vs_passing_signal false). The candidate's
+        excess over the version-matched floor is REAL signal (6.8 SE,
+        see disclosure.excess_is_tolerated_signal_not_noise); the 0.53
+        allowance tolerates it, and only the per-seed clipping LOCATION
+        is noise. Chain: PR #64 (run 12, gate artifact
+        runs/gate1_rank_knn_v4.json), PR #63 (the inner-validation
+        harness whose nested selection set candidate 10's constants,
+        with inner seed = 1000 + outer seed over outer seeds 0-4), PR
+        #67 (the referee verdict this rework answers).
+      disclosure:
+        # Change 4 (referee finding 5): the numbers verify but the
+        # earlier emphasis misled. Stated plainly, as data + prose.
+        gated_statistic_under_preamendment_rule: >-
+          The statistic the LOCKED (pre-amendment) per-seed rule gated
+          on is the locked-5 outcome (seeds 0-4), NOT the 20-seed
+          distribution. The locked-5 pairs-c2st MEAN is 0.5279, which
+          sits only ~0.80-1.16 SE below the 0.53 line: 0.80 SE on the
+          20-seed per-seed sd (0.0059), 1.16 SE on the locked-5 sd
+          (0.0041). That is the honest margin of the gated quantity --
+          NOT the 5.0 SE the 20-seed-mean headline (0.5234) advertises,
+          which is the margin of a mean that pools 15 fresh seeds drawn
+          AFTER candidate 10's run.
+        unfavorable_locked_draw: >-
+          The two locked seeds that clip 0.53 are seed 1 (0.5330, the
+          global MAX of all 20) and seed 0 (0.5315, the 2nd max); the
+          3rd-highest is 0.5275. P(a random 5-of-20 subset has mean >=
+          the locked-5 mean 0.5279) = 143 / C(20,5) = 143/15504 =
+          0.0092. The locked five are a ~p=0.01 UNFAVORABLE (high) draw
+          for this candidate, so the per-seed rule scored it near its
+          worst five seeds of twenty.
+        locked_seeds_design_touched: >-
+          Seeds 0-4 are not fresh for this candidate: the
+          inner-validation harness (PR #63) selected the model's
+          constants (V1 lambda=0.1) by aggregating over outer seeds 0-4
+          with inner seed = 1000 + outer seed, so the five gate seeds
+          are design-touched, not an independent draw. This is why fix
+          A requires a FRESH seed registration, not a re-score on 0-4.
+        excess_is_tolerated_signal_not_noise: >-
+          The candidate's excess over the version-matched real-vs-real
+          floor is REAL SIGNAL, not noise: +0.0124 +/- 0.0018 over 20
+          seeds, 6.8 SE from zero
+          (excess_over_floor_distribution.mean_over_se 6.826). The 0.53
+          distinguishability allowance TOLERATES that excess by design
+          (0.53 is ~4.2 floor-sd above the floor mean). What is noise is
+          only the per-seed CLIPPING LOCATION -- which individual splits
+          push the tolerated signal above 0.53 -- not the presence of a
+          residual. This replaces any earlier "noise, not signal"
+          phrasing: the signal is real and tolerated; its per-seed
+          clipping is the noise.
+      changes:
+        - id: 1
+          title: >-
+            pairs-view c2st gating moves from per-seed on the locked 5
+            to the across-seed mean over 20 pre-registered seeds, at the
+            same ratified 0.53 line
+          type: change_gating_statistic
+          target:
+            view: psid_family_earnings_pairs
+            metric: c2st_auc_max
+          currently_locked:
+            statistic: per_seed
+            rule: >-
+              c2st_auc <= 0.53 at each of the five locked seeds; folds
+              into the >= 4/5-seed geometry conjunction
+            value: 0.53
+          proposed:
+            statistic: across_seed_mean
+            seed_set: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                       15, 16, 17, 18, 19]
+            rule: >-
+              mean of pairs-view c2st_auc over pre-registered seeds 0-19
+              (20 seeds) <= 0.53
+            value: 0.53
+            derivation:
+              floor_run: runs/noise_floor_psid_family_ctx20_9822.json
+              rule: { key: c2st_auc, k: 4.2, rounding: 2 }
+              note: >-
+                IDENTICAL to the ratified per-seed derivation
+                (thresholds.views.psid_family_earnings_pairs.derivations
+                .rules.c2st_auc_max = floor mean + 4.2 * per-seed floor
+                sd, rounded to 2 = 0.53). The LINE does not move; only
+                the estimator changes, from per-seed-on-5 to
+                mean-over-20. The number is unchanged and the referee
+                weighs an estimator change, not a new threshold.
+            scope_note: >-
+              ONLY the pairs-view c2st_auc metric moves to the 20-seed
+              mean (plus the per-seed cap of change 2, applied across
+              all 20 seeds). Every OTHER pairs-view geometry metric
+              (energy_distance, prdc_coverage, q99/q90 tails, w1_over_sd)
+              and the whole battery and benefit_space blocks KEEP their
+              existing per-seed form on the five locked seeds with the
+              4-of-5 rule. The 20-seed extension exists only for
+              pairs-c2st (it is what runs/c10_diagnostics_v1.json
+              measured), so only pairs-c2st is re-estimated on it.
+          operating_characteristics:
+            # Change 1 / referee fix B, as DATA. Pass probability at each
+            # hypothetical TRUE mean under three estimators, all at the
+            # ratified 0.53 line. Normal iid approximation: per-seed
+            # c2st ~ N(true_mean, per_seed_sd); Phi via math.erf.
+            # tests/test_gates_derivations.py recomputes every entry.
+            approximation_note: >-
+              Indicative, not exact: treats the seeds as iid Gaussian
+              with a common per-seed sd (0.0059). The real per-seed
+              draws overlap (shared holdout persons), so a mean's true
+              standard error is somewhat wider than sd/sqrt(n); these
+              probabilities are the idealised iid operating
+              characteristic. Values rounded to 2 decimals.
+            per_seed_sd: 0.0059
+            line: 0.53
+            true_means: [0.525, 0.529, 0.530, 0.531, 0.533]
+            estimators:
+              per_seed_4_of_5:
+                n: 5
+                statistic: per_seed_ge_4_of_5
+                description: >-
+                  OLD rule: >= 4 of 5 locked seeds <= 0.53. P = p^5 +
+                  5*p^4*(1-p), p = Phi((0.53 - true_mean)/sd).
+                pass_prob: [0.74, 0.28, 0.19, 0.11, 0.03]
+              mean_of_5_rejected:
+                n: 5
+                statistic: mean_le_line
+                description: >-
+                  Rejected weaker alternative: mean of the 5 locked
+                  seeds <= 0.53, se = sd/sqrt(5). P = Phi((0.53 -
+                  true_mean)/se). LOOSER than the per-seed rule ABOVE
+                  the line (0.13 vs 0.03 at 0.533) -- the referee's
+                  objection to a mean-over-5 at the ratified line.
+                pass_prob: [0.97, 0.65, 0.50, 0.35, 0.13]
+              mean_of_20_proposed:
+                n: 20
+                statistic: mean_le_line
+                description: >-
+                  PROPOSED rule: mean of 20 seeds <= 0.53, se =
+                  sd/sqrt(20). P = Phi((0.53 - true_mean)/se). SHARPER
+                  at the line: 0.50 at 0.530 by symmetry, and 0.01 at
+                  0.533 -- TIGHTER than the per-seed 0.03, so moving to
+                  20 seeds removes the mean-of-5 loosening.
+                pass_prob: [1.0, 0.78, 0.50, 0.22, 0.01]
+            interpretation: >-
+              Read the 0.533 row (above the line): per-seed 0.03,
+              mean-of-5 0.13 (LOOSER), mean-of-20 0.01 (TIGHTER). Read
+              0.530 (the line): both means 0.50 by symmetry. The
+              mean-over-20 rule DOMINATES the per-seed rule -- it
+              rejects harder above the line and passes harder below it
+              -- and, unlike a mean-over-5 at the same 0.53 line, it
+              does NOT loosen the operating characteristic. So "the
+              number does not move" also means "the gate does not
+              loosen" (the referee's own condition, finding 2). This is
+              why the amendment gates over 20 pre-registered seeds, not
+              5.
+          rationale: >-
+            The locked pairs-view c2st is the single gated geometry
+            threshold candidate 10 clips, and PR #66 shows the clip is
+            the per-seed sampling location of a tolerated sub-threshold
+            signal (the two clipping seeds carry the same seed-invariant
+            residual as the passing ones). A per-seed >= 4/5 rule on a
+            statistic whose per-seed sd is ~0.006 over-rejects a
+            candidate whose true distinguishability sits inside the
+            allowance, for thousandths-of-an-AUC excursions on
+            individual splits. Reading the same 0.53 allowance as the
+            mean over 20 pre-registered seeds tests the quantity the
+            lock's floor was measured as (a multi-seed mean +/- sd) and
+            removes the per-seed noise sensitivity WITHOUT loosening the
+            allowance: over 20 seeds the operating characteristic is
+            SHARPER at 0.53 than the per-seed rule, not looser (unlike a
+            mean over just the 5 locked seeds). The pairs view stays the
+            binding gated geometry view; the version-matched per-seed
+            cap (change 2) preserves per-seed bite against a candidate
+            that is faithful on average but catastrophically wrong on
+            one split.
+        - id: 2
+          title: >-
+            add a version-matched per-seed catastrophe cap alongside the
+            20-seed mean rule
+          type: add_per_seed_cap
+          target:
+            view: psid_family_earnings_pairs
+            metric: c2st_auc_max
+          proposed:
+            statistic: per_seed_max
+            rule: >-
+              no single seed's pairs-view c2st_auc may exceed the cap,
+              applied per-seed across all 20 pre-registered seeds of a
+              future run
+            value: 0.554
+            derivation:
+              floor_run: runs/c10_diagnostics_v1.json
+              floor_path:
+                [diagnostic_1_seed_extension, floor_c2st_distribution]
+              rule: { key: c2st_auc, k: 8, rounding: 3 }
+              note: >-
+                Machine-derived from the VERSION-MATCHED ctx20 pairs
+                floor -- the 20-seed floor_c2st_distribution in
+                runs/c10_diagnostics_v1.json, built under sklearn 1.8.0,
+                the SAME version that scores gate candidates:
+                round(matched floor mean + 8 * matched floor sd, 3) =
+                round(0.5109686 + 8 * 0.0053630, 3) = 0.554.
+                tests/test_gates_derivations.py binds this against the
+                artifact. This corrects the referee's fix C: the earlier
+                0.547 used the 1.9.0 floor sd (0.0045535), a version the
+                candidates never score under (see
+                considered_and_rejected.cap_from_1_9_0_floor_sd). An
+                8-sigma per-seed allowance is ~1.9x the 4.2-sigma mean
+                line, so it never binds a candidate the mean rule
+                already passes UNLESS one split is a genuine outlier.
+            guard_characterization: >-
+              A prospective one-seed-catastrophe guard; on the 11
+              committed runs it changes ZERO verdicts (referee finding
+              3). It never binds a would-mean-passer (every such run's
+              max seed is <= 0.5330 << 0.554) and is redundant for
+              mean-failers. It exists to protect a FUTURE run that is
+              faithful on average but catastrophic on one split; on the
+              existing evidence it does no work, and this proposal says
+              so plainly rather than advertising bite it does not have.
+          rationale: >-
+            The mean rule alone would pass a candidate that is faithful
+            on nineteen seeds and catastrophically distinguishable on
+            one (e.g. mean 0.53 with one seed at 0.60). The cap restores
+            per-seed protection at a level no faithful candidate reaches:
+            8 version-matched floor sd above the floor mean. On the
+            committed runs the cap and the mean rule never disagree in a
+            way that changes a verdict (the cap changes zero committed
+            verdicts, guard_characterization) -- its value is
+            prospective, guarding future one-split catastrophes, and it
+            derives from the version-matched floor so that a future
+            sklearn bump cannot silently move it.
+        - id: 3
+          title: >-
+            protocol clarification: pin the C2ST classifier's
+            scikit-learn version across floor derivation and candidate
+            scoring
+          type: protocol_clarification
+          threshold_change: false
+          proposed: >-
+            The C2ST classifier (HistGradientBoosting) is
+            scikit-learn-version-sensitive. This clause requires that
+            the scikit-learn version used to DERIVE a committed noise
+            floor match the version used to SCORE gate candidates
+            against it, and that every floor artifact and gate-run
+            artifact RECORD its scikit-learn version so the match is
+            auditable. No committed threshold changes.
+          evidence: >-
+            PR #66 (runs/c10_diagnostics_v1.json, floor_provenance)
+            found a silent cross-venv mismatch: the committed ctx20
+            floor was built under the plain .venv (scikit-learn 1.9.0)
+            while gate candidates run under .venv-gate (scikit-learn
+            1.8.0, required by populace-fit's <1.9 pin). The referee
+            (fix C, finding 4) showed this clause contradicted its own
+            thresholds and resolved the contradiction by ESTIMATOR:
+            (a) The MEAN line's basis is version-STABLE. The floor MEAN
+            is 0.5108054 under 1.9.0 (committed, seeds 0-4) and
+            0.5109686 under matched 1.8.0 (20 seeds) -- ~0.5109 either
+            way -- and the 0.53 line rounds identically under both
+            (round(0.5108054 + 4.2*0.0045535, 2) =
+            round(0.5109686 + 4.2*0.0053630, 2) = 0.53). So the mean
+            line keeps its ratified 1.9.0 derivation and does not move.
+            (b) The per-seed sd is NOT version-stable: 0.0045535 under
+            1.9.0 vs 0.0053630 under matched 1.8.0. An 8-sd cap
+            therefore DOES move with the version (0.547 vs 0.554), so
+            the cap (change 2) MUST derive from the version-matched
+            (1.8.0) floor. The old 0.547 cap and its 1.9.0-sd
+            derivation are removed (considered_and_rejected). This
+            resolves the "clause violated at birth" finding: the mean
+            line survives on version-stable ground, and the cap is now
+            derived on matched ground.
+          rationale: >-
+            A gate whose floor and candidates are scored under different
+            classifier versions compares a candidate to a noise floor it
+            was not measured against. For the mean line the mismatch is
+            benign (mean-stable); for an sd-derived cap it is not, which
+            is exactly why the cap moves to the matched floor and why
+            the pin is adopted now, before a version bump makes any
+            other sd-derived line drift silently.
+      considered_and_rejected:
+        - id: mean_of_five_standard_error_line
+          statistic: mean_of_five_standard_error_line
+          description: >-
+            A statistically-tighter mean-of-5 line: floor mean + 4.2 *
+            (per-seed floor sd / sqrt(5)), rescaling the per-seed k to
+            the standard error of a five-seed mean.
+          value: 0.5194
+          derivation:
+            floor_run: runs/noise_floor_psid_family_ctx20_9822.json
+            rule:
+              {
+                key: c2st_auc,
+                k: 4.2,
+                divide_by_sqrt_n: 5,
+                rounding: 4,
+              }
+          reason: >-
+            NOT proposed. Moving the mean line from 0.53 to 0.5194 would
+            be a MATERIAL TIGHTENING of the ratified allowance that no
+            referee round ratified -- and, per the referee, the honest
+            answer to over-rejection is not a tighter line but a mean
+            over MORE pre-registered seeds, which sharpens the operating
+            characteristic at 0.53 without moving the number (change 1).
+            The exact committed-artifact value is 0.5194 (round(floor
+            mean + 4.2 * sd / sqrt(5), 4)); a rounded-input hand
+            computation (0.5108 + 4.2 * 0.0046 / sqrt(5)) reads ~0.5196,
+            but the binding value is the exact one.
+        - id: cap_from_1_9_0_floor_sd
+          statistic: per_seed_max
+          description: >-
+            The originally-proposed per-seed cap, derived from the
+            COMMITTED 1.9.0 floor sd instead of the version-matched
+            1.8.0 sd.
+          value: 0.547
+          derivation:
+            floor_run: runs/noise_floor_psid_family_ctx20_9822.json
+            rule: { key: c2st_auc, k: 8, rounding: 3 }
+          reason: >-
+            REJECTED per referee fix C. round(1.9.0 floor mean + 8 *
+            1.9.0 floor sd, 3) = round(0.5108054 + 8 * 0.0045535, 3) =
+            0.547, but 1.9.0 is NOT the version candidates score under.
+            The version-matched (1.8.0) sd is 0.0053630, giving the
+            0.554 cap change 2 adopts. The difference is demonstrable,
+            not cosmetic: candidate 5a-prime (max seed 0.5510) fails the
+            cap at 0.547 but passes at 0.554, so shipping a 1.9.0-sd cap
+            while scoring under 1.8.0 would be the very
+            floor-vs-scoring version mismatch change 3 forbids. The cap
+            now derives from the matched floor
+            (changes[1].proposed.derivation).
+      path_to_pass: >-
+        A PASS under the amended gate requires a FRESH registration: a
+        NEW candidate number -- even for a byte-identical spec -- run
+        one-shot on the pre-registered seeds 0-19. Per no_self_rescue no
+        committed run can be the ratifying pass. Full disclosure for the
+        candidate-10 spec: its 20 per-seed pairs-c2st scores are ALREADY
+        PUBLIC in runs/c10_diagnostics_v1.json (20-seed mean 0.5234), so
+        a re-registration of that exact spec has a KNOWN-IN-ADVANCE
+        pairs-c2st outcome. That does not exempt it: the re-run still
+        executes end-to-end and publishes every gate block (all pairs
+        and runs geometry, the battery, the benefit-space block, and the
+        per-seed cap over the 20 seeds) on the fresh registration, and
+        must clear all of them, not only pairs-c2st.
+      illustrative_retroactive_application:
+        # DISCLOSURE ONLY -- applied: false. Modeled on amendment 1's
+        # demotion_disclosure, but NOT applied to any committed verdict
+        # (referee fix A / no_self_rescue). This recomputes what each
+        # committed gate run's verdict WOULD have been IF the amended
+        # pairs-c2st rule were applied retroactively, purely so the
+        # referee can see the amendment's discriminating power on the
+        # evidence. tests/test_gates_derivations.py recomputes the pairs
+        # mean, the cap check, the battery pass count, and the pooled Q0
+        # from each committed artifact and asserts these disclosed
+        # numbers -- but under applied: false NO committed verdict moves.
+        applied: false
+        what_this_is: >-
+          Illustration, NOT an action. Every committed run keeps its
+          recorded verdict; candidate 10 (run 12, PR #64) REMAINS FAIL.
+          The table below shows the hypothetical
+          would_be_verdict_if_applied only to expose which runs the
+          amended rule discriminates, exactly as amendment 1 disclosed
+          its geometry-verdict changes -- without any committed verdict
+          moving.
+        no_self_rescue_reference: >-
+          Governed by amendment_proposed.no_self_rescue: this amendment
+          applies only to runs registered AFTER its ratification, so it
+          rescues nothing already committed. committed_verdict is the
+          real, unchanged verdict for every run (FAIL for all 11);
+          would_be_verdict_if_applied is the hypothetical this block
+          discloses.
+        seed_basis_note: >-
+          The committed run artifacts carry only the FIVE locked seeds
+          0-4, so this recomputation necessarily uses the five-seed
+          pairs-c2st mean the artifacts hold, NOT the 20-seed mean the
+          amended rule gates a fresh run on. It illustrates the
+          mean-vs-cap logic on existing evidence; it is neither a
+          20-seed evaluation nor an applied verdict.
+        process_statement: >-
+          Stated plainly, without varnish: this amendment was proposed
+          AFTER run 12's near-miss (candidate 10, PR #64), BECAUSE the
+          post-run diagnostics (PR #66) proved the per-seed pairs-c2st
+          rule noise-dominated at thousandths-of-an-AUC margins. Changing
+          a gating rule after seeing a specific candidate miss it is a
+          goalpost move on its face. The reworked defense, per the
+          referee: (a) the ratified 0.53 line does not move; (b) the
+          change is motivated by a measurement (20-seed operating
+          characteristic) whose logic applies to ANY candidate -- the
+          referee's own concession is that "the core measurement point
+          is sound and would hold without candidate 10"; (c) the mean is
+          taken over 20 pre-registered seeds, not the 5 that contain the
+          two global-max clippers, so the rule is robust to the
+          unfavorable locked draw and SHARPER at 0.53, not looser; and
+          (d) CRUCIALLY, the amendment no longer rescues its triggering
+          candidate -- candidate 10 stays FAIL and the first pass must
+          be a fresh registration (no_self_rescue, fix A). The 15 fresh
+          seeds were drawn after candidate 10's run; the mean rule is
+          proposed nevertheless because its operating characteristic
+          dominates the per-seed rule for any candidate, independent of
+          which one triggered the review. Whether the timing is
+          acceptable given (a)-(d) is what the fresh referee round
+          adjudicates.
+        would_flip_if_applied:
+          note: >-
+            Illustrative only (applied: false). The sole run whose
+            verdict WOULD change under a hypothetical retroactive
+            application; it does NOT change under this amendment.
+          count: 1
+          runs: ["candidate 10 (PR #64)"]
+        mean_line: 0.53
+        cap_value: 0.554
+        runs:
+          - run: baseline
+            pr: 40
+            artifact: runs/gate1_qrf_baseline_v1.json
+            pairs_c2st_mean: 0.5122
+            pairs_c2st_max: 0.5196
+            mean_rule_pass: true
+            cap_pass: true
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: battery (0/5 seeds pass)
+          - run: candidate 2
+            pr: 43
+            artifact: runs/gate1_qrf_latent_perm_v1.json
+            pairs_c2st_mean: 0.5191
+            pairs_c2st_max: 0.5255
+            mean_rule_pass: true
+            cap_pass: true
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: battery (0/5 seeds pass)
+          - run: candidate 3
+            pr: 44
+            artifact: runs/gate1_qrf_latent_perm_v2.json
+            pairs_c2st_mean: 0.5228
+            pairs_c2st_max: 0.5328
+            mean_rule_pass: true
+            cap_pass: true
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: battery (0/5 seeds pass)
+          - run: candidate 5a
+            pr: 50
+            artifact: runs/gate1_splice_v1.json
+            pairs_c2st_mean: 0.6007
+            pairs_c2st_max: 0.6121
+            mean_rule_pass: false
+            cap_pass: false
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.6007 > 0.53, cap (max 0.6121 > 0.554), battery
+          - run: candidate 5a-prime (segment splicing)
+            pr: 51
+            artifact: runs/gate1_splice_v2.json
+            pairs_c2st_mean: 0.5466
+            pairs_c2st_max: 0.5510
+            mean_rule_pass: false
+            cap_pass: true
+            battery_seeds_pass: 5
+            battery_gate_pass: true
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.5466 > 0.53; battery passes 5/5 and the cap
+              now passes at the version-matched 0.554 (max 0.5510), so
+              the mean line alone is the binding geometry failure
+          - run: candidate 5b
+            pr: 52
+            artifact: runs/gate1_rank_v1.json
+            pairs_c2st_mean: 0.6696
+            pairs_c2st_max: 0.6748
+            mean_rule_pass: false
+            cap_pass: false
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.6696 > 0.53, cap (max 0.6748 > 0.554), battery
+          - run: candidate 6
+            pr: 53
+            artifact: runs/gate1_rank_kernel_v1.json
+            pairs_c2st_mean: 0.5469
+            pairs_c2st_max: 0.5556
+            mean_rule_pass: false
+            cap_pass: false
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.5469 > 0.53, cap (max 0.5556 > 0.554), battery
+          - run: candidate 7
+            pr: 55
+            artifact: runs/gate1_rank_knn_v1.json
+            pairs_c2st_mean: 0.5231
+            pairs_c2st_max: 0.5291
+            mean_rule_pass: true
+            cap_pass: true
+            battery_seeds_pass: 2
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: 9.2953
+            q0_source: downstream_relevance
+            q0_artifact: runs/downstream_relevance_c7_v1.json
+            q0_pass: false
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              battery (2/5) AND pooled Q0 +9.2953 > 5; pairs mean 0.5231
+              and cap both pass, so the amendment does not rescue it
+          - run: candidate 8
+            pr: 58
+            artifact: runs/gate1_rank_knn_v2.json
+            pairs_c2st_mean: 0.5307
+            pairs_c2st_max: 0.5399
+            mean_rule_pass: false
+            cap_pass: true
+            battery_seeds_pass: 0
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: null
+            q0_source: not_scored
+            q0_pass: null
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.5307 > 0.53 (cap passes, max 0.5399 <= 0.554)
+              AND battery (0/5)
+          - run: candidate 9
+            pr: 62
+            artifact: runs/gate1_rank_knn_v3.json
+            pairs_c2st_mean: 0.5373
+            pairs_c2st_max: 0.5499
+            mean_rule_pass: false
+            cap_pass: true
+            battery_seeds_pass: 2
+            battery_gate_pass: false
+            pooled_q0_mean_pct_diff: -17.8853
+            q0_source: benefit_space_gated
+            q0_pass: false
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: FAIL
+            binding_failure: >-
+              pairs mean 0.5373 > 0.53, battery (2/5), AND pooled Q0
+              -17.8853 (|.| > 5); the cap now passes at 0.554 (max
+              0.5499)
+          - run: candidate 10
+            pr: 64
+            artifact: runs/gate1_rank_knn_v4.json
+            pairs_c2st_mean: 0.5279
+            pairs_c2st_max: 0.5330
+            mean_rule_pass: true
+            cap_pass: true
+            battery_seeds_pass: 4
+            battery_gate_pass: true
+            pooled_q0_mean_pct_diff: 0.0376
+            q0_source: benefit_space_gated
+            q0_pass: true
+            committed_verdict: FAIL
+            would_be_verdict_if_applied: PASS
+            binding_failure: none
+            note: >-
+              THE ILLUSTRATIVE FLIP -- disclosed, NOT applied. Under the
+              locked per-seed rule candidate 10 fails geometry 3/5
+              because locked seeds 0-1 clip pairs c2st per-seed (0.5315,
+              0.5330). Under the amended rule its five-seed pairs mean
+              0.5279 <= 0.53 and every locked seed <= the 0.554 cap, so
+              it WOULD pass geometry, battery 4/5, pooled Q0 +0.0376. Per
+              no_self_rescue this does NOT flip the committed verdict:
+              candidate 10 REMAINS FAIL. This is the run the amendment
+              was written after, and the reason fix A exists.
+      pass_rule: >-
+        Proposed pairs-c2st rule for a FRESHLY REGISTERED run (never a
+        committed one), folded into the existing gate-1 conjunction. The
+        pairs-view c2st threshold LEAVES the per-seed >= 4/5 geometry
+        conjunction and becomes two conditions scored over the 20
+        pre-registered seeds 0-19: (i) the across-seed mean of pairs
+        c2st over the 20 seeds <= 0.53, and (ii) every one of the 20
+        seeds' pairs c2st <= 0.554 (cap). EVERY OTHER gate condition is
+        inherited UNCHANGED and stays on the five locked seeds with the
+        4-of-5 rule: a locked seed passes geometry iff every REMAINING
+        locked geometry threshold (pairs energy, coverage, tails; runs
+        coverage) AND every per-seed benefit_space metric hold at that
+        seed; a locked seed passes the battery iff every locked
+        tolerance holds at it. The gate passes iff the 20-seed pairs
+        c2st mean <= 0.53 AND all 20 seeds' pairs c2st <= the cap AND >=
+        4/5 locked seeds pass geometry AND >= 4/5 locked seeds pass the
+        battery AND the pooled Q0 gate holds. Changes 1 and 2 alter only
+        the pairs-c2st treatment; every other gate condition is
+        inherited unchanged from the ratified (amendment-1) gate. Only a
+        run registered AFTER ratification is scored this way
+        (no_self_rescue).
+      validation_note: >-
+        Discriminator check on committed evidence (illustrative,
+        applied: false): under the amended pairs-c2st rule exactly one
+        committed run's verdict WOULD change -- candidate 10 (PR #64) --
+        and it is the run the amendment was written after. Per
+        no_self_rescue the amendment does NOT apply retroactively, so
+        candidate 10's committed verdict REMAINS FAIL and the gate's
+        first pass must come from a fresh registration on seeds 0-19.
+        That the sole would-flip is the triggering candidate is exactly
+        the accommodation pattern the referee flagged (finding 6); this
+        rework neutralizes it structurally (fix A) instead of asking the
+        referee to accept a self-rescue.
   gate_2:
     name: family and benefit outputs
     description: >-
