@@ -41,6 +41,12 @@ RUNS = [
     ("gate1_rank_knn_v3", "calibrated blend + Q0 regime"),
     ("gate1_rank_knn_v4", "inner-validated composition"),
 ]
+# Run 13 (candidate 11) re-registered the run-12 spec under ratified
+# amendment 2 and reproduced it bit-exactly, so its ladder curve
+# coincides with run 12's; it appears in the scorecard only.
+SCORECARD_RUNS = RUNS + [
+    ("gate1_rank_knn_v5", "inner-validated composition (re-registered)"),
+]
 HORIZONS = (2, 4, 10)
 
 # Palette (validated, light surface): categorical blue/orange, neutral
@@ -56,10 +62,10 @@ GRID = "#e8e7e3"
 FONT = "font-family='system-ui, -apple-system, sans-serif'"
 
 
-def load_artifacts() -> list[dict]:
+def load_artifacts(runs: list | None = None) -> list[dict]:
     return [
         json.loads((ROOT / "runs" / f"{run}.json").read_text())
-        for run, _ in RUNS
+        for run, _ in (runs or RUNS)
     ]
 
 
@@ -356,10 +362,11 @@ def build_c2st_noise() -> str:
 # Figure 3: the gate scorecard
 # --------------------------------------------------------------------------
 def build_scorecard(artifacts: list[dict]) -> str:
+    n = len(artifacts)
     W = 760
     row_h = 27
     top = 64
-    H = top + 12 * row_h + 58
+    H = top + n * row_h + 72
     x_label, x_geo, x_bat, x_q0, x_verdict = 20, 388, 508, 618, 686
     body: list[str] = []
 
@@ -372,7 +379,7 @@ def build_scorecard(artifacts: list[dict]) -> str:
     body.append(text(x_verdict, 24, "gate 1", 12, MUTED, "middle"))
 
     for i, ((_run, label), art) in enumerate(
-        zip(RUNS, artifacts, strict=True)
+        zip(SCORECARD_RUNS, artifacts, strict=True)
     ):
         y = top + i * row_h
         if i % 2 == 0:
@@ -412,7 +419,7 @@ def build_scorecard(artifacts: list[dict]) -> str:
         body.append(text(x_verdict - 14, y, glyph, 13, color, "middle", "700"))
         body.append(text(x_verdict - 2, y, word, 12, color))
 
-    y_note = top + 12 * row_h + 6
+    y_note = top + n * row_h + 6
     body.append(
         f"<circle cx='{x_label + 4}' cy='{y_note - 4}' r='5' "
         f"fill='{BLUE}'/>"
@@ -436,8 +443,20 @@ def build_scorecard(artifacts: list[dict]) -> str:
         text(
             x_label,
             y_note + 34,
-            "runs 11–12 were also scored on the amended benefit-space "
-            "block and pooled Q0.",
+            "runs 11–13 were also scored on the amended benefit-space "
+            "block and pooled Q0; run 13's pairs-view classifier is "
+            "gated by the",
+            11,
+            MUTED,
+        )
+    )
+    body.append(
+        text(
+            x_label,
+            y_note + 48,
+            "amendment-2 rule (mean over 20 pre-registered seeds ≤ "
+            "0.53 with a per-seed cap of 0.554) rather than per-seed "
+            "at 0.53.",
             11,
             MUTED,
         )
@@ -447,10 +466,11 @@ def build_scorecard(artifacts: list[dict]) -> str:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    artifacts = load_artifacts()
-    (OUT / "autocorr_ladder.svg").write_text(build_ladder(artifacts))
+    (OUT / "autocorr_ladder.svg").write_text(build_ladder(load_artifacts()))
     (OUT / "c2st_noise.svg").write_text(build_c2st_noise())
-    (OUT / "gate_scorecard.svg").write_text(build_scorecard(artifacts))
+    (OUT / "gate_scorecard.svg").write_text(
+        build_scorecard(load_artifacts(SCORECARD_RUNS))
+    )
     for name in ("autocorr_ladder", "c2st_noise", "gate_scorecard"):
         print(f"wrote paper/figures/{name}.svg")
 
