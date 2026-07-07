@@ -526,6 +526,8 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | empirical rank kernel | 0.692 | 0.548 | 0.381 | fail |
 | k-NN rank bootstrap | 0.719 | 0.636 | 0.459 | fail |
 | permanent-rank matching | 0.791 | 0.733 | 0.670 | fail |
+| calibrated blend + Q0 regime | 0.757 | 0.677 | 0.514 | fail |
+| inner-validated composition | 0.773 | 0.695 | 0.510 | fail |
 
 The baseline failed exactly where the pre-lock review predicted a
 one-step chain must: window-2 geometry passed on every seed while
@@ -715,10 +717,43 @@ candidate nine. Recalibration added strictness where the evidence
 says it matters: the best candidate still fails the amended gate,
 and reality still passes it.
 
+## Nested validation and the forecast discipline
+
+Two practices matured in the runs that followed the amendment. The
+eleventh candidate composed the two best-understood mechanisms and
+failed through two couplings its registration had not foreseen —
+including a swing of the zero-anchor benefit gap from +9 to −18
+percent through an interaction between its memory coordinate and
+the very subgroup it was fixing. The response was methodological
+rather than another guess: the one-shot rule protects the outer
+holdout, so model development may iterate freely on inner splits
+carved from each seed's training complement. An inner-validation
+harness now mirrors the amended gate at inner scale, and a design
+sweep raced the candidate mechanisms head to head on it —
+establishing with no outer-holdout contact that the zero-anchor
+participation refit alone closes the benefit gap, that the drawn
+persistent-state coordinate fixes the dynamics battery completely
+while wrecking the joint completely, and that one composition
+stood near-clearing everything at once. The twelfth candidate froze
+that composition, every constant selected by nested validation.
+
+Each of the last two runs also carried a pre-registered forecast —
+component probabilities logged on the public registry before the
+run, graded against the outcome after. The twelfth run graded
+almost exactly: forecast 0.42 with modal failure named as the
+pairs-view classifier one seed short, and that is what happened —
+the battery passed (the ten-year rung in-band on every seed for the
+first time), the zero-anchor gap closed to +0.04 percent, the
+per-seed benefit metrics passed everywhere, and two seeds clipped
+the pairs-view classifier by 0.0015 and 0.0030. Twelve registered
+runs in, the program's entire remaining distance to its own gate is
+a classifier residual of thousandths on one view.
+
 ## What failure buys
 
-Ten registered runs, ten published failures, one refereed amendment
-is the protocol working as designed. Each failure published with the same prominence as a pass would,
+Twelve registered runs, twelve published failures, one refereed
+amendment, and two graded forecasts is the protocol working as
+designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
