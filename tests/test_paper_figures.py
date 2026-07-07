@@ -33,7 +33,9 @@ def test_every_committed_figure_rebuilds_byte_identically():
     rebuilt = {
         "autocorr_ladder.svg": builder.build_ladder(artifacts),
         "c2st_noise.svg": builder.build_c2st_noise(),
-        "gate_scorecard.svg": builder.build_scorecard(artifacts),
+        "gate_scorecard.svg": builder.build_scorecard(
+            builder.load_artifacts(builder.SCORECARD_RUNS)
+        ),
     }
     for name, content in rebuilt.items():
         committed = (FIGURES / name).read_text()
@@ -43,10 +45,12 @@ def test_every_committed_figure_rebuilds_byte_identically():
         )
 
 
-def test_ladder_uses_all_twelve_registered_runs():
+def test_ladder_uses_all_twelve_distinct_runs_scorecard_thirteen():
     builder = _builder()
     assert len(builder.RUNS) == 12
-    for run, _ in builder.RUNS:
+    assert len(builder.SCORECARD_RUNS) == 13
+    assert builder.SCORECARD_RUNS[-1][0] == "gate1_rank_knn_v5"
+    for run, _ in builder.SCORECARD_RUNS:
         assert (ROOT / "runs" / f"{run}.json").is_file(), run
 
 
@@ -90,11 +94,14 @@ def test_scorecard_verdicts_match_artifacts():
     svg = (FIGURES / "gate_scorecard.svg").read_text()
     n_fail = svg.count(">fail</text>")
     verdicts = []
-    for run, _ in builder.RUNS:
+    for run, _ in builder.SCORECARD_RUNS:
         art = json.loads((ROOT / "runs" / f"{run}.json").read_text())
         verdicts.append(art["verdict"]["gate_1_pass"])
     assert n_fail == sum(1 for v in verdicts if not v)
     assert svg.count(">pass</text>") == sum(1 for v in verdicts if v)
+    # The thirteenth row is the program's first pass.
+    assert verdicts[-1] is True
+    assert not any(verdicts[:-1])
 
 
 def test_figures_use_only_palette_colors():

@@ -528,11 +528,14 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | permanent-rank matching | 0.791 | 0.733 | 0.670 | fail |
 | calibrated blend + Q0 regime | 0.757 | 0.677 | 0.514 | fail |
 | inner-validated composition | 0.773 | 0.695 | 0.510 | fail |
+| inner-validated composition (re-registered) | 0.773 | 0.695 | 0.510 | **pass** |
 
-![The autocorrelation ladder across the twelve registered runs.
-Shaded bands are the locked tolerances around the committed PSID
-reference at each horizon. Every value is computed from the
-committed run artifacts at figure-build time
+![The autocorrelation ladder across the twelve distinct registered
+model runs. Shaded bands are the locked tolerances around the
+committed PSID reference at each horizon; run 13 re-registered the
+run-12 specification and reproduced it bit-exactly, so its curve
+coincides with run 12's. Every value is computed from the committed
+run artifacts at figure-build time
 (`scripts/build_paper_figures.py`).](figures/autocorr_ladder.svg){#fig-ladder}
 
 The baseline failed exactly where the pre-lock review predicted a
@@ -584,12 +587,15 @@ converted anchor noise into permanent signal and overshot every
 rung: the tenth registration, and the second time the program
 measured the same lesson from the opposite side.
 
-![Per-seed gate conjunction for the twelve registered runs, from
+![Per-seed gate conjunction for the thirteen registered runs, from
 the committed run artifacts. Each cell shows the five locked
 holdout seeds; gate 1 requires at least four of five on geometry
-and on battery jointly, and runs 11--12 were additionally scored
-on the amended benefit-space block and the pooled zero-anchor
-gate.](figures/gate_scorecard.svg){#fig-scorecard}
+and on battery jointly. Runs 11--13 were additionally scored on
+the amended benefit-space block and the pooled zero-anchor gate,
+and run 13's pairs-view classifier is gated by the ratified
+amendment-2 rule — the mean over twenty pre-registered seeds at
+the unchanged 0.53 line with a 0.554 per-seed cap — rather than
+per-seed.](figures/gate_scorecard.svg){#fig-scorecard}
 
 ## How existing models solve the joint problem
 
@@ -768,11 +774,46 @@ placed the residual against the matched real-vs-real floor
 0.53 line; the five locked gate seeds alone average 0.0021 below
 it, and the two seeds that clip the line are the two largest
 candidate scores across all twenty. Whether that pattern is seed
-noise or a seed-set property is exactly the question the second
-amendment proposal put to a fresh referee round, and the referee's
-findings — including that the locked seeds are not exchangeable
-with the fresh ones in the damaging direction — are public on the
-proposal record.
+noise or a seed-set property became the second amendment proposal,
+and the adversarial referee round earned its keep: the referee
+found the locked seeds non-exchangeable with the fresh ones in
+exactly the damaging direction (a random five-subset has a mean
+that high with probability 0.009), found the proposal's headline
+margin describing the twenty-seed mean where the gate scored the
+locked-five mean — one standard error below the line, not five —
+and named the self-rescue: unlike the first amendment, whose
+trigger still failed after ratification, this one's triggering
+candidate would have flipped to a pass.
+
+## The first pass
+
+The reworked amendment survived a verification round and was
+ratified as an estimator change that refuses its own trigger. The
+pairs-view classifier now gates on the mean over twenty
+pre-registered seeds at the unchanged 0.53 line — an operating
+characteristic *stricter* above the line than the per-seed rule it
+replaces — with a per-seed catastrophe cap re-derived from a
+classifier-version-matched floor, and two standing rules: no
+candidate's committed verdict changes under a rule proposed after
+its own run, and floor derivation and candidate scoring must share
+a classifier version. Run 12's verdict stands as a fail
+permanently.
+
+The thirteenth registered run was therefore a fresh registration
+of the identical specification, with the protocol's plainest
+disclosure yet: its pairs-classifier outcome was already public
+before the run, so the registered forecast was 0.97 with the
+residual entirely on execution error. The run reproduced every
+committed baseline bit-exactly — all twenty pairs scores, the
+locked-seed battery, benefit, and geometry blocks, to the last
+digit — and passed every block of the amended gate: geometry five
+of five, battery four of five, pooled zero-anchor gap +0.04
+percent, twenty-seed classifier mean 0.5234 against 0.53 with a
+maximum seed at 0.5330 against the 0.554 cap (@fig-scorecard). The
+first pass of the program arrived, in other words, not from a
+better model but from a better-measured gate — and the record
+distinguishes those two things explicitly, which is the point of
+keeping one.
 
 ![The twenty-seed extension of the run-12 pairs-view classifier
 measurement (reported, not gated), from the committed diagnostics
@@ -783,9 +824,10 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 ## What failure buys
 
-Twelve registered runs, twelve published failures, one ratified
-amendment with a second proposal under adversarial review, and two
-graded forecasts is the protocol working as designed. Each failure published with the same prominence as a pass would,
+Thirteen registered runs, twelve published failures, one pass
+under a rule that refused to rescue its own trigger, two refereed
+amendments, and three graded forecasts is the protocol working as
+designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
