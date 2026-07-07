@@ -1,0 +1,4623 @@
+{
+  "schema_version": "reform_delta_diagnostic.v1",
+  "run": "reform_delta_diagnostic_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4906177609",
+  "registration_pointer": "#42 comment 4906177609",
+  "purpose": "Do the gate-passing generator's synthetic earnings histories (candidate 11, run 13) reproduce the reform INCIDENCE -- the per-person and distributional benefit deltas -- that real histories imply? This reads no gate and changes no gate; it is the run-13 analogue of the PR #56 downstream-relevance artifact, extended from benefit-space levels to reform deltas. The strongest claim it can support is 'consistent with the real-vs-real floor'; no pass/fail verdict exists.",
+  "not_full_415b": "The functional is a STATUTE-SHAPED PROXY, not the full 42 USC 415(b) AIME: the filtered panel's careers are partial (biennial PSID, prime age 25-59, reference years 1998-2022), so a faithful highest-35 AIME cannot be formed. The proxy is monotone in lifetime earnings, routes through the exact 415(a)/415(g) PIA bend-point formula, and uses a constant scale (top min(10,n) indexed years / (count*12*2)) that cancels in every real-vs-candidate comparison.",
+  "comparison_basis": "Metrics 1-4 are compared against a real-vs-real person-disjoint half-split floor (the pia_proxy_floor ctx20 construction applied to the SAME Delta metrics, same 5 seeds): the A-vs-B gap is the noise scale for the real-vs-generated gap at the same ~20%-of-persons scale. 'Consistent with the floor' is the strongest claim. Metric 5 (paired per-person) is DESCRIPTIVE ONLY -- disjoint persons across A/B give it no floor.",
+  "within_floor_abs_tol": 1e-09,
+  "within_floor_note": "within_floor is a DESCRIPTIVE annotation (realgen_scale <= floor_scale + within_floor_abs_tol), not a verdict; the tolerance only resolves 0-vs-0 floating-point knife-edges where a reform leaves a decile's Delta exactly constant",
+  "reforms": {
+    "baseline": {
+      "kind": "untouched pinned oracle params",
+      "pia_factors": [
+        0.9,
+        0.32,
+        0.15
+      ],
+      "bend_points_2022": [
+        1024.0,
+        6172.0
+      ],
+      "wage_base_2022": 147000.0
+    },
+    "reform_a": {
+      "name": "Reform A (bottom-loaded)",
+      "change": "first PIA factor 0.90 -> 0.95",
+      "mechanism": "params wrapper overrides pia_factors -> (0.95, f2, f3); f2/f3 are the baseline's own factors, read from params at runtime (not hardcoded)",
+      "pia_factors": [
+        0.95,
+        0.32,
+        0.15
+      ],
+      "baseline_pia_factors": [
+        0.9,
+        0.32,
+        0.15
+      ],
+      "bend_points_2022": [
+        1024.0,
+        6172.0
+      ],
+      "incidence": "concentrates in the low deciles / concave region"
+    },
+    "reform_b": {
+      "name": "Reform B (top-loaded)",
+      "change": "eliminate the taxable-maximum cap in the AIME step (benefit side only): wage_base_for(year) -> inf",
+      "mechanism": "params wrapper overrides wage_base_for(year) -> float('inf'); pia_factors and the bend points delegate to baseline",
+      "baseline_wage_base_2022": 147000.0,
+      "incidence": "gains concentrate at the cap (top of the distribution)"
+    }
+  },
+  "functional": {
+    "source": "scripts/build_downstream_relevance.py:person_pia_proxy / panel_pia_proxy (imported, not re-implemented; single source of truth)",
+    "reform_mechanism": "a reform enters ONLY through a thin params wrapper delegating to the loaded SSAParameters; the pinned oracle modules (ss/params.py, ss/benefits.py, build_downstream_relevance.py) are not edited",
+    "eligibility_year": 2022,
+    "weight": "each person weighted by their anchor-period weight (the weight on their chronologically last observed period)",
+    "delta_definition": "Delta = reform PIA-proxy - baseline PIA-proxy (2022 monthly dollars); both reforms weakly increase the PIA-proxy, so Delta >= 0"
+  },
+  "model": {
+    "class": "candidate 11 (run 13) = candidate 10's spec: k-NN conditional rank bootstrap with a FIXED lambda=0.1 anchor/permanent-rank donor blend for non-Q0 targets and a zero-anchor participation regime (full re-entry pool, Q0 memory-exempt)",
+    "generation_source": "run_gate1_candidate10.run_seed fit+generate prefix, imported byte-for-byte (fit_cell_marginals; candidate-8 build_donor_uw; candidate-9 build_donor_pools, fit_participation_gate, fit_zero_anchor_participation_gate; candidate-10 generate_candidate). No modeling constant moved; generation is deterministic from the seed and independent of the reform.",
+    "populace_fit_used": true
+  },
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "filter": "age 25-59, reference years 1998-2022, positive weights (applied before the split)",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel, 'person_id', fraction=0.2, seed=s); the drawn 20% is the holdout, the complement is the training set (locked protocol, imported from the baseline runner)",
+    "floor_construction": "real-vs-real ctx20 on the FULL filtered panel (build_pia_proxy_floor): split_panel_by_person(panel, 'person_id', fraction=0.4, seed=1000+s) then split_panel_by_person(forty, 'person_id', fraction=0.5, seed=s); two DISJOINT ~20%-of-persons halves A and B, each pushed through the same baseline/reform proxy",
+    "measurements": [
+      "1. weighted mean Delta and median Delta (dollars; and % of the side's weighted-mean baseline); generated-vs-real gap",
+      "2. mean Delta by decile group of the side's own weighted baseline distribution (d1-d10; compared on d3-d9, d1/d2/d10 reported)",
+      "3. winners share (Delta > $1/month)",
+      "4. zero-anchor (Q0) subgroup weighted mean Delta (per-seed signed for both sides; pooled across seeds)",
+      "5. paired per-person corr(Delta_real, Delta_gen) and weighted mean |Delta_gen - Delta_real| (DESCRIPTIVE ONLY)"
+    ],
+    "comparison": "metrics 1-4 vs the real-vs-real A-vs-B floor at the same scale; metric 5 descriptive only (no floor)"
+  },
+  "scope_honesty": "PSID holdout persons on their observed support -- a validation of reform-delta fidelity, NOT a deployment simulation: no CPS integration, no demographics/claiming (gate-2/3 territory), no aggregate cost scoring against SSA baselines",
+  "candidate11_reference": {
+    "path": "runs/gate1_rank_knn_v5.json",
+    "present": true,
+    "run": "gate1_rank_knn_v5",
+    "schema_version": "gate1_rank_knn_v5",
+    "spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4905323933",
+    "artifact_sha256": "31f4ed77fc569004e740f94fd098600923e0ab246e4afebb56c3fca4a30f802d"
+  },
+  "n_person_periods": 126867,
+  "n_persons": 22300,
+  "positive_anchor_quartile_cutpoints": [
+    26000.0,
+    46000.0,
+    77000.0
+  ],
+  "reform_results": {
+    "reform_a": {
+      "definition": {
+        "name": "Reform A (bottom-loaded)",
+        "change": "first PIA factor 0.90 -> 0.95",
+        "mechanism": "params wrapper overrides pia_factors -> (0.95, f2, f3); f2/f3 are the baseline's own factors, read from params at runtime (not hardcoded)",
+        "pia_factors": [
+          0.95,
+          0.32,
+          0.15
+        ],
+        "baseline_pia_factors": [
+          0.9,
+          0.32,
+          0.15
+        ],
+        "bend_points_2022": [
+          1024.0,
+          6172.0
+        ],
+        "incidence": "concentrates in the low deciles / concave region"
+      },
+      "per_seed": [
+        {
+          "seed": 0,
+          "real": {
+            "n_persons": 4427,
+            "mean_delta": 45.37397595606885,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1332.385027374884,
+            "mean_delta_pct_of_mean_baseline": 3.405470267514668,
+            "median_delta_pct_of_mean_baseline": 3.8427330649967035,
+            "decile_mean_delta": {
+              "d1": 4.710630809502612,
+              "d2": 39.44812327476041,
+              "d3": 51.199999999999996,
+              "d4": 51.2,
+              "d5": 51.199999999999996,
+              "d6": 51.2,
+              "d7": 51.20000000000001,
+              "d8": 51.2,
+              "d9": 51.19999999999999,
+              "d10": 51.20000000000001
+            },
+            "winners_share": 0.9371670155220108,
+            "q0_mean_delta": 30.12286632873418,
+            "n_q0_persons": 883
+          },
+          "generated": {
+            "n_persons": 4427,
+            "mean_delta": 44.745890909240146,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1315.313771155819,
+            "mean_delta_pct_of_mean_baseline": 3.4019176177194685,
+            "median_delta_pct_of_mean_baseline": 3.892607309585799,
+            "decile_mean_delta": {
+              "d1": 4.584258482847309,
+              "d2": 33.520756296398154,
+              "d3": 50.99942103728288,
+              "d4": 51.199999999999996,
+              "d5": 51.2,
+              "d6": 51.2,
+              "d7": 51.19999999999999,
+              "d8": 51.199999999999996,
+              "d9": 51.2,
+              "d10": 51.19999999999999
+            },
+            "winners_share": 0.942656406215371,
+            "q0_mean_delta": 31.050305526054437,
+            "n_q0_persons": 883
+          },
+          "paired": {
+            "corr": 0.6305512844491877,
+            "weighted_mean_abs_diff": 4.681559061620239,
+            "n_persons": 4427,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 1,
+          "real": {
+            "n_persons": 4495,
+            "mean_delta": 44.93507082969363,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1300.1546067389684,
+            "mean_delta_pct_of_mean_baseline": 3.456132878104337,
+            "median_delta_pct_of_mean_baseline": 3.937993199779467,
+            "decile_mean_delta": {
+              "d1": 3.9374810246664005,
+              "d2": 35.817073032352084,
+              "d3": 51.188182740613854,
+              "d4": 51.2,
+              "d5": 51.2,
+              "d6": 51.199999999999996,
+              "d7": 51.19999999999998,
+              "d8": 51.19999999999999,
+              "d9": 51.19999999999999,
+              "d10": 51.20000000000003
+            },
+            "winners_share": 0.935402151952942,
+            "q0_mean_delta": 28.541398758041243,
+            "n_q0_persons": 851
+          },
+          "generated": {
+            "n_persons": 4495,
+            "mean_delta": 44.895209385749624,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1296.16395051194,
+            "mean_delta_pct_of_mean_baseline": 3.463698351432901,
+            "median_delta_pct_of_mean_baseline": 3.9501175742295422,
+            "decile_mean_delta": {
+              "d1": 5.932056395750532,
+              "d2": 34.01742641234795,
+              "d3": 50.57653981823986,
+              "d4": 51.199999999999996,
+              "d5": 51.199999999999996,
+              "d6": 51.20000000000001,
+              "d7": 51.2,
+              "d8": 51.199999999999996,
+              "d9": 51.199999999999996,
+              "d10": 51.2
+            },
+            "winners_share": 0.9468271376050393,
+            "q0_mean_delta": 30.40748312120962,
+            "n_q0_persons": 851
+          },
+          "paired": {
+            "corr": 0.5570893332648348,
+            "weighted_mean_abs_diff": 5.4692771369077295,
+            "n_persons": 4495,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 2,
+          "real": {
+            "n_persons": 4477,
+            "mean_delta": 44.639122527776195,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1303.3801970674956,
+            "mean_delta_pct_of_mean_baseline": 3.424873465793846,
+            "median_delta_pct_of_mean_baseline": 3.928247499478362,
+            "decile_mean_delta": {
+              "d1": 2.9678966069664776,
+              "d2": 34.00105451326786,
+              "d3": 51.09550598452433,
+              "d4": 51.19999999999999,
+              "d5": 51.2,
+              "d6": 51.2,
+              "d7": 51.2,
+              "d8": 51.20000000000001,
+              "d9": 51.19999999999998,
+              "d10": 51.20000000000001
+            },
+            "winners_share": 0.9342665023587378,
+            "q0_mean_delta": 29.16209304328953,
+            "n_q0_persons": 916
+          },
+          "generated": {
+            "n_persons": 4477,
+            "mean_delta": 44.6129176456517,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1297.7778517946863,
+            "mean_delta_pct_of_mean_baseline": 3.437639006086971,
+            "median_delta_pct_of_mean_baseline": 3.9452052544428917,
+            "decile_mean_delta": {
+              "d1": 4.9783901813415765,
+              "d2": 32.63195140610793,
+              "d3": 50.123523929879134,
+              "d4": 51.199999999999996,
+              "d5": 51.2,
+              "d6": 51.199999999999996,
+              "d7": 51.199999999999996,
+              "d8": 51.19999999999999,
+              "d9": 51.199999999999996,
+              "d10": 51.2
+            },
+            "winners_share": 0.9450911311303485,
+            "q0_mean_delta": 30.370420124295777,
+            "n_q0_persons": 916
+          },
+          "paired": {
+            "corr": 0.5842980109156872,
+            "weighted_mean_abs_diff": 5.319864372278233,
+            "n_persons": 4477,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 3,
+          "real": {
+            "n_persons": 4464,
+            "mean_delta": 44.422285521755995,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1306.4095963307377,
+            "mean_delta_pct_of_mean_baseline": 3.4003336814520617,
+            "median_delta_pct_of_mean_baseline": 3.919138388435259,
+            "decile_mean_delta": {
+              "d1": 2.4354588065132,
+              "d2": 32.89110830448743,
+              "d3": 50.45732790412282,
+              "d4": 51.19999999999999,
+              "d5": 51.19999999999999,
+              "d6": 51.199999999999996,
+              "d7": 51.19999999999999,
+              "d8": 51.20000000000001,
+              "d9": 51.19999999999998,
+              "d10": 51.20000000000002
+            },
+            "winners_share": 0.9295595919967395,
+            "q0_mean_delta": 28.949044638049116,
+            "n_q0_persons": 969
+          },
+          "generated": {
+            "n_persons": 4464,
+            "mean_delta": 43.895529216094516,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1287.9389981023373,
+            "mean_delta_pct_of_mean_baseline": 3.4081994008078524,
+            "median_delta_pct_of_mean_baseline": 3.9753435586187433,
+            "decile_mean_delta": {
+              "d1": 2.072036817632751,
+              "d2": 28.82173175611459,
+              "d3": 49.719985107581365,
+              "d4": 51.19999999999999,
+              "d5": 51.199999999999996,
+              "d6": 51.2,
+              "d7": 51.2,
+              "d8": 51.199999999999996,
+              "d9": 51.20000000000001,
+              "d10": 51.20000000000001
+            },
+            "winners_share": 0.9266589892037456,
+            "q0_mean_delta": 28.19478010791866,
+            "n_q0_persons": 969
+          },
+          "paired": {
+            "corr": 0.6007234705470619,
+            "weighted_mean_abs_diff": 5.505585802562763,
+            "n_persons": 4464,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 4,
+          "real": {
+            "n_persons": 4530,
+            "mean_delta": 45.29641707271784,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1327.7442411943507,
+            "mean_delta_pct_of_mean_baseline": 3.4115318046472707,
+            "median_delta_pct_of_mean_baseline": 3.8561643433635924,
+            "decile_mean_delta": {
+              "d1": 5.380772253742369,
+              "d2": 38.05722127206968,
+              "d3": 51.19564246972672,
+              "d4": 51.2,
+              "d5": 51.19999999999998,
+              "d6": 51.2,
+              "d7": 51.199999999999996,
+              "d8": 51.199999999999996,
+              "d9": 51.2,
+              "d10": 51.20000000000002
+            },
+            "winners_share": 0.9414876927241814,
+            "q0_mean_delta": 29.793748336814588,
+            "n_q0_persons": 913
+          },
+          "generated": {
+            "n_persons": 4530,
+            "mean_delta": 45.087270217885475,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1333.7353939213447,
+            "mean_delta_pct_of_mean_baseline": 3.380525884172827,
+            "median_delta_pct_of_mean_baseline": 3.8388424145711393,
+            "decile_mean_delta": {
+              "d1": 5.0406264352068515,
+              "d2": 36.39579191141772,
+              "d3": 51.17221596967136,
+              "d4": 51.19999999999999,
+              "d5": 51.199999999999996,
+              "d6": 51.2,
+              "d7": 51.20000000000001,
+              "d8": 51.199999999999996,
+              "d9": 51.20000000000001,
+              "d10": 51.20000000000001
+            },
+            "winners_share": 0.9411323034321665,
+            "q0_mean_delta": 31.294069599178403,
+            "n_q0_persons": 913
+          },
+          "paired": {
+            "corr": 0.6014583040840847,
+            "weighted_mean_abs_diff": 4.773419599986561,
+            "n_persons": 4530,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        }
+      ],
+      "floor_per_seed": [
+        {
+          "seed": 0,
+          "side_a": {
+            "n_persons": 4429,
+            "mean_delta": 45.189858325885126,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1342.8523084482079,
+            "mean_delta_pct_of_mean_baseline": 3.3652143308377864,
+            "median_delta_pct_of_mean_baseline": 3.8127796838035346,
+            "decile_mean_delta": {
+              "d1": 4.361307075469365,
+              "d2": 37.96376197037889,
+              "d3": 51.19999999999999,
+              "d4": 51.2,
+              "d5": 51.19999999999999,
+              "d6": 51.199999999999996,
+              "d7": 51.2,
+              "d8": 51.2,
+              "d9": 51.19999999999998,
+              "d10": 51.2
+            },
+            "winners_share": 0.9376425150193112,
+            "q0_mean_delta": 30.3204184815767,
+            "n_q0_persons": 894
+          },
+          "side_b": {
+            "n_persons": 4403,
+            "mean_delta": 44.98418048374426,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1311.6071447693485,
+            "mean_delta_pct_of_mean_baseline": 3.42969925584348,
+            "median_delta_pct_of_mean_baseline": 3.9036078908371437,
+            "decile_mean_delta": {
+              "d1": 4.792874175272369,
+              "d2": 35.58133355853443,
+              "d3": 51.059969882089824,
+              "d4": 51.20000000000001,
+              "d5": 51.20000000000001,
+              "d6": 51.2,
+              "d7": 51.19999999999999,
+              "d8": 51.2,
+              "d9": 51.20000000000001,
+              "d10": 51.2
+            },
+            "winners_share": 0.9417333512036571,
+            "q0_mean_delta": 30.953830992555897,
+            "n_q0_persons": 900
+          }
+        },
+        {
+          "seed": 1,
+          "side_a": {
+            "n_persons": 4357,
+            "mean_delta": 44.88005096709041,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1317.1463084599238,
+            "mean_delta_pct_of_mean_baseline": 3.407370212316543,
+            "median_delta_pct_of_mean_baseline": 3.8871915497273615,
+            "decile_mean_delta": {
+              "d1": 4.336732216694275,
+              "d2": 34.97406293620335,
+              "d3": 51.120672441389225,
+              "d4": 51.20000000000001,
+              "d5": 51.19999999999999,
+              "d6": 51.20000000000001,
+              "d7": 51.2,
+              "d8": 51.2,
+              "d9": 51.20000000000002,
+              "d10": 51.20000000000002
+            },
+            "winners_share": 0.9369246516424016,
+            "q0_mean_delta": 30.07583136610779,
+            "n_q0_persons": 914
+          },
+          "side_b": {
+            "n_persons": 4473,
+            "mean_delta": 45.31558504738081,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1326.4339983938755,
+            "mean_delta_pct_of_mean_baseline": 3.41634676902519,
+            "median_delta_pct_of_mean_baseline": 3.859973437200496,
+            "decile_mean_delta": {
+              "d1": 5.737289490311953,
+              "d2": 37.86483486905029,
+              "d3": 51.05136875380377,
+              "d4": 51.199999999999996,
+              "d5": 51.2,
+              "d6": 51.19999999999999,
+              "d7": 51.2,
+              "d8": 51.19999999999999,
+              "d9": 51.19999999999998,
+              "d10": 51.19999999999999
+            },
+            "winners_share": 0.9417866351025919,
+            "q0_mean_delta": 29.99399030009466,
+            "n_q0_persons": 849
+          }
+        },
+        {
+          "seed": 2,
+          "side_a": {
+            "n_persons": 4584,
+            "mean_delta": 44.73937816413586,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1311.1047075617378,
+            "mean_delta_pct_of_mean_baseline": 3.412342119290969,
+            "median_delta_pct_of_mean_baseline": 3.905103818536104,
+            "decile_mean_delta": {
+              "d1": 2.8355026827767738,
+              "d2": 34.98950623472778,
+              "d3": 51.1619239231333,
+              "d4": 51.20000000000001,
+              "d5": 51.2,
+              "d6": 51.2,
+              "d7": 51.199999999999996,
+              "d8": 51.199999999999996,
+              "d9": 51.20000000000001,
+              "d10": 51.20000000000001
+            },
+            "winners_share": 0.9319945576601242,
+            "q0_mean_delta": 29.230717759038452,
+            "n_q0_persons": 925
+          },
+          "side_b": {
+            "n_persons": 4498,
+            "mean_delta": 44.80833208884312,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1288.3385458288492,
+            "mean_delta_pct_of_mean_baseline": 3.477993593680441,
+            "median_delta_pct_of_mean_baseline": 3.9741106998440894,
+            "decile_mean_delta": {
+              "d1": 4.180738100518166,
+              "d2": 34.80681637649286,
+              "d3": 50.70186098581847,
+              "d4": 51.199999999999996,
+              "d5": 51.2,
+              "d6": 51.2,
+              "d7": 51.2,
+              "d8": 51.199999999999996,
+              "d9": 51.19999999999999,
+              "d10": 51.199999999999996
+            },
+            "winners_share": 0.9370119106045395,
+            "q0_mean_delta": 30.171197229721738,
+            "n_q0_persons": 907
+          }
+        },
+        {
+          "seed": 3,
+          "side_a": {
+            "n_persons": 4500,
+            "mean_delta": 44.3947440664808,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1292.2241978396132,
+            "mean_delta_pct_of_mean_baseline": 3.435529542064103,
+            "median_delta_pct_of_mean_baseline": 3.962160752414174,
+            "decile_mean_delta": {
+              "d1": 2.686778325549926,
+              "d2": 32.128793826766646,
+              "d3": 50.67804379119996,
+              "d4": 51.2,
+              "d5": 51.2,
+              "d6": 51.2,
+              "d7": 51.20000000000001,
+              "d8": 51.199999999999996,
+              "d9": 51.199999999999996,
+              "d10": 51.2
+            },
+            "winners_share": 0.9300445896256897,
+            "q0_mean_delta": 27.348603238158347,
+            "n_q0_persons": 882
+          },
+          "side_b": {
+            "n_persons": 4425,
+            "mean_delta": 45.18634051610329,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1315.9459032824616,
+            "mean_delta_pct_of_mean_baseline": 3.4337536522885665,
+            "median_delta_pct_of_mean_baseline": 3.890737443863618,
+            "decile_mean_delta": {
+              "d1": 5.678493402029197,
+              "d2": 36.70793224117715,
+              "d3": 50.999677034273496,
+              "d4": 51.2,
+              "d5": 51.2,
+              "d6": 51.19999999999998,
+              "d7": 51.2,
+              "d8": 51.19999999999998,
+              "d9": 51.20000000000002,
+              "d10": 51.199999999999996
+            },
+            "winners_share": 0.9430949482000064,
+            "q0_mean_delta": 31.111772886723987,
+            "n_q0_persons": 905
+          }
+        },
+        {
+          "seed": 4,
+          "side_a": {
+            "n_persons": 4348,
+            "mean_delta": 44.83656687426228,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1309.3418788538638,
+            "mean_delta_pct_of_mean_baseline": 3.4243590309285836,
+            "median_delta_pct_of_mean_baseline": 3.910361443935339,
+            "decile_mean_delta": {
+              "d1": 4.294799418032553,
+              "d2": 34.89738775120275,
+              "d3": 50.8248008426652,
+              "d4": 51.19999999999999,
+              "d5": 51.19999999999999,
+              "d6": 51.20000000000001,
+              "d7": 51.2,
+              "d8": 51.19999999999999,
+              "d9": 51.2,
+              "d10": 51.20000000000002
+            },
+            "winners_share": 0.9388070949206799,
+            "q0_mean_delta": 30.064864246140672,
+            "n_q0_persons": 872
+          },
+          "side_b": {
+            "n_persons": 4348,
+            "mean_delta": 45.75584288771747,
+            "median_delta": 51.200000000000045,
+            "mean_baseline": 1345.260876508096,
+            "mean_delta_pct_of_mean_baseline": 3.4012616947938206,
+            "median_delta_pct_of_mean_baseline": 3.8059532462506658,
+            "decile_mean_delta": {
+              "d1": 6.672622694485296,
+              "d2": 41.27673853637643,
+              "d3": 51.2,
+              "d4": 51.199999999999996,
+              "d5": 51.19999999999999,
+              "d6": 51.20000000000001,
+              "d7": 51.19999999999999,
+              "d8": 51.199999999999996,
+              "d9": 51.19999999999998,
+              "d10": 51.19999999999999
+            },
+            "winners_share": 0.9466624860028152,
+            "q0_mean_delta": 30.290173087434866,
+            "n_q0_persons": 810
+          }
+        }
+      ],
+      "pooled": {
+        "mean_delta": {
+          "real_pooled": {
+            "mean": 44.9333743816025,
+            "sd": 0.4104048601899206,
+            "min": 44.422285521755995,
+            "max": 45.37397595606885,
+            "n_seeds": 5,
+            "values": [
+              45.37397595606885,
+              44.93507082969363,
+              44.639122527776195,
+              44.422285521755995,
+              45.29641707271784
+            ]
+          },
+          "generated_pooled": {
+            "mean": 44.64736347492429,
+            "sd": 0.45582191183422016,
+            "min": 43.895529216094516,
+            "max": 45.087270217885475,
+            "n_seeds": 5,
+            "values": [
+              44.745890909240146,
+              44.895209385749624,
+              44.6129176456517,
+              43.895529216094516,
+              45.087270217885475
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 44.80811967957089,
+            "sd": 0.2860561747899207,
+            "min": 44.3947440664808,
+            "max": 45.189858325885126,
+            "n_seeds": 5,
+            "values": [
+              45.189858325885126,
+              44.88005096709041,
+              44.73937816413586,
+              44.3947440664808,
+              44.83656687426228
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 45.21005620475779,
+            "sd": 0.3612422941948533,
+            "min": 44.80833208884312,
+            "max": 45.75584288771747,
+            "n_seeds": 5,
+            "values": [
+              44.98418048374426,
+              45.31558504738081,
+              44.80833208884312,
+              45.18634051610329,
+              45.75584288771747
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              -0.6280850468287014,
+              -0.03986144394400526,
+              -0.02620488212449601,
+              -0.526756305661479,
+              -0.20914685483236184
+            ],
+            "abs": {
+              "mean": 0.2860109066782087,
+              "sd": 0.27792529362951807,
+              "min": 0.02620488212449601,
+              "max": 0.6280850468287014,
+              "n_seeds": 5,
+              "values": [
+                0.6280850468287014,
+                0.03986144394400526,
+                0.02620488212449601,
+                0.526756305661479,
+                0.20914685483236184
+              ]
+            },
+            "signed": {
+              "mean": -0.2860109066782087,
+              "sd": 0.27792529362951807,
+              "min": -0.6280850468287014,
+              "max": -0.02620488212449601,
+              "n_seeds": 5,
+              "values": [
+                -0.6280850468287014,
+                -0.03986144394400526,
+                -0.02620488212449601,
+                -0.526756305661479,
+                -0.20914685483236184
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.2860109066782087
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              0.20567784214086515,
+              -0.4355340802903953,
+              -0.06895392470726591,
+              -0.7915964496224959,
+              -0.919276013455189
+            ],
+            "abs": {
+              "mean": 0.4842076620432422,
+              "sd": 0.3661133641499414,
+              "min": 0.06895392470726591,
+              "max": 0.919276013455189,
+              "n_seeds": 5,
+              "values": [
+                0.20567784214086515,
+                0.4355340802903953,
+                0.06895392470726591,
+                0.7915964496224959,
+                0.919276013455189
+              ]
+            },
+            "signed": {
+              "mean": -0.40193652518689615,
+              "sd": 0.4745198705394437,
+              "min": -0.919276013455189,
+              "max": 0.20567784214086515,
+              "n_seeds": 5,
+              "values": [
+                0.20567784214086515,
+                -0.4355340802903953,
+                -0.06895392470726591,
+                -0.7915964496224959,
+                -0.919276013455189
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.40193652518689615
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 0.2860109066782087,
+          "floor_scale": 0.4842076620432422,
+          "within_floor": true
+        },
+        "median_delta": {
+          "real_pooled": {
+            "mean": 51.200000000000045,
+            "sd": 0.0,
+            "min": 51.200000000000045,
+            "max": 51.200000000000045,
+            "n_seeds": 5,
+            "values": [
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045
+            ]
+          },
+          "generated_pooled": {
+            "mean": 51.200000000000045,
+            "sd": 0.0,
+            "min": 51.200000000000045,
+            "max": 51.200000000000045,
+            "n_seeds": 5,
+            "values": [
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 51.200000000000045,
+            "sd": 0.0,
+            "min": 51.200000000000045,
+            "max": 51.200000000000045,
+            "n_seeds": 5,
+            "values": [
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 51.200000000000045,
+            "sd": 0.0,
+            "min": 51.200000000000045,
+            "max": 51.200000000000045,
+            "n_seeds": 5,
+            "values": [
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045,
+              51.200000000000045
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "abs": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "signed": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.0
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "abs": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "signed": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.0
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 0.0,
+          "floor_scale": 0.0,
+          "within_floor": true
+        },
+        "winners_share": {
+          "real_pooled": {
+            "mean": 0.9355765909109222,
+            "sd": 0.004342280851930639,
+            "min": 0.9295595919967395,
+            "max": 0.9414876927241814,
+            "n_seeds": 5,
+            "values": [
+              0.9371670155220108,
+              0.935402151952942,
+              0.9342665023587378,
+              0.9295595919967395,
+              0.9414876927241814
+            ]
+          },
+          "generated_pooled": {
+            "mean": 0.9404731935173342,
+            "sd": 0.00802700189438194,
+            "min": 0.9266589892037456,
+            "max": 0.9468271376050393,
+            "n_seeds": 5,
+            "values": [
+              0.942656406215371,
+              0.9468271376050393,
+              0.9450911311303485,
+              0.9266589892037456,
+              0.9411323034321665
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 0.9350826817736413,
+            "sd": 0.0038319621463627864,
+            "min": 0.9300445896256897,
+            "max": 0.9388070949206799,
+            "n_seeds": 5,
+            "values": [
+              0.9376425150193112,
+              0.9369246516424016,
+              0.9319945576601242,
+              0.9300445896256897,
+              0.9388070949206799
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 0.9420578662227219,
+            "sd": 0.003461163343647166,
+            "min": 0.9370119106045395,
+            "max": 0.9466624860028152,
+            "n_seeds": 5,
+            "values": [
+              0.9417333512036571,
+              0.9417866351025919,
+              0.9370119106045395,
+              0.9430949482000064,
+              0.9466624860028152
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              0.0054893906933601855,
+              0.011424985652097375,
+              0.010824628771610723,
+              -0.002900602792993978,
+              -0.0003553892920149515
+            ],
+            "abs": {
+              "mean": 0.006198999440415442,
+              "sd": 0.0048538161063850435,
+              "min": 0.0003553892920149515,
+              "max": 0.011424985652097375,
+              "n_seeds": 5,
+              "values": [
+                0.0054893906933601855,
+                0.011424985652097375,
+                0.010824628771610723,
+                0.002900602792993978,
+                0.0003553892920149515
+              ]
+            },
+            "signed": {
+              "mean": 0.00489660260641187,
+              "sd": 0.0064515987953407475,
+              "min": -0.002900602792993978,
+              "max": 0.011424985652097375,
+              "n_seeds": 5,
+              "values": [
+                0.0054893906933601855,
+                0.011424985652097375,
+                0.010824628771610723,
+                -0.002900602792993978,
+                -0.0003553892920149515
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.00489660260641187
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              -0.004090836184345914,
+              -0.004861983460190289,
+              -0.005017352944415299,
+              -0.01305035857431669,
+              -0.007855391082135288
+            ],
+            "abs": {
+              "mean": 0.006975184449080696,
+              "sd": 0.003684450159155248,
+              "min": 0.004090836184345914,
+              "max": 0.01305035857431669,
+              "n_seeds": 5,
+              "values": [
+                0.004090836184345914,
+                0.004861983460190289,
+                0.005017352944415299,
+                0.01305035857431669,
+                0.007855391082135288
+              ]
+            },
+            "signed": {
+              "mean": -0.006975184449080696,
+              "sd": 0.003684450159155248,
+              "min": -0.01305035857431669,
+              "max": -0.004090836184345914,
+              "n_seeds": 5,
+              "values": [
+                -0.004090836184345914,
+                -0.004861983460190289,
+                -0.005017352944415299,
+                -0.01305035857431669,
+                -0.007855391082135288
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.006975184449080696
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 0.006198999440415442,
+          "floor_scale": 0.006975184449080696,
+          "within_floor": true
+        },
+        "q0_mean_delta": {
+          "real_pooled": {
+            "mean": 29.313830220985732,
+            "sd": 0.6398444887434865,
+            "min": 28.541398758041243,
+            "max": 30.12286632873418,
+            "n_seeds": 5,
+            "values": [
+              30.12286632873418,
+              28.541398758041243,
+              29.16209304328953,
+              28.949044638049116,
+              29.793748336814588
+            ]
+          },
+          "generated_pooled": {
+            "mean": 30.263411695731378,
+            "sd": 1.2240201836221933,
+            "min": 28.19478010791866,
+            "max": 31.294069599178403,
+            "n_seeds": 5,
+            "values": [
+              31.050305526054437,
+              30.40748312120962,
+              30.370420124295777,
+              28.19478010791866,
+              31.294069599178403
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 29.40808701820439,
+            "sd": 1.2229596104043534,
+            "min": 27.348603238158347,
+            "max": 30.3204184815767,
+            "n_seeds": 5,
+            "values": [
+              30.3204184815767,
+              30.07583136610779,
+              29.230717759038452,
+              27.348603238158347,
+              30.064864246140672
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 30.50419289930623,
+            "sd": 0.4970727170368234,
+            "min": 29.99399030009466,
+            "max": 31.111772886723987,
+            "n_seeds": 5,
+            "values": [
+              30.953830992555897,
+              29.99399030009466,
+              30.171197229721738,
+              31.111772886723987,
+              30.290173087434866
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              0.9274391973202576,
+              1.8660843631683761,
+              1.2083270810062459,
+              -0.754264530130456,
+              1.5003212623638156
+            ],
+            "abs": {
+              "mean": 1.2512872867978302,
+              "sd": 0.4454627232118126,
+              "min": 0.754264530130456,
+              "max": 1.8660843631683761,
+              "n_seeds": 5,
+              "values": [
+                0.9274391973202576,
+                1.8660843631683761,
+                1.2083270810062459,
+                0.754264530130456,
+                1.5003212623638156
+              ]
+            },
+            "signed": {
+              "mean": 0.9495814747456478,
+              "sd": 1.0141280288619772,
+              "min": -0.754264530130456,
+              "max": 1.8660843631683761,
+              "n_seeds": 5,
+              "values": [
+                0.9274391973202576,
+                1.8660843631683761,
+                1.2083270810062459,
+                -0.754264530130456,
+                1.5003212623638156
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.9495814747456478
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              -0.6334125109791984,
+              0.0818410660131299,
+              -0.940479470683286,
+              -3.76316964856564,
+              -0.22530884129419348
+            ],
+            "abs": {
+              "mean": 1.1288423075070895,
+              "sd": 1.5110589089847866,
+              "min": 0.0818410660131299,
+              "max": 3.76316964856564,
+              "n_seeds": 5,
+              "values": [
+                0.6334125109791984,
+                0.0818410660131299,
+                0.940479470683286,
+                3.76316964856564,
+                0.22530884129419348
+              ]
+            },
+            "signed": {
+              "mean": -1.0961058811018376,
+              "sd": 1.5408910059482344,
+              "min": -3.76316964856564,
+              "max": 0.0818410660131299,
+              "n_seeds": 5,
+              "values": [
+                -0.6334125109791984,
+                0.0818410660131299,
+                -0.940479470683286,
+                -3.76316964856564,
+                -0.22530884129419348
+              ]
+            },
+            "abs_of_pooled_signed_mean": 1.0961058811018376
+          },
+          "scale_kind": "abs_of_pooled_signed_mean (|across-seed mean of gap|)",
+          "realgen_scale": 0.9495814747456478,
+          "floor_scale": 1.0961058811018376,
+          "within_floor": true
+        },
+        "decile_incidence": {
+          "scale_kind": "abs.mean (mean of per-seed |gap|) per decile group",
+          "compared_deciles": [
+            "d3",
+            "d4",
+            "d5",
+            "d6",
+            "d7",
+            "d8",
+            "d9"
+          ],
+          "reported_only_deciles": [
+            "d1",
+            "d2",
+            "d10"
+          ],
+          "per_decile": {
+            "d1": {
+              "real_pooled_mean_delta": {
+                "mean": 3.886447900278211,
+                "sd": 1.2107841415450729,
+                "min": 2.4354588065132,
+                "max": 5.380772253742369,
+                "n_seeds": 5,
+                "values": [
+                  4.710630809502612,
+                  3.9374810246664005,
+                  2.9678966069664776,
+                  2.4354588065132,
+                  5.380772253742369
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 4.521473662555803,
+                "sd": 1.455310855505047,
+                "min": 2.072036817632751,
+                "max": 5.932056395750532,
+                "n_seeds": 5,
+                "values": [
+                  4.584258482847309,
+                  5.932056395750532,
+                  4.9783901813415765,
+                  2.072036817632751,
+                  5.0406264352068515
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -0.12637232665530274,
+                  1.9945753710841316,
+                  2.010493574375099,
+                  -0.36342198888044885,
+                  -0.3401458185355173
+                ],
+                "abs": {
+                  "mean": 0.9670018159061,
+                  "sd": 0.9498285961850936,
+                  "min": 0.12637232665530274,
+                  "max": 2.010493574375099,
+                  "n_seeds": 5,
+                  "values": [
+                    0.12637232665530274,
+                    1.9945753710841316,
+                    2.010493574375099,
+                    0.36342198888044885,
+                    0.3401458185355173
+                  ]
+                },
+                "signed": {
+                  "mean": 0.6350257622775923,
+                  "sd": 1.2517858657305438,
+                  "min": -0.36342198888044885,
+                  "max": 2.010493574375099,
+                  "n_seeds": 5,
+                  "values": [
+                    -0.12637232665530274,
+                    1.9945753710841316,
+                    2.010493574375099,
+                    -0.36342198888044885,
+                    -0.3401458185355173
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.6350257622775923
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -0.43156709980300434,
+                  -1.400557273617678,
+                  -1.3452354177413923,
+                  -2.991715076479271,
+                  -2.3778232764527436
+                ],
+                "abs": {
+                  "mean": 1.709379628818818,
+                  "sd": 0.9939791526022631,
+                  "min": 0.43156709980300434,
+                  "max": 2.991715076479271,
+                  "n_seeds": 5,
+                  "values": [
+                    0.43156709980300434,
+                    1.400557273617678,
+                    1.3452354177413923,
+                    2.991715076479271,
+                    2.3778232764527436
+                  ]
+                },
+                "signed": {
+                  "mean": -1.709379628818818,
+                  "sd": 0.9939791526022631,
+                  "min": -2.991715076479271,
+                  "max": -0.43156709980300434,
+                  "n_seeds": 5,
+                  "values": [
+                    -0.43156709980300434,
+                    -1.400557273617678,
+                    -1.3452354177413923,
+                    -2.991715076479271,
+                    -2.3778232764527436
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 1.709379628818818
+              },
+              "realgen_scale": 0.9670018159061,
+              "floor_scale": 1.709379628818818,
+              "within_floor": true,
+              "compared": false
+            },
+            "d2": {
+              "real_pooled_mean_delta": {
+                "mean": 36.042916079387496,
+                "sd": 2.729787420280981,
+                "min": 32.89110830448743,
+                "max": 39.44812327476041,
+                "n_seeds": 5,
+                "values": [
+                  39.44812327476041,
+                  35.817073032352084,
+                  34.00105451326786,
+                  32.89110830448743,
+                  38.05722127206968
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 33.07753155647727,
+                "sd": 2.7568585339344938,
+                "min": 28.82173175611459,
+                "max": 36.39579191141772,
+                "n_seeds": 5,
+                "values": [
+                  33.520756296398154,
+                  34.01742641234795,
+                  32.63195140610793,
+                  28.82173175611459,
+                  36.39579191141772
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -5.927366978362258,
+                  -1.7996466200041326,
+                  -1.3691031071599298,
+                  -4.069376548372841,
+                  -1.6614293606519652
+                ],
+                "abs": {
+                  "mean": 2.965384522910225,
+                  "sd": 1.9748099111314696,
+                  "min": 1.3691031071599298,
+                  "max": 5.927366978362258,
+                  "n_seeds": 5,
+                  "values": [
+                    5.927366978362258,
+                    1.7996466200041326,
+                    1.3691031071599298,
+                    4.069376548372841,
+                    1.6614293606519652
+                  ]
+                },
+                "signed": {
+                  "mean": -2.965384522910225,
+                  "sd": 1.9748099111314696,
+                  "min": -5.927366978362258,
+                  "max": -1.3691031071599298,
+                  "n_seeds": 5,
+                  "values": [
+                    -5.927366978362258,
+                    -1.7996466200041326,
+                    -1.3691031071599298,
+                    -4.069376548372841,
+                    -1.6614293606519652
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.965384522910225
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  2.382428411844458,
+                  -2.8907719328469383,
+                  0.1826898582349159,
+                  -4.579138414410501,
+                  -6.379350785173678
+                ],
+                "abs": {
+                  "mean": 3.282875880502098,
+                  "sd": 2.336886706406358,
+                  "min": 0.1826898582349159,
+                  "max": 6.379350785173678,
+                  "n_seeds": 5,
+                  "values": [
+                    2.382428411844458,
+                    2.8907719328469383,
+                    0.1826898582349159,
+                    4.579138414410501,
+                    6.379350785173678
+                  ]
+                },
+                "signed": {
+                  "mean": -2.2568285724703485,
+                  "sd": 3.544860791365241,
+                  "min": -6.379350785173678,
+                  "max": 2.382428411844458,
+                  "n_seeds": 5,
+                  "values": [
+                    2.382428411844458,
+                    -2.8907719328469383,
+                    0.1826898582349159,
+                    -4.579138414410501,
+                    -6.379350785173678
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.2568285724703485
+              },
+              "realgen_scale": 2.965384522910225,
+              "floor_scale": 3.282875880502098,
+              "within_floor": true,
+              "compared": false
+            },
+            "d3": {
+              "real_pooled_mean_delta": {
+                "mean": 51.02733181979754,
+                "sd": 0.32154625432516526,
+                "min": 50.45732790412282,
+                "max": 51.199999999999996,
+                "n_seeds": 5,
+                "values": [
+                  51.199999999999996,
+                  51.188182740613854,
+                  51.09550598452433,
+                  50.45732790412282,
+                  51.19564246972672
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 50.51833717253091,
+                "sd": 0.6032475094073058,
+                "min": 49.719985107581365,
+                "max": 51.17221596967136,
+                "n_seeds": 5,
+                "values": [
+                  50.99942103728288,
+                  50.57653981823986,
+                  50.123523929879134,
+                  49.719985107581365,
+                  51.17221596967136
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -0.20057896271711684,
+                  -0.6116429223739956,
+                  -0.9719820546451956,
+                  -0.737342796541455,
+                  -0.023426500055357735
+                ],
+                "abs": {
+                  "mean": 0.5089946472666241,
+                  "sd": 0.38985046656160793,
+                  "min": 0.023426500055357735,
+                  "max": 0.9719820546451956,
+                  "n_seeds": 5,
+                  "values": [
+                    0.20057896271711684,
+                    0.6116429223739956,
+                    0.9719820546451956,
+                    0.737342796541455,
+                    0.023426500055357735
+                  ]
+                },
+                "signed": {
+                  "mean": -0.5089946472666241,
+                  "sd": 0.38985046656160793,
+                  "min": -0.9719820546451956,
+                  "max": -0.023426500055357735,
+                  "n_seeds": 5,
+                  "values": [
+                    -0.20057896271711684,
+                    -0.6116429223739956,
+                    -0.9719820546451956,
+                    -0.737342796541455,
+                    -0.023426500055357735
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.5089946472666241
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.14003011791016462,
+                  0.06930368758545313,
+                  0.46006293731483083,
+                  -0.3216332430735349,
+                  -0.375199157334805
+                ],
+                "abs": {
+                  "mean": 0.2732458286437577,
+                  "sd": 0.16353537666534496,
+                  "min": 0.06930368758545313,
+                  "max": 0.46006293731483083,
+                  "n_seeds": 5,
+                  "values": [
+                    0.14003011791016462,
+                    0.06930368758545313,
+                    0.46006293731483083,
+                    0.3216332430735349,
+                    0.375199157334805
+                  ]
+                },
+                "signed": {
+                  "mean": -0.00548713151957827,
+                  "sd": 0.3464610905205693,
+                  "min": -0.375199157334805,
+                  "max": 0.46006293731483083,
+                  "n_seeds": 5,
+                  "values": [
+                    0.14003011791016462,
+                    0.06930368758545313,
+                    0.46006293731483083,
+                    -0.3216332430735349,
+                    -0.375199157334805
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.00548713151957827
+              },
+              "realgen_scale": 0.5089946472666241,
+              "floor_scale": 0.2732458286437577,
+              "within_floor": false,
+              "compared": true
+            },
+            "d4": {
+              "real_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 1.0048591735576161e-14,
+                "min": 51.19999999999999,
+                "max": 51.2,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.2,
+                  51.19999999999999,
+                  51.19999999999999,
+                  51.2
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.199999999999996,
+                "sd": 5.0242958677880805e-15,
+                "min": 51.19999999999999,
+                "max": 51.199999999999996,
+                "n_seeds": 5,
+                "values": [
+                  51.199999999999996,
+                  51.199999999999996,
+                  51.199999999999996,
+                  51.19999999999999,
+                  51.19999999999999
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -7.105427357601002e-15,
+                  -7.105427357601002e-15,
+                  7.105427357601002e-15,
+                  0.0,
+                  -1.4210854715202004e-14
+                ],
+                "abs": {
+                  "mean": 7.105427357601002e-15,
+                  "sd": 5.0242958677880805e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    0.0,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "signed": {
+                  "mean": -4.263256414560601e-15,
+                  "sd": 8.101433657963767e-15,
+                  "min": -1.4210854715202004e-14,
+                  "max": 7.105427357601002e-15,
+                  "n_seeds": 5,
+                  "values": [
+                    -7.105427357601002e-15,
+                    -7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    0.0,
+                    -1.4210854715202004e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 4.263256414560601e-15
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -7.105427357601002e-15,
+                  1.4210854715202004e-14,
+                  1.4210854715202004e-14,
+                  0.0,
+                  -7.105427357601002e-15
+                ],
+                "abs": {
+                  "mean": 8.526512829121202e-15,
+                  "sd": 5.944827041546401e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    1.4210854715202004e-14,
+                    0.0,
+                    7.105427357601002e-15
+                  ]
+                },
+                "signed": {
+                  "mean": 2.842170943040401e-15,
+                  "sd": 1.0775914125888947e-14,
+                  "min": -7.105427357601002e-15,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    -7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    1.4210854715202004e-14,
+                    0.0,
+                    -7.105427357601002e-15
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.842170943040401e-15
+              },
+              "realgen_scale": 7.105427357601002e-15,
+              "floor_scale": 8.526512829121202e-15,
+              "within_floor": true,
+              "compared": true
+            },
+            "d5": {
+              "real_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 1.3293037379376718e-14,
+                "min": 51.19999999999998,
+                "max": 51.2,
+                "n_seeds": 5,
+                "values": [
+                  51.199999999999996,
+                  51.2,
+                  51.2,
+                  51.19999999999999,
+                  51.19999999999998
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 6.153480596427404e-15,
+                "min": 51.199999999999996,
+                "max": 51.2,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.199999999999996,
+                  51.2,
+                  51.199999999999996,
+                  51.199999999999996
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  7.105427357601002e-15,
+                  -7.105427357601002e-15,
+                  0.0,
+                  7.105427357601002e-15,
+                  1.4210854715202004e-14
+                ],
+                "abs": {
+                  "mean": 7.105427357601002e-15,
+                  "sd": 5.0242958677880805e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    0.0,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "signed": {
+                  "mean": 4.263256414560601e-15,
+                  "sd": 8.101433657963767e-15,
+                  "min": -7.105427357601002e-15,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    -7.105427357601002e-15,
+                    0.0,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 4.263256414560601e-15
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -2.1316282072803006e-14,
+                  -1.4210854715202004e-14,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 7.105427357601002e-15,
+                  "sd": 1.0048591735576161e-14,
+                  "min": 0.0,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    2.1316282072803006e-14,
+                    1.4210854715202004e-14,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": -7.105427357601002e-15,
+                  "sd": 1.0048591735576161e-14,
+                  "min": -2.1316282072803006e-14,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    -2.1316282072803006e-14,
+                    -1.4210854715202004e-14,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 7.105427357601002e-15
+              },
+              "realgen_scale": 7.105427357601002e-15,
+              "floor_scale": 7.105427357601002e-15,
+              "within_floor": true,
+              "compared": true
+            },
+            "d6": {
+              "real_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 5.0242958677880805e-15,
+                "min": 51.199999999999996,
+                "max": 51.2,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.199999999999996,
+                  51.2,
+                  51.199999999999996,
+                  51.2
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 5.0242958677880805e-15,
+                "min": 51.199999999999996,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.20000000000001,
+                  51.199999999999996,
+                  51.2,
+                  51.2
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  1.4210854715202004e-14,
+                  -7.105427357601002e-15,
+                  7.105427357601002e-15,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 5.684341886080802e-15,
+                  "sd": 5.944827041546401e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 2.842170943040401e-15,
+                  "sd": 8.101433657963767e-15,
+                  "min": -7.105427357601002e-15,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    1.4210854715202004e-14,
+                    -7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.842170943040401e-15
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -7.105427357601002e-15,
+                  2.1316282072803006e-14,
+                  0.0,
+                  2.1316282072803006e-14,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 9.947598300641402e-15,
+                  "sd": 1.0775914125888947e-14,
+                  "min": 0.0,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    2.1316282072803006e-14,
+                    0.0,
+                    2.1316282072803006e-14,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 7.105427357601002e-15,
+                  "sd": 1.3293037379376718e-14,
+                  "min": -7.105427357601002e-15,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    -7.105427357601002e-15,
+                    2.1316282072803006e-14,
+                    0.0,
+                    2.1316282072803006e-14,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 7.105427357601002e-15
+              },
+              "realgen_scale": 5.684341886080802e-15,
+              "floor_scale": 9.947598300641402e-15,
+              "within_floor": true,
+              "compared": true
+            },
+            "d7": {
+              "real_pooled_mean_delta": {
+                "mean": 51.199999999999996,
+                "sd": 1.1234667099445444e-14,
+                "min": 51.19999999999998,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.20000000000001,
+                  51.19999999999998,
+                  51.2,
+                  51.19999999999999,
+                  51.199999999999996
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 8.702335715267317e-15,
+                "min": 51.19999999999999,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.19999999999999,
+                  51.2,
+                  51.199999999999996,
+                  51.2,
+                  51.20000000000001
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -2.1316282072803006e-14,
+                  2.1316282072803006e-14,
+                  -7.105427357601002e-15,
+                  1.4210854715202004e-14,
+                  1.4210854715202004e-14
+                ],
+                "abs": {
+                  "mean": 1.5631940186722205e-14,
+                  "sd": 5.944827041546401e-15,
+                  "min": 7.105427357601002e-15,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    2.1316282072803006e-14,
+                    2.1316282072803006e-14,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "signed": {
+                  "mean": 4.263256414560601e-15,
+                  "sd": 1.7834481124639202e-14,
+                  "min": -2.1316282072803006e-14,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    -2.1316282072803006e-14,
+                    2.1316282072803006e-14,
+                    -7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 4.263256414560601e-15
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  1.4210854715202004e-14,
+                  0.0,
+                  -7.105427357601002e-15,
+                  7.105427357601002e-15,
+                  1.4210854715202004e-14
+                ],
+                "abs": {
+                  "mean": 8.526512829121202e-15,
+                  "sd": 5.944827041546401e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    1.4210854715202004e-14,
+                    0.0,
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "signed": {
+                  "mean": 5.684341886080802e-15,
+                  "sd": 9.26434382393303e-15,
+                  "min": -7.105427357601002e-15,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    1.4210854715202004e-14,
+                    0.0,
+                    -7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 5.684341886080802e-15
+              },
+              "realgen_scale": 1.5631940186722205e-14,
+              "floor_scale": 8.526512829121202e-15,
+              "within_floor": true,
+              "compared": true
+            },
+            "d8": {
+              "real_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 9.39959687352353e-15,
+                "min": 51.19999999999999,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.19999999999999,
+                  51.20000000000001,
+                  51.20000000000001,
+                  51.199999999999996
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.19999999999999,
+                "sd": 7.105427357601002e-15,
+                "min": 51.19999999999999,
+                "max": 51.199999999999996,
+                "n_seeds": 5,
+                "values": [
+                  51.199999999999996,
+                  51.199999999999996,
+                  51.19999999999999,
+                  51.199999999999996,
+                  51.199999999999996
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -7.105427357601002e-15,
+                  7.105427357601002e-15,
+                  -2.1316282072803006e-14,
+                  -1.4210854715202004e-14,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 9.947598300641402e-15,
+                  "sd": 8.101433657963767e-15,
+                  "min": 0.0,
+                  "max": 2.1316282072803006e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    2.1316282072803006e-14,
+                    1.4210854715202004e-14,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": -7.105427357601002e-15,
+                  "sd": 1.1234667099445444e-14,
+                  "min": -2.1316282072803006e-14,
+                  "max": 7.105427357601002e-15,
+                  "n_seeds": 5,
+                  "values": [
+                    -7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    -2.1316282072803006e-14,
+                    -1.4210854715202004e-14,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 7.105427357601002e-15
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  1.4210854715202004e-14,
+                  0.0,
+                  1.4210854715202004e-14,
+                  -7.105427357601002e-15
+                ],
+                "abs": {
+                  "mean": 7.105427357601002e-15,
+                  "sd": 7.105427357601002e-15,
+                  "min": 0.0,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    1.4210854715202004e-14,
+                    0.0,
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15
+                  ]
+                },
+                "signed": {
+                  "mean": 4.263256414560601e-15,
+                  "sd": 9.532931148469528e-15,
+                  "min": -7.105427357601002e-15,
+                  "max": 1.4210854715202004e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    1.4210854715202004e-14,
+                    0.0,
+                    1.4210854715202004e-14,
+                    -7.105427357601002e-15
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 4.263256414560601e-15
+              },
+              "realgen_scale": 9.947598300641402e-15,
+              "floor_scale": 7.105427357601002e-15,
+              "within_floor": true,
+              "compared": true
+            },
+            "d9": {
+              "real_pooled_mean_delta": {
+                "mean": 51.19999999999999,
+                "sd": 8.702335715267317e-15,
+                "min": 51.19999999999998,
+                "max": 51.2,
+                "n_seeds": 5,
+                "values": [
+                  51.19999999999999,
+                  51.19999999999999,
+                  51.19999999999998,
+                  51.19999999999998,
+                  51.2
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 7.105427357601002e-15,
+                "min": 51.199999999999996,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.2,
+                  51.199999999999996,
+                  51.199999999999996,
+                  51.20000000000001,
+                  51.20000000000001
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  1.4210854715202004e-14,
+                  7.105427357601002e-15,
+                  1.4210854715202004e-14,
+                  2.842170943040401e-14,
+                  7.105427357601002e-15
+                ],
+                "abs": {
+                  "mean": 1.4210854715202004e-14,
+                  "sd": 8.702335715267317e-15,
+                  "min": 7.105427357601002e-15,
+                  "max": 2.842170943040401e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    2.842170943040401e-14,
+                    7.105427357601002e-15
+                  ]
+                },
+                "signed": {
+                  "mean": 1.4210854715202004e-14,
+                  "sd": 8.702335715267317e-15,
+                  "min": 7.105427357601002e-15,
+                  "max": 2.842170943040401e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15,
+                    1.4210854715202004e-14,
+                    2.842170943040401e-14,
+                    7.105427357601002e-15
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 1.4210854715202004e-14
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -2.842170943040401e-14,
+                  3.552713678800501e-14,
+                  2.1316282072803006e-14,
+                  -2.1316282072803006e-14,
+                  2.1316282072803006e-14
+                ],
+                "abs": {
+                  "mean": 2.5579538487363607e-14,
+                  "sd": 6.355287432313019e-15,
+                  "min": 2.1316282072803006e-14,
+                  "max": 3.552713678800501e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    2.842170943040401e-14,
+                    3.552713678800501e-14,
+                    2.1316282072803006e-14,
+                    2.1316282072803006e-14,
+                    2.1316282072803006e-14
+                  ]
+                },
+                "signed": {
+                  "mean": 5.684341886080802e-15,
+                  "sd": 2.8598793445408584e-14,
+                  "min": -2.842170943040401e-14,
+                  "max": 3.552713678800501e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    -2.842170943040401e-14,
+                    3.552713678800501e-14,
+                    2.1316282072803006e-14,
+                    -2.1316282072803006e-14,
+                    2.1316282072803006e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 5.684341886080802e-15
+              },
+              "realgen_scale": 1.4210854715202004e-14,
+              "floor_scale": 2.5579538487363607e-14,
+              "within_floor": true,
+              "compared": true
+            },
+            "d10": {
+              "real_pooled_mean_delta": {
+                "mean": 51.200000000000024,
+                "sd": 1.1783018260144473e-14,
+                "min": 51.20000000000001,
+                "max": 51.20000000000003,
+                "n_seeds": 5,
+                "values": [
+                  51.20000000000001,
+                  51.20000000000003,
+                  51.20000000000001,
+                  51.20000000000002,
+                  51.20000000000002
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 51.2,
+                "sd": 8.702335715267317e-15,
+                "min": 51.19999999999999,
+                "max": 51.20000000000001,
+                "n_seeds": 5,
+                "values": [
+                  51.19999999999999,
+                  51.2,
+                  51.2,
+                  51.20000000000001,
+                  51.20000000000001
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -2.1316282072803006e-14,
+                  -2.842170943040401e-14,
+                  -7.105427357601002e-15,
+                  -7.105427357601002e-15,
+                  -7.105427357601002e-15
+                ],
+                "abs": {
+                  "mean": 1.4210854715202004e-14,
+                  "sd": 1.0048591735576161e-14,
+                  "min": 7.105427357601002e-15,
+                  "max": 2.842170943040401e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    2.1316282072803006e-14,
+                    2.842170943040401e-14,
+                    7.105427357601002e-15,
+                    7.105427357601002e-15,
+                    7.105427357601002e-15
+                  ]
+                },
+                "signed": {
+                  "mean": -1.4210854715202004e-14,
+                  "sd": 1.0048591735576161e-14,
+                  "min": -2.842170943040401e-14,
+                  "max": -7.105427357601002e-15,
+                  "n_seeds": 5,
+                  "values": [
+                    -2.1316282072803006e-14,
+                    -2.842170943040401e-14,
+                    -7.105427357601002e-15,
+                    -7.105427357601002e-15,
+                    -7.105427357601002e-15
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 1.4210854715202004e-14
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  2.842170943040401e-14,
+                  1.4210854715202004e-14,
+                  7.105427357601002e-15,
+                  2.842170943040401e-14
+                ],
+                "abs": {
+                  "mean": 1.5631940186722205e-14,
+                  "sd": 1.2710574864626037e-14,
+                  "min": 0.0,
+                  "max": 2.842170943040401e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    2.842170943040401e-14,
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15,
+                    2.842170943040401e-14
+                  ]
+                },
+                "signed": {
+                  "mean": 1.5631940186722205e-14,
+                  "sd": 1.2710574864626037e-14,
+                  "min": 0.0,
+                  "max": 2.842170943040401e-14,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    2.842170943040401e-14,
+                    1.4210854715202004e-14,
+                    7.105427357601002e-15,
+                    2.842170943040401e-14
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 1.5631940186722205e-14
+              },
+              "realgen_scale": 1.4210854715202004e-14,
+              "floor_scale": 1.5631940186722205e-14,
+              "within_floor": true,
+              "compared": false
+            }
+          },
+          "max_realgen_scale_d3_d9": 0.5089946472666241,
+          "max_floor_scale_d3_d9": 0.2732458286437577,
+          "argmax_realgen_decile_d3_d9": "d3",
+          "within_floor_d3_d9": false
+        },
+        "paired_descriptive": {
+          "note": "DESCRIPTIVE ONLY -- no floor, no verdict. Generation conditions on the anchor so within-person draw noise dilutes the paired agreement; a person has one real history, so no real-vs-real paired analogue exists.",
+          "corr": {
+            "mean": 0.5948240806521713,
+            "sd": 0.02687916533913143,
+            "min": 0.5570893332648348,
+            "max": 0.6305512844491877,
+            "n_seeds": 5,
+            "values": [
+              0.6305512844491877,
+              0.5570893332648348,
+              0.5842980109156872,
+              0.6007234705470619,
+              0.6014583040840847
+            ]
+          },
+          "weighted_mean_abs_diff": {
+            "mean": 5.149941194671105,
+            "sd": 0.39321837165871926,
+            "min": 4.681559061620239,
+            "max": 5.505585802562763,
+            "n_seeds": 5,
+            "values": [
+              4.681559061620239,
+              5.4692771369077295,
+              5.319864372278233,
+              5.505585802562763,
+              4.773419599986561
+            ]
+          }
+        }
+      }
+    },
+    "reform_b": {
+      "definition": {
+        "name": "Reform B (top-loaded)",
+        "change": "eliminate the taxable-maximum cap in the AIME step (benefit side only): wage_base_for(year) -> inf",
+        "mechanism": "params wrapper overrides wage_base_for(year) -> float('inf'); pia_factors and the bend points delegate to baseline",
+        "baseline_wage_base_2022": 147000.0,
+        "incidence": "gains concentrate at the cap (top of the distribution)"
+      },
+      "per_seed": [
+        {
+          "seed": 0,
+          "real": {
+            "n_persons": 4427,
+            "mean_delta": 75.86988988155335,
+            "median_delta": 0.0,
+            "mean_baseline": 1332.385027374884,
+            "mean_delta_pct_of_mean_baseline": 5.694291689169992,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.28315123895395394,
+              "d5": 0.8264391072046838,
+              "d6": 1.215682825666809,
+              "d7": 3.395011960216955,
+              "d8": 7.3645684894423376,
+              "d9": 99.45080962739664,
+              "d10": 645.7126064317152
+            },
+            "winners_share": 0.13597292882530146,
+            "q0_mean_delta": 16.65507778555799,
+            "n_q0_persons": 883
+          },
+          "generated": {
+            "n_persons": 4427,
+            "mean_delta": 72.53712282827287,
+            "median_delta": 0.0,
+            "mean_baseline": 1315.313771155819,
+            "mean_delta_pct_of_mean_baseline": 5.514815127688626,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 3.255779254705176,
+              "d5": 0.7965320831958604,
+              "d6": 11.208603355756427,
+              "d7": 20.74541275161068,
+              "d8": 15.997211672804701,
+              "d9": 69.07536359568715,
+              "d10": 602.959997321502
+            },
+            "winners_share": 0.14484910569906506,
+            "q0_mean_delta": 38.80703976381741,
+            "n_q0_persons": 883
+          },
+          "paired": {
+            "corr": 0.429769160671808,
+            "weighted_mean_abs_diff": 70.4409380367242,
+            "n_persons": 4427,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 1,
+          "real": {
+            "n_persons": 4495,
+            "mean_delta": 54.82458030931805,
+            "median_delta": 0.0,
+            "mean_baseline": 1300.1546067389684,
+            "mean_delta_pct_of_mean_baseline": 4.216773914821437,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.029787828237303634,
+              "d5": 0.7889317179552435,
+              "d6": 1.0833614492770915,
+              "d7": 1.3805824789449377,
+              "d8": 13.103811596078925,
+              "d9": 64.55393661177841,
+              "d10": 467.9117879968072
+            },
+            "winners_share": 0.12609798261514613,
+            "q0_mean_delta": 28.33055085227991,
+            "n_q0_persons": 851
+          },
+          "generated": {
+            "n_persons": 4495,
+            "mean_delta": 54.75287727913398,
+            "median_delta": 0.0,
+            "mean_baseline": 1296.16395051194,
+            "mean_delta_pct_of_mean_baseline": 4.22422466367071,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 0.0,
+              "d6": 3.7816463031817187,
+              "d7": 2.658658030328378,
+              "d8": 14.003360123967244,
+              "d9": 38.34360870336792,
+              "d10": 488.91522029980496
+            },
+            "winners_share": 0.12550932794475528,
+            "q0_mean_delta": 19.0379863480534,
+            "n_q0_persons": 851
+          },
+          "paired": {
+            "corr": 0.6690900527353776,
+            "weighted_mean_abs_diff": 48.818856459888124,
+            "n_persons": 4495,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 2,
+          "real": {
+            "n_persons": 4477,
+            "mean_delta": 69.72800171171815,
+            "median_delta": 0.0,
+            "mean_baseline": 1303.3801970674956,
+            "mean_delta_pct_of_mean_baseline": 5.349782194681241,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.010547567306325941,
+              "d5": 0.018438537154527965,
+              "d6": 1.7713305903808032,
+              "d7": 5.310294458921602,
+              "d8": 16.43885954022502,
+              "d9": 65.9498871568041,
+              "d10": 607.8072763186934
+            },
+            "winners_share": 0.13139788140709957,
+            "q0_mean_delta": 18.499704957537915,
+            "n_q0_persons": 916
+          },
+          "generated": {
+            "n_persons": 4477,
+            "mean_delta": 65.95248054119726,
+            "median_delta": 0.0,
+            "mean_baseline": 1297.7778517946863,
+            "mean_delta_pct_of_mean_baseline": 5.081954546380347,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.20066586842086565,
+              "d5": 0.09484686010340868,
+              "d6": 8.019459474846425,
+              "d7": 1.9598787367133403,
+              "d8": 25.516755554929446,
+              "d9": 69.69325856242496,
+              "d10": 554.3479522137014
+            },
+            "winners_share": 0.13991508158846033,
+            "q0_mean_delta": 10.690236560143695,
+            "n_q0_persons": 916
+          },
+          "paired": {
+            "corr": 0.6366319184513247,
+            "weighted_mean_abs_diff": 58.495514475478544,
+            "n_persons": 4477,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 3,
+          "real": {
+            "n_persons": 4464,
+            "mean_delta": 72.19907973501472,
+            "median_delta": 0.0,
+            "mean_baseline": 1306.4095963307377,
+            "mean_delta_pct_of_mean_baseline": 5.52652705076551,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.010758272677005463,
+              "d5": 0.45372754279247335,
+              "d6": 3.408690655849379,
+              "d7": 4.130528335458047,
+              "d8": 20.138250131575155,
+              "d9": 65.46885692270548,
+              "d10": 629.2148754960517
+            },
+            "winners_share": 0.13835348295155606,
+            "q0_mean_delta": 43.3086489262664,
+            "n_q0_persons": 969
+          },
+          "generated": {
+            "n_persons": 4464,
+            "mean_delta": 62.24744007759379,
+            "median_delta": 0.0,
+            "mean_baseline": 1287.9389981023373,
+            "mean_delta_pct_of_mean_baseline": 4.8331046865814145,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 0.48229338651277365,
+              "d6": 0.7965868366396184,
+              "d7": 8.211301774414418,
+              "d8": 11.492159497361257,
+              "d9": 45.950096526837775,
+              "d10": 555.2807448291917
+            },
+            "winners_share": 0.13244245517231432,
+            "q0_mean_delta": 15.22827631672792,
+            "n_q0_persons": 969
+          },
+          "paired": {
+            "corr": 0.7849112754085823,
+            "weighted_mean_abs_diff": 58.45526641335604,
+            "n_persons": 4464,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        },
+        {
+          "seed": 4,
+          "real": {
+            "n_persons": 4530,
+            "mean_delta": 65.86983203817991,
+            "median_delta": 0.0,
+            "mean_baseline": 1327.7442411943507,
+            "mean_delta_pct_of_mean_baseline": 4.9610331564253505,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.270977578283055,
+              "d5": 2.0914348816634205,
+              "d6": 3.2402348072654736,
+              "d7": 5.556189307533194,
+              "d8": 12.54507043603056,
+              "d9": 83.36694384582725,
+              "d10": 551.6486178567915
+            },
+            "winners_share": 0.13258725011654895,
+            "q0_mean_delta": 13.210035515986645,
+            "n_q0_persons": 913
+          },
+          "generated": {
+            "n_persons": 4530,
+            "mean_delta": 62.87905925777581,
+            "median_delta": 0.0,
+            "mean_baseline": 1333.7353939213447,
+            "mean_delta_pct_of_mean_baseline": 4.714507805997688,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.5839527590350441,
+              "d4": 0.00414997638014379,
+              "d5": 0.2957790772248104,
+              "d6": 2.2268003503423848,
+              "d7": 4.160549711035916,
+              "d8": 20.75106981702318,
+              "d9": 53.594716313072354,
+              "d10": 546.2751004414905
+            },
+            "winners_share": 0.14182108953399558,
+            "q0_mean_delta": 8.810433782261182,
+            "n_q0_persons": 913
+          },
+          "paired": {
+            "corr": 0.6770979895447597,
+            "weighted_mean_abs_diff": 54.995960230358754,
+            "n_persons": 4530,
+            "note": "DESCRIPTIVE ONLY: generation conditions on the anchor so within-person draw noise dilutes paired agreement; no real-vs-real analogue exists (one real history per person), so these carry no floor and no verdict"
+          }
+        }
+      ],
+      "floor_per_seed": [
+        {
+          "seed": 0,
+          "side_a": {
+            "n_persons": 4429,
+            "mean_delta": 77.72236724267508,
+            "median_delta": 0.0,
+            "mean_baseline": 1342.8523084482079,
+            "mean_delta_pct_of_mean_baseline": 5.787856695312278,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.07042074974510369,
+              "d5": 2.218550388969832,
+              "d6": 2.840613270637701,
+              "d7": 4.911598462742866,
+              "d8": 13.421191075791812,
+              "d9": 90.6081193221761,
+              "d10": 663.5411546115484
+            },
+            "winners_share": 0.14600570966441317,
+            "q0_mean_delta": 45.94180601132676,
+            "n_q0_persons": 894
+          },
+          "side_b": {
+            "n_persons": 4403,
+            "mean_delta": 77.9134334671317,
+            "median_delta": 0.0,
+            "mean_baseline": 1311.6071447693485,
+            "mean_delta_pct_of_mean_baseline": 5.940302611025583,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.13325061768624427,
+              "d5": 0.2710721185200582,
+              "d6": 0.5660931884144311,
+              "d7": 3.6858747011248343,
+              "d8": 8.949981495944927,
+              "d9": 55.46519592317027,
+              "d10": 711.095754054217
+            },
+            "winners_share": 0.13073887015751345,
+            "q0_mean_delta": 25.456391161019724,
+            "n_q0_persons": 900
+          }
+        },
+        {
+          "seed": 1,
+          "side_a": {
+            "n_persons": 4357,
+            "mean_delta": 82.5985728216294,
+            "median_delta": 0.0,
+            "mean_baseline": 1317.1463084599238,
+            "mean_delta_pct_of_mean_baseline": 6.271024888511282,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 2.272410150804483,
+              "d6": 1.1994896612450165,
+              "d7": 2.4046952120190386,
+              "d8": 13.798466052241375,
+              "d9": 55.10084636181384,
+              "d10": 752.2554300420418
+            },
+            "winners_share": 0.1314134174751266,
+            "q0_mean_delta": 33.67661678572254,
+            "n_q0_persons": 914
+          },
+          "side_b": {
+            "n_persons": 4473,
+            "mean_delta": 69.97923854966876,
+            "median_delta": 0.0,
+            "mean_baseline": 1326.4339983938755,
+            "mean_delta_pct_of_mean_baseline": 5.275742225727307,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.030098762049468233,
+              "d5": 0.562760462065129,
+              "d6": 1.2843186115510126,
+              "d7": 3.8220896815254015,
+              "d8": 15.398442977980956,
+              "d9": 91.12307585281712,
+              "d10": 587.912194247055
+            },
+            "winners_share": 0.13666836898883786,
+            "q0_mean_delta": 6.869472505076334,
+            "n_q0_persons": 849
+          }
+        },
+        {
+          "seed": 2,
+          "side_a": {
+            "n_persons": 4584,
+            "mean_delta": 59.78800809801522,
+            "median_delta": 0.0,
+            "mean_baseline": 1311.1047075617378,
+            "mean_delta_pct_of_mean_baseline": 4.560124584496612,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 0.8889232215172816,
+              "d6": 2.1434536182133805,
+              "d7": 1.3305315115245857,
+              "d8": 12.517771989171665,
+              "d9": 52.311103227191694,
+              "d10": 528.5159155550659
+            },
+            "winners_share": 0.1279492535729093,
+            "q0_mean_delta": 10.81997178587461,
+            "n_q0_persons": 925
+          },
+          "side_b": {
+            "n_persons": 4498,
+            "mean_delta": 65.5514596392866,
+            "median_delta": 0.0,
+            "mean_baseline": 1288.3385458288492,
+            "mean_delta_pct_of_mean_baseline": 5.088061662947005,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 5.073917842584892,
+              "d6": 3.2098962095529413,
+              "d7": 7.299186371992651,
+              "d8": 16.595950168345638,
+              "d9": 65.24383894182137,
+              "d10": 558.0916736257008
+            },
+            "winners_share": 0.12192417770782406,
+            "q0_mean_delta": 20.367425060345113,
+            "n_q0_persons": 907
+          }
+        },
+        {
+          "seed": 3,
+          "side_a": {
+            "n_persons": 4500,
+            "mean_delta": 62.858021644201266,
+            "median_delta": 0.0,
+            "mean_baseline": 1292.2241978396132,
+            "mean_delta_pct_of_mean_baseline": 4.864327858067474,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.02956012192727498,
+              "d5": 5.618904223592749,
+              "d6": 3.2086626090866517,
+              "d7": 2.3259699057273244,
+              "d8": 5.436647095760018,
+              "d9": 82.28019381574423,
+              "d10": 529.9498432915062
+            },
+            "winners_share": 0.13588718034467023,
+            "q0_mean_delta": 19.571101760206766,
+            "n_q0_persons": 882
+          },
+          "side_b": {
+            "n_persons": 4425,
+            "mean_delta": 70.22160088857292,
+            "median_delta": 0.0,
+            "mean_baseline": 1315.9459032824616,
+            "mean_delta_pct_of_mean_baseline": 5.336207264555022,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 0.5947971341154201,
+              "d6": 0.5888603977237695,
+              "d7": 4.874341638036233,
+              "d8": 18.75372619086918,
+              "d9": 70.08335444830186,
+              "d10": 607.0533718294953
+            },
+            "winners_share": 0.13306874467713298,
+            "q0_mean_delta": 22.225333614658375,
+            "n_q0_persons": 905
+          }
+        },
+        {
+          "seed": 4,
+          "side_a": {
+            "n_persons": 4348,
+            "mean_delta": 61.163972133640534,
+            "median_delta": 0.0,
+            "mean_baseline": 1309.3418788538638,
+            "mean_delta_pct_of_mean_baseline": 4.67135231229147,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.0,
+              "d4": 0.0,
+              "d5": 0.4075400105942105,
+              "d6": 3.764314316597616,
+              "d7": 2.959351247193399,
+              "d8": 13.193777267705793,
+              "d9": 62.93292595454517,
+              "d10": 528.5869137396351
+            },
+            "winners_share": 0.13116585644009318,
+            "q0_mean_delta": 16.079828009343256,
+            "n_q0_persons": 872
+          },
+          "side_b": {
+            "n_persons": 4348,
+            "mean_delta": 48.25053162378536,
+            "median_delta": 0.0,
+            "mean_baseline": 1345.260876508096,
+            "mean_delta_pct_of_mean_baseline": 3.5867044427122297,
+            "median_delta_pct_of_mean_baseline": 0.0,
+            "decile_mean_delta": {
+              "d1": 0.0,
+              "d2": 0.0,
+              "d3": 0.3617244600489306,
+              "d4": 0.4959347572826045,
+              "d5": 1.9520042203518686,
+              "d6": 2.1160304395802614,
+              "d7": 6.306088530159352,
+              "d8": 9.642260090782813,
+              "d9": 50.866799667849726,
+              "d10": 410.6566643665608
+            },
+            "winners_share": 0.13983199675677327,
+            "q0_mean_delta": 11.861776648035034,
+            "n_q0_persons": 810
+          }
+        }
+      ],
+      "pooled": {
+        "mean_delta": {
+          "real_pooled": {
+            "mean": 67.69827673515684,
+            "sd": 8.065784869014983,
+            "min": 54.82458030931805,
+            "max": 75.86988988155335,
+            "n_seeds": 5,
+            "values": [
+              75.86988988155335,
+              54.82458030931805,
+              69.72800171171815,
+              72.19907973501472,
+              65.86983203817991
+            ]
+          },
+          "generated_pooled": {
+            "mean": 63.67379599679474,
+            "sd": 6.44204653495679,
+            "min": 54.75287727913398,
+            "max": 72.53712282827287,
+            "n_seeds": 5,
+            "values": [
+              72.53712282827287,
+              54.75287727913398,
+              65.95248054119726,
+              62.24744007759379,
+              62.87905925777581
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 68.82618838803229,
+            "sd": 10.545589674914705,
+            "min": 59.78800809801522,
+            "max": 82.5985728216294,
+            "n_seeds": 5,
+            "values": [
+              77.72236724267508,
+              82.5985728216294,
+              59.78800809801522,
+              62.858021644201266,
+              61.163972133640534
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 66.38325283368907,
+            "sd": 11.069062210663128,
+            "min": 48.25053162378536,
+            "max": 77.9134334671317,
+            "n_seeds": 5,
+            "values": [
+              77.9134334671317,
+              69.97923854966876,
+              65.5514596392866,
+              70.22160088857292,
+              48.25053162378536
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              -3.3327670532804774,
+              -0.07170303018406798,
+              -3.7755211705208893,
+              -9.951639657420934,
+              -2.9907727804041
+            ],
+            "abs": {
+              "mean": 4.024480738362094,
+              "sd": 3.6181716823881658,
+              "min": 0.07170303018406798,
+              "max": 9.951639657420934,
+              "n_seeds": 5,
+              "values": [
+                3.3327670532804774,
+                0.07170303018406798,
+                3.7755211705208893,
+                9.951639657420934,
+                2.9907727804041
+              ]
+            },
+            "signed": {
+              "mean": -4.024480738362094,
+              "sd": 3.6181716823881658,
+              "min": -9.951639657420934,
+              "max": -0.07170303018406798,
+              "n_seeds": 5,
+              "values": [
+                -3.3327670532804774,
+                -0.07170303018406798,
+                -3.7755211705208893,
+                -9.951639657420934,
+                -2.9907727804041
+              ]
+            },
+            "abs_of_pooled_signed_mean": 4.024480738362094
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              -0.1910662244566197,
+              12.61933427196064,
+              -5.763451541271387,
+              -7.363579244371657,
+              12.913440509855171
+            ],
+            "abs": {
+              "mean": 7.770174358383095,
+              "sd": 5.282108355797213,
+              "min": 0.1910662244566197,
+              "max": 12.913440509855171,
+              "n_seeds": 5,
+              "values": [
+                0.1910662244566197,
+                12.61933427196064,
+                5.763451541271387,
+                7.363579244371657,
+                12.913440509855171
+              ]
+            },
+            "signed": {
+              "mean": 2.4429355543432294,
+              "sd": 9.793378527282226,
+              "min": -7.363579244371657,
+              "max": 12.913440509855171,
+              "n_seeds": 5,
+              "values": [
+                -0.1910662244566197,
+                12.61933427196064,
+                -5.763451541271387,
+                -7.363579244371657,
+                12.913440509855171
+              ]
+            },
+            "abs_of_pooled_signed_mean": 2.4429355543432294
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 4.024480738362094,
+          "floor_scale": 7.770174358383095,
+          "within_floor": true
+        },
+        "median_delta": {
+          "real_pooled": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "generated_pooled": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 0.0,
+            "sd": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "n_seeds": 5,
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "abs": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "signed": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.0
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "abs": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "signed": {
+              "mean": 0.0,
+              "sd": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "n_seeds": 5,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.0
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 0.0,
+          "floor_scale": 0.0,
+          "within_floor": true
+        },
+        "winners_share": {
+          "real_pooled": {
+            "mean": 0.13288190518313042,
+            "sd": 0.00468517192899267,
+            "min": 0.12609798261514613,
+            "max": 0.13835348295155606,
+            "n_seeds": 5,
+            "values": [
+              0.13597292882530146,
+              0.12609798261514613,
+              0.13139788140709957,
+              0.13835348295155606,
+              0.13258725011654895
+            ]
+          },
+          "generated_pooled": {
+            "mean": 0.1369074119877181,
+            "sd": 0.007843993907358878,
+            "min": 0.12550932794475528,
+            "max": 0.14484910569906506,
+            "n_seeds": 5,
+            "values": [
+              0.14484910569906506,
+              0.12550932794475528,
+              0.13991508158846033,
+              0.13244245517231432,
+              0.14182108953399558
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 0.13448428349944247,
+            "sd": 0.007033138930474517,
+            "min": 0.1279492535729093,
+            "max": 0.14600570966441317,
+            "n_seeds": 5,
+            "values": [
+              0.14600570966441317,
+              0.1314134174751266,
+              0.1279492535729093,
+              0.13588718034467023,
+              0.13116585644009318
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 0.13244643165761633,
+            "sd": 0.006826276338851577,
+            "min": 0.12192417770782406,
+            "max": 0.13983199675677327,
+            "n_seeds": 5,
+            "values": [
+              0.13073887015751345,
+              0.13666836898883786,
+              0.12192417770782406,
+              0.13306874467713298,
+              0.13983199675677327
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              0.008876176873763603,
+              -0.000588654670390848,
+              0.008517200181360762,
+              -0.00591102777924174,
+              0.009233839417446627
+            ],
+            "abs": {
+              "mean": 0.006625379784440716,
+              "sd": 0.0036194434136501094,
+              "min": 0.000588654670390848,
+              "max": 0.009233839417446627,
+              "n_seeds": 5,
+              "values": [
+                0.008876176873763603,
+                0.000588654670390848,
+                0.008517200181360762,
+                0.00591102777924174,
+                0.009233839417446627
+              ]
+            },
+            "signed": {
+              "mean": 0.004025506804587681,
+              "sd": 0.006907536532113503,
+              "min": -0.00591102777924174,
+              "max": 0.009233839417446627,
+              "n_seeds": 5,
+              "values": [
+                0.008876176873763603,
+                -0.000588654670390848,
+                0.008517200181360762,
+                -0.00591102777924174,
+                0.009233839417446627
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.004025506804587681
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              0.015266839506899721,
+              -0.005254951513711248,
+              0.00602507586508523,
+              0.0028184356675372557,
+              -0.008666140316680088
+            ],
+            "abs": {
+              "mean": 0.007606288573982709,
+              "sd": 0.004763399032409984,
+              "min": 0.0028184356675372557,
+              "max": 0.015266839506899721,
+              "n_seeds": 5,
+              "values": [
+                0.015266839506899721,
+                0.005254951513711248,
+                0.00602507586508523,
+                0.0028184356675372557,
+                0.008666140316680088
+              ]
+            },
+            "signed": {
+              "mean": 0.002037851841826174,
+              "sd": 0.009477259757904513,
+              "min": -0.008666140316680088,
+              "max": 0.015266839506899721,
+              "n_seeds": 5,
+              "values": [
+                0.015266839506899721,
+                -0.005254951513711248,
+                0.00602507586508523,
+                0.0028184356675372557,
+                -0.008666140316680088
+              ]
+            },
+            "abs_of_pooled_signed_mean": 0.002037851841826174
+          },
+          "scale_kind": "abs.mean (mean of per-seed |gap|)",
+          "realgen_scale": 0.006625379784440716,
+          "floor_scale": 0.007606288573982709,
+          "within_floor": true
+        },
+        "q0_mean_delta": {
+          "real_pooled": {
+            "mean": 24.000803607525775,
+            "sd": 12.167600957765584,
+            "min": 13.210035515986645,
+            "max": 43.3086489262664,
+            "n_seeds": 5,
+            "values": [
+              16.65507778555799,
+              28.33055085227991,
+              18.499704957537915,
+              43.3086489262664,
+              13.210035515986645
+            ]
+          },
+          "generated_pooled": {
+            "mean": 18.514794554200723,
+            "sd": 12.0233987834132,
+            "min": 8.810433782261182,
+            "max": 38.80703976381741,
+            "n_seeds": 5,
+            "values": [
+              38.80703976381741,
+              19.0379863480534,
+              10.690236560143695,
+              15.22827631672792,
+              8.810433782261182
+            ]
+          },
+          "floor_side_a_pooled": {
+            "mean": 25.217864870494786,
+            "sd": 14.350271747842134,
+            "min": 10.81997178587461,
+            "max": 45.94180601132676,
+            "n_seeds": 5,
+            "values": [
+              45.94180601132676,
+              33.67661678572254,
+              10.81997178587461,
+              19.571101760206766,
+              16.079828009343256
+            ]
+          },
+          "floor_side_b_pooled": {
+            "mean": 17.356079797826915,
+            "sd": 7.7225186438375095,
+            "min": 6.869472505076334,
+            "max": 25.456391161019724,
+            "n_seeds": 5,
+            "values": [
+              25.456391161019724,
+              6.869472505076334,
+              20.367425060345113,
+              22.225333614658375,
+              11.861776648035034
+            ]
+          },
+          "realgen_gap": {
+            "per_seed_signed": [
+              22.15196197825942,
+              -9.292564504226508,
+              -7.80946839739422,
+              -28.08037260953848,
+              -4.399601733725463
+            ],
+            "abs": {
+              "mean": 14.346793844628817,
+              "sd": 10.207354265502431,
+              "min": 4.399601733725463,
+              "max": 28.08037260953848,
+              "n_seeds": 5,
+              "values": [
+                22.15196197825942,
+                9.292564504226508,
+                7.80946839739422,
+                28.08037260953848,
+                4.399601733725463
+              ]
+            },
+            "signed": {
+              "mean": -5.48600905332505,
+              "sd": 17.996050371133226,
+              "min": -28.08037260953848,
+              "max": 22.15196197825942,
+              "n_seeds": 5,
+              "values": [
+                22.15196197825942,
+                -9.292564504226508,
+                -7.80946839739422,
+                -28.08037260953848,
+                -4.399601733725463
+              ]
+            },
+            "abs_of_pooled_signed_mean": 5.48600905332505
+          },
+          "floor_gap": {
+            "per_seed_signed": [
+              20.485414850307038,
+              26.807144280646202,
+              -9.547453274470502,
+              -2.6542318544516093,
+              4.218051361308222
+            ],
+            "abs": {
+              "mean": 12.742459124236714,
+              "sd": 10.516827604610175,
+              "min": 2.6542318544516093,
+              "max": 26.807144280646202,
+              "n_seeds": 5,
+              "values": [
+                20.485414850307038,
+                26.807144280646202,
+                9.547453274470502,
+                2.6542318544516093,
+                4.218051361308222
+              ]
+            },
+            "signed": {
+              "mean": 7.861785072667869,
+              "sd": 15.372277413256494,
+              "min": -9.547453274470502,
+              "max": 26.807144280646202,
+              "n_seeds": 5,
+              "values": [
+                20.485414850307038,
+                26.807144280646202,
+                -9.547453274470502,
+                -2.6542318544516093,
+                4.218051361308222
+              ]
+            },
+            "abs_of_pooled_signed_mean": 7.861785072667869
+          },
+          "scale_kind": "abs_of_pooled_signed_mean (|across-seed mean of gap|)",
+          "realgen_scale": 5.48600905332505,
+          "floor_scale": 7.861785072667869,
+          "within_floor": true
+        },
+        "decile_incidence": {
+          "scale_kind": "abs.mean (mean of per-seed |gap|) per decile group",
+          "compared_deciles": [
+            "d3",
+            "d4",
+            "d5",
+            "d6",
+            "d7",
+            "d8",
+            "d9"
+          ],
+          "reported_only_deciles": [
+            "d1",
+            "d2",
+            "d10"
+          ],
+          "per_decile": {
+            "d1": {
+              "real_pooled_mean_delta": {
+                "mean": 0.0,
+                "sd": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 0.0,
+                "sd": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.0
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.0
+              },
+              "realgen_scale": 0.0,
+              "floor_scale": 0.0,
+              "within_floor": true,
+              "compared": false
+            },
+            "d2": {
+              "real_pooled_mean_delta": {
+                "mean": 0.0,
+                "sd": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 0.0,
+                "sd": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.0
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "abs": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "signed": {
+                  "mean": 0.0,
+                  "sd": 0.0,
+                  "min": 0.0,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.0
+              },
+              "realgen_scale": 0.0,
+              "floor_scale": 0.0,
+              "within_floor": true,
+              "compared": false
+            },
+            "d3": {
+              "real_pooled_mean_delta": {
+                "mean": 0.0,
+                "sd": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 0.11679055180700881,
+                "sd": 0.2611516129701826,
+                "min": 0.0,
+                "max": 0.5839527590350441,
+                "n_seeds": 5,
+                "values": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.5839527590350441
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.5839527590350441
+                ],
+                "abs": {
+                  "mean": 0.11679055180700881,
+                  "sd": 0.2611516129701826,
+                  "min": 0.0,
+                  "max": 0.5839527590350441,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5839527590350441
+                  ]
+                },
+                "signed": {
+                  "mean": 0.11679055180700881,
+                  "sd": 0.2611516129701826,
+                  "min": 0.0,
+                  "max": 0.5839527590350441,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5839527590350441
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.11679055180700881
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  -0.3617244600489306
+                ],
+                "abs": {
+                  "mean": 0.07234489200978612,
+                  "sd": 0.16176809635876316,
+                  "min": 0.0,
+                  "max": 0.3617244600489306,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.3617244600489306
+                  ]
+                },
+                "signed": {
+                  "mean": -0.07234489200978612,
+                  "sd": 0.16176809635876316,
+                  "min": -0.3617244600489306,
+                  "max": 0.0,
+                  "n_seeds": 5,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3617244600489306
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.07234489200978612
+              },
+              "realgen_scale": 0.11679055180700881,
+              "floor_scale": 0.07234489200978612,
+              "within_floor": false,
+              "compared": true
+            },
+            "d4": {
+              "real_pooled_mean_delta": {
+                "mean": 0.1210444970915288,
+                "sd": 0.1427050515843536,
+                "min": 0.010547567306325941,
+                "max": 0.28315123895395394,
+                "n_seeds": 5,
+                "values": [
+                  0.28315123895395394,
+                  0.029787828237303634,
+                  0.010547567306325941,
+                  0.010758272677005463,
+                  0.270977578283055
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 0.6921190199012371,
+                "sd": 1.4357261995133686,
+                "min": 0.0,
+                "max": 3.255779254705176,
+                "n_seeds": 5,
+                "values": [
+                  3.255779254705176,
+                  0.0,
+                  0.20066586842086565,
+                  0.0,
+                  0.00414997638014379
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  2.972628015751222,
+                  -0.029787828237303634,
+                  0.1901183011145397,
+                  -0.010758272677005463,
+                  -0.2668276019029112
+                ],
+                "abs": {
+                  "mean": 0.6940240039365964,
+                  "sd": 1.278330524798472,
+                  "min": 0.010758272677005463,
+                  "max": 2.972628015751222,
+                  "n_seeds": 5,
+                  "values": [
+                    2.972628015751222,
+                    0.029787828237303634,
+                    0.1901183011145397,
+                    0.010758272677005463,
+                    0.2668276019029112
+                  ]
+                },
+                "signed": {
+                  "mean": 0.5710745228097083,
+                  "sd": 1.3522418200635744,
+                  "min": -0.2668276019029112,
+                  "max": 2.972628015751222,
+                  "n_seeds": 5,
+                  "values": [
+                    2.972628015751222,
+                    -0.029787828237303634,
+                    0.1901183011145397,
+                    -0.010758272677005463,
+                    -0.2668276019029112
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.5710745228097083
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -0.06282986794114058,
+                  -0.030098762049468233,
+                  0.0,
+                  0.02956012192727498,
+                  -0.4959347572826045
+                ],
+                "abs": {
+                  "mean": 0.12368470184009765,
+                  "sd": 0.20927797586305733,
+                  "min": 0.0,
+                  "max": 0.4959347572826045,
+                  "n_seeds": 5,
+                  "values": [
+                    0.06282986794114058,
+                    0.030098762049468233,
+                    0.0,
+                    0.02956012192727498,
+                    0.4959347572826045
+                  ]
+                },
+                "signed": {
+                  "mean": -0.11186065306918766,
+                  "sd": 0.2174365330081384,
+                  "min": -0.4959347572826045,
+                  "max": 0.02956012192727498,
+                  "n_seeds": 5,
+                  "values": [
+                    -0.06282986794114058,
+                    -0.030098762049468233,
+                    0.0,
+                    0.02956012192727498,
+                    -0.4959347572826045
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.11186065306918766
+              },
+              "realgen_scale": 0.6940240039365964,
+              "floor_scale": 0.12368470184009765,
+              "within_floor": false,
+              "compared": true
+            },
+            "d5": {
+              "real_pooled_mean_delta": {
+                "mean": 0.8357943573540698,
+                "sd": 0.7734601382049294,
+                "min": 0.018438537154527965,
+                "max": 2.0914348816634205,
+                "n_seeds": 5,
+                "values": [
+                  0.8264391072046838,
+                  0.7889317179552435,
+                  0.018438537154527965,
+                  0.45372754279247335,
+                  2.0914348816634205
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 0.33389028140737065,
+                "sd": 0.3186447314558437,
+                "min": 0.0,
+                "max": 0.7965320831958604,
+                "n_seeds": 5,
+                "values": [
+                  0.7965320831958604,
+                  0.0,
+                  0.09484686010340868,
+                  0.48229338651277365,
+                  0.2957790772248104
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -0.02990702400882339,
+                  -0.7889317179552435,
+                  0.07640832294888071,
+                  0.0285658437203003,
+                  -1.7956558044386102
+                ],
+                "abs": {
+                  "mean": 0.5438937426143716,
+                  "sd": 0.7705906300791165,
+                  "min": 0.0285658437203003,
+                  "max": 1.7956558044386102,
+                  "n_seeds": 5,
+                  "values": [
+                    0.02990702400882339,
+                    0.7889317179552435,
+                    0.07640832294888071,
+                    0.0285658437203003,
+                    1.7956558044386102
+                  ]
+                },
+                "signed": {
+                  "mean": -0.5019040759466993,
+                  "sd": 0.8054196399515459,
+                  "min": -1.7956558044386102,
+                  "max": 0.07640832294888071,
+                  "n_seeds": 5,
+                  "values": [
+                    -0.02990702400882339,
+                    -0.7889317179552435,
+                    0.07640832294888071,
+                    0.0285658437203003,
+                    -1.7956558044386102
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.5019040759466993
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  1.9474782704497737,
+                  1.709649688739354,
+                  -4.18499462106761,
+                  5.024107089477329,
+                  -1.544464209757658
+                ],
+                "abs": {
+                  "mean": 2.882138775898345,
+                  "sd": 1.606483409074001,
+                  "min": 1.544464209757658,
+                  "max": 5.024107089477329,
+                  "n_seeds": 5,
+                  "values": [
+                    1.9474782704497737,
+                    1.709649688739354,
+                    4.18499462106761,
+                    5.024107089477329,
+                    1.544464209757658
+                  ]
+                },
+                "signed": {
+                  "mean": 0.5903552435682379,
+                  "sd": 3.5395684349988765,
+                  "min": -4.18499462106761,
+                  "max": 5.024107089477329,
+                  "n_seeds": 5,
+                  "values": [
+                    1.9474782704497737,
+                    1.709649688739354,
+                    -4.18499462106761,
+                    5.024107089477329,
+                    -1.544464209757658
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 0.5903552435682379
+              },
+              "realgen_scale": 0.5438937426143716,
+              "floor_scale": 2.882138775898345,
+              "within_floor": true,
+              "compared": true
+            },
+            "d6": {
+              "real_pooled_mean_delta": {
+                "mean": 2.143860065687911,
+                "sd": 1.1098178352833987,
+                "min": 1.0833614492770915,
+                "max": 3.408690655849379,
+                "n_seeds": 5,
+                "values": [
+                  1.215682825666809,
+                  1.0833614492770915,
+                  1.7713305903808032,
+                  3.408690655849379,
+                  3.2402348072654736
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 5.206619264153314,
+                "sd": 4.309702362027938,
+                "min": 0.7965868366396184,
+                "max": 11.208603355756427,
+                "n_seeds": 5,
+                "values": [
+                  11.208603355756427,
+                  3.7816463031817187,
+                  8.019459474846425,
+                  0.7965868366396184,
+                  2.2268003503423848
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  9.992920530089618,
+                  2.698284853904627,
+                  6.248128884465622,
+                  -2.6121038192097603,
+                  -1.0134344569230889
+                ],
+                "abs": {
+                  "mean": 4.512974508918544,
+                  "sd": 3.612262365902347,
+                  "min": 1.0134344569230889,
+                  "max": 9.992920530089618,
+                  "n_seeds": 5,
+                  "values": [
+                    9.992920530089618,
+                    2.698284853904627,
+                    6.248128884465622,
+                    2.6121038192097603,
+                    1.0134344569230889
+                  ]
+                },
+                "signed": {
+                  "mean": 3.062759198465403,
+                  "sd": 5.175084121351997,
+                  "min": -2.6121038192097603,
+                  "max": 9.992920530089618,
+                  "n_seeds": 5,
+                  "values": [
+                    9.992920530089618,
+                    2.698284853904627,
+                    6.248128884465622,
+                    -2.6121038192097603,
+                    -1.0134344569230889
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 3.062759198465403
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  2.27452008222327,
+                  -0.08482895030599602,
+                  -1.0664425913395608,
+                  2.6198022113628823,
+                  1.6482838770173545
+                ],
+                "abs": {
+                  "mean": 1.5387755424498128,
+                  "sd": 1.0073467466020127,
+                  "min": 0.08482895030599602,
+                  "max": 2.6198022113628823,
+                  "n_seeds": 5,
+                  "values": [
+                    2.27452008222327,
+                    0.08482895030599602,
+                    1.0664425913395608,
+                    2.6198022113628823,
+                    1.6482838770173545
+                  ]
+                },
+                "signed": {
+                  "mean": 1.0782669257915898,
+                  "sd": 1.5878320838085322,
+                  "min": -1.0664425913395608,
+                  "max": 2.6198022113628823,
+                  "n_seeds": 5,
+                  "values": [
+                    2.27452008222327,
+                    -0.08482895030599602,
+                    -1.0664425913395608,
+                    2.6198022113628823,
+                    1.6482838770173545
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 1.0782669257915898
+              },
+              "realgen_scale": 4.512974508918544,
+              "floor_scale": 1.5387755424498128,
+              "within_floor": false,
+              "compared": true
+            },
+            "d7": {
+              "real_pooled_mean_delta": {
+                "mean": 3.9545213082149475,
+                "sd": 1.6861681038064626,
+                "min": 1.3805824789449377,
+                "max": 5.556189307533194,
+                "n_seeds": 5,
+                "values": [
+                  3.395011960216955,
+                  1.3805824789449377,
+                  5.310294458921602,
+                  4.130528335458047,
+                  5.556189307533194
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 7.547160200820545,
+                "sd": 7.765617371848099,
+                "min": 1.9598787367133403,
+                "max": 20.74541275161068,
+                "n_seeds": 5,
+                "values": [
+                  20.74541275161068,
+                  2.658658030328378,
+                  1.9598787367133403,
+                  8.211301774414418,
+                  4.160549711035916
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  17.350400791393724,
+                  1.2780755513834403,
+                  -3.3504157222082616,
+                  4.080773438956371,
+                  -1.3956395964972783
+                ],
+                "abs": {
+                  "mean": 5.491061020087815,
+                  "sd": 6.7404921252165275,
+                  "min": 1.2780755513834403,
+                  "max": 17.350400791393724,
+                  "n_seeds": 5,
+                  "values": [
+                    17.350400791393724,
+                    1.2780755513834403,
+                    3.3504157222082616,
+                    4.080773438956371,
+                    1.3956395964972783
+                  ]
+                },
+                "signed": {
+                  "mean": 3.592638892605599,
+                  "sd": 8.184748330412354,
+                  "min": -3.3504157222082616,
+                  "max": 17.350400791393724,
+                  "n_seeds": 5,
+                  "values": [
+                    17.350400791393724,
+                    1.2780755513834403,
+                    -3.3504157222082616,
+                    4.080773438956371,
+                    -1.3956395964972783
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 3.592638892605599
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  1.2257237616180316,
+                  -1.417394469506363,
+                  -5.968654860468065,
+                  -2.5483717323089086,
+                  -3.346737282965953
+                ],
+                "abs": {
+                  "mean": 2.901376421373464,
+                  "sd": 1.9197115603709405,
+                  "min": 1.2257237616180316,
+                  "max": 5.968654860468065,
+                  "n_seeds": 5,
+                  "values": [
+                    1.2257237616180316,
+                    1.417394469506363,
+                    5.968654860468065,
+                    2.5483717323089086,
+                    3.346737282965953
+                  ]
+                },
+                "signed": {
+                  "mean": -2.4110869167262514,
+                  "sd": 2.6345965057554004,
+                  "min": -5.968654860468065,
+                  "max": 1.2257237616180316,
+                  "n_seeds": 5,
+                  "values": [
+                    1.2257237616180316,
+                    -1.417394469506363,
+                    -5.968654860468065,
+                    -2.5483717323089086,
+                    -3.346737282965953
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.4110869167262514
+              },
+              "realgen_scale": 5.491061020087815,
+              "floor_scale": 2.901376421373464,
+              "within_floor": false,
+              "compared": true
+            },
+            "d8": {
+              "real_pooled_mean_delta": {
+                "mean": 13.918112038670401,
+                "sd": 4.7576661128754045,
+                "min": 7.3645684894423376,
+                "max": 20.138250131575155,
+                "n_seeds": 5,
+                "values": [
+                  7.3645684894423376,
+                  13.103811596078925,
+                  16.43885954022502,
+                  20.138250131575155,
+                  12.54507043603056
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 17.552111333217166,
+                "sd": 5.59917979063823,
+                "min": 11.492159497361257,
+                "max": 25.516755554929446,
+                "n_seeds": 5,
+                "values": [
+                  15.997211672804701,
+                  14.003360123967244,
+                  25.516755554929446,
+                  11.492159497361257,
+                  20.75106981702318
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  8.632643183362363,
+                  0.8995485278883191,
+                  9.077896014704425,
+                  -8.646090634213898,
+                  8.205999380992619
+                ],
+                "abs": {
+                  "mean": 7.092435548232325,
+                  "sd": 3.4756298352172785,
+                  "min": 0.8995485278883191,
+                  "max": 9.077896014704425,
+                  "n_seeds": 5,
+                  "values": [
+                    8.632643183362363,
+                    0.8995485278883191,
+                    9.077896014704425,
+                    8.646090634213898,
+                    8.205999380992619
+                  ]
+                },
+                "signed": {
+                  "mean": 3.633999294546766,
+                  "sd": 7.645316649281535,
+                  "min": -8.646090634213898,
+                  "max": 9.077896014704425,
+                  "n_seeds": 5,
+                  "values": [
+                    8.632643183362363,
+                    0.8995485278883191,
+                    9.077896014704425,
+                    -8.646090634213898,
+                    8.205999380992619
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 3.633999294546766
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  4.471209579846885,
+                  -1.5999769257395808,
+                  -4.078178179173973,
+                  -13.317079095109161,
+                  3.55151717692298
+                ],
+                "abs": {
+                  "mean": 5.403592191358515,
+                  "sd": 4.559248994125106,
+                  "min": 1.5999769257395808,
+                  "max": 13.317079095109161,
+                  "n_seeds": 5,
+                  "values": [
+                    4.471209579846885,
+                    1.5999769257395808,
+                    4.078178179173973,
+                    13.317079095109161,
+                    3.55151717692298
+                  ]
+                },
+                "signed": {
+                  "mean": -2.19450148865057,
+                  "sd": 7.159990651108228,
+                  "min": -13.317079095109161,
+                  "max": 4.471209579846885,
+                  "n_seeds": 5,
+                  "values": [
+                    4.471209579846885,
+                    -1.5999769257395808,
+                    -4.078178179173973,
+                    -13.317079095109161,
+                    3.55151717692298
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.19450148865057
+              },
+              "realgen_scale": 7.092435548232325,
+              "floor_scale": 5.403592191358515,
+              "within_floor": false,
+              "compared": true
+            },
+            "d9": {
+              "real_pooled_mean_delta": {
+                "mean": 75.75808683290238,
+                "sd": 15.385397570980258,
+                "min": 64.55393661177841,
+                "max": 99.45080962739664,
+                "n_seeds": 5,
+                "values": [
+                  99.45080962739664,
+                  64.55393661177841,
+                  65.9498871568041,
+                  65.46885692270548,
+                  83.36694384582725
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 55.331408740278036,
+                "sd": 13.917340756303139,
+                "min": 38.34360870336792,
+                "max": 69.69325856242496,
+                "n_seeds": 5,
+                "values": [
+                  69.07536359568715,
+                  38.34360870336792,
+                  69.69325856242496,
+                  45.950096526837775,
+                  53.594716313072354
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -30.375446031709487,
+                  -26.21032790841049,
+                  3.743371405620863,
+                  -19.51876039586771,
+                  -29.772227532754897
+                ],
+                "abs": {
+                  "mean": 21.924026654872687,
+                  "sd": 11.042131316096759,
+                  "min": 3.743371405620863,
+                  "max": 30.375446031709487,
+                  "n_seeds": 5,
+                  "values": [
+                    30.375446031709487,
+                    26.21032790841049,
+                    3.743371405620863,
+                    19.51876039586771,
+                    29.772227532754897
+                  ]
+                },
+                "signed": {
+                  "mean": -20.426678092624343,
+                  "sd": 14.184353089998883,
+                  "min": -30.375446031709487,
+                  "max": 3.743371405620863,
+                  "n_seeds": 5,
+                  "values": [
+                    -30.375446031709487,
+                    -26.21032790841049,
+                    3.743371405620863,
+                    -19.51876039586771,
+                    -29.772227532754897
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 20.426678092624343
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  35.142923399005824,
+                  -36.02222949100328,
+                  -12.932735714629672,
+                  12.196839367442365,
+                  12.066126286695443
+                ],
+                "abs": {
+                  "mean": 21.672170851755318,
+                  "sd": 12.706505052321292,
+                  "min": 12.066126286695443,
+                  "max": 36.02222949100328,
+                  "n_seeds": 5,
+                  "values": [
+                    35.142923399005824,
+                    36.02222949100328,
+                    12.932735714629672,
+                    12.196839367442365,
+                    12.066126286695443
+                  ]
+                },
+                "signed": {
+                  "mean": 2.090184769502136,
+                  "sd": 27.259822394247806,
+                  "min": -36.02222949100328,
+                  "max": 35.142923399005824,
+                  "n_seeds": 5,
+                  "values": [
+                    35.142923399005824,
+                    -36.02222949100328,
+                    -12.932735714629672,
+                    12.196839367442365,
+                    12.066126286695443
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 2.090184769502136
+              },
+              "realgen_scale": 21.924026654872687,
+              "floor_scale": 21.672170851755318,
+              "within_floor": false,
+              "compared": true
+            },
+            "d10": {
+              "real_pooled_mean_delta": {
+                "mean": 580.4590328200118,
+                "sd": 72.24958445254069,
+                "min": 467.9117879968072,
+                "max": 645.7126064317152,
+                "n_seeds": 5,
+                "values": [
+                  645.7126064317152,
+                  467.9117879968072,
+                  607.8072763186934,
+                  629.2148754960517,
+                  551.6486178567915
+                ]
+              },
+              "generated_pooled_mean_delta": {
+                "mean": 549.5558030211381,
+                "sd": 40.60723735881129,
+                "min": 488.91522029980496,
+                "max": 602.959997321502,
+                "n_seeds": 5,
+                "values": [
+                  602.959997321502,
+                  488.91522029980496,
+                  554.3479522137014,
+                  555.2807448291917,
+                  546.2751004414905
+                ]
+              },
+              "realgen_gap": {
+                "per_seed_signed": [
+                  -42.75260911021326,
+                  21.003432302997737,
+                  -53.45932410499199,
+                  -73.93413066686003,
+                  -5.373517415300967
+                ],
+                "abs": {
+                  "mean": 39.30460272007279,
+                  "sd": 26.915146664856678,
+                  "min": 5.373517415300967,
+                  "max": 73.93413066686003,
+                  "n_seeds": 5,
+                  "values": [
+                    42.75260911021326,
+                    21.003432302997737,
+                    53.45932410499199,
+                    73.93413066686003,
+                    5.373517415300967
+                  ]
+                },
+                "signed": {
+                  "mean": -30.903229798873703,
+                  "sd": 38.232549597387475,
+                  "min": -73.93413066686003,
+                  "max": 21.003432302997737,
+                  "n_seeds": 5,
+                  "values": [
+                    -42.75260911021326,
+                    21.003432302997737,
+                    -53.45932410499199,
+                    -73.93413066686003,
+                    -5.373517415300967
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 30.903229798873703
+              },
+              "floor_gap": {
+                "per_seed_signed": [
+                  -47.55459944266852,
+                  164.34323579498675,
+                  -29.575758070634834,
+                  -77.10352853798906,
+                  117.93024937307428
+                ],
+                "abs": {
+                  "mean": 87.30147424387069,
+                  "sd": 54.519779322760186,
+                  "min": 29.575758070634834,
+                  "max": 164.34323579498675,
+                  "n_seeds": 5,
+                  "values": [
+                    47.55459944266852,
+                    164.34323579498675,
+                    29.575758070634834,
+                    77.10352853798906,
+                    117.93024937307428
+                  ]
+                },
+                "signed": {
+                  "mean": 25.607919823353722,
+                  "sd": 108.07235375777124,
+                  "min": -77.10352853798906,
+                  "max": 164.34323579498675,
+                  "n_seeds": 5,
+                  "values": [
+                    -47.55459944266852,
+                    164.34323579498675,
+                    -29.575758070634834,
+                    -77.10352853798906,
+                    117.93024937307428
+                  ]
+                },
+                "abs_of_pooled_signed_mean": 25.607919823353722
+              },
+              "realgen_scale": 39.30460272007279,
+              "floor_scale": 87.30147424387069,
+              "within_floor": true,
+              "compared": false
+            }
+          },
+          "max_realgen_scale_d3_d9": 21.924026654872687,
+          "max_floor_scale_d3_d9": 21.672170851755318,
+          "argmax_realgen_decile_d3_d9": "d9",
+          "within_floor_d3_d9": false
+        },
+        "paired_descriptive": {
+          "note": "DESCRIPTIVE ONLY -- no floor, no verdict. Generation conditions on the anchor so within-person draw noise dilutes the paired agreement; a person has one real history, so no real-vs-real paired analogue exists.",
+          "corr": {
+            "mean": 0.6395000793623705,
+            "sd": 0.1298353475673007,
+            "min": 0.429769160671808,
+            "max": 0.7849112754085823,
+            "n_seeds": 5,
+            "values": [
+              0.429769160671808,
+              0.6690900527353776,
+              0.6366319184513247,
+              0.7849112754085823,
+              0.6770979895447597
+            ]
+          },
+          "weighted_mean_abs_diff": {
+            "mean": 58.24130712316113,
+            "sd": 7.878074754332951,
+            "min": 48.818856459888124,
+            "max": 70.4409380367242,
+            "n_seeds": 5,
+            "values": [
+              70.4409380367242,
+              48.818856459888124,
+              58.495514475478544,
+              58.45526641335604,
+              54.995960230358754
+            ]
+          }
+        }
+      }
+    }
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "e8abab79db6084f2e683d04f60b80e5405b98646",
+    "pe_us_revision": "bf71be3b",
+    "sklearn_version": "1.8.0",
+    "artifact_schema_version": "reform_delta_diagnostic.v1",
+    "gates_yaml": {
+      "gate_1_locked": true,
+      "amendments_ratified": [
+        {
+          "id": "2026-07-06-decision-relevant-recalibration",
+          "ratified": "2026-07-06 by maintainer merge of PR 57 (merge commit 0c324a71)"
+        },
+        {
+          "id": "2026-07-07-mean-based-classifier-gating",
+          "ratified": "2026-07-07 by merge of PR 67 (merge commit 4e06e244), under the maintainer's standing delegation of 2026-07-06, exercised only after the full ceremony (adversarial round, fixes, verification RATIFY AS-IS)"
+        }
+      ],
+      "amendment_rules": [
+        "classifier_version_pin",
+        "no_self_rescue"
+      ]
+    }
+  },
+  "elapsed_seconds": 107.9
+}
