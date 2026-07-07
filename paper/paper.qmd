@@ -522,6 +522,10 @@ The log autocorrelation ladder at 2, 4, and 10 years (locked bands
 | structural three-component assembly | 0.464 | 0.401 | 0.354 | fail |
 | donor splicing (single-donor) | 0.779 | 0.704 | 0.616 | fail |
 | donor splicing (segments) | 0.720 | 0.631 | 0.490 | fail |
+| Gaussian-copula rank dynamics | 0.716 | 0.653 | 0.507 | fail |
+| empirical rank kernel | 0.692 | 0.548 | 0.381 | fail |
+| k-NN rank bootstrap | 0.719 | 0.636 | 0.459 | fail |
+| permanent-rank matching | 0.791 | 0.733 | 0.670 | fail |
 
 The baseline failed exactly where the pre-lock review predicted a
 one-step chain must: window-2 geometry passed on every seed while
@@ -549,6 +553,28 @@ The symmetry across the four failures defines the remaining design
 problem. Conditional-draw candidates preserve the marginal but
 cannot set person-level variance; the structural candidate set the
 variance and lost the marginal. The data demand both at once.
+
+The generative track then ran the composition the taxonomy below
+suggests. A Gaussian-copula rank model — empirical quantile
+marginals, a calibrated permanent-plus-transitory latent, simulated-
+moment calibration — put the autocorrelation ladder inside its bands
+on every seed, the first generative candidate to do so, and its
+calibrated shares independently reproduced the variance
+decomposition estimated three candidates earlier; but Gaussian
+innovations churned earnings quintiles far too fast and the
+classifier read the synthetic joint easily. Replacing the Gaussian
+law with an empirical rank-transition kernel fixed the mobility
+matrix and halved the classifier gap while its one-step memory
+collapsed the ladder's tail; adding two-step-plus-anchor memory
+through nearest-neighbor conditional draws brought the strongest
+scorecard of the sequence — the pairs-view classifier under its
+threshold on all five seeds, two seeds clearing the entire gate —
+with the window-3 classifier and the ten-year rung each missing on
+three seeds by thousandths. A final variant that matched donors on
+their estimated permanent rank rather than their observed anchor
+converted anchor noise into permanent signal and overshot every
+rung: the tenth registration, and the second time the program
+measured the same lesson from the opposite side.
 
 ## How existing models solve the joint problem
 
@@ -653,14 +679,53 @@ surfaced and fixed a statutory off-by-one in the elapsed-year
 count and a rounding-direction error in a test fixture that no
 single-engine test had caught.
 
+## Recalibrating the gate toward decision relevance
+
+Nine runs in, the maintainer asked the governance question the
+protocol exists to make askable: is the bar too high? The program
+answered with analyses rather than judgment. Classifier forensics
+showed the two best candidates' identical residuals were distinct
+defects, not a shared wall. A downstream-relevance analysis then
+pushed generated and real careers through the project's own
+statutory benefit calculator: the best candidate's benefit
+distributions were statistically indistinguishable from real ones —
+the distributional distance inside the real-versus-real noise floor,
+central gaps under two percent against a five-percent criterion —
+while the same analysis exposed a defect no locked metric had
+isolated: careers generated for people observed with zero earnings
+at their anchor overstated their benefits by nine percent, exactly
+the population a progressive benefit formula weights most. The
+locked gate was strict on an axis that does not matter for benefits
+and silent on one that does.
+
+The response was the contract's own amendment mechanism, exercised
+in full for the first time: a proposal committed as an inert object
+changing nothing; a fresh adversarial referee round (which caught a
+misattributed criterion citation and forced disclosure that the
+proposed demotion flips four historical geometry verdicts — none of
+which changes an overall outcome); fixes; a verification pass;
+maintainer ratification by merge; and a follow-up flipping the
+ratified content into the locked block. The amended gate demotes the
+benefit-immaterial window-3 classifier to reported status and adds a
+gated benefit-space block — distributional and decile bands at the
+five-percent criterion, a distance bound derived from a committed
+real-versus-real anchor, and a pooled band on the zero-anchor
+subgroup where reality measures under three percent and the best
+candidate nine. Recalibration added strictness where the evidence
+says it matters: the best candidate still fails the amended gate,
+and reality still passes it.
+
 ## What failure buys
 
-Four failed runs in one week is the protocol working as designed.
-Each failure published with the same prominence as a pass would,
+Ten registered runs, ten published failures, one refereed amendment
+is the protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
-thresholds cannot drift to accommodate a result. The contrast with
+thresholds cannot drift to accommodate a result — when the gate
+itself was recalibrated, it moved only through a public, refereed,
+ratified amendment whose every verdict change is disclosed in the
+contract's own history. The contrast with
 validation by fidelity — where a model meets the tables it was fit
 to and the first hard test arrives after adoption — is the point.
 
