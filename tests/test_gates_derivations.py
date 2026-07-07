@@ -747,15 +747,32 @@ def test_ratified_operating_characteristics_recompute():
 
 
 def test_ratified_amendment_is_prospective_no_verdict_changed():
-    """No committed run's verdict changed at the flip: all 12 stand FAIL.
+    """no_self_rescue: no PRE-amendment-2 run's verdict changed at the flip.
 
-    The strongest live form of no_self_rescue: every committed gate-run
-    artifact -- candidate 10 included -- still records gate_1_pass false.
-    A retroactive application would have flipped candidate 10.
+    The strongest live form of no_self_rescue is backward-looking: every
+    gate-run artifact registered BEFORE amendment 2 -- i.e. scored under the
+    per-seed pairs c2st rule, not the 20-seed mean rule -- still records
+    gate_1_pass false, candidate 10 (run 12) included. A retroactive
+    application would have flipped candidate 10; the flip did not touch it.
+
+    A run registered AFTER the 2026-07-07 ratification is scored under the
+    20-seed mean rule + per-seed cap (its verdict carries ``c2st_mean_rule_pass``)
+    and MAY pass -- amendment_history says a first pass must come from exactly
+    such a fresh one-shot registration (candidate 11 / run 13 is the first).
+    Those prospective runs are outside this backward-looking guarantee, so the
+    invariant is asserted on the pre-amendment set only.
     """
     runs = sorted(ROOT.glob("runs/gate1_*.json"))
-    assert len(runs) == 12
-    for path in runs:
+    pre_amendment = [
+        p
+        for p in runs
+        if json.loads(p.read_text())["verdict"].get("c2st_mean_rule_pass")
+        is None
+    ]
+    # The committed pre-amendment runs are untouched by the flip: all 12 stand
+    # FAIL (candidate 10 among them). Post-amendment runs are excluded.
+    assert len(pre_amendment) == 12
+    for path in pre_amendment:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_1_pass"] is False, path.name
 
