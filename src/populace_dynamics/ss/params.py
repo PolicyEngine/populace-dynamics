@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import os
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
@@ -51,6 +51,16 @@ class SSAParameters:
     early_monthly_rates: tuple[float, float]
     early_first_bracket_months: int
     pe_us_revision: str
+    #: 42 USC 402(w): delayed-retirement credit, annual rate by birth
+    #: year (a step function; 8 percent per year for 1943 and later).
+    #: Defaulted so the historical (early-side) constructors in the test
+    #: suite need not supply it.
+    delayed_credit_by_birth_year: list[tuple[int, float]] = field(
+        default_factory=list
+    )
+    #: Statutory cap on the credit-accrual window (max_delayed_years x
+    #: 12); credits also stop at age 70 regardless.
+    max_delayed_months: int = 48
 
     def bend_points(self, year: int) -> tuple[float, float]:
         """Statutory bend points for an eligibility year (415(a))."""
@@ -85,6 +95,20 @@ class SSAParameters:
         if months is None:
             raise KeyError(f"No FRA bracket covers {birth_year}.")
         return months
+
+    def delayed_credit_annual_rate(self, birth_year: int) -> float:
+        """Annual delayed-retirement-credit rate for a birth year
+        (42 USC 402(w)); a step function like the FRA schedule."""
+        rate = None
+        for threshold, amount in self.delayed_credit_by_birth_year:
+            if birth_year >= threshold:
+                rate = amount
+        if rate is None:
+            raise KeyError(
+                f"No delayed-retirement-credit bracket covers "
+                f"{birth_year}; parameters may not have been loaded."
+            )
+        return rate
 
 
 def _resolve_pe_us(pe_us_dir: Path | None) -> Path:
@@ -183,6 +207,32 @@ def load_ssa_parameters(
         next(iter(early_brackets[1]["threshold"].values()))
     )
 
+    credit_doc = yaml.safe_load(
+        (
+            ssa
+            / "social_security"
+            / "retirement_age_adjustment"
+            / "delayed_retirement"
+            / "credit_rates.yaml"
+        ).read_text()
+    )
+    delayed_credit_schedule = []
+    for bracket in credit_doc["brackets"]:
+        threshold = int(next(iter(bracket["threshold"].values())))
+        amount = float(next(iter(bracket["amount"].values())))
+        delayed_credit_schedule.append((threshold, amount))
+    delayed_credit_schedule.sort()
+
+    max_delayed_doc = yaml.safe_load(
+        (
+            ssa
+            / "social_security"
+            / "retirement_age_adjustment"
+            / "max_delayed_years.yaml"
+        ).read_text()
+    )
+    max_delayed_years = int(next(iter(max_delayed_doc["values"].values())))
+
     try:
         revision = subprocess.run(
             ["git", "log", "-1", "--format=%h"],
@@ -202,6 +252,8 @@ def load_ssa_parameters(
         early_monthly_rates=(first_rate, second_rate),
         early_first_bracket_months=first_bracket_months,
         pe_us_revision=revision,
+        delayed_credit_by_birth_year=delayed_credit_schedule,
+        max_delayed_months=max_delayed_years * 12,
     )
 
     # Cross-check 1: the statutory base-year index. SSA's bend-point

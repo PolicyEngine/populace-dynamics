@@ -1,0 +1,2502 @@
+{
+  "schema_version": "ssa_claim_ages.v1",
+  "table": "6.B5.1",
+  "title": "Number and average age of retired-worker awardees, and percentage distribution by age at entitlement: By sex and year of entitlement, 1998-2022",
+  "supplement_year": 2023,
+  "provenance": {
+    "source": "SSA Annual Statistical Supplement 2023, Table 6.B5.1 (section 6.B)",
+    "source_url": "https://www.ssa.gov/policy/docs/statcomps/supplement/2023/6b.html",
+    "fetch_method": "authenticated browser session 2026-07-07; ssa.gov blocks programmatic fetches (HTTP 403). Values transcribed verbatim and embedded in scripts/build_ssa_claim_ages.py; every cell cross-validated against a live DOM extraction of the same page in the same session (header structure, footnotes, and all 25x2 data rows matched to the digit).",
+    "provenance_file": "~/PolicyEngine/dynasim-refs/ssa_supplement_2023_6b_provenance.md",
+    "transcription_file": "~/PolicyEngine/dynasim-refs/ssa_supplement_2023_6b.txt",
+    "data_basis": "Social Security Administration, Master Beneficiary Record, 100 percent data.",
+    "mbr_100_percent_note": "Master Beneficiary Record, 100 percent data (not a sample) for these entitlement years 1998-2022; the 1985-2001 rows of the sister table 6.B5 are a 1 percent sample, but 6.B5.1 as published is 100 percent data.",
+    "table_notes": "The data in this table differ from those in table 6.B5 because awards are summarized here by the year in which entitlement began rather than by the year the award action was posted on the Master Beneficiary Record. The year of entitlement often precedes the year of action because of retroactive entitlements, delayed award actions, and other reasons. Because entitlements can be awarded retroactively, data for current and prior years are subject to revision with each annual update of this table. Because of differences in data sources and calculation methods, statistics reported in this table may differ from those reported by the Office of the Chief Actuary. Totals do not necessarily equal the sum of rounded components. FRA = full retirement age; . . . = not applicable.",
+    "footnote_a_fra_schedule": "FRA is 65 for workers attaining age 65 before 2003. It increases in 2-month increments for workers attaining age 65 in each of the years 2003 through 2008. It is 66 for workers attaining age 65 in the years 2008 through 2019. It again increases in 2-month increments for workers attaining age 65 in the years 2020 through 2025. It is 67 for workers attaining age 65 in 2025 or later.",
+    "footnote_b_disability_conversion": "Disabled-worker benefit automatically converts to a retired-worker benefit in the month the worker attains FRA.",
+    "not_applicable_marker": ". . .",
+    "contact": "statistics@ssa.gov"
+  },
+  "column_schema": {
+    "raw_columns": [
+      "age62",
+      "age63",
+      "age64",
+      "age65_before_fra",
+      "age65_at_fra",
+      "age65_after_fra",
+      "age66_before_fra",
+      "age66_at_fra",
+      "age66_after_fra",
+      "disability_conversion",
+      "age67_69",
+      "age70plus"
+    ],
+    "collapsed_categories": [
+      "age62",
+      "age63",
+      "age64",
+      "age65",
+      "age66",
+      "disability_conversion",
+      "age67_69",
+      "age70plus"
+    ],
+    "fra_at_note": "fra_at is the single populated 'At FRA' column each year (age65_at_fra for entitlement years 1998-2008, age66_at_fra for 2009-2022). It is a distinguishable SUBSET of age65/age66 exposed for the FRA-kink behaviour (no 402(q) reduction, no delayed credit) -- NOT an extra partition member; adding it to the collapsed categories would double-count.",
+    "disability_conversion_note": "Disability conversions (footnote b) are disabled-worker benefits that auto-convert at FRA. They are a published column but NOT a claiming choice; the module excludes them from the claim-age sampler and exposes their share separately.",
+    "era_map": [
+      {
+        "entitlement_years": "1998-2002",
+        "fra_regime": "FRA = 65 (attain-65 years <= 2002)",
+        "applicable_65": [
+          "age65_at_fra",
+          "age65_after_fra"
+        ],
+        "applicable_66": [
+          "age66_after_fra"
+        ],
+        "at_fra_column": "age65_at_fra",
+        "note": "FRA is exactly 65y0m; a 65-year-old is at FRA (spike) or just past it. No 65-before-FRA (nobody's FRA exceeds 65) and no 66-at/before-FRA (FRA has not reached 66)."
+      },
+      {
+        "entitlement_years": "2003-2008",
+        "fra_regime": "FRA = 65y2m..66y0m (attain-65 years 2003-2008)",
+        "applicable_65": [
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra"
+        ],
+        "applicable_66": [
+          "age66_after_fra"
+        ],
+        "at_fra_column": "age65_at_fra",
+        "note": "FRA crosses 65-and-months, so age 65 splits three ways. 66 is still beyond FRA for every cohort (66-after-FRA only)."
+      },
+      {
+        "entitlement_years": "2009-2020",
+        "fra_regime": "FRA = 66y0m (attain-65 years 2008-2019)",
+        "applicable_65": [
+          "age65_before_fra"
+        ],
+        "applicable_66": [
+          "age66_at_fra",
+          "age66_after_fra"
+        ],
+        "at_fra_column": "age66_at_fra",
+        "note": "FRA is 66y0m: age 65 is entirely before FRA; age 66 is at FRA (spike) or just past. No 65-at/after-FRA and no 66-before-FRA."
+      },
+      {
+        "entitlement_years": "2021-2022",
+        "fra_regime": "FRA = 66y2m.. (attain-65 years 2020+)",
+        "applicable_65": [
+          "age65_before_fra"
+        ],
+        "applicable_66": [
+          "age66_before_fra",
+          "age66_at_fra",
+          "age66_after_fra"
+        ],
+        "at_fra_column": "age66_at_fra",
+        "note": "FRA crosses 66-and-months, so age 66 splits three ways; age 65 remains entirely before FRA."
+      }
+    ]
+  },
+  "fra_schedule": {
+    "unit": "months",
+    "keyed_by": "year worker attains age 65",
+    "birth_year_equivalent": "attain_65_year - 65 (reproduces 416(l))",
+    "schedule": [
+      {
+        "attain_65_year_from": 1900,
+        "fra_months": 780
+      },
+      {
+        "attain_65_year_from": 2003,
+        "fra_months": 782
+      },
+      {
+        "attain_65_year_from": 2004,
+        "fra_months": 784
+      },
+      {
+        "attain_65_year_from": 2005,
+        "fra_months": 786
+      },
+      {
+        "attain_65_year_from": 2006,
+        "fra_months": 788
+      },
+      {
+        "attain_65_year_from": 2007,
+        "fra_months": 790
+      },
+      {
+        "attain_65_year_from": 2008,
+        "fra_months": 792
+      },
+      {
+        "attain_65_year_from": 2020,
+        "fra_months": 794
+      },
+      {
+        "attain_65_year_from": 2021,
+        "fra_months": 796
+      },
+      {
+        "attain_65_year_from": 2022,
+        "fra_months": 798
+      },
+      {
+        "attain_65_year_from": 2023,
+        "fra_months": 800
+      },
+      {
+        "attain_65_year_from": 2024,
+        "fra_months": 802
+      },
+      {
+        "attain_65_year_from": 2025,
+        "fra_months": 804
+      }
+    ],
+    "source": "Table 6.B5.1 footnote a; 42 USC 416(l)"
+  },
+  "validation": {
+    "sum_tolerance": 0.5,
+    "max_abs_residual": 0.2,
+    "n_rows": 50,
+    "residual_note": "SSA: 'Totals do not necessarily equal the sum of rounded components.' Each row's residual (component_sum - 100) is recorded per row.",
+    "years": "1998-2022",
+    "sexes": [
+      "male",
+      "female"
+    ]
+  },
+  "build": {
+    "built_utc": "2026-07-07T23:05:03.398952+00:00",
+    "built_by": "scripts/build_ssa_claim_ages.py",
+    "reproducible": "verbatim table embedded in the build script; no network, no external file required"
+  },
+  "data": {
+    "male": {
+      "1998": {
+        "number_thousands": 902,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 50.8,
+          "age63": 6.7,
+          "age64": 10.6,
+          "age65_before_fra": null,
+          "age65_at_fra": 12.1,
+          "age65_after_fra": 2.5,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.4,
+          "disability_conversion": 12.7,
+          "age67_69": 2.1,
+          "age70plus": 1.1
+        },
+        "categories": {
+          "age62": 50.8,
+          "age63": 6.7,
+          "age64": 10.6,
+          "age65": 14.6,
+          "age66": 1.4,
+          "disability_conversion": 12.7,
+          "age67_69": 2.1,
+          "age70plus": 1.1
+        },
+        "fra_at": {
+          "share": 12.1,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "1999": {
+        "number_thousands": 964,
+        "average_age": 63.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 49.0,
+          "age63": 6.8,
+          "age64": 10.8,
+          "age65_before_fra": null,
+          "age65_at_fra": 12.3,
+          "age65_after_fra": 3.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.8,
+          "disability_conversion": 12.3,
+          "age67_69": 2.7,
+          "age70plus": 1.2
+        },
+        "categories": {
+          "age62": 49.0,
+          "age63": 6.8,
+          "age64": 10.8,
+          "age65": 15.5,
+          "age66": 1.8,
+          "disability_conversion": 12.3,
+          "age67_69": 2.7,
+          "age70plus": 1.2
+        },
+        "fra_at": {
+          "share": 12.3,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2000": {
+        "number_thousands": 1092,
+        "average_age": 63.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 44.8,
+          "age63": 6.1,
+          "age64": 9.7,
+          "age65_before_fra": null,
+          "age65_at_fra": 15.5,
+          "age65_after_fra": 4.5,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 2.8,
+          "disability_conversion": 11.6,
+          "age67_69": 4.2,
+          "age70plus": 0.8
+        },
+        "categories": {
+          "age62": 44.8,
+          "age63": 6.1,
+          "age64": 9.7,
+          "age65": 20.0,
+          "age66": 2.8,
+          "disability_conversion": 11.6,
+          "age67_69": 4.2,
+          "age70plus": 0.8
+        },
+        "fra_at": {
+          "share": 15.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2001": {
+        "number_thousands": 977,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 48.3,
+          "age63": 6.6,
+          "age64": 12.3,
+          "age65_before_fra": null,
+          "age65_at_fra": 16.2,
+          "age65_after_fra": 1.3,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.7,
+          "disability_conversion": 12.9,
+          "age67_69": 1.1,
+          "age70plus": 0.7
+        },
+        "categories": {
+          "age62": 48.3,
+          "age63": 6.6,
+          "age64": 12.3,
+          "age65": 17.5,
+          "age66": 0.7,
+          "disability_conversion": 12.9,
+          "age67_69": 1.1,
+          "age70plus": 0.7
+        },
+        "fra_at": {
+          "share": 16.2,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2002": {
+        "number_thousands": 998,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 47.7,
+          "age63": 6.8,
+          "age64": 13.6,
+          "age65_before_fra": null,
+          "age65_at_fra": 15.8,
+          "age65_after_fra": 1.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.6,
+          "disability_conversion": 12.6,
+          "age67_69": 0.9,
+          "age70plus": 0.6
+        },
+        "categories": {
+          "age62": 47.7,
+          "age63": 6.8,
+          "age64": 13.6,
+          "age65": 17.0,
+          "age66": 0.6,
+          "disability_conversion": 12.6,
+          "age67_69": 0.9,
+          "age70plus": 0.6
+        },
+        "fra_at": {
+          "share": 15.8,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.8,
+        "residual": -0.2
+      },
+      "2003": {
+        "number_thousands": 973,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 49.6,
+          "age63": 6.9,
+          "age64": 13.1,
+          "age65_before_fra": 3.8,
+          "age65_at_fra": 11.5,
+          "age65_after_fra": 1.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.6,
+          "disability_conversion": 11.7,
+          "age67_69": 0.9,
+          "age70plus": 0.6
+        },
+        "categories": {
+          "age62": 49.6,
+          "age63": 6.9,
+          "age64": 13.1,
+          "age65": 16.5,
+          "age66": 0.6,
+          "disability_conversion": 11.7,
+          "age67_69": 0.9,
+          "age70plus": 0.6
+        },
+        "fra_at": {
+          "share": 11.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2004": {
+        "number_thousands": 1012,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 50.3,
+          "age63": 7.2,
+          "age64": 11.1,
+          "age65_before_fra": 5.3,
+          "age65_at_fra": 11.5,
+          "age65_after_fra": 1.1,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.7,
+          "disability_conversion": 11.3,
+          "age67_69": 0.9,
+          "age70plus": 0.7
+        },
+        "categories": {
+          "age62": 50.3,
+          "age63": 7.2,
+          "age64": 11.1,
+          "age65": 17.9,
+          "age66": 0.7,
+          "disability_conversion": 11.3,
+          "age67_69": 0.9,
+          "age70plus": 0.7
+        },
+        "fra_at": {
+          "share": 11.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2005": {
+        "number_thousands": 1058,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 49.6,
+          "age63": 7.1,
+          "age64": 9.5,
+          "age65_before_fra": 7.3,
+          "age65_at_fra": 11.4,
+          "age65_after_fra": 1.0,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.9,
+          "disability_conversion": 10.9,
+          "age67_69": 1.2,
+          "age70plus": 1.0
+        },
+        "categories": {
+          "age62": 49.6,
+          "age63": 7.1,
+          "age64": 9.5,
+          "age65": 19.7,
+          "age66": 0.9,
+          "disability_conversion": 10.9,
+          "age67_69": 1.2,
+          "age70plus": 1.0
+        },
+        "fra_at": {
+          "share": 11.4,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2006": {
+        "number_thousands": 1042,
+        "average_age": 63.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 45.7,
+          "age63": 7.8,
+          "age64": 9.3,
+          "age65_before_fra": 9.9,
+          "age65_at_fra": 11.3,
+          "age65_after_fra": 0.8,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.0,
+          "disability_conversion": 12.3,
+          "age67_69": 1.1,
+          "age70plus": 0.8
+        },
+        "categories": {
+          "age62": 45.7,
+          "age63": 7.8,
+          "age64": 9.3,
+          "age65": 22.0,
+          "age66": 1.0,
+          "disability_conversion": 12.3,
+          "age67_69": 1.1,
+          "age70plus": 0.8
+        },
+        "fra_at": {
+          "share": 11.3,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2007": {
+        "number_thousands": 1069,
+        "average_age": 63.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 42.6,
+          "age63": 7.5,
+          "age64": 9.4,
+          "age65_before_fra": 12.2,
+          "age65_at_fra": 11.8,
+          "age65_after_fra": 0.6,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.4,
+          "disability_conversion": 12.5,
+          "age67_69": 1.3,
+          "age70plus": 0.8
+        },
+        "categories": {
+          "age62": 42.6,
+          "age63": 7.5,
+          "age64": 9.4,
+          "age65": 24.6,
+          "age66": 1.4,
+          "disability_conversion": 12.5,
+          "age67_69": 1.3,
+          "age70plus": 0.8
+        },
+        "fra_at": {
+          "share": 11.8,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2008": {
+        "number_thousands": 1191,
+        "average_age": 63.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 42.6,
+          "age63": 7.1,
+          "age64": 8.4,
+          "age65_before_fra": 13.5,
+          "age65_at_fra": 12.0,
+          "age65_after_fra": 0.3,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.7,
+          "disability_conversion": 12.4,
+          "age67_69": 1.4,
+          "age70plus": 0.7
+        },
+        "categories": {
+          "age62": 42.6,
+          "age63": 7.1,
+          "age64": 8.4,
+          "age65": 25.8,
+          "age66": 1.7,
+          "disability_conversion": 12.4,
+          "age67_69": 1.4,
+          "age70plus": 0.7
+        },
+        "fra_at": {
+          "share": 12.0,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2009": {
+        "number_thousands": 1454,
+        "average_age": 63.8,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 44.0,
+          "age63": 7.2,
+          "age64": 7.3,
+          "age65_before_fra": 11.7,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 13.5,
+          "age66_after_fra": 1.9,
+          "disability_conversion": 12.1,
+          "age67_69": 1.5,
+          "age70plus": 0.8
+        },
+        "categories": {
+          "age62": 44.0,
+          "age63": 7.2,
+          "age64": 7.3,
+          "age65": 11.7,
+          "age66": 15.4,
+          "disability_conversion": 12.1,
+          "age67_69": 1.5,
+          "age70plus": 0.8
+        },
+        "fra_at": {
+          "share": 13.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2010": {
+        "number_thousands": 1384,
+        "average_age": 63.9,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 42.6,
+          "age63": 8.3,
+          "age64": 6.9,
+          "age65_before_fra": 10.6,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 13.5,
+          "age66_after_fra": 2.2,
+          "disability_conversion": 13.0,
+          "age67_69": 2.0,
+          "age70plus": 0.9
+        },
+        "categories": {
+          "age62": 42.6,
+          "age63": 8.3,
+          "age64": 6.9,
+          "age65": 10.6,
+          "age66": 15.7,
+          "disability_conversion": 13.0,
+          "age67_69": 2.0,
+          "age70plus": 0.9
+        },
+        "fra_at": {
+          "share": 13.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2011": {
+        "number_thousands": 1348,
+        "average_age": 64.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 41.3,
+          "age63": 7.1,
+          "age64": 7.5,
+          "age65_before_fra": 10.3,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 14.3,
+          "age66_after_fra": 2.4,
+          "disability_conversion": 13.4,
+          "age67_69": 2.4,
+          "age70plus": 1.2
+        },
+        "categories": {
+          "age62": 41.3,
+          "age63": 7.1,
+          "age64": 7.5,
+          "age65": 10.3,
+          "age66": 16.7,
+          "disability_conversion": 13.4,
+          "age67_69": 2.4,
+          "age70plus": 1.2
+        },
+        "fra_at": {
+          "share": 14.3,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2012": {
+        "number_thousands": 1422,
+        "average_age": 64.2,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 37.0,
+          "age63": 6.4,
+          "age64": 6.6,
+          "age65_before_fra": 11.4,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 16.5,
+          "age66_after_fra": 2.6,
+          "disability_conversion": 15.3,
+          "age67_69": 2.7,
+          "age70plus": 1.4
+        },
+        "categories": {
+          "age62": 37.0,
+          "age63": 6.4,
+          "age64": 6.6,
+          "age65": 11.4,
+          "age66": 19.1,
+          "disability_conversion": 15.3,
+          "age67_69": 2.7,
+          "age70plus": 1.4
+        },
+        "fra_at": {
+          "share": 16.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2013": {
+        "number_thousands": 1459,
+        "average_age": 64.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 34.7,
+          "age63": 6.0,
+          "age64": 6.1,
+          "age65_before_fra": 10.7,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 17.7,
+          "age66_after_fra": 3.2,
+          "disability_conversion": 16.8,
+          "age67_69": 3.0,
+          "age70plus": 1.7
+        },
+        "categories": {
+          "age62": 34.7,
+          "age63": 6.0,
+          "age64": 6.1,
+          "age65": 10.7,
+          "age66": 20.9,
+          "disability_conversion": 16.8,
+          "age67_69": 3.0,
+          "age70plus": 1.7
+        },
+        "fra_at": {
+          "share": 17.7,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2014": {
+        "number_thousands": 1443,
+        "average_age": 64.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 34.2,
+          "age63": 6.1,
+          "age64": 5.9,
+          "age65_before_fra": 10.2,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 17.0,
+          "age66_after_fra": 3.5,
+          "disability_conversion": 16.9,
+          "age67_69": 4.0,
+          "age70plus": 2.2
+        },
+        "categories": {
+          "age62": 34.2,
+          "age63": 6.1,
+          "age64": 5.9,
+          "age65": 10.2,
+          "age66": 20.5,
+          "disability_conversion": 16.9,
+          "age67_69": 4.0,
+          "age70plus": 2.2
+        },
+        "fra_at": {
+          "share": 17.0,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2015": {
+        "number_thousands": 1488,
+        "average_age": 64.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 31.6,
+          "age63": 6.1,
+          "age64": 5.8,
+          "age65_before_fra": 10.0,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 17.6,
+          "age66_after_fra": 4.3,
+          "disability_conversion": 16.7,
+          "age67_69": 5.4,
+          "age70plus": 2.5
+        },
+        "categories": {
+          "age62": 31.6,
+          "age63": 6.1,
+          "age64": 5.8,
+          "age65": 10.0,
+          "age66": 21.9,
+          "disability_conversion": 16.7,
+          "age67_69": 5.4,
+          "age70plus": 2.5
+        },
+        "fra_at": {
+          "share": 17.6,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2016": {
+        "number_thousands": 1508,
+        "average_age": 64.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 30.7,
+          "age63": 6.1,
+          "age64": 6.0,
+          "age65_before_fra": 9.9,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 18.1,
+          "age66_after_fra": 4.1,
+          "disability_conversion": 16.5,
+          "age67_69": 5.3,
+          "age70plus": 3.3
+        },
+        "categories": {
+          "age62": 30.7,
+          "age63": 6.1,
+          "age64": 6.0,
+          "age65": 9.9,
+          "age66": 22.2,
+          "disability_conversion": 16.5,
+          "age67_69": 5.3,
+          "age70plus": 3.3
+        },
+        "fra_at": {
+          "share": 18.1,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2017": {
+        "number_thousands": 1539,
+        "average_age": 64.7,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 28.9,
+          "age63": 5.9,
+          "age64": 6.0,
+          "age65_before_fra": 10.4,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 18.5,
+          "age66_after_fra": 4.1,
+          "disability_conversion": 16.8,
+          "age67_69": 5.2,
+          "age70plus": 4.2
+        },
+        "categories": {
+          "age62": 28.9,
+          "age63": 5.9,
+          "age64": 6.0,
+          "age65": 10.4,
+          "age66": 22.6,
+          "disability_conversion": 16.8,
+          "age67_69": 5.2,
+          "age70plus": 4.2
+        },
+        "fra_at": {
+          "share": 18.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2018": {
+        "number_thousands": 1599,
+        "average_age": 64.8,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 27.2,
+          "age63": 5.9,
+          "age64": 6.0,
+          "age65_before_fra": 10.3,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 19.1,
+          "age66_after_fra": 4.4,
+          "disability_conversion": 16.6,
+          "age67_69": 6.0,
+          "age70plus": 4.6
+        },
+        "categories": {
+          "age62": 27.2,
+          "age63": 5.9,
+          "age64": 6.0,
+          "age65": 10.3,
+          "age66": 23.5,
+          "disability_conversion": 16.6,
+          "age67_69": 6.0,
+          "age70plus": 4.6
+        },
+        "fra_at": {
+          "share": 19.1,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2019": {
+        "number_thousands": 1631,
+        "average_age": 64.9,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 25.6,
+          "age63": 5.7,
+          "age64": 6.0,
+          "age65_before_fra": 10.5,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 19.4,
+          "age66_after_fra": 4.5,
+          "disability_conversion": 16.6,
+          "age67_69": 6.6,
+          "age70plus": 5.1
+        },
+        "categories": {
+          "age62": 25.6,
+          "age63": 5.7,
+          "age64": 6.0,
+          "age65": 10.5,
+          "age66": 23.9,
+          "disability_conversion": 16.6,
+          "age67_69": 6.6,
+          "age70plus": 5.1
+        },
+        "fra_at": {
+          "share": 19.4,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2020": {
+        "number_thousands": 1700,
+        "average_age": 65.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 23.5,
+          "age63": 5.8,
+          "age64": 6.1,
+          "age65_before_fra": 10.6,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 19.5,
+          "age66_after_fra": 5.0,
+          "disability_conversion": 16.4,
+          "age67_69": 7.0,
+          "age70plus": 6.1
+        },
+        "categories": {
+          "age62": 23.5,
+          "age63": 5.8,
+          "age64": 6.1,
+          "age65": 10.6,
+          "age66": 24.5,
+          "disability_conversion": 16.4,
+          "age67_69": 7.0,
+          "age70plus": 6.1
+        },
+        "fra_at": {
+          "share": 19.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2021": {
+        "number_thousands": 1626,
+        "average_age": 65.1,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 24.0,
+          "age63": 6.3,
+          "age64": 6.6,
+          "age65_before_fra": 10.8,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": 1.1,
+          "age66_at_fra": 15.8,
+          "age66_after_fra": 5.6,
+          "disability_conversion": 14.2,
+          "age67_69": 7.8,
+          "age70plus": 7.8
+        },
+        "categories": {
+          "age62": 24.0,
+          "age63": 6.3,
+          "age64": 6.6,
+          "age65": 10.8,
+          "age66": 22.5,
+          "disability_conversion": 14.2,
+          "age67_69": 7.8,
+          "age70plus": 7.8
+        },
+        "fra_at": {
+          "share": 15.8,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2022": {
+        "number_thousands": 1580,
+        "average_age": 65.1,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 23.8,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65_before_fra": 11.7,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": 2.1,
+          "age66_at_fra": 14.5,
+          "age66_after_fra": 4.9,
+          "disability_conversion": 14.5,
+          "age67_69": 7.0,
+          "age70plus": 8.1
+        },
+        "categories": {
+          "age62": 23.8,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65": 11.7,
+          "age66": 21.5,
+          "disability_conversion": 14.5,
+          "age67_69": 7.0,
+          "age70plus": 8.1
+        },
+        "fra_at": {
+          "share": 14.5,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      }
+    },
+    "female": {
+      "1998": {
+        "number_thousands": 727,
+        "average_age": 63.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 55.9,
+          "age63": 6.0,
+          "age64": 9.6,
+          "age65_before_fra": null,
+          "age65_at_fra": 9.7,
+          "age65_after_fra": 1.9,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.2,
+          "disability_conversion": 9.7,
+          "age67_69": 2.6,
+          "age70plus": 3.4
+        },
+        "categories": {
+          "age62": 55.9,
+          "age63": 6.0,
+          "age64": 9.6,
+          "age65": 11.6,
+          "age66": 1.2,
+          "disability_conversion": 9.7,
+          "age67_69": 2.6,
+          "age70plus": 3.4
+        },
+        "fra_at": {
+          "share": 9.7,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "1999": {
+        "number_thousands": 755,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 55.4,
+          "age63": 6.2,
+          "age64": 10.0,
+          "age65_before_fra": null,
+          "age65_at_fra": 10.3,
+          "age65_after_fra": 2.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.4,
+          "disability_conversion": 9.9,
+          "age67_69": 2.5,
+          "age70plus": 2.1
+        },
+        "categories": {
+          "age62": 55.4,
+          "age63": 6.2,
+          "age64": 10.0,
+          "age65": 12.5,
+          "age66": 1.4,
+          "disability_conversion": 9.9,
+          "age67_69": 2.5,
+          "age70plus": 2.1
+        },
+        "fra_at": {
+          "share": 10.3,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2000": {
+        "number_thousands": 837,
+        "average_age": 63.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 52.7,
+          "age63": 6.0,
+          "age64": 9.5,
+          "age65_before_fra": null,
+          "age65_at_fra": 11.6,
+          "age65_after_fra": 3.1,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.8,
+          "disability_conversion": 9.8,
+          "age67_69": 3.3,
+          "age70plus": 2.1
+        },
+        "categories": {
+          "age62": 52.7,
+          "age63": 6.0,
+          "age64": 9.5,
+          "age65": 14.7,
+          "age66": 1.8,
+          "disability_conversion": 9.8,
+          "age67_69": 3.3,
+          "age70plus": 2.1
+        },
+        "fra_at": {
+          "share": 11.6,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2001": {
+        "number_thousands": 785,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 54.6,
+          "age63": 6.1,
+          "age64": 11.4,
+          "age65_before_fra": null,
+          "age65_at_fra": 11.4,
+          "age65_after_fra": 1.1,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.7,
+          "disability_conversion": 11.0,
+          "age67_69": 1.8,
+          "age70plus": 1.8
+        },
+        "categories": {
+          "age62": 54.6,
+          "age63": 6.1,
+          "age64": 11.4,
+          "age65": 12.5,
+          "age66": 0.7,
+          "disability_conversion": 11.0,
+          "age67_69": 1.8,
+          "age70plus": 1.8
+        },
+        "fra_at": {
+          "share": 11.4,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2002": {
+        "number_thousands": 817,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 53.3,
+          "age63": 6.2,
+          "age64": 12.5,
+          "age65_before_fra": null,
+          "age65_at_fra": 11.2,
+          "age65_after_fra": 1.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.6,
+          "disability_conversion": 11.1,
+          "age67_69": 1.6,
+          "age70plus": 2.2
+        },
+        "categories": {
+          "age62": 53.3,
+          "age63": 6.2,
+          "age64": 12.5,
+          "age65": 12.4,
+          "age66": 0.6,
+          "disability_conversion": 11.1,
+          "age67_69": 1.6,
+          "age70plus": 2.2
+        },
+        "fra_at": {
+          "share": 11.2,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2003": {
+        "number_thousands": 823,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 54.5,
+          "age63": 6.5,
+          "age64": 12.3,
+          "age65_before_fra": 3.2,
+          "age65_at_fra": 7.7,
+          "age65_after_fra": 1.1,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.7,
+          "disability_conversion": 10.3,
+          "age67_69": 1.8,
+          "age70plus": 2.0
+        },
+        "categories": {
+          "age62": 54.5,
+          "age63": 6.5,
+          "age64": 12.3,
+          "age65": 12.0,
+          "age66": 0.7,
+          "disability_conversion": 10.3,
+          "age67_69": 1.8,
+          "age70plus": 2.0
+        },
+        "fra_at": {
+          "share": 7.7,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2004": {
+        "number_thousands": 879,
+        "average_age": 63.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 54.9,
+          "age63": 6.7,
+          "age64": 10.6,
+          "age65_before_fra": 4.5,
+          "age65_at_fra": 7.5,
+          "age65_after_fra": 1.0,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.8,
+          "disability_conversion": 10.0,
+          "age67_69": 2.0,
+          "age70plus": 1.9
+        },
+        "categories": {
+          "age62": 54.9,
+          "age63": 6.7,
+          "age64": 10.6,
+          "age65": 13.0,
+          "age66": 0.8,
+          "disability_conversion": 10.0,
+          "age67_69": 2.0,
+          "age70plus": 1.9
+        },
+        "fra_at": {
+          "share": 7.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2005": {
+        "number_thousands": 939,
+        "average_age": 63.4,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 54.1,
+          "age63": 6.8,
+          "age64": 9.5,
+          "age65_before_fra": 6.2,
+          "age65_at_fra": 7.5,
+          "age65_after_fra": 0.8,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 0.9,
+          "disability_conversion": 9.7,
+          "age67_69": 2.1,
+          "age70plus": 2.3
+        },
+        "categories": {
+          "age62": 54.1,
+          "age63": 6.8,
+          "age64": 9.5,
+          "age65": 14.5,
+          "age66": 0.9,
+          "disability_conversion": 9.7,
+          "age67_69": 2.1,
+          "age70plus": 2.3
+        },
+        "fra_at": {
+          "share": 7.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2006": {
+        "number_thousands": 938,
+        "average_age": 63.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 50.4,
+          "age63": 7.6,
+          "age64": 9.5,
+          "age65_before_fra": 8.5,
+          "age65_at_fra": 7.6,
+          "age65_after_fra": 0.7,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.0,
+          "disability_conversion": 10.6,
+          "age67_69": 2.2,
+          "age70plus": 2.0
+        },
+        "categories": {
+          "age62": 50.4,
+          "age63": 7.6,
+          "age64": 9.5,
+          "age65": 16.8,
+          "age66": 1.0,
+          "disability_conversion": 10.6,
+          "age67_69": 2.2,
+          "age70plus": 2.0
+        },
+        "fra_at": {
+          "share": 7.6,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2007": {
+        "number_thousands": 965,
+        "average_age": 63.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 47.5,
+          "age63": 7.3,
+          "age64": 10.0,
+          "age65_before_fra": 10.6,
+          "age65_at_fra": 7.5,
+          "age65_after_fra": 0.5,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.2,
+          "disability_conversion": 11.1,
+          "age67_69": 2.0,
+          "age70plus": 2.2
+        },
+        "categories": {
+          "age62": 47.5,
+          "age63": 7.3,
+          "age64": 10.0,
+          "age65": 18.6,
+          "age66": 1.2,
+          "disability_conversion": 11.1,
+          "age67_69": 2.0,
+          "age70plus": 2.2
+        },
+        "fra_at": {
+          "share": 7.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2008": {
+        "number_thousands": 1077,
+        "average_age": 63.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 48.0,
+          "age63": 6.8,
+          "age64": 8.8,
+          "age65_before_fra": 11.6,
+          "age65_at_fra": 7.5,
+          "age65_after_fra": 0.2,
+          "age66_before_fra": null,
+          "age66_at_fra": null,
+          "age66_after_fra": 1.6,
+          "disability_conversion": 11.2,
+          "age67_69": 1.9,
+          "age70plus": 2.4
+        },
+        "categories": {
+          "age62": 48.0,
+          "age63": 6.8,
+          "age64": 8.8,
+          "age65": 19.3,
+          "age66": 1.6,
+          "disability_conversion": 11.2,
+          "age67_69": 1.9,
+          "age70plus": 2.4
+        },
+        "fra_at": {
+          "share": 7.5,
+          "at_age": 65
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age65_at_fra",
+          "age65_after_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2009": {
+        "number_thousands": 1280,
+        "average_age": 63.7,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 49.9,
+          "age63": 6.5,
+          "age64": 7.2,
+          "age65_before_fra": 10.2,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 9.3,
+          "age66_after_fra": 1.6,
+          "disability_conversion": 11.5,
+          "age67_69": 2.0,
+          "age70plus": 1.6
+        },
+        "categories": {
+          "age62": 49.9,
+          "age63": 6.5,
+          "age64": 7.2,
+          "age65": 10.2,
+          "age66": 10.9,
+          "disability_conversion": 11.5,
+          "age67_69": 2.0,
+          "age70plus": 1.6
+        },
+        "fra_at": {
+          "share": 9.3,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.8,
+        "residual": -0.2
+      },
+      "2010": {
+        "number_thousands": 1246,
+        "average_age": 63.7,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 47.9,
+          "age63": 8.1,
+          "age64": 7.0,
+          "age65_before_fra": 9.8,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 9.3,
+          "age66_after_fra": 1.7,
+          "disability_conversion": 12.3,
+          "age67_69": 2.1,
+          "age70plus": 1.8
+        },
+        "categories": {
+          "age62": 47.9,
+          "age63": 8.1,
+          "age64": 7.0,
+          "age65": 9.8,
+          "age66": 11.0,
+          "disability_conversion": 12.3,
+          "age67_69": 2.1,
+          "age70plus": 1.8
+        },
+        "fra_at": {
+          "share": 9.3,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2011": {
+        "number_thousands": 1245,
+        "average_age": 63.8,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 46.5,
+          "age63": 7.2,
+          "age64": 8.0,
+          "age65_before_fra": 9.8,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 9.9,
+          "age66_after_fra": 1.9,
+          "disability_conversion": 12.3,
+          "age67_69": 2.4,
+          "age70plus": 2.1
+        },
+        "categories": {
+          "age62": 46.5,
+          "age63": 7.2,
+          "age64": 8.0,
+          "age65": 9.8,
+          "age66": 11.8,
+          "disability_conversion": 12.3,
+          "age67_69": 2.4,
+          "age70plus": 2.1
+        },
+        "fra_at": {
+          "share": 9.9,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2012": {
+        "number_thousands": 1323,
+        "average_age": 64.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 42.1,
+          "age63": 6.8,
+          "age64": 7.4,
+          "age65_before_fra": 11.3,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 11.3,
+          "age66_after_fra": 2.0,
+          "disability_conversion": 14.0,
+          "age67_69": 2.6,
+          "age70plus": 2.5
+        },
+        "categories": {
+          "age62": 42.1,
+          "age63": 6.8,
+          "age64": 7.4,
+          "age65": 11.3,
+          "age66": 13.3,
+          "disability_conversion": 14.0,
+          "age67_69": 2.6,
+          "age70plus": 2.5
+        },
+        "fra_at": {
+          "share": 11.3,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2013": {
+        "number_thousands": 1353,
+        "average_age": 64.1,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 40.2,
+          "age63": 6.4,
+          "age64": 6.9,
+          "age65_before_fra": 10.7,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 12.4,
+          "age66_after_fra": 2.4,
+          "disability_conversion": 15.4,
+          "age67_69": 2.7,
+          "age70plus": 2.9
+        },
+        "categories": {
+          "age62": 40.2,
+          "age63": 6.4,
+          "age64": 6.9,
+          "age65": 10.7,
+          "age66": 14.8,
+          "disability_conversion": 15.4,
+          "age67_69": 2.7,
+          "age70plus": 2.9
+        },
+        "fra_at": {
+          "share": 12.4,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2014": {
+        "number_thousands": 1357,
+        "average_age": 64.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 39.2,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65_before_fra": 10.2,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 11.9,
+          "age66_after_fra": 2.5,
+          "disability_conversion": 15.4,
+          "age67_69": 3.3,
+          "age70plus": 4.1
+        },
+        "categories": {
+          "age62": 39.2,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65": 10.2,
+          "age66": 14.4,
+          "disability_conversion": 15.4,
+          "age67_69": 3.3,
+          "age70plus": 4.1
+        },
+        "fra_at": {
+          "share": 11.9,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2015": {
+        "number_thousands": 1361,
+        "average_age": 64.3,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 37.3,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65_before_fra": 10.1,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 12.3,
+          "age66_after_fra": 2.8,
+          "disability_conversion": 15.8,
+          "age67_69": 4.1,
+          "age70plus": 4.1
+        },
+        "categories": {
+          "age62": 37.3,
+          "age63": 6.6,
+          "age64": 6.8,
+          "age65": 10.1,
+          "age66": 15.1,
+          "disability_conversion": 15.8,
+          "age67_69": 4.1,
+          "age70plus": 4.1
+        },
+        "fra_at": {
+          "share": 12.3,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2016": {
+        "number_thousands": 1393,
+        "average_age": 64.5,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 35.6,
+          "age63": 6.5,
+          "age64": 6.8,
+          "age65_before_fra": 9.9,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 12.8,
+          "age66_after_fra": 2.9,
+          "disability_conversion": 15.8,
+          "age67_69": 4.5,
+          "age70plus": 5.2
+        },
+        "categories": {
+          "age62": 35.6,
+          "age63": 6.5,
+          "age64": 6.8,
+          "age65": 9.9,
+          "age66": 15.7,
+          "disability_conversion": 15.8,
+          "age67_69": 4.5,
+          "age70plus": 5.2
+        },
+        "fra_at": {
+          "share": 12.8,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2017": {
+        "number_thousands": 1449,
+        "average_age": 64.6,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 32.7,
+          "age63": 6.3,
+          "age64": 6.8,
+          "age65_before_fra": 10.2,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 13.7,
+          "age66_after_fra": 3.1,
+          "disability_conversion": 16.1,
+          "age67_69": 4.8,
+          "age70plus": 6.2
+        },
+        "categories": {
+          "age62": 32.7,
+          "age63": 6.3,
+          "age64": 6.8,
+          "age65": 10.2,
+          "age66": 16.8,
+          "disability_conversion": 16.1,
+          "age67_69": 4.8,
+          "age70plus": 6.2
+        },
+        "fra_at": {
+          "share": 13.7,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2018": {
+        "number_thousands": 1519,
+        "average_age": 64.7,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 30.7,
+          "age63": 6.3,
+          "age64": 6.9,
+          "age65_before_fra": 10.2,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 14.4,
+          "age66_after_fra": 3.4,
+          "disability_conversion": 16.1,
+          "age67_69": 5.3,
+          "age70plus": 6.6
+        },
+        "categories": {
+          "age62": 30.7,
+          "age63": 6.3,
+          "age64": 6.9,
+          "age65": 10.2,
+          "age66": 17.8,
+          "disability_conversion": 16.1,
+          "age67_69": 5.3,
+          "age70plus": 6.6
+        },
+        "fra_at": {
+          "share": 14.4,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 99.9,
+        "residual": -0.1
+      },
+      "2019": {
+        "number_thousands": 1563,
+        "average_age": 64.8,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 28.8,
+          "age63": 6.2,
+          "age64": 7.1,
+          "age65_before_fra": 10.6,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 14.6,
+          "age66_after_fra": 3.5,
+          "disability_conversion": 16.2,
+          "age67_69": 5.6,
+          "age70plus": 7.4
+        },
+        "categories": {
+          "age62": 28.8,
+          "age63": 6.2,
+          "age64": 7.1,
+          "age65": 10.6,
+          "age66": 18.1,
+          "disability_conversion": 16.2,
+          "age67_69": 5.6,
+          "age70plus": 7.4
+        },
+        "fra_at": {
+          "share": 14.6,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2020": {
+        "number_thousands": 1660,
+        "average_age": 65.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 25.7,
+          "age63": 6.0,
+          "age64": 6.9,
+          "age65_before_fra": 10.8,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": null,
+          "age66_at_fra": 17.2,
+          "age66_after_fra": 4.1,
+          "disability_conversion": 15.9,
+          "age67_69": 5.8,
+          "age70plus": 7.6
+        },
+        "categories": {
+          "age62": 25.7,
+          "age63": 6.0,
+          "age64": 6.9,
+          "age65": 10.8,
+          "age66": 21.3,
+          "disability_conversion": 15.9,
+          "age67_69": 5.8,
+          "age70plus": 7.6
+        },
+        "fra_at": {
+          "share": 17.2,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.0,
+        "residual": 0.0
+      },
+      "2021": {
+        "number_thousands": 1602,
+        "average_age": 65.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 25.9,
+          "age63": 6.4,
+          "age64": 7.2,
+          "age65_before_fra": 11.0,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": 1.0,
+          "age66_at_fra": 14.1,
+          "age66_after_fra": 4.9,
+          "disability_conversion": 13.8,
+          "age67_69": 6.8,
+          "age70plus": 9.0
+        },
+        "categories": {
+          "age62": 25.9,
+          "age63": 6.4,
+          "age64": 7.2,
+          "age65": 11.0,
+          "age66": 20.0,
+          "disability_conversion": 13.8,
+          "age67_69": 6.8,
+          "age70plus": 9.0
+        },
+        "fra_at": {
+          "share": 14.1,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      },
+      "2022": {
+        "number_thousands": 1563,
+        "average_age": 65.0,
+        "published_total": 100.0,
+        "raw": {
+          "age62": 25.6,
+          "age63": 6.8,
+          "age64": 7.4,
+          "age65_before_fra": 12.0,
+          "age65_at_fra": null,
+          "age65_after_fra": null,
+          "age66_before_fra": 2.0,
+          "age66_at_fra": 13.0,
+          "age66_after_fra": 4.2,
+          "disability_conversion": 14.1,
+          "age67_69": 6.2,
+          "age70plus": 8.8
+        },
+        "categories": {
+          "age62": 25.6,
+          "age63": 6.8,
+          "age64": 7.4,
+          "age65": 12.0,
+          "age66": 19.2,
+          "disability_conversion": 14.1,
+          "age67_69": 6.2,
+          "age70plus": 8.8
+        },
+        "fra_at": {
+          "share": 13.0,
+          "at_age": 66
+        },
+        "applicable_raw_columns": [
+          "age62",
+          "age63",
+          "age64",
+          "age65_before_fra",
+          "age66_before_fra",
+          "age66_at_fra",
+          "age66_after_fra",
+          "disability_conversion",
+          "age67_69",
+          "age70plus"
+        ],
+        "component_sum": 100.1,
+        "residual": 0.1
+      }
+    }
+  }
+}
