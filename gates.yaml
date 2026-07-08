@@ -645,14 +645,29 @@ gates:
       # The evidence lives in runs/gate2_floors_v2.json (built by
       # scripts/build_gate2_floors.py from the retrospective PSID history
       # files). v1 is retained as the round-1 record. No model reads
-      # this; it changes no locked value. Every DRAFT tolerance below is
+      # this; it changes no locked value. Every tolerance below is
       # machine-bound to the 100-seed floor by
       # tests/test_gates_derivations.py: tolerance == round(floor mean +
-      # k * floor sd, rounding), DRAFT k = 4, AND tolerance <= T_max =
-      # ln(1.5) (the round-1 power cap). The referee round sets the
-      # final k; every number here is marked draft.
-      locked: false
-      status: draft_pending_referee_round
+      # k * floor sd, rounding), k = 4 (ratified), AND tolerance <= T_max =
+      # ln(1.5) (the round-1 power cap). The lock ceremony ratified
+      # k = 4; ratification record in the status block below.
+      locked: true
+      status: locked
+      ratified: >-
+        2026-07-08 by merge of PR 79 (merge commit 82006877) under the
+        maintainer's standing campaign directive of 2026-07-07
+        ("build until reasonable for scoring these reforms"),
+        exercised only after the full lock ceremony: adversarial
+        round 1 AMEND BEFORE LOCK (PR 79 comment 4910467957, seven
+        findings), fixes d43dfcb (comment 4910712436: coherent
+        per-seed protocol, 100-seed floors, ln(1.5) power cap,
+        sequence/stock cells, governance inheritance, anchor
+        decomposition), verification round LOCK AS-IS (comment
+        4910856982; every finding recomputed, bindings
+        perturbation-tested, independent floor rebuild reproduced).
+        Locked thresholds change only through a public amendment
+        noted in this file's history (amendment_rules apply,
+        including no_self_rescue).
       referee_round: PR #79 comment 4910467957
       holdout_basis: [mh85_23, cah85_23, MX23REL]
       floor_run: runs/gate2_floors_v2.json
