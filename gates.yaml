@@ -1074,8 +1074,10 @@ gates:
       # changes NOTHING. The locked `thresholds` block above is untouched
       # (locked: true stays; every locked tolerance, the protocol, the
       # power cap, the governance, and the scope map are byte-identical to
-      # origin/master -- tests/test_gates_derivations.py byte-compares the
-      # subtree). No model reads this subsection; the harness scores only
+      # origin/master -- tests/test_gates_derivations.py parsed-compares the
+      # subtree (structural equality of the parsed thresholds tree; the diff
+      # is a pure insertion, so the subtree is also byte-identical at diff
+      # level). No model reads this subsection; the harness scores only
       # the locked block.
       #
       # It mirrors gate 1's amendment-2 pattern (the mean-over-draws move
@@ -1195,6 +1197,21 @@ gates:
               (runs/gate2_floors_v2.json noise_floor_per_seed). Folds into
               the seed-level conjunction: seed s passes iff every gated
               cell holds; the gate passes iff >= 4 of 5 gate seeds pass.
+            registration_divergence: >-
+              Honest divergence, disclosed for the record: the LOCKED
+              thresholds text (gate_2.thresholds.protocol.candidate) states
+              the candidate "SIMULATES side A's persons' family histories (one
+              replicate, simulation seed s)" -- it names seed s, NOT the 4200
+              offset. Every committed run v1-v9 instead uniformly registered
+              and used numpy.random.default_rng(4200 + seed): each artifact's
+              protocol.sim_rng_rule == "numpy.random.default_rng(4200 + seed)"
+              (runs/gate2_hazard_v1.json .. v9.json, all nine identical). The
+              "simulation seed 4200 + s" in the rule above is therefore the
+              committed REGISTRATION convention, not locked-text wording.
+              Practice was uniform and governance-registered, so the
+              divergence is materially harmless; it is named here (and
+              corrected by flip_on_ratification) so the amendment record
+              describes the locked rule AS WRITTEN, not as practiced.
           proposed:
             statistic: mean_over_draws
             K: 20
@@ -1435,14 +1452,17 @@ gates:
         one_shot_seconds_candidate8: 65.9
         estimator_multiplier: 20
         estimated_minutes_per_candidate: 22
-        forensics_measured_20draw_5seed_per_seed_compute_seconds: 155.1
+        forensics_measured_20draw_5seed_total_compute_seconds: 155.1
         note: >-
           A committed one-shot gate-2 run (candidate 8, runs/gate2_hazard_v8
           .json) took 65.9 s for 5 seeds x 1 draw. The amended estimator
           multiplies the per-seed SIMULATION work ~20x -> ~1318 s ~= 22 min
           per candidate run. The committed forensics is a direct measurement
-          of the scaling: 20 train-side draws x 5 seeds ran in 155.1 s of
-          per-seed compute (train side is ~half the panel). ~20 min per
+          of the scaling: 20 train-side draws x 5 seeds ran in 155.1 s TOTAL
+          across the five seeds (29.3-32.5 s each; runs/gate2_forensics_v1
+          .json total_per_seed_compute_seconds, the sum of
+          per_seed_compute_seconds -- the "155.1" is the 5-seed total, not a
+          per-seed figure), train side ~half the panel. ~20 min per
           candidate is acceptable and recorded; it is minutes, not hours.
       path_to_pass: >-
         A PASS under the amended estimator requires a FRESH registration: a
@@ -1455,7 +1475,119 @@ gates:
         fresh candidate's OUTER pass is NOT known in advance from it (unlike
         gate 1's amendment 2, where the 20 pairs-c2st scores were already
         public); the candidate-10 run must execute end-to-end and clear every
-        gated cell on the 20-draw outer means.
+        gated cell on the 20-draw outer means. The fresh run's committed
+        artifact MUST satisfy fresh_run_artifact_schema below: per-draw
+        per-cell rates committed so rbar recomputes; a pre-registered
+        undefined-draw rule that invalidates the run rather than silently
+        dropping a draw; and a report-only per-draw dispersion disclosure.
+      fresh_run_artifact_schema:
+        # Fix C (referee finding 4): the candidate-10 run contract, pinned
+        # NOW -- before any candidate-10 run -- so it cannot be shaped to a
+        # result. A fresh registration under the amended estimator MUST commit
+        # these three things, so a referee can recompute rbar from the
+        # artifact and audit the dispersion the 20-draw mean would otherwise
+        # hide. Prospective only; applies to no committed run (candidates 1-9
+        # stand FAIL under no_self_rescue).
+        applies_to: >-
+          the fresh candidate-10 (or later) one-shot run registered AFTER
+          ratification; never a committed run.
+        per_draw_per_cell_rates:
+          required: true
+          shape: [20, 46, 5]
+          shape_dims: K_draws x gated_cells x gate_seeds
+          rule: >-
+            The run artifact commits every draw's per-cell rate r[k, cell, s]
+            for all K=20 draws (numpy default_rng(5200 + k), k=0..19), all 46
+            gated cells, and all 5 gate seeds -- NOT only the 20-draw means.
+            So rbar_candidate,s = mean over k of r[k, cell, s] recomputes
+            cell-by-cell from the artifact, and the certified score
+            |ln(rbar / rate_a)| is independently auditable rather than taken
+            on trust from a committed mean.
+        undefined_draw_rule:
+          required: true
+          pre_specified: true
+          rule: >-
+            If any gated cell's rate is UNDEFINED on any draw (empty simulated
+            denominator -- zero exposure person-years for that cell on that
+            draw), the RUN IS INVALIDATED and must be re-registered and
+            re-run. No draw may be dropped, skipped, substituted, or re-rolled
+            post-registration; rbar is always the mean over ALL K registered
+            draws.
+          rationale: >-
+            Silently dropping an undefined draw would reintroduce exactly the
+            post-hoc draw selection that change 2 forecloses: a smaller,
+            outcome-selected draw set is not the pre-registered mean-of-20.
+            Pre-committing run-invalidation keeps the estimator an honest,
+            selection-free mean.
+        per_draw_dispersion_disclosure:
+          required: true
+          gated: false
+          report_only: true
+          commit:
+            per_cell_per_draw_sd: >-
+              the standard deviation across the K=20 draws of each gated
+              cell's rate (equivalently its log-rate), committed per gated
+              cell per gate seed. Exposes per-draw over-dispersion the 20-draw
+              mean hides -- the single-draw estimator penalised it, by
+              accident but really -- mirroring gate-1 amendment 2's
+              catastrophe-cap instinct at report-only weight.
+            max_per_draw_abs_ln_per_cell: >-
+              the maximum over the K=20 draws of |ln(r[k, cell, s] /
+              rate_a,s)| per gated cell per gate seed -- the worst single-draw
+              excursion, reported alongside rbar, never gated.
+          note: >-
+            REPORT-ONLY: no hard dispersion cap gates the run (gate-1's proved
+            decorative on the evidence). The disclosure exists so a referee
+            can see whether a passing 20-draw mean conceals a wildly dispersed
+            draw set.
+      flip_on_ratification:
+        # Fix B (referee findings 3+4): on maintainer ratification-by-merge, a
+        # follow-up flip PR moves the proposed estimator INTO the locked block
+        # (exactly as PR #79/#81 flipped the gate-2 lock and #67/#69 flipped
+        # gate-1 amendment 2). This proposal itself edits none of these
+        # (gate_2.thresholds is byte-identical to origin/master); flip_edits
+        # enumerates every locked-TEXT change that authorized flip will make,
+        # so the record names them in advance.
+        performed_by: >-
+          a follow-up flip PR, only after adversarial referee round +
+          verification + maintainer ratification-by-merge.
+        flip_edits:
+          - key: candidate
+            locked_path: gate_2.thresholds.protocol.candidate
+            locked_text_now: "one replicate, simulation seed s"
+            flip_change: >-
+              replace "(one replicate, simulation seed s)" with "K=20 draws at
+              numpy default_rng(5200 + k), k=0..19, scored on the 20-draw mean
+              cell rate"; and, per currently_locked.registration_divergence,
+              correct the seed-s wording to the registered 4200 + s convention
+              every committed run used.
+          - key: statistic
+            locked_path: gate_2.thresholds.statistic
+            locked_text_now: "r_candidate,s"
+            flip_change: >-
+              r_candidate,s -> rbar_candidate,s (the mean over K=20 draws of
+              the cell rate) in the |ln(. / r_holdout,s)| definition.
+          - key: pass_rule
+            locked_path: gate_2.thresholds.protocol.pass_rule
+            locked_text_now: "r_candidate,s"
+            flip_change: >-
+              r_candidate,s -> rbar_candidate,s in the per-seed conjunction
+              inequality.
+          - key: faithful_candidate_oc
+            locked_path: gate_2.thresholds.protocol.faithful_candidate_oc
+            locked_text_now: "p_seed_pass"
+            flip_change: >-
+              add a basis note that faithful_candidate_oc's draw-noise-free
+              half-normal basis now MATCHES the amended estimator; its numbers
+              stand unchanged (p_seed_pass 0.9404, p_gate_pass_4_of_5 0.9685),
+              whereas under the single-draw estimator they were unachievable
+              (finding 1).
+          - key: draft_label
+            locked_path: gate_2.thresholds.protocol.pass_rule
+            locked_text_now: "DRAFT seed-level conjunction"
+            flip_change: >-
+              remove the stray "DRAFT" label: "DRAFT seed-level conjunction."
+              -> "seed-level conjunction.".
       illustrative_retroactive_application:
         # DISCLOSURE ONLY -- applied: false. Modeled on gate 1's
         # amendment-2 illustrative block, but with an honest divergence: the
@@ -1692,7 +1824,7 @@ gates:
           examples:
             - cell: "share_widowed.65-74|female"
               seed: 3
-              outer_score: 1.3593
+              outer_score: 1.359
               tolerance: 0.3
               score_over_tolerance: 4.5
               rate_multiple: 3.9
@@ -1701,13 +1833,13 @@ gates:
                 not draw noise
             - cell: "share_divorced.55-64|female"
               seed: 3
-              outer_score: 0.869
+              outer_score: 0.8689
               tolerance: 0.269
               score_over_tolerance: 3.2
               rate_multiple: 2.4
             - cell: "widowhood.45+|male"
               seed: 0
-              outer_score: 0.894
+              outer_score: 0.8938
               tolerance: 0.351
               score_over_tolerance: 2.5
               rate_multiple: 2.4

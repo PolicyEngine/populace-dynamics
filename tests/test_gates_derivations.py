@@ -1049,8 +1049,9 @@ def test_gate2_external_anchor_is_period_matched_and_decomposed():
 # 5200+k draw-seed convention are pinned; the k=100 rejection arithmetic and
 # the compute cost recompute) and its honesty (applied: false, candidates 8/9
 # stay FAIL, the outer verdict is marked not-computable, no locked gate-2
-# value moved -- a byte compare of the thresholds subtree against
-# origin/master). All are no-ops (skip) until the amendment_proposed
+# value moved -- a parsed (structural) compare of the thresholds subtree
+# against origin/master; the diff being a pure insertion, the subtree is also
+# byte-identical at diff level). All are no-ops (skip) until amendment_proposed
 # subsection exists; they touch only committed files.
 # --------------------------------------------------------------------------
 GATE2_FORENSICS_RUN = "runs/gate2_forensics_v1.json"
@@ -1227,13 +1228,15 @@ def test_gate2_amendment_tolerances_and_conjunction_unchanged():
 
 
 def test_gate2_amendment_changes_no_locked_value():
-    """Byte compare: gate_2.thresholds is identical to origin/master.
+    """Parsed (structural) compare: gate_2.thresholds parses identical to
+    origin/master.
 
     The proposal adds only the amendment_proposed sibling; every locked
     tolerance, the protocol, the power cap, the governance, and the scope
-    map are unchanged. Compares the parsed thresholds subtree against
-    origin/master (self-fetching the ref if needed); skips only if the ref
-    is unreachable.
+    map are unchanged. Compares the PARSED thresholds subtree against
+    origin/master (structural equality, not a byte compare -- though the diff
+    being a pure insertion, the subtree is byte-identical at diff level too);
+    self-fetches the ref if needed, and skips only if the ref is unreachable.
     """
     amendment = _gate2_amendment()
     if amendment is None:
@@ -1355,7 +1358,11 @@ def test_gate2_amendment_c2_gross_level_still_fails():
     """A model with genuine super-tolerance level errors fails at any K.
 
     The c2 illustration's examples recompute from candidate 2's committed
-    artifact and clear tolerance by a wide, draw-noise-proof margin.
+    artifact and clear tolerance by a wide, draw-noise-proof margin. Each
+    stated outer_score binds EXACTLY to round(committed score, 4) -- the same
+    convention the c8/c9 rows use in test_gate2_amendment_illustrative_is_not
+    _applied -- not a loose abs=1e-3 tolerance, so no illustration digit can
+    drift from the committed artifact (referee fix A).
     """
     amendment = _gate2_amendment()
     if amendment is None:
@@ -1372,7 +1379,7 @@ def test_gate2_amendment_c2_gross_level_still_fails():
         key = (ex["cell"], ex["seed"])
         assert key in committed, key
         src = committed[key]
-        assert ex["outer_score"] == pytest.approx(src["score"], abs=1e-3), key
+        assert ex["outer_score"] == round(src["score"], 4), key
         assert ex["tolerance"] == src["tolerance"], key
         # Orders of magnitude over tolerance: far beyond any draw-noise sd.
         assert src["score"] / src["tolerance"] > 2.0, key
@@ -1410,7 +1417,13 @@ def test_gate2_amendment_considered_and_rejected():
 
 
 def test_gate2_amendment_compute_cost_recorded():
-    """The ~20 min/candidate figure ties to candidate 8's committed runtime."""
+    """The ~20 min/candidate figure ties to candidate 8's committed runtime.
+
+    Also binds the forensics compute field, relabeled (referee fix B) as the
+    5-seed TOTAL: it recomputes as the forensics' total_per_seed_compute
+    _seconds and as the sum of its per-seed breakdown, and the old
+    per-seed-labelled key is gone.
+    """
     amendment = _gate2_amendment()
     if amendment is None:
         pytest.skip("no gate_2 amendment_proposed")
@@ -1423,6 +1436,14 @@ def test_gate2_amendment_compute_cost_recorded():
     expected_min = c8["elapsed_seconds"] * 20 / 60.0
     assert cc["estimated_minutes_per_candidate"] == pytest.approx(
         expected_min, abs=1.0
+    )
+    # Referee fix B: the 155.1 s field is the 5-seed TOTAL, honestly labelled.
+    assert "forensics_measured_20draw_5seed_per_seed_compute_seconds" not in cc
+    total = cc["forensics_measured_20draw_5seed_total_compute_seconds"]
+    fx = json.loads((ROOT / GATE2_FORENSICS_RUN).read_text())
+    assert total == fx["total_per_seed_compute_seconds"]
+    assert total == pytest.approx(
+        sum(fx["per_seed_compute_seconds"].values()), abs=0.05
     )
 
 
@@ -1438,3 +1459,111 @@ def test_gate2_amendment_path_to_pass_and_process_statement():
     # The goalpost-timing question is named, not hidden.
     assert "after" in ps.lower()
     assert "goalpost" in ps.lower()
+
+
+def test_gate2_amendment_registration_divergence_disclosed():
+    """Referee fix B: currently_locked names the seed-convention divergence.
+
+    The locked thresholds text says "one replicate, simulation seed s"; every
+    committed run v1-v9 uniformly registered default_rng(4200 + seed). The
+    disclosure names both, and the cited protocol.sim_rng_rule recomputes
+    identically across all nine committed artifacts.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    locked = _gate2_amend_change(1)["currently_locked"]
+    rd = locked["registration_divergence"]
+    # Names the locked-text seed s and the committed 4200 + s convention.
+    assert "simulation seed s" in rd
+    assert "4200 + seed" in rd
+    assert "sim_rng_rule" in rd
+    # The cited evidence recomputes: all nine committed runs are identical.
+    rules = set()
+    for v in range(1, 10):
+        art = json.loads((ROOT / f"runs/gate2_hazard_v{v}.json").read_text())
+        rules.add(art["protocol"]["sim_rng_rule"])
+    assert rules == {"numpy.random.default_rng(4200 + seed)"}
+    # And the locked text really does read "simulation seed s" (no 4200).
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    candidate = gates["gates"]["gate_2"]["thresholds"]["protocol"]["candidate"]
+    assert "one replicate, simulation seed s" in candidate
+    assert "4200" not in candidate
+
+
+def test_gate2_amendment_flip_edits_enumerated():
+    """Referee fix B: the flip's locked-text edits are enumerated in advance.
+
+    flip_on_ratification.flip_edits names every locked-TEXT change the flip PR
+    will make (protocol.candidate, statistic, pass_rule, the faithful
+    _candidate_oc basis note, and the stray DRAFT label). Each entry's
+    locked_text_now is verified to actually appear at its locked_path in the
+    current locked block, so the enumeration cannot cite absent text.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    edits = amendment["flip_on_ratification"]["flip_edits"]
+    assert {e["key"] for e in edits} == {
+        "candidate",
+        "statistic",
+        "pass_rule",
+        "faithful_candidate_oc",
+        "draft_label",
+    }
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+
+    def _resolve(path: str):
+        node = gates
+        for part in path.split("."):
+            node = node["gates"]["gate_2"] if part == "gate_2" else node[part]
+        return node
+
+    for e in edits:
+        node = _resolve(e["locked_path"])
+        hay = node if isinstance(node, str) else str(node)
+        assert e["locked_text_now"] in hay, e["key"]
+    # The DRAFT label the flip removes really is still present (unflipped).
+    pass_rule = _resolve("gate_2.thresholds.protocol.pass_rule")
+    assert "DRAFT seed-level conjunction" in pass_rule
+
+
+def test_gate2_amendment_fresh_run_artifact_schema():
+    """Referee fix C: the candidate-10 run contract is pinned prospectively.
+
+    A fresh run must commit (i) per-draw per-cell rates (20 x 46 x 5) so rbar
+    recomputes from the artifact, (ii) a pre-specified undefined-draw rule
+    that invalidates the run rather than dropping a draw, and (iii) a
+    report-only per-draw dispersion disclosure (per-cell per-draw sd and the
+    max per-draw |ln| per cell), never gated. path_to_pass references it.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    schema = amendment["fresh_run_artifact_schema"]
+
+    # (i) per-draw per-cell rates committed so rbar recomputes.
+    rates = schema["per_draw_per_cell_rates"]
+    assert rates["required"] is True
+    assert rates["shape"] == [20, 46, 5]
+    assert "recomputes" in rates["rule"]
+
+    # (ii) undefined-draw rule: run-invalidating, no silent drop.
+    undef = schema["undefined_draw_rule"]
+    assert undef["required"] is True
+    assert undef["pre_specified"] is True
+    rule = undef["rule"]
+    assert "INVALIDATED" in rule
+    assert "No draw may be dropped" in rule
+
+    # (iii) report-only per-draw dispersion, never gated.
+    disp = schema["per_draw_dispersion_disclosure"]
+    assert disp["required"] is True
+    assert disp["gated"] is False
+    assert set(disp["commit"].keys()) == {
+        "per_cell_per_draw_sd",
+        "max_per_draw_abs_ln_per_cell",
+    }
+
+    # path_to_pass points a candidate-10 run at the schema.
+    assert "fresh_run_artifact_schema" in amendment["path_to_pass"]
