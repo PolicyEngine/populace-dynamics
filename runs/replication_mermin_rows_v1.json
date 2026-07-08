@@ -1,0 +1,379 @@
+{
+  "schema_version": "replication_mermin_rows.v1",
+  "run": "replication_mermin_rows_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4911609804",
+  "registration_pointer": "#42 comment 4911609804",
+  "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+  "purpose": "Mermin remaining-rows external-anchor replication: does our stack (real PSID Phase-A careers + the committed B2 claim-age distribution + the statutory 402(q)/(w) actuarial machinery + the committed NCHS x PSID-band survival) reproduce the incidence structure of raising the Normal Retirement Age to 70 (percent-of-scheduled by AIME quintile) and reducing the COLA by 0.4pp (percent-of-scheduled at ages 62-67 and 80-85) from Mermin (2005)? Reads no gate, changes no gate; publishes regardless of outcome.",
+  "what_is_tested": "the incidence STRUCTURE (the near-flat NRA reduction across AIME quintiles, and the small-at-claim / compounding-with-age COLA pattern), not the population LEVELS -- every level difference vs the DYNASIM 2050 projection is a named delta",
+  "real_data_only": true,
+  "anchor_provenance": {
+    "paper": "Mermin, G. B. T. (2005). The Effect of Benefit Reductions on the Distribution of Social Security Benefits. Urban Institute report 411260. DYNASIM3, Runid 432. 2005 Trustees intermediate assumptions; CBO (2005) solvency scoring.",
+    "source_files": [
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.pdf",
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.txt"
+    ],
+    "nra_mechanics": {
+      "citation": "printed p.2 (Policy Scenarios: 'Raising the Normal Retirement Age') and p.2 fn (the months-early mechanism)",
+      "quote_scenario": "Accelerates the currently scheduled increase to age 67 and continues increasing the NRA until it reaches age 70 for those turning 62 after 2028.",
+      "quote_mechanism": "raising the NRA will reduce initial benefits because it increases the number of months early for those retiring before the NRA.",
+      "quote_no_behaviour": "The analysis assumes that raising the NRA does not affect when workers apply for benefits (printed p.3-4).",
+      "disability_unaffected": "This option has no impact on recipients of disability benefits ... disability benefits are unaffected by age of take-up (printed p.7).",
+      "encoding": "current-law FRA 67 vs reform FRA 70; per-claim-age factor is 1 - 402(q) early reduction (rates unchanged, months-early recomputed against the imposed NRA) or 1 + 402(w) delayed credit above the NRA; expected over the sex-specific evaluation-era B2 claim-age distribution; same draw both sides; percent-of-scheduled = reform-factor / baseline-factor (PIA cancels)"
+    },
+    "cola_mechanics": {
+      "citation": "printed p.2 (Policy Scenarios) and fn.6, fn.7",
+      "quote_scenario": "Beginning in 2012, the annual COLA is reduced by 0.4 percentage points for all beneficiaries.",
+      "quote_rates": "The analysis assumes annual COLAs of 2.8 percent under current law and 2.4 percent under the reduced scenario (fn.6).",
+      "quote_after_entitlement": "Reducing the COLA ... continues to reduce benefits relative to scheduled amounts after initial entitlement.",
+      "paper_cola_start_note": "The paper credits COLAs from the year of first eligibility (age 62), not first receipt (fn.7). This module compounds from the claim age per the registration ('years-since-claim from the claim-age distribution') -- a named convention delta that shortens the window for later claimers, so our percent-of-scheduled runs slightly above the paper's.",
+      "encoding": "reform/scheduled at evaluation age a = (1.024/1.028) ** (a - claim age), claim age from the B2 distribution; per age group 62-67 and 80-85; 80-85 survival-weighted by the committed NCHS x PSID-band survival"
+    },
+    "table1_ages_62_67_by_year": {
+      "citation": "Table 1 (printed p., DYNASIM3 Runid 432); 2050 row",
+      "cola_pct_of_scheduled_2050": 98.3,
+      "nra_pct_of_scheduled_2050": 85.2,
+      "note": "raising the NRA holds steady at about 85% of scheduled once fully phased; the 79.7 in Table 2 is lower because retired workers ages 62-67 claim early",
+      "seventy_five_year_payroll_pct": {
+        "scheduled_deficit": -1.69,
+        "reduced_cola": -1.12,
+        "nra_raised_to_70": -0.5
+      }
+    },
+    "table2_retired_workers_62_67_in_2050": {
+      "citation": "Table 2 (Distribution of Annual Benefits at Ages 62 to 67 in 2050, Retired Workers Only, N=5351); Percent of Scheduled Benefits columns",
+      "quintile_variable_paper": "shared lifetime income quintile: a worker's entire earnings in single years plus half of both spouses' earnings in married years (printed p.3, fn.9)",
+      "nra_raised_to_70_pct": {
+        "by_quintile": [
+          79.4,
+          79.5,
+          79.6,
+          79.8,
+          79.9
+        ],
+        "all": 79.7
+      },
+      "reduced_cola_pct": {
+        "all": 98.9,
+        "note": "~flat 98.8-99.0 across quintiles"
+      }
+    },
+    "table4_retired_workers_80_85_in_2050": {
+      "citation": "Table 4 (Distribution of Annual Benefits at Ages 80 to 85 in 2050, Retired Workers Only, N=3088); Percent of scheduled benefits columns",
+      "reduced_cola_pct": {
+        "all": 92.4,
+        "table5_all_beneficiary_types": 92.0,
+        "note": "92.4 (retired workers) / 92.0 (all types) -- the 92.0-92.4 band the registration cites; COLA compounds with age so the 80-85 cut is far larger than 62-67"
+      },
+      "nra_raised_to_70_pct": {
+        "all": 80.9
+      }
+    },
+    "named_population_deltas": [
+      "observed PSID retirees eligible 2005-2019 (born 1943-1957), benefit paths evaluated at the anchor's 62-67 / 80-85 ages, vs DYNASIM's projected 2050 cross-section",
+      "observed-era (2005-2019) claim-age BEHAVIOUR (B2 Table 6.B5.1) with the 2050-policy Normal Retirement Age (67 current law, 70 reform)",
+      "individual own-record career-average earnings (transported AIME) quintiles vs the paper's spouse-shared lifetime-income quintiles (no marriage join)",
+      "COLAs compounded from the claim age (registration) vs the paper's age-62 first-eligibility start (fn.7) -- our COLA percent-of-scheduled runs slightly above the paper's",
+      "person-weighted (anchor weight x survival) mean of the PIA-independent factor ratio vs a dollar-weighted aggregate",
+      "no earnings test, no behavioural response, retired workers only (the disabled are unaffected by the NRA, printed p.7)"
+    ]
+  },
+  "study_population": {
+    "career_frame_rule": "Phase-A pia_observed selection (reused from replication_r7_sharing / replication_caregiver): coverage >= 0.8 of ages 22-61, age-62 eligibility year in 2005-2019 (born 1943-1957), single-year gaps interpolated",
+    "n_career_frame": 1549,
+    "n_scored": 1549,
+    "n_by_sex": {
+      "male": 691,
+      "female": 858
+    },
+    "sex_join": "Marriage History File mh85_23, one row per person id, joined on the shared PSID person id (as replication_r7_sharing does); career-frame persons without a resolvable sex are dropped",
+    "n_career_frame_without_sex": 0,
+    "weighting": "anchor weight = the person's last observed PSID cross-sectional weight (times NCHS x PSID-band survival from 62 for the 80-85 COLA row)",
+    "aime_quintile": "own-distribution weighted 20% quintiles of the full statutory 415(b) top-35 transported AIME (Q1 = lowest)"
+  },
+  "conventions": {
+    "transport": "the 2050-eligibility transport from replication_ppi_mermin (build_transport); the transported AIME is the full 415(b) top-35 amount (replication_caregiver.transported_aime), the AIME-quintile ranking variable only",
+    "claim_age_distribution": "the committed B2 reference (claiming.claim_age_pmf, Statistical Supplement Table 6.B5.1, sex x entitlement year 1998-2022, disability conversions excluded), read at the person's own age-62 eligibility year (nearest-year rule inside range)",
+    "nra_factor": "baseline = expectation of claiming.benefit_factor at the FRA-67 cohort (born 1988); reform = expectation of the same 402(q)/(w) machinery at the imposed FRA of 70; same claim distribution both sides; percent-of-scheduled = 100 * reform / baseline",
+    "cola_ratio": "reform/scheduled at evaluation age a = (1.024/1.028) ** (a - claim age); baseline COLA 2.8%, reform 2.4% (fn.6); per age group as the weighted mean over (person, evaluation age, claim age <= a) mass",
+    "survival_weighting_80_85": "each (person, evaluation age a) in 80-85 is weighted by the committed NCHS 2023 x PSID-band probability of surviving from 62 to a (q'_x = NCHS q_x * PSID/NCHS band ratio, window 'all'); 62-67 is not survival-weighted",
+    "floor": "5-seed person-disjoint half-split (split_panel_by_person, fraction=0.5); floor per ratio = summary of |side_a - side_b| across seeds, own-distribution AIME quintiles recomputed within each half"
+  },
+  "nra_raise_to_70": {
+    "table": {
+      "by_quintile": [
+        {
+          "quintile": 1,
+          "n_persons": 325,
+          "our_pct_of_scheduled": 79.72872284686666,
+          "floor_mean": 0.017560748921442836,
+          "floor_sd": 0.007925185122432043,
+          "anchor_pct": 79.4,
+          "abs_gap_vs_anchor": 0.33,
+          "mean_aime": 2975.153069063874
+        },
+        {
+          "quintile": 2,
+          "n_persons": 314,
+          "our_pct_of_scheduled": 79.74413834006212,
+          "floor_mean": 0.014079101769942782,
+          "floor_sd": 0.011512513947540944,
+          "anchor_pct": 79.5,
+          "abs_gap_vs_anchor": 0.24,
+          "mean_aime": 8174.84083113853
+        },
+        {
+          "quintile": 3,
+          "n_persons": 325,
+          "our_pct_of_scheduled": 79.74862732233332,
+          "floor_mean": 0.004932375530921717,
+          "floor_sd": 0.004271836985717871,
+          "anchor_pct": 79.6,
+          "abs_gap_vs_anchor": 0.15,
+          "mean_aime": 13284.931342506157
+        },
+        {
+          "quintile": 4,
+          "n_persons": 280,
+          "our_pct_of_scheduled": 79.77305444641543,
+          "floor_mean": 0.00790527675451358,
+          "floor_sd": 0.008540417426230382,
+          "anchor_pct": 79.8,
+          "abs_gap_vs_anchor": 0.03,
+          "mean_aime": 18393.78525670568
+        },
+        {
+          "quintile": 5,
+          "n_persons": 305,
+          "our_pct_of_scheduled": 79.77383458937351,
+          "floor_mean": 0.0056730352989717405,
+          "floor_sd": 0.004481551381038415,
+          "anchor_pct": 79.9,
+          "abs_gap_vs_anchor": 0.13,
+          "mean_aime": 26765.01907393895
+        }
+      ],
+      "overall": {
+        "our_pct_of_scheduled": 79.75367584048173,
+        "floor_mean": 0.0036860837266146974,
+        "floor_sd": 0.0039011349828540435,
+        "anchor_pct": 79.7,
+        "abs_gap_vs_anchor": 0.05,
+        "cross_quintile_spread_pp": 0.04511174250684746
+      }
+    },
+    "full_sample": {
+      "overall_pct_of_scheduled": 79.75367584048173,
+      "cross_quintile_spread_pp": 0.04511174250684746
+    }
+  },
+  "cola_minus_0_4pp": {
+    "table": [
+      {
+        "age_group": "62-67",
+        "our_pct_of_scheduled": 99.1979308567756,
+        "floor_mean": 0.001151440218890798,
+        "floor_sd": 0.0010321924754178446,
+        "anchor_pct": 98.9,
+        "anchor_secondary_pct": 98.3,
+        "abs_gap_vs_anchor": 0.3,
+        "survival_weighted": false
+      },
+      {
+        "age_group": "80-85",
+        "our_pct_of_scheduled": 93.01450397829619,
+        "floor_mean": 0.003963365669423524,
+        "floor_sd": 0.00447077271779834,
+        "anchor_pct": 92.4,
+        "anchor_secondary_pct": 92.0,
+        "abs_gap_vs_anchor": 0.61,
+        "survival_weighted": true
+      }
+    ]
+  },
+  "registered_expectation": {
+    "nra_mean_77_83_spread_lt_3pp": {
+      "statement": "NRA->70 all-quintile mean in 77-83% and the cross-quintile spread below 3pp (the reduction factor is PIA-independent, so the row is near-flat as in the anchor)",
+      "our_mean_pct": 79.75,
+      "cross_quintile_spread_pp": 0.045,
+      "held": true
+    },
+    "cola_62_67_ge_97_5": {
+      "statement": "COLA 62-67 percent-of-scheduled >= 97.5%",
+      "our_pct": 99.2,
+      "held": true
+    },
+    "cola_80_85_in_90_94": {
+      "statement": "COLA 80-85 percent-of-scheduled in 90-94% (compounding with age; the survival-weighted row is the risk)",
+      "our_pct": 93.01,
+      "held": true
+    },
+    "all_held": true
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "half_metrics": {
+        "side_a": {
+          "nra_by_quintile_pct": [
+            79.7180972630682,
+            79.74312646772528,
+            79.74532020505593,
+            79.77287920596262,
+            79.78295681595105
+          ],
+          "nra_overall_pct": 79.7524678836689,
+          "cola_62_67_pct": 99.19716236367844,
+          "cola_80_85_pct": 93.01592788720866,
+          "n": 752
+        },
+        "side_b": {
+          "nra_by_quintile_pct": [
+            79.74055833927105,
+            79.74899349989062,
+            79.74612784473898,
+            79.7667631247084,
+            79.77167338600248
+          ],
+          "nra_overall_pct": 79.75481516806937,
+          "cola_62_67_pct": 99.1986550537495,
+          "cola_80_85_pct": 93.01314978247507,
+          "n": 797
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "half_metrics": {
+        "side_a": {
+          "nra_by_quintile_pct": [
+            79.74054364217409,
+            79.73543836991782,
+            79.75391618767912,
+            79.77526558510701,
+            79.77340913387286
+          ],
+          "nra_overall_pct": 79.75571975948573,
+          "cola_62_67_pct": 99.19816649204962,
+          "cola_80_85_pct": 93.01456876025891,
+          "n": 775
+        },
+        "side_b": {
+          "nra_by_quintile_pct": [
+            79.71386931916386,
+            79.75605214794864,
+            79.74278540966002,
+            79.76775384647574,
+            79.7772054977323
+          ],
+          "nra_overall_pct": 79.75152628957677,
+          "cola_62_67_pct": 99.19768290262377,
+          "cola_80_85_pct": 93.01443612857881,
+          "n": 774
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "half_metrics": {
+        "side_a": {
+          "nra_by_quintile_pct": [
+            79.72123972157536,
+            79.7304286308146,
+            79.74499788062828,
+            79.7760890510607,
+            79.77041348347112
+          ],
+          "nra_overall_pct": 79.7486197257276,
+          "cola_62_67_pct": 99.19653189748135,
+          "cola_80_85_pct": 93.00890906832866,
+          "n": 768
+        },
+        "side_b": {
+          "nra_by_quintile_pct": [
+            79.73805801556844,
+            79.76105709839713,
+            79.74135835898048,
+            79.7734097823843,
+            79.77980314864416
+          ],
+          "nra_overall_pct": 79.75878318826418,
+          "cola_62_67_pct": 99.19935363132532,
+          "cola_80_85_pct": 93.02017712519347,
+          "n": 781
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "half_metrics": {
+        "side_a": {
+          "nra_by_quintile_pct": [
+            79.73676823231916,
+            79.75212574376793,
+            79.73951224924828,
+            79.76402388211733,
+            79.77621813040759
+          ],
+          "nra_overall_pct": 79.75376819912658,
+          "cola_62_67_pct": 99.19814675168054,
+          "cola_80_85_pct": 93.01695879577672,
+          "n": 770
+        },
+        "side_b": {
+          "nra_by_quintile_pct": [
+            79.72057315386212,
+            79.74126702998379,
+            79.74684567145107,
+            79.78644192782856,
+            79.77289703293378
+          ],
+          "nra_overall_pct": 79.75358726091325,
+          "cola_62_67_pct": 99.19772448699821,
+          "cola_80_85_pct": 93.01215303598116,
+          "n": 779
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "half_metrics": {
+        "side_a": {
+          "nra_by_quintile_pct": [
+            79.73097470989727,
+            79.74927714337079,
+            79.74104498728528,
+            79.77756681077841,
+            79.77354710594288
+          ],
+          "nra_overall_pct": 79.75447989267404,
+          "cola_62_67_pct": 99.19821029679431,
+          "cola_80_85_pct": 93.01493746082042,
+          "n": 761
+        },
+        "side_b": {
+          "nra_by_quintile_pct": [
+            79.72531973695325,
+            79.74684962608391,
+            79.74279550338714,
+            79.77676556127895,
+            79.77297248590288
+          ],
+          "nra_overall_pct": 79.75293462910031,
+          "cola_62_67_pct": 99.19767337372308,
+          "cola_80_85_pct": 93.01410518554736,
+          "n": 788
+        }
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "670187760f50582eac46de653a4b005ba7db926d",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "replication_mermin_rows.v1",
+    "nchs_life_table_vintage": 2023,
+    "mortality_window": "all"
+  },
+  "elapsed_seconds": 17.2
+}
