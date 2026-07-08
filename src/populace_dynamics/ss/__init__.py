@@ -20,6 +20,11 @@ from populace_dynamics.ss.benefits import (
     aime,
     early_reduction,
     pia,
+    spousal_benefit,
+    spousal_early_reduction,
+    survivor_reduction,
+    widow_benefit,
+    widow_benefit_survives_remarriage,
 )
 from populace_dynamics.ss.params import SSAParameters, load_ssa_parameters
 
@@ -30,4 +35,9 @@ __all__ = [
     "pia",
     "early_reduction",
     "age62_monthly_benefit",
+    "spousal_benefit",
+    "spousal_early_reduction",
+    "survivor_reduction",
+    "widow_benefit",
+    "widow_benefit_survives_remarriage",
 ]

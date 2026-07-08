@@ -14,6 +14,28 @@ artifact pins its parameter provenance. The most recent NAWI
 entries in policyengine-us are Trustees projections, not realized
 SSA determinations, so scoring restricted to historical eligibility
 years stays on realized values.
+
+Auxiliary (spouse/survivor) rate constants — a documented exception
+========================================================================
+The spousal and survivor auxiliary benefits (42 USC 402(b)/(c)/(e)/(f))
+have **no** parameter node anywhere in the policyengine-us tree:
+policyengine-us carries ``social_security_retirement``,
+``social_security_survivors`` and ``social_security_dependents`` as
+uprated survey **inputs** (no formula), and only computes the worker's
+*own* PIA and 402(q)/(w) retirement-age adjustment. So the auxiliary
+rates cannot be sourced from pe-us the way the own-benefit series are.
+They are therefore carried here as statutory constants, each cited to
+its 42 USC section on the field below — the same "constant of the
+statute itself" exception already made for the 1978-base bend points,
+and the STATUTE-CITED precedent the pia-proxy floor and the claiming
+module follow. They are *not* cross-checked against pe-us (there is
+nothing to check against); they are validated against SSA's published
+worked examples in ``tests/ss/test_aux_benefits.py`` and the committed
+``runs/aux_benefit_examples_v1.json`` grid. The one shape simplification
+— the survivor reduction period defaults to the modern 84-month span
+(age 60 to a survivor full retirement age of 67, exact for every
+survivor cohort born 1962 or later, i.e. the model's whole scoring
+window) — is documented on ``survivor_reduction_period_months`` below.
 """
 
 from __future__ import annotations
@@ -61,6 +83,57 @@ class SSAParameters:
     #: Statutory cap on the credit-accrual window (max_delayed_years x
     #: 12); credits also stop at age 70 regardless.
     max_delayed_months: int = 48
+
+    # ---- Auxiliary (spouse/survivor) statutory constants -------------
+    # Not in the policyengine-us tree (see the module docstring); each is
+    # a constant of the statute, cited to its 42 USC section. Defaulted to
+    # the statutory value so historical/pure test bundles pick them up
+    # automatically, exactly as they do delayed_credit_by_birth_year.
+
+    #: 42 USC 402(b)(2)/(c)(2): the spouse's insurance benefit equals
+    #: one-half of the worker's primary insurance amount.
+    spousal_pia_share: float = 0.5
+    #: 42 USC 402(q)(1): a spouse's benefit is reduced 25/36 of 1% per
+    #: month for the first 36 months before full retirement age and
+    #: 5/12 of 1% per month beyond — the SAME later rate as the worker's
+    #: own reduction (benefits.early_reduction) but a STEEPER first
+    #: bracket (25/36% vs the worker's 5/9%).
+    spousal_early_monthly_rates: tuple[float, float] = (25 / 3600, 5 / 1200)
+    #: 42 USC 402(q)(1): the 36-month boundary between the two spousal
+    #: reduction rates.
+    spousal_early_first_bracket_months: int = 36
+    #: 42 USC 402(e)(2)(A)/(f)(3)(A): a widow(er)'s insurance benefit at
+    #: survivor full retirement age equals 100% of the deceased worker's
+    #: primary insurance amount (before RIB-LIM and inherited credits).
+    survivor_pia_share: float = 1.0
+    #: 42 USC 402(q): the widow(er)'s benefit floor at age 60 is 71.5% of
+    #: the deceased's PIA (a maximum age reduction of 28.5%).
+    survivor_reduction_floor: float = 0.715
+    #: Months over which the 28.5% survivor age reduction is spread —
+    #: age 60 to survivor full retirement age. STATUTE-SHAPED default of
+    #: 84 = a survivor FRA of 67 (age 804 months − age 720 months), which
+    #: is exact for every survivor cohort born 1962 or later (42 USC
+    #: 416(l) as applied to survivors). Earlier survivor cohorts had a
+    #: 60-to-65 (60-month) or 60-to-66 (72-month) span; using the modern
+    #: 84-month span for them is the module's one documented survivor
+    #: simplification and is immaterial to the model's post-1962 scoring
+    #: window. Build a bundle with a different value to reproduce SSA's
+    #: FRA-65/66 survivor reduction cells (see the aux-benefit tests).
+    survivor_reduction_period_months: int = 84
+    #: 42 USC 402(e)(1)(B)/(f)(1)(B): earliest aged-widow(er) claim age.
+    survivor_earliest_claim_age: int = 60
+    #: 42 USC 402(e)(2)(D)/(k)(3)(A) — the "RIB-LIM": when the deceased
+    #: took a reduced retirement benefit, the widow(er)'s benefit is the
+    #: larger of the deceased's actual benefit or 82.5% of the deceased's
+    #: PIA.
+    rib_lim_pia_share: float = 0.825
+    #: 42 USC 402(e)(3)/(f)(4): remarriage at or after this age does not
+    #: terminate widow(er)'s benefits (age 50 if the survivor is
+    #: disabled).
+    remarriage_protected_age: int = 60
+    #: 42 USC 402(e)(3)(A)(ii): the protected-remarriage age for a
+    #: disabled survivor.
+    remarriage_protected_age_disabled: int = 50
 
     def bend_points(self, year: int) -> tuple[float, float]:
         """Statutory bend points for an eligibility year (415(a))."""
