@@ -1064,6 +1064,809 @@ gates:
             Concept-aligned, the PSID crude-equivalent marriage and divorce
             rates match the national rates within ~4%, and marriage exceeds
             divorce. Reported, never gated on level.
+    amendment_proposed:
+      # PUBLIC AMENDMENT PROPOSAL #1 for gate 2, under this file's
+      # amendment rule (header: "locked thresholds change only through a
+      # public amendment noted in this file's history"; gate_2.governance
+      # .amendment_rules.amendments_only_via: public proposal + adversarial
+      # referee round + verification + maintainer ratification by merge).
+      # This subsection is the amendment OBJECT: it PROPOSES a change and
+      # changes NOTHING. The locked `thresholds` block above is untouched
+      # (locked: true stays; every locked tolerance, the protocol, the
+      # power cap, the governance, and the scope map are byte-identical to
+      # origin/master -- tests/test_gates_derivations.py parsed-compares the
+      # subtree (structural equality of the parsed thresholds tree; the diff
+      # is a pure insertion, so the subtree is also byte-identical at diff
+      # level). No model reads this subsection; the harness scores only
+      # the locked block.
+      #
+      # It mirrors gate 1's amendment-2 pattern (the mean-over-draws move
+      # that replaced per-seed pairs-c2st gating): there the certification
+      # turned on SPLIT-draw noise at thousandths-of-an-AUC and the fix
+      # averaged over more pre-registered draws at the SAME line; here the
+      # per-cell certification turns on SIMULATION-draw noise and the fix
+      # averages the candidate rate over K=20 pre-registered simulation
+      # draws at the SAME tolerances.
+      #
+      # What it proposes (a recalibration of the per-cell ESTIMATOR, at the
+      # SAME locked tolerances): a candidate cell's score moves from ONE
+      # frozen simulation draw to the MEAN over K=20 simulation draws per
+      # gate seed. The locked |ln ratio| tolerances, the 4-of-5 seed
+      # conjunction, and the 46-cell membership are UNCHANGED; only the
+      # candidate statistic each cell is scored on changes, from a single
+      # draw to a 20-draw mean rate. This is proposed AFTER the committed
+      # chronic-cell forensics (#94) and candidate runs 8-9 (#93/#95); the
+      # goalpost-timing question is adjudicated by the fresh referee round
+      # (see illustrative_retroactive_application.process_statement).
+      #
+      # Status: proposed, pending (1) an adversarial referee round against
+      # this proposal and (2) maintainer RATIFICATION by merge. Until that
+      # merge this proposal is inert. Ratification would move the proposed
+      # estimator into the locked protocol through a follow-up that flips
+      # it live, exactly as PR #79/#81 did for the gate-2 lock and PR
+      # #67/#69 did for gate 1's amendment 2.
+      status: proposed_pending_referee_round
+      proposal_number: 1
+      amendment_rule_reference: >-
+        gates.yaml header ("Numeric thresholds ... change only through a
+        public amendment noted in this file's history"),
+        gate_2.governance.amendment_rules.amendments_only_via, and
+        CLAUDE.md ("gate-1 thresholds are locked ... and change only
+        through a public amendment plus a fresh referee round"; gate 2
+        inherits this via governance.amendment_rules.inherits: gate_1).
+      no_self_rescue: >-
+        No candidate's committed run verdict changes under a rule proposed
+        after that run. A gate rule amendment applies only to runs
+        registered after its ratification.
+      evidence_chain:
+        forensics_pr: 94
+        candidate8_run_pr: 93
+        candidate9_run_pr: 95
+        model_registry_issue: 42
+        candidate_ladder: >-
+          candidates 1-9 registered and scored on issue #42 (the gate-2
+          ladder); runs committed as runs/gate2_hazard_v1..v9.json
+        forensics_artifact: runs/gate2_forensics_v1.json
+        candidate8_artifact: runs/gate2_hazard_v8.json
+        candidate9_artifact: runs/gate2_hazard_v9.json
+        floor_artifact: runs/gate2_floors_v2.json
+      evidence_summary: >-
+        The committed chronic-cell forensics (#94,
+        runs/gate2_forensics_v1.json, question_3_rng_stability) re-simulated
+        candidate 8's spec on the TRAIN side (side B simulating side B,
+        scored against side B's own rate_b) at 20 additional RNG draws
+        (numpy default_rng(5200 + k), k = 0..19) per gate seed, for the six
+        cells that clip at least one gate seed. Per cell it committed the
+        20-draw rate mean/sd, the signed log-ratio tilt, and the single-draw
+        clip probability. The reading: every one of the six carries a small,
+        REPRODUCIBLE train-side under-production tilt (same sign on all five
+        seeds), and the forensics partitions them (verdict_partition) into
+        NOISE-DOMINATED (four cells: share_divorced.45-54|female,
+        widowhood.75+|female, mean_lifetime_marriages|female,
+        completed_fertility.c1970s -- tilt well inside tolerance, the clip is
+        the single frozen draw landing high) and BOUNDARY (two cells:
+        share_widowed.75+|female at 85% of tolerance,
+        mean_lifetime_marriages|male at 99% -- a real level offset near the
+        line). The locked estimator scores each cell on ONE frozen outer
+        draw (sim_seed 4200 + s); for the four NOISE-DOMINATED cells that
+        single draw's clip is draw noise, not level. This proposal averages
+        the candidate rate over K = 20 draws so the certified statistic is
+        the draw-noise-free rate the tolerance was measured against, WITHOUT
+        moving any tolerance.
+      disclosure:
+        # Stated plainly, as data + prose: the estimator is not a
+        # pass-machine, and this proposal says so before the referee asks.
+        estimator_is_not_a_pass_machine: >-
+          Averaging the candidate rate over 20 draws removes SIMULATION-DRAW
+          noise; it does NOT remove a systematic level error, and it does not
+          remove the split between side A's rate_a and the candidate's target
+          rate. For the four NOISE-DOMINATED cells the mean-of-20 clip
+          probability collapses to ~0 (their single-draw clips were draw
+          noise). For the two BOUNDARY cells it does NOT: share_widowed.75+
+          |female stays material (0.34 -> 0.20) and mean_lifetime_marriages
+          |male RISES (0.49 -> 0.59), because its systematic tilt genuinely
+          exceeds tolerance on four of the five gate seeds -- averaging drives
+          the estimator TOWARD that real level, which fails harder, not
+          softer. A candidate whose residuals are purely draw noise passes
+          with high probability; a candidate with a genuine super-tolerance
+          level error still fails. That includes candidate 8's own untargeted
+          mean_lifetime_marriages|male cell: under this proposal candidate 8
+          would still fail on it (see illustrative_retroactive_application).
+        no_verdict_moves: >-
+          Under no_self_rescue no committed run's verdict changes. Candidates
+          1-9's committed verdicts stand (all FAIL); the first pass must come
+          from a fresh candidate-10 registration one-shot under the amended
+          estimator (path_to_pass).
+      changes:
+        - id: 1
+          title: >-
+            per-cell candidate score moves from one frozen simulation draw
+            to the mean over K=20 simulation draws per gate seed, at the
+            SAME locked tolerances and the SAME 4-of-5 conjunction
+          type: change_scoring_estimator
+          target:
+            scope: all 46 gated cells
+            statistic: per-cell absolute log rate ratio
+          currently_locked:
+            statistic: single_frozen_draw
+            rule: >-
+              per cell, |ln(r_candidate,s / rate_a,s)|, where r_candidate,s
+              is the candidate's cell rate from ONE simulation replicate
+              (simulation seed 4200 + s) of the seed-s holdout (side A),
+              scored against side A's own empirical rate_a,s
+              (runs/gate2_floors_v2.json noise_floor_per_seed). Folds into
+              the seed-level conjunction: seed s passes iff every gated
+              cell holds; the gate passes iff >= 4 of 5 gate seeds pass.
+            registration_divergence: >-
+              Honest divergence, disclosed for the record: the LOCKED
+              thresholds text (gate_2.thresholds.protocol.candidate) states
+              the candidate "SIMULATES side A's persons' family histories (one
+              replicate, simulation seed s)" -- it names seed s, NOT the 4200
+              offset. Every committed run v1-v9 instead uniformly registered
+              and used numpy.random.default_rng(4200 + seed): each artifact's
+              protocol.sim_rng_rule == "numpy.random.default_rng(4200 + seed)"
+              (runs/gate2_hazard_v1.json .. v9.json, all nine identical). The
+              "simulation seed 4200 + s" in the rule above is therefore the
+              committed REGISTRATION convention, not locked-text wording.
+              Practice was uniform and governance-registered, so the
+              divergence is materially harmless; it is named here (and
+              corrected by flip_on_ratification) so the amendment record
+              describes the locked rule AS WRITTEN, not as practiced.
+          proposed:
+            statistic: mean_over_draws
+            K: 20
+            draw_seed_rule: >-
+              numpy default_rng(5200 + k) for k in 0..19 -- the committed
+              forensics convention (runs/gate2_forensics_v1.json
+              protocol.draw_rng_rule), pre-registered and distinct from the
+              gate's single-draw sim seed (4200 + s), so no draw is
+              selected after the fact.
+            rule: >-
+              per cell, |ln(rbar_candidate,s / rate_a,s)|, where
+              rbar_candidate,s is the MEAN over K = 20 simulation draws of
+              the candidate's cell RATE for the seed-s holdout (side A) --
+              the mean of the candidate STATISTIC across draws, NOT the mean
+              of the |ln| scores. Same rate_a,s reference, same tolerances,
+              same 46-cell membership, same seed-level conjunction (all 46
+              gated cells per seed AND >= 4 of 5 gate seeds).
+            tolerances: unchanged
+            conjunction: >-
+              unchanged: all 46 gated cells per seed AND >= 4 of 5 gate
+              seeds
+            derivation_note: >-
+              NO tolerance is derived or moved. Every locked tolerance stays
+              round(100-seed half-split floor mean + 4 * floor sd, 3)
+              exactly as ratified (PR #79/#81); the locked
+              `thresholds.views.*.tolerances` are byte-identical to
+              origin/master. The estimator change is justified by the
+              tolerances' OWN derivation basis, not by a new number (see
+              rationale).
+            operating_characteristics:
+              # Change 1 as DATA. Per failing cell: the measured tilt vs
+              # tolerance, the single-draw clip probability the LOCKED
+              # estimator carries, and the mean-of-20 estimator's clip
+              # probability. All recomputed by tests/test_gates_derivations.py
+              # from the committed forensics artifact.
+              approximation_note: >-
+                Indicative, not exact. Each clip probability is computed on
+                the RATE scale under a normal approximation: a draw's cell
+                rate ~ N(train_rate_mean, train_rate_sd^2), clipping when
+                |ln(rate / rate_b)| > tolerance, i.e. rate outside
+                [rate_b*e^-tol, rate_b*e^tol]. This reproduces the
+                artifact's committed per-seed prob_train_draw_clips_tolerance
+                to 1e-16. The mean-of-K estimator replaces the per-draw sd
+                with sd / sqrt(K); each cell's probability is the mean over
+                the five gate seeds, rounded to 4 decimals. Two honest
+                caveats: (a) these are TRAIN-side (side B vs rate_b) draw
+                distributions -- the only committed multi-draw evidence --
+                so they characterise the DRAW-noise component, not the outer
+                (side A vs rate_a) verdict, which the committed artifacts
+                hold at only one draw per seed; (b) the tilt is estimated
+                from 20 draws and carries its own sampling error, so a cell
+                sitting within ~1 draw-sd of the line (the two BOUNDARY
+                cells) is genuinely a coin-flip of the level, not a clean
+                pass or fail.
+              evidence_artifact: runs/gate2_forensics_v1.json
+              evidence_path: question_3_rng_stability
+              K: 20
+              draw_seed_convention: 5200 + k, k in 0..19
+              seeds_averaged: [0, 1, 2, 3, 4]
+              clip_model: rate_scale_normal
+              per_cell:
+                - cell: "mean_lifetime_marriages|male"
+                  tolerance: 0.047
+                  abs_tilt: 0.0463
+                  tilt_over_tolerance: 0.986
+                  per_draw_log_sd: 0.011
+                  single_draw_clip_prob: 0.4854
+                  mean_of_20_clip_prob: 0.5927
+                  verdict: BOUNDARY
+                  note: >-
+                    Real level offset at 99% of tolerance; the per-seed tilt
+                    exceeds tolerance on 4 of 5 seeds, so the mean-of-20 clip
+                    probability RISES above the single-draw one. NOT rescued
+                    -- a genuine level error fails harder under averaging.
+                - cell: "share_widowed.75+|female"
+                  tolerance: 0.185
+                  abs_tilt: 0.1573
+                  tilt_over_tolerance: 0.85
+                  per_draw_log_sd: 0.0585
+                  single_draw_clip_prob: 0.3396
+                  mean_of_20_clip_prob: 0.2023
+                  verdict: BOUNDARY
+                  note: >-
+                    Level at 85% of tolerance with one seed (seed 0) genuinely
+                    over; mean-of-20 clip probability stays material. Partly
+                    rescued, partly a real level residual.
+                - cell: "mean_lifetime_marriages|female"
+                  tolerance: 0.051
+                  abs_tilt: 0.0361
+                  tilt_over_tolerance: 0.708
+                  per_draw_log_sd: 0.01
+                  single_draw_clip_prob: 0.1018
+                  mean_of_20_clip_prob: 0.0005
+                  verdict: NOISE-DOMINATED
+                  note: >-
+                    Level comfortably inside tolerance; the single-draw clip
+                    is draw noise, and the mean-of-20 clip probability
+                    collapses to ~0.
+                - cell: "share_divorced.45-54|female"
+                  tolerance: 0.212
+                  abs_tilt: 0.1033
+                  tilt_over_tolerance: 0.487
+                  per_draw_log_sd: 0.0495
+                  single_draw_clip_prob: 0.0264
+                  mean_of_20_clip_prob: 0.0
+                  verdict: NOISE-DOMINATED
+                  note: >-
+                    Level at 49% of tolerance; single-draw clip is draw
+                    noise, mean-of-20 clip probability ~0.
+                - cell: "widowhood.75+|female"
+                  tolerance: 0.373
+                  abs_tilt: 0.102
+                  tilt_over_tolerance: 0.274
+                  per_draw_log_sd: 0.0912
+                  single_draw_clip_prob: 0.0048
+                  mean_of_20_clip_prob: 0.0
+                  verdict: NOISE-DOMINATED
+                  note: >-
+                    Level at 27% of tolerance; single-draw clip is draw
+                    noise, mean-of-20 clip probability ~0.
+                - cell: "completed_fertility.c1970s"
+                  tolerance: 0.171
+                  abs_tilt: 0.0597
+                  tilt_over_tolerance: 0.349
+                  per_draw_log_sd: 0.0351
+                  single_draw_clip_prob: 0.0036
+                  mean_of_20_clip_prob: 0.0
+                  verdict: NOISE-DOMINATED
+                  note: >-
+                    Level at 35% of tolerance; single-draw clip is draw
+                    noise, mean-of-20 clip probability ~0.
+          rationale: >-
+            The locked gate-2 tolerances were derived from the 100-seed
+            half-vs-half SPLIT noise floor (runs/gate2_floors_v2.json
+            noise_floor_seeds_0_99): tolerance = round(floor mean + 4 * floor
+            sd, 3), where the floor is the real-vs-real |ln(rate_A / rate_B)|
+            between two person-disjoint halves of the SAME data. That floor
+            contains NO simulation-draw noise -- neither half is simulated;
+            each is an empirical rate. The locked estimator, however, scores
+            the candidate on ONE simulation replicate, injecting a
+            per-cell simulation-draw noise term the tolerance never budgeted
+            for. The committed forensics measures that term directly (per-draw
+            log sd 0.01-0.09), and shows it is exactly what pushes the four
+            NOISE-DOMINATED cells over the line on a single unlucky draw while
+            their true level sits at 27-71% of tolerance. Averaging the
+            candidate rate over K = 20 pre-registered draws shrinks that
+            injected noise by sqrt(20) and moves the certified statistic
+            TOWARD the draw-noise-free rate the tolerance was measured
+            against -- it aligns the estimator with the tolerance's own
+            derivation basis rather than loosening the tolerance. Crucially,
+            it does not blunt the gate against real errors: where the level
+            genuinely exceeds tolerance (mean_lifetime_marriages|male) the
+            mean-of-20 clip probability RISES, and gross level errors (see
+            considered_and_rejected and the c2 illustration) fail by orders
+            of magnitude at any K.
+        - id: 2
+          title: >-
+            protocol clarification: the K=20 draw seeds are pre-registered
+            (5200 + k) and the estimator is a fixed mean over all K, never a
+            best-of-N selection
+          type: protocol_clarification
+          threshold_change: false
+          proposed: >-
+            The K = 20 simulation draw seeds are numpy default_rng(5200 + k)
+            for k = 0..19, pre-registered (the committed forensics
+            convention), distinct from the gate's single-draw simulation seed
+            (4200 + s). The certified per-cell statistic is the mean rate over
+            ALL 20 draws; no draw, and no subset of draws, may be selected
+            after scoring. A candidate registers K, the draw-seed rule, and
+            its fitting exclusions BEFORE scoring, exactly as governance
+            .registration requires. No committed tolerance or protocol field
+            changes.
+          rationale: >-
+            An estimator averaged over draws is only noise-reducing if the
+            draws are fixed in advance; a best-of-N or drop-the-worst rule
+            would be adversarial selection that biases the score downward.
+            Pinning the seed rule and the "mean over all K" definition
+            forecloses that, and keeping the seeds distinct from the gate sim
+            seed keeps the single-draw committed artifacts auditable
+            alongside a future 20-draw run.
+      considered_and_rejected:
+        - id: widen_tolerances
+          description: >-
+            Instead of changing the estimator, widen the per-cell tolerances
+            (e.g. raise k above 4, or lift specific boundary-cell tolerances)
+            so the noise-dominated single-draw clips fall inside.
+          reason: >-
+            REJECTED. Widening a tolerance changes the certified error budget
+            -- it would let a candidate with a genuinely larger LEVEL error
+            pass, which is precisely what the gate exists to catch. The
+            problem the forensics identifies is not that the tolerances are
+            too tight (they are the real-vs-real split floor at 4 sigma); it
+            is that the single-draw estimator injects draw noise the split
+            floor never contained. The estimator fix removes that injected
+            noise without touching the error budget; a tolerance widening
+            would relax the budget. This is the same distinction gate 1's
+            amendment 2 drew (an estimator change at the ratified line, not a
+            looser line).
+        - id: unfreeze_rng_best_of_n
+          description: >-
+            Keep the single-draw estimator but let a candidate draw N
+            replicates and keep its best (lowest-scoring) draw, or re-roll the
+            RNG until a seed passes.
+          reason: >-
+            REJECTED as adversarial selection. Best-of-N (or re-rolling the
+            simulation seed) biases the reported score below the candidate's
+            true expected rate and rewards variance, not fidelity -- the exact
+            failure gate 1's amendment 2 rejected when it declined "best-of-N
+            draws." The mean over a PRE-REGISTERED, fixed set of K draws
+            (change 1 + change 2) is the opposite: it is an unbiased,
+            selection-free estimator of the candidate's expected rate.
+        - id: k_100
+          description: >-
+            Use K = 100 draws instead of K = 20 for a tighter mean.
+          reason: >-
+            REJECTED: 5x the compute for < 1.1x the precision at these cells'
+            noise levels. The certified statistic's total error is dominated
+            by the IRREDUCIBLE split-noise floor sd (which no K reduces, since
+            it is rate_a vs the candidate's target, not draw noise); the
+            mean-of-K only shrinks the draw term to draw_sd / sqrt(K). Across
+            the six failing cells the total estimator sd,
+            sqrt(floor_sd^2 + (draw_sd/sqrt(K))^2), tightens from K=20 to
+            K=100 by at most 1.05x (worst cell share_widowed.75+|female:
+            0.0382 -> 0.0363), for 5x the runtime. K = 20 already puts the
+            draw term well below the split floor; K = 100 buys essentially
+            nothing.
+          arithmetic:
+            compute_multiplier: 5
+            precision_gain_max: 1.0506
+            precision_gain_max_cell: "share_widowed.75+|female"
+            basis: >-
+              total estimator sd = sqrt(floor_sd^2 + (draw_sd/sqrt(K))^2);
+              floor_sd from runs/gate2_floors_v2.json noise_floor_seeds_0_99,
+              draw_sd = mean over gate seeds of train_signed_logratio_sd in
+              runs/gate2_forensics_v1.json question_3_rng_stability; ratio =
+              sd(K=20) / sd(K=100), maximised over the six failing cells.
+      compute_cost:
+        one_shot_seconds_candidate8: 65.9
+        estimator_multiplier: 20
+        estimated_minutes_per_candidate: 22
+        forensics_measured_20draw_5seed_total_compute_seconds: 155.1
+        note: >-
+          A committed one-shot gate-2 run (candidate 8, runs/gate2_hazard_v8
+          .json) took 65.9 s for 5 seeds x 1 draw. The amended estimator
+          multiplies the per-seed SIMULATION work ~20x -> ~1318 s ~= 22 min
+          per candidate run. The committed forensics is a direct measurement
+          of the scaling: 20 train-side draws x 5 seeds ran in 155.1 s TOTAL
+          across the five seeds (29.3-32.5 s each; runs/gate2_forensics_v1
+          .json total_per_seed_compute_seconds, the sum of
+          per_seed_compute_seconds -- the "155.1" is the 5-seed total, not a
+          per-seed figure), train side ~half the panel. ~20 min per
+          candidate is acceptable and recorded; it is minutes, not hours.
+      path_to_pass: >-
+        A PASS under the amended estimator requires a FRESH registration: a
+        NEW candidate number (candidate 10), run one-shot on the pinned gate
+        seeds 0-4, each seed's holdout simulated at K = 20 pre-registered
+        draws (5200 + k), scored on the 20-draw mean rate against the same
+        locked tolerances and the same 46-cell 4-of-5 conjunction. Per
+        no_self_rescue no committed run (candidates 1-9) can be the ratifying
+        pass; their verdicts stand FAIL. The forensics is TRAIN-side, so a
+        fresh candidate's OUTER pass is NOT known in advance from it (unlike
+        gate 1's amendment 2, where the 20 pairs-c2st scores were already
+        public); the candidate-10 run must execute end-to-end and clear every
+        gated cell on the 20-draw outer means. The fresh run's committed
+        artifact MUST satisfy fresh_run_artifact_schema below: per-draw
+        per-cell rates committed so rbar recomputes; a pre-registered
+        undefined-draw rule that invalidates the run rather than silently
+        dropping a draw; and a report-only per-draw dispersion disclosure.
+      fresh_run_artifact_schema:
+        # Fix C (referee finding 4): the candidate-10 run contract, pinned
+        # NOW -- before any candidate-10 run -- so it cannot be shaped to a
+        # result. A fresh registration under the amended estimator MUST commit
+        # these three things, so a referee can recompute rbar from the
+        # artifact and audit the dispersion the 20-draw mean would otherwise
+        # hide. Prospective only; applies to no committed run (candidates 1-9
+        # stand FAIL under no_self_rescue).
+        applies_to: >-
+          the fresh candidate-10 (or later) one-shot run registered AFTER
+          ratification; never a committed run.
+        per_draw_per_cell_rates:
+          required: true
+          shape: [20, 46, 5]
+          shape_dims: K_draws x gated_cells x gate_seeds
+          rule: >-
+            The run artifact commits every draw's per-cell rate r[k, cell, s]
+            for all K=20 draws (numpy default_rng(5200 + k), k=0..19), all 46
+            gated cells, and all 5 gate seeds -- NOT only the 20-draw means.
+            So rbar_candidate,s = mean over k of r[k, cell, s] recomputes
+            cell-by-cell from the artifact, and the certified score
+            |ln(rbar / rate_a)| is independently auditable rather than taken
+            on trust from a committed mean.
+        undefined_draw_rule:
+          required: true
+          pre_specified: true
+          rule: >-
+            If any gated cell's rate is UNDEFINED on any draw (empty simulated
+            denominator -- zero exposure person-years for that cell on that
+            draw), the RUN IS INVALIDATED and must be re-registered and
+            re-run. No draw may be dropped, skipped, substituted, or re-rolled
+            post-registration; rbar is always the mean over ALL K registered
+            draws.
+          rationale: >-
+            Silently dropping an undefined draw would reintroduce exactly the
+            post-hoc draw selection that change 2 forecloses: a smaller,
+            outcome-selected draw set is not the pre-registered mean-of-20.
+            Pre-committing run-invalidation keeps the estimator an honest,
+            selection-free mean.
+        per_draw_dispersion_disclosure:
+          required: true
+          gated: false
+          report_only: true
+          commit:
+            per_cell_per_draw_sd: >-
+              the standard deviation across the K=20 draws of each gated
+              cell's rate (equivalently its log-rate), committed per gated
+              cell per gate seed. Exposes per-draw over-dispersion the 20-draw
+              mean hides -- the single-draw estimator penalised it, by
+              accident but really -- mirroring gate-1 amendment 2's
+              catastrophe-cap instinct at report-only weight.
+            max_per_draw_abs_ln_per_cell: >-
+              the maximum over the K=20 draws of |ln(r[k, cell, s] /
+              rate_a,s)| per gated cell per gate seed -- the worst single-draw
+              excursion, reported alongside rbar, never gated.
+          note: >-
+            REPORT-ONLY: no hard dispersion cap gates the run (gate-1's proved
+            decorative on the evidence). The disclosure exists so a referee
+            can see whether a passing 20-draw mean conceals a wildly dispersed
+            draw set.
+      flip_on_ratification:
+        # Fix B (referee findings 3+4): on maintainer ratification-by-merge, a
+        # follow-up flip PR moves the proposed estimator INTO the locked block
+        # (exactly as PR #79/#81 flipped the gate-2 lock and #67/#69 flipped
+        # gate-1 amendment 2). This proposal itself edits none of these
+        # (gate_2.thresholds is byte-identical to origin/master); flip_edits
+        # enumerates every locked-TEXT change that authorized flip will make,
+        # so the record names them in advance.
+        performed_by: >-
+          a follow-up flip PR, only after adversarial referee round +
+          verification + maintainer ratification-by-merge.
+        flip_edits:
+          - key: candidate
+            locked_path: gate_2.thresholds.protocol.candidate
+            locked_text_now: "one replicate, simulation seed s"
+            flip_change: >-
+              replace "(one replicate, simulation seed s)" with "K=20 draws at
+              numpy default_rng(5200 + k), k=0..19, scored on the 20-draw mean
+              cell rate"; and, per currently_locked.registration_divergence,
+              correct the seed-s wording to the registered 4200 + s convention
+              every committed run used.
+          - key: statistic
+            locked_path: gate_2.thresholds.statistic
+            locked_text_now: "r_candidate,s"
+            flip_change: >-
+              r_candidate,s -> rbar_candidate,s (the mean over K=20 draws of
+              the cell rate) in the |ln(. / r_holdout,s)| definition.
+          - key: pass_rule
+            locked_path: gate_2.thresholds.protocol.pass_rule
+            locked_text_now: "r_candidate,s"
+            flip_change: >-
+              r_candidate,s -> rbar_candidate,s in the per-seed conjunction
+              inequality.
+          - key: faithful_candidate_oc
+            locked_path: gate_2.thresholds.protocol.faithful_candidate_oc
+            locked_text_now: "p_seed_pass"
+            flip_change: >-
+              add a basis note that faithful_candidate_oc's draw-noise-free
+              half-normal basis now MATCHES the amended estimator; its numbers
+              stand unchanged (p_seed_pass 0.9404, p_gate_pass_4_of_5 0.9685),
+              whereas under the single-draw estimator they were unachievable
+              (finding 1).
+          - key: draft_label
+            locked_path: gate_2.thresholds.protocol.pass_rule
+            locked_text_now: "DRAFT seed-level conjunction"
+            flip_change: >-
+              remove the stray "DRAFT" label: "DRAFT seed-level conjunction."
+              -> "seed-level conjunction.".
+      illustrative_retroactive_application:
+        # DISCLOSURE ONLY -- applied: false. Modeled on gate 1's
+        # amendment-2 illustrative block, but with an honest divergence: the
+        # committed gate-2 artifacts hold only ONE outer draw per seed, and
+        # the committed forensics' 20 draws are TRAIN-side, so the amended
+        # (20-draw OUTER mean) verdict is NOT computable from committed
+        # artifacts without new outer simulations -- which this proposal
+        # does NOT run. This block therefore discloses (a) the committed
+        # verdicts (which stand), (b) the committed outer clips, and (c) the
+        # TRAIN-side mean-of-20 clip probability per failing cell (the
+        # forensics evidence), and marks the outer would-be verdict
+        # not-computable. It is illustration, not action; no committed
+        # verdict moves.
+        applied: false
+        what_this_is: >-
+          Illustration, NOT an action. Every committed run keeps its recorded
+          verdict; candidates 8 and 9 REMAIN FAIL (0/5). The table shows,
+          per committed failing cell, the committed outer score and the
+          forensics train-side mean-of-20 clip probability, only to expose
+          which failing cells are draw-noise artifacts (would clear) and
+          which are real level residuals (would not) -- without any committed
+          verdict moving.
+        no_self_rescue_reference: >-
+          Governed by no_self_rescue: this amendment applies only to runs
+          registered AFTER its ratification, so it rescues nothing already
+          committed. committed_verdict is the real, unchanged verdict for
+          every run (FAIL for both); the outer would-be verdict under the
+          amended estimator is not computable from committed artifacts.
+        outer_not_computable_note: >-
+          The gate scores the OUTER holdout (side A) at ONE frozen draw
+          (sim_seed 4200 + s). The committed forensics re-drew 20 replicates
+          on the TRAIN side (side B vs rate_b), NOT the outer side, so it
+          measures the DRAW-noise structure but does not yield a 20-draw
+          OUTER mean. Recomputing the amended outer verdict would require new
+          outer simulations (K=20 on side A for every gate seed), which this
+          proposal deliberately does not run. The train-side mean-of-20 clip
+          probabilities below are the honest available evidence; the outer
+          verdict under the amended estimator is marked NOT_COMPUTABLE_OUTER.
+        process_statement: >-
+          Stated plainly, without varnish: this amendment was proposed AFTER
+          candidate 8 (run 1, #93) and candidate 9 (run 1, #95) failed and
+          AFTER the registered forensics (#94) diagnosed their chronic cells.
+          Changing a scoring rule after seeing specific candidates miss it is
+          a goalpost move on its face. The defense, for the referee to weigh:
+          (a) no tolerance moves -- the certified error budget is untouched,
+          byte-identical to origin/master; (b) the change is motivated by a
+          measurement (the single-draw vs 20-draw clip structure) whose logic
+          applies to ANY candidate and would hold without candidates 8-9 --
+          it follows directly from the tolerances having been derived from a
+          draw-noise-free split floor; (c) it does NOT rescue its triggering
+          candidates -- candidate 8's mean_lifetime_marriages|male and
+          candidate 9's boundary cells carry real level offsets the mean-of-20
+          estimator does not remove (and for the male cell sharpens), so both
+          would still fail; and (d) the first pass must be a fresh
+          candidate-10 registration (no_self_rescue). Whether the timing is
+          acceptable given (a)-(d) is what the referee round adjudicates.
+        K: 20
+        draw_seed_convention: 5200 + k, k in 0..19
+        would_flip_if_applied:
+          computable_from_committed_artifacts: false
+          reason: >-
+            The committed gate-2 artifacts hold one outer draw per seed; the
+            20-draw evidence is train-side only. No committed run can be SHOWN
+            to flip without new outer simulations, which this proposal does
+            not run. Regardless, under no_self_rescue no committed verdict
+            changes.
+          note: >-
+            The train-side reading (below) indicates neither candidate 8 nor
+            candidate 9 would pass even outer-side: each retains a real
+            boundary-level residual (mean_lifetime_marriages|male,
+            share_widowed.75+|female) the mean-of-20 estimator does not
+            remove.
+        runs:
+          - run: candidate 8
+            pr: 93
+            artifact: runs/gate2_hazard_v8.json
+            committed_verdict: FAIL
+            n_seeds_pass: 0
+            outer_mean_of_20_verdict: NOT_COMPUTABLE_OUTER
+            train_side_reading: >-
+              4 of the 6 failing cells are NOISE-DOMINATED (train-side
+              mean-of-20 clip prob ~0: share_divorced.45-54|female,
+              mean_lifetime_marriages|female, widowhood.75+|female,
+              completed_fertility.c1970s) and would clear; but
+              mean_lifetime_marriages|male (train-side mean-of-20 clip prob
+              0.59, a real level offset at 99% of tolerance clipping on 4/5
+              seeds) is NOT rescued, so candidate 8 would still fail. Outer
+              verdict not computable from committed artifacts.
+            failing_cells:
+              - cell: "share_divorced.45-54|female"
+                seed: 0
+                outer_score: 0.2123
+                tolerance: 0.212
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|female"
+                seed: 1
+                outer_score: 0.0531
+                tolerance: 0.051
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0005
+                outer_mean_of_20_computable: false
+              - cell: "share_widowed.75+|female"
+                seed: 1
+                outer_score: 0.2059
+                tolerance: 0.185
+                in_forensics: true
+                forensics_verdict: BOUNDARY
+                train_mean_of_20_clip_prob: 0.2023
+                outer_mean_of_20_computable: false
+              - cell: "completed_fertility.c1970s"
+                seed: 2
+                outer_score: 0.1863
+                tolerance: 0.171
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|male"
+                seed: 3
+                outer_score: 0.0678
+                tolerance: 0.047
+                in_forensics: true
+                forensics_verdict: BOUNDARY
+                train_mean_of_20_clip_prob: 0.5927
+                outer_mean_of_20_computable: false
+              - cell: "widowhood.75+|female"
+                seed: 3
+                outer_score: 0.3915
+                tolerance: 0.373
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|male"
+                seed: 4
+                outer_score: 0.0487
+                tolerance: 0.047
+                in_forensics: true
+                forensics_verdict: BOUNDARY
+                train_mean_of_20_clip_prob: 0.5927
+                outer_mean_of_20_computable: false
+          - run: candidate 9
+            pr: 95
+            artifact: runs/gate2_hazard_v9.json
+            committed_verdict: FAIL
+            n_seeds_pass: 0
+            outer_mean_of_20_verdict: NOT_COMPUTABLE_OUTER
+            train_side_reading: >-
+              Candidate 9's delta 1 targeted the lifetime-marriage count
+              cells; it still fails. Of its 8 failing cell-instances, one
+              (asfr.20-24, seed 0) is OUTSIDE the forensics 20-draw set
+              (not computable from the forensics); the noise-dominated cells
+              would clear, but share_widowed.75+|female (0.20) and
+              mean_lifetime_marriages|male (0.59) remain real level residuals,
+              so candidate 9 would still fail. Outer verdict not computable
+              from committed artifacts.
+            failing_cells:
+              - cell: "asfr.20-24"
+                seed: 0
+                outer_score: 0.1086
+                tolerance: 0.101
+                in_forensics: false
+                forensics_verdict: not_in_forensics
+                train_mean_of_20_clip_prob: null
+                outer_mean_of_20_computable: false
+              - cell: "share_divorced.45-54|female"
+                seed: 0
+                outer_score: 0.2123
+                tolerance: 0.212
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "share_widowed.75+|female"
+                seed: 1
+                outer_score: 0.2059
+                tolerance: 0.185
+                in_forensics: true
+                forensics_verdict: BOUNDARY
+                train_mean_of_20_clip_prob: 0.2023
+                outer_mean_of_20_computable: false
+              - cell: "completed_fertility.c1970s"
+                seed: 2
+                outer_score: 0.1983
+                tolerance: 0.171
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|female"
+                seed: 2
+                outer_score: 0.0609
+                tolerance: 0.051
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0005
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|male"
+                seed: 2
+                outer_score: 0.051
+                tolerance: 0.047
+                in_forensics: true
+                forensics_verdict: BOUNDARY
+                train_mean_of_20_clip_prob: 0.5927
+                outer_mean_of_20_computable: false
+              - cell: "widowhood.75+|female"
+                seed: 3
+                outer_score: 0.3915
+                tolerance: 0.373
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0
+                outer_mean_of_20_computable: false
+              - cell: "mean_lifetime_marriages|female"
+                seed: 4
+                outer_score: 0.0565
+                tolerance: 0.051
+                in_forensics: true
+                forensics_verdict: NOISE-DOMINATED
+                train_mean_of_20_clip_prob: 0.0005
+                outer_mean_of_20_computable: false
+        c2_gross_level_illustration:
+          # A model with genuine super-tolerance LEVEL errors still fails by
+          # orders of magnitude at any K -- pulled from candidate 2's
+          # committed run (runs/gate2_hazard_v2.json), which failed 0/5 with
+          # 65 failing cell-instances. Draw noise (log sd ~0.01-0.09) is
+          # 15-136x smaller than these offsets; mean-of-20 shrinks it by
+          # sqrt(20) and changes nothing here.
+          artifact: runs/gate2_hazard_v2.json
+          examples:
+            - cell: "share_widowed.65-74|female"
+              seed: 3
+              outer_score: 1.359
+              tolerance: 0.3
+              score_over_tolerance: 4.5
+              rate_multiple: 3.9
+              seed_invariant: >-
+                clips on all 5 seeds (1.287-1.359), a systematic level error,
+                not draw noise
+            - cell: "share_divorced.55-64|female"
+              seed: 3
+              outer_score: 0.8689
+              tolerance: 0.269
+              score_over_tolerance: 3.2
+              rate_multiple: 2.4
+            - cell: "widowhood.45+|male"
+              seed: 0
+              outer_score: 0.8938
+              tolerance: 0.351
+              score_over_tolerance: 2.5
+              rate_multiple: 2.4
+      pass_rule: >-
+        Proposed per-cell rule for a FRESHLY REGISTERED gate-2 run (never a
+        committed one). Every gated cell's score becomes
+        |ln(rbar_candidate,s / rate_a,s)| with rbar the mean over K = 20
+        pre-registered draws (5200 + k) of the cell rate on the seed-s
+        holdout; the reference rate_a,s, the tolerances, the 46-cell
+        membership, and the conjunction are inherited UNCHANGED from the
+        locked block: seed s passes iff every one of the 46 gated cells
+        holds |ln(rbar / rate_a)| <= its locked tolerance at seed s, and the
+        gate passes iff >= 4 of 5 gate seeds pass. Only the candidate
+        statistic (one draw -> 20-draw mean rate) changes; report-only cells
+        and external anchors stay report-only. Only a run registered AFTER
+        ratification is scored this way (no_self_rescue).
+      validation_note: >-
+        Discriminator check on committed evidence (illustrative, applied:
+        false): the amended estimator clears the four NOISE-DOMINATED
+        failing cells (train-side mean-of-20 clip prob ~0) but does NOT
+        rescue the two BOUNDARY cells (mean_lifetime_marriages|male 0.49 ->
+        0.59; share_widowed.75+|female 0.34 -> 0.20) nor any gross level
+        error (candidate 2's cells fail by 2.4-4.5x tolerance at any K). So
+        neither triggering candidate (8, 9) would pass even outer-side, and
+        per no_self_rescue their committed verdicts stand FAIL regardless.
+        The gate's first pass must come from a fresh candidate-10
+        registration on seeds 0-4 under the amended estimator.
   gate_3:
     name: forward projection
     description: >-
