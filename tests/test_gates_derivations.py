@@ -821,10 +821,12 @@ def _gate_2() -> dict:
 
 
 def _gate_2_if_draft() -> dict | None:
-    g2 = _gate_2()
-    if g2.get("status") != "draft_pending_referee_round":
-        return None
-    return g2
+    """Retained name; post-lock the bindings run unconditionally.
+
+    Amendment-2 lesson: derivation bindings must stay HOT after
+    ratification, not go dormant with the draft status.
+    """
+    return _gate_2()
 
 
 def _gate2_floor() -> dict:
@@ -836,16 +838,25 @@ def _gate2_derive(cell: str, k: float, rounding: int) -> float:
     return round(stats["mean"] + k * stats["sd"], rounding)
 
 
-def test_gate2_stays_locked_false():
-    """Gate 2 never locks in the pre-lock evidence PR (the ceremony is later)."""
-    assert _gate_2()["locked"] is False
+def test_gate2_locked_with_ratification_record():
+    """Gate 2 is locked, with the full ceremony recorded in the contract."""
+    g2 = _gate_2()
+    assert g2["locked"] is True
+    assert g2["status"] == "locked"
+    record = g2["ratified"]
+    for token in (
+        "PR 79",
+        "4910467957",  # round-1 adversarial review
+        "4910712436",  # fixes summary
+        "4910856982",  # verification LOCK AS-IS
+        "no_self_rescue",
+    ):
+        assert token in record, token
 
 
 def test_gate2_floor_run_is_a_reported_anchor():
-    """The floor the DRAFT thresholds cite reads no gate and is pre-lock."""
+    """The floor the locked thresholds cite reads no gate."""
     g2 = _gate_2_if_draft()
-    if g2 is None:
-        pytest.skip("gate_2 is not draft")
     assert g2["floor_run"] == GATE2_FLOOR_RUN
     floor = _gate2_floor()
     assert floor["reported_anchor_not_gated"] is True
@@ -853,8 +864,8 @@ def test_gate2_floor_run_is_a_reported_anchor():
     assert "NOT RATIFIED" in floor["draft_thresholds_note"]
 
 
-def test_gate2_draft_thresholds_bind_to_floor():
-    """Every DRAFT tolerance == round(100-seed floor mean + k*sd, rounding).
+def test_gate2_locked_thresholds_bind_to_floor():
+    """Every locked tolerance == round(100-seed floor mean + k*sd, rounding).
 
     The exact machine-binding the locked gate-1 geometry thresholds carry,
     applied to each gate-2 view's ``tolerances`` against the committed
@@ -862,8 +873,6 @@ def test_gate2_draft_thresholds_bind_to_floor():
     ``derivations.rules`` entry whose ``key`` is the floor cell itself.
     """
     g2 = _gate_2_if_draft()
-    if g2 is None:
-        pytest.skip("gate_2 is not in draft_pending_referee_round status")
     for view_name, view in g2["views"].items():
         rules = view["derivations"]["rules"]
         tolerances = view["tolerances"]
@@ -878,11 +887,9 @@ def test_gate2_draft_thresholds_bind_to_floor():
             )
 
 
-def test_gate2_draft_k_matches_gate1_precedent():
-    """Every DRAFT k is the ~4-sigma gate-1 precedent, and marked draft."""
+def test_gate2_locked_k_matches_gate1_precedent():
+    """Every locked k is the ~4-sigma gate-1 precedent."""
     g2 = _gate_2_if_draft()
-    if g2 is None:
-        pytest.skip("gate_2 is not draft")
     assert g2["holdout_basis"] == ["mh85_23", "cah85_23", "MX23REL"]
     assert g2["floor_run"] == GATE2_FLOOR_RUN
     for view in g2["views"].values():
