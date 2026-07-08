@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import math
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -1036,3 +1037,404 @@ def test_gate2_external_anchor_is_period_matched_and_decomposed():
     md = floor["external_anchor"]["marriage_divorce"]
     assert md["concept_decomposition"]["person_to_couple_factor"] == 2.0
     assert "period_matched" in floor["external_anchor"]["asfr"]
+
+
+# --------------------------------------------------------------------------
+# Gate-2 amendment proposal 1 binding (gate_2.amendment_proposed)
+#
+# The mean-over-draws estimator proposal, mirroring gate 1's amendment-2
+# proposal-object tests: an inert public OBJECT that changes no locked value
+# and no model reads. These tests bind its arithmetic (the per-cell operating
+# characteristic recomputes from the committed forensics; K=20 and the
+# 5200+k draw-seed convention are pinned; the k=100 rejection arithmetic and
+# the compute cost recompute) and its honesty (applied: false, candidates 8/9
+# stay FAIL, the outer verdict is marked not-computable, no locked gate-2
+# value moved -- a byte compare of the thresholds subtree against
+# origin/master). All are no-ops (skip) until the amendment_proposed
+# subsection exists; they touch only committed files.
+# --------------------------------------------------------------------------
+GATE2_FORENSICS_RUN = "runs/gate2_forensics_v1.json"
+
+
+def _gate2_amendment() -> dict | None:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_2"].get("amendment_proposed")
+
+
+def _gate2_amend_change(change_id: int) -> dict | None:
+    amendment = _gate2_amendment()
+    if amendment is None:
+        return None
+    for change in amendment["changes"]:
+        if change.get("id") == change_id:
+            return change
+    return None
+
+
+def _gate2_amend_rejected(entry_id: str) -> dict | None:
+    amendment = _gate2_amendment()
+    if amendment is None:
+        return None
+    for entry in amendment.get("considered_and_rejected", []):
+        if entry.get("id") == entry_id:
+            return entry
+    return None
+
+
+def _forensics_cell(cell: str) -> dict:
+    art = json.loads((ROOT / GATE2_FORENSICS_RUN).read_text())
+    return art["question_3_rng_stability"]["cells"][cell]
+
+
+def _mean_clip_prob(cell: str, tol: float, k: int) -> float:
+    """Mean over the 5 gate seeds of the per-seed clip probability at K draws.
+
+    Rate-scale normal approximation: a K-draw mean rate ~
+    N(train_rate_mean, (train_rate_sd / sqrt(K))**2); it clips when
+    |ln(rate / rate_b)| > tol, i.e. the rate falls outside
+    [rate_b * e**-tol, rate_b * e**tol]. At K=1 this reproduces the
+    committed prob_train_draw_clips_tolerance to machine precision.
+    """
+    per_seed = _forensics_cell(cell)["per_seed"]
+    probs = []
+    for stats in per_seed.values():
+        rate_b = stats["rate_b_train_reference"]
+        mu = stats["train_rate_mean"]
+        se = stats["train_rate_sd"] / math.sqrt(k)
+        upper = rate_b * math.exp(tol)
+        lower = rate_b * math.exp(-tol)
+        p = (1.0 - _normal_cdf((upper - mu) / se)) + _normal_cdf(
+            (lower - mu) / se
+        )
+        probs.append(p)
+    return sum(probs) / len(probs)
+
+
+def test_gate2_amendment_status_and_number():
+    """Proposal 1 for gate 2, pending a referee round -- inert."""
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    assert amendment["proposal_number"] == 1
+    assert amendment["status"] == "proposed_pending_referee_round"
+
+
+def test_gate2_amendment_k_and_seed_convention():
+    """Fix: K=20 and the 5200+k draw-seed convention bind to the forensics.
+
+    The estimator averages the candidate RATE over 20 draws (not the |ln|
+    scores), on the committed forensics' pre-registered draw seeds.
+    """
+    change = _gate2_amend_change(1)
+    if change is None:
+        pytest.skip("no gate_2 amendment change 1")
+    proposed = change["proposed"]
+    assert proposed["K"] == 20
+    assert proposed["statistic"] == "mean_over_draws"
+    assert "5200" in str(proposed["draw_seed_rule"])
+    # the mean is of the RATE, not of the |ln| scores
+    assert "mean of the candidate STATISTIC" in proposed["rule"]
+    assert "NOT the mean" in proposed["rule"]
+    # the draw seeds match the committed forensics convention exactly
+    art = json.loads((ROOT / GATE2_FORENSICS_RUN).read_text())
+    assert art["question_3_rng_stability"]["draw_seeds"] == [
+        5200 + k for k in range(20)
+    ]
+    assert "5200 + k" in art["protocol"]["draw_rng_rule"]
+
+
+def test_gate2_amendment_operating_characteristics_recompute():
+    """Every per-cell OC probability recomputes from the committed forensics.
+
+    Single-draw (K=1) reproduces the artifact's own
+    prob_train_draw_clips_tolerance; mean-of-20 (K=20) is the same rate-scale
+    model with sd/sqrt(20). The single-draw clips are the 0.49/0.34/0.10/
+    0.03/0.00/0.00 the proposal cites. The estimator is NOT a pass-machine:
+    the boundary cell mean_lifetime_marriages|male RISES (a real level error),
+    while the four noise-dominated cells collapse toward 0.
+    """
+    change = _gate2_amend_change(1)
+    if change is None:
+        pytest.skip("no gate_2 amendment change 1")
+    oc = change["proposed"]["operating_characteristics"]
+    assert oc["K"] == 20
+    by_cell = {}
+    for entry in oc["per_cell"]:
+        cell = entry["cell"]
+        by_cell[cell] = entry
+        tol = entry["tolerance"]
+        # tolerance and tilt cross-check against the committed forensics.
+        cd = _forensics_cell(cell)
+        assert tol == cd["tolerance"], cell
+        summary = cd["summary"]
+        assert entry["tilt_over_tolerance"] == pytest.approx(
+            round(summary["level_component_over_tolerance"], 3)
+        ), cell
+        assert entry["abs_tilt"] == pytest.approx(
+            round(abs(summary["mean_train_signed_offset_over_seeds"]), 4)
+        ), cell
+        assert entry["verdict"] == summary["verdict"], cell
+        # single-draw column recomputes AND equals the committed artifact.
+        single = _mean_clip_prob(cell, tol, 1)
+        assert entry["single_draw_clip_prob"] == pytest.approx(
+            single, abs=1e-4
+        ), cell
+        art_single = sum(
+            s["prob_train_draw_clips_tolerance"]
+            for s in cd["per_seed"].values()
+        ) / len(cd["per_seed"])
+        assert entry["single_draw_clip_prob"] == pytest.approx(
+            art_single, abs=1e-4
+        ), cell
+        # mean-of-20 column recomputes at K=20 (bound to the estimator).
+        mean20 = _mean_clip_prob(cell, tol, 20)
+        assert entry["mean_of_20_clip_prob"] == pytest.approx(
+            mean20, abs=1e-4
+        ), cell
+
+    # The single-draw clips are the cited descending sequence.
+    singles = sorted(
+        (e["single_draw_clip_prob"] for e in oc["per_cell"]), reverse=True
+    )
+    assert [round(x, 2) for x in singles] == [0.49, 0.34, 0.10, 0.03, 0.0, 0.0]
+
+    # A genuine super-tolerance level error fails HARDER under averaging;
+    # noise-dominated single-draw clips collapse toward zero.
+    male = by_cell["mean_lifetime_marriages|male"]
+    assert male["verdict"] == "BOUNDARY"
+    assert male["mean_of_20_clip_prob"] > male["single_draw_clip_prob"]
+    for cell in (
+        "mean_lifetime_marriages|female",
+        "share_divorced.45-54|female",
+        "widowhood.75+|female",
+        "completed_fertility.c1970s",
+    ):
+        e = by_cell[cell]
+        assert e["verdict"] == "NOISE-DOMINATED"
+        assert e["mean_of_20_clip_prob"] < e["single_draw_clip_prob"]
+        assert e["mean_of_20_clip_prob"] < 0.01
+
+
+def test_gate2_amendment_tolerances_and_conjunction_unchanged():
+    """The estimator changes; the error budget does not."""
+    change = _gate2_amend_change(1)
+    if change is None:
+        pytest.skip("no gate_2 amendment change 1")
+    proposed = change["proposed"]
+    assert proposed["tolerances"] == "unchanged"
+    assert "46" in proposed["conjunction"]
+    assert "4 of 5" in proposed["conjunction"]
+
+
+def test_gate2_amendment_changes_no_locked_value():
+    """Byte compare: gate_2.thresholds is identical to origin/master.
+
+    The proposal adds only the amendment_proposed sibling; every locked
+    tolerance, the protocol, the power cap, the governance, and the scope
+    map are unchanged. Compares the parsed thresholds subtree against
+    origin/master (self-fetching the ref if needed); skips only if the ref
+    is unreachable.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+
+    def _master_gates() -> dict | None:
+        for attempt in range(2):
+            try:
+                text = subprocess.run(
+                    ["git", "show", "origin/master:gates.yaml"],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ).stdout
+                return yaml.safe_load(text)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                if attempt == 0:
+                    subprocess.run(
+                        ["git", "fetch", "origin", "master"],
+                        cwd=ROOT,
+                        capture_output=True,
+                    )
+                    continue
+                return None
+        return None
+
+    master = _master_gates()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    current = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    cur_g2 = current["gates"]["gate_2"]
+    assert cur_g2["thresholds"] == master["gates"]["gate_2"]["thresholds"]
+    assert cur_g2["thresholds"]["locked"] is True
+    assert cur_g2["thresholds"]["status"] == "locked"
+    # gate 2 differs from master ONLY by the added amendment_proposed key.
+    assert set(cur_g2) - set(master["gates"]["gate_2"]) == {
+        "amendment_proposed"
+    }
+
+
+def test_gate2_amendment_no_self_rescue_clause():
+    """The verbatim no-self-rescue principle is recorded and inherited."""
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    clause = amendment.get("no_self_rescue", "")
+    assert (
+        "committed run verdict changes under a rule proposed after" in clause
+    )
+    assert "applies only to runs registered after its ratification" in clause
+    # Matches the inherited gate-2 governance clause (which inherits gate 1).
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    gov = gates["gates"]["gate_2"]["thresholds"]["governance"][
+        "amendment_rules"
+    ]
+    assert gov["inherits"] == "gate_1"
+    assert "committed run verdict changes" in gov["no_self_rescue"]
+
+
+def test_gate2_amendment_illustrative_is_not_applied():
+    """applied: false; candidates 8/9 stay FAIL; the outer verdict is honest.
+
+    The load-bearing honesty section: no committed verdict moves, and the
+    proposal does NOT fabricate an outer flip -- the committed artifacts hold
+    one outer draw per seed, so the amended (20-draw outer) verdict is marked
+    not-computable. Each disclosed failing cell's committed outer score and
+    tolerance match the run's artifact; each in-forensics cell's train-side
+    mean-of-20 clip probability recomputes from the forensics.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    block = amendment["illustrative_retroactive_application"]
+    assert block["applied"] is False
+    assert (
+        block["would_flip_if_applied"]["computable_from_committed_artifacts"]
+        is False
+    )
+
+    runs_by = {r["run"]: r for r in block["runs"]}
+    assert set(runs_by) == {"candidate 8", "candidate 9"}
+    for entry in block["runs"]:
+        art = json.loads((ROOT / entry["artifact"]).read_text())
+        verdict = art["verdict"]
+        assert entry["committed_verdict"] == "FAIL", entry["run"]
+        assert verdict["gate_2_pass"] is False, entry["run"]
+        assert verdict["n_seeds_pass"] == entry["n_seeds_pass"], entry["run"]
+        assert (
+            entry["outer_mean_of_20_verdict"] == "NOT_COMPUTABLE_OUTER"
+        ), entry["run"]
+
+        # The disclosed failing cells match the committed artifact exactly.
+        committed = {
+            (f["cell"], f["seed"]): f
+            for f in verdict["all_failing_gated_cells"]
+        }
+        for fc in entry["failing_cells"]:
+            key = (fc["cell"], fc["seed"])
+            assert key in committed, (entry["run"], key)
+            src = committed[key]
+            assert fc["outer_score"] == round(src["score"], 4), key
+            assert fc["tolerance"] == src["tolerance"], key
+            assert fc["outer_mean_of_20_computable"] is False, key
+            if fc["in_forensics"]:
+                mean20 = _mean_clip_prob(fc["cell"], fc["tolerance"], 20)
+                assert fc["train_mean_of_20_clip_prob"] == pytest.approx(
+                    mean20, abs=1e-4
+                ), key
+            else:
+                assert fc["train_mean_of_20_clip_prob"] is None, key
+        # Every committed failing cell is disclosed (no cherry-picking).
+        assert len(entry["failing_cells"]) == len(
+            verdict["all_failing_gated_cells"]
+        ), entry["run"]
+
+
+def test_gate2_amendment_c2_gross_level_still_fails():
+    """A model with genuine super-tolerance level errors fails at any K.
+
+    The c2 illustration's examples recompute from candidate 2's committed
+    artifact and clear tolerance by a wide, draw-noise-proof margin.
+    """
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    illo = amendment["illustrative_retroactive_application"][
+        "c2_gross_level_illustration"
+    ]
+    art = json.loads((ROOT / illo["artifact"]).read_text())
+    committed = {
+        (f["cell"], f["seed"]): f
+        for f in art["verdict"]["all_failing_gated_cells"]
+    }
+    for ex in illo["examples"]:
+        key = (ex["cell"], ex["seed"])
+        assert key in committed, key
+        src = committed[key]
+        assert ex["outer_score"] == pytest.approx(src["score"], abs=1e-3), key
+        assert ex["tolerance"] == src["tolerance"], key
+        # Orders of magnitude over tolerance: far beyond any draw-noise sd.
+        assert src["score"] / src["tolerance"] > 2.0, key
+        assert ex["score_over_tolerance"] == pytest.approx(
+            src["score"] / src["tolerance"], abs=0.1
+        ), key
+
+
+def test_gate2_amendment_considered_and_rejected():
+    """Three alternatives are recorded rejected; the k=100 math recomputes."""
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    ids = {e["id"] for e in amendment["considered_and_rejected"]}
+    assert {"widen_tolerances", "unfreeze_rng_best_of_n", "k_100"} <= ids
+
+    k100 = _gate2_amend_rejected("k_100")
+    arith = k100["arithmetic"]
+    assert arith["compute_multiplier"] == 5
+    # Recompute the max precision gain sd(K=20)/sd(K=100) over the 6 cells.
+    floor = _gate2_floor()[GATE2_FLOOR_KEY]
+    art = json.loads((ROOT / GATE2_FORENSICS_RUN).read_text())
+    cells = art["question_3_rng_stability"]["cells"]
+    worst = 0.0
+    for cell, cd in cells.items():
+        floor_sd = floor[cell]["sd"]
+        draw_sd = sum(
+            s["train_signed_logratio_sd"] for s in cd["per_seed"].values()
+        ) / len(cd["per_seed"])
+        sd20 = math.sqrt(floor_sd**2 + (draw_sd / math.sqrt(20)) ** 2)
+        sd100 = math.sqrt(floor_sd**2 + (draw_sd / math.sqrt(100)) ** 2)
+        worst = max(worst, sd20 / sd100)
+    assert worst < 1.1  # < 1.1x precision for 5x compute
+    assert arith["precision_gain_max"] == pytest.approx(worst, abs=1e-3)
+
+
+def test_gate2_amendment_compute_cost_recorded():
+    """The ~20 min/candidate figure ties to candidate 8's committed runtime."""
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    cc = amendment["compute_cost"]
+    c8 = json.loads((ROOT / "runs/gate2_hazard_v8.json").read_text())
+    assert cc["one_shot_seconds_candidate8"] == pytest.approx(
+        c8["elapsed_seconds"], abs=0.05
+    )
+    assert cc["estimator_multiplier"] == 20
+    expected_min = c8["elapsed_seconds"] * 20 / 60.0
+    assert cc["estimated_minutes_per_candidate"] == pytest.approx(
+        expected_min, abs=1.0
+    )
+
+
+def test_gate2_amendment_path_to_pass_and_process_statement():
+    """A pass needs a fresh candidate-10 registration; timing is disclosed."""
+    amendment = _gate2_amendment()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed")
+    path = amendment["path_to_pass"]
+    assert "FRESH" in path or "fresh" in path
+    assert "candidate 10" in path
+    ps = amendment["illustrative_retroactive_application"]["process_statement"]
+    # The goalpost-timing question is named, not hidden.
+    assert "after" in ps.lower()
+    assert "goalpost" in ps.lower()
