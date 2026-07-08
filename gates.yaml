@@ -639,7 +639,239 @@ gates:
       holdouts; benefit formulas earn per-rule "computes exactly"
       status.
     thresholds:
+      # DRAFT gate-2 pre-lock evidence (proposed 2026-07-07). PRE-LOCK,
+      # NOT RATIFIED: locked stays false and status is
+      # draft_pending_referee_round. This block is the analogue of what
+      # preceded gate 1's lock, one gate down -- committed reference
+      # moments, a person-disjoint half-split noise floor, and honest
+      # external anchors, all in runs/gate2_floors_v1.json (built by
+      # scripts/build_gate2_floors.py from the retrospective PSID history
+      # files mh85_23 / cah85_23 / MX23REL + ind2023er deaths). No model
+      # reads it; it changes no locked value. It feeds the referee round
+      # that a future lock ceremony (floors -> machine-bound derivations
+      # -> adversarial round -> verification -> maintainer ratification)
+      # runs before gate 2 can gate any run. Every DRAFT tolerance below
+      # is machine-bound to the floor by tests/test_gates_derivations.py:
+      # tolerance == round(floor mean + k * floor sd, rounding), with the
+      # DRAFT k = 4 (consistent with the locked gate-1 c2st precedent
+      # k=4.2 and the 4-of-5-seed rule). The referee round sets the final
+      # k; every number here is marked draft.
       locked: false
+      status: draft_pending_referee_round
+      holdout_basis: [mh85_23, cah85_23, MX23REL]
+      scope_note: >-
+        This first DRAFT tranche covers the marital-transition (first
+        marriage, remarriage, divorce, widowhood), occupancy, and
+        fertility statistics, built from mh85_23 and cah85_23 (with
+        ind2023er deaths for own-death censoring). Household-composition
+        transitions from the relationship matrix (MX23REL, named in
+        holdout_basis for the eventual lock, per the gate description) are
+        a planned addition to this draft -- not yet scored here, so the
+        referee round weighs the marital/fertility set on its own.
+      floor_run: runs/gate2_floors_v1.json
+      statistic: >-
+        Per cell, the absolute log rate ratio
+        |ln(candidate_rate / reference_rate)| between a candidate's
+        family-transition rate and the committed PSID reference moment
+        (runs/gate2_floors_v1.json reference_moments) -- symmetric and
+        scale-free, the same shape as the mortality-foundation
+        |log hazard ratio|.
+      views:
+        first_marriage_hazard:
+          statistic: >-
+            first-marriage hazard by age band x sex; among never-married
+            person-years
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "first_marriage.18-24|female": 0.077
+            "first_marriage.18-24|male": 0.079
+            "first_marriage.25-34|female": 0.087
+            "first_marriage.25-34|male": 0.043
+            "first_marriage.35-44|female": 0.154
+            "first_marriage.35-44|male": 0.277
+            "first_marriage.45+|female": 0.444
+            "first_marriage.45+|male": 0.463
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "first_marriage.18-24|female": { key: "first_marriage.18-24|female", k: 4, rounding: 3 }
+              "first_marriage.18-24|male": { key: "first_marriage.18-24|male", k: 4, rounding: 3 }
+              "first_marriage.25-34|female": { key: "first_marriage.25-34|female", k: 4, rounding: 3 }
+              "first_marriage.25-34|male": { key: "first_marriage.25-34|male", k: 4, rounding: 3 }
+              "first_marriage.35-44|female": { key: "first_marriage.35-44|female", k: 4, rounding: 3 }
+              "first_marriage.35-44|male": { key: "first_marriage.35-44|male", k: 4, rounding: 3 }
+              "first_marriage.45+|female": { key: "first_marriage.45+|female", k: 4, rounding: 3 }
+              "first_marriage.45+|male": { key: "first_marriage.45+|male", k: 4, rounding: 3 }
+        divorce_hazard:
+          statistic: >-
+            divorce hazard by marriage-duration band; among married
+            person-years
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "divorce.dur0-4": 0.163
+            "divorce.dur5-9": 0.151
+            "divorce.dur10-19": 0.201
+            "divorce.dur20+": 0.309
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "divorce.dur0-4": { key: "divorce.dur0-4", k: 4, rounding: 3 }
+              "divorce.dur5-9": { key: "divorce.dur5-9", k: 4, rounding: 3 }
+              "divorce.dur10-19": { key: "divorce.dur10-19", k: 4, rounding: 3 }
+              "divorce.dur20+": { key: "divorce.dur20+", k: 4, rounding: 3 }
+        widowhood_incidence:
+          statistic: >-
+            widowhood incidence by age band x sex; among married
+            person-years
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "widowhood.45-54|female": 0.462
+            "widowhood.45-54|male": 0.833
+            "widowhood.55-64|female": 0.123
+            "widowhood.55-64|male": 0.914
+            "widowhood.65-74|female": 0.301
+            "widowhood.65-74|male": 0.968
+            "widowhood.75+|female": 0.504
+            "widowhood.75+|male": 0.303
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "widowhood.45-54|female": { key: "widowhood.45-54|female", k: 4, rounding: 3 }
+              "widowhood.45-54|male": { key: "widowhood.45-54|male", k: 4, rounding: 3 }
+              "widowhood.55-64|female": { key: "widowhood.55-64|female", k: 4, rounding: 3 }
+              "widowhood.55-64|male": { key: "widowhood.55-64|male", k: 4, rounding: 3 }
+              "widowhood.65-74|female": { key: "widowhood.65-74|female", k: 4, rounding: 3 }
+              "widowhood.65-74|male": { key: "widowhood.65-74|male", k: 4, rounding: 3 }
+              "widowhood.75+|female": { key: "widowhood.75+|female", k: 4, rounding: 3 }
+              "widowhood.75+|male": { key: "widowhood.75+|male", k: 4, rounding: 3 }
+        remarriage_hazard:
+          statistic: >-
+            remarriage hazard by years-since-dissolution band; among
+            divorced/widowed person-years
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "remarriage.ysd0-4": 0.271
+            "remarriage.ysd5-9": 0.189
+            "remarriage.ysd10+": 0.215
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "remarriage.ysd0-4": { key: "remarriage.ysd0-4", k: 4, rounding: 3 }
+              "remarriage.ysd5-9": { key: "remarriage.ysd5-9", k: 4, rounding: 3 }
+              "remarriage.ysd10+": { key: "remarriage.ysd10+", k: 4, rounding: 3 }
+        occupancy:
+          statistic: >-
+            share ever married by age 40 / 60 x sex and mean lifetime
+            marriages among ever-married x sex
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "ever_married_by_40|female": 0.028
+            "ever_married_by_40|male": 0.042
+            "ever_married_by_60|female": 0.029
+            "ever_married_by_60|male": 0.044
+            "mean_lifetime_marriages|female": 0.078
+            "mean_lifetime_marriages|male": 0.064
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "ever_married_by_40|female": { key: "ever_married_by_40|female", k: 4, rounding: 3 }
+              "ever_married_by_40|male": { key: "ever_married_by_40|male", k: 4, rounding: 3 }
+              "ever_married_by_60|female": { key: "ever_married_by_60|female", k: 4, rounding: 3 }
+              "ever_married_by_60|male": { key: "ever_married_by_60|male", k: 4, rounding: 3 }
+              "mean_lifetime_marriages|female": { key: "mean_lifetime_marriages|female", k: 4, rounding: 3 }
+              "mean_lifetime_marriages|male": { key: "mean_lifetime_marriages|male", k: 4, rounding: 3 }
+        fertility:
+          statistic: >-
+            age-specific birth rate by 5-year maternal age band and
+            completed fertility by decade birth cohort
+          floor_run: runs/gate2_floors_v1.json
+          tolerances:
+            "asfr.15-19": 0.197
+            "asfr.20-24": 0.127
+            "asfr.25-29": 0.079
+            "asfr.30-34": 0.098
+            "asfr.35-39": 0.142
+            "asfr.40-44": 0.276
+            "completed_fertility.c1930s": 0.221
+            "completed_fertility.c1940s": 0.191
+            "completed_fertility.c1950s": 0.076
+            "completed_fertility.c1960s": 0.154
+            "completed_fertility.c1970s": 0.222
+          derivations:
+            floor_run: runs/gate2_floors_v1.json
+            rules:
+              "asfr.15-19": { key: "asfr.15-19", k: 4, rounding: 3 }
+              "asfr.20-24": { key: "asfr.20-24", k: 4, rounding: 3 }
+              "asfr.25-29": { key: "asfr.25-29", k: 4, rounding: 3 }
+              "asfr.30-34": { key: "asfr.30-34", k: 4, rounding: 3 }
+              "asfr.35-39": { key: "asfr.35-39", k: 4, rounding: 3 }
+              "asfr.40-44": { key: "asfr.40-44", k: 4, rounding: 3 }
+              "completed_fertility.c1930s": { key: "completed_fertility.c1930s", k: 4, rounding: 3 }
+              "completed_fertility.c1940s": { key: "completed_fertility.c1940s", k: 4, rounding: 3 }
+              "completed_fertility.c1950s": { key: "completed_fertility.c1950s", k: 4, rounding: 3 }
+              "completed_fertility.c1960s": { key: "completed_fertility.c1960s", k: 4, rounding: 3 }
+              "completed_fertility.c1970s": { key: "completed_fertility.c1970s", k: 4, rounding: 3 }
+      report_only:
+        # Cells with fewer than 20 events on the weaker half of the worst
+        # seed (NCHS's own reliability floor) -- published every gate-2
+        # run, not gated. Denominator-fragile, the analog of the locked
+        # benefit-space block's d1/d2. Derived from
+        # runs/gate2_floors_v1.json cell_stability, not hand-picked; the
+        # partition is bound by tests/test_gate2_floors.py.
+        - asfr.45-49
+      protocol:
+        seeds: [0, 1, 2, 3, 4]
+        split: >-
+          Person-disjoint 50/50 half-split of the marital panel's persons
+          (populace_dynamics.harness.panel.split_panel_by_person,
+          fraction=0.5, seed=s) -- the same machinery and seeds the
+          mortality-foundation floor uses. The floor statistic per cell is
+          |ln(rate_A / rate_B)| between the two independent real halves.
+        candidate: >-
+          A gate-2 candidate emits the same family-transition rates from
+          the same retrospective annual person-year construction
+          (populace_dynamics.data.transitions), weighted by the
+          person-constant PSID weight; holdout persons are excluded from
+          any fitting.
+        pass_rule: >-
+          DRAFT seed-level conjunction. Seed s passes iff every
+          gate-eligible cell's |ln(candidate_rate / reference_rate)| <= its
+          derived tolerance at seed s; the gate passes iff at least 4 of 5
+          seeds pass. Report-only cells are published, not gated. The
+          external-anchor checks below are reported, never gated on level.
+          The final rule is fixed by the referee round.
+      external_anchor_shape_checks:
+        # Phrased so they cannot reject reality given the known PSID
+        # retrospective coverage gaps (left-truncated histories; a
+        # pooled-period vs recent-year delta): shape and ratio REPORTS,
+        # not level gates. Every PSID/NCHS ratio is committed per band in
+        # runs/gate2_floors_v1.json external_anchor.
+        asfr:
+          reference: data/external/nchs_asfr_2024.json
+          concept: >-
+            Concept-aligned (both births per 1,000 women by age). The
+            recent window (calendar year >= 2010) matches the 2024 NCHS
+            vintage; the committed recent-window median PSID/NCHS ratio is
+            ~1.0.
+          check: >-
+            The age-specific fertility rate is a unimodal hump (rises to a
+            single peak in the 20-34 range, then declines) in both PSID and
+            NCHS. Reported, not a level gate.
+          reported_ratios: per-band PSID/NCHS ratio, both windows
+        marriage_divorce:
+          reference: data/external/nchs_marriage_divorce_rates_2023.json
+          concept_delta: >-
+            LOOSE order-of-magnitude only. NCHS is a crude rate per 1,000
+            TOTAL population; the PSID crude-equivalent is per 1,000
+            person-years age 15+, so PSID runs higher by construction
+            (smaller, older denominator) -- committed recent-window ratios
+            ~2.4-2.5x. The pooled 'all' window adds a historical-period
+            delta.
+          check: >-
+            PSID crude-equivalent marriage and divorce rates are the same
+            order of magnitude as the national rates, and marriage exceeds
+            divorce. Reported, never gated on level.
+          reported_ratios: PSID/NCHS crude-rate ratio, both windows
   gate_3:
     name: forward projection
     description: >-

@@ -1,0 +1,3956 @@
+{
+  "schema_version": "gate2_floors.v1",
+  "run": "gate2_floors_v1",
+  "reported_anchor_not_gated": true,
+  "component": "family transitions (gate 2 pre-lock; marriage / divorce / widowhood / remarriage hazards + occupancy + fertility)",
+  "purpose": "Gate-2 pre-lock evidence: committed reference moments, the person-disjoint half-split noise floor (the sd basis the DRAFT gate-2 thresholds derive from), and honest external anchors for the family-transition statistics. Reads no gate and changes no gate on its own; the DRAFT thresholds live in gates.yaml gate_2 (locked: false, status: draft_pending_referee_round). The lock ceremony comes after. See draft_thresholds_note (NOT RATIFIED).",
+  "holdout_basis": [
+    "mh85_23",
+    "cah85_23",
+    "MX23REL"
+  ],
+  "data": {
+    "marriage_history": "populace_dynamics.data.marriage.marriage_history (mh85_23; retrospective per-marriage records + never-married placeholders)",
+    "childbirth_history": "populace_dynamics.data.births.birth_history (cah85_23; retrospective per-child records)",
+    "deaths_and_sex": "populace_dynamics.data.deaths.read_death_records (ind2023er ER32000 sex, ER32050 exact year of death) -- own-death censoring of the at-risk window",
+    "weights": "person-constant most-recent positive cross-sectional weight from populace_dynamics.data.panels.demographic_panel; persons with no positive PSID weight are excluded from the weighted moments (repo weight>0 convention)",
+    "marriage_history_persons": 55732,
+    "panel_persons_weighted": 41409,
+    "panel_retained_share": 0.743,
+    "n_person_years": 1164692,
+    "person_year_calendar_range": [
+      1899,
+      2023
+    ],
+    "n_transition_events": 42898,
+    "transition_event_counts": {
+      "first_marriage": 24297,
+      "divorce": 9793,
+      "remarriage": 6082,
+      "widowhood": 2726
+    },
+    "n_woman_years_15_49": 488960,
+    "n_maternal_births": 35408,
+    "n_completed_fertility_women": 8529,
+    "death_records_exact_year": 7816
+  },
+  "panel_construction": {
+    "unit": "annual person-year",
+    "start_age": 15,
+    "max_year": 2023,
+    "rule": "Reconstruct marital state annually from each person's ordered marriage episodes (never_married -> married -> divorced/widowed/separated), from age START_AGE through censor_year = min(most_recent_report_year, exact death year, MAX_YEAR). State at person-year t is the state entering t (a transition in year t is the event, and t carries the pre-transition at-risk state -- discrete-time hazard, merge_asof allow_exact_matches=False).",
+    "widowhood_source": "the marriage file's how_ended=widowhood (directly dated at the marriage end year); deaths supply own-death censoring of continued exposure",
+    "coverage_caveats": [
+      "retrospective histories are LEFT-TRUNCATED: reconstructed young-adult person-years for a person first seen at an old age enter only if they survived and were sampled -- pooled deep-history young-age rates are selected (reported, not corrected)",
+      "the 'all' external-anchor window pools all reconstructed calendar years against a single recent national year (a named period delta); a 'recent' window brackets it",
+      "person-constant weight from the last positive PSID wave; retrospective person-years before that wave carry it"
+    ]
+  },
+  "statistic_families": {
+    "first_marriage_hazard": "by age band x sex",
+    "divorce_hazard": "by marriage-duration band",
+    "widowhood_incidence": "by age band x sex",
+    "remarriage_hazard": "by years-since-dissolution band",
+    "occupancy": "share ever married by 40 / 60 x sex; mean lifetime marriages among ever-married x sex",
+    "fertility": "age-specific birth rate by 5-year band; completed fertility by decade birth cohort"
+  },
+  "reference_moments": {
+    "first_marriage.18-24|female": {
+      "rate": 0.08138644328207922,
+      "rate_unweighted": 0.06835581661605854,
+      "num_wt": 94893875.526,
+      "den_wt": 1165966611.873,
+      "n_events": 6866
+    },
+    "first_marriage.18-24|male": {
+      "rate": 0.053672983691724574,
+      "rate_unweighted": 0.04874089106171017,
+      "num_wt": 73145999.067,
+      "den_wt": 1362808512.512,
+      "n_events": 5284
+    },
+    "first_marriage.25-34|female": {
+      "rate": 0.08197096123874716,
+      "rate_unweighted": 0.06845903205445333,
+      "num_wt": 51193317.424,
+      "den_wt": 624529914.623,
+      "n_events": 4013
+    },
+    "first_marriage.25-34|male": {
+      "rate": 0.08160397289752384,
+      "rate_unweighted": 0.07360230812909563,
+      "num_wt": 65948792.442,
+      "den_wt": 808156638.707,
+      "n_events": 4796
+    },
+    "first_marriage.35-44|female": {
+      "rate": 0.03739454056993304,
+      "rate_unweighted": 0.0342494914612801,
+      "num_wt": 8475635.881,
+      "den_wt": 226654365.9,
+      "n_events": 724
+    },
+    "first_marriage.35-44|male": {
+      "rate": 0.04318674224495074,
+      "rate_unweighted": 0.04498186215235792,
+      "num_wt": 11745779.403,
+      "den_wt": 271976509.281,
+      "n_events": 930
+    },
+    "first_marriage.45+|female": {
+      "rate": 0.019087456585899214,
+      "rate_unweighted": 0.017781486712029785,
+      "num_wt": 3779638.222,
+      "den_wt": 198016860.182,
+      "n_events": 277
+    },
+    "first_marriage.45+|male": {
+      "rate": 0.027748441865936366,
+      "rate_unweighted": 0.03231292517006803,
+      "num_wt": 4933115.429,
+      "den_wt": 177779907.529,
+      "n_events": 380
+    },
+    "widowhood.45-54|female": {
+      "rate": 0.005794631702129777,
+      "rate_unweighted": 0.007652793793898731,
+      "num_wt": 4765026.171,
+      "den_wt": 822317347.494,
+      "n_events": 365
+    },
+    "widowhood.45-54|male": {
+      "rate": 0.001695216289662769,
+      "rate_unweighted": 0.0022649309525903773,
+      "num_wt": 1325382.398,
+      "den_wt": 781836752.09,
+      "n_events": 103
+    },
+    "widowhood.55-64|female": {
+      "rate": 0.011737061737725027,
+      "rate_unweighted": 0.014778807255644004,
+      "num_wt": 6687130.055,
+      "den_wt": 569744813.858,
+      "n_events": 453
+    },
+    "widowhood.55-64|male": {
+      "rate": 0.003769280725615787,
+      "rate_unweighted": 0.004435872709739634,
+      "num_wt": 2066680.494,
+      "den_wt": 548295721.238,
+      "n_events": 138
+    },
+    "widowhood.65-74|female": {
+      "rate": 0.025302817532761052,
+      "rate_unweighted": 0.02758575714099387,
+      "num_wt": 8014054.752,
+      "den_wt": 316725785.246,
+      "n_events": 423
+    },
+    "widowhood.65-74|male": {
+      "rate": 0.006889595230606125,
+      "rate_unweighted": 0.008088978766430738,
+      "num_wt": 2270739.534,
+      "den_wt": 329589686.766,
+      "n_events": 144
+    },
+    "widowhood.75+|female": {
+      "rate": 0.05992610441604951,
+      "rate_unweighted": 0.062245491564863295,
+      "num_wt": 7681766.799,
+      "den_wt": 128187321.266,
+      "n_events": 321
+    },
+    "widowhood.75+|male": {
+      "rate": 0.02444754098237099,
+      "rate_unweighted": 0.02432008368200837,
+      "num_wt": 4023399.42,
+      "den_wt": 164572765.126,
+      "n_events": 186
+    },
+    "remarriage.ysd0-4": {
+      "rate": 0.10000193101965005,
+      "rate_unweighted": 0.10129548331492903,
+      "num_wt": 53635471.777,
+      "den_wt": 536344360.855,
+      "n_events": 3761
+    },
+    "remarriage.ysd5-9": {
+      "rate": 0.04731001981847136,
+      "rate_unweighted": 0.04911577289324837,
+      "num_wt": 19680770.69,
+      "den_wt": 415995824.257,
+      "n_events": 1372
+    },
+    "remarriage.ysd10+": {
+      "rate": 0.017232463234633146,
+      "rate_unweighted": 0.02012725344644751,
+      "num_wt": 13435121.084,
+      "den_wt": 779640200.073,
+      "n_events": 949
+    },
+    "divorce.dur0-4": {
+      "rate": 0.024878080200535127,
+      "rate_unweighted": 0.02674992081806253,
+      "num_wt": 37939123.307,
+      "den_wt": 1525002050.045,
+      "n_events": 2956
+    },
+    "divorce.dur5-9": {
+      "rate": 0.023692679806173643,
+      "rate_unweighted": 0.026353704498831163,
+      "num_wt": 36374412.903,
+      "den_wt": 1535259548.543,
+      "n_events": 2762
+    },
+    "divorce.dur10-19": {
+      "rate": 0.0157965681328624,
+      "rate_unweighted": 0.018040030432492537,
+      "num_wt": 34429746.254,
+      "den_wt": 2179571281.839,
+      "n_events": 2466
+    },
+    "divorce.dur20+": {
+      "rate": 0.0056514171273022995,
+      "rate_unweighted": 0.006274278987639788,
+      "num_wt": 17877639.552,
+      "den_wt": 3163390553.076,
+      "n_events": 1066
+    },
+    "ever_married_by_40|female": {
+      "rate": 0.8605666183254683,
+      "rate_unweighted": 0.8164991073945316,
+      "num_wt": 129282147.49999999,
+      "den_wt": 150229098.76700002,
+      "n_events": 8690
+    },
+    "ever_married_by_40|male": {
+      "rate": 0.8315583169404014,
+      "rate_unweighted": 0.8090559589918838,
+      "num_wt": 118315871.608,
+      "den_wt": 142282109.62199998,
+      "n_events": 7576
+    },
+    "ever_married_by_60|female": {
+      "rate": 0.9329543760842935,
+      "rate_unweighted": 0.9125947767481045,
+      "num_wt": 75694591.37900001,
+      "den_wt": 81134290.507,
+      "n_events": 4333
+    },
+    "ever_married_by_60|male": {
+      "rate": 0.9337272027085207,
+      "rate_unweighted": 0.9282024793388429,
+      "num_wt": 63244636.319,
+      "den_wt": 67733526.597,
+      "n_events": 3594
+    },
+    "mean_lifetime_marriages|female": {
+      "rate": 1.4011139736325848,
+      "rate_unweighted": 1.4027397260273973,
+      "num_wt": 167726596.162,
+      "den_wt": 119709459.272,
+      "n_events": 7665
+    },
+    "mean_lifetime_marriages|male": {
+      "rate": 1.4289988697205396,
+      "rate_unweighted": 1.4555865511672295,
+      "num_wt": 157228568.393,
+      "den_wt": 110027076.805,
+      "n_events": 6811
+    },
+    "asfr.15-19": {
+      "rate": 0.03485546367494703,
+      "rate_unweighted": 0.04988549731835711,
+      "num_wt": 40844458.267,
+      "den_wt": 1171823695.932,
+      "n_events": 5032
+    },
+    "asfr.20-24": {
+      "rate": 0.11116145531342143,
+      "rate_unweighted": 0.12589823375344183,
+      "num_wt": 119330659.722,
+      "den_wt": 1073489541.726,
+      "n_events": 11248
+    },
+    "asfr.25-29": {
+      "rate": 0.11775022857309228,
+      "rate_unweighted": 0.11865927356550994,
+      "num_wt": 116707449.304,
+      "den_wt": 991144142.294,
+      "n_events": 9523
+    },
+    "asfr.30-34": {
+      "rate": 0.09375047100313118,
+      "rate_unweighted": 0.09147570775477752,
+      "num_wt": 85050475.192,
+      "den_wt": 907200510.909,
+      "n_events": 6443
+    },
+    "asfr.35-39": {
+      "rate": 0.04201882865655155,
+      "rate_unweighted": 0.042733323274489095,
+      "num_wt": 34091885.702,
+      "den_wt": 811347836.006,
+      "n_events": 2549
+    },
+    "asfr.40-44": {
+      "rate": 0.010668373526965341,
+      "rate_unweighted": 0.01183298931147943,
+      "num_wt": 7585791.269,
+      "den_wt": 711054149.897,
+      "n_events": 579
+    },
+    "asfr.45-49": {
+      "rate": 0.0007141369624638515,
+      "rate_unweighted": 0.0008612391711839506,
+      "num_wt": 437488.751,
+      "den_wt": 612611829.376,
+      "n_events": 34
+    },
+    "completed_fertility.c1930s": {
+      "rate": 3.0411795028998787,
+      "rate_unweighted": 3.791411042944785,
+      "num_wt": 37335367.231,
+      "den_wt": 12276607.545,
+      "n_events": 815
+    },
+    "completed_fertility.c1940s": {
+      "rate": 2.3630452511555537,
+      "rate_unweighted": 2.5378289473684212,
+      "num_wt": 48701802.405,
+      "den_wt": 20609762.924,
+      "n_events": 1216
+    },
+    "completed_fertility.c1950s": {
+      "rate": 2.108763199629112,
+      "rate_unweighted": 2.210155857214681,
+      "num_wt": 66837556.199,
+      "den_wt": 31695145.387,
+      "n_events": 1989
+    },
+    "completed_fertility.c1960s": {
+      "rate": 2.0699577199492882,
+      "rate_unweighted": 2.2244301578024546,
+      "num_wt": 58944766.0,
+      "den_wt": 28476314.0,
+      "n_events": 1711
+    },
+    "completed_fertility.c1970s": {
+      "rate": 2.1555667821566518,
+      "rate_unweighted": 2.2106446776611692,
+      "num_wt": 40747789.0,
+      "den_wt": 18903515.0,
+      "n_events": 1334
+    }
+  },
+  "external_anchor": {
+    "asfr": {
+      "nchs_reference_file": "data/external/nchs_asfr_2024.json",
+      "nchs_vintage_year": 2024,
+      "nchs_citation": "Osterman MJK, Hamilton BE, Martin JA, Driscoll AK, Valenzuela CP. Births: Final Data for 2024. National Vital Statistics Reports, Vol. 75, No. 2. Hyattsville, MD: National Center for Health Statistics; June 9, 2026.",
+      "nchs_reference_sha256": "47fdc6dbf672895cf446bc1a521c4f3e5f868b49e591d24721085cf23b881a73",
+      "concept_note": "PSID age-specific fertility rate (weighted maternal births per 1,000 woman-years in the band) vs the NCHS 2024 published ASFR. Concept-aligned (both births per 1,000 women by age); the 'all' window pools PSID births across all reconstructed calendar years (a named period delta -- earlier decades peak younger and higher), the 'recent' window (calendar year >= 2010) brackets it. Ratios REPORTED, not tuned.",
+      "windows": {
+        "all": {
+          "start_year_min": null,
+          "by_band": {
+            "15-19": {
+              "psid_asfr_per_1000": 34.855463674947025,
+              "nchs_asfr_per_1000": 12.6,
+              "ratio": 2.7663066408688115,
+              "n_births": 5032
+            },
+            "20-24": {
+              "psid_asfr_per_1000": 111.16145531342143,
+              "nchs_asfr_per_1000": 55.8,
+              "ratio": 1.9921407762261905,
+              "n_births": 11248
+            },
+            "25-29": {
+              "psid_asfr_per_1000": 117.75022857309227,
+              "nchs_asfr_per_1000": 89.5,
+              "ratio": 1.3156450119898577,
+              "n_births": 9523
+            },
+            "30-34": {
+              "psid_asfr_per_1000": 93.75047100313118,
+              "nchs_asfr_per_1000": 93.7,
+              "ratio": 1.000538644643876,
+              "n_births": 6443
+            },
+            "35-39": {
+              "psid_asfr_per_1000": 42.018828656551534,
+              "nchs_asfr_per_1000": 54.3,
+              "ratio": 0.7738274154061057,
+              "n_births": 2549
+            },
+            "40-44": {
+              "psid_asfr_per_1000": 10.668373526965341,
+              "nchs_asfr_per_1000": 12.7,
+              "ratio": 0.8400294115720742,
+              "n_births": 579
+            },
+            "45-49": {
+              "psid_asfr_per_1000": 0.7141369624638517,
+              "nchs_asfr_per_1000": 1.1,
+              "ratio": 0.6492154204216833,
+              "n_births": 34
+            }
+          },
+          "ratio_summary": {
+            "n_bands": 7,
+            "median_ratio": 1.000538644643876,
+            "min_ratio": 0.6492154204216833,
+            "max_ratio": 2.7663066408688115
+          }
+        },
+        "recent": {
+          "start_year_min": 2010,
+          "by_band": {
+            "15-19": {
+              "psid_asfr_per_1000": 13.557409525793233,
+              "nchs_asfr_per_1000": 12.6,
+              "ratio": 1.075984882999463,
+              "n_births": 317
+            },
+            "20-24": {
+              "psid_asfr_per_1000": 63.86798894707502,
+              "nchs_asfr_per_1000": 55.8,
+              "ratio": 1.144587615538979,
+              "n_births": 1297
+            },
+            "25-29": {
+              "psid_asfr_per_1000": 89.83966047997924,
+              "nchs_asfr_per_1000": 89.5,
+              "ratio": 1.0037950891617793,
+              "n_births": 1670
+            },
+            "30-34": {
+              "psid_asfr_per_1000": 95.99145945762075,
+              "nchs_asfr_per_1000": 93.7,
+              "ratio": 1.0244552770290367,
+              "n_births": 1643
+            },
+            "35-39": {
+              "psid_asfr_per_1000": 49.04914129109197,
+              "nchs_asfr_per_1000": 54.3,
+              "ratio": 0.903299102966703,
+              "n_births": 720
+            },
+            "40-44": {
+              "psid_asfr_per_1000": 11.873969823573404,
+              "nchs_asfr_per_1000": 12.7,
+              "ratio": 0.9349582538246776,
+              "n_births": 142
+            },
+            "45-49": {
+              "psid_asfr_per_1000": 1.0902017824729526,
+              "nchs_asfr_per_1000": 1.1,
+              "ratio": 0.9910925295208659,
+              "n_births": 7
+            }
+          },
+          "ratio_summary": {
+            "n_bands": 7,
+            "median_ratio": 1.0037950891617793,
+            "min_ratio": 0.903299102966703,
+            "max_ratio": 1.144587615538979
+          }
+        }
+      }
+    },
+    "marriage_divorce": {
+      "nchs_reference_file": "data/external/nchs_marriage_divorce_rates_2023.json",
+      "nchs_latest_year": 2023,
+      "nchs_citation": "CDC/NCHS, National Vital Statistics System. National Marriage and Divorce Rate Trends for 2000-2023 (provisional). Hyattsville, MD: National Center for Health Statistics. Available from: https://www.cdc.gov/nchs/nvss/marriage-divorce.htm.",
+      "nchs_reference_sha256": "f80524bb6e60a6b36a65c72fe3416e71499ccc7b7f4e9b066d4ff3876a0b605c",
+      "concept_delta_note": "LOOSE order-of-magnitude anchor only. The NCHS rate is per 1,000 TOTAL population (all ages); the PSID crude-equivalent is per 1,000 person-years age 15+ (marriageable), so PSID runs higher by construction (a smaller, older denominator). The 'all' window also pools reconstructed historical years (higher marriage rates) against the 2023 provisional rate. Ratios REPORTED with the concept delta stated, never tuned; the gate-2 external check on this pair is a shape/direction report, not a level gate.",
+      "windows": {
+        "all": {
+          "start_year_min": null,
+          "psid_marriage_rate_per_1000_py15plus": 25.020066354983978,
+          "nchs_marriage_rate_per_1000_totalpop": 6.1,
+          "marriage_ratio": 4.101650222128521,
+          "psid_divorce_rate_per_1000_py15plus": 8.099204030649725,
+          "nchs_divorce_rate_per_1000_totalpop": 2.4,
+          "divorce_ratio": 3.3746683461040523,
+          "n_marriage_events": 30379,
+          "n_divorce_events": 9793
+        },
+        "recent": {
+          "start_year_min": 2010,
+          "psid_marriage_rate_per_1000_py15plus": 15.416841301760337,
+          "nchs_marriage_rate_per_1000_totalpop": 6.1,
+          "marriage_ratio": 2.5273510330754654,
+          "psid_divorce_rate_per_1000_py15plus": 5.788762953852851,
+          "nchs_divorce_rate_per_1000_totalpop": 2.4,
+          "divorce_ratio": 2.411984564105355,
+          "n_marriage_events": 5545,
+          "n_divorce_events": 1852
+        }
+      }
+    }
+  },
+  "internal_noise_floor": {
+    "method": "person-disjoint 50/50 half-split (populace_dynamics.harness.panel.split_panel_by_person, fraction=0.5, seeds 0-4) of every reference-moment cell; the floor statistic is |ln(rate_A / rate_B)| between two independent real halves -- the sd basis the DRAFT gate-2 thresholds derive from as round(mean + k*sd)",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "min_events_for_gate": 20
+  },
+  "noise_floor_seeds_0_4": {
+    "first_marriage.18-24|female": {
+      "mean": 0.02015340023883034,
+      "sd": 0.014327178679763481,
+      "min": 0.006797073525964181,
+      "max": 0.04135771173818375,
+      "n_seeds": 5,
+      "values": [
+        0.009887701793186189,
+        0.027871891160249355,
+        0.006797073525964181,
+        0.014852622976568216,
+        0.04135771173818375
+      ],
+      "pct_diff_abs": {
+        "mean": 2.009970821276737,
+        "sd": 1.4048270475320912,
+        "min": 0.6820226056982088,
+        "max": 4.051415079719765,
+        "n_seeds": 5,
+        "values": [
+          0.9936746630188574,
+          2.826394628207949,
+          0.6820226056982088,
+          1.4963471297389035,
+          4.051415079719765
+        ]
+      }
+    },
+    "first_marriage.18-24|male": {
+      "mean": 0.02580255539407204,
+      "sd": 0.013256712602519734,
+      "min": 0.007372005761222551,
+      "max": 0.04263434996435224,
+      "n_seeds": 5,
+      "values": [
+        0.02100716045033164,
+        0.024725940068007105,
+        0.04263434996435224,
+        0.007372005761222551,
+        0.03327332072644668
+      ],
+      "pct_diff_abs": {
+        "mean": 2.562541167879527,
+        "sd": 1.3095933977762928,
+        "min": 0.7344899177614902,
+        "max": 4.173828555488643,
+        "n_seeds": 5,
+        "values": [
+          2.0788047054196768,
+          2.442275797295743,
+          4.173828555488643,
+          0.7344899177614902,
+          3.3833068634320824
+        ]
+      }
+    },
+    "first_marriage.25-34|female": {
+      "mean": 0.032848566637564455,
+      "sd": 0.013651412215278763,
+      "min": 0.01711809320146655,
+      "max": 0.04821793764450177,
+      "n_seeds": 5,
+      "values": [
+        0.022632586355690567,
+        0.03101407248300899,
+        0.01711809320146655,
+        0.0452601435031544,
+        0.04821793764450177
+      ],
+      "pct_diff_abs": {
+        "mean": 3.2435183541753174,
+        "sd": 1.3181627403061713,
+        "min": 1.697241109511733,
+        "max": 4.707391402117979,
+        "n_seeds": 5,
+        "values": [
+          2.2378390686341025,
+          3.150001955088566,
+          1.697241109511733,
+          4.4251182355242085,
+          4.707391402117979
+        ]
+      }
+    },
+    "first_marriage.25-34|male": {
+      "mean": 0.010458537391885063,
+      "sd": 0.008163353148267131,
+      "min": 0.003687757061401769,
+      "max": 0.021899805140532132,
+      "n_seeds": 5,
+      "values": [
+        0.016099531800789647,
+        0.006857003327056553,
+        0.003687757061401769,
+        0.021899805140532132,
+        0.003748589629645216
+      ],
+      "pct_diff_abs": {
+        "mean": 1.0377691645373956,
+        "sd": 0.8063125461337997,
+        "min": 0.3680965636270054,
+        "max": 2.1661745395467533,
+        "n_seeds": 5,
+        "values": [
+          1.5970627034580354,
+          0.6833547722083997,
+          0.3680965636270054,
+          2.1661745395467533,
+          0.37415724384678395
+        ]
+      }
+    },
+    "first_marriage.35-44|female": {
+      "mean": 0.03583154128927206,
+      "sd": 0.029656130804657867,
+      "min": 0.002517655767592938,
+      "max": 0.07849059737365327,
+      "n_seeds": 5,
+      "values": [
+        0.04795674453085683,
+        0.002517655767592938,
+        0.03536342099235584,
+        0.014829287781901396,
+        0.07849059737365327
+      ],
+      "pct_diff_abs": {
+        "mean": 3.6092862579965113,
+        "sd": 3.072711762395365,
+        "min": 0.25208277242813515,
+        "max": 8.165318473372968,
+        "n_seeds": 5,
+        "values": [
+          4.682498378169258,
+          0.25208277242813515,
+          3.474544126267834,
+          1.4719875397443598,
+          8.165318473372968
+        ]
+      }
+    },
+    "first_marriage.35-44|male": {
+      "mean": 0.0695295185046035,
+      "sd": 0.05192974688098774,
+      "min": 0.023779357414313307,
+      "max": 0.1377237346026095,
+      "n_seeds": 5,
+      "values": [
+        0.05018379760215751,
+        0.0251772596177593,
+        0.023779357414313307,
+        0.1377237346026095,
+        0.11078344328617784
+      ],
+      "pct_diff_abs": {
+        "mean": 6.6670838579627185,
+        "sd": 4.781388178081965,
+        "min": 2.3498856272640745,
+        "max": 12.866062058265337,
+        "n_seeds": 5,
+        "values": [
+          5.146433524063141,
+          2.4862955712182893,
+          2.3498856272640745,
+          12.866062058265337,
+          10.48674250900275
+        ]
+      }
+    },
+    "first_marriage.45+|female": {
+      "mean": 0.11215170976340719,
+      "sd": 0.08285024151201767,
+      "min": 0.048663742143690715,
+      "max": 0.25258921029217046,
+      "n_seeds": 5,
+      "values": [
+        0.06380737401616798,
+        0.11972298870770832,
+        0.048663742143690715,
+        0.25258921029217046,
+        0.07597523365729844
+      ],
+      "pct_diff_abs": {
+        "mean": 10.370414124617767,
+        "sd": 7.108524895796431,
+        "min": 4.749863807872154,
+        "max": 22.32130876392046,
+        "n_seeds": 5,
+        "values": [
+          6.181429893004946,
+          11.283384227433181,
+          4.749863807872154,
+          22.32130876392046,
+          7.316083930858102
+        ]
+      }
+    },
+    "first_marriage.45+|male": {
+      "mean": 0.1488429533469496,
+      "sd": 0.07849851931020341,
+      "min": 0.060903536108838925,
+      "max": 0.2580896318601238,
+      "n_seeds": 5,
+      "values": [
+        0.09482453526702789,
+        0.1928290663408857,
+        0.2580896318601238,
+        0.060903536108838925,
+        0.13756799715787169
+      ],
+      "pct_diff_abs": {
+        "mean": 15.337302752453969,
+        "sd": 9.120051657497413,
+        "min": 5.908600037593308,
+        "max": 29.445483781961183,
+        "n_seeds": 5,
+        "values": [
+          9.046748865300222,
+          17.537708209450475,
+          29.445483781961183,
+          5.908600037593308,
+          14.74797286796466
+        ]
+      }
+    },
+    "widowhood.45-54|female": {
+      "mean": 0.1781799209902833,
+      "sd": 0.07103273785382554,
+      "min": 0.07527625566778541,
+      "max": 0.25958972962413146,
+      "n_seeds": 5,
+      "values": [
+        0.25958972962413146,
+        0.228595838297706,
+        0.16543216186052534,
+        0.07527625566778541,
+        0.1620056195012683
+      ],
+      "pct_diff_abs": {
+        "mean": 18.66900516377669,
+        "sd": 8.842968640502743,
+        "min": 7.818196362486426,
+        "max": 29.639810380750593,
+        "n_seeds": 5,
+        "values": [
+          29.639810380750593,
+          25.683397218847876,
+          15.247264406621886,
+          7.818196362486426,
+          14.956357450176661
+        ]
+      }
+    },
+    "widowhood.45-54|male": {
+      "mean": 0.2716406784173456,
+      "sd": 0.14025599660854246,
+      "min": 0.11923198082593137,
+      "max": 0.5010277930751943,
+      "n_seeds": 5,
+      "values": [
+        0.5010277930751943,
+        0.2577707380368097,
+        0.22197009793406916,
+        0.11923198082593137,
+        0.25820278221472365
+      ],
+      "pct_diff_abs": {
+        "mean": 24.54760318182668,
+        "sd": 10.570860593136551,
+        "min": 11.239812973805172,
+        "max": 39.40924080520967,
+        "n_seeds": 5,
+        "values": [
+          39.40924080520967,
+          22.72276208876485,
+          19.90606862832453,
+          11.239812973805172,
+          29.460131413029174
+        ]
+      }
+    },
+    "widowhood.55-64|female": {
+      "mean": 0.06269053710044224,
+      "sd": 0.015193104457752014,
+      "min": 0.04609277677074878,
+      "max": 0.08024481612466533,
+      "n_seeds": 5,
+      "values": [
+        0.08024481612466533,
+        0.06722660291471648,
+        0.04761494647042648,
+        0.04609277677074878,
+        0.07227354322165418
+      ],
+      "pct_diff_abs": {
+        "mean": 6.437057039613805,
+        "sd": 1.6758904808178403,
+        "min": 4.504663940831833,
+        "max": 8.355230628278601,
+        "n_seeds": 5,
+        "values": [
+          8.355230628278601,
+          6.9537811102284675,
+          4.876674622881477,
+          4.504663940831833,
+          7.494934895848646
+        ]
+      }
+    },
+    "widowhood.55-64|male": {
+      "mean": 0.21803342819619642,
+      "sd": 0.1738693032658099,
+      "min": 0.06990770346361534,
+      "max": 0.42338348463836734,
+      "n_seeds": 5,
+      "values": [
+        0.06990770346361534,
+        0.39168015357321667,
+        0.10464175995766603,
+        0.10055403934811666,
+        0.42338348463836734
+      ],
+      "pct_diff_abs": {
+        "mean": 18.952759950581815,
+        "sd": 13.335267990571081,
+        "min": 7.240919703186317,
+        "max": 34.51725313189863,
+        "n_seeds": 5,
+        "values": [
+          7.240919703186317,
+          32.40797299264235,
+          11.031278060315897,
+          9.566375864865876,
+          34.51725313189863
+        ]
+      }
+    },
+    "widowhood.65-74|female": {
+      "mean": 0.11127217756320743,
+      "sd": 0.04752322894408575,
+      "min": 0.046267533075012024,
+      "max": 0.1607499188780073,
+      "n_seeds": 5,
+      "values": [
+        0.1607499188780073,
+        0.11732467675497718,
+        0.14976336861136824,
+        0.046267533075012024,
+        0.0822553904966723
+      ],
+      "pct_diff_abs": {
+        "mean": 11.41661959423288,
+        "sd": 5.449512285519768,
+        "min": 4.521350894718246,
+        "max": 17.439123900855304,
+        "n_seeds": 5,
+        "values": [
+          17.439123900855304,
+          11.070358758764531,
+          16.155934880361464,
+          4.521350894718246,
+          7.896329536464861
+        ]
+      }
+    },
+    "widowhood.65-74|male": {
+      "mean": 0.2349853892899644,
+      "sd": 0.18322088663181818,
+      "min": 0.06167971725687638,
+      "max": 0.47578210093398937,
+      "n_seeds": 5,
+      "values": [
+        0.06167971725687638,
+        0.18486315102650835,
+        0.37394682244928457,
+        0.07865515478316323,
+        0.47578210093398937
+      ],
+      "pct_diff_abs": {
+        "mean": 28.10097936682397,
+        "sd": 24.13536051589036,
+        "min": 6.362163051503784,
+        "max": 60.92723188163076,
+        "n_seeds": 5,
+        "values": [
+          6.362163051503784,
+          20.305379218548563,
+          45.34598569664747,
+          7.564136985789278,
+          60.92723188163076
+        ]
+      }
+    },
+    "widowhood.75+|female": {
+      "mean": 0.1151340686870443,
+      "sd": 0.09719321907269128,
+      "min": 0.0017435834229919138,
+      "max": 0.20815784197982337,
+      "n_seeds": 5,
+      "values": [
+        0.13840347069210032,
+        0.20815784197982337,
+        0.0017435834229919138,
+        0.20236638877939386,
+        0.02499905856091202
+      ],
+      "pct_diff_abs": {
+        "mean": 11.74181480643843,
+        "sd": 9.916508097503982,
+        "min": 0.1745104348393392,
+        "max": 22.42964944443766,
+        "n_seeds": 5,
+        "values": [
+          14.843881821519597,
+          18.79211535375945,
+          0.1745104348393392,
+          22.42964944443766,
+          2.468916977636102
+        ]
+      }
+    },
+    "widowhood.75+|male": {
+      "mean": 0.0912030101848106,
+      "sd": 0.05293392351589913,
+      "min": 0.00597914246465711,
+      "max": 0.1386778055765375,
+      "n_seeds": 5,
+      "values": [
+        0.1078149684704566,
+        0.07736161784772327,
+        0.1261815165646785,
+        0.1386778055765375,
+        0.00597914246465711
+      ],
+      "pct_diff_abs": {
+        "mean": 9.437561155187195,
+        "sd": 5.619720624054505,
+        "min": 0.5997053216148157,
+        "max": 14.87539182651659,
+        "n_seeds": 5,
+        "values": [
+          10.220629879560098,
+          8.043270950941265,
+          13.44880779730321,
+          14.87539182651659,
+          0.5997053216148157
+        ]
+      }
+    },
+    "remarriage.ysd0-4": {
+      "mean": 0.05163545232101281,
+      "sd": 0.054847936839346606,
+      "min": 0.0019811656020572456,
+      "max": 0.1395802828279112,
+      "n_seeds": 5,
+      "values": [
+        0.0019811656020572456,
+        0.024281555067031724,
+        0.1395802828279112,
+        0.06880893205192411,
+        0.02352532605613975
+      ],
+      "pct_diff_abs": {
+        "mean": 4.931688447749994,
+        "sd": 5.0944816893499985,
+        "min": 0.19831294072888603,
+        "max": 13.027680343622416,
+        "n_seeds": 5,
+        "values": [
+          0.19831294072888603,
+          2.457875262295984,
+          13.027680343622416,
+          6.6494974070605615,
+          2.325076285042123
+        ]
+      }
+    },
+    "remarriage.ysd5-9": {
+      "mean": 0.059042067471781076,
+      "sd": 0.03236647469627304,
+      "min": 0.006987613707813258,
+      "max": 0.08782796896581639,
+      "n_seeds": 5,
+      "values": [
+        0.07097962338865185,
+        0.006987613707813258,
+        0.08782796896581639,
+        0.07963002313901361,
+        0.04978510815761028
+      ],
+      "pct_diff_abs": {
+        "mean": 5.921133408551756,
+        "sd": 3.251185280753971,
+        "min": 0.6963257099690771,
+        "max": 8.408157043438615,
+        "n_seeds": 5,
+        "values": [
+          7.355935014384444,
+          0.6963257099690771,
+          8.408157043438615,
+          8.288635065869594,
+          4.856614209097055
+        ]
+      }
+    },
+    "remarriage.ysd10+": {
+      "mean": 0.058647874952179976,
+      "sd": 0.03896527912096506,
+      "min": 0.01040276901238736,
+      "max": 0.11619189425046132,
+      "n_seeds": 5,
+      "values": [
+        0.06114118443777049,
+        0.03936291272503156,
+        0.11619189425046132,
+        0.0661406143352492,
+        0.01040276901238736
+      ],
+      "pct_diff_abs": {
+        "mean": 5.759742350972856,
+        "sd": 3.6606189724227014,
+        "min": 1.0457065930048672,
+        "max": 10.969563738394099,
+        "n_seeds": 5,
+        "values": [
+          5.930958044784453,
+          4.0147898069892145,
+          10.969563738394099,
+          6.8376935716916485,
+          1.0457065930048672
+        ]
+      }
+    },
+    "divorce.dur0-4": {
+      "mean": 0.04132885647673932,
+      "sd": 0.030295991873754036,
+      "min": 0.013321985293037769,
+      "max": 0.07695574262539004,
+      "n_seeds": 5,
+      "values": [
+        0.07695574262539004,
+        0.013321985293037769,
+        0.07052531678562977,
+        0.029537601684956324,
+        0.016303635994682663
+      ],
+      "pct_diff_abs": {
+        "mean": 4.1530172848458,
+        "sd": 3.06284902690302,
+        "min": 1.3411118308883152,
+        "max": 7.999427762356268,
+        "n_seeds": 5,
+        "values": [
+          7.999427762356268,
+          1.3411118308883152,
+          6.80958535903515,
+          2.997816365818639,
+          1.6171451061306246
+        ]
+      }
+    },
+    "divorce.dur5-9": {
+      "mean": 0.02856337101240967,
+      "sd": 0.030543625301058055,
+      "min": 2.9064656884037112e-05,
+      "max": 0.0805747583678772,
+      "n_seeds": 5,
+      "values": [
+        0.019667529069773242,
+        0.017610862476513327,
+        0.0805747583678772,
+        2.9064656884037112e-05,
+        0.024934640491000564
+      ],
+      "pct_diff_abs": {
+        "mean": 2.793970630509725,
+        "sd": 2.9182306310964634,
+        "min": 0.002906423451096038,
+        "max": 7.741407001274031,
+        "n_seeds": 5,
+        "values": [
+          1.9862209116926883,
+          1.7766848049854975,
+          7.741407001274031,
+          0.002906423451096038,
+          2.4626340111453118
+        ]
+      }
+    },
+    "divorce.dur10-19": {
+      "mean": 0.051032824099182084,
+      "sd": 0.03752928230869632,
+      "min": 9.096730668279502e-05,
+      "max": 0.10134373709804226,
+      "n_seeds": 5,
+      "values": [
+        9.096730668279502e-05,
+        0.04703024031529334,
+        0.06885397301480639,
+        0.03784520276108565,
+        0.10134373709804226
+      ],
+      "pct_diff_abs": {
+        "mean": 4.950350355342365,
+        "sd": 3.5570856187206674,
+        "min": 0.009096316928276593,
+        "max": 9.637762903561214,
+        "n_seeds": 5,
+        "values": [
+          0.009096316928276593,
+          4.594145387710846,
+          6.653701908894785,
+          3.8570452596167017,
+          9.637762903561214
+        ]
+      }
+    },
+    "divorce.dur20+": {
+      "mean": 0.08098143926539336,
+      "sd": 0.0569231776252555,
+      "min": 0.02120825394506005,
+      "max": 0.146257994354256,
+      "n_seeds": 5,
+      "values": [
+        0.06626688894104113,
+        0.146257994354256,
+        0.03625048446081324,
+        0.02120825394506005,
+        0.13492357462579638
+      ],
+      "pct_diff_abs": {
+        "mean": 7.773897325577027,
+        "sd": 5.178033445214441,
+        "min": 2.0984940410244453,
+        "max": 13.606521586680085,
+        "n_seeds": 5,
+        "values": [
+          6.8511853111452385,
+          13.606521586680085,
+          3.6915545195567967,
+          2.0984940410244453,
+          12.621731169478572
+        ]
+      }
+    },
+    "ever_married_by_40|female": {
+      "mean": 0.009596070444595104,
+      "sd": 0.004710725082817325,
+      "min": 0.004215248565631053,
+      "max": 0.01481497038571425,
+      "n_seeds": 5,
+      "values": [
+        0.004215248565631053,
+        0.011997883335773197,
+        0.004990705220656718,
+        0.011961544715200301,
+        0.01481497038571425
+      ],
+      "pct_diff_abs": {
+        "mean": 0.9575152307695708,
+        "sd": 0.4680672154349096,
+        "min": 0.42063768752335984,
+        "max": 1.4705768650558617,
+        "n_seeds": 5,
+        "values": [
+          0.42063768752335984,
+          1.2070146651136129,
+          0.5003179533195392,
+          1.18902898283548,
+          1.4705768650558617
+        ]
+      }
+    },
+    "ever_married_by_40|male": {
+      "mean": 0.01168502048727976,
+      "sd": 0.007495400820118358,
+      "min": 8.063542882871245e-05,
+      "max": 0.020519235071807723,
+      "n_seeds": 5,
+      "values": [
+        0.012331033119906272,
+        0.010585424326220411,
+        0.020519235071807723,
+        0.014908774489635682,
+        8.063542882871245e-05
+      ],
+      "pct_diff_abs": {
+        "mean": 1.1625187781002324,
+        "sd": 0.742605839278655,
+        "min": 0.008063217787994374,
+        "max": 2.0310148111370427,
+        "n_seeds": 5,
+        "values": [
+          1.2407373772472758,
+          1.0529595885029015,
+          2.0310148111370427,
+          1.4798188958259473,
+          0.008063217787994374
+        ]
+      }
+    },
+    "ever_married_by_60|female": {
+      "mean": 0.011506725353653264,
+      "sd": 0.00445368107523126,
+      "min": 0.004874980908411751,
+      "max": 0.01571577836047981,
+      "n_seeds": 5,
+      "values": [
+        0.01571577836047981,
+        0.014056326066725586,
+        0.009083565003727237,
+        0.013802976428921938,
+        0.004874980908411751
+      ],
+      "pct_diff_abs": {
+        "mean": 1.1472442861405256,
+        "sd": 0.4437458820166165,
+        "min": 0.4863117474816223,
+        "max": 1.559292991068875,
+        "n_seeds": 5,
+        "values": [
+          1.559292991068875,
+          1.4155580724664443,
+          0.9042434059886804,
+          1.3708152136970058,
+          0.4863117474816223
+        ]
+      }
+    },
+    "ever_married_by_60|male": {
+      "mean": 0.01114158619579513,
+      "sd": 0.008107198560321155,
+      "min": 0.001456201272793634,
+      "max": 0.022673887154102734,
+      "n_seeds": 5,
+      "values": [
+        0.001456201272793634,
+        0.010962594918402381,
+        0.006143310961768989,
+        0.014471936671907918,
+        0.022673887154102734
+      ],
+      "pct_diff_abs": {
+        "mean": 1.1157016246815894,
+        "sd": 0.8192317107799543,
+        "min": 0.14572620487057047,
+        "max": 2.2932893589967565,
+        "n_seeds": 5,
+        "values": [
+          0.14572620487057047,
+          1.0902724652273148,
+          0.6124479409410294,
+          1.436772153372276,
+          2.2932893589967565
+        ]
+      }
+    },
+    "mean_lifetime_marriages|female": {
+      "mean": 0.022466646624842743,
+      "sd": 0.013906645783561558,
+      "min": 0.009449794165565071,
+      "max": 0.04178831963494587,
+      "n_seeds": 5,
+      "values": [
+        0.01882577074904246,
+        0.010790366331186615,
+        0.04178831963494587,
+        0.009449794165565071,
+        0.03147898224347369
+      ],
+      "pct_diff_abs": {
+        "mean": 2.2234814329316315,
+        "sd": 1.3515844180034204,
+        "min": 0.9405285171293153,
+        "max": 4.092722403801341,
+        "n_seeds": 5,
+        "values": [
+          1.9004092830334693,
+          1.084879229070443,
+          4.092722403801341,
+          0.9405285171293153,
+          3.0988677316235886
+        ]
+      }
+    },
+    "mean_lifetime_marriages|male": {
+      "mean": 0.014065637307314003,
+      "sd": 0.012381127195508285,
+      "min": 0.0012626040540214113,
+      "max": 0.028286630862808793,
+      "n_seeds": 5,
+      "values": [
+        0.0012626040540214113,
+        0.01310615822143516,
+        0.028286630862808793,
+        0.0249266902413896,
+        0.002746103156915046
+      ],
+      "pct_diff_abs": {
+        "mean": 1.4032838518096902,
+        "sd": 1.2339137953089103,
+        "min": 0.126340147409333,
+        "max": 2.7890309774752957,
+        "n_seeds": 5,
+        "values": [
+          0.126340147409333,
+          1.3020646514083947,
+          2.7890309774752957,
+          2.5239957675562397,
+          0.27498771519918835
+        ]
+      }
+    },
+    "asfr.15-19": {
+      "mean": 0.055732504363996606,
+      "sd": 0.035351636357892874,
+      "min": 0.0072406295374514386,
+      "max": 0.0960398358139731,
+      "n_seeds": 5,
+      "values": [
+        0.0072406295374514386,
+        0.08357953044945224,
+        0.0960398358139731,
+        0.05109964761289375,
+        0.04070287840621252
+      ],
+      "pct_diff_abs": {
+        "mean": 5.558022461491563,
+        "sd": 3.629439968984901,
+        "min": 0.7214479332115931,
+        "max": 10.080291450068582,
+        "n_seeds": 5,
+        "values": [
+          0.7214479332115931,
+          8.018206977121265,
+          10.080291450068582,
+          4.981601775086645,
+          3.9885641719697356
+        ]
+      }
+    },
+    "asfr.20-24": {
+      "mean": 0.027232453061746188,
+      "sd": 0.024994300954534927,
+      "min": 0.0019974205085224257,
+      "max": 0.05788107605061447,
+      "n_seeds": 5,
+      "values": [
+        0.04478032674322637,
+        0.029002628025067784,
+        0.05788107605061447,
+        0.002500813981299893,
+        0.0019974205085224257
+      ],
+      "pct_diff_abs": {
+        "mean": 2.7693256697960296,
+        "sd": 2.5695887817186276,
+        "min": 0.1995426991696539,
+        "max": 5.958897771120212,
+        "n_seeds": 5,
+        "values": [
+          4.57981007989447,
+          2.8586088436860453,
+          5.958897771120212,
+          0.24976895510976702,
+          0.1995426991696539
+        ]
+      }
+    },
+    "asfr.25-29": {
+      "mean": 0.03589781448782482,
+      "sd": 0.010855670744799846,
+      "min": 0.0222102909105299,
+      "max": 0.045772032445747915,
+      "n_seeds": 5,
+      "values": [
+        0.0388865276837319,
+        0.04572450086617527,
+        0.0222102909105299,
+        0.045772032445747915,
+        0.026895720532939087
+      ],
+      "pct_diff_abs": {
+        "mean": 3.573249136619694,
+        "sd": 1.0838138446963792,
+        "min": 2.245877565121139,
+        "max": 4.67859825963745,
+        "n_seeds": 5,
+        "values": [
+          3.8140152581024807,
+          4.67859825963745,
+          2.245877565121139,
+          4.474029441068456,
+          2.653725159168941
+        ]
+      }
+    },
+    "asfr.30-34": {
+      "mean": 0.02199398442749708,
+      "sd": 0.01892681878082154,
+      "min": 0.003778858867438044,
+      "max": 0.04786539188945738,
+      "n_seeds": 5,
+      "values": [
+        0.003778858867438044,
+        0.03545692237476175,
+        0.015143547707695987,
+        0.04786539188945738,
+        0.007725201298132251
+      ],
+      "pct_diff_abs": {
+        "mean": 2.162598017090117,
+        "sd": 1.8437695068905189,
+        "min": 0.37717279653201097,
+        "max": 4.673790474885574,
+        "n_seeds": 5,
+        "values": [
+          0.37717279653201097,
+          3.483568967905224,
+          1.5029460808595982,
+          4.673790474885574,
+          0.7755117652681772
+        ]
+      }
+    },
+    "asfr.35-39": {
+      "mean": 0.05738561331514064,
+      "sd": 0.021163884522286135,
+      "min": 0.03027094695482421,
+      "max": 0.08194938839991582,
+      "n_seeds": 5,
+      "values": [
+        0.046725176595942886,
+        0.08194938839991582,
+        0.07521939713079775,
+        0.03027094695482421,
+        0.05276315749422252
+      ],
+      "pct_diff_abs": {
+        "mean": 5.77266771640495,
+        "sd": 2.0882943826647136,
+        "min": 2.9817370095550286,
+        "max": 7.868141307575437,
+        "n_seeds": 5,
+        "values": [
+          4.783400019885647,
+          7.868141307575437,
+          7.812066151859661,
+          2.9817370095550286,
+          5.417994093148977
+        ]
+      }
+    },
+    "asfr.40-44": {
+      "mean": 0.08007791828535804,
+      "sd": 0.04909012212436562,
+      "min": 0.005178765805470625,
+      "max": 0.14104856761620715,
+      "n_seeds": 5,
+      "values": [
+        0.005178765805470625,
+        0.09140426936865238,
+        0.07188201026640982,
+        0.14104856761620715,
+        0.09087597837005026
+      ],
+      "pct_diff_abs": {
+        "mean": 8.440391175439572,
+        "sd": 5.272222788230657,
+        "min": 0.5165379116648222,
+        "max": 15.14805712931589,
+        "n_seeds": 5,
+        "values": [
+          0.5165379116648222,
+          9.571187848173325,
+          7.452855324622071,
+          15.14805712931589,
+          9.513317663421752
+        ]
+      }
+    },
+    "asfr.45-49": {
+      "mean": 0.4077686487063666,
+      "sd": 0.36211285226395,
+      "min": 0.12730724764990292,
+      "max": 1.0330646001319843,
+      "n_seeds": 5,
+      "values": [
+        0.35200298648269857,
+        0.19266853799243067,
+        1.0330646001319843,
+        0.33379987127481636,
+        0.12730724764990292
+      ],
+      "pct_diff_abs": {
+        "mean": 32.89165408577979,
+        "sd": 21.063585510018676,
+        "min": 11.953688918707424,
+        "max": 64.40854482562456,
+        "n_seeds": 5,
+        "values": [
+          42.19127702301234,
+          17.524469611382802,
+          64.40854482562456,
+          28.38029005017184,
+          11.953688918707424
+        ]
+      }
+    },
+    "completed_fertility.c1930s": {
+      "mean": 0.061040580763984,
+      "sd": 0.040019895661573386,
+      "min": 0.020629395819075684,
+      "max": 0.12156853454585687,
+      "n_seeds": 5,
+      "values": [
+        0.048656893487628514,
+        0.12156853454585687,
+        0.03565178229993873,
+        0.07869629766742019,
+        0.020629395819075684
+      ],
+      "pct_diff_abs": {
+        "mean": 6.058368204193726,
+        "sd": 3.7667169262979354,
+        "min": 2.041806553330429,
+        "max": 11.446963815203286,
+        "n_seeds": 5,
+        "values": [
+          4.986007510825634,
+          11.446963815203286,
+          3.629492741915516,
+          8.187570399693765,
+          2.041806553330429
+        ]
+      }
+    },
+    "completed_fertility.c1940s": {
+      "mean": 0.034417289979612666,
+      "sd": 0.03924483752184148,
+      "min": 0.0017390897295310906,
+      "max": 0.09977445672111986,
+      "n_seeds": 5,
+      "values": [
+        0.007987276346443334,
+        0.09977445672111986,
+        0.0017390897295310906,
+        0.024111770943750097,
+        0.03847385615721894
+      ],
+      "pct_diff_abs": {
+        "mean": 3.3256372017996334,
+        "sd": 3.7237776978805517,
+        "min": 0.1737578389233182,
+        "max": 9.495847894975684,
+        "n_seeds": 5,
+        "values": [
+          0.8019259734839064,
+          9.495847894975684,
+          0.1737578389233182,
+          2.382340451922361,
+          3.7743138496929
+        ]
+      }
+    },
+    "completed_fertility.c1950s": {
+      "mean": 0.020315832377120892,
+      "sd": 0.013902051492261227,
+      "min": 0.00020768290479786393,
+      "max": 0.03573367745966051,
+      "n_seeds": 5,
+      "values": [
+        0.02158555724128864,
+        0.029886088336015013,
+        0.03573367745966051,
+        0.014166155943842448,
+        0.00020768290479786393
+      ],
+      "pct_diff_abs": {
+        "mean": 2.0290392486364435,
+        "sd": 1.401643320730413,
+        "min": 0.020770447238547433,
+        "max": 3.6379798432970047,
+        "n_seeds": 5,
+        "values": [
+          2.1354256342844518,
+          2.9443915089533212,
+          3.6379798432970047,
+          1.406628809408893,
+          0.020770447238547433
+        ]
+      }
+    },
+    "completed_fertility.c1960s": {
+      "mean": 0.039859342452216825,
+      "sd": 0.028427298161290582,
+      "min": 0.002405900938099271,
+      "max": 0.07653464581213443,
+      "n_seeds": 5,
+      "values": [
+        0.002405900938099271,
+        0.058076876765762495,
+        0.03056425774438119,
+        0.07653464581213443,
+        0.03171503100070675
+      ],
+      "pct_diff_abs": {
+        "mean": 3.8951661446134977,
+        "sd": 2.7246616855675665,
+        "min": 0.24030090780784094,
+        "max": 7.367917940425723,
+        "n_seeds": 5,
+        "values": [
+          0.24030090780784094,
+          5.642259453074073,
+          3.1036139976952923,
+          7.367917940425723,
+          3.1217384240645596
+        ]
+      }
+    },
+    "completed_fertility.c1970s": {
+      "mean": 0.042225485107130756,
+      "sd": 0.044951920960268635,
+      "min": 0.009892420239975469,
+      "max": 0.11733174904203342,
+      "n_seeds": 5,
+      "values": [
+        0.009892420239975469,
+        0.05084015095212344,
+        0.11733174904203342,
+        0.015595062302671846,
+        0.017468042998849593
+      ],
+      "pct_diff_abs": {
+        "mean": 4.391727054181738,
+        "sd": 4.801484918182008,
+        "min": 0.9843651197975716,
+        "max": 12.44924171001549,
+        "n_seeds": 5,
+        "values": [
+          0.9843651197975716,
+          5.2154693914266606,
+          12.44924171001549,
+          1.5474088997050317,
+          1.7621501499639325
+        ]
+      }
+    }
+  },
+  "cell_stability": {
+    "first_marriage.18-24|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 3342,
+      "gate_eligible": true
+    },
+    "first_marriage.18-24|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 2562,
+      "gate_eligible": true
+    },
+    "first_marriage.25-34|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1981,
+      "gate_eligible": true
+    },
+    "first_marriage.25-34|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 2370,
+      "gate_eligible": true
+    },
+    "first_marriage.35-44|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 341,
+      "gate_eligible": true
+    },
+    "first_marriage.35-44|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 451,
+      "gate_eligible": true
+    },
+    "first_marriage.45+|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 129,
+      "gate_eligible": true
+    },
+    "first_marriage.45+|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 167,
+      "gate_eligible": true
+    },
+    "widowhood.45-54|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 170,
+      "gate_eligible": true
+    },
+    "widowhood.45-54|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 48,
+      "gate_eligible": true
+    },
+    "widowhood.55-64|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 216,
+      "gate_eligible": true
+    },
+    "widowhood.55-64|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 60,
+      "gate_eligible": true
+    },
+    "widowhood.65-74|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 198,
+      "gate_eligible": true
+    },
+    "widowhood.65-74|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 60,
+      "gate_eligible": true
+    },
+    "widowhood.75+|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 150,
+      "gate_eligible": true
+    },
+    "widowhood.75+|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 86,
+      "gate_eligible": true
+    },
+    "remarriage.ysd0-4": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1767,
+      "gate_eligible": true
+    },
+    "remarriage.ysd5-9": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 668,
+      "gate_eligible": true
+    },
+    "remarriage.ysd10+": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 457,
+      "gate_eligible": true
+    },
+    "divorce.dur0-4": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1429,
+      "gate_eligible": true
+    },
+    "divorce.dur5-9": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1327,
+      "gate_eligible": true
+    },
+    "divorce.dur10-19": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1184,
+      "gate_eligible": true
+    },
+    "divorce.dur20+": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 500,
+      "gate_eligible": true
+    },
+    "ever_married_by_40|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 4262,
+      "gate_eligible": true
+    },
+    "ever_married_by_40|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 3723,
+      "gate_eligible": true
+    },
+    "ever_married_by_60|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 2121,
+      "gate_eligible": true
+    },
+    "ever_married_by_60|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1769,
+      "gate_eligible": true
+    },
+    "mean_lifetime_marriages|female": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 3747,
+      "gate_eligible": true
+    },
+    "mean_lifetime_marriages|male": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 3367,
+      "gate_eligible": true
+    },
+    "asfr.15-19": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 2406,
+      "gate_eligible": true
+    },
+    "asfr.20-24": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 5453,
+      "gate_eligible": true
+    },
+    "asfr.25-29": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 4644,
+      "gate_eligible": true
+    },
+    "asfr.30-34": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 3138,
+      "gate_eligible": true
+    },
+    "asfr.35-39": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 1236,
+      "gate_eligible": true
+    },
+    "asfr.40-44": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 259,
+      "gate_eligible": true
+    },
+    "asfr.45-49": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 12,
+      "gate_eligible": false
+    },
+    "completed_fertility.c1930s": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 381,
+      "gate_eligible": true
+    },
+    "completed_fertility.c1940s": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 581,
+      "gate_eligible": true
+    },
+    "completed_fertility.c1950s": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 927,
+      "gate_eligible": true
+    },
+    "completed_fertility.c1960s": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 826,
+      "gate_eligible": true
+    },
+    "completed_fertility.c1970s": {
+      "defined_seeds": 5,
+      "n_seeds": 5,
+      "min_events_either_half": 646,
+      "gate_eligible": true
+    }
+  },
+  "noise_floor_per_seed": [
+    {
+      "seed": 0,
+      "n_persons_side_a": 20608,
+      "n_persons_side_b": 20801,
+      "cells": {
+        "first_marriage.18-24|female": {
+          "rate_a": 0.08178197053350741,
+          "rate_b": 0.08097731942756387,
+          "n_events_a": 3502,
+          "n_events_b": 3364,
+          "log_ratio_abs": 0.009887701793186189,
+          "pct_diff_abs": 0.9936746630188574
+        },
+        "first_marriage.18-24|male": {
+          "rate_a": 0.053104255991568684,
+          "rate_b": 0.054231625575865354,
+          "n_events_a": 2562,
+          "n_events_b": 2722,
+          "log_ratio_abs": 0.02100716045033164,
+          "pct_diff_abs": 2.0788047054196768
+        },
+        "first_marriage.25-34|female": {
+          "rate_a": 0.08105778013186697,
+          "rate_b": 0.08291324512433162,
+          "n_events_a": 1982,
+          "n_events_b": 2031,
+          "log_ratio_abs": 0.022632586355690567,
+          "pct_diff_abs": 2.2378390686341025
+        },
+        "first_marriage.25-34|male": {
+          "rate_a": 0.08094203145787146,
+          "rate_b": 0.08225570667057303,
+          "n_events_a": 2383,
+          "n_events_b": 2413,
+          "log_ratio_abs": 0.016099531800789647,
+          "pct_diff_abs": 1.5970627034580354
+        },
+        "first_marriage.35-44|female": {
+          "rate_a": 0.03651743899667592,
+          "rate_b": 0.03831136819086776,
+          "n_events_a": 364,
+          "n_events_b": 360,
+          "log_ratio_abs": 0.04795674453085683,
+          "pct_diff_abs": 4.682498378169258
+        },
+        "first_marriage.35-44|male": {
+          "rate_a": 0.04431568502001574,
+          "rate_b": 0.042146636395302875,
+          "n_events_a": 451,
+          "n_events_b": 479,
+          "log_ratio_abs": 0.05018379760215751,
+          "pct_diff_abs": 5.146433524063141
+        },
+        "first_marriage.45+|female": {
+          "rate_a": 0.018532406424685056,
+          "rate_b": 0.019753452225449438,
+          "n_events_a": 145,
+          "n_events_b": 132,
+          "log_ratio_abs": 0.06380737401616798,
+          "pct_diff_abs": 6.181429893004946
+        },
+        "first_marriage.45+|male": {
+          "rate_a": 0.026437945148745312,
+          "rate_b": 0.029067619704535128,
+          "n_events_a": 188,
+          "n_events_b": 192,
+          "log_ratio_abs": 0.09482453526702789,
+          "pct_diff_abs": 9.046748865300222
+        },
+        "widowhood.45-54|female": {
+          "rate_a": 0.006545315492677624,
+          "rate_b": 0.005048846857654381,
+          "n_events_a": 188,
+          "n_events_b": 177,
+          "log_ratio_abs": 0.25958972962413146,
+          "pct_diff_abs": 29.639810380750593
+        },
+        "widowhood.45-54|male": {
+          "rate_a": 0.0012780250020911661,
+          "rate_b": 0.0021092737887348544,
+          "n_events_a": 52,
+          "n_events_b": 51,
+          "log_ratio_abs": 0.5010277930751943,
+          "pct_diff_abs": 39.40924080520967
+        },
+        "widowhood.55-64|female": {
+          "rate_a": 0.012221418442726185,
+          "rate_b": 0.011279029514184462,
+          "n_events_a": 216,
+          "n_events_b": 237,
+          "log_ratio_abs": 0.08024481612466533,
+          "pct_diff_abs": 8.355230628278601
+        },
+        "widowhood.55-64|male": {
+          "rate_a": 0.003899967989787717,
+          "rate_b": 0.0036366416854515674,
+          "n_events_a": 69,
+          "n_events_b": 69,
+          "log_ratio_abs": 0.06990770346361534,
+          "pct_diff_abs": 7.240919703186317
+        },
+        "widowhood.65-74|female": {
+          "rate_a": 0.02737722343614782,
+          "rate_b": 0.023311842362908185,
+          "n_events_a": 225,
+          "n_events_b": 198,
+          "log_ratio_abs": 0.1607499188780073,
+          "pct_diff_abs": 17.439123900855304
+        },
+        "widowhood.65-74|male": {
+          "rate_a": 0.007099693303261318,
+          "rate_b": 0.00667501778787954,
+          "n_events_a": 72,
+          "n_events_b": 72,
+          "log_ratio_abs": 0.06167971725687638,
+          "pct_diff_abs": 6.362163051503784
+        },
+        "widowhood.75+|female": {
+          "rate_a": 0.06413753540062388,
+          "rate_b": 0.05584758576891442,
+          "n_events_a": 166,
+          "n_events_b": 155,
+          "log_ratio_abs": 0.13840347069210032,
+          "pct_diff_abs": 14.843881821519597
+        },
+        "widowhood.75+|male": {
+          "rate_a": 0.023197863538055082,
+          "rate_b": 0.025838746147288538,
+          "n_events_a": 92,
+          "n_events_b": 94,
+          "log_ratio_abs": 0.1078149684704566,
+          "pct_diff_abs": 10.220629879560098
+        },
+        "remarriage.ysd0-4": {
+          "rate_a": 0.10009956391395551,
+          "rate_b": 0.09990144641773381,
+          "n_events_a": 1877,
+          "n_events_b": 1884,
+          "log_ratio_abs": 0.0019811656020572456,
+          "pct_diff_abs": 0.19831294072888603
+        },
+        "remarriage.ysd5-9": {
+          "rate_a": 0.04895212969542876,
+          "rate_b": 0.04559797247247648,
+          "n_events_a": 696,
+          "n_events_b": 676,
+          "log_ratio_abs": 0.07097962338865185,
+          "pct_diff_abs": 7.355935014384444
+        },
+        "remarriage.ysd10+": {
+          "rate_a": 0.01670744566277908,
+          "rate_b": 0.017760833230057952,
+          "n_events_a": 480,
+          "n_events_b": 469,
+          "log_ratio_abs": 0.06114118443777049,
+          "pct_diff_abs": 5.930958044784453
+        },
+        "divorce.dur0-4": {
+          "rate_a": 0.0258319260718603,
+          "rate_b": 0.023918576799037583,
+          "n_events_a": 1490,
+          "n_events_b": 1466,
+          "log_ratio_abs": 0.07695574262539004,
+          "pct_diff_abs": 7.999427762356268
+        },
+        "divorce.dur5-9": {
+          "rate_a": 0.02392509663440993,
+          "rate_b": 0.023459146167525976,
+          "n_events_a": 1387,
+          "n_events_b": 1375,
+          "log_ratio_abs": 0.019667529069773242,
+          "pct_diff_abs": 1.9862209116926883
+        },
+        "divorce.dur10-19": {
+          "rate_a": 0.015795849957313205,
+          "rate_b": 0.0157972869285983,
+          "n_events_a": 1236,
+          "n_events_b": 1230,
+          "log_ratio_abs": 9.096730668279502e-05,
+          "pct_diff_abs": 0.009096316928276593
+        },
+        "divorce.dur20+": {
+          "rate_a": 0.005839509066864327,
+          "rate_b": 0.0054650859041572375,
+          "n_events_a": 534,
+          "n_events_b": 532,
+          "log_ratio_abs": 0.06626688894104113,
+          "pct_diff_abs": 6.8511853111452385
+        },
+        "ever_married_by_40|female": {
+          "rate_a": 0.8587792444157644,
+          "rate_b": 0.8624068526578272,
+          "n_events_a": 4348,
+          "n_events_b": 4342,
+          "log_ratio_abs": 0.004215248565631053,
+          "pct_diff_abs": 0.42063768752335984
+        },
+        "ever_married_by_40|male": {
+          "rate_a": 0.8367264323614769,
+          "rate_b": 0.8264720842990638,
+          "n_events_a": 3754,
+          "n_events_b": 3822,
+          "log_ratio_abs": 0.012331033119906272,
+          "pct_diff_abs": 1.2407373772472758
+        },
+        "ever_married_by_60|female": {
+          "rate_a": 0.925576053523867,
+          "rate_b": 0.9402371047984176,
+          "n_events_a": 2132,
+          "n_events_b": 2201,
+          "log_ratio_abs": 0.01571577836047981,
+          "pct_diff_abs": 1.559292991068875
+        },
+        "ever_married_by_60|male": {
+          "rate_a": 0.934402068172958,
+          "rate_b": 0.9330423809214072,
+          "n_events_a": 1821,
+          "n_events_b": 1773,
+          "log_ratio_abs": 0.001456201272793634,
+          "pct_diff_abs": 0.14572620487057047
+        },
+        "mean_lifetime_marriages|female": {
+          "rate_a": 1.414094367357325,
+          "rate_b": 1.3877219702127077,
+          "n_events_a": 3857,
+          "n_events_b": 3808,
+          "log_ratio_abs": 0.01882577074904246,
+          "pct_diff_abs": 1.9004092830334693
+        },
+        "mean_lifetime_marriages|male": {
+          "rate_a": 1.4299017755985917,
+          "rate_b": 1.4280975150928743,
+          "n_events_a": 3389,
+          "n_events_b": 3422,
+          "log_ratio_abs": 0.0012626040540214113,
+          "pct_diff_abs": 0.126340147409333
+        },
+        "asfr.15-19": {
+          "rate_a": 0.034731400609823354,
+          "rate_b": 0.03498379044293297,
+          "n_events_a": 2503,
+          "n_events_b": 2529,
+          "log_ratio_abs": 0.0072406295374514386,
+          "pct_diff_abs": 0.7214479332115931
+        },
+        "asfr.20-24": {
+          "rate_a": 0.11360745320830452,
+          "rate_b": 0.10863230017487441,
+          "n_events_a": 5724,
+          "n_events_b": 5524,
+          "log_ratio_abs": 0.04478032674322637,
+          "pct_diff_abs": 4.57981007989447
+        },
+        "asfr.25-29": {
+          "rate_a": 0.11549368788362703,
+          "rate_b": 0.12007330194054695,
+          "n_events_a": 4805,
+          "n_events_b": 4718,
+          "log_ratio_abs": 0.0388865276837319,
+          "pct_diff_abs": 3.8140152581024807
+        },
+        "asfr.30-34": {
+          "rate_a": 0.09357635013871303,
+          "rate_b": 0.09393063092617746,
+          "n_events_a": 3254,
+          "n_events_b": 3189,
+          "log_ratio_abs": 0.003778858867438044,
+          "pct_diff_abs": 0.37717279653201097
+        },
+        "asfr.35-39": {
+          "rate_a": 0.042984827245908803,
+          "rate_b": 0.04102255437192456,
+          "n_events_a": 1285,
+          "n_events_b": 1264,
+          "log_ratio_abs": 0.046725176595942886,
+          "pct_diff_abs": 4.783400019885647
+        },
+        "asfr.40-44": {
+          "rate_a": 0.010641161183729549,
+          "rate_b": 0.010696412207971667,
+          "n_events_a": 302,
+          "n_events_b": 277,
+          "log_ratio_abs": 0.005178765805470625,
+          "pct_diff_abs": 0.5165379116648222
+        },
+        "asfr.45-49": {
+          "rate_a": 0.0008364576775639526,
+          "rate_b": 0.000588262300667417,
+          "n_events_a": 18,
+          "n_events_b": 16,
+          "log_ratio_abs": 0.35200298648269857,
+          "pct_diff_abs": 42.19127702301234
+        },
+        "completed_fertility.c1930s": {
+          "rate_a": 3.1125024248161934,
+          "rate_b": 2.9646831026460814,
+          "n_events_a": 405,
+          "n_events_b": 410,
+          "log_ratio_abs": 0.048656893487628514,
+          "pct_diff_abs": 4.986007510825634
+        },
+        "completed_fertility.c1940s": {
+          "rate_a": 2.3728989567344283,
+          "rate_b": 2.354021447326932,
+          "n_events_a": 605,
+          "n_events_b": 611,
+          "log_ratio_abs": 0.007987276346443334,
+          "pct_diff_abs": 0.8019259734839064
+        },
+        "completed_fertility.c1950s": {
+          "rate_a": 2.0866005142930013,
+          "rate_b": 2.132130577194837,
+          "n_events_a": 1006,
+          "n_events_b": 983,
+          "log_ratio_abs": 0.02158555724128864,
+          "pct_diff_abs": 2.1354256342844518
+        },
+        "completed_fertility.c1960s": {
+          "rate_a": 2.067530077177466,
+          "rate_b": 2.072510338334896,
+          "n_events_a": 881,
+          "n_events_b": 830,
+          "log_ratio_abs": 0.002405900938099271,
+          "pct_diff_abs": 0.24030090780784094
+        },
+        "completed_fertility.c1970s": {
+          "rate_a": 2.1455306947212773,
+          "rate_b": 2.166860513813928,
+          "n_events_a": 665,
+          "n_events_b": 669,
+          "log_ratio_abs": 0.009892420239975469,
+          "pct_diff_abs": 0.9843651197975716
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "n_persons_side_a": 20757,
+      "n_persons_side_b": 20652,
+      "cells": {
+        "first_marriage.18-24|female": {
+          "rate_a": 0.08253815642081185,
+          "rate_b": 0.0802694256851533,
+          "n_events_a": 3395,
+          "n_events_b": 3471,
+          "log_ratio_abs": 0.027871891160249355,
+          "pct_diff_abs": 2.826394628207949
+        },
+        "first_marriage.18-24|male": {
+          "rate_a": 0.05301963895435495,
+          "rate_b": 0.054346941144497576,
+          "n_events_a": 2632,
+          "n_events_b": 2652,
+          "log_ratio_abs": 0.024725940068007105,
+          "pct_diff_abs": 2.442275797295743
+        },
+        "first_marriage.25-34|female": {
+          "rate_a": 0.08329390212691062,
+          "rate_b": 0.08075026713346717,
+          "n_events_a": 2006,
+          "n_events_b": 2007,
+          "log_ratio_abs": 0.03101407248300899,
+          "pct_diff_abs": 3.150001955088566
+        },
+        "first_marriage.25-34|male": {
+          "rate_a": 0.08133106774871035,
+          "rate_b": 0.08189067156081468,
+          "n_events_a": 2424,
+          "n_events_b": 2372,
+          "log_ratio_abs": 0.006857003327056553,
+          "pct_diff_abs": 0.6833547722083997
+        },
+        "first_marriage.35-44|female": {
+          "rate_a": 0.03744391107974064,
+          "rate_b": 0.037349758772332126,
+          "n_events_a": 360,
+          "n_events_b": 364,
+          "log_ratio_abs": 0.002517655767592938,
+          "pct_diff_abs": 0.25208277242813515
+        },
+        "first_marriage.35-44|male": {
+          "rate_a": 0.04266299477756623,
+          "rate_b": 0.04375076818943411,
+          "n_events_a": 465,
+          "n_events_b": 465,
+          "log_ratio_abs": 0.0251772596177593,
+          "pct_diff_abs": 2.4862955712182893
+        },
+        "first_marriage.45+|female": {
+          "rate_a": 0.017851815965486004,
+          "rate_b": 0.02012229142199334,
+          "n_events_a": 129,
+          "n_events_b": 148,
+          "log_ratio_abs": 0.11972298870770832,
+          "pct_diff_abs": 11.283384227433181
+        },
+        "first_marriage.45+|male": {
+          "rate_a": 0.02525849730269921,
+          "rate_b": 0.03063036056147293,
+          "n_events_a": 194,
+          "n_events_b": 186,
+          "log_ratio_abs": 0.1928290663408857,
+          "pct_diff_abs": 17.537708209450475
+        },
+        "widowhood.45-54|female": {
+          "rate_a": 0.006465943317668398,
+          "rate_b": 0.005144628058079532,
+          "n_events_a": 183,
+          "n_events_b": 182,
+          "log_ratio_abs": 0.228595838297706,
+          "pct_diff_abs": 25.683397218847876
+        },
+        "widowhood.45-54|male": {
+          "rate_a": 0.0014794236795255716,
+          "rate_b": 0.0019144365398060918,
+          "n_events_a": 48,
+          "n_events_b": 55,
+          "log_ratio_abs": 0.2577707380368097,
+          "pct_diff_abs": 22.72276208876485
+        },
+        "widowhood.55-64|female": {
+          "rate_a": 0.012138317507570747,
+          "rate_b": 0.011349124249343538,
+          "n_events_a": 233,
+          "n_events_b": 220,
+          "log_ratio_abs": 0.06722660291471648,
+          "pct_diff_abs": 6.9537811102284675
+        },
+        "widowhood.55-64|male": {
+          "rate_a": 0.003048673113260815,
+          "rate_b": 0.0045104034428926874,
+          "n_events_a": 61,
+          "n_events_b": 77,
+          "log_ratio_abs": 0.39168015357321667,
+          "pct_diff_abs": 32.40797299264235
+        },
+        "widowhood.65-74|female": {
+          "rate_a": 0.02381927902116657,
+          "rate_b": 0.026784409212394184,
+          "n_events_a": 204,
+          "n_events_b": 219,
+          "log_ratio_abs": 0.11732467675497718,
+          "pct_diff_abs": 11.070358758764531
+        },
+        "widowhood.65-74|male": {
+          "rate_a": 0.007521930358201829,
+          "rate_b": 0.006252364114606527,
+          "n_events_a": 84,
+          "n_events_b": 60,
+          "log_ratio_abs": 0.18486315102650835,
+          "pct_diff_abs": 20.305379218548563
+        },
+        "widowhood.75+|female": {
+          "rate_a": 0.05409507470216869,
+          "rate_b": 0.06661308189200933,
+          "n_events_a": 157,
+          "n_events_b": 164,
+          "log_ratio_abs": 0.20815784197982337,
+          "pct_diff_abs": 18.79211535375945
+        },
+        "widowhood.75+|male": {
+          "rate_a": 0.02537760538429874,
+          "rate_b": 0.023488371983685905,
+          "n_events_a": 100,
+          "n_events_b": 86,
+          "log_ratio_abs": 0.07736161784772327,
+          "pct_diff_abs": 8.043270950941265
+        },
+        "remarriage.ysd0-4": {
+          "rate_a": 0.10124236178872106,
+          "rate_b": 0.09881364563684035,
+          "n_events_a": 1849,
+          "n_events_b": 1912,
+          "log_ratio_abs": 0.024281555067031724,
+          "pct_diff_abs": 2.457875262295984
+        },
+        "remarriage.ysd5-9": {
+          "rate_a": 0.04714062156557706,
+          "rate_b": 0.04747117556586675,
+          "n_events_a": 686,
+          "n_events_b": 686,
+          "log_ratio_abs": 0.006987613707813258,
+          "pct_diff_abs": 0.6963257099690771
+        },
+        "remarriage.ysd10+": {
+          "rate_a": 0.017588641805265672,
+          "rate_b": 0.016909750851684953,
+          "n_events_a": 457,
+          "n_events_b": 492,
+          "log_ratio_abs": 0.03936291272503156,
+          "pct_diff_abs": 4.0147898069892145
+        },
+        "divorce.dur0-4": {
+          "rate_a": 0.02504472545869428,
+          "rate_b": 0.024713292568259312,
+          "n_events_a": 1511,
+          "n_events_b": 1445,
+          "log_ratio_abs": 0.013321985293037769,
+          "pct_diff_abs": 1.3411118308883152
+        },
+        "divorce.dur5-9": {
+          "rate_a": 0.02390253786615945,
+          "rate_b": 0.02348527849178734,
+          "n_events_a": 1361,
+          "n_events_b": 1401,
+          "log_ratio_abs": 0.017610862476513327,
+          "pct_diff_abs": 1.7766848049854975
+        },
+        "divorce.dur10-19": {
+          "rate_a": 0.015423414853596221,
+          "rate_b": 0.016166109424074634,
+          "n_events_a": 1219,
+          "n_events_b": 1247,
+          "log_ratio_abs": 0.04703024031529334,
+          "pct_diff_abs": 4.594145387710846
+        },
+        "divorce.dur20+": {
+          "rate_a": 0.005243753277059996,
+          "rate_b": 0.006069617028235696,
+          "n_events_a": 500,
+          "n_events_b": 566,
+          "log_ratio_abs": 0.146257994354256,
+          "pct_diff_abs": 13.606521586680085
+        },
+        "ever_married_by_40|female": {
+          "rate_a": 0.8658317231317465,
+          "rate_b": 0.8555056445412588,
+          "n_events_a": 4262,
+          "n_events_b": 4428,
+          "log_ratio_abs": 0.011997883335773197,
+          "pct_diff_abs": 1.2070146651136129
+        },
+        "ever_married_by_40|male": {
+          "rate_a": 0.8272248660790644,
+          "rate_b": 0.8360279020361133,
+          "n_events_a": 3764,
+          "n_events_b": 3812,
+          "log_ratio_abs": 0.010585424326220411,
+          "pct_diff_abs": 1.0529595885029015
+        },
+        "ever_married_by_60|female": {
+          "rate_a": 0.9396584158239855,
+          "rate_b": 0.926542666316102,
+          "n_events_a": 2139,
+          "n_events_b": 2194,
+          "log_ratio_abs": 0.014056326066725586,
+          "pct_diff_abs": 1.4155580724664443
+        },
+        "ever_married_by_60|male": {
+          "rate_a": 0.9286484062553494,
+          "rate_b": 0.9388848088059629,
+          "n_events_a": 1798,
+          "n_events_b": 1796,
+          "log_ratio_abs": 0.010962594918402381,
+          "pct_diff_abs": 1.0902724652273148
+        },
+        "mean_lifetime_marriages|female": {
+          "rate_a": 1.4088520058550364,
+          "rate_b": 1.3937317001313412,
+          "n_events_a": 3747,
+          "n_events_b": 3918,
+          "log_ratio_abs": 0.010790366331186615,
+          "pct_diff_abs": 1.084879229070443
+        },
+        "mean_lifetime_marriages|male": {
+          "rate_a": 1.4196640098460067,
+          "rate_b": 1.438392814228474,
+          "n_events_a": 3373,
+          "n_events_b": 3438,
+          "log_ratio_abs": 0.01310615822143516,
+          "pct_diff_abs": 1.3020646514083947
+        },
+        "asfr.15-19": {
+          "rate_a": 0.03338476355821742,
+          "rate_b": 0.03629496932062804,
+          "n_events_a": 2411,
+          "n_events_b": 2621,
+          "log_ratio_abs": 0.08357953044945224,
+          "pct_diff_abs": 8.018206977121265
+        },
+        "asfr.20-24": {
+          "rate_a": 0.10952567557305357,
+          "rate_b": 0.1127487204674798,
+          "n_events_a": 5479,
+          "n_events_b": 5769,
+          "log_ratio_abs": 0.029002628025067784,
+          "pct_diff_abs": 2.8586088436860453
+        },
+        "asfr.25-29": {
+          "rate_a": 0.12049175286704995,
+          "rate_b": 0.115106387428107,
+          "n_events_a": 4773,
+          "n_events_b": 4750,
+          "log_ratio_abs": 0.04572450086617527,
+          "pct_diff_abs": 4.67859825963745
+        },
+        "asfr.30-34": {
+          "rate_a": 0.09206076746929712,
+          "rate_b": 0.09538351810655327,
+          "n_events_a": 3163,
+          "n_events_b": 3280,
+          "log_ratio_abs": 0.03545692237476175,
+          "pct_diff_abs": 3.483568967905224
+        },
+        "asfr.35-39": {
+          "rate_a": 0.04026747549715018,
+          "rate_b": 0.04370635312110677,
+          "n_events_a": 1256,
+          "n_events_b": 1293,
+          "log_ratio_abs": 0.08194938839991582,
+          "pct_diff_abs": 7.868141307575437
+        },
+        "asfr.40-44": {
+          "rate_a": 0.011166029607036665,
+          "rate_b": 0.010190662186220714,
+          "n_events_a": 286,
+          "n_events_b": 293,
+          "log_ratio_abs": 0.09140426936865238,
+          "pct_diff_abs": 9.571187848173325
+        },
+        "asfr.45-49": {
+          "rate_a": 0.0006439099797875175,
+          "rate_b": 0.0007807285103272113,
+          "n_events_a": 16,
+          "n_events_b": 18,
+          "log_ratio_abs": 0.19266853799243067,
+          "pct_diff_abs": 17.524469611382802
+        },
+        "completed_fertility.c1930s": {
+          "rate_a": 2.8519333195315384,
+          "rate_b": 3.2205934910915843,
+          "n_events_a": 381,
+          "n_events_b": 434,
+          "log_ratio_abs": 0.12156853454585687,
+          "pct_diff_abs": 11.446963815203286
+        },
+        "completed_fertility.c1940s": {
+          "rate_a": 2.2445597604795604,
+          "rate_b": 2.4800627465963014,
+          "n_events_a": 590,
+          "n_events_b": 626,
+          "log_ratio_abs": 0.09977445672111986,
+          "pct_diff_abs": 9.495847894975684
+        },
+        "completed_fertility.c1950s": {
+          "rate_a": 2.0770049650320814,
+          "rate_b": 2.1400153966616817,
+          "n_events_a": 994,
+          "n_events_b": 995,
+          "log_ratio_abs": 0.029886088336015013,
+          "pct_diff_abs": 2.9443915089533212
+        },
+        "completed_fertility.c1960s": {
+          "rate_a": 2.0068862905282843,
+          "rate_b": 2.126890998974505,
+          "n_events_a": 826,
+          "n_events_b": 885,
+          "log_ratio_abs": 0.058076876765762495,
+          "pct_diff_abs": 5.642259453074073
+        },
+        "completed_fertility.c1970s": {
+          "rate_a": 2.2113201981368418,
+          "rate_b": 2.101706346915778,
+          "n_events_a": 665,
+          "n_events_b": 669,
+          "log_ratio_abs": 0.05084015095212344,
+          "pct_diff_abs": 5.2154693914266606
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "n_persons_side_a": 20678,
+      "n_persons_side_b": 20731,
+      "cells": {
+        "first_marriage.18-24|female": {
+          "rate_a": 0.0816599533630646,
+          "rate_b": 0.08110678674272379,
+          "n_events_a": 3459,
+          "n_events_b": 3407,
+          "log_ratio_abs": 0.006797073525964181,
+          "pct_diff_abs": 0.6820226056982088
+        },
+        "first_marriage.18-24|male": {
+          "rate_a": 0.05252952807161272,
+          "rate_b": 0.05481751726043883,
+          "n_events_a": 2605,
+          "n_events_b": 2679,
+          "log_ratio_abs": 0.04263434996435224,
+          "pct_diff_abs": 4.173828555488643
+        },
+        "first_marriage.25-34|female": {
+          "rate_a": 0.08128544416749969,
+          "rate_b": 0.08268887372535873,
+          "n_events_a": 2015,
+          "n_events_b": 1998,
+          "log_ratio_abs": 0.01711809320146655,
+          "pct_diff_abs": 1.697241109511733
+        },
+        "first_marriage.25-34|male": {
+          "rate_a": 0.08145495780971776,
+          "rate_b": 0.08175589846252068,
+          "n_events_a": 2401,
+          "n_events_b": 2395,
+          "log_ratio_abs": 0.003687757061401769,
+          "pct_diff_abs": 0.3680965636270054
+        },
+        "first_marriage.35-44|female": {
+          "rate_a": 0.036738486649809325,
+          "rate_b": 0.03806093047399645,
+          "n_events_a": 341,
+          "n_events_b": 383,
+          "log_ratio_abs": 0.03536342099235584,
+          "pct_diff_abs": 3.474544126267834
+        },
+        "first_marriage.35-44|male": {
+          "rate_a": 0.042690991342039596,
+          "rate_b": 0.04371832190496542,
+          "n_events_a": 460,
+          "n_events_b": 470,
+          "log_ratio_abs": 0.023779357414313307,
+          "pct_diff_abs": 2.3498856272640745
+        },
+        "first_marriage.45+|female": {
+          "rate_a": 0.018648396871918577,
+          "rate_b": 0.01957834142546855,
+          "n_events_a": 140,
+          "n_events_b": 137,
+          "log_ratio_abs": 0.048663742143690715,
+          "pct_diff_abs": 4.749863807872154
+        },
+        "first_marriage.45+|male": {
+          "rate_a": 0.03118183397014939,
+          "rate_b": 0.02408877703502756,
+          "n_events_a": 213,
+          "n_events_b": 167,
+          "log_ratio_abs": 0.2580896318601238,
+          "pct_diff_abs": 29.445483781961183
+        },
+        "widowhood.45-54|female": {
+          "rate_a": 0.005331802254565699,
+          "rate_b": 0.006291009036152318,
+          "n_events_a": 170,
+          "n_events_b": 195,
+          "log_ratio_abs": 0.16543216186052534,
+          "pct_diff_abs": 15.247264406621886
+        },
+        "widowhood.45-54|male": {
+          "rate_a": 0.0015043075721010229,
+          "rate_b": 0.00187817921575143,
+          "n_events_a": 50,
+          "n_events_b": 53,
+          "log_ratio_abs": 0.22197009793406916,
+          "pct_diff_abs": 19.90606862832453
+        },
+        "widowhood.55-64|female": {
+          "rate_a": 0.012004743673602066,
+          "rate_b": 0.011446533480174752,
+          "n_events_a": 233,
+          "n_events_b": 220,
+          "log_ratio_abs": 0.04761494647042648,
+          "pct_diff_abs": 4.876674622881477
+        },
+        "widowhood.55-64|male": {
+          "rate_a": 0.003973331891657731,
+          "rate_b": 0.0035785698958623936,
+          "n_events_a": 68,
+          "n_events_b": 70,
+          "log_ratio_abs": 0.10464175995766603,
+          "pct_diff_abs": 11.031278060315897
+        },
+        "widowhood.65-74|female": {
+          "rate_a": 0.027133425274008693,
+          "rate_b": 0.02335948249390411,
+          "n_events_a": 214,
+          "n_events_b": 209,
+          "log_ratio_abs": 0.14976336861136824,
+          "pct_diff_abs": 16.155934880361464
+        },
+        "widowhood.65-74|male": {
+          "rate_a": 0.00823398546444581,
+          "rate_b": 0.005665093139641994,
+          "n_events_a": 75,
+          "n_events_b": 69,
+          "log_ratio_abs": 0.37394682244928457,
+          "pct_diff_abs": 45.34598569664747
+        },
+        "widowhood.75+|female": {
+          "rate_a": 0.059978929713524226,
+          "rate_b": 0.05987444256344912,
+          "n_events_a": 153,
+          "n_events_b": 168,
+          "log_ratio_abs": 0.0017435834229919138,
+          "pct_diff_abs": 0.1745104348393392
+        },
+        "widowhood.75+|male": {
+          "rate_a": 0.026065718754031967,
+          "rate_b": 0.02297575378720866,
+          "n_events_a": 96,
+          "n_events_b": 90,
+          "log_ratio_abs": 0.1261815165646785,
+          "pct_diff_abs": 13.44880779730321
+        },
+        "remarriage.ysd0-4": {
+          "rate_a": 0.09308159056946459,
+          "rate_b": 0.10702438538747083,
+          "n_events_a": 1767,
+          "n_events_b": 1994,
+          "log_ratio_abs": 0.1395802828279112,
+          "pct_diff_abs": 13.027680343622416
+        },
+        "remarriage.ysd5-9": {
+          "rate_a": 0.04526260337717481,
+          "rate_b": 0.04941772314663565,
+          "n_events_a": 677,
+          "n_events_b": 695,
+          "log_ratio_abs": 0.08782796896581639,
+          "pct_diff_abs": 8.408157043438615
+        },
+        "remarriage.ysd10+": {
+          "rate_a": 0.016248542674416746,
+          "rate_b": 0.01825054819081447,
+          "n_events_a": 473,
+          "n_events_b": 476,
+          "log_ratio_abs": 0.11619189425046132,
+          "pct_diff_abs": 10.969563738394099
+        },
+        "divorce.dur0-4": {
+          "rate_a": 0.02400092547537723,
+          "rate_b": 0.02575471476100381,
+          "n_events_a": 1429,
+          "n_events_b": 1527,
+          "log_ratio_abs": 0.07052531678562977,
+          "pct_diff_abs": 6.80958535903515
+        },
+        "divorce.dur5-9": {
+          "rate_a": 0.022742158482199928,
+          "rate_b": 0.024650450156457494,
+          "n_events_a": 1327,
+          "n_events_b": 1435,
+          "log_ratio_abs": 0.0805747583678772,
+          "pct_diff_abs": 7.741407001274031
+        },
+        "divorce.dur10-19": {
+          "rate_a": 0.015258498772235478,
+          "rate_b": 0.016346120932769406,
+          "n_events_a": 1239,
+          "n_events_b": 1227,
+          "log_ratio_abs": 0.06885397301480639,
+          "pct_diff_abs": 6.653701908894785
+        },
+        "divorce.dur20+": {
+          "rate_a": 0.0057519859042135645,
+          "rate_b": 0.0055472077073824835,
+          "n_events_a": 517,
+          "n_events_b": 549,
+          "log_ratio_abs": 0.03625048446081324,
+          "pct_diff_abs": 3.6915545195567967
+        },
+        "ever_married_by_40|female": {
+          "rate_a": 0.862646126366189,
+          "rate_b": 0.8583516390135915,
+          "n_events_a": 4391,
+          "n_events_b": 4299,
+          "log_ratio_abs": 0.004990705220656718,
+          "pct_diff_abs": 0.5003179533195392
+        },
+        "ever_married_by_40|male": {
+          "rate_a": 0.8229485655676754,
+          "rate_b": 0.8400092784274625,
+          "n_events_a": 3723,
+          "n_events_b": 3853,
+          "log_ratio_abs": 0.020519235071807723,
+          "pct_diff_abs": 2.0310148111370427
+        },
+        "ever_married_by_60|female": {
+          "rate_a": 0.9288957812355603,
+          "rate_b": 0.9373719048749828,
+          "n_events_a": 2174,
+          "n_events_b": 2159,
+          "log_ratio_abs": 0.009083565003727237,
+          "pct_diff_abs": 0.9042434059886804
+        },
+        "ever_married_by_60|male": {
+          "rate_a": 0.9307693466089092,
+          "rate_b": 0.9365049519036539,
+          "n_events_a": 1769,
+          "n_events_b": 1825,
+          "log_ratio_abs": 0.006143310961768989,
+          "pct_diff_abs": 0.6124479409410294
+        },
+        "mean_lifetime_marriages|female": {
+          "rate_a": 1.3727545239321535,
+          "rate_b": 1.4313350960830145,
+          "n_events_a": 3872,
+          "n_events_b": 3793,
+          "log_ratio_abs": 0.04178831963494587,
+          "pct_diff_abs": 4.092722403801341
+        },
+        "mean_lifetime_marriages|male": {
+          "rate_a": 1.4084430355928594,
+          "rate_b": 1.4488519657349674,
+          "n_events_a": 3367,
+          "n_events_b": 3444,
+          "log_ratio_abs": 0.028286630862808793,
+          "pct_diff_abs": 2.7890309774752957
+        },
+        "asfr.15-19": {
+          "rate_a": 0.036485935181616705,
+          "rate_b": 0.03314483882718133,
+          "n_events_a": 2507,
+          "n_events_b": 2525,
+          "log_ratio_abs": 0.0960398358139731,
+          "pct_diff_abs": 10.080291450068582
+        },
+        "asfr.20-24": {
+          "rate_a": 0.11429332456456354,
+          "rate_b": 0.10786571677203208,
+          "n_events_a": 5681,
+          "n_events_b": 5567,
+          "log_ratio_abs": 0.05788107605061447,
+          "pct_diff_abs": 5.958897771120212
+        },
+        "asfr.25-29": {
+          "rate_a": 0.11902367617137156,
+          "rate_b": 0.11640926656975928,
+          "n_events_a": 4819,
+          "n_events_b": 4704,
+          "log_ratio_abs": 0.0222102909105299,
+          "pct_diff_abs": 2.245877565121139
+        },
+        "asfr.30-34": {
+          "rate_a": 0.09306078773351904,
+          "rate_b": 0.09448078295815408,
+          "n_events_a": 3278,
+          "n_events_b": 3165,
+          "log_ratio_abs": 0.015143547707695987,
+          "pct_diff_abs": 1.5029460808595982
+        },
+        "asfr.35-39": {
+          "rate_a": 0.043547054235622586,
+          "rate_b": 0.04039163313527819,
+          "n_events_a": 1303,
+          "n_events_b": 1246,
+          "log_ratio_abs": 0.07521939713079775,
+          "pct_diff_abs": 7.812066151859661
+        },
+        "asfr.40-44": {
+          "rate_a": 0.011039503660269097,
+          "rate_b": 0.010273811363055954,
+          "n_events_a": 320,
+          "n_events_b": 259,
+          "log_ratio_abs": 0.07188201026640982,
+          "pct_diff_abs": 7.452855324622071
+        },
+        "asfr.45-49": {
+          "rate_a": 0.000379892865685168,
+          "rate_b": 0.0010673709850410307,
+          "n_events_a": 12,
+          "n_events_b": 22,
+          "log_ratio_abs": 1.0330646001319843,
+          "pct_diff_abs": 64.40854482562456
+        },
+        "completed_fertility.c1930s": {
+          "rate_a": 3.0929120744212333,
+          "rate_b": 2.98458671618126,
+          "n_events_a": 385,
+          "n_events_b": 430,
+          "log_ratio_abs": 0.03565178229993873,
+          "pct_diff_abs": 3.629492741915516
+        },
+        "completed_fertility.c1940s": {
+          "rate_a": 2.3611154699003,
+          "rate_b": 2.365225234152833,
+          "n_events_a": 623,
+          "n_events_b": 593,
+          "log_ratio_abs": 0.0017390897295310906,
+          "pct_diff_abs": 0.1737578389233182
+        },
+        "completed_fertility.c1950s": {
+          "rate_a": 2.1451331277348857,
+          "rate_b": 2.069833019688705,
+          "n_events_a": 1019,
+          "n_events_b": 970,
+          "log_ratio_abs": 0.03573367745966051,
+          "pct_diff_abs": 3.6379798432970047
+        },
+        "completed_fertility.c1960s": {
+          "rate_a": 2.102470685872023,
+          "rate_b": 2.039182337409647,
+          "n_events_a": 844,
+          "n_events_b": 867,
+          "log_ratio_abs": 0.03056425774438119,
+          "pct_diff_abs": 3.1036139976952923
+        },
+        "completed_fertility.c1970s": {
+          "rate_a": 2.277157860123279,
+          "rate_b": 2.025053993690435,
+          "n_events_a": 688,
+          "n_events_b": 646,
+          "log_ratio_abs": 0.11733174904203342,
+          "pct_diff_abs": 12.44924171001549
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "n_persons_side_a": 20662,
+      "n_persons_side_b": 20747,
+      "cells": {
+        "first_marriage.18-24|female": {
+          "rate_a": 0.08199556392699908,
+          "rate_b": 0.08078671424715146,
+          "n_events_a": 3450,
+          "n_events_b": 3416,
+          "log_ratio_abs": 0.014852622976568216,
+          "pct_diff_abs": 1.4963471297389035
+        },
+        "first_marriage.18-24|male": {
+          "rate_a": 0.05347465186812973,
+          "rate_b": 0.05387032396632786,
+          "n_events_a": 2644,
+          "n_events_b": 2640,
+          "log_ratio_abs": 0.007372005761222551,
+          "pct_diff_abs": 0.7344899177614902
+        },
+        "first_marriage.25-34|female": {
+          "rate_a": 0.0800986721678436,
+          "rate_b": 0.08380724170313905,
+          "n_events_a": 1981,
+          "n_events_b": 2032,
+          "log_ratio_abs": 0.0452601435031544,
+          "pct_diff_abs": 4.4251182355242085
+        },
+        "first_marriage.25-34|male": {
+          "rate_a": 0.08070872443970115,
+          "rate_b": 0.08249572584926215,
+          "n_events_a": 2426,
+          "n_events_b": 2370,
+          "log_ratio_abs": 0.021899805140532132,
+          "pct_diff_abs": 2.1661745395467533
+        },
+        "first_marriage.35-44|female": {
+          "rate_a": 0.03711968202369528,
+          "rate_b": 0.03767424217419251,
+          "n_events_a": 360,
+          "n_events_b": 364,
+          "log_ratio_abs": 0.014829287781901396,
+          "pct_diff_abs": 1.4719875397443598
+        },
+        "first_marriage.35-44|male": {
+          "rate_a": 0.040241911846157705,
+          "rate_b": 0.04618397010022312,
+          "n_events_a": 462,
+          "n_events_b": 468,
+          "log_ratio_abs": 0.1377237346026095,
+          "pct_diff_abs": 12.866062058265337
+        },
+        "first_marriage.45+|female": {
+          "rate_a": 0.016788479170761577,
+          "rate_b": 0.02161272146017286,
+          "n_events_a": 133,
+          "n_events_b": 144,
+          "log_ratio_abs": 0.25258921029217046,
+          "pct_diff_abs": 22.32130876392046
+        },
+        "first_marriage.45+|male": {
+          "rate_a": 0.026968486507440347,
+          "rate_b": 0.028662010043654727,
+          "n_events_a": 199,
+          "n_events_b": 181,
+          "log_ratio_abs": 0.060903536108838925,
+          "pct_diff_abs": 5.908600037593308
+        },
+        "widowhood.45-54|female": {
+          "rate_a": 0.006017873899202219,
+          "rate_b": 0.00558150117719465,
+          "n_events_a": 185,
+          "n_events_b": 180,
+          "log_ratio_abs": 0.07527625566778541,
+          "pct_diff_abs": 7.818196362486426
+        },
+        "widowhood.45-54|male": {
+          "rate_a": 0.0015925113764432512,
+          "rate_b": 0.0017941730744362567,
+          "n_events_a": 51,
+          "n_events_b": 52,
+          "log_ratio_abs": 0.11923198082593137,
+          "pct_diff_abs": 11.239812973805172
+        },
+        "widowhood.55-64|female": {
+          "rate_a": 0.011459868336148602,
+          "rate_b": 0.012000448198902778,
+          "n_events_a": 219,
+          "n_events_b": 234,
+          "log_ratio_abs": 0.04609277677074878,
+          "pct_diff_abs": 4.504663940831833
+        },
+        "widowhood.55-64|male": {
+          "rate_a": 0.003573808275982894,
+          "rate_b": 0.003951857851724029,
+          "n_events_a": 70,
+          "n_events_b": 68,
+          "log_ratio_abs": 0.10055403934811666,
+          "pct_diff_abs": 9.566375864865876
+        },
+        "widowhood.65-74|female": {
+          "rate_a": 0.024725791717667787,
+          "rate_b": 0.02589667108758872,
+          "n_events_a": 199,
+          "n_events_b": 224,
+          "log_ratio_abs": 0.046267533075012024,
+          "pct_diff_abs": 4.521350894718246
+        },
+        "widowhood.65-74|male": {
+          "rate_a": 0.0066018087300271895,
+          "rate_b": 0.0071420426171736546,
+          "n_events_a": 65,
+          "n_events_b": 79,
+          "log_ratio_abs": 0.07865515478316323,
+          "pct_diff_abs": 7.564136985789278
+        },
+        "widowhood.75+|female": {
+          "rate_a": 0.06630961685000782,
+          "rate_b": 0.05416140383551548,
+          "n_events_a": 171,
+          "n_events_b": 150,
+          "log_ratio_abs": 0.20236638877939386,
+          "pct_diff_abs": 22.42964944443766
+        },
+        "widowhood.75+|male": {
+          "rate_a": 0.02637246420461313,
+          "rate_b": 0.022957453102262756,
+          "n_events_a": 96,
+          "n_events_b": 90,
+          "log_ratio_abs": 0.1386778055765375,
+          "pct_diff_abs": 14.87539182651659
+        },
+        "remarriage.ysd0-4": {
+          "rate_a": 0.09651497426605786,
+          "rate_b": 0.10338988177376751,
+          "n_events_a": 1834,
+          "n_events_b": 1927,
+          "log_ratio_abs": 0.06880893205192411,
+          "pct_diff_abs": 6.6494974070605615
+        },
+        "remarriage.ysd5-9": {
+          "rate_a": 0.04922887206550251,
+          "rate_b": 0.04546079284825935,
+          "n_events_a": 694,
+          "n_events_b": 678,
+          "log_ratio_abs": 0.07963002313901361,
+          "pct_diff_abs": 8.288635065869594
+        },
+        "remarriage.ysd10+": {
+          "rate_a": 0.017828347669704425,
+          "rate_b": 0.0166873198715592,
+          "n_events_a": 470,
+          "n_events_b": 479,
+          "log_ratio_abs": 0.0661406143352492,
+          "pct_diff_abs": 6.8376935716916485
+        },
+        "divorce.dur0-4": {
+          "rate_a": 0.025252063163930066,
+          "rate_b": 0.024517085948931185,
+          "n_events_a": 1496,
+          "n_events_b": 1460,
+          "log_ratio_abs": 0.029537601684956324,
+          "pct_diff_abs": 2.997816365818639
+        },
+        "divorce.dur5-9": {
+          "rate_a": 0.023692329673995458,
+          "rate_b": 0.02369301829343541,
+          "n_events_a": 1354,
+          "n_events_b": 1408,
+          "log_ratio_abs": 2.9064656884037112e-05,
+          "pct_diff_abs": 0.002906423451096038
+        },
+        "divorce.dur10-19": {
+          "rate_a": 0.01610125710405316,
+          "rate_b": 0.0155032882591682,
+          "n_events_a": 1251,
+          "n_events_b": 1215,
+          "log_ratio_abs": 0.03784520276108565,
+          "pct_diff_abs": 3.8570452596167017
+        },
+        "divorce.dur20+": {
+          "rate_a": 0.005589631581787634,
+          "rate_b": 0.005709443922272147,
+          "n_events_a": 518,
+          "n_events_b": 548,
+          "log_ratio_abs": 0.02120825394506005,
+          "pct_diff_abs": 2.0984940410244453
+        },
+        "ever_married_by_40|female": {
+          "rate_a": 0.8553397162254671,
+          "rate_b": 0.8656323355803127,
+          "n_events_a": 4301,
+          "n_events_b": 4389,
+          "log_ratio_abs": 0.011961544715200301,
+          "pct_diff_abs": 1.18902898283548
+        },
+        "ever_married_by_40|male": {
+          "rate_a": 0.8252743612487747,
+          "rate_b": 0.8376703656037128,
+          "n_events_a": 3776,
+          "n_events_b": 3800,
+          "log_ratio_abs": 0.014908774489635682,
+          "pct_diff_abs": 1.4798188958259473
+        },
+        "ever_married_by_60|female": {
+          "rate_a": 0.9263805500745759,
+          "rate_b": 0.9392560144157511,
+          "n_events_a": 2121,
+          "n_events_b": 2212,
+          "log_ratio_abs": 0.013802976428921938,
+          "pct_diff_abs": 1.3708152136970058
+        },
+        "ever_married_by_60|male": {
+          "rate_a": 0.9267565924704286,
+          "rate_b": 0.9402660735832801,
+          "n_events_a": 1776,
+          "n_events_b": 1818,
+          "log_ratio_abs": 0.014471936671907918,
+          "pct_diff_abs": 1.436772153372276
+        },
+        "mean_lifetime_marriages|female": {
+          "rate_a": 1.3943762770142396,
+          "rate_b": 1.4076153003252743,
+          "n_events_a": 3777,
+          "n_events_b": 3888,
+          "log_ratio_abs": 0.009449794165565071,
+          "pct_diff_abs": 0.9405285171293153
+        },
+        "mean_lifetime_marriages|male": {
+          "rate_a": 1.4471627949721892,
+          "rate_b": 1.4115356938030545,
+          "n_events_a": 3390,
+          "n_events_b": 3421,
+          "log_ratio_abs": 0.0249266902413896,
+          "pct_diff_abs": 2.5239957675562397
+        },
+        "asfr.15-19": {
+          "rate_a": 0.03395348961879219,
+          "rate_b": 0.03573359502274766,
+          "n_events_a": 2433,
+          "n_events_b": 2599,
+          "log_ratio_abs": 0.05109964761289375,
+          "pct_diff_abs": 4.981601775086645
+        },
+        "asfr.20-24": {
+          "rate_a": 0.11102078318217831,
+          "rate_b": 0.11129877296446164,
+          "n_events_a": 5570,
+          "n_events_b": 5678,
+          "log_ratio_abs": 0.002500813981299893,
+          "pct_diff_abs": 0.24976895510976702
+        },
+        "asfr.25-29": {
+          "rate_a": 0.11501855047597412,
+          "rate_b": 0.12040552930578945,
+          "n_events_a": 4644,
+          "n_events_b": 4879,
+          "log_ratio_abs": 0.045772032445747915,
+          "pct_diff_abs": 4.474029441068456
+        },
+        "asfr.30-34": {
+          "rate_a": 0.09148203821722903,
+          "rate_b": 0.09596735113350686,
+          "n_events_a": 3138,
+          "n_events_b": 3305,
+          "log_ratio_abs": 0.04786539188945738,
+          "pct_diff_abs": 4.673790474885574
+        },
+        "asfr.35-39": {
+          "rate_a": 0.0413730652218362,
+          "rate_b": 0.042644615504929116,
+          "n_events_a": 1236,
+          "n_events_b": 1313,
+          "log_ratio_abs": 0.03027094695482421,
+          "pct_diff_abs": 2.9817370095550286
+        },
+        "asfr.40-44": {
+          "rate_a": 0.011433095446154068,
+          "rate_b": 0.00992903895314034,
+          "n_events_a": 297,
+          "n_events_b": 282,
+          "log_ratio_abs": 0.14104856761620715,
+          "pct_diff_abs": 15.14805712931589
+        },
+        "asfr.45-49": {
+          "rate_a": 0.0005941669083493839,
+          "rate_b": 0.0008296136758521032,
+          "n_events_a": 15,
+          "n_events_b": 19,
+          "log_ratio_abs": 0.33379987127481636,
+          "pct_diff_abs": 28.38029005017184
+        },
+        "completed_fertility.c1930s": {
+          "rate_a": 3.1631540130578637,
+          "rate_b": 2.923768415698535,
+          "n_events_a": 385,
+          "n_events_b": 430,
+          "log_ratio_abs": 0.07869629766742019,
+          "pct_diff_abs": 8.187570399693765
+        },
+        "completed_fertility.c1940s": {
+          "rate_a": 2.3362904419968267,
+          "rate_b": 2.3933071667695343,
+          "n_events_a": 635,
+          "n_events_b": 581,
+          "log_ratio_abs": 0.024111770943750097,
+          "pct_diff_abs": 2.382340451922361
+        },
+        "completed_fertility.c1950s": {
+          "rate_a": 2.0926698788352347,
+          "rate_b": 2.122525940197226,
+          "n_events_a": 927,
+          "n_events_b": 1062,
+          "log_ratio_abs": 0.014166155943842448,
+          "pct_diff_abs": 1.406628809408893
+        },
+        "completed_fertility.c1960s": {
+          "rate_a": 1.9887405367309623,
+          "rate_b": 2.1469241460555186,
+          "n_events_a": 831,
+          "n_events_b": 880,
+          "log_ratio_abs": 0.07653464581213443,
+          "pct_diff_abs": 7.367917940425723
+        },
+        "completed_fertility.c1970s": {
+          "rate_a": 2.1396493136089396,
+          "rate_b": 2.1732788235397993,
+          "n_events_a": 668,
+          "n_events_b": 666,
+          "log_ratio_abs": 0.015595062302671846,
+          "pct_diff_abs": 1.5474088997050317
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "n_persons_side_a": 20648,
+      "n_persons_side_b": 20761,
+      "cells": {
+        "first_marriage.18-24|female": {
+          "rate_a": 0.07971735365216762,
+          "rate_b": 0.08308340734613388,
+          "n_events_a": 3342,
+          "n_events_b": 3524,
+          "log_ratio_abs": 0.04135771173818375,
+          "pct_diff_abs": 4.051415079719765
+        },
+        "first_marriage.18-24|male": {
+          "rate_a": 0.05455647166547771,
+          "rate_b": 0.05277106461447016,
+          "n_events_a": 2676,
+          "n_events_b": 2608,
+          "log_ratio_abs": 0.03327332072644668,
+          "pct_diff_abs": 3.3833068634320824
+        },
+        "first_marriage.25-34|female": {
+          "rate_a": 0.08005245141751427,
+          "rate_b": 0.08400698920450533,
+          "n_events_a": 2030,
+          "n_events_b": 1983,
+          "log_ratio_abs": 0.04821793764450177,
+          "pct_diff_abs": 4.707391402117979
+        },
+        "first_marriage.25-34|male": {
+          "rate_a": 0.08145116877744348,
+          "rate_b": 0.081757068772613,
+          "n_events_a": 2401,
+          "n_events_b": 2395,
+          "log_ratio_abs": 0.003748589629645216,
+          "pct_diff_abs": 0.37415724384678395
+        },
+        "first_marriage.35-44|female": {
+          "rate_a": 0.03879431920192844,
+          "rate_b": 0.03586576524662887,
+          "n_events_a": 367,
+          "n_events_b": 357,
+          "log_ratio_abs": 0.07849059737365327,
+          "pct_diff_abs": 8.165318473372968
+        },
+        "first_marriage.35-44|male": {
+          "rate_a": 0.040814792298914174,
+          "rate_b": 0.04559636577075647,
+          "n_events_a": 461,
+          "n_events_b": 469,
+          "log_ratio_abs": 0.11078344328617784,
+          "pct_diff_abs": 10.48674250900275
+        },
+        "first_marriage.45+|female": {
+          "rate_a": 0.018392841628886478,
+          "rate_b": 0.019844696263336,
+          "n_events_a": 147,
+          "n_events_b": 130,
+          "log_ratio_abs": 0.07597523365729844,
+          "pct_diff_abs": 7.316083930858102
+        },
+        "first_marriage.45+|male": {
+          "rate_a": 0.02986651796877612,
+          "rate_b": 0.02602792643939966,
+          "n_events_a": 176,
+          "n_events_b": 204,
+          "log_ratio_abs": 0.13756799715787169,
+          "pct_diff_abs": 14.74797286796466
+        },
+        "widowhood.45-54|female": {
+          "rate_a": 0.0053287300965652274,
+          "rate_b": 0.00626587706828686,
+          "n_events_a": 172,
+          "n_events_b": 193,
+          "log_ratio_abs": 0.1620056195012683,
+          "pct_diff_abs": 14.956357450176661
+        },
+        "widowhood.45-54|male": {
+          "rate_a": 0.0019098328296897073,
+          "rate_b": 0.001475228557892146,
+          "n_events_a": 54,
+          "n_events_b": 49,
+          "log_ratio_abs": 0.25820278221472365,
+          "pct_diff_abs": 29.460131413029174
+        },
+        "widowhood.55-64|female": {
+          "rate_a": 0.012156743151877784,
+          "rate_b": 0.011309131135952031,
+          "n_events_a": 227,
+          "n_events_b": 226,
+          "log_ratio_abs": 0.07227354322165418,
+          "pct_diff_abs": 7.494934895848646
+        },
+        "widowhood.55-64|male": {
+          "rate_a": 0.0030022092681757187,
+          "rate_b": 0.004584733249237267,
+          "n_events_a": 60,
+          "n_events_b": 78,
+          "log_ratio_abs": 0.42338348463836734,
+          "pct_diff_abs": 34.51725313189863
+        },
+        "widowhood.65-74|female": {
+          "rate_a": 0.02428292097297614,
+          "rate_b": 0.02636477010174097,
+          "n_events_a": 214,
+          "n_events_b": 209,
+          "log_ratio_abs": 0.0822553904966723,
+          "pct_diff_abs": 7.896329536464861
+        },
+        "widowhood.65-74|male": {
+          "rate_a": 0.008411376973890178,
+          "rate_b": 0.005226820144447104,
+          "n_events_a": 84,
+          "n_events_b": 60,
+          "log_ratio_abs": 0.47578210093398937,
+          "pct_diff_abs": 60.92723188163076
+        },
+        "widowhood.75+|female": {
+          "rate_a": 0.059177424528539836,
+          "rate_b": 0.06067545104053693,
+          "n_events_a": 165,
+          "n_events_b": 156,
+          "log_ratio_abs": 0.02499905856091202,
+          "pct_diff_abs": 2.468916977636102
+        },
+        "widowhood.75+|male": {
+          "rate_a": 0.024518071711024117,
+          "rate_b": 0.024371912057436388,
+          "n_events_a": 97,
+          "n_events_b": 89,
+          "log_ratio_abs": 0.00597914246465711,
+          "pct_diff_abs": 0.5997053216148157
+        },
+        "remarriage.ysd0-4": {
+          "rate_a": 0.09880546833027945,
+          "rate_b": 0.10115745635862569,
+          "n_events_a": 1860,
+          "n_events_b": 1901,
+          "log_ratio_abs": 0.02352532605613975,
+          "pct_diff_abs": 2.325076285042123
+        },
+        "remarriage.ysd5-9": {
+          "rate_a": 0.046114866553044545,
+          "rate_b": 0.048468809649460445,
+          "n_events_a": 668,
+          "n_events_b": 704,
+          "log_ratio_abs": 0.04978510815761028,
+          "pct_diff_abs": 4.856614209097055
+        },
+        "remarriage.ysd10+": {
+          "rate_a": 0.017319924605302503,
+          "rate_b": 0.01714068334943141,
+          "n_events_a": 481,
+          "n_events_b": 468,
+          "log_ratio_abs": 0.01040276901238736,
+          "pct_diff_abs": 1.0457065930048672
+        },
+        "divorce.dur0-4": {
+          "rate_a": 0.02467523274668797,
+          "rate_b": 0.025080826098517275,
+          "n_events_a": 1508,
+          "n_events_b": 1448,
+          "log_ratio_abs": 0.016303635994682663,
+          "pct_diff_abs": 1.6171451061306246
+        },
+        "divorce.dur5-9": {
+          "rate_a": 0.02339682201817831,
+          "rate_b": 0.02398754752189207,
+          "n_events_a": 1360,
+          "n_events_b": 1402,
+          "log_ratio_abs": 0.024934640491000564,
+          "pct_diff_abs": 2.4626340111453118
+        },
+        "divorce.dur10-19": {
+          "rate_a": 0.014999382738385815,
+          "rate_b": 0.016599171534872222,
+          "n_events_a": 1184,
+          "n_events_b": 1282,
+          "log_ratio_abs": 0.10134373709804226,
+          "pct_diff_abs": 9.637762903561214
+        },
+        "divorce.dur20+": {
+          "rate_a": 0.005279018773252913,
+          "rate_b": 0.006041569424420709,
+          "n_events_a": 509,
+          "n_events_b": 557,
+          "log_ratio_abs": 0.13492357462579638,
+          "pct_diff_abs": 12.621731169478572
+        },
+        "ever_married_by_40|female": {
+          "rate_a": 0.854212967558427,
+          "rate_b": 0.8669623147884589,
+          "n_events_a": 4281,
+          "n_events_b": 4409,
+          "log_ratio_abs": 0.01481497038571425,
+          "pct_diff_abs": 1.4705768650558617
+        },
+        "ever_married_by_40|male": {
+          "rate_a": 0.8315249273711177,
+          "rate_b": 0.8315919804436084,
+          "n_events_a": 3792,
+          "n_events_b": 3784,
+          "log_ratio_abs": 8.063542882871245e-05,
+          "pct_diff_abs": 0.008063217787994374
+        },
+        "ever_married_by_60|female": {
+          "rate_a": 0.9306950300216694,
+          "rate_b": 0.9352432277055277,
+          "n_events_a": 2147,
+          "n_events_b": 2186,
+          "log_ratio_abs": 0.004874980908411751,
+          "pct_diff_abs": 0.4863117474816223
+        },
+        "ever_married_by_60|male": {
+          "rate_a": 0.9442140133117474,
+          "rate_b": 0.9230458999104453,
+          "n_events_a": 1811,
+          "n_events_b": 1783,
+          "log_ratio_abs": 0.022673887154102734,
+          "pct_diff_abs": 2.2932893589967565
+        },
+        "mean_lifetime_marriages|female": {
+          "rate_a": 1.378997100263118,
+          "rate_b": 1.4230969937934899,
+          "n_events_a": 3777,
+          "n_events_b": 3888,
+          "log_ratio_abs": 0.03147898224347369,
+          "pct_diff_abs": 3.0988677316235886
+        },
+        "mean_lifetime_marriages|male": {
+          "rate_a": 1.4309491460033885,
+          "rate_b": 1.4270250025535454,
+          "n_events_a": 3406,
+          "n_events_b": 3405,
+          "log_ratio_abs": 0.002746103156915046,
+          "pct_diff_abs": 0.27498771519918835
+        },
+        "asfr.15-19": {
+          "rate_a": 0.03415016145534284,
+          "rate_b": 0.03556884777404068,
+          "n_events_a": 2406,
+          "n_events_b": 2626,
+          "log_ratio_abs": 0.04070287840621252,
+          "pct_diff_abs": 3.9885641719697356
+        },
+        "asfr.20-24": {
+          "rate_a": 0.11105106501047825,
+          "rate_b": 0.11127310236238196,
+          "n_events_a": 5453,
+          "n_events_b": 5795,
+          "log_ratio_abs": 0.0019974205085224257,
+          "pct_diff_abs": 0.1995426991696539
+        },
+        "asfr.25-29": {
+          "rate_a": 0.11617381192978629,
+          "rate_b": 0.11934078845825355,
+          "n_events_a": 4682,
+          "n_events_b": 4841,
+          "log_ratio_abs": 0.026895720532939087,
+          "pct_diff_abs": 2.653725159168941
+        },
+        "asfr.30-34": {
+          "rate_a": 0.0941100145918815,
+          "rate_b": 0.09338579675098815,
+          "n_events_a": 3173,
+          "n_events_b": 3270,
+          "log_ratio_abs": 0.007725201298132251,
+          "pct_diff_abs": 0.7755117652681772
+        },
+        "asfr.35-39": {
+          "rate_a": 0.04312241964943896,
+          "rate_b": 0.04090612804805916,
+          "n_events_a": 1283,
+          "n_events_b": 1266,
+          "log_ratio_abs": 0.05276315749422252,
+          "pct_diff_abs": 5.417994093148977
+        },
+        "asfr.40-44": {
+          "rate_a": 0.0111506465816851,
+          "rate_b": 0.010182000527055073,
+          "n_events_a": 293,
+          "n_events_b": 286,
+          "log_ratio_abs": 0.09087597837005026,
+          "pct_diff_abs": 9.513317663421752
+        },
+        "asfr.45-49": {
+          "rate_a": 0.0006688226565103422,
+          "rate_b": 0.0007596259835268086,
+          "n_events_a": 17,
+          "n_events_b": 17,
+          "log_ratio_abs": 0.12730724764990292,
+          "pct_diff_abs": 11.953688918707424
+        },
+        "completed_fertility.c1930s": {
+          "rate_a": 3.0089117287495055,
+          "rate_b": 3.071628439521619,
+          "n_events_a": 391,
+          "n_events_b": 424,
+          "log_ratio_abs": 0.020629395819075684,
+          "pct_diff_abs": 2.041806553330429
+        },
+        "completed_fertility.c1940s": {
+          "rate_a": 2.319015525403284,
+          "rate_b": 2.409975567002889,
+          "n_events_a": 610,
+          "n_events_b": 606,
+          "log_ratio_abs": 0.03847385615721894,
+          "pct_diff_abs": 3.7743138496929
+        },
+        "completed_fertility.c1950s": {
+          "rate_a": 2.1089856066849104,
+          "rate_b": 2.1085476519073714,
+          "n_events_a": 966,
+          "n_events_b": 1023,
+          "log_ratio_abs": 0.00020768290479786393,
+          "pct_diff_abs": 0.020770447238547433
+        },
+        "completed_fertility.c1960s": {
+          "rate_a": 2.0376923767373456,
+          "rate_b": 2.103353573433143,
+          "n_events_a": 860,
+          "n_events_b": 851,
+          "log_ratio_abs": 0.03171503100070675,
+          "pct_diff_abs": 3.1217384240645596
+        },
+        "completed_fertility.c1970s": {
+          "rate_a": 2.1747359030206908,
+          "rate_b": 2.137077390577779,
+          "n_events_a": 649,
+          "n_events_b": 685,
+          "log_ratio_abs": 0.017468042998849593,
+          "pct_diff_abs": 1.7621501499639325
+        }
+      }
+    }
+  ],
+  "draft_thresholds": {
+    "k": 4,
+    "rounding": 3,
+    "statistic": "log_ratio_abs_max",
+    "note": "DRAFT per-cell |ln ratio| tolerances = round(floor mean + 4*sd, 3); gate-eligible cells only. These are mirrored into gates.yaml gate_2 (locked: false) and machine-bound by tests/test_gates_derivations.py.",
+    "cells": {
+      "first_marriage.18-24|female": {
+        "log_ratio_abs_max": 0.077,
+        "derivation": {
+          "floor_mean": 0.02015340023883034,
+          "floor_sd": 0.014327178679763481,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.18-24|male": {
+        "log_ratio_abs_max": 0.079,
+        "derivation": {
+          "floor_mean": 0.02580255539407204,
+          "floor_sd": 0.013256712602519734,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.25-34|female": {
+        "log_ratio_abs_max": 0.087,
+        "derivation": {
+          "floor_mean": 0.032848566637564455,
+          "floor_sd": 0.013651412215278763,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.25-34|male": {
+        "log_ratio_abs_max": 0.043,
+        "derivation": {
+          "floor_mean": 0.010458537391885063,
+          "floor_sd": 0.008163353148267131,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.35-44|female": {
+        "log_ratio_abs_max": 0.154,
+        "derivation": {
+          "floor_mean": 0.03583154128927206,
+          "floor_sd": 0.029656130804657867,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.35-44|male": {
+        "log_ratio_abs_max": 0.277,
+        "derivation": {
+          "floor_mean": 0.0695295185046035,
+          "floor_sd": 0.05192974688098774,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.45+|female": {
+        "log_ratio_abs_max": 0.444,
+        "derivation": {
+          "floor_mean": 0.11215170976340719,
+          "floor_sd": 0.08285024151201767,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "first_marriage.45+|male": {
+        "log_ratio_abs_max": 0.463,
+        "derivation": {
+          "floor_mean": 0.1488429533469496,
+          "floor_sd": 0.07849851931020341,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.45-54|female": {
+        "log_ratio_abs_max": 0.462,
+        "derivation": {
+          "floor_mean": 0.1781799209902833,
+          "floor_sd": 0.07103273785382554,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.45-54|male": {
+        "log_ratio_abs_max": 0.833,
+        "derivation": {
+          "floor_mean": 0.2716406784173456,
+          "floor_sd": 0.14025599660854246,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.55-64|female": {
+        "log_ratio_abs_max": 0.123,
+        "derivation": {
+          "floor_mean": 0.06269053710044224,
+          "floor_sd": 0.015193104457752014,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.55-64|male": {
+        "log_ratio_abs_max": 0.914,
+        "derivation": {
+          "floor_mean": 0.21803342819619642,
+          "floor_sd": 0.1738693032658099,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.65-74|female": {
+        "log_ratio_abs_max": 0.301,
+        "derivation": {
+          "floor_mean": 0.11127217756320743,
+          "floor_sd": 0.04752322894408575,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.65-74|male": {
+        "log_ratio_abs_max": 0.968,
+        "derivation": {
+          "floor_mean": 0.2349853892899644,
+          "floor_sd": 0.18322088663181818,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.75+|female": {
+        "log_ratio_abs_max": 0.504,
+        "derivation": {
+          "floor_mean": 0.1151340686870443,
+          "floor_sd": 0.09719321907269128,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "widowhood.75+|male": {
+        "log_ratio_abs_max": 0.303,
+        "derivation": {
+          "floor_mean": 0.0912030101848106,
+          "floor_sd": 0.05293392351589913,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "remarriage.ysd0-4": {
+        "log_ratio_abs_max": 0.271,
+        "derivation": {
+          "floor_mean": 0.05163545232101281,
+          "floor_sd": 0.054847936839346606,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "remarriage.ysd5-9": {
+        "log_ratio_abs_max": 0.189,
+        "derivation": {
+          "floor_mean": 0.059042067471781076,
+          "floor_sd": 0.03236647469627304,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "remarriage.ysd10+": {
+        "log_ratio_abs_max": 0.215,
+        "derivation": {
+          "floor_mean": 0.058647874952179976,
+          "floor_sd": 0.03896527912096506,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "divorce.dur0-4": {
+        "log_ratio_abs_max": 0.163,
+        "derivation": {
+          "floor_mean": 0.04132885647673932,
+          "floor_sd": 0.030295991873754036,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "divorce.dur5-9": {
+        "log_ratio_abs_max": 0.151,
+        "derivation": {
+          "floor_mean": 0.02856337101240967,
+          "floor_sd": 0.030543625301058055,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "divorce.dur10-19": {
+        "log_ratio_abs_max": 0.201,
+        "derivation": {
+          "floor_mean": 0.051032824099182084,
+          "floor_sd": 0.03752928230869632,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "divorce.dur20+": {
+        "log_ratio_abs_max": 0.309,
+        "derivation": {
+          "floor_mean": 0.08098143926539336,
+          "floor_sd": 0.0569231776252555,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "ever_married_by_40|female": {
+        "log_ratio_abs_max": 0.028,
+        "derivation": {
+          "floor_mean": 0.009596070444595104,
+          "floor_sd": 0.004710725082817325,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "ever_married_by_40|male": {
+        "log_ratio_abs_max": 0.042,
+        "derivation": {
+          "floor_mean": 0.01168502048727976,
+          "floor_sd": 0.007495400820118358,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "ever_married_by_60|female": {
+        "log_ratio_abs_max": 0.029,
+        "derivation": {
+          "floor_mean": 0.011506725353653264,
+          "floor_sd": 0.00445368107523126,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "ever_married_by_60|male": {
+        "log_ratio_abs_max": 0.044,
+        "derivation": {
+          "floor_mean": 0.01114158619579513,
+          "floor_sd": 0.008107198560321155,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "mean_lifetime_marriages|female": {
+        "log_ratio_abs_max": 0.078,
+        "derivation": {
+          "floor_mean": 0.022466646624842743,
+          "floor_sd": 0.013906645783561558,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "mean_lifetime_marriages|male": {
+        "log_ratio_abs_max": 0.064,
+        "derivation": {
+          "floor_mean": 0.014065637307314003,
+          "floor_sd": 0.012381127195508285,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.15-19": {
+        "log_ratio_abs_max": 0.197,
+        "derivation": {
+          "floor_mean": 0.055732504363996606,
+          "floor_sd": 0.035351636357892874,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.20-24": {
+        "log_ratio_abs_max": 0.127,
+        "derivation": {
+          "floor_mean": 0.027232453061746188,
+          "floor_sd": 0.024994300954534927,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.25-29": {
+        "log_ratio_abs_max": 0.079,
+        "derivation": {
+          "floor_mean": 0.03589781448782482,
+          "floor_sd": 0.010855670744799846,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.30-34": {
+        "log_ratio_abs_max": 0.098,
+        "derivation": {
+          "floor_mean": 0.02199398442749708,
+          "floor_sd": 0.01892681878082154,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.35-39": {
+        "log_ratio_abs_max": 0.142,
+        "derivation": {
+          "floor_mean": 0.05738561331514064,
+          "floor_sd": 0.021163884522286135,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "asfr.40-44": {
+        "log_ratio_abs_max": 0.276,
+        "derivation": {
+          "floor_mean": 0.08007791828535804,
+          "floor_sd": 0.04909012212436562,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "completed_fertility.c1930s": {
+        "log_ratio_abs_max": 0.221,
+        "derivation": {
+          "floor_mean": 0.061040580763984,
+          "floor_sd": 0.040019895661573386,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "completed_fertility.c1940s": {
+        "log_ratio_abs_max": 0.191,
+        "derivation": {
+          "floor_mean": 0.034417289979612666,
+          "floor_sd": 0.03924483752184148,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "completed_fertility.c1950s": {
+        "log_ratio_abs_max": 0.076,
+        "derivation": {
+          "floor_mean": 0.020315832377120892,
+          "floor_sd": 0.013902051492261227,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "completed_fertility.c1960s": {
+        "log_ratio_abs_max": 0.154,
+        "derivation": {
+          "floor_mean": 0.039859342452216825,
+          "floor_sd": 0.028427298161290582,
+          "k": 4,
+          "rounding": 3
+        }
+      },
+      "completed_fertility.c1970s": {
+        "log_ratio_abs_max": 0.222,
+        "derivation": {
+          "floor_mean": 0.042225485107130756,
+          "floor_sd": 0.044951920960268635,
+          "k": 4,
+          "rounding": 3
+        }
+      }
+    }
+  },
+  "draft_thresholds_note": "DRAFT GATE-2 VALIDATION EVIDENCE -- PRE-LOCK, NOT RATIFIED.\n\nThis is the pre-lock evidence package for the gate-2 family-transition statistics (the analogue of what preceded gate 1's lock). It changes no locked value and no model reads it. The DRAFT thresholds it feeds live in gates.yaml under gate_2 with locked: false and status: draft_pending_referee_round. Ratification requires the full lock ceremony: these floors -> thresholds with machine-bound derivations -> an adversarial referee round -> verification -> maintainer ratification by merge. The k value (4) is a DRAFT proposal (consistent with the gate-1 c2st precedent k=4.2 and the 4-of-5-seed rule), for the ceremony to fix.\n\nSTATISTIC. Per cell, the weighted PSID rate (first-marriage / divorce / widowhood / remarriage hazard; ever-married share; mean lifetime marriages; age-specific fertility rate; completed fertility) from the retrospective annual person-year panel, and a candidate's rate built the same way. The discrepancy is scored as the absolute log rate ratio |ln(r_candidate / r_PSID)| per cell (symmetric, scale-free).\n\nINTERNAL FLOOR. The person-disjoint 50/50 half-split |log rate ratio| floor in noise_floor_seeds_0_4 (mean/sd across seeds 0-4). Each DRAFT per-cell tolerance is round(mean + 4*sd, 3) at the shared derivation convention (tests/test_gates_derivations.py).\n\nGATE-ELIGIBLE VS REPORT-ONLY CELLS. Gate only cells defined on every seed AND carrying at least 20 events on the weaker half of the worst seed -- NCHS's own reliability floor (rates on < 20 events are unreliable): ['asfr.15-19', 'asfr.20-24', 'asfr.25-29', 'asfr.30-34', 'asfr.35-39', 'asfr.40-44', 'completed_fertility.c1930s', 'completed_fertility.c1940s', 'completed_fertility.c1950s', 'completed_fertility.c1960s', 'completed_fertility.c1970s', 'divorce.dur0-4', 'divorce.dur10-19', 'divorce.dur20+', 'divorce.dur5-9', 'ever_married_by_40|female', 'ever_married_by_40|male', 'ever_married_by_60|female', 'ever_married_by_60|male', 'first_marriage.18-24|female', 'first_marriage.18-24|male', 'first_marriage.25-34|female', 'first_marriage.25-34|male', 'first_marriage.35-44|female', 'first_marriage.35-44|male', 'first_marriage.45+|female', 'first_marriage.45+|male', 'mean_lifetime_marriages|female', 'mean_lifetime_marriages|male', 'remarriage.ysd0-4', 'remarriage.ysd10+', 'remarriage.ysd5-9', 'widowhood.45-54|female', 'widowhood.45-54|male', 'widowhood.55-64|female', 'widowhood.55-64|male', 'widowhood.65-74|female', 'widowhood.65-74|male', 'widowhood.75+|female', 'widowhood.75+|male']. Report-only (denominator-fragile, the analog of the PIA floor's d1/d2): ['asfr.45-49']. Derived from cell_stability, not hand-picked.\n\nEXTERNAL ANCHOR. NCHS 2024 ASFR (concept-aligned) and the NCHS national marriage/divorce crude rates (loose order-of-magnitude). PSID retrospective family files have known coverage caveats (left-truncated retrospective histories; a pooled-period vs recent-year delta -- recent-window median PSID/NCHS ASFR ratio ~1.00), so the external check is a SHAPE/RATIO REPORT, not a level gate: (i) the ASFR is a unimodal age hump in both; (ii) the marriage/divorce crude-equivalent is the same order of magnitude; (iii) every PSID/NCHS ratio is reported per band with its coverage/period delta named. A candidate that reproduces PSID's own rates inherits these documented offsets; the anchor certifies shape, not level.\n\nBASELINE CONVENTION. These transitions feed benefit levels through household composition and survivorship; a scored reform states its scheduled/payable baseline. This evidence fixes the component's estimation/validation standard only.",
+  "revision_pins": {
+    "populace_dynamics_sha": "66924f34f2e9183312af9e9ccbe69470c7a59c67",
+    "nchs_asfr_sha256": "47fdc6dbf672895cf446bc1a521c4f3e5f868b49e591d24721085cf23b881a73",
+    "nchs_marriage_divorce_sha256": "f80524bb6e60a6b36a65c72fe3416e71499ccc7b7f4e9b066d4ff3876a0b605c",
+    "artifact_schema_version": "gate2_floors.v1"
+  },
+  "elapsed_seconds": 14.2
+}

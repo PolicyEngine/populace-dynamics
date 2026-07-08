@@ -793,3 +793,117 @@ def test_ratified_standing_rules_and_history_record():
     assert "PROSPECTIVE ONLY" in entry["content"]
     assert "4904161939" in entry["referee_round"]["review"]
     assert "4905067301" in entry["referee_round"]["verification"]
+
+
+# --------------------------------------------------------------------------
+# Gate 2 DRAFT threshold binding (gate_2.thresholds, status draft)
+#
+# The gate-2 pre-lock evidence fills the gate_2 stub with a DRAFT thresholds
+# block (locked: false, status: draft_pending_referee_round) whose per-cell
+# |ln ratio| tolerances are machine-bound to the committed half-split floor
+# runs/gate2_floors_v1.json exactly as the locked gate-1 geometry thresholds
+# bind to theirs: tolerance == round(floor mean + k * floor sd, rounding).
+# These are the analogue, one gate down, of the gate-1 derivation tests. They
+# run everywhere (committed files only) and SKIP the moment gate_2 leaves the
+# draft status -- a ratification round replaces them with locked bindings,
+# just as amendment 1/2's proposal-object tests went dormant at ratification.
+# --------------------------------------------------------------------------
+GATE2_FLOOR_RUN = "runs/gate2_floors_v1.json"
+
+
+def _gate_2() -> dict:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_2"]["thresholds"]
+
+
+def _gate_2_if_draft() -> dict | None:
+    g2 = _gate_2()
+    if g2.get("status") != "draft_pending_referee_round":
+        return None
+    return g2
+
+
+def test_gate2_stays_locked_false():
+    """Gate 2 never locks in the pre-lock evidence PR (the ceremony is later)."""
+    assert _gate_2()["locked"] is False
+
+
+def test_gate2_draft_thresholds_bind_to_floor():
+    """Every DRAFT tolerance == round(floor mean + k*sd, rounding).
+
+    The exact machine-binding the locked gate-1 geometry thresholds carry,
+    applied to each gate-2 view's ``tolerances`` against the committed
+    half-split floor. The rule ``key`` is the floor cell itself, and every
+    ``tolerances`` entry has a matching ``derivations.rules`` entry.
+    """
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not in draft_pending_referee_round status")
+    for view_name, view in g2["views"].items():
+        rules = view["derivations"]["rules"]
+        tolerances = view["tolerances"]
+        assert set(rules) == set(tolerances), view_name
+        assert view["derivations"]["floor_run"] == GATE2_FLOOR_RUN
+        for cell, rule in rules.items():
+            assert rule["key"] == cell, f"{view_name}.{cell}"
+            derived = _derive(
+                view["derivations"]["floor_run"],
+                rule["key"],
+                rule["k"],
+                rule.get("rounding", 3),
+            )
+            assert derived == pytest.approx(tolerances[cell]), (
+                f"{view_name}.{cell}: derived {derived} != tolerance "
+                f"{tolerances[cell]}"
+            )
+
+
+def test_gate2_draft_k_matches_gate1_precedent():
+    """Every DRAFT k is the ~4-sigma gate-1 precedent, and marked draft."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    assert g2["holdout_basis"] == ["mh85_23", "cah85_23", "MX23REL"]
+    assert g2["floor_run"] == GATE2_FLOOR_RUN
+    for view in g2["views"].values():
+        for rule in view["derivations"]["rules"].values():
+            assert rule["k"] == 4
+
+
+def test_gate2_report_only_matches_committed_floor_stability():
+    """report_only == the floor's report-only cells; gated == gate-eligible.
+
+    The gated/report-only partition is derived from the committed floor's
+    ``cell_stability`` (the < 20-events reliability rule), not hand-picked,
+    and the two sides are disjoint -- exactly the discipline the locked
+    benefit-space block's d1/d2 reported-not-gated list carries.
+    """
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    floor = json.loads((ROOT / GATE2_FLOOR_RUN).read_text())
+    stability = floor["cell_stability"]
+    report_only_expected = {
+        k for k, v in stability.items() if not v["gate_eligible"]
+    }
+    gate_eligible_expected = {
+        k for k, v in stability.items() if v["gate_eligible"]
+    }
+    assert set(g2["report_only"]) == report_only_expected
+
+    gated = set()
+    for view in g2["views"].values():
+        gated |= set(view["tolerances"])
+    assert gated == gate_eligible_expected
+    assert gated.isdisjoint(set(g2["report_only"]))
+
+
+def test_gate2_floor_run_is_a_reported_anchor():
+    """The floor the DRAFT thresholds cite reads no gate and is pre-lock."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    floor = json.loads((ROOT / GATE2_FLOOR_RUN).read_text())
+    assert floor["reported_anchor_not_gated"] is True
+    assert floor["schema_version"] == "gate2_floors.v1"
+    assert "NOT RATIFIED" in floor["draft_thresholds_note"]

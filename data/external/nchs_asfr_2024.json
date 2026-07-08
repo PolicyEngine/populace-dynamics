@@ -1,0 +1,72 @@
+{
+  "schema_version": "nchs_asfr.v1",
+  "vintage_year": 2024,
+  "prior_year": 2023,
+  "measure": "age_specific_fertility_rate_per_1000_women",
+  "report": {
+    "title": "Births: Final Data for 2024",
+    "nvsr_citation": "Osterman MJK, Hamilton BE, Martin JA, Driscoll AK, Valenzuela CP. Births: Final Data for 2024. National Vital Statistics Reports, Vol. 75, No. 2. Hyattsville, MD: National Center for Health Statistics; June 9, 2026.",
+    "publisher": "National Center for Health Statistics (NCHS)",
+    "report_pdf_url": "https://www.cdc.gov/nchs/data/nvsr/nvsr75/nvsr75-02.pdf",
+    "dqs_dataset_page": "https://data.cdc.gov/d/daba-4vfq"
+  },
+  "fetch": {
+    "fetched_utc": "2026-07-07T23:31:09.311579+00:00",
+    "fetched_by": "scripts/fetch_nchs_asfr.py",
+    "source_format": "json (data.cdc.gov Socrata DQS API)",
+    "socrata_resource": "daba-4vfq",
+    "query_url": "https://data.cdc.gov/resource/daba-4vfq.json?%24select=time_period%2Csubgroup%2Csubgroup_id%2Cestimate%2Cestimate_type%2Csubgroup_order&%24where=subtopic_id%3D%271%27+AND+group_id%3D%2710%27+AND+time_period+in%28%272024%27%2C%272023%27%29+AND+subgroup_id+in%28%2720025%27%2C%2720100%27%2C%2720200%27%2C%2720300%27%2C%2720400%27%2C%2720500%27%2C%2720600%27%2C%2720700%27%29&%24order=time_period%2Csubgroup_order&%24limit=500",
+    "response_sha256": "f3247246b480fa5e82bf9bb46abecbec1b1526e5adf216bc6becc10b8c64e49b",
+    "n_bytes": 2571
+  },
+  "band_note": "ASFR is live births per 1,000 women in the maternal age band. The '45-49' band is NCHS's official 45-49 rate: all births to women age 45+ over the 45-49 female population (the Socrata feed labels this row '45-54 years'). '10-14' is retained for the TFR sum only and is outside the gate-2 ASFR bands.",
+  "gate2_bands": [
+    "15-19",
+    "20-24",
+    "25-29",
+    "30-34",
+    "35-39",
+    "40-44",
+    "45-49"
+  ],
+  "tables": {
+    "2024": {
+      "10-14": 0.2,
+      "15-19": 12.6,
+      "20-24": 55.8,
+      "25-29": 89.5,
+      "30-34": 93.7,
+      "35-39": 54.3,
+      "40-44": 12.7,
+      "45-49": 1.1
+    },
+    "2023": {
+      "10-14": 0.2,
+      "15-19": 13.1,
+      "20-24": 57.7,
+      "25-29": 91.0,
+      "30-34": 94.3,
+      "35-39": 54.3,
+      "40-44": 12.5,
+      "45-49": 1.1
+    }
+  },
+  "total_fertility_rate": {
+    "2024": 1599.5,
+    "2023": 1621.0
+  },
+  "validation": {
+    "2024": {
+      "tfr_computed": 1599.5,
+      "tfr_published_headline": 1599.5,
+      "peak_band": "30-34",
+      "unimodal_hump": true
+    },
+    "2023": {
+      "tfr_computed": 1621.0,
+      "tfr_published_headline": 1621.0,
+      "peak_band": "30-34",
+      "unimodal_hump": true
+    }
+  }
+}
