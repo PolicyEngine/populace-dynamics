@@ -1,0 +1,2135 @@
+{
+  "schema_version": "gate2_forensics2.v1",
+  "run": "gate2_forensics2_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4917987214",
+  "registration_pointer": "4917987214",
+  "registration_title": "Registered diagnostic: forensics 2 -- the widow stock and the female count",
+  "candidate_under_diagnosis": "gate-2 candidate 10 (run 1, PR #98): FAIL 1/5 under the amended mean-over-20-draws estimator; decider share_widowed.75+|female (failed 4/5), residual female marriage-count tilt +0.044 ln (3/5)",
+  "candidate10_spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4917059482",
+  "candidate10_registration_pointer": "4917059482",
+  "candidate10_artifact": "runs/gate2_hazard_v10.json",
+  "forensics1_artifact": "runs/gate2_forensics_v1.json (#94)",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published candidate-10 per-seed scores read from runs/gate2_hazard_v10.json; the holdout (side A) is never simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout, side B = train complement (this diagnostic simulates side B)",
+    "fit_simulate_machinery": "scripts/run_gate2_candidate10.py (merged #98; chain-imports candidates 1-9) reused byte-for-byte on the train side; scripts/gate2_forensics.py (merged #94) pathway_cells reused verbatim",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "estimator": "mean_over_K20_draws",
+    "n_draws": 20,
+    "draw_rng_rule": "numpy default_rng(5200 + k) for k in 0..19 (the candidate-10 amended-estimator stream; the gate seed fixes the split, k varies only the simulation RNG)",
+    "reference": "side B's own observed marital panel (no rate_a/rate_b tolerance scoring; the decompositions compare simulated vs observed levels directly)"
+  },
+  "data": {
+    "marriage_history_persons": 55732,
+    "panel_persons_weighted": 41409,
+    "panel_retained_share": 0.743,
+    "n_person_years": 1164692,
+    "person_year_calendar_range": [
+      1899,
+      2023
+    ],
+    "n_transition_events": 42898,
+    "transition_event_counts": {
+      "first_marriage": 24297,
+      "divorce": 9793,
+      "remarriage": 6082,
+      "widowhood": 2726
+    },
+    "n_woman_years_15_49": 488960,
+    "n_maternal_births": 35408,
+    "n_completed_fertility_women": 8529,
+    "death_records_exact_year": 7816
+  },
+  "question_4_widow_stock": {
+    "question": "Decompose the 75+ female widowed-stock gap into inflow (widowhood incidence 65-74 vs 75+), aging-in (widowed 65-74 entering 75+), outflow (elderly-widow remarriage/attrition) and initial states (entry-widowed vs simulated persistence); which margin carries the ~20% level gap, and does the spousal-age-gap draw under-age husbands at wife 65+?",
+    "method": "Train-side. Per gate seed, fit candidate 10 on side B and simulate the SAME side B at the 20 draw seeds 5200+k; average the per-draw decompositions over draws, then over the 5 gate seeds. Reference = side B's observed marital panel. The 75+ widowed person-years are partitioned by widowhood onset age (onset = age - years_since_dissolution), which reconciles to share_widowed.75+|female; inflow = widowhood incidence hazards; outflow = remarriage hazard among widowed person-years by ego age band (50-64/65-74/75+, resolving candidate 10's pooled 50+ band); the spousal-gap test compares imputed (wife age + fitted gap draw) vs observed (active-marriage spouse birth year) husband age.",
+    "margin_verdict": "aging-in stock, with a substantial fresh-75+-onset shortfall; co-driven by outflow (elderly-widow over-remarriage from the pooled 50+ band) and a broad inflow shortfall in widowhood incidence; initial-states absent; spousal-age-gap ruled out",
+    "widowed_stock_75plus": {
+      "reference": 0.521804500343905,
+      "simulated": 0.42414415397212907,
+      "gap_reference_minus_simulated": 0.09766034637177595,
+      "log_ratio_sim_over_ref": -0.20721961408516676
+    },
+    "onset_bucket_decomposition": {
+      "reference": {
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.19351465540310514,
+        "onset_65_74": 0.16468624455826752,
+        "onset_75plus": 0.1636036003825323
+      },
+      "simulated": {
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.16767132646346677,
+        "onset_65_74": 0.12397998363485259,
+        "onset_75plus": 0.1324928438738097
+      },
+      "gap_reference_minus_simulated": {
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.025843328939638366,
+        "onset_65_74": 0.040706260923414936,
+        "onset_75plus": 0.03111075650872261
+      },
+      "aging_in_gap": 0.0665495898630533,
+      "fresh_75plus_onset_gap": 0.03111075650872261,
+      "initial_states_gap": 0.0,
+      "note": "buckets are shares of all female 75+ person-years and sum to share_widowed.75+|female; the gap partitions across them"
+    },
+    "inflow_incidence": {
+      "45-54": {
+        "reference": 0.005666372439473548,
+        "simulated": 0.005542619505663807,
+        "sim_over_ref_ratio": 0.9781601129944013
+      },
+      "55-64": {
+        "reference": 0.011476853315711513,
+        "simulated": 0.010792894713584883,
+        "sim_over_ref_ratio": 0.9404053895861587
+      },
+      "65-74": {
+        "reference": 0.02514343505170723,
+        "simulated": 0.022959786479053113,
+        "sim_over_ref_ratio": 0.9131523370548429
+      },
+      "75+": {
+        "reference": 0.05943439302008506,
+        "simulated": 0.05370595897028548,
+        "sim_over_ref_ratio": 0.9036175224694609
+      }
+    },
+    "outflow_elderly_widow_remarriage": {
+      "50-64": {
+        "reference": 0.018961073703366582,
+        "simulated": 0.006194504496746131,
+        "sim_over_ref_ratio": 0.32669587142875156
+      },
+      "65-74": {
+        "reference": 0.005264911072314837,
+        "simulated": 0.00587470199800969,
+        "sim_over_ref_ratio": 1.1158216952421847
+      },
+      "75+": {
+        "reference": 0.0006143684331723362,
+        "simulated": 0.005316076864023775,
+        "sim_over_ref_ratio": 8.652913426189272
+      }
+    },
+    "aging_in_integral_ever_widowed_by_75": {
+      "reference": 0.3874067897453796,
+      "simulated": 0.36627505012097644,
+      "sim_over_ref_ratio": 0.9454533575978576
+    },
+    "initial_states": {
+      "n_entry_widowed_persons_total": 0,
+      "entry_widowed_75plus_stock_share": 0.0,
+      "note": "structurally absent: the retrospective-to-age-15 exposure window makes every person's entry state age-15 never-married, so no left-censored widowhood exists to persist or drop"
+    },
+    "spousal_age_gap_test": {
+      "imputed_mean_gap_pooled": 2.3446169792095906,
+      "observed_mean_gap_active_65plus": 1.9009799489266492,
+      "imputed_mean_husband_age": 74.31467393499535,
+      "observed_mean_husband_age": 73.93453245289237,
+      "imputed_minus_observed_mean_husband_age": 0.3801414821029795,
+      "imputed_share_husband_ge_high_mortality": 0.23177407125214042,
+      "observed_share_husband_ge_high_mortality": 0.20971656710132147,
+      "observed_active_match_coverage": 0.9652607660982966,
+      "husband_underaged_by_draw": false,
+      "finding": "REJECTED -- the draw does not under-age husbands at wife 65+; it slightly over-ages them"
+    },
+    "per_seed": [
+      {
+        "seed": 0,
+        "reference_share_75plus": 0.5352125760882026,
+        "simulated_share_75plus": 0.4040996434570701,
+        "gap": 0.1311129326311325,
+        "aging_in_gap": 0.10826589371926298,
+        "outflow_75plus_sim_over_ref_ratio": 8.118486888122703,
+        "reconciliation_remainder": 1.1102230246251565e-16
+      },
+      {
+        "seed": 1,
+        "reference_share_75plus": 0.5273048764555605,
+        "simulated_share_75plus": 0.4341605283807291,
+        "gap": 0.09314434807483135,
+        "aging_in_gap": 0.07426872602905504,
+        "outflow_75plus_sim_over_ref_ratio": 11.724029036898873,
+        "reconciliation_remainder": 0.0
+      },
+      {
+        "seed": 2,
+        "reference_share_75plus": 0.5204373575112432,
+        "simulated_share_75plus": 0.4270545826507302,
+        "gap": 0.093382774860513,
+        "aging_in_gap": 0.04350886891816391,
+        "outflow_75plus_sim_over_ref_ratio": 8.037010436311215,
+        "reconciliation_remainder": 0.0
+      },
+      {
+        "seed": 3,
+        "reference_share_75plus": 0.5074681273306444,
+        "simulated_share_75plus": 0.42831016966005614,
+        "gap": 0.07915795767058825,
+        "aging_in_gap": 0.05353918784513123,
+        "outflow_75plus_sim_over_ref_ratio": 5.443610530563231,
+        "reconciliation_remainder": 0.0
+      },
+      {
+        "seed": 4,
+        "reference_share_75plus": 0.5185995643338744,
+        "simulated_share_75plus": 0.42709584571205983,
+        "gap": 0.09150371862181461,
+        "aging_in_gap": 0.05316527280365335,
+        "outflow_75plus_sim_over_ref_ratio": 13.606209803644555,
+        "reconciliation_remainder": 1.1102230246251565e-16
+      }
+    ],
+    "finding": "The 75+ female widowed-stock gap (reference 0.522 vs simulated 0.424, level +0.098, ln -0.207) is carried by the AGING-IN margin: the onset<75 buckets hold +0.067 of the +0.098 gap (68%), a further +0.031 (32%) sits in fresh 75+ onset, and the INITIAL-STATES margin is structurally absent (+0.000; 0 entry-widowed persons -- retrospective exposure starts at age 15 never-married, so there is no left-censored widowhood). Two flows drive it. OUTFLOW is the largest single anomaly: elderly-widow remarriage runs 9x the reference at 75+ (sim 0.0053 vs ref 0.0006) because candidate 10's single '50+' current-age remarriage band pools 75+ widows with the higher-remarrying 50-64 widows, depleting every aged-in cohort once it reaches 75+. A broad INFLOW shortfall co-contributes: widowhood incidence runs 0.90-0.98 of the reference across bands (worst at 65-74/75+), compounding through the ever-widowed-by-75 integral (ref 0.387 vs sim 0.366). The spousal-age-gap draw does NOT under-age husbands: the imputed husband age at wife 65+ is +0.38 yr vs observed (pooled gap 2.34 vs observed active 1.90), so inflow-via-husband-mortality is ruled out."
+  },
+  "question_5_female_count": {
+    "question": "Repeat the forensics-1 Q1 pathway table by sex with candidate 10's fitted tables: where does the female in-exposure over-production (-0.036 in the c8-era table) now sit after age-conditioned remarriage -- first marriage vs after-divorce vs after-widowhood, by age band -- and does a conditioning margin (age at dissolution) show the same misallocation signature the male fix exploited?",
+    "method": "Train-side. Per gate seed, fit candidate 10 on side B and simulate side B at 5200+k (k=0..19); average the per-person pathway counts over draws then over the 5 gate seeds. Reference = side B observed episodes. Pathway = first / after_divorce / after_widowhood x order (2nd vs 3rd+) x marriage-age band (gate2_forensics.pathway_cells, reused verbatim). The probe recomputes female remarriage hazard by age-at-dissolution band (age - years_since_dissolution) x origin, the margin candidate 10's current-age table does not condition on.",
+    "by_sex": {
+      "female": {
+        "mean_lifetime_marriages_reference": 1.4087002121091654,
+        "mean_lifetime_marriages_simulated": 1.4496603102547096,
+        "count_deficit_reference_minus_simulated": -0.040960098145544244,
+        "in_exposure_reference": 1.3189240327034988,
+        "in_exposure_simulated": 1.3561956699329207,
+        "in_exposure_over_production": 0.03727163722942195,
+        "pathway_cells": {
+          "after_divorced|2nd|15-24": {
+            "reference": 0.024822703466295615,
+            "simulated": 0.015323289381910318,
+            "deficit": 0.009499414084385297
+          },
+          "after_divorced|2nd|25-34": {
+            "reference": 0.08835285394976052,
+            "simulated": 0.09045565548134946,
+            "deficit": -0.002102801531588941
+          },
+          "after_divorced|2nd|35-44": {
+            "reference": 0.07830378747264219,
+            "simulated": 0.06344937991666086,
+            "deficit": 0.01485440755598133
+          },
+          "after_divorced|2nd|45-54": {
+            "reference": 0.036401144756288785,
+            "simulated": 0.033575436707958074,
+            "deficit": 0.0028257080483307107
+          },
+          "after_divorced|2nd|55+": {
+            "reference": 0.012327343911258724,
+            "simulated": 0.024047374970633074,
+            "deficit": -0.01172003105937435
+          },
+          "after_divorced|3rd+|15-24": {
+            "reference": 0.0012477149729138402,
+            "simulated": 0.00010610949787538852,
+            "deficit": 0.0011416054750384517
+          },
+          "after_divorced|3rd+|25-34": {
+            "reference": 0.009816277012187877,
+            "simulated": 0.006415490289994513,
+            "deficit": 0.0034007867221933644
+          },
+          "after_divorced|3rd+|35-44": {
+            "reference": 0.020251792204982827,
+            "simulated": 0.0161455706424938,
+            "deficit": 0.004106221562489028
+          },
+          "after_divorced|3rd+|45-54": {
+            "reference": 0.016630649657936293,
+            "simulated": 0.016046339431054286,
+            "deficit": 0.0005843102268820073
+          },
+          "after_divorced|3rd+|55+": {
+            "reference": 0.006592967696844238,
+            "simulated": 0.017343652561862703,
+            "deficit": -0.010750684865018467
+          },
+          "after_widowed|2nd|15-24": {
+            "reference": 0.0017188239648429915,
+            "simulated": 0.0037120938882232216,
+            "deficit": -0.00199326992338023
+          },
+          "after_widowed|2nd|25-34": {
+            "reference": 0.004338202604859876,
+            "simulated": 0.023890990519894184,
+            "deficit": -0.019552787915034307
+          },
+          "after_widowed|2nd|35-44": {
+            "reference": 0.006466340887039681,
+            "simulated": 0.019478185548436288,
+            "deficit": -0.013011844661396606
+          },
+          "after_widowed|2nd|45-54": {
+            "reference": 0.006887130503871161,
+            "simulated": 0.011670785206133684,
+            "deficit": -0.004783654702262523
+          },
+          "after_widowed|2nd|55+": {
+            "reference": 0.011232648979939308,
+            "simulated": 0.01212564121682871,
+            "deficit": -0.0008929922368894026
+          },
+          "after_widowed|3rd+|15-24": {
+            "reference": 0.0006832082409086404,
+            "simulated": 2.2761169642152472e-05,
+            "deficit": 0.0006604470712664879
+          },
+          "after_widowed|3rd+|25-34": {
+            "reference": 0.0010635088003937971,
+            "simulated": 0.0012350706184522543,
+            "deficit": -0.0001715618180584571
+          },
+          "after_widowed|3rd+|35-44": {
+            "reference": 0.0019239565946262034,
+            "simulated": 0.003157000457337433,
+            "deficit": -0.0012330438627112298
+          },
+          "after_widowed|3rd+|45-54": {
+            "reference": 0.0027486591283353663,
+            "simulated": 0.002715825567758626,
+            "deficit": 3.2833560576740316e-05
+          },
+          "after_widowed|3rd+|55+": {
+            "reference": 0.003105959782247997,
+            "simulated": 0.004956302018466344,
+            "deficit": -0.001850342236218347
+          },
+          "first": {
+            "reference": 0.9840083581153231,
+            "simulated": 0.9903227148399552,
+            "deficit": -0.0063143567246320975
+          }
+        },
+        "largest_over_produced_cells": [
+          {
+            "cell": "after_widowed|2nd|25-34",
+            "reference": 0.004338202604859876,
+            "simulated": 0.023890990519894184,
+            "deficit": -0.019552787915034307
+          },
+          {
+            "cell": "after_widowed|2nd|35-44",
+            "reference": 0.006466340887039681,
+            "simulated": 0.019478185548436288,
+            "deficit": -0.013011844661396606
+          },
+          {
+            "cell": "after_divorced|2nd|55+",
+            "reference": 0.012327343911258724,
+            "simulated": 0.024047374970633074,
+            "deficit": -0.01172003105937435
+          },
+          {
+            "cell": "after_divorced|3rd+|55+",
+            "reference": 0.006592967696844238,
+            "simulated": 0.017343652561862703,
+            "deficit": -0.010750684865018467
+          },
+          {
+            "cell": "first",
+            "reference": 0.9840083581153231,
+            "simulated": 0.9903227148399552,
+            "deficit": -0.0063143567246320975
+          },
+          {
+            "cell": "after_widowed|2nd|45-54",
+            "reference": 0.006887130503871161,
+            "simulated": 0.011670785206133684,
+            "deficit": -0.004783654702262523
+          }
+        ]
+      },
+      "male": {
+        "mean_lifetime_marriages_reference": 1.4307805982825834,
+        "mean_lifetime_marriages_simulated": 1.4576135656369467,
+        "count_deficit_reference_minus_simulated": -0.026832967354363246,
+        "in_exposure_reference": 1.3151352475424665,
+        "in_exposure_simulated": 1.3402526060589046,
+        "in_exposure_over_production": 0.02511735851643815,
+        "pathway_cells": {
+          "after_divorced|2nd|15-24": {
+            "reference": 0.01317015905511052,
+            "simulated": 0.006768525979693525,
+            "deficit": 0.006401633075416994
+          },
+          "after_divorced|2nd|25-34": {
+            "reference": 0.08277996359316601,
+            "simulated": 0.07640213152834865,
+            "deficit": 0.00637783206481736
+          },
+          "after_divorced|2nd|35-44": {
+            "reference": 0.08627284630790119,
+            "simulated": 0.08012153069774265,
+            "deficit": 0.006151315610158539
+          },
+          "after_divorced|2nd|45-54": {
+            "reference": 0.04857524961041819,
+            "simulated": 0.04577586553317922,
+            "deficit": 0.002799384077238967
+          },
+          "after_divorced|2nd|55+": {
+            "reference": 0.018192856330204187,
+            "simulated": 0.03265431199777167,
+            "deficit": -0.014461455667567482
+          },
+          "after_divorced|3rd+|15-24": {
+            "reference": 0.000512344286743107,
+            "simulated": 4.131189676013171e-05,
+            "deficit": 0.0004710323899829753
+          },
+          "after_divorced|3rd+|25-34": {
+            "reference": 0.008549205871387407,
+            "simulated": 0.0037843909151657625,
+            "deficit": 0.004764814956221644
+          },
+          "after_divorced|3rd+|35-44": {
+            "reference": 0.016545132335214936,
+            "simulated": 0.014877332081424357,
+            "deficit": 0.0016678002537905794
+          },
+          "after_divorced|3rd+|45-54": {
+            "reference": 0.01577728602356843,
+            "simulated": 0.018064801681874746,
+            "deficit": -0.002287515658306316
+          },
+          "after_divorced|3rd+|55+": {
+            "reference": 0.010405372585589422,
+            "simulated": 0.023340890680354553,
+            "deficit": -0.012935518094765132
+          },
+          "after_widowed|2nd|15-24": {
+            "reference": 0.0006297489984540222,
+            "simulated": 0.0007342159206784241,
+            "deficit": -0.00010446692222440188
+          },
+          "after_widowed|2nd|25-34": {
+            "reference": 0.0020195571187292707,
+            "simulated": 0.008212127066886342,
+            "deficit": -0.00619256994815707
+          },
+          "after_widowed|2nd|35-44": {
+            "reference": 0.0031040961452094766,
+            "simulated": 0.01133430415593203,
+            "deficit": -0.008230208010722552
+          },
+          "after_widowed|2nd|45-54": {
+            "reference": 0.0043366103683564585,
+            "simulated": 0.006455463598252939,
+            "deficit": -0.0021188532298964807
+          },
+          "after_widowed|2nd|55+": {
+            "reference": 0.013304743946920472,
+            "simulated": 0.011914853913072137,
+            "deficit": 0.0013898900338483351
+          },
+          "after_widowed|3rd+|25-34": {
+            "reference": 0.0,
+            "simulated": 0.0002690685271203237,
+            "deficit": -0.0002690685271203237
+          },
+          "after_widowed|3rd+|35-44": {
+            "reference": 0.0010017863322379123,
+            "simulated": 0.0014212034153370107,
+            "deficit": -0.0004194170830990984
+          },
+          "after_widowed|3rd+|45-54": {
+            "reference": 0.0021245784343178952,
+            "simulated": 0.0015246726499220467,
+            "deficit": 0.0005999057843958486
+          },
+          "after_widowed|3rd+|55+": {
+            "reference": 0.0022630578975867607,
+            "simulated": 0.00493214615737438,
+            "deficit": -0.0026690882597876194
+          },
+          "first": {
+            "reference": 0.9855706523013508,
+            "simulated": 0.991623457662014,
+            "deficit": -0.006052805360663216
+          }
+        },
+        "largest_over_produced_cells": [
+          {
+            "cell": "after_divorced|2nd|55+",
+            "reference": 0.018192856330204187,
+            "simulated": 0.03265431199777167,
+            "deficit": -0.014461455667567482
+          },
+          {
+            "cell": "after_divorced|3rd+|55+",
+            "reference": 0.010405372585589422,
+            "simulated": 0.023340890680354553,
+            "deficit": -0.012935518094765132
+          },
+          {
+            "cell": "after_widowed|2nd|35-44",
+            "reference": 0.0031040961452094766,
+            "simulated": 0.01133430415593203,
+            "deficit": -0.008230208010722552
+          },
+          {
+            "cell": "after_widowed|2nd|25-34",
+            "reference": 0.0020195571187292707,
+            "simulated": 0.008212127066886342,
+            "deficit": -0.00619256994815707
+          },
+          {
+            "cell": "first",
+            "reference": 0.9855706523013508,
+            "simulated": 0.991623457662014,
+            "deficit": -0.006052805360663216
+          },
+          {
+            "cell": "after_widowed|3rd+|55+",
+            "reference": 0.0022630578975867607,
+            "simulated": 0.00493214615737438,
+            "deficit": -0.0026690882597876194
+          }
+        ]
+      }
+    },
+    "female_over_production_origin_split": {
+      "first_marriage": {
+        "reference": 0.9840083581153231,
+        "simulated": 0.9903227148399552,
+        "over_production": 0.0063143567246320975
+      },
+      "after_divorce": {
+        "reference": 0.2947472351011109,
+        "simulated": 0.2829082988817925,
+        "over_production": -0.011838936219318419
+      },
+      "after_widowhood": {
+        "reference": 0.04016843948706502,
+        "simulated": 0.0829646562111729,
+        "over_production": 0.042796216724107876
+      }
+    },
+    "conditioning_margin_probe": {
+      "margin": "age_at_dissolution",
+      "candidate_10_conditions_on": "ego CURRENT age band (18-34/35-49/50+) x years-since-dissolution band x origin x sex",
+      "female_remarriage_by_age_at_dissolution": {
+        "divorced": {
+          "15-34": {
+            "reference": 0.07856045443613072,
+            "simulated": 0.07394997089787281,
+            "sim_over_ref_ratio": 0.9413129217320629
+          },
+          "35-49": {
+            "reference": 0.041242935040028794,
+            "simulated": 0.03964769089365452,
+            "sim_over_ref_ratio": 0.9613207899770956
+          },
+          "50-64": {
+            "reference": 0.019847246379984466,
+            "simulated": 0.02414981392829862,
+            "sim_over_ref_ratio": 1.2167841052577049
+          },
+          "65+": {
+            "reference": 0.020552251791685024,
+            "simulated": 0.02990278657155408,
+            "sim_over_ref_ratio": 1.454964004657245
+          }
+        },
+        "widowed": {
+          "15-34": {
+            "reference": 0.03428108043613125,
+            "simulated": 0.0440590946732405,
+            "sim_over_ref_ratio": 1.285230631961165
+          },
+          "35-49": {
+            "reference": 0.02560675899326058,
+            "simulated": 0.021376012405895473,
+            "sim_over_ref_ratio": 0.8347800833179008
+          },
+          "50-64": {
+            "reference": 0.007485476474687914,
+            "simulated": 0.006383224267948066,
+            "sim_over_ref_ratio": 0.8527478898013899
+          },
+          "65+": {
+            "reference": 0.0025558286950361393,
+            "simulated": 0.007385696217999657,
+            "sim_over_ref_ratio": 2.889746183828343
+          }
+        }
+      },
+      "signature": "female after-widowhood remarriage over-produced at the age-at-dissolution extremes (15-34 and 65+) and under-produced at 50-64 -- the pooled current-age x ysd cell misallocates across dissolution age"
+    },
+    "finding": "Under candidate 10's age-conditioned remarriage, the female in-exposure marriage-count over-production (+0.037/person; the c8-era table carried -0.036) now sits in remarriage after WIDOWHOOD (+0.043/person) and first marriage (+0.006/person), NOT the after-divorce pathway the male age-conditioning fix addressed (-0.012/person net). The age-at-dissolution probe shows the misallocation signature the male fix exploited, now on the female after-widowhood margin: simulated remarriage runs 1.29x the reference at dissolution age 15-34, 0.85x at 50-64 and 2.89x at 65+ -- the current-age x years-since-dissolution table pools over age-at-dissolution, so widows who dissolved at the extremes inherit the pooled rate. The elderly (dissolution age 65+) over-remarriage is the same defect as Q4's outflow driver, viewed on the count margin."
+  },
+  "published_outer_context": {
+    "note": "already-published candidate-10 side-A scores (runs/gate2_hazard_v10.json); the outer holdout is not simulated here -- context that the train-side decomposition reproduces the published outer failure",
+    "cells": {
+      "share_widowed.75+|female": {
+        "0": {
+          "rbar": 0.40304641043360745,
+          "rate_a": 0.5076166858383586,
+          "score": 0.23067488963966432,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "1": {
+          "rbar": 0.43160488189667856,
+          "rate_a": 0.5155032908555559,
+          "score": 0.1776331427694885,
+          "pass": true,
+          "tolerance": 0.185
+        },
+        "2": {
+          "rbar": 0.42946325486780373,
+          "rate_a": 0.5222775396481519,
+          "score": 0.1956629472498258,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "3": {
+          "rbar": 0.41955519540667785,
+          "rate_a": 0.5361518436355753,
+          "score": 0.24522231979343287,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "4": {
+          "rbar": 0.4328101749079221,
+          "rate_a": 0.5242081880199894,
+          "score": 0.19158967405038685,
+          "pass": false,
+          "tolerance": 0.185
+        }
+      },
+      "share_widowed.65-74|female": {
+        "0": {
+          "rbar": 0.20075544494074782,
+          "rate_a": 0.2044861633780354,
+          "score": 0.01841283699909547,
+          "pass": true,
+          "tolerance": 0.3
+        },
+        "1": {
+          "rbar": 0.2095619267392465,
+          "rate_a": 0.20778538844134656,
+          "score": 0.008513528006922089,
+          "pass": true,
+          "tolerance": 0.3
+        },
+        "2": {
+          "rbar": 0.2234064618893535,
+          "rate_a": 0.20836008833439076,
+          "score": 0.0697250345876026,
+          "pass": true,
+          "tolerance": 0.3
+        },
+        "3": {
+          "rbar": 0.22130400563434643,
+          "rate_a": 0.19456599622133042,
+          "score": 0.12876592966764014,
+          "pass": true,
+          "tolerance": 0.3
+        },
+        "4": {
+          "rbar": 0.22431992637346626,
+          "rate_a": 0.20460220582346775,
+          "score": 0.09200564101489714,
+          "pass": true,
+          "tolerance": 0.3
+        }
+      },
+      "mean_lifetime_marriages|male": {
+        "0": {
+          "rbar": 1.456894357424798,
+          "rate_a": 1.4299017755985917,
+          "score": 0.01870126414921499,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "1": {
+          "rbar": 1.468954044533995,
+          "rate_a": 1.4196640098460067,
+          "score": 0.03413038236788874,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "2": {
+          "rbar": 1.4837865381373627,
+          "rate_a": 1.4084430355928594,
+          "score": 0.05211242797052321,
+          "pass": false,
+          "tolerance": 0.047
+        },
+        "3": {
+          "rbar": 1.461764862470908,
+          "rate_a": 1.4471627949721892,
+          "score": 0.010039569124337757,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "4": {
+          "rbar": 1.4468229161292236,
+          "rate_a": 1.4309491460033885,
+          "score": 0.011032097594084444,
+          "pass": true,
+          "tolerance": 0.047
+        }
+      },
+      "mean_lifetime_marriages|female": {
+        "0": {
+          "rbar": 1.4408777579985679,
+          "rate_a": 1.414094367357325,
+          "score": 0.018763178926925566,
+          "pass": true,
+          "tolerance": 0.051
+        },
+        "1": {
+          "rbar": 1.4454706500922476,
+          "rate_a": 1.4088520058550364,
+          "score": 0.025659785418328702,
+          "pass": true,
+          "tolerance": 0.051
+        },
+        "2": {
+          "rbar": 1.4628218657926293,
+          "rate_a": 1.3727545239321535,
+          "score": 0.06354803238788556,
+          "pass": false,
+          "tolerance": 0.051
+        },
+        "3": {
+          "rbar": 1.4586221634247842,
+          "rate_a": 1.3943762770142396,
+          "score": 0.04504506441407991,
+          "pass": true,
+          "tolerance": 0.051
+        },
+        "4": {
+          "rbar": 1.4743319426364445,
+          "rate_a": 1.378997100263118,
+          "score": 0.06684847091936089,
+          "pass": false,
+          "tolerance": 0.051
+        }
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 20801,
+      "n_holdout_persons": 20608,
+      "ref_stock": {
+        "share_75plus": 0.5352125760882026,
+        "share_65_74": 0.2029925646891553
+      },
+      "ref_onset_buckets": {
+        "denominator_person_year_weight": 181396335.97100002,
+        "share_75plus": 0.5352125760882026,
+        "n_widowed_75plus_ysd_na": 0,
+        "buckets": {
+          "initial_left_censored": 0.0,
+          "onset_lt65": 0.2226137672067191,
+          "onset_65_74": 0.16023798254473506,
+          "onset_75plus": 0.15236082633674838
+        },
+        "reconciliation_remainder": 1.1102230246251565e-16,
+        "aging_in_share": 0.3828517497514542
+      },
+      "ref_incidence": {
+        "45-54": 0.005048846857654381,
+        "55-64": 0.011279029514184464,
+        "65-74": 0.023311842362908185,
+        "75+": 0.055847585768914416
+      },
+      "ref_remarriage": {
+        "50-64": 0.016984216209198127,
+        "65-74": 0.004581151070853764,
+        "75+": 0.0005805062320717421
+      },
+      "ref_ever_widowed_by_75": 0.3843794849507618,
+      "ref_entry_widowed": {
+        "entry_state_counts": {
+          "never_married": 20769,
+          "married": 32
+        },
+        "n_entry_widowed_persons": 0,
+        "entry_widowed_75plus_stock_share": 0.0
+      },
+      "ref_spousal_gap": {
+        "wife_test_age_floor": 65,
+        "husband_high_mortality_age": 80,
+        "married_female_65plus_exposure_weight": 226734125.211,
+        "observed_active_match_coverage": 0.9673996448389879,
+        "mean_wife_age": 71.92868070372313,
+        "imputed_mean_gap_pooled": 2.340520078999342,
+        "observed_mean_gap_active_65plus": 1.8424773879530456,
+        "imputed_mean_husband_age": 74.26920078272248,
+        "observed_mean_husband_age": 73.82004410280645,
+        "imputed_minus_observed_mean_husband_age": 0.4491566799160296,
+        "imputed_share_husband_ge_high_mortality": 0.2279137706436541,
+        "observed_share_husband_ge_high_mortality": 0.20195828800941434
+      },
+      "ref_pathway": {
+        "female": {
+          "denominator_weight": 58920541.254,
+          "n_conditioned": 3808,
+          "mean_lifetime_marriages": 1.3877219702127077,
+          "in_exposure_marriages_per_person": 1.2989054458287819,
+          "residual_per_person": 0.08881652438392584,
+          "cells": {
+            "first": 0.982676014285074,
+            "after_divorced|2nd|15-24": 0.023328612802019796,
+            "after_divorced|2nd|25-34": 0.08766575472775952,
+            "after_divorced|2nd|35-44": 0.07554436207250255,
+            "after_divorced|2nd|45-54": 0.031989372006524845,
+            "after_divorced|2nd|55+": 0.012864426579729395,
+            "after_divorced|3rd+|15-24": 0.0009017258645157659,
+            "after_divorced|3rd+|25-34": 0.007311986258625078,
+            "after_divorced|3rd+|35-44": 0.01682038173627128,
+            "after_divorced|3rd+|45-54": 0.014493744792984653,
+            "after_divorced|3rd+|55+": 0.0068629798605685435,
+            "after_widowed|2nd|15-24": 0.0024551961323026577,
+            "after_widowed|2nd|25-34": 0.0026351402023052435,
+            "after_widowed|2nd|35-44": 0.007552790122575271,
+            "after_widowed|2nd|45-54": 0.0057340545386972966,
+            "after_widowed|2nd|55+": 0.011751921066288445,
+            "after_widowed|3rd+|15-24": 0.0008736002573042486,
+            "after_widowed|3rd+|25-34": 0.0008736002573042486,
+            "after_widowed|3rd+|35-44": 0.0026167258602624107,
+            "after_widowed|3rd+|45-54": 0.0018382112196338174,
+            "after_widowed|3rd+|55+": 0.0021148451855326537
+          }
+        },
+        "male": {
+          "denominator_weight": 55060837.433,
+          "n_conditioned": 3422,
+          "mean_lifetime_marriages": 1.4280975150928743,
+          "in_exposure_marriages_per_person": 1.3086720272404326,
+          "residual_per_person": 0.11942548785244167,
+          "cells": {
+            "first": 0.9844518311396603,
+            "after_divorced|2nd|15-24": 0.01430871528168608,
+            "after_divorced|2nd|25-34": 0.07758540527463322,
+            "after_divorced|2nd|35-44": 0.08845845016299862,
+            "after_divorced|2nd|45-54": 0.04678143887902825,
+            "after_divorced|2nd|55+": 0.019431080980231774,
+            "after_divorced|3rd+|15-24": 0.0010143325565645507,
+            "after_divorced|3rd+|25-34": 0.007929528633328152,
+            "after_divorced|3rd+|35-44": 0.017987494981440522,
+            "after_divorced|3rd+|45-54": 0.015552804005969539,
+            "after_divorced|3rd+|55+": 0.007486574346087644,
+            "after_widowed|2nd|25-34": 0.002259293643170115,
+            "after_widowed|2nd|35-44": 0.0038883386446949466,
+            "after_widowed|2nd|45-54": 0.005055528792832481,
+            "after_widowed|2nd|55+": 0.010831028200863797,
+            "after_widowed|3rd+|35-44": 0.0012294328084343433,
+            "after_widowed|3rd+|45-54": 0.0017873320601008158,
+            "after_widowed|3rd+|55+": 0.002633416848707376
+          }
+        }
+      },
+      "ref_remarriage_by_age_at_dissolution": {
+        "female": {
+          "divorced": {
+            "15-34": 0.07977710444400973,
+            "35-49": 0.04036915816492917,
+            "50-64": 0.01618231553277392,
+            "65+": 0.030962731160069788
+          },
+          "widowed": {
+            "15-34": 0.03728268916394402,
+            "35-49": 0.022128410215768387,
+            "50-64": 0.005764307648574911,
+            "65+": 0.0022268385506096023
+          }
+        },
+        "male": {
+          "divorced": {
+            "15-34": 0.09480911217350792,
+            "35-49": 0.0659346956557466,
+            "50-64": 0.04012829972948133,
+            "65+": 0.02957455004345177
+          },
+          "widowed": {
+            "15-34": 0.10845757997706063,
+            "35-49": 0.07969149650472078,
+            "50-64": 0.037830001888608904,
+            "65+": 0.010953026291562175
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_65_74": 0.20120812364814436,
+        "share_75plus": 0.4040996434570701
+      },
+      "sim_onset_buckets_mean": {
+        "onset_75plus": 0.12951378742487885,
+        "onset_65_74": 0.11829276350918402,
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.1562930925230072
+      },
+      "sim_incidence_mean": {
+        "45-54": 0.005068119749524061,
+        "65-74": 0.021531965481618245,
+        "55-64": 0.010755581708761753,
+        "75+": 0.049602275212623954
+      },
+      "sim_remarriage_mean": {
+        "50-64": 0.005137660807331825,
+        "65-74": 0.0049520905552211765,
+        "75+": 0.004712832233547954
+      },
+      "sim_ever_widowed_by_75_mean": 0.3423122857385267,
+      "sim_spousal_gap_imputed_share_mean": 0.2468375966940445,
+      "sim_pathway_nmarr_mean": {
+        "female": 1.437545122566311,
+        "male": 1.4520420101195561
+      },
+      "sim_pathway_inexp_mean": {
+        "female": 1.3436746107991357,
+        "male": 1.3310497296187005
+      },
+      "sim_pathway_cells_mean": {
+        "female": {
+          "first": 0.9887444519854535,
+          "after_divorced|2nd|15-24": 0.0165452267421707,
+          "after_divorced|2nd|25-34": 0.092200228027055,
+          "after_divorced|2nd|35-44": 0.061329205807268826,
+          "after_divorced|2nd|45-54": 0.0320682728618283,
+          "after_divorced|2nd|55+": 0.024047447272731445,
+          "after_divorced|3rd+|25-34": 0.0063549704689152674,
+          "after_divorced|3rd+|35-44": 0.015635706670921203,
+          "after_divorced|3rd+|45-54": 0.01514279549574582,
+          "after_divorced|3rd+|55+": 0.015684984868501152,
+          "after_widowed|2nd|15-24": 0.003072785358840535,
+          "after_widowed|2nd|25-34": 0.022946853632012546,
+          "after_widowed|2nd|35-44": 0.018045984274322746,
+          "after_widowed|2nd|45-54": 0.010828443925653878,
+          "after_widowed|2nd|55+": 0.0100150220964138,
+          "after_widowed|3rd+|25-34": 0.001145989874103729,
+          "after_widowed|3rd+|35-44": 0.003192672658876918,
+          "after_widowed|3rd+|45-54": 0.002577732308366267,
+          "after_widowed|3rd+|55+": 0.003968708763286865,
+          "after_divorced|3rd+|15-24": 0.000124661749551431,
+          "after_widowed|3rd+|15-24": 2.465957115881915e-06
+        },
+        "male": {
+          "first": 0.9910880842256227,
+          "after_divorced|2nd|15-24": 0.006276434084687634,
+          "after_divorced|2nd|25-34": 0.07209763496106185,
+          "after_divorced|2nd|35-44": 0.08248864478132197,
+          "after_divorced|2nd|45-54": 0.044114778757646314,
+          "after_divorced|2nd|55+": 0.03041510898344609,
+          "after_divorced|3rd+|25-34": 0.002938826980048939,
+          "after_divorced|3rd+|35-44": 0.014406014390828845,
+          "after_divorced|3rd+|45-54": 0.017285316825885317,
+          "after_divorced|3rd+|55+": 0.021489599785700392,
+          "after_widowed|2nd|15-24": 0.00045034812506476425,
+          "after_widowed|2nd|25-34": 0.008331477406106309,
+          "after_widowed|2nd|35-44": 0.013934273120674991,
+          "after_widowed|2nd|45-54": 0.007796719665917745,
+          "after_widowed|2nd|55+": 0.010815434058880751,
+          "after_widowed|3rd+|25-34": 0.00020579012211131031,
+          "after_widowed|3rd+|35-44": 0.001550506300187218,
+          "after_widowed|3rd+|45-54": 0.0012814466399881461,
+          "after_widowed|3rd+|55+": 0.0040832432713429154,
+          "after_divorced|3rd+|15-24": 4.713217655438546e-08
+        }
+      },
+      "sim_remarriage_by_age_at_dissolution_mean": {
+        "female": {
+          "widowed": {
+            "50-64": 0.005192189211314294,
+            "15-34": 0.04601175086931609,
+            "35-49": 0.021116816082895937,
+            "65+": 0.006256204818170616
+          },
+          "divorced": {
+            "50-64": 0.02155235751265439,
+            "15-34": 0.07426551302258641,
+            "35-49": 0.03826847744074884,
+            "65+": 0.02421415136940226
+          }
+        },
+        "male": {
+          "widowed": {
+            "50-64": 0.024336885804362583,
+            "15-34": 0.11641091687158064,
+            "35-49": 0.07408628233275152,
+            "65+": 0.027021608796904982
+          },
+          "divorced": {
+            "50-64": 0.039837912480279,
+            "15-34": 0.08809551900757633,
+            "35-49": 0.06289947027535367,
+            "65+": 0.05097841654859185
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.41474496215859397,
+        0.3920979938832438,
+        0.4049719331637668,
+        0.4477695290713331,
+        0.3914421089318575,
+        0.4006944258434202,
+        0.44257873853546176,
+        0.4026994500797319,
+        0.43096801731705353,
+        0.3635339782251306,
+        0.3747939035817626,
+        0.3897337075061002,
+        0.38500770327668143,
+        0.3987139860397329,
+        0.40479105324783926,
+        0.3772011632745373,
+        0.39876486961436847,
+        0.42991464239645677,
+        0.4136377527878815,
+        0.4179329502064477
+      ],
+      "elapsed_seconds": 23.0
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 20652,
+      "n_holdout_persons": 20757,
+      "ref_stock": {
+        "share_75plus": 0.5273048764555605,
+        "share_65_74": 0.1998159083964095
+      },
+      "ref_onset_buckets": {
+        "denominator_person_year_weight": 181638925.837,
+        "share_75plus": 0.5273048764555605,
+        "n_widowed_75plus_ysd_na": 0,
+        "buckets": {
+          "initial_left_censored": 0.0,
+          "onset_lt65": 0.18688069753540354,
+          "onset_65_74": 0.17436980457824483,
+          "onset_75plus": 0.16605437434191206
+        },
+        "reconciliation_remainder": 0.0,
+        "aging_in_share": 0.3612505021136484
+      },
+      "ref_incidence": {
+        "45-54": 0.0051446280580795326,
+        "55-64": 0.011349124249343538,
+        "65-74": 0.026784409212394184,
+        "75+": 0.06661308189200933
+      },
+      "ref_remarriage": {
+        "50-64": 0.016460550379116534,
+        "65-74": 0.005759280561705342,
+        "75+": 0.00043679709643511445
+      },
+      "ref_ever_widowed_by_75": 0.38336930573985617,
+      "ref_entry_widowed": {
+        "entry_state_counts": {
+          "never_married": 20625,
+          "married": 27
+        },
+        "n_entry_widowed_persons": 0,
+        "entry_widowed_75plus_stock_share": 0.0
+      },
+      "ref_spousal_gap": {
+        "wife_test_age_floor": 65,
+        "husband_high_mortality_age": 80,
+        "married_female_65plus_exposure_weight": 218177977.824,
+        "observed_active_match_coverage": 0.9662632849593206,
+        "mean_wife_age": 71.76232017521112,
+        "imputed_mean_gap_pooled": 2.371788657295201,
+        "observed_mean_gap_active_65plus": 1.978589799552744,
+        "imputed_mean_husband_age": 74.13410883250631,
+        "observed_mean_husband_age": 73.80603537408356,
+        "imputed_minus_observed_mean_husband_age": 0.32807345842275026,
+        "imputed_share_husband_ge_high_mortality": 0.21999471638938298,
+        "observed_share_husband_ge_high_mortality": 0.20286864568449903
+      },
+      "ref_pathway": {
+        "female": {
+          "denominator_weight": 61263024.048999995,
+          "n_conditioned": 3918,
+          "mean_lifetime_marriages": 1.3937317001313412,
+          "in_exposure_marriages_per_person": 1.3010735714131154,
+          "residual_per_person": 0.09265812871822576,
+          "cells": {
+            "first": 0.980103995012961,
+            "after_divorced|2nd|15-24": 0.023698485579797274,
+            "after_divorced|2nd|25-34": 0.08198691481476071,
+            "after_divorced|2nd|35-44": 0.07784928472001947,
+            "after_divorced|2nd|45-54": 0.035550689666543664,
+            "after_divorced|2nd|55+": 0.011640754371341565,
+            "after_divorced|3rd+|15-24": 0.0015186337998200506,
+            "after_divorced|3rd+|25-34": 0.0070603604656218465,
+            "after_divorced|3rd+|35-44": 0.019416362699441646,
+            "after_divorced|3rd+|45-54": 0.015716247784795998,
+            "after_divorced|3rd+|55+": 0.006275107815319723,
+            "after_widowed|2nd|15-24": 0.0022894884667758984,
+            "after_widowed|2nd|25-34": 0.004414054663441219,
+            "after_widowed|2nd|35-44": 0.007175623793046757,
+            "after_widowed|2nd|45-54": 0.005938611954725056,
+            "after_widowed|2nd|55+": 0.009462041059813828,
+            "after_widowed|3rd+|15-24": 0.0008401968528166412,
+            "after_widowed|3rd+|25-34": 0.0016928318771376883,
+            "after_widowed|3rd+|35-44": 0.0017315501747865736,
+            "after_widowed|3rd+|45-54": 0.0036713635588753045,
+            "after_widowed|3rd+|55+": 0.0030409722812734866
+          }
+        },
+        "male": {
+          "denominator_weight": 54839984.625,
+          "n_conditioned": 3438,
+          "mean_lifetime_marriages": 1.438392814228474,
+          "in_exposure_marriages_per_person": 1.3239200299283453,
+          "residual_per_person": 0.11447278430012875,
+          "cells": {
+            "first": 0.9859799130459731,
+            "after_divorced|2nd|15-24": 0.012464392535376281,
+            "after_divorced|2nd|25-34": 0.08182986902141204,
+            "after_divorced|2nd|35-44": 0.0923542127269515,
+            "after_divorced|2nd|45-54": 0.05235605495941548,
+            "after_divorced|2nd|55+": 0.01784320671661749,
+            "after_divorced|3rd+|25-34": 0.00699326822613966,
+            "after_divorced|3rd+|35-44": 0.014605105097620183,
+            "after_divorced|3rd+|45-54": 0.018548221192175435,
+            "after_divorced|3rd+|55+": 0.010652648737864229,
+            "after_widowed|2nd|15-24": 0.00033761862127801426,
+            "after_widowed|2nd|25-34": 0.0011192672722234558,
+            "after_widowed|2nd|35-44": 0.003013975516773771,
+            "after_widowed|2nd|45-54": 0.005515785536199902,
+            "after_widowed|2nd|55+": 0.01259613323606033,
+            "after_widowed|3rd+|35-44": 0.001611973464334282,
+            "after_widowed|3rd+|45-54": 0.0035782081877270403,
+            "after_widowed|3rd+|55+": 0.0025201758342031995
+          }
+        }
+      },
+      "ref_remarriage_by_age_at_dissolution": {
+        "female": {
+          "divorced": {
+            "15-34": 0.07042058813969072,
+            "35-49": 0.03992114218122494,
+            "50-64": 0.01895068883818143,
+            "65+": 0.018441441051507395
+          },
+          "widowed": {
+            "15-34": 0.03641165098005416,
+            "35-49": 0.02417591089128641,
+            "50-64": 0.00846982366461091,
+            "65+": 0.0019853899688816574
+          }
+        },
+        "male": {
+          "divorced": {
+            "15-34": 0.09896085165366066,
+            "35-49": 0.0647932353405195,
+            "50-64": 0.03642707777150043,
+            "65+": 0.03283073567622006
+          },
+          "widowed": {
+            "15-34": 0.13534141170698274,
+            "35-49": 0.09109644697994565,
+            "50-64": 0.04071457516046541,
+            "65+": 0.016861662123917
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_65_74": 0.20528602008411423,
+        "share_75plus": 0.4341605283807291
+      },
+      "sim_onset_buckets_mean": {
+        "onset_75plus": 0.1471787522961358,
+        "onset_65_74": 0.13515510022356264,
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.1518266758610307
+      },
+      "sim_incidence_mean": {
+        "45-54": 0.005061011658485479,
+        "65-74": 0.024246879317556588,
+        "55-64": 0.010543360170250244,
+        "75+": 0.061100303141975676
+      },
+      "sim_remarriage_mean": {
+        "50-64": 0.0055298067198581245,
+        "65-74": 0.005553615185094351,
+        "75+": 0.005121021841838399
+      },
+      "sim_ever_widowed_by_75_mean": 0.35722977632101766,
+      "sim_spousal_gap_imputed_share_mean": 0.23319791544670662,
+      "sim_pathway_nmarr_mean": {
+        "female": 1.4437293888596034,
+        "male": 1.4604779066766587
+      },
+      "sim_pathway_inexp_mean": {
+        "female": 1.3460283618885291,
+        "male": 1.3449756523779457
+      },
+      "sim_pathway_cells_mean": {
+        "female": {
+          "first": 0.9886892379012705,
+          "after_divorced|2nd|15-24": 0.014845131237930412,
+          "after_divorced|2nd|25-34": 0.08422035689417372,
+          "after_divorced|2nd|35-44": 0.06258784864085123,
+          "after_divorced|2nd|45-54": 0.035156048894759304,
+          "after_divorced|2nd|55+": 0.025028022507994817,
+          "after_divorced|3rd+|15-24": 0.00014533577322073632,
+          "after_divorced|3rd+|25-34": 0.0056637214752328965,
+          "after_divorced|3rd+|35-44": 0.015438270915606608,
+          "after_divorced|3rd+|45-54": 0.015964479361771963,
+          "after_divorced|3rd+|55+": 0.017993741526500726,
+          "after_widowed|2nd|15-24": 0.00394014226120547,
+          "after_widowed|2nd|25-34": 0.024375230947261323,
+          "after_widowed|2nd|35-44": 0.01870233210332494,
+          "after_widowed|2nd|45-54": 0.011490899506348767,
+          "after_widowed|2nd|55+": 0.010869921800483785,
+          "after_widowed|3rd+|25-34": 0.001159181231414267,
+          "after_widowed|3rd+|35-44": 0.0029845927791419167,
+          "after_widowed|3rd+|45-54": 0.0022745536905258855,
+          "after_widowed|3rd+|55+": 0.004480436788353611,
+          "after_widowed|3rd+|15-24": 1.8875651156059985e-05
+        },
+        "male": {
+          "first": 0.9920412213633221,
+          "after_divorced|2nd|15-24": 0.006268468275344924,
+          "after_divorced|2nd|25-34": 0.07506163696424462,
+          "after_divorced|2nd|35-44": 0.08228613780192555,
+          "after_divorced|2nd|45-54": 0.04624347842978787,
+          "after_divorced|2nd|55+": 0.03156644882644084,
+          "after_divorced|3rd+|25-34": 0.003524288024340074,
+          "after_divorced|3rd+|35-44": 0.014492371456414636,
+          "after_divorced|3rd+|45-54": 0.017983254637385288,
+          "after_divorced|3rd+|55+": 0.02361768097737615,
+          "after_widowed|2nd|15-24": 0.0006688917826063654,
+          "after_widowed|2nd|25-34": 0.008974834369073056,
+          "after_widowed|2nd|35-44": 0.012982295210553437,
+          "after_widowed|2nd|45-54": 0.007533190628537756,
+          "after_widowed|2nd|55+": 0.012828867805885696,
+          "after_widowed|3rd+|35-44": 0.0014719561049729396,
+          "after_widowed|3rd+|45-54": 0.0018995641890460063,
+          "after_widowed|3rd+|55+": 0.005156514823887562,
+          "after_widowed|3rd+|25-34": 0.00033588009538227704,
+          "after_divorced|3rd+|15-24": 3.867061141876381e-05
+        }
+      },
+      "sim_remarriage_by_age_at_dissolution_mean": {
+        "female": {
+          "widowed": {
+            "50-64": 0.005740520743721443,
+            "15-34": 0.053333948443748926,
+            "35-49": 0.02494842037963747,
+            "65+": 0.006313080808975112
+          },
+          "divorced": {
+            "50-64": 0.02458765467880612,
+            "15-34": 0.06794743820427004,
+            "35-49": 0.038589635919053365,
+            "65+": 0.03124938585173425
+          }
+        },
+        "male": {
+          "widowed": {
+            "50-64": 0.026952301862416185,
+            "15-34": 0.15932756200758036,
+            "35-49": 0.08952305253313576,
+            "65+": 0.042017800765971405
+          },
+          "divorced": {
+            "50-64": 0.04078772431996744,
+            "15-34": 0.09109452459975707,
+            "35-49": 0.06270956417902801,
+            "65+": 0.053610543021255896
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4448456096382657,
+        0.4453662307857661,
+        0.4256606016343802,
+        0.3766672655749834,
+        0.443145000935717,
+        0.4341660311555083,
+        0.4282478739981341,
+        0.45311635749738993,
+        0.4328141399578012,
+        0.414682172419326,
+        0.4366314504148242,
+        0.38705585700881157,
+        0.450503530886502,
+        0.48291852478645303,
+        0.4574468191832615,
+        0.40450786416197365,
+        0.441288501358624,
+        0.4371160758033215,
+        0.46252280566441584,
+        0.42450785474912334
+      ],
+      "elapsed_seconds": 25.1
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 20731,
+      "n_holdout_persons": 20678,
+      "ref_stock": {
+        "share_75plus": 0.5204373575112432,
+        "share_65_74": 0.19853259549102445
+      },
+      "ref_onset_buckets": {
+        "denominator_person_year_weight": 171096176.552,
+        "share_75plus": 0.5204373575112432,
+        "n_widowed_75plus_ysd_na": 0,
+        "buckets": {
+          "initial_left_censored": 0.0,
+          "onset_lt65": 0.1889497762223495,
+          "onset_65_74": 0.1478104061332654,
+          "onset_75plus": 0.18367717515562826
+        },
+        "reconciliation_remainder": 0.0,
+        "aging_in_share": 0.3367601823556149
+      },
+      "ref_incidence": {
+        "45-54": 0.006291009036152318,
+        "55-64": 0.01144653348017475,
+        "65-74": 0.02335948249390411,
+        "75+": 0.05987444256344912
+      },
+      "ref_remarriage": {
+        "50-64": 0.022059417978154642,
+        "65-74": 0.005996978504530888,
+        "75+": 0.0007680852417724498
+      },
+      "ref_ever_widowed_by_75": 0.3816296884630636,
+      "ref_entry_widowed": {
+        "entry_state_counts": {
+          "never_married": 20699,
+          "married": 31,
+          "separated": 1
+        },
+        "n_entry_widowed_persons": 0,
+        "entry_widowed_75plus_stock_share": 0.0
+      },
+      "ref_spousal_gap": {
+        "wife_test_age_floor": 65,
+        "husband_high_mortality_age": 80,
+        "married_female_65plus_exposure_weight": 218439940.239,
+        "observed_active_match_coverage": 0.958910715548724,
+        "mean_wife_age": 72.02108812023552,
+        "imputed_mean_gap_pooled": 2.2993388429752066,
+        "observed_mean_gap_active_65plus": 1.7393895075553323,
+        "imputed_mean_husband_age": 74.32042696321072,
+        "observed_mean_husband_age": 73.82736797203845,
+        "imputed_minus_observed_mean_husband_age": 0.49305899117227625,
+        "imputed_share_husband_ge_high_mortality": 0.23392426777385958,
+        "observed_share_husband_ge_high_mortality": 0.20747390200765292
+      },
+      "ref_pathway": {
+        "female": {
+          "denominator_weight": 57952564.548999995,
+          "n_conditioned": 3793,
+          "mean_lifetime_marriages": 1.4313350960830145,
+          "in_exposure_marriages_per_person": 1.337955530586402,
+          "residual_per_person": 0.09337956549661253,
+          "cells": {
+            "first": 0.9866993261989595,
+            "after_divorced|2nd|15-24": 0.02607797419771095,
+            "after_divorced|2nd|25-34": 0.09394611298688328,
+            "after_divorced|2nd|35-44": 0.07754031192529064,
+            "after_divorced|2nd|45-54": 0.03728496784940444,
+            "after_divorced|2nd|55+": 0.01201846364212399,
+            "after_divorced|3rd+|15-24": 0.0013966645243380636,
+            "after_divorced|3rd+|25-34": 0.01378499671614248,
+            "after_divorced|3rd+|35-44": 0.022900409055717972,
+            "after_divorced|3rd+|45-54": 0.0171666041484469,
+            "after_divorced|3rd+|55+": 0.007910262342443831,
+            "after_widowed|2nd|15-24": 0.00019243301977724876,
+            "after_widowed|2nd|25-34": 0.0056312679091892115,
+            "after_widowed|2nd|35-44": 0.005170604430225697,
+            "after_widowed|2nd|45-54": 0.007096853714769676,
+            "after_widowed|2nd|55+": 0.0126081382021015,
+            "after_widowed|3rd+|25-34": 0.0009013406120420143,
+            "after_widowed|3rd+|35-44": 0.0020647921439063354,
+            "after_widowed|3rd+|45-54": 0.002938403180691309,
+            "after_widowed|3rd+|55+": 0.004625603786237026
+          }
+        },
+        "male": {
+          "denominator_weight": 55970260.346,
+          "n_conditioned": 3444,
+          "mean_lifetime_marriages": 1.4488519657349674,
+          "in_exposure_marriages_per_person": 1.329556513011972,
+          "residual_per_person": 0.11929545272299547,
+          "cells": {
+            "first": 0.9855713100134309,
+            "after_divorced|2nd|15-24": 0.013698985108522833,
+            "after_divorced|2nd|25-34": 0.08736826630375809,
+            "after_divorced|2nd|35-44": 0.08648346909727987,
+            "after_divorced|2nd|45-54": 0.050080114076159025,
+            "after_divorced|2nd|55+": 0.016954626995366807,
+            "after_divorced|3rd+|15-24": 0.0004597798874065648,
+            "after_divorced|3rd+|25-34": 0.009821356620494716,
+            "after_divorced|3rd+|35-44": 0.01666596546511622,
+            "after_divorced|3rd+|45-54": 0.017911491903068233,
+            "after_divorced|3rd+|55+": 0.014001271374397047,
+            "after_widowed|2nd|15-24": 0.00104250006412861,
+            "after_widowed|2nd|25-34": 0.002570954630377806,
+            "after_widowed|2nd|35-44": 0.001519667435423653,
+            "after_widowed|2nd|45-54": 0.0055704986554039135,
+            "after_widowed|2nd|55+": 0.0147937209847046,
+            "after_widowed|3rd+|35-44": 0.0007869536380162257,
+            "after_widowed|3rd+|45-54": 0.0012127333262413693,
+            "after_widowed|3rd+|55+": 0.0030428474326754025
+          }
+        }
+      },
+      "ref_remarriage_by_age_at_dissolution": {
+        "female": {
+          "divorced": {
+            "15-34": 0.07759765458001328,
+            "35-49": 0.044731245576622565,
+            "50-64": 0.02321210362796458,
+            "65+": 0.02249172381214797
+          },
+          "widowed": {
+            "15-34": 0.023898439334554204,
+            "35-49": 0.029120963414493616,
+            "50-64": 0.008862981260000596,
+            "65+": 0.002503022173159197
+          }
+        },
+        "male": {
+          "divorced": {
+            "15-34": 0.0959118327297134,
+            "35-49": 0.07125878064666213,
+            "50-64": 0.04552281549613192,
+            "65+": 0.046195395535543006
+          },
+          "widowed": {
+            "15-34": 0.16212001913151078,
+            "35-49": 0.07141790944110314,
+            "50-64": 0.056406799870712926,
+            "65+": 0.02327320761977021
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_65_74": 0.2194637818189721,
+        "share_75plus": 0.4270545826507302
+      },
+      "sim_onset_buckets_mean": {
+        "onset_75plus": 0.1338032692132792,
+        "onset_65_74": 0.11700119705898826,
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.17625011637846272
+      },
+      "sim_incidence_mean": {
+        "45-54": 0.006059376090697958,
+        "65-74": 0.022058699194459998,
+        "55-64": 0.010284410962837935,
+        "75+": 0.054233244516412184
+      },
+      "sim_remarriage_mean": {
+        "50-64": 0.007352546459116654,
+        "65-74": 0.007262985942585239,
+        "75+": 0.006173109104101801
+      },
+      "sim_ever_widowed_by_75_mean": 0.37235287289753904,
+      "sim_spousal_gap_imputed_share_mean": 0.24518079380604801,
+      "sim_pathway_nmarr_mean": {
+        "female": 1.4579792243132446,
+        "male": 1.4794679264465898
+      },
+      "sim_pathway_inexp_mean": {
+        "female": 1.3625411365464541,
+        "male": 1.3575387207148097
+      },
+      "sim_pathway_cells_mean": {
+        "female": {
+          "first": 0.9915658274119565,
+          "after_divorced|2nd|15-24": 0.014785044209909209,
+          "after_divorced|2nd|25-34": 0.09172888673129269,
+          "after_divorced|2nd|35-44": 0.06492802288498362,
+          "after_divorced|2nd|45-54": 0.03238085039873129,
+          "after_divorced|2nd|55+": 0.023918015347618272,
+          "after_divorced|3rd+|25-34": 0.006845301238539887,
+          "after_divorced|3rd+|35-44": 0.016773451399709587,
+          "after_divorced|3rd+|45-54": 0.016803539748016568,
+          "after_divorced|3rd+|55+": 0.01933066768567585,
+          "after_widowed|2nd|15-24": 0.003787873461881914,
+          "after_widowed|2nd|25-34": 0.019593717992208527,
+          "after_widowed|2nd|35-44": 0.019693417789075098,
+          "after_widowed|2nd|45-54": 0.0122691208813718,
+          "after_widowed|2nd|55+": 0.014696041289745193,
+          "after_widowed|3rd+|25-34": 0.0011655086205542811,
+          "after_widowed|3rd+|35-44": 0.0030923964693802164,
+          "after_widowed|3rd+|45-54": 0.0030636462521401253,
+          "after_widowed|3rd+|55+": 0.006019783250353636,
+          "after_divorced|3rd+|15-24": 0.0001000234833099228
+        },
+        "male": {
+          "first": 0.9906790602315464,
+          "after_divorced|2nd|15-24": 0.007612515347441559,
+          "after_divorced|2nd|25-34": 0.07925994040653642,
+          "after_divorced|2nd|35-44": 0.08276477041142935,
+          "after_divorced|2nd|45-54": 0.04710261512940066,
+          "after_divorced|2nd|55+": 0.03348033840840899,
+          "after_divorced|3rd+|25-34": 0.004088582403880888,
+          "after_divorced|3rd+|35-44": 0.016308179507182937,
+          "after_divorced|3rd+|45-54": 0.019863801346475037,
+          "after_divorced|3rd+|55+": 0.025851964591065445,
+          "after_widowed|2nd|15-24": 0.001265528203979779,
+          "after_widowed|2nd|25-34": 0.010185116914819525,
+          "after_widowed|2nd|35-44": 0.00963444615200445,
+          "after_widowed|2nd|45-54": 0.005942161342731627,
+          "after_widowed|2nd|55+": 0.01381617288066205,
+          "after_widowed|3rd+|25-34": 0.0004406818151756727,
+          "after_widowed|3rd+|35-44": 0.001271133494095912,
+          "after_widowed|3rd+|45-54": 0.001754187131778382,
+          "after_widowed|3rd+|55+": 0.0061532130377526684,
+          "after_divorced|3rd+|15-24": 6.431195844201594e-05
+        }
+      },
+      "sim_remarriage_by_age_at_dissolution_mean": {
+        "female": {
+          "widowed": {
+            "50-64": 0.008135930789130686,
+            "15-34": 0.03210854914289793,
+            "35-49": 0.019296175359833228,
+            "65+": 0.00909718222301822
+          },
+          "divorced": {
+            "50-64": 0.026423500252898406,
+            "15-34": 0.07374196576275742,
+            "35-49": 0.04152265664753112,
+            "65+": 0.034356871053374115
+          }
+        },
+        "male": {
+          "widowed": {
+            "50-64": 0.033164686950592256,
+            "15-34": 0.14565568366009213,
+            "35-49": 0.07029753444266965,
+            "65+": 0.04624325294621206
+          },
+          "divorced": {
+            "50-64": 0.04618367289680627,
+            "15-34": 0.09155616754701552,
+            "35-49": 0.06634002134955427,
+            "65+": 0.06476218494065505
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4477658444150924,
+        0.35178050420494006,
+        0.460417184857771,
+        0.4396779288176364,
+        0.45000530593154275,
+        0.4597511902441195,
+        0.43460406505577637,
+        0.4063569055669076,
+        0.43866671310559263,
+        0.4154205246684641,
+        0.4459515101309732,
+        0.41562042483391054,
+        0.4402807370222292,
+        0.4178225183382356,
+        0.44122900611432486,
+        0.42281146414171217,
+        0.46724143269036433,
+        0.39987691833199096,
+        0.3788859217511383,
+        0.40692555279188186
+      ],
+      "elapsed_seconds": 24.7
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 20747,
+      "n_holdout_persons": 20662,
+      "ref_stock": {
+        "share_75plus": 0.5074681273306444,
+        "share_65_74": 0.21287775034312112
+      },
+      "ref_onset_buckets": {
+        "denominator_person_year_weight": 186518335.699,
+        "share_75plus": 0.5074681273306444,
+        "n_widowed_75plus_ysd_na": 0,
+        "buckets": {
+          "initial_left_censored": 0.0,
+          "onset_lt65": 0.19183404408959584,
+          "onset_65_74": 0.16548615969215666,
+          "onset_75plus": 0.15014792354889187
+        },
+        "reconciliation_remainder": 0.0,
+        "aging_in_share": 0.3573202037817525
+      },
+      "ref_incidence": {
+        "45-54": 0.00558150117719465,
+        "55-64": 0.012000448198902778,
+        "65-74": 0.025896671087588717,
+        "75+": 0.05416140383551548
+      },
+      "ref_remarriage": {
+        "50-64": 0.01973452442184492,
+        "65-74": 0.003970508899670134,
+        "75+": 0.0008490354789767624
+      },
+      "ref_ever_widowed_by_75": 0.39998295996826083,
+      "ref_entry_widowed": {
+        "entry_state_counts": {
+          "never_married": 20713,
+          "married": 34
+        },
+        "n_entry_widowed_persons": 0,
+        "entry_widowed_75plus_stock_share": 0.0
+      },
+      "ref_spousal_gap": {
+        "wife_test_age_floor": 65,
+        "husband_high_mortality_age": 80,
+        "married_female_65plus_exposure_weight": 223445415.99,
+        "observed_active_match_coverage": 0.9655962717250639,
+        "mean_wife_age": 72.14863119075348,
+        "imputed_mean_gap_pooled": 2.3705608227542987,
+        "observed_mean_gap_active_65plus": 1.9764059692346452,
+        "imputed_mean_husband_age": 74.51919201350778,
+        "observed_mean_husband_age": 74.19348363646856,
+        "imputed_minus_observed_mean_husband_age": 0.32570837703921995,
+        "imputed_share_husband_ge_high_mortality": 0.24441563728646262,
+        "observed_share_husband_ge_high_mortality": 0.22033389539058235
+      },
+      "ref_pathway": {
+        "female": {
+          "denominator_weight": 60923377.803,
+          "n_conditioned": 3888,
+          "mean_lifetime_marriages": 1.4076153003252743,
+          "in_exposure_marriages_per_person": 1.3214790883448941,
+          "residual_per_person": 0.08613621198038013,
+          "cells": {
+            "first": 0.9844827556007006,
+            "after_divorced|2nd|15-24": 0.025583766038711802,
+            "after_divorced|2nd|25-34": 0.08745710110212616,
+            "after_divorced|2nd|35-44": 0.07431934664950637,
+            "after_divorced|2nd|45-54": 0.038003888909225715,
+            "after_divorced|2nd|55+": 0.014656157803450476,
+            "after_divorced|3rd+|15-24": 0.0008719827579452439,
+            "after_divorced|3rd+|25-34": 0.011073062268172215,
+            "after_divorced|3rd+|35-44": 0.02152609750629128,
+            "after_divorced|3rd+|45-54": 0.01889484860347509,
+            "after_divorced|3rd+|55+": 0.00477668102942365,
+            "after_widowed|2nd|15-24": 0.0018316416624310195,
+            "after_widowed|2nd|25-34": 0.0034793316891494155,
+            "after_widowed|2nd|35-44": 0.008160254715481636,
+            "after_widowed|2nd|45-54": 0.007167988951828866,
+            "after_widowed|2nd|55+": 0.010330125194880602,
+            "after_widowed|3rd+|15-24": 0.000844880928408821,
+            "after_widowed|3rd+|25-34": 0.000844880928408821,
+            "after_widowed|3rd+|35-44": 0.0013545734326624332,
+            "after_widowed|3rd+|45-54": 0.003188029636637053,
+            "after_widowed|3rd+|55+": 0.0026316929359767854
+          }
+        },
+        "male": {
+          "denominator_weight": 56095599.506,
+          "n_conditioned": 3421,
+          "mean_lifetime_marriages": 1.4115356938030545,
+          "in_exposure_marriages_per_person": 1.3095013860782965,
+          "residual_per_person": 0.10203430772475808,
+          "cells": {
+            "first": 0.9857601451979392,
+            "after_divorced|2nd|15-24": 0.011675484882373834,
+            "after_divorced|2nd|25-34": 0.08859840593143871,
+            "after_divorced|2nd|35-44": 0.08126150250898792,
+            "after_divorced|2nd|45-54": 0.04901284076134926,
+            "after_divorced|2nd|55+": 0.018492329169047316,
+            "after_divorced|3rd+|15-24": 0.0005368692065904169,
+            "after_divorced|3rd+|25-34": 0.007617402590630939,
+            "after_divorced|3rd+|35-44": 0.013854643231272931,
+            "after_divorced|3rd+|45-54": 0.0122514711858368,
+            "after_divorced|3rd+|55+": 0.010511674929812097,
+            "after_widowed|2nd|15-24": 0.0010401707177362279,
+            "after_widowed|2nd|25-34": 0.0020441353869074027,
+            "after_widowed|2nd|35-44": 0.0031563520946248534,
+            "after_widowed|2nd|45-54": 0.0024726064115807227,
+            "after_widowed|2nd|55+": 0.01530825803739116,
+            "after_widowed|3rd+|35-44": 0.0013805717504047099,
+            "after_widowed|3rd+|45-54": 0.0029919316573494936,
+            "after_widowed|3rd+|55+": 0.0015345904270225772
+          }
+        }
+      },
+      "ref_remarriage_by_age_at_dissolution": {
+        "female": {
+          "divorced": {
+            "15-34": 0.08130994688518077,
+            "35-49": 0.04061326659002013,
+            "50-64": 0.020065509584942905,
+            "65+": 0.01911481546638477
+          },
+          "widowed": {
+            "15-34": 0.03533986807174203,
+            "35-49": 0.025044758824728314,
+            "50-64": 0.006678026870679028,
+            "65+": 0.003147102303258922
+          }
+        },
+        "male": {
+          "divorced": {
+            "15-34": 0.09589877386941788,
+            "35-49": 0.058894375716380766,
+            "50-64": 0.045871896385899294,
+            "65+": 0.045713698538704675
+          },
+          "widowed": {
+            "15-34": 0.09940775793075597,
+            "35-49": 0.07466832361296662,
+            "50-64": 0.04807972576604092,
+            "65+": 0.016545800229124583
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_65_74": 0.21961153083458318,
+        "share_75plus": 0.42831016966005614
+      },
+      "sim_onset_buckets_mean": {
+        "onset_75plus": 0.12452915372343487,
+        "onset_65_74": 0.12667102921815676,
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.1771099867184645
+      },
+      "sim_incidence_mean": {
+        "45-54": 0.005560960455719141,
+        "65-74": 0.023220944057398767,
+        "55-64": 0.011567765988436316,
+        "75+": 0.04985216003602254
+      },
+      "sim_remarriage_mean": {
+        "50-64": 0.006643743136247014,
+        "65-74": 0.005440243888009282,
+        "75+": 0.0046218184741797005
+      },
+      "sim_ever_widowed_by_75_mean": 0.371848339336761,
+      "sim_spousal_gap_imputed_share_mean": 0.25166286063471127,
+      "sim_pathway_nmarr_mean": {
+        "female": 1.438236952219669,
+        "male": 1.4418597957009172
+      },
+      "sim_pathway_inexp_mean": {
+        "female": 1.3491449235304442,
+        "male": 1.3379163214490801
+      },
+      "sim_pathway_cells_mean": {
+        "female": {
+          "first": 0.9911756264668858,
+          "after_divorced|2nd|15-24": 0.01481175988812752,
+          "after_divorced|2nd|25-34": 0.0922421801616317,
+          "after_divorced|2nd|35-44": 0.05974149767439475,
+          "after_divorced|2nd|45-54": 0.032298272199269,
+          "after_divorced|2nd|55+": 0.02513307068497538,
+          "after_divorced|3rd+|25-34": 0.006450661333176932,
+          "after_divorced|3rd+|35-44": 0.01529247386231378,
+          "after_divorced|3rd+|45-54": 0.014776757991759388,
+          "after_divorced|3rd+|55+": 0.01672570039686947,
+          "after_widowed|2nd|15-24": 0.0036218043674792373,
+          "after_widowed|2nd|25-34": 0.0233355434058988,
+          "after_widowed|2nd|35-44": 0.01895222280954356,
+          "after_widowed|2nd|45-54": 0.011393724850861264,
+          "after_widowed|2nd|55+": 0.011999432133616377,
+          "after_widowed|3rd+|25-34": 0.0012767350064782396,
+          "after_widowed|3rd+|35-44": 0.0028475411834598396,
+          "after_widowed|3rd+|45-54": 0.002154084693698954,
+          "after_widowed|3rd+|55+": 0.004783678061226425,
+          "after_divorced|3rd+|15-24": 9.224114334264205e-05,
+          "after_widowed|3rd+|15-24": 3.991521543525673e-05
+        },
+        "male": {
+          "first": 0.9925974447770803,
+          "after_divorced|2nd|15-24": 0.0060273918737069766,
+          "after_divorced|2nd|25-34": 0.07818043713381524,
+          "after_divorced|2nd|35-44": 0.0737223798142296,
+          "after_divorced|2nd|45-54": 0.04543868024443298,
+          "after_divorced|2nd|55+": 0.03463643540891592,
+          "after_divorced|3rd+|25-34": 0.004278194397117997,
+          "after_divorced|3rd+|35-44": 0.014571102000642596,
+          "after_divorced|3rd+|45-54": 0.018056733545061647,
+          "after_divorced|3rd+|55+": 0.02403574922432599,
+          "after_widowed|2nd|15-24": 0.0008658429915448995,
+          "after_widowed|2nd|25-34": 0.00770749161492427,
+          "after_widowed|2nd|35-44": 0.012494132962137697,
+          "after_widowed|2nd|45-54": 0.005804292186308948,
+          "after_widowed|2nd|55+": 0.011201633438393898,
+          "after_widowed|3rd+|25-34": 0.0002215976515075041,
+          "after_widowed|3rd+|35-44": 0.001771305433538413,
+          "after_widowed|3rd+|45-54": 0.0014479194278231085,
+          "after_widowed|3rd+|55+": 0.004806386116728041,
+          "after_divorced|3rd+|15-24": 5.117120684390449e-05
+        }
+      },
+      "sim_remarriage_by_age_at_dissolution_mean": {
+        "female": {
+          "widowed": {
+            "50-64": 0.006374984743529888,
+            "15-34": 0.04175651121293823,
+            "35-49": 0.01776758576560734,
+            "65+": 0.00711267836956613
+          },
+          "divorced": {
+            "50-64": 0.026337432644340276,
+            "15-34": 0.07624168695873443,
+            "35-49": 0.03796826305542475,
+            "65+": 0.030144904894913293
+          }
+        },
+        "male": {
+          "widowed": {
+            "50-64": 0.02429171167329037,
+            "15-34": 0.11926877704388188,
+            "35-49": 0.0994800243114433,
+            "65+": 0.032100172965966525
+          },
+          "divorced": {
+            "50-64": 0.04932148201288447,
+            "15-34": 0.08753599989124662,
+            "35-49": 0.05853018184586577,
+            "65+": 0.0653629467732699
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.425454068585845,
+        0.4201293826278771,
+        0.4302586155149264,
+        0.40020353251736746,
+        0.43344984131998904,
+        0.4209205844014022,
+        0.44977333556836885,
+        0.4100315608564055,
+        0.419041540608273,
+        0.410339833369049,
+        0.4529145285658525,
+        0.3888946471196123,
+        0.4327010440477177,
+        0.3989621475772098,
+        0.43763589265415925,
+        0.4188402307806933,
+        0.44985924822644585,
+        0.40622615831868714,
+        0.4692173313578909,
+        0.491349869183351
+      ],
+      "elapsed_seconds": 23.8
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 20761,
+      "n_holdout_persons": 20648,
+      "ref_stock": {
+        "share_75plus": 0.5185995643338744,
+        "share_65_74": 0.20285170857980953
+      },
+      "ref_onset_buckets": {
+        "denominator_person_year_weight": 181062082.56,
+        "share_75plus": 0.5185995643338744,
+        "n_widowed_75plus_ysd_na": 0,
+        "buckets": {
+          "initial_left_censored": 0.0,
+          "onset_lt65": 0.17729499196145776,
+          "onset_65_74": 0.1755268698429357,
+          "onset_75plus": 0.16577770252948093
+        },
+        "reconciliation_remainder": 1.1102230246251565e-16,
+        "aging_in_share": 0.35282186180439346
+      },
+      "ref_incidence": {
+        "45-54": 0.00626587706828686,
+        "55-64": 0.011309131135952033,
+        "65-74": 0.02636477010174097,
+        "75+": 0.06067545104053693
+      },
+      "ref_remarriage": {
+        "50-64": 0.019566659528518684,
+        "65-74": 0.0060166363248140555,
+        "75+": 0.0004374181166056123
+      },
+      "ref_ever_widowed_by_75": 0.38767250960495553,
+      "ref_entry_widowed": {
+        "entry_state_counts": {
+          "never_married": 20732,
+          "married": 28,
+          "separated": 1
+        },
+        "n_entry_widowed_persons": 0,
+        "entry_widowed_75plus_stock_share": 0.0
+      },
+      "ref_spousal_gap": {
+        "wife_test_age_floor": 65,
+        "husband_high_mortality_age": 80,
+        "married_female_65plus_exposure_weight": 219228894.12,
+        "observed_active_match_coverage": 0.9681339134193868,
+        "mean_wife_age": 71.98956458900555,
+        "imputed_mean_gap_pooled": 2.340876494023904,
+        "observed_mean_gap_active_65plus": 1.9680370803374787,
+        "imputed_mean_husband_age": 74.33044108302946,
+        "observed_mean_husband_age": 74.02573117906483,
+        "imputed_minus_observed_mean_husband_age": 0.3047099039646213,
+        "imputed_share_husband_ge_high_mortality": 0.23262196416734288,
+        "observed_share_husband_ge_high_mortality": 0.2159481044144587
+      },
+      "ref_pathway": {
+        "female": {
+          "denominator_weight": 60036402.356,
+          "n_conditioned": 3888,
+          "mean_lifetime_marriages": 1.4230969937934899,
+          "in_exposure_marriages_per_person": 1.3352065273443015,
+          "residual_per_person": 0.08789046644918841,
+          "cells": {
+            "first": 0.9860796994789199,
+            "after_divorced|2nd|15-24": 0.02542467871323825,
+            "after_divorced|2nd|25-34": 0.0907083861172729,
+            "after_divorced|2nd|35-44": 0.086265631995892,
+            "after_divorced|2nd|45-54": 0.03917680534974526,
+            "after_divorced|2nd|55+": 0.010456917159648199,
+            "after_divorced|3rd+|15-24": 0.0015495679179500766,
+            "after_divorced|3rd+|25-34": 0.009850979352377769,
+            "after_divorced|3rd+|35-44": 0.020595710027191957,
+            "after_divorced|3rd+|45-54": 0.016881802959978816,
+            "after_divorced|3rd+|55+": 0.007139807436465439,
+            "after_widowed|2nd|15-24": 0.001825360542928133,
+            "after_widowed|2nd|25-34": 0.005531218560214288,
+            "after_widowed|2nd|35-44": 0.004272431373869048,
+            "after_widowed|2nd|45-54": 0.008498143359334909,
+            "after_widowed|2nd|55+": 0.012011019376612161,
+            "after_widowed|3rd+|15-24": 0.0008573631660134916,
+            "after_widowed|3rd+|25-34": 0.0010048903270762136,
+            "after_widowed|3rd+|35-44": 0.0018521413615132645,
+            "after_widowed|3rd+|45-54": 0.0021072880458393468,
+            "after_widowed|3rd+|55+": 0.003116684722220033
+          }
+        },
+        "male": {
+          "denominator_weight": 54682811.958000004,
+          "n_conditioned": 3405,
+          "mean_lifetime_marriages": 1.4270250025535454,
+          "in_exposure_marriages_per_person": 1.3040262814532857,
+          "residual_per_person": 0.12299872110025967,
+          "cells": {
+            "first": 0.98609006210975,
+            "after_divorced|2nd|15-24": 0.013703217467593566,
+            "after_divorced|2nd|25-34": 0.07851787143458808,
+            "after_divorced|2nd|35-44": 0.08280659704328806,
+            "after_divorced|2nd|45-54": 0.044645799376138946,
+            "after_divorced|2nd|55+": 0.018243037789757548,
+            "after_divorced|3rd+|15-24": 0.0005507397831540022,
+            "after_divorced|3rd+|25-34": 0.010384473286343574,
+            "after_divorced|3rd+|35-44": 0.019612452900624845,
+            "after_divorced|3rd+|45-54": 0.014622441830792142,
+            "after_divorced|3rd+|55+": 0.009374693539786086,
+            "after_widowed|2nd|15-24": 0.0007284555891272587,
+            "after_widowed|2nd|25-34": 0.002104134660967575,
+            "after_widowed|2nd|35-44": 0.003942147034530158,
+            "after_widowed|2nd|45-54": 0.003068632445765272,
+            "after_widowed|2nd|55+": 0.012994579275582467,
+            "after_widowed|3rd+|45-54": 0.0010526869401707587,
+            "after_widowed|3rd+|55+": 0.001584258945325249
+          }
+        }
+      },
+      "ref_remarriage_by_age_at_dissolution": {
+        "female": {
+          "divorced": {
+            "15-34": 0.08369697813175907,
+            "35-49": 0.040579862687347173,
+            "50-64": 0.020825614316059487,
+            "65+": 0.011750547468315201
+          },
+          "widowed": {
+            "15-34": 0.03847275463036181,
+            "35-49": 0.027563751620026194,
+            "50-64": 0.007652242929574129,
+            "65+": 0.002916790479271318
+          }
+        },
+        "male": {
+          "divorced": {
+            "15-34": 0.09625516882943363,
+            "35-49": 0.06641961705203676,
+            "50-64": 0.037965014950675634,
+            "65+": 0.01803421243089654
+          },
+          "widowed": {
+            "15-34": 0.08704841414405633,
+            "35-49": 0.06321933963084711,
+            "50-64": 0.04250063641363463,
+            "65+": 0.016088177253977733
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_65_74": 0.22204926804225722,
+        "share_75plus": 0.42709584571205983
+      },
+      "sim_onset_buckets_mean": {
+        "onset_75plus": 0.12743925671131967,
+        "onset_65_74": 0.12277982816437125,
+        "initial_left_censored": 0.0,
+        "onset_lt65": 0.17687676083636888
+      },
+      "sim_incidence_mean": {
+        "45-54": 0.0059636295738923996,
+        "65-74": 0.023740444344231948,
+        "55-64": 0.010813354737638168,
+        "75+": 0.05374181194439311
+      },
+      "sim_remarriage_mean": {
+        "50-64": 0.006308765361177035,
+        "65-74": 0.006164574419138402,
+        "75+": 0.005951602666451019
+      },
+      "sim_ever_widowed_by_75_mean": 0.3876319763110382,
+      "sim_spousal_gap_imputed_share_mean": 0.24326805937778806,
+      "sim_pathway_nmarr_mean": {
+        "female": 1.4708108633147203,
+        "male": 1.4542201892410114
+      },
+      "sim_pathway_inexp_mean": {
+        "female": 1.3795893169000402,
+        "male": 1.3297826061339877
+      },
+      "sim_pathway_cells_mean": {
+        "female": {
+          "first": 0.99143843043421,
+          "after_divorced|2nd|15-24": 0.015629284831413754,
+          "after_divorced|2nd|25-34": 0.09188662559259418,
+          "after_divorced|2nd|35-44": 0.0686603245758059,
+          "after_divorced|2nd|45-54": 0.035973739185202455,
+          "after_divorced|2nd|55+": 0.022110319039845457,
+          "after_divorced|3rd+|15-24": 6.828533995221041e-05,
+          "after_divorced|3rd+|25-34": 0.006762796934107583,
+          "after_divorced|3rd+|35-44": 0.01758795036391783,
+          "after_divorced|3rd+|45-54": 0.017544124557977693,
+          "after_divorced|3rd+|55+": 0.016983168331766312,
+          "after_widowed|2nd|15-24": 0.0041378639917089505,
+          "after_widowed|2nd|25-34": 0.029203606622089727,
+          "after_widowed|2nd|35-44": 0.021996970765915107,
+          "after_widowed|2nd|45-54": 0.012371736866432705,
+          "after_widowed|2nd|55+": 0.013047788763884391,
+          "after_widowed|3rd+|25-34": 0.0014279383597107548,
+          "after_widowed|3rd+|35-44": 0.003667799195828278,
+          "after_widowed|3rd+|45-54": 0.003509110894061898,
+          "after_widowed|3rd+|55+": 0.005528903229111181,
+          "after_widowed|3rd+|15-24": 5.254902450356375e-05
+        },
+        "male": {
+          "first": 0.9917114777124978,
+          "after_divorced|2nd|15-24": 0.007657820317286533,
+          "after_divorced|2nd|25-34": 0.07741100817608512,
+          "after_divorced|2nd|35-44": 0.07934572067980677,
+          "after_divorced|2nd|45-54": 0.045979775104628286,
+          "after_divorced|2nd|55+": 0.033173228361646476,
+          "after_divorced|3rd+|25-34": 0.004092062770440913,
+          "after_divorced|3rd+|35-44": 0.014608993052052769,
+          "after_divorced|3rd+|45-54": 0.017134902054566442,
+          "after_divorced|3rd+|55+": 0.021709458823304766,
+          "after_widowed|2nd|15-24": 0.000420468500196312,
+          "after_widowed|2nd|25-34": 0.005861715029508549,
+          "after_widowed|2nd|35-44": 0.007626373334289571,
+          "after_widowed|2nd|45-54": 0.005200954167768617,
+          "after_widowed|2nd|55+": 0.010912161381538285,
+          "after_widowed|3rd+|35-44": 0.0010411157438905715,
+          "after_widowed|3rd+|45-54": 0.0012402458609745912,
+          "after_widowed|3rd+|55+": 0.004461373537160714,
+          "after_widowed|3rd+|25-34": 0.00014139295142485454,
+          "after_divorced|3rd+|15-24": 5.235857491941994e-05
+        }
+      },
+      "sim_remarriage_by_age_at_dissolution_mean": {
+        "female": {
+          "widowed": {
+            "50-64": 0.006472495852044026,
+            "15-34": 0.047084713697301356,
+            "35-49": 0.02375106444150337,
+            "65+": 0.008149334870268204
+          },
+          "divorced": {
+            "50-64": 0.021848124552793936,
+            "15-34": 0.07755325054101568,
+            "35-49": 0.041889421405514535,
+            "65+": 0.029548619688346472
+          }
+        },
+        "male": {
+          "widowed": {
+            "50-64": 0.022762140152162047,
+            "15-34": 0.08300977918999573,
+            "35-49": 0.05924006469169622,
+            "65+": 0.03667081098278204
+          },
+          "divorced": {
+            "50-64": 0.03916298403498992,
+            "15-34": 0.08748086953127802,
+            "35-49": 0.06354916170882306,
+            "65+": 0.04869250730415747
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.41384540995859403,
+        0.46180081418919916,
+        0.3840720493919851,
+        0.4341478918146825,
+        0.43203251228527123,
+        0.4289131064051757,
+        0.41607119891065947,
+        0.43271062350692535,
+        0.40382277522280585,
+        0.4163829808320968,
+        0.49707218135070147,
+        0.4163685287835894,
+        0.4241992936845186,
+        0.452095434414736,
+        0.40340783878256525,
+        0.4683885229470764,
+        0.38804694169314646,
+        0.4571165047357334,
+        0.4231693398898681,
+        0.38825296544186616
+      ],
+      "elapsed_seconds": 23.6
+    }
+  ],
+  "candidate_11_implications": "Q4: the elderly-widow stock under-production is led by an OUTFLOW defect -- candidate 10's single '50+' current-age remarriage band applies a rate ~9x too high to 75+ widows, depleting the aging-in stock -- with a broad but modest (~10%) inflow shortfall in widowhood incidence co-contributing; the spousal-age-gap imputation is sound (husbands are not under-aged) and the initial-states margin is structurally absent. Q5: the residual female count over-production is remarriage after WIDOWHOOD (and a little first marriage), with a clean age-at-dissolution misallocation signature (over-remarriage at dissolution age 65+). Both questions point to the SAME highest-value candidate 11 lever: condition remarriage -- especially after widowhood -- on age at dissolution (or split the pooled 50+ current-age band into 50-64/65-74/75+ and/or cap the thin elderly-widow cell the add-one smoothing inflates), rather than raise or lower any aggregate rate; the inflow shortfall is a separate, smaller mortality-side question. Registered only after citing this evidence, under the one-shot rule.",
+  "revision_pins": {
+    "populace_dynamics_sha": "a5b3cab1415fb96753954c3d99c3d54818ec57fc",
+    "candidate10_runner": "scripts/run_gate2_candidate10.py",
+    "candidate10_runner_sha256": "b2237754c763bae972c351af95799c23bfee2ddcf88110f4604c1823236ea2f8",
+    "candidate10_artifact": "runs/gate2_hazard_v10.json",
+    "candidate10_artifact_sha256": "c0788db5642dcbc4c9e55fee2d88f7a1e94ed74218f7b2c01e697451dc72ff50",
+    "forensics1_runner": "scripts/gate2_forensics.py",
+    "forensics1_runner_sha256": "add7f8aaf20fcb241e7873f400f998e5a2e7635df02057c8a07150d0718f77b2",
+    "forensics1_artifact": "runs/gate2_forensics_v1.json",
+    "gates_yaml_locked": true,
+    "gates_yaml_status": "locked",
+    "sklearn_version": "1.9.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "scipy_version": "1.18.0",
+    "schema_version": "gate2_forensics2.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 23.0,
+    "1": 25.1,
+    "2": 24.7,
+    "3": 23.8,
+    "4": 23.6
+  },
+  "total_per_seed_compute_seconds": 120.2,
+  "elapsed_seconds": 17.3
+}
