@@ -1676,14 +1676,17 @@ def test_gate2_ratified_faithful_oc_basis_matches_amended_estimator():
 
 
 def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
-    """No committed run's verdict changed at the flip: all nine stand FAIL.
+    """No committed run's verdict changed at the flip: all stand FAIL.
 
     The strongest live form of no_self_rescue: every committed gate-2 run
-    artifact still records gate_2_pass false. The first pass must come from a
-    fresh candidate-10 registration under fresh_run_artifact_schema.
+    artifact still records gate_2_pass false -- the nine pre-amendment
+    single-draw candidates (v1-v9) AND candidate 10, the first fresh
+    registration under fresh_run_artifact_schema (the amended
+    mean-over-K=20-draws estimator), which itself came back FAIL 1/5. The
+    amendment rescued nothing; the gate still has no passing run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 9
+    assert len(runs) == 10
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_2_pass"] is False, path.name
