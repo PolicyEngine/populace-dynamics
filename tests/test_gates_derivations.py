@@ -1051,15 +1051,27 @@ def test_gate2_external_anchor_is_period_matched_and_decomposed():
 # stay FAIL, the outer verdict is marked not-computable, no locked gate-2
 # value moved -- a parsed (structural) compare of the thresholds subtree
 # against origin/master; the diff being a pure insertion, the subtree is also
-# byte-identical at diff level). All are no-ops (skip) until amendment_proposed
-# subsection exists; they touch only committed files.
+# byte-identical at diff level).
+#
+# RATIFIED 2026-07-08 (PR #96, merge fec27eb51) and FLIPPED LIVE in the
+# following PR: amendment_proposed is now REMOVED, so every test below skips
+# (dormant). _gate2_amendment() additionally guards on proposal_number == 1
+# (the gate-1 _amendment_2 pattern), so a FUTURE gate-2 proposal (number != 1)
+# never reactivates these proposal-1-specific bindings either. The
+# load-bearing guarantees these once carried against the pre-flip locked text
+# are re-bound at their LIVE post-flip locations in the "Gate-2 amendment 1
+# RATIFIED bindings" section at the end of this file. They touch only
+# committed files.
 # --------------------------------------------------------------------------
 GATE2_FORENSICS_RUN = "runs/gate2_forensics_v1.json"
 
 
 def _gate2_amendment() -> dict | None:
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
-    return gates["gates"]["gate_2"].get("amendment_proposed")
+    amendment = gates["gates"]["gate_2"].get("amendment_proposed")
+    if amendment is None or amendment.get("proposal_number") != 1:
+        return None
+    return amendment
 
 
 def _gate2_amend_change(change_id: int) -> dict | None:
@@ -1464,10 +1476,13 @@ def test_gate2_amendment_path_to_pass_and_process_statement():
 def test_gate2_amendment_registration_divergence_disclosed():
     """Referee fix B: currently_locked names the seed-convention divergence.
 
-    The locked thresholds text says "one replicate, simulation seed s"; every
-    committed run v1-v9 uniformly registered default_rng(4200 + seed). The
+    The pre-flip locked text named only the simulation seed; every committed
+    run v1-v9 uniformly registered default_rng(4200 + seed). The proposal's
     disclosure names both, and the cited protocol.sim_rng_rule recomputes
-    identically across all nine committed artifacts.
+    identically across all nine committed artifacts. Proposal-object check;
+    the POST-flip live candidate text (which now records the 4200+s history
+    and the 5200+k convention explicitly) is asserted in
+    test_gate2_ratified_registration_divergence_recorded.
     """
     amendment = _gate2_amendment()
     if amendment is None:
@@ -1484,21 +1499,18 @@ def test_gate2_amendment_registration_divergence_disclosed():
         art = json.loads((ROOT / f"runs/gate2_hazard_v{v}.json").read_text())
         rules.add(art["protocol"]["sim_rng_rule"])
     assert rules == {"numpy.random.default_rng(4200 + seed)"}
-    # And the locked text really does read "simulation seed s" (no 4200).
-    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
-    candidate = gates["gates"]["gate_2"]["thresholds"]["protocol"]["candidate"]
-    assert "one replicate, simulation seed s" in candidate
-    assert "4200" not in candidate
 
 
 def test_gate2_amendment_flip_edits_enumerated():
     """Referee fix B: the flip's locked-text edits are enumerated in advance.
 
     flip_on_ratification.flip_edits names every locked-TEXT change the flip PR
-    will make (protocol.candidate, statistic, pass_rule, the faithful
-    _candidate_oc basis note, and the stray DRAFT label). Each entry's
-    locked_text_now is verified to actually appear at its locked_path in the
-    current locked block, so the enumeration cannot cite absent text.
+    makes (protocol.candidate, statistic, pass_rule, the faithful_candidate_oc
+    basis note, and the stray DRAFT label). Proposal-object check on the five
+    enumerated keys; the locked_text_now presence assertions this test once
+    carried described the PRE-flip locked block, so the POST-flip live text
+    (the amended estimator with the DRAFT label removed) is asserted instead in
+    test_gate2_ratified_estimator_is_mean_over_k20_draws.
     """
     amendment = _gate2_amendment()
     if amendment is None:
@@ -1511,21 +1523,6 @@ def test_gate2_amendment_flip_edits_enumerated():
         "faithful_candidate_oc",
         "draft_label",
     }
-    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
-
-    def _resolve(path: str):
-        node = gates
-        for part in path.split("."):
-            node = node["gates"]["gate_2"] if part == "gate_2" else node[part]
-        return node
-
-    for e in edits:
-        node = _resolve(e["locked_path"])
-        hay = node if isinstance(node, str) else str(node)
-        assert e["locked_text_now"] in hay, e["key"]
-    # The DRAFT label the flip removes really is still present (unflipped).
-    pass_rule = _resolve("gate_2.thresholds.protocol.pass_rule")
-    assert "DRAFT seed-level conjunction" in pass_rule
 
 
 def test_gate2_amendment_fresh_run_artifact_schema():
@@ -1567,3 +1564,152 @@ def test_gate2_amendment_fresh_run_artifact_schema():
 
     # path_to_pass points a candidate-10 run at the schema.
     assert "fresh_run_artifact_schema" in amendment["path_to_pass"]
+
+
+# --------------------------------------------------------------------------
+# Gate-2 amendment 1 RATIFIED bindings (live thresholds)
+#
+# Amendment 1 (proposed PR #96; referee AMEND comment 4915412987 -> fixes
+# 5b70840 / comment 4916048161 -> verification RATIFY AS-IS comment
+# 4916419901 -> ratified by merge fec27eb51; flipped live this PR). The
+# proposal-object tests above go dormant once amendment_proposed is removed;
+# these bind the SAME load-bearing guarantees at their LIVE locations, so a
+# rebuild that shifted a floor -- or an edit that quietly reverted the flip or
+# reapplied it retroactively -- breaks loudly. The gate-1 amendment-2 lesson:
+# ratified bindings must stay HOT, not go dormant with the proposal object.
+# They touch only committed files.
+# --------------------------------------------------------------------------
+def _gate2_proto() -> dict:
+    return _gate_2()["protocol"]
+
+
+def test_gate2_ratified_estimator_is_mean_over_k20_draws():
+    """The live locked estimator is the mean over K=20 draws (5200+k), r->rbar.
+
+    flip_edits candidate / statistic / pass_rule / draft_label, applied: the
+    locked text now names K=20, default_rng(5200 + k), the 20-draw mean cell
+    rate, and rbar_candidate,s; the pre-flip single-draw phrasing and the stray
+    DRAFT label are gone. Tolerances and the 4-of-5 conjunction are unchanged.
+    """
+    proto = _gate2_proto()
+    candidate = proto["candidate"]
+    assert "K=20" in candidate
+    assert "5200 + k" in candidate
+    assert "20-draw mean cell rate" in candidate
+    assert "one replicate, simulation seed s" not in candidate  # old text gone
+    statistic = _gate_2()["statistic"]
+    assert "rbar_candidate,s" in statistic
+    assert "mean over K=20" in statistic
+    assert "|ln(r_candidate,s" not in statistic  # bare single-draw form gone
+    pass_rule = proto["pass_rule"]
+    assert "rbar_candidate,s" in pass_rule
+    assert "DRAFT" not in pass_rule  # stray draft label removed
+    assert ">=4 of 5" in pass_rule  # conjunction unchanged
+    # The mean is of the RATE then scored once, not the mean of |ln| scores.
+    assert "NOT the mean of the per-draw" in pass_rule
+
+
+def test_gate2_ratified_registration_divergence_recorded():
+    """The amended locked candidate records the 4200+s history and 5200+k.
+
+    Referee fix B, carried live: every committed run v1-v9 registered
+    default_rng(4200 + seed); the flipped candidate text now names both that
+    history and the new pre-registered 5200+k draw convention explicitly.
+    """
+    candidate = _gate2_proto()["candidate"]
+    assert "4200 + seed" in candidate  # the committed registration history
+    assert "5200 + k" in candidate  # the new pre-registered draw convention
+    # The cited history recomputes: all nine committed runs are identical.
+    rules = set()
+    for v in range(1, 10):
+        art = json.loads((ROOT / f"runs/gate2_hazard_v{v}.json").read_text())
+        rules.add(art["protocol"]["sim_rng_rule"])
+    assert rules == {"numpy.random.default_rng(4200 + seed)"}
+
+
+def test_gate2_ratified_fresh_run_artifact_schema_is_live():
+    """The candidate-10 run contract now lives in the locked protocol.
+
+    per-draw per-cell rates (20 x 46 x 5) so rbar recomputes; a pre-specified
+    undefined-draw rule that INVALIDATES the run rather than dropping a draw;
+    and a report-only (never gated) per-draw dispersion disclosure.
+    """
+    schema = _gate2_proto()["fresh_run_artifact_schema"]
+    rates = schema["per_draw_per_cell_rates"]
+    assert rates["required"] is True
+    assert rates["shape"] == [20, 46, 5]
+    assert "recomputes" in rates["rule"]
+    undef = schema["undefined_draw_rule"]
+    assert undef["required"] is True
+    assert undef["pre_specified"] is True
+    assert "INVALIDATED" in undef["rule"]
+    assert "No draw may be dropped" in undef["rule"]
+    disp = schema["per_draw_dispersion_disclosure"]
+    assert disp["gated"] is False
+    assert disp["report_only"] is True
+    assert set(disp["commit"]) == {
+        "per_cell_per_draw_sd",
+        "max_per_draw_abs_ln_per_cell",
+    }
+
+
+def test_gate2_ratified_faithful_oc_basis_matches_amended_estimator():
+    """faithful_candidate_oc stands unchanged and its basis now MATCHES.
+
+    The numbers (0.9404 / 0.9685) are byte-identical to the lock and to the
+    floor artifact; the added basis note records that the draw-noise-free
+    half-normal basis matches the mean-over-K estimator, whereas the
+    single-draw estimator made them unachievable (finding 1).
+    """
+    oc = _gate2_proto()["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == 0.9404
+    assert oc["p_gate_pass_4_of_5"] == 0.9685
+    art_oc = _gate2_floor()["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == pytest.approx(art_oc["p_seed_pass"])
+    assert oc["p_gate_pass_4_of_5"] == pytest.approx(
+        art_oc["p_gate_pass_4_of_5"]
+    )
+    basis = oc["basis_note"].lower()
+    assert "draw-noise-free" in basis
+    assert "unachievable" in basis
+    assert "amendment 1" in basis
+
+
+def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
+    """No committed run's verdict changed at the flip: all nine stand FAIL.
+
+    The strongest live form of no_self_rescue: every committed gate-2 run
+    artifact still records gate_2_pass false. The first pass must come from a
+    fresh candidate-10 registration under fresh_run_artifact_schema.
+    """
+    runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
+    assert len(runs) == 9
+    for path in runs:
+        verdict = json.loads(path.read_text())["verdict"]
+        assert verdict["gate_2_pass"] is False, path.name
+
+
+def test_gate2_ratified_history_record():
+    """gate_2.amendment_history[0] is complete, with all four ceremony pointers.
+
+    amendment_proposed is consumed by the flip; the history entry records the
+    full ceremony (adversarial review / fixes / verification / ratifying
+    merge) and the prospective-only content.
+    """
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    gate_2 = gates["gates"]["gate_2"]
+    assert "amendment_proposed" not in gate_2  # object consumed by the flip
+    entry = gate_2["amendment_history"][0]
+    assert entry["id"] == "2026-07-08-mean-over-draws-estimator"
+    for key in ("referee_round", "ratified", "flipped_live", "content"):
+        assert entry[key], key
+    assert entry["flipped_live"] == "this pull request"
+    rr = entry["referee_round"]
+    assert "4915412987" in rr["review"]  # adversarial AMEND round
+    assert "5b70840" in rr["fixes"]  # fix commit
+    assert "4916048161" in rr["fixes"]  # fixes-summary comment
+    assert "4916419901" in rr["verification"]  # verification RATIFY AS-IS
+    assert "PR 96" in entry["ratified"]
+    assert "fec27eb51" in entry["ratified"]  # ratifying merge commit
+    assert "PROSPECTIVE ONLY" in entry["content"]
+    assert "1-9 stand FAIL" in entry["content"]
