@@ -1,0 +1,3073 @@
+{
+  "schema_version": "replication_r7_sharing.v1",
+  "run": "replication_r7_sharing_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4911171806",
+  "registration_pointer": "#42 comment 4911171806",
+  "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+  "purpose": "Earnings-sharing external-anchor replication: does our stack (real PSID marriage histories + real earnings + the statutory 415(a)/(b) chain + the 402(b)/(c)/(e)/(f) auxiliary-benefit plumbing) reproduce the incidence structure of Favreault-Steuerle (2007) earnings sharing -- who wins and loses by sex x marital status (Table 3)? Reads no gate, changes no gate; publishes regardless of outcome.",
+  "what_is_tested": "the incidence STRUCTURE (direction of winners/losers by sex x marital status), not the population LEVELS -- every level difference vs the DYNASIM 2049 projection is a named delta",
+  "real_couples_only": true,
+  "primary_package": "1b",
+  "global_increase_decision": "Package 1b applies the anchor's +4.5% global benefit increase (a scalar on the PIA formula factors) as part of its cited definition -- it is in the package name and is directly visible in the anchor's never-married Table-3 row (97-99% show a 'gain < 5%', the uniform bump). A scalar-off variant is reported in sensitivity_no_scalar. See the module docstring.",
+  "package_1c_not_implemented": "Package 1c (earnings sharing with a self-financed survivor benefit) requires people married at benefit entitlement to 'purchase' survivor insurance worth two-thirds of their own benefit through an actuarially fair, unisex-priced benefit reduction at a 4.6 percent real interest rate (Favreault-Steuerle 2007, Table 2, printed p.15). That pricing needs individual- and spouse-specific cohort survival probabilities and an annuity-factor method the paper describes only as 'roughly actuarially fair on a cohort basis' -- it states no annuity factors and no mortality table. Implementing it would inject an unvalidated cohort-mortality/annuity model beyond this reported diagnostic's scope, so 1c is transcribed (Table 3 rows recorded in the anchor provenance) but not scored, per the registration's 'else document why not' clause.",
+  "anchor_provenance": {
+    "paper": "Favreault, M. M. and Steuerle, C. E. (2007). Social Security Spouse and Survivor Benefits for the Modern Family. The Urban Institute, Retirement Project Discussion Paper 07-01 (report 311436). DYNASIM3, runid 440v2. Cost-balanced at 2050; 1960-80 birth cohorts evaluated in 2049.",
+    "source_files": [
+      "~/PolicyEngine/dynasim-refs/311436-spouse-survivor-modern.pdf",
+      "~/PolicyEngine/dynasim-refs/311436-spouse-survivor-modern.txt"
+    ],
+    "package_definitions": {
+      "citation": "Table 2 (Details of the Social Security Packages Simulated), printed p.15; narrative printed p.14 and p.19",
+      "earnings_sharing_core": "Persons first entitled to OASDI in 2007 (born 1947+) share earnings retrospectively from 1961; spouses share all earnings capped at the taxable maximum prior to sharing over the full duration of each marriage (but no longer); covered quarters are recomputed on the shared vector; all spouse benefits are removed.",
+      "1a": "Earnings sharing with modified survivors' benefits, global benefit increase of 2.71 percent. Survivor benefits are awarded on the maximum shared earnings vector among a worker's, the spouse's, and all former spouses' records.",
+      "1b": "Earnings sharing with NO survivors' benefit, global benefit increase of 4.5 percent. Same as 1a except no survivor benefit whatsoever. THE PRIMARY TARGET.",
+      "1c": "Earnings sharing with a self-financed survivor benefit, global benefit increase of 4.5 percent. Same as 1b except people married at entitlement purchase survivor insurance (2/3 of own benefit) through an actuarially fair, unisex, 4.6 percent real annuity reduction.",
+      "global_increase_is_a_cost_offset": "The scalar benefit increases (2.71% / 4.5%) return the savings from removing spouse/survivor benefits, making each package approximately cost-neutral; implemented as a scalar on the PIA formula factors (printed p.19-20)."
+    },
+    "table3_winners_losers_2049": {
+      "citation": "Table 3 (Winners and Losers Relative to Current Law Scheduled among Current Law Beneficiaries under the Options in 2049, by Sex and Marital Status), printed p.19-20; DYNASIM3 runid 440v2",
+      "bucket_order": [
+        "lose_ge_20",
+        "lose_10_20",
+        "lose_5_10",
+        "lose_lt_5",
+        "no_change",
+        "gain_lt_5",
+        "gain_5_10",
+        "gain_10_20",
+        "gain_ge_20"
+      ],
+      "packages": {
+        "1a": {
+          "married": {
+            "male": [
+              7.4,
+              9.4,
+              9.9,
+              16.7,
+              0.2,
+              25.0,
+              12.1,
+              9.0,
+              10.2
+            ],
+            "female": [
+              4.5,
+              6.0,
+              8.6,
+              17.6,
+              0.0,
+              28.2,
+              13.6,
+              10.0,
+              11.5
+            ]
+          },
+          "divorced": {
+            "male": [
+              5.6,
+              12.5,
+              12.5,
+              19.1,
+              0.4,
+              32.4,
+              7.5,
+              4.6,
+              5.4
+            ],
+            "female": [
+              3.0,
+              7.2,
+              6.0,
+              12.2,
+              0.6,
+              32.5,
+              12.9,
+              9.6,
+              16.2
+            ]
+          },
+          "widowed": {
+            "male": [
+              19.6,
+              29.9,
+              16.3,
+              12.3,
+              0.2,
+              11.7,
+              4.9,
+              3.4,
+              1.8
+            ],
+            "female": [
+              15.3,
+              24.2,
+              16.0,
+              16.0,
+              1.7,
+              15.2,
+              5.7,
+              4.0,
+              1.9
+            ]
+          },
+          "never_married": {
+            "male": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              2.3,
+              96.3,
+              0.9,
+              0.3,
+              0.3
+            ],
+            "female": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              4.1,
+              95.1,
+              0.4,
+              0.2,
+              0.2
+            ]
+          }
+        },
+        "1b": {
+          "married": {
+            "male": [
+              18.1,
+              19.9,
+              11.2,
+              10.3,
+              0.0,
+              11.1,
+              6.0,
+              6.5,
+              17.0
+            ],
+            "female": [
+              8.4,
+              7.6,
+              6.1,
+              6.6,
+              0.0,
+              11.0,
+              6.5,
+              9.7,
+              44.1
+            ]
+          },
+          "divorced": {
+            "male": [
+              7.6,
+              11.8,
+              10.1,
+              15.1,
+              0.1,
+              34.4,
+              9.8,
+              5.7,
+              5.6
+            ],
+            "female": [
+              9.2,
+              4.7,
+              3.7,
+              7.3,
+              0.0,
+              30.4,
+              16.3,
+              11.5,
+              16.9
+            ]
+          },
+          "widowed": {
+            "male": [
+              35.6,
+              28.6,
+              14.3,
+              10.0,
+              0.0,
+              7.2,
+              2.0,
+              1.7,
+              0.8
+            ],
+            "female": [
+              38.3,
+              17.4,
+              11.0,
+              10.2,
+              0.0,
+              12.0,
+              5.5,
+              3.9,
+              1.7
+            ]
+          },
+          "never_married": {
+            "male": [
+              0.0,
+              0.1,
+              0.0,
+              0.0,
+              0.0,
+              97.4,
+              2.0,
+              0.3,
+              0.3
+            ],
+            "female": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              98.7,
+              0.9,
+              0.3,
+              0.2
+            ]
+          }
+        },
+        "1c": {
+          "married": {
+            "male": [
+              9.7,
+              23.7,
+              25.1,
+              14.3,
+              0.0,
+              10.3,
+              4.2,
+              3.4,
+              9.5
+            ],
+            "female": [
+              7.4,
+              24.9,
+              28.2,
+              14.7,
+              9.1,
+              9.1,
+              3.0,
+              2.7,
+              10.0
+            ]
+          },
+          "divorced": {
+            "male": [
+              6.0,
+              10.0,
+              9.9,
+              16.3,
+              0.0,
+              34.7,
+              9.9,
+              6.3,
+              7.0
+            ],
+            "female": [
+              3.2,
+              6.0,
+              5.2,
+              8.3,
+              0.0,
+              31.0,
+              16.6,
+              12.0,
+              17.8
+            ]
+          },
+          "widowed": {
+            "male": [
+              5.8,
+              9.7,
+              8.0,
+              8.3,
+              0.0,
+              8.8,
+              6.9,
+              13.2,
+              39.3
+            ],
+            "female": [
+              5.3,
+              8.0,
+              7.2,
+              7.7,
+              0.0,
+              13.5,
+              8.0,
+              11.9,
+              38.4
+            ]
+          },
+          "never_married": {
+            "male": [
+              0.0,
+              0.1,
+              0.0,
+              0.0,
+              0.0,
+              97.4,
+              2.0,
+              0.3,
+              0.3
+            ],
+            "female": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              98.7,
+              0.9,
+              0.3,
+              0.2
+            ]
+          }
+        }
+      },
+      "transcription": "verified cell-by-cell against the rendered PDF pages (PDF p.29-30). Rows are transcribed verbatim; most sum to 100.0-100.2 (the paper's 0.1-rounding).",
+      "source_arithmetic_note": "As printed, package-1c married women sum to 109.1, not 100.0 (the paper's own 'All' row for that column reads 100.0): the 'no change' cell is printed 9.1 where every other married earnings-sharing 'no change' cell (1a/1b/1c men) is 0.0, so the 9.1 is a printed typo for 0.0. Kept verbatim here (9.1) and flagged; package 1c is descriptive provenance only and is not scored, so it feeds no result.",
+      "narrative_quotes": {
+        "divorced": "about 16 percent of [divorced women] experienced benefit increases of over 20 percent ... Divorced men are more likely to lose benefits (printed p.19)",
+        "widowed_1b": "Fractions of widow(er)s with losses of greater than 20 percent increase to 36 percent of men and 38 percent of women under this [1b] option (printed p.20)",
+        "never_married": "Never married people receive small benefit increases (because of the benefit adjustment that compensates for the elimination of spouse and survivor benefits) (printed p.19)"
+      }
+    },
+    "table5_poverty_2049": {
+      "citation": "Table 5, printed p.24 (percent of adult current-law scheduled OASDI beneficiaries below poverty in 2049)",
+      "columns": [
+        "current_law",
+        "1a",
+        "1b",
+        "1c"
+      ],
+      "rows": {
+        "all_women": [
+          5.43,
+          5.16,
+          6.01,
+          4.88
+        ],
+        "married_spouse_beneficiary_women": [
+          1.97,
+          1.14,
+          1.14,
+          1.14
+        ],
+        "married_spouse_not_beneficiary_women": [
+          3.73,
+          3.73,
+          3.71,
+          3.86
+        ],
+        "never_married_women": [
+          8.06,
+          7.42,
+          7.13,
+          7.13
+        ],
+        "divorced_women": [
+          7.83,
+          6.23,
+          7.1,
+          5.95
+        ],
+        "widowed_women": [
+          5.9,
+          6.31,
+          8.87,
+          5.47
+        ],
+        "all_men": [
+          4.89,
+          4.74,
+          4.89,
+          4.68
+        ],
+        "all_people": [
+          5.17,
+          4.96,
+          5.48,
+          4.79
+        ]
+      },
+      "headline": [
+        "1b (no survivor) is the only earnings-sharing package that raises overall poverty (5.48% vs 5.17% current law), driven by widowed women (8.87% vs 5.90%); 1a and 1c reduce it."
+      ]
+    },
+    "named_population_deltas": [
+      "observed PSID retirees eligible 2005-2019 (born 1943-1957) vs DYNASIM projected 1960-1980 cohorts in 2049",
+      "PSID coverage-0.8 long-stayers vs DYNASIM SIPP+PSID synthetic population (our women have strong own careers, so rely less on survivor benefits)",
+      "spouse earnings observed on whatever PSID years exist (often sparser than the study person's coverage-0.8 career), biasing the higher earner's loss upward",
+      "no within-couple claim-age timing, no mortality projection, no behavioural response (single expected claim-age reduction)",
+      "package scalar is DYNASIM-calibrated (2.71%/4.5%), not re-derived for cost-neutrality in our sample",
+      "poverty (Table 5) and lifetime tax-benefit ratios (Table 4) transcribed for provenance but not reproduced (need lifetime accumulation and household income)"
+    ]
+  },
+  "study_population": {
+    "career_frame_rule": "Phase-A pia_observed selection: coverage >= 0.8 of ages 22-61, age-62 eligibility year in 2005-2019 (born 1943-1957), single-year gaps interpolated (mean of neighbours); reconstructed here (the committed runs/pia_observed_psid_v1.json builder was not committed) and cross-checked to that artifact's ~1486 careers and mean PIA range",
+    "n_career_frame": 1549,
+    "n_scored": 1016,
+    "marital_status_classification": "reconstructed from mh85_23 episodes at the age-62 eligibility year (active marriage -> married; else most recent ended marriage -> widowed/divorced; none -> never_married), with a last_known_status fallback",
+    "both_spouse_coverage": {
+      "definition": "share of career-frame persons whose relevant marriage spouses all have a computable PIA (never-married trivially covered)",
+      "n_career_frame_classified": 1549,
+      "n_both_spouse_covered": 1017,
+      "both_spouse_coverage_share": 0.6566,
+      "by_marital_status": {
+        "married": {
+          "n": 1015,
+          "n_covered": 733,
+          "share": 0.7222
+        },
+        "divorced": {
+          "n": 318,
+          "n_covered": 119,
+          "share": 0.3742
+        },
+        "widowed": {
+          "n": 111,
+          "n_covered": 60,
+          "share": 0.5405
+        },
+        "never_married": {
+          "n": 105,
+          "n_covered": 105,
+          "share": 1.0
+        }
+      },
+      "n_widowhood_episodes_career": 258,
+      "n_widowhood_deceased_computable": 173
+    },
+    "weighting": "anchor weight = the person's last observed PSID cross-sectional weight",
+    "n_by_cell": {
+      "married:male": 378,
+      "married:female": 355,
+      "divorced:male": 52,
+      "divorced:female": 66,
+      "widowed:male": 15,
+      "widowed:female": 45,
+      "never_married:male": 35,
+      "never_married:female": 70
+    }
+  },
+  "conventions": {
+    "sharing": "for each marriage with a computable spouse, every year of the marriage takes 0.5*(own + spouse) capped at that year's taxable maximum before sharing; non-marriage years keep own earnings; AIME/PIA recomputed on the shared vector (42 USC 415(a)/(b))",
+    "baseline": "own reduced retirement benefit + excess spouse's benefit (402(b)/(c)) if married with a computable spouse, OR the widow(er)'s benefit (402(e)/(f), larger of own or survivor) if widowhood is observed with a computable deceased spouse",
+    "claim_age_reduction": "expected benefit-to-PIA factor over the observed-era (1998-2022) claim-age distribution for the person's sex and eligibility year (claiming.expected_reduction_factor); auxiliary benefits are the pmf-weighted expectation of the household.py scalar functions -- a deterministic expected reduction, not a sampled claim age",
+    "global_increase": {
+      "1a": 0.0271,
+      "1b": 0.045
+    },
+    "winner_loser_metric": "(reform - baseline)/baseline bucketed into the Table-3 buckets; the reported thresholds are lose>=20%, lose>=5%, gain>=5%, gain>=20%; shares are anchor-weighted",
+    "floor": "5-seed person-disjoint half-split (split_panel_by_person, fraction=0.5); floor per share = summary of |side_a - side_b| across seeds -- the sampling-noise scale at half sample"
+  },
+  "package_1b_primary": {
+    "three_way_by_cell": [
+      {
+        "status": "married",
+        "sex": "male",
+        "n_persons": 378,
+        "our_buckets": {
+          "lose_ge_20": 44.77,
+          "lose_10_20": 33.68,
+          "lose_5_10": 7.26,
+          "lose_lt_5": 6.4,
+          "no_change": 0.0,
+          "gain_lt_5": 4.1,
+          "gain_5_10": 1.46,
+          "gain_10_20": 0.52,
+          "gain_ge_20": 1.81
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 18.1,
+          "lose_10_20": 19.9,
+          "lose_5_10": 11.2,
+          "lose_lt_5": 10.3,
+          "no_change": 0.0,
+          "gain_lt_5": 11.1,
+          "gain_5_10": 6.0,
+          "gain_10_20": 6.5,
+          "gain_ge_20": 17.0
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 18.1,
+            "our_share_pct": 44.76591058170899,
+            "abs_gap_vs_dynasim": 26.67,
+            "floor_mean": 2.59,
+            "floor_sd": 2.21,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 49.2,
+            "our_share_pct": 85.70634235096577,
+            "abs_gap_vs_dynasim": 36.51,
+            "floor_mean": 3.82,
+            "floor_sd": 2.29,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 29.5,
+            "our_share_pct": 3.7940300878615916,
+            "abs_gap_vs_dynasim": 25.71,
+            "floor_mean": 1.67,
+            "floor_sd": 2.57,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 17.0,
+            "our_share_pct": 1.8147712586134284,
+            "abs_gap_vs_dynasim": 15.19,
+            "floor_mean": 1.47,
+            "floor_sd": 1.6,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "married",
+        "sex": "female",
+        "n_persons": 355,
+        "our_buckets": {
+          "lose_ge_20": 6.69,
+          "lose_10_20": 11.07,
+          "lose_5_10": 6.69,
+          "lose_lt_5": 6.01,
+          "no_change": 0.0,
+          "gain_lt_5": 6.98,
+          "gain_5_10": 6.62,
+          "gain_10_20": 6.48,
+          "gain_ge_20": 49.45
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 8.4,
+          "lose_10_20": 7.6,
+          "lose_5_10": 6.1,
+          "lose_lt_5": 6.6,
+          "no_change": 0.0,
+          "gain_lt_5": 11.0,
+          "gain_5_10": 6.5,
+          "gain_10_20": 9.7,
+          "gain_ge_20": 44.1
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 8.4,
+            "our_share_pct": 6.694153793453108,
+            "abs_gap_vs_dynasim": 1.71,
+            "floor_mean": 2.59,
+            "floor_sd": 1.65,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 22.1,
+            "our_share_pct": 24.453485464071772,
+            "abs_gap_vs_dynasim": 2.35,
+            "floor_mean": 6.19,
+            "floor_sd": 2.58,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 60.3,
+            "our_share_pct": 62.553820509972255,
+            "abs_gap_vs_dynasim": 2.25,
+            "floor_mean": 3.7,
+            "floor_sd": 3.14,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 44.1,
+            "our_share_pct": 49.44813304530597,
+            "abs_gap_vs_dynasim": 5.35,
+            "floor_mean": 2.11,
+            "floor_sd": 1.72,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "divorced",
+        "sex": "male",
+        "n_persons": 52,
+        "our_buckets": {
+          "lose_ge_20": 33.78,
+          "lose_10_20": 20.3,
+          "lose_5_10": 9.76,
+          "lose_lt_5": 13.08,
+          "no_change": 0.0,
+          "gain_lt_5": 19.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 4.08
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 7.6,
+          "lose_10_20": 11.8,
+          "lose_5_10": 10.1,
+          "lose_lt_5": 15.1,
+          "no_change": 0.1,
+          "gain_lt_5": 34.4,
+          "gain_5_10": 9.8,
+          "gain_10_20": 5.7,
+          "gain_ge_20": 5.6
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 7.6,
+            "our_share_pct": 33.781419332958215,
+            "abs_gap_vs_dynasim": 26.18,
+            "floor_mean": 14.82,
+            "floor_sd": 9.42,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 29.5,
+            "our_share_pct": 63.83529756353237,
+            "abs_gap_vs_dynasim": 34.34,
+            "floor_mean": 13.2,
+            "floor_sd": 12.78,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 21.1,
+            "our_share_pct": 4.081505061950116,
+            "abs_gap_vs_dynasim": 17.02,
+            "floor_mean": 6.81,
+            "floor_sd": 2.55,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 5.6,
+            "our_share_pct": 4.081505061950116,
+            "abs_gap_vs_dynasim": 1.52,
+            "floor_mean": 6.81,
+            "floor_sd": 2.55,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "divorced",
+        "sex": "female",
+        "n_persons": 66,
+        "our_buckets": {
+          "lose_ge_20": 0.07,
+          "lose_10_20": 8.67,
+          "lose_5_10": 11.14,
+          "lose_lt_5": 15.57,
+          "no_change": 0.0,
+          "gain_lt_5": 8.94,
+          "gain_5_10": 5.51,
+          "gain_10_20": 24.05,
+          "gain_ge_20": 26.05
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 9.2,
+          "lose_10_20": 4.7,
+          "lose_5_10": 3.7,
+          "lose_lt_5": 7.3,
+          "no_change": 0.0,
+          "gain_lt_5": 30.4,
+          "gain_5_10": 16.3,
+          "gain_10_20": 11.5,
+          "gain_ge_20": 16.9
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 9.2,
+            "our_share_pct": 0.06989158916607564,
+            "abs_gap_vs_dynasim": 9.13,
+            "floor_mean": 0.15,
+            "floor_sd": 0.01,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 17.6,
+            "our_share_pct": 19.878696837344922,
+            "abs_gap_vs_dynasim": 2.28,
+            "floor_mean": 12.21,
+            "floor_sd": 9.33,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 44.7,
+            "our_share_pct": 55.61016510067847,
+            "abs_gap_vs_dynasim": 10.91,
+            "floor_mean": 17.76,
+            "floor_sd": 16.17,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 16.9,
+            "our_share_pct": 26.050512447315878,
+            "abs_gap_vs_dynasim": 9.15,
+            "floor_mean": 11.26,
+            "floor_sd": 8.72,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "widowed",
+        "sex": "male",
+        "n_persons": 15,
+        "our_buckets": {
+          "lose_ge_20": 54.49,
+          "lose_10_20": 33.47,
+          "lose_5_10": 1.35,
+          "lose_lt_5": 0.71,
+          "no_change": 0.0,
+          "gain_lt_5": 0.0,
+          "gain_5_10": 9.97,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 35.6,
+          "lose_10_20": 28.6,
+          "lose_5_10": 14.3,
+          "lose_lt_5": 10.0,
+          "no_change": 0.0,
+          "gain_lt_5": 7.2,
+          "gain_5_10": 2.0,
+          "gain_10_20": 1.7,
+          "gain_ge_20": 0.8
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 35.6,
+            "our_share_pct": 54.48825085927314,
+            "abs_gap_vs_dynasim": 18.89,
+            "floor_mean": 26.8,
+            "floor_sd": 17.27,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 78.5,
+            "our_share_pct": 89.31362767637746,
+            "abs_gap_vs_dynasim": 10.81,
+            "floor_mean": 17.22,
+            "floor_sd": 5.63,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 4.5,
+            "our_share_pct": 9.974202668531083,
+            "abs_gap_vs_dynasim": 5.47,
+            "floor_mean": 17.53,
+            "floor_sd": 3.27,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 0.8,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.8,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "widowed",
+        "sex": "female",
+        "n_persons": 45,
+        "our_buckets": {
+          "lose_ge_20": 22.16,
+          "lose_10_20": 32.49,
+          "lose_5_10": 4.45,
+          "lose_lt_5": 4.26,
+          "no_change": 0.0,
+          "gain_lt_5": 4.9,
+          "gain_5_10": 8.36,
+          "gain_10_20": 16.05,
+          "gain_ge_20": 7.33
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 38.3,
+          "lose_10_20": 17.4,
+          "lose_5_10": 11.0,
+          "lose_lt_5": 10.2,
+          "no_change": 0.0,
+          "gain_lt_5": 12.0,
+          "gain_5_10": 5.5,
+          "gain_10_20": 3.9,
+          "gain_ge_20": 1.7
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 38.3,
+            "our_share_pct": 22.158136564297113,
+            "abs_gap_vs_dynasim": 16.14,
+            "floor_mean": 14.46,
+            "floor_sd": 8.11,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 66.7,
+            "our_share_pct": 59.10082251850689,
+            "abs_gap_vs_dynasim": 7.6,
+            "floor_mean": 14.38,
+            "floor_sd": 6.95,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 11.1,
+            "our_share_pct": 31.74086519206222,
+            "abs_gap_vs_dynasim": 20.64,
+            "floor_mean": 17.65,
+            "floor_sd": 9.64,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 1.7,
+            "our_share_pct": 7.333357714823976,
+            "abs_gap_vs_dynasim": 5.63,
+            "floor_mean": 9.65,
+            "floor_sd": 8.51,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "never_married",
+        "sex": "male",
+        "n_persons": 35,
+        "our_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 100.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.1,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 97.4,
+          "gain_5_10": 2.0,
+          "gain_10_20": 0.3,
+          "gain_ge_20": 0.3
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 0.1,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.1,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 2.6,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 2.6,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 0.3,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.3,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "never_married",
+        "sex": "female",
+        "n_persons": 70,
+        "our_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 100.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 98.7,
+          "gain_5_10": 0.9,
+          "gain_10_20": 0.3,
+          "gain_ge_20": 0.2
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 1.4,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 1.4,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 0.2,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.2,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      }
+    ],
+    "directional_verdict": {
+      "married_men_are_losers": {
+        "statement": "married men lose >= 5% more than they gain >= 5%",
+        "lose_ge_5": 85.71,
+        "gain_ge_5": 3.79,
+        "held": true
+      },
+      "divorced_women_are_gainers": {
+        "statement": "divorced women gain >= 5% more than they lose >= 5%",
+        "gain_ge_5": 55.61,
+        "lose_ge_5": 19.88,
+        "held": true
+      },
+      "survivor_variant_helps_widowed_women": {
+        "statement": "widowed women's >=20% loss share is smaller under 1a (survivor restored) than under 1b (no survivor)",
+        "widowed_women_lose_ge_20_1b": 22.16,
+        "widowed_women_lose_ge_20_1a": 21.05,
+        "held": true
+      },
+      "never_married_near_zero": {
+        "statement": "never-married >=5% winner and loser shares are near zero (< 5 pp) under 1b -- the uniform +4.5% is below 5%",
+        "male_gain_ge_5": 0.0,
+        "male_lose_ge_5": 0.0,
+        "female_gain_ge_5": 0.0,
+        "female_lose_ge_5": 0.0,
+        "held": true
+      },
+      "all_held": true
+    },
+    "magnitude_check": {
+      "definition": "cells with a DYNASIM threshold share >= 20%",
+      "n_large_cells": 12,
+      "n_within_10pp": 4,
+      "share_within_10pp": 0.333,
+      "cells": [
+        {
+          "cell": "married:male:lose_ge_5",
+          "dynasim_pct": 49.2,
+          "our_share_pct": 85.70634235096577,
+          "abs_gap": 36.51,
+          "within_10pp": false
+        },
+        {
+          "cell": "married:male:gain_ge_5",
+          "dynasim_pct": 29.5,
+          "our_share_pct": 3.7940300878615916,
+          "abs_gap": 25.71,
+          "within_10pp": false
+        },
+        {
+          "cell": "married:female:lose_ge_5",
+          "dynasim_pct": 22.1,
+          "our_share_pct": 24.453485464071772,
+          "abs_gap": 2.35,
+          "within_10pp": true
+        },
+        {
+          "cell": "married:female:gain_ge_5",
+          "dynasim_pct": 60.3,
+          "our_share_pct": 62.553820509972255,
+          "abs_gap": 2.25,
+          "within_10pp": true
+        },
+        {
+          "cell": "married:female:gain_ge_20",
+          "dynasim_pct": 44.1,
+          "our_share_pct": 49.44813304530597,
+          "abs_gap": 5.35,
+          "within_10pp": true
+        },
+        {
+          "cell": "divorced:male:lose_ge_5",
+          "dynasim_pct": 29.5,
+          "our_share_pct": 63.83529756353237,
+          "abs_gap": 34.34,
+          "within_10pp": false
+        },
+        {
+          "cell": "divorced:male:gain_ge_5",
+          "dynasim_pct": 21.1,
+          "our_share_pct": 4.081505061950116,
+          "abs_gap": 17.02,
+          "within_10pp": false
+        },
+        {
+          "cell": "divorced:female:gain_ge_5",
+          "dynasim_pct": 44.7,
+          "our_share_pct": 55.61016510067847,
+          "abs_gap": 10.91,
+          "within_10pp": false
+        },
+        {
+          "cell": "widowed:male:lose_ge_20",
+          "dynasim_pct": 35.6,
+          "our_share_pct": 54.48825085927314,
+          "abs_gap": 18.89,
+          "within_10pp": false
+        },
+        {
+          "cell": "widowed:male:lose_ge_5",
+          "dynasim_pct": 78.5,
+          "our_share_pct": 89.31362767637746,
+          "abs_gap": 10.81,
+          "within_10pp": false
+        },
+        {
+          "cell": "widowed:female:lose_ge_20",
+          "dynasim_pct": 38.3,
+          "our_share_pct": 22.158136564297113,
+          "abs_gap": 16.14,
+          "within_10pp": false
+        },
+        {
+          "cell": "widowed:female:lose_ge_5",
+          "dynasim_pct": 66.7,
+          "our_share_pct": 59.10082251850689,
+          "abs_gap": 7.6,
+          "within_10pp": true
+        }
+      ]
+    },
+    "aggregate_cost_change": {
+      "weighted_aggregate_pct_change_1b": -4.23,
+      "weighted_aggregate_pct_change_1b_noscalar": -8.35,
+      "note": "the +4.5% scalar was DYNASIM-calibrated for 2049 cost-neutrality; applied to this observed 1943-57 sample it is not cost-neutral -- a named population delta"
+    }
+  },
+  "package_1a_descriptive": {
+    "note": "survivor benefit on the maximum shared vector + 2.71% scalar; run descriptively (registration: 1a/1c descriptive if implementable)",
+    "three_way_by_cell": [
+      {
+        "status": "married",
+        "sex": "male",
+        "n_persons": 378,
+        "our_buckets": {
+          "lose_ge_20": 52.34,
+          "lose_10_20": 27.86,
+          "lose_5_10": 6.34,
+          "lose_lt_5": 7.78,
+          "no_change": 0.0,
+          "gain_lt_5": 2.35,
+          "gain_5_10": 1.51,
+          "gain_10_20": 0.4,
+          "gain_ge_20": 1.41
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 7.4,
+          "lose_10_20": 9.4,
+          "lose_5_10": 9.9,
+          "lose_lt_5": 16.7,
+          "no_change": 0.2,
+          "gain_lt_5": 25.0,
+          "gain_5_10": 12.1,
+          "gain_10_20": 9.0,
+          "gain_ge_20": 10.2
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 7.4,
+            "our_share_pct": 52.338621082085915,
+            "abs_gap_vs_dynasim": 44.94,
+            "floor_mean": 4.08,
+            "floor_sd": 2.69,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 26.7,
+            "our_share_pct": 86.53674854658932,
+            "abs_gap_vs_dynasim": 59.84,
+            "floor_mean": 3.75,
+            "floor_sd": 2.33,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 31.3,
+            "our_share_pct": 3.329705531028825,
+            "abs_gap_vs_dynasim": 27.97,
+            "floor_mean": 1.87,
+            "floor_sd": 2.05,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 10.2,
+            "our_share_pct": 1.4136938587809884,
+            "abs_gap_vs_dynasim": 8.79,
+            "floor_mean": 1.28,
+            "floor_sd": 1.08,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "married",
+        "sex": "female",
+        "n_persons": 355,
+        "our_buckets": {
+          "lose_ge_20": 9.19,
+          "lose_10_20": 11.33,
+          "lose_5_10": 6.26,
+          "lose_lt_5": 5.77,
+          "no_change": 0.0,
+          "gain_lt_5": 8.75,
+          "gain_5_10": 4.96,
+          "gain_10_20": 5.79,
+          "gain_ge_20": 47.93
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 4.5,
+          "lose_10_20": 6.0,
+          "lose_5_10": 8.6,
+          "lose_lt_5": 17.6,
+          "no_change": 0.0,
+          "gain_lt_5": 28.2,
+          "gain_5_10": 13.6,
+          "gain_10_20": 10.0,
+          "gain_ge_20": 11.5
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 4.5,
+            "our_share_pct": 9.193252415104434,
+            "abs_gap_vs_dynasim": 4.69,
+            "floor_mean": 2.81,
+            "floor_sd": 1.96,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 19.1,
+            "our_share_pct": 26.788865231370323,
+            "abs_gap_vs_dynasim": 7.69,
+            "floor_mean": 5.86,
+            "floor_sd": 2.45,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 35.1,
+            "our_share_pct": 58.68569417923683,
+            "abs_gap_vs_dynasim": 23.59,
+            "floor_mean": 4.17,
+            "floor_sd": 1.92,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 11.5,
+            "our_share_pct": 47.934586926693896,
+            "abs_gap_vs_dynasim": 36.43,
+            "floor_mean": 2.35,
+            "floor_sd": 1.14,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "divorced",
+        "sex": "male",
+        "n_persons": 52,
+        "our_buckets": {
+          "lose_ge_20": 35.4,
+          "lose_10_20": 18.68,
+          "lose_5_10": 13.16,
+          "lose_lt_5": 24.55,
+          "no_change": 0.0,
+          "gain_lt_5": 4.13,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 4.08
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 5.6,
+          "lose_10_20": 12.5,
+          "lose_5_10": 12.5,
+          "lose_lt_5": 19.1,
+          "no_change": 0.4,
+          "gain_lt_5": 32.4,
+          "gain_5_10": 7.5,
+          "gain_10_20": 4.6,
+          "gain_ge_20": 5.4
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 5.6,
+            "our_share_pct": 35.39673853000044,
+            "abs_gap_vs_dynasim": 29.8,
+            "floor_mean": 17.08,
+            "floor_sd": 10.27,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 30.6,
+            "our_share_pct": 67.24347461916544,
+            "abs_gap_vs_dynasim": 36.64,
+            "floor_mean": 12.4,
+            "floor_sd": 12.37,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 17.5,
+            "our_share_pct": 4.081505061950116,
+            "abs_gap_vs_dynasim": 13.42,
+            "floor_mean": 6.81,
+            "floor_sd": 2.55,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 5.4,
+            "our_share_pct": 4.081505061950116,
+            "abs_gap_vs_dynasim": 1.32,
+            "floor_mean": 6.81,
+            "floor_sd": 2.55,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "divorced",
+        "sex": "female",
+        "n_persons": 66,
+        "our_buckets": {
+          "lose_ge_20": 1.72,
+          "lose_10_20": 10.2,
+          "lose_5_10": 19.68,
+          "lose_lt_5": 4.16,
+          "no_change": 0.0,
+          "gain_lt_5": 13.97,
+          "gain_5_10": 8.83,
+          "gain_10_20": 17.05,
+          "gain_ge_20": 24.39
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 3.0,
+          "lose_10_20": 7.2,
+          "lose_5_10": 6.0,
+          "lose_lt_5": 12.2,
+          "no_change": 0.6,
+          "gain_lt_5": 32.5,
+          "gain_5_10": 12.9,
+          "gain_10_20": 9.6,
+          "gain_ge_20": 16.2
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 3.0,
+            "our_share_pct": 1.7246599003680836,
+            "abs_gap_vs_dynasim": 1.28,
+            "floor_mean": 2.88,
+            "floor_sd": 0.65,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 16.2,
+            "our_share_pct": 31.605983739284955,
+            "abs_gap_vs_dynasim": 15.41,
+            "floor_mean": 16.79,
+            "floor_sd": 12.8,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 38.7,
+            "our_share_pct": 50.26661335815132,
+            "abs_gap_vs_dynasim": 11.57,
+            "floor_mean": 17.33,
+            "floor_sd": 15.21,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 16.2,
+            "our_share_pct": 24.388281752895615,
+            "abs_gap_vs_dynasim": 8.19,
+            "floor_mean": 9.18,
+            "floor_sd": 9.24,
+            "our_exceeds_floor": true
+          }
+        }
+      },
+      {
+        "status": "widowed",
+        "sex": "male",
+        "n_persons": 15,
+        "our_buckets": {
+          "lose_ge_20": 46.05,
+          "lose_10_20": 37.65,
+          "lose_5_10": 5.62,
+          "lose_lt_5": 0.71,
+          "no_change": 0.0,
+          "gain_lt_5": 9.97,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 19.6,
+          "lose_10_20": 29.9,
+          "lose_5_10": 16.3,
+          "lose_lt_5": 12.3,
+          "no_change": 0.2,
+          "gain_lt_5": 11.7,
+          "gain_5_10": 4.9,
+          "gain_10_20": 3.4,
+          "gain_ge_20": 1.8
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 19.6,
+            "our_share_pct": 46.04759875580823,
+            "abs_gap_vs_dynasim": 26.45,
+            "floor_mean": 31.19,
+            "floor_sd": 22.9,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 65.8,
+            "our_share_pct": 89.31362767637745,
+            "abs_gap_vs_dynasim": 23.51,
+            "floor_mean": 17.22,
+            "floor_sd": 5.63,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 10.1,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 10.1,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 1.8,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 1.8,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "widowed",
+        "sex": "female",
+        "n_persons": 45,
+        "our_buckets": {
+          "lose_ge_20": 21.05,
+          "lose_10_20": 30.15,
+          "lose_5_10": 4.45,
+          "lose_lt_5": 3.11,
+          "no_change": 0.0,
+          "gain_lt_5": 9.6,
+          "gain_5_10": 16.98,
+          "gain_10_20": 11.28,
+          "gain_ge_20": 3.38
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 15.3,
+          "lose_10_20": 24.2,
+          "lose_5_10": 16.0,
+          "lose_lt_5": 16.0,
+          "no_change": 1.7,
+          "gain_lt_5": 15.2,
+          "gain_5_10": 5.7,
+          "gain_10_20": 4.0,
+          "gain_ge_20": 1.9
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 15.3,
+            "our_share_pct": 21.045626986385315,
+            "abs_gap_vs_dynasim": 5.75,
+            "floor_mean": 10.91,
+            "floor_sd": 12.47,
+            "our_exceeds_floor": true
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 55.5,
+            "our_share_pct": 55.64572742623335,
+            "abs_gap_vs_dynasim": 0.15,
+            "floor_mean": 11.99,
+            "floor_sd": 7.75,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 11.6,
+            "our_share_pct": 31.64122814920402,
+            "abs_gap_vs_dynasim": 20.04,
+            "floor_mean": 17.85,
+            "floor_sd": 9.63,
+            "our_exceeds_floor": true
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 1.9,
+            "our_share_pct": 3.379809806532872,
+            "abs_gap_vs_dynasim": 1.48,
+            "floor_mean": 7.21,
+            "floor_sd": 0.78,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "never_married",
+        "sex": "male",
+        "n_persons": 35,
+        "our_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 100.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 2.3,
+          "gain_lt_5": 96.3,
+          "gain_5_10": 0.9,
+          "gain_10_20": 0.3,
+          "gain_ge_20": 0.3
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 1.5,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 1.5,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 0.3,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.3,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      },
+      {
+        "status": "never_married",
+        "sex": "female",
+        "n_persons": 70,
+        "our_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 100.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "dynasim_buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 4.1,
+          "gain_lt_5": 95.1,
+          "gain_5_10": 0.4,
+          "gain_10_20": 0.2,
+          "gain_ge_20": 0.2
+        },
+        "thresholds": {
+          "lose_ge_20": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "lose_ge_5": {
+            "dynasim_pct": 0.0,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.0,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_5": {
+            "dynasim_pct": 0.8,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.8,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          },
+          "gain_ge_20": {
+            "dynasim_pct": 0.2,
+            "our_share_pct": 0.0,
+            "abs_gap_vs_dynasim": 0.2,
+            "floor_mean": 0.0,
+            "floor_sd": 0.0,
+            "our_exceeds_floor": false
+          }
+        }
+      }
+    ]
+  },
+  "sensitivity_no_scalar": {
+    "note": "package 1b earnings sharing WITHOUT the +4.5% global increase -- isolates the pure redistribution; shifts every cell toward losses and moves never-married to 'no change'",
+    "shares_by_cell": {
+      "married:male": {
+        "n_persons": 378,
+        "buckets": {
+          "lose_ge_20": 61.42,
+          "lose_10_20": 23.24,
+          "lose_5_10": 5.4,
+          "lose_lt_5": 5.29,
+          "no_change": 0.22,
+          "gain_lt_5": 1.66,
+          "gain_5_10": 0.95,
+          "gain_10_20": 1.03,
+          "gain_ge_20": 0.79
+        },
+        "thresholds": {
+          "lose_ge_20": 61.42,
+          "lose_ge_5": 90.06,
+          "gain_ge_5": 2.77,
+          "gain_ge_20": 0.79
+        }
+      },
+      "married:female": {
+        "n_persons": 355,
+        "buckets": {
+          "lose_ge_20": 10.63,
+          "lose_10_20": 12.3,
+          "lose_5_10": 6.92,
+          "lose_lt_5": 7.06,
+          "no_change": 0.26,
+          "gain_lt_5": 6.9,
+          "gain_5_10": 3.52,
+          "gain_10_20": 5.62,
+          "gain_ge_20": 46.79
+        },
+        "thresholds": {
+          "lose_ge_20": 10.63,
+          "lose_ge_5": 29.85,
+          "gain_ge_5": 55.93,
+          "gain_ge_20": 46.79
+        }
+      },
+      "divorced:male": {
+        "n_persons": 52,
+        "buckets": {
+          "lose_ge_20": 37.64,
+          "lose_10_20": 21.92,
+          "lose_5_10": 17.36,
+          "lose_lt_5": 19.0,
+          "no_change": 0.0,
+          "gain_lt_5": 0.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 4.08
+        },
+        "thresholds": {
+          "lose_ge_20": 37.64,
+          "lose_ge_5": 76.92,
+          "gain_ge_5": 4.08,
+          "gain_ge_20": 4.08
+        }
+      },
+      "divorced:female": {
+        "n_persons": 66,
+        "buckets": {
+          "lose_ge_20": 2.21,
+          "lose_10_20": 17.67,
+          "lose_5_10": 14.31,
+          "lose_lt_5": 3.08,
+          "no_change": 5.07,
+          "gain_lt_5": 7.56,
+          "gain_5_10": 15.56,
+          "gain_10_20": 11.67,
+          "gain_ge_20": 22.87
+        },
+        "thresholds": {
+          "lose_ge_20": 2.21,
+          "lose_ge_5": 34.19,
+          "gain_ge_5": 50.1,
+          "gain_ge_20": 22.87
+        }
+      },
+      "widowed:male": {
+        "n_persons": 15,
+        "buckets": {
+          "lose_ge_20": 54.49,
+          "lose_10_20": 34.83,
+          "lose_5_10": 0.71,
+          "lose_lt_5": 0.0,
+          "no_change": 0.0,
+          "gain_lt_5": 9.97,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "thresholds": {
+          "lose_ge_20": 54.49,
+          "lose_ge_5": 90.03,
+          "gain_ge_5": 0.0,
+          "gain_ge_20": 0.0
+        }
+      },
+      "widowed:female": {
+        "n_persons": 45,
+        "buckets": {
+          "lose_ge_20": 37.58,
+          "lose_10_20": 20.82,
+          "lose_5_10": 4.96,
+          "lose_lt_5": 4.45,
+          "no_change": 0.45,
+          "gain_lt_5": 8.36,
+          "gain_5_10": 12.97,
+          "gain_10_20": 7.03,
+          "gain_ge_20": 3.38
+        },
+        "thresholds": {
+          "lose_ge_20": 37.58,
+          "lose_ge_5": 63.36,
+          "gain_ge_5": 23.38,
+          "gain_ge_20": 3.38
+        }
+      },
+      "never_married:male": {
+        "n_persons": 35,
+        "buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 100.0,
+          "gain_lt_5": 0.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "thresholds": {
+          "lose_ge_20": 0.0,
+          "lose_ge_5": 0.0,
+          "gain_ge_5": 0.0,
+          "gain_ge_20": 0.0
+        }
+      },
+      "never_married:female": {
+        "n_persons": 70,
+        "buckets": {
+          "lose_ge_20": 0.0,
+          "lose_10_20": 0.0,
+          "lose_5_10": 0.0,
+          "lose_lt_5": 0.0,
+          "no_change": 100.0,
+          "gain_lt_5": 0.0,
+          "gain_5_10": 0.0,
+          "gain_10_20": 0.0,
+          "gain_ge_20": 0.0
+        },
+        "thresholds": {
+          "lose_ge_20": 0.0,
+          "lose_ge_5": 0.0,
+          "gain_ge_5": 0.0,
+          "gain_ge_20": 0.0
+        }
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "package_1b": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 41.589467868117076,
+            "lose_ge_5": 82.40333126223211,
+            "gain_ge_5": 4.437060927422897,
+            "gain_ge_20": 1.7829905784299924
+          },
+          "side_b": {
+            "lose_ge_20": 47.60522043212189,
+            "lose_ge_5": 88.65878719756576,
+            "gain_ge_5": 3.2192475523311046,
+            "gain_ge_20": 1.8431788851421673
+          },
+          "n_a": 177,
+          "n_b": 201
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 4.523500874198966,
+            "lose_ge_5": 20.060344274172103,
+            "gain_ge_5": 65.8717147408665,
+            "gain_ge_20": 49.630225435980094
+          },
+          "side_b": {
+            "lose_ge_20": 8.544268803145773,
+            "lose_ge_5": 28.197896365988452,
+            "gain_ge_5": 59.72587604095996,
+            "gain_ge_20": 49.292930036041476
+          },
+          "n_a": 169,
+          "n_b": 186
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 49.66317050015595,
+            "lose_ge_5": 84.2098792695615,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 24.204203791924655,
+            "lose_ge_5": 51.54875822018425,
+            "gain_ge_5": 6.542786144785073,
+            "gain_ge_20": 6.542786144785073
+          },
+          "n_a": 17,
+          "n_b": 35
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 21.98980693280957,
+            "gain_ge_5": 56.2665351614255,
+            "gain_ge_20": 21.201727911140836
+          },
+          "side_b": {
+            "lose_ge_20": 0.16379667032081113,
+            "lose_ge_5": 17.04224731306634,
+            "gain_ge_5": 54.72827810172171,
+            "gain_ge_20": 32.56525207198522
+          },
+          "n_a": 38,
+          "n_b": 28
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 55.77947720462494,
+            "lose_ge_5": 87.91225102589237,
+            "gain_ge_5": 12.08774897410762,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 48.394723016753254,
+            "lose_ge_5": 95.92697449068939,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 10,
+          "n_b": 5
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 9.313336595083593,
+            "lose_ge_5": 57.62401635813237,
+            "gain_ge_5": 25.27674521507085,
+            "gain_ge_20": 7.38572016132019
+          },
+          "side_b": {
+            "lose_ge_20": 32.995368817140644,
+            "lose_ge_5": 60.34681244367259,
+            "gain_ge_5": 37.19468071809648,
+            "gain_ge_20": 7.289179214935565
+          },
+          "n_a": 21,
+          "n_b": 24
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 15,
+          "n_b": 20
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 37,
+          "n_b": 33
+        }
+      },
+      "package_1a": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 47.839553869977884,
+            "lose_ge_5": 83.45289797162626,
+            "gain_ge_5": 4.350847369719089,
+            "gain_ge_20": 1.7829905784299924
+          },
+          "side_b": {
+            "lose_ge_20": 56.36017821527376,
+            "lose_ge_5": 89.2932935575311,
+            "gain_ge_5": 2.416942940078946,
+            "gain_ge_20": 1.083592576192801
+          },
+          "n_a": 177,
+          "n_b": 201
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 7.691197644490982,
+            "lose_ge_5": 22.188820503027195,
+            "gain_ge_5": 61.72311332434589,
+            "gain_ge_20": 49.630225435980094
+          },
+          "side_b": {
+            "lose_ge_20": 10.473500423361461,
+            "lose_ge_5": 30.709626455642685,
+            "gain_ge_5": 56.09680735110907,
+            "gain_ge_20": 46.48934147579
+          },
+          "n_a": 169,
+          "n_b": 186
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 53.95714900408203,
+            "lose_ge_5": 84.2098792695615,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 24.204203791924655,
+            "lose_ge_5": 57.012177542250726,
+            "gain_ge_5": 6.542786144785073,
+            "gain_ge_20": 6.542786144785073
+          },
+          "n_a": 17,
+          "n_b": 35
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 2.8863777784362448,
+            "lose_ge_5": 28.695939281828995,
+            "gain_ge_5": 49.460398156104624,
+            "gain_ge_20": 18.302333653630434
+          },
+          "side_b": {
+            "lose_ge_20": 0.16379667032081113,
+            "lose_ge_5": 35.51586709151428,
+            "gain_ge_5": 51.349829591745326,
+            "gain_ge_20": 32.56525207198522
+          },
+          "n_a": 38,
+          "n_b": 28
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 45.950701503199056,
+            "lose_ge_5": 87.91225102589239,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 46.50487420465822,
+            "lose_ge_5": 95.92697449068939,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 10,
+          "n_b": 5
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 4.095380854825473,
+            "lose_ge_5": 57.62401635813237,
+            "gain_ge_5": 25.059013638924245,
+            "gain_ge_20": 7.38572016132019
+          },
+          "side_b": {
+            "lose_ge_20": 35.346647984053995,
+            "lose_ge_5": 53.97663357739141,
+            "gain_ge_5": 37.19468071809648,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 21,
+          "n_b": 24
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 15,
+          "n_b": 20
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 37,
+          "n_b": 33
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "package_1b": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 43.687922818089056,
+            "lose_ge_5": 84.89569354558343,
+            "gain_ge_5": 3.9987738461007827,
+            "gain_ge_20": 1.9042160918080446
+          },
+          "side_b": {
+            "lose_ge_20": 46.06644626122316,
+            "lose_ge_5": 86.68434760346972,
+            "gain_ge_5": 3.547017485553633,
+            "gain_ge_20": 1.7068607601424948
+          },
+          "n_a": 205,
+          "n_b": 173
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 5.634916455696202,
+            "lose_ge_5": 19.606845569620255,
+            "gain_ge_5": 66.70109704641351,
+            "gain_ge_20": 51.103297890295366
+          },
+          "side_b": {
+            "lose_ge_20": 7.59505096486433,
+            "lose_ge_5": 28.575625060289667,
+            "gain_ge_5": 59.02649989205278,
+            "gain_ge_20": 48.040390631100735
+          },
+          "n_a": 168,
+          "n_b": 187
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 29.24346905839805,
+            "lose_ge_5": 63.08430907319505,
+            "gain_ge_5": 6.4577018294360204,
+            "gain_ge_20": 6.4577018294360204
+          },
+          "side_b": {
+            "lose_ge_20": 41.576088221466044,
+            "lose_ge_5": 65.1252426416166,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 31,
+          "n_b": 21
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.14217430421598645,
+            "lose_ge_5": 13.901117277757002,
+            "gain_ge_5": 61.13643179520976,
+            "gain_ge_20": 21.606051293823192
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 25.65853693463199,
+            "gain_ge_5": 50.26670835352043,
+            "gain_ge_20": 30.347949985322092
+          },
+          "n_a": 35,
+          "n_b": 31
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 44.306740763131586,
+            "lose_ge_5": 80.5241007277885,
+            "gain_ge_5": 18.17797102797219,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 66.86700666040957,
+            "lose_ge_5": 100.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 7,
+          "n_b": 8
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 28.407795677457294,
+            "lose_ge_5": 66.82335944476307,
+            "gain_ge_5": 20.877285960085086,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 16.11813428241159,
+            "lose_ge_5": 51.63735294169237,
+            "gain_ge_5": 42.2400047711179,
+            "gain_ge_20": 14.420703845135128
+          },
+          "n_a": 26,
+          "n_b": 19
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 14,
+          "n_b": 21
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 29,
+          "n_b": 41
+        }
+      },
+      "package_1a": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 50.19777670522305,
+            "lose_ge_5": 85.69461230078139,
+            "gain_ge_5": 3.1495800400053264,
+            "gain_ge_20": 1.9042160918080446
+          },
+          "side_b": {
+            "lose_ge_20": 54.9214375020496,
+            "lose_ge_5": 87.55274174395876,
+            "gain_ge_5": 3.5470174855536327,
+            "gain_ge_20": 0.8219045201855065
+          },
+          "n_a": 205,
+          "n_b": 173
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 7.023446413502111,
+            "lose_ge_5": 22.260064135021096,
+            "gain_ge_5": 62.2987611814346,
+            "gain_ge_20": 49.352830379746834
+          },
+          "side_b": {
+            "lose_ge_20": 11.038704817201733,
+            "lose_ge_5": 30.640678184098228,
+            "gain_ge_5": 55.61272674656291,
+            "gain_ge_20": 46.728349693843334
+          },
+          "n_a": 168,
+          "n_b": 187
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 31.799205135049803,
+            "lose_ge_5": 68.47668048353155,
+            "gain_ge_5": 6.4577018294360204,
+            "gain_ge_20": 6.4577018294360204
+          },
+          "side_b": {
+            "lose_ge_20": 41.576088221466044,
+            "lose_ge_5": 65.1252426416166,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 31,
+          "n_b": 21
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 3.508323737801951,
+            "lose_ge_5": 25.943971969940996,
+            "gain_ge_5": 53.486540955949415,
+            "gain_ge_20": 21.606051293823192
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 37.08069508850899,
+            "gain_ge_5": 47.153201574235624,
+            "gain_ge_20": 27.078475502211237
+          },
+          "n_a": 35,
+          "n_b": 31
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 29.52589113400144,
+            "lose_ge_5": 80.5241007277885,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 66.13481392692773,
+            "lose_ge_5": 100.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 7,
+          "n_b": 8
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 26.753083641273967,
+            "lose_ge_5": 59.793238131883285,
+            "gain_ge_5": 20.67455333483371,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 15.529637938806907,
+            "lose_ge_5": 51.637352941692384,
+            "gain_ge_5": 42.240004771117896,
+            "gain_ge_20": 6.646237394688974
+          },
+          "n_a": 26,
+          "n_b": 19
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 14,
+          "n_b": 21
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 29,
+          "n_b": 41
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "package_1b": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 45.17904496226669,
+            "lose_ge_5": 82.52717112205838,
+            "gain_ge_5": 7.084900343726734,
+            "gain_ge_20": 3.866273856386192
+          },
+          "side_b": {
+            "lose_ge_20": 44.40044947988286,
+            "lose_ge_5": 88.51865591015675,
+            "gain_ge_5": 0.8829069127539211,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 177,
+          "n_b": 201
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 6.015626551613583,
+            "lose_ge_5": 23.07623559275067,
+            "gain_ge_5": 62.08709937041727,
+            "gain_ge_20": 47.57080559540822
+          },
+          "side_b": {
+            "lose_ge_20": 7.443913829864222,
+            "lose_ge_5": 25.97532106623486,
+            "gain_ge_5": 63.06953872585096,
+            "gain_ge_20": 51.5225451107302
+          },
+          "n_a": 186,
+          "n_b": 169
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 30.890190264998836,
+            "lose_ge_5": 58.35283355590131,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 35.87015688270307,
+            "lose_ge_5": 67.79604511023093,
+            "gain_ge_5": 7.030144786434478,
+            "gain_ge_20": 7.030144786434478
+          },
+          "n_a": 24,
+          "n_b": 28
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.1444336620703663,
+            "lose_ge_5": 18.853482581450805,
+            "gain_ge_5": 52.23395745726544,
+            "gain_ge_20": 29.42672875308113
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 20.839950674116487,
+            "gain_ge_5": 58.775740035195824,
+            "gain_ge_20": 22.884929390867658
+          },
+          "n_a": 33,
+          "n_b": 33
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 61.98207846566513,
+            "lose_ge_5": 100.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 46.389377054054485,
+            "lose_ge_5": 77.76444541192586,
+            "gain_ge_5": 20.753715217125837,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 5,
+          "n_b": 10
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 32.583573175807025,
+            "lose_ge_5": 50.278416284586925,
+            "gain_ge_5": 34.31746304904025,
+            "gain_ge_20": 7.783012655604939
+          },
+          "side_b": {
+            "lose_ge_20": 11.394892657333783,
+            "lose_ge_5": 68.2090943041853,
+            "gain_ge_5": 29.080779843291673,
+            "gain_ge_20": 6.869132955521956
+          },
+          "n_a": 23,
+          "n_b": 22
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 19,
+          "n_b": 16
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 42,
+          "n_b": 28
+        }
+      },
+      "package_1a": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 51.2321265025073,
+            "lose_ge_5": 83.16186022205204,
+            "gain_ge_5": 6.182371538851658,
+            "gain_ge_20": 3.0117997412603525
+          },
+          "side_b": {
+            "lose_ge_20": 53.317432692176425,
+            "lose_ge_5": 89.52219459918004,
+            "gain_ge_5": 0.8062204099079526,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 177,
+          "n_b": 201
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 8.991958326673709,
+            "lose_ge_5": 24.590917817560033,
+            "gain_ge_5": 57.433960961520455,
+            "gain_ge_20": 46.868920630206915
+          },
+          "side_b": {
+            "lose_ge_20": 9.415678655003074,
+            "lose_ge_5": 29.217556419273826,
+            "gain_ge_5": 60.06883620364209,
+            "gain_ge_20": 49.11212844896212
+          },
+          "n_a": 186,
+          "n_b": 169
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 30.890190264998836,
+            "lose_ge_5": 66.47860692860263,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 38.65244617529263,
+            "lose_ge_5": 67.79604511023093,
+            "gain_ge_5": 7.030144786434478,
+            "gain_ge_20": 7.030144786434478
+          },
+          "n_a": 24,
+          "n_b": 28
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.6379153408107844,
+            "lose_ge_5": 29.123693890907447,
+            "gain_ge_5": 44.46249865220324,
+            "gain_ge_20": 25.99166497408469
+          },
+          "side_b": {
+            "lose_ge_20": 2.7436053271013754,
+            "lose_ge_5": 33.933410057260815,
+            "gain_ge_5": 55.708624623678546,
+            "gain_ge_20": 22.884929390867658
+          },
+          "n_a": 33,
+          "n_b": 33
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 61.98207846566513,
+            "lose_ge_5": 100.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 28.82658072600041,
+            "lose_ge_5": 77.76444541192586,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 5,
+          "n_b": 10
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 21.667828563702102,
+            "lose_ge_5": 44.65249327885002,
+            "gain_ge_5": 34.31746304904025,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 20.40326469639121,
+            "lose_ge_5": 66.9951667700028,
+            "gain_ge_5": 28.87827729614683,
+            "gain_ge_20": 6.869132955521956
+          },
+          "n_a": 23,
+          "n_b": 22
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 19,
+          "n_b": 16
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 42,
+          "n_b": 28
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "package_1b": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 43.170684184849854,
+            "lose_ge_5": 87.55509522098635,
+            "gain_ge_5": 3.718419755694896,
+            "gain_ge_20": 1.3343196696354758
+          },
+          "side_b": {
+            "lose_ge_20": 46.36925776912524,
+            "lose_ge_5": 83.84817806769446,
+            "gain_ge_5": 3.8700253281972405,
+            "gain_ge_20": 2.2976686739233765
+          },
+          "n_a": 196,
+          "n_b": 182
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 6.277393186479312,
+            "lose_ge_5": 22.514077703290624,
+            "gain_ge_5": 62.80024317186961,
+            "gain_ge_20": 50.835153198739455
+          },
+          "side_b": {
+            "lose_ge_20": 7.178991758868017,
+            "lose_ge_5": 26.70969321766625,
+            "gain_ge_5": 62.26714499403523,
+            "gain_ge_20": 47.83454476962125
+          },
+          "n_a": 189,
+          "n_b": 166
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 19.052013814605854,
+            "lose_ge_5": 52.24731969515354,
+            "gain_ge_5": 10.598240038784084,
+            "gain_ge_20": 10.598240038784084
+          },
+          "side_b": {
+            "lose_ge_20": 43.00661314494877,
+            "lose_ge_5": 71.09297959229154,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 23,
+          "n_b": 29
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.14532390073570223,
+            "lose_ge_5": 32.8854615547639,
+            "gain_ge_5": 39.12581113948067,
+            "gain_ge_20": 12.552856522923836
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 7.827316770984916,
+            "gain_ge_5": 70.88369537902298,
+            "gain_ge_20": 38.55672633553658
+          },
+          "n_a": 33,
+          "n_b": 33
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 32.82994208972712,
+            "lose_ge_5": 82.38401045539557,
+            "gain_ge_5": 17.615989544604428,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 82.75707916191193,
+            "lose_ge_5": 98.35829323670929,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 6,
+          "n_b": 9
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 23.868441220675226,
+            "lose_ge_5": 51.69437872779981,
+            "gain_ge_5": 41.12123800220621,
+            "gain_ge_20": 14.417871341911475
+          },
+          "side_b": {
+            "lose_ge_20": 20.38775732491014,
+            "lose_ge_5": 66.76741821878518,
+            "gain_ge_5": 22.03100606324656,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 24,
+          "n_b": 21
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 12,
+          "n_b": 23
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 27,
+          "n_b": 43
+        }
+      },
+      "package_1a": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 51.21340294495636,
+            "lose_ge_5": 88.32995391062079,
+            "gain_ge_5": 2.7921223987207195,
+            "gain_ge_20": 1.3343196696354758
+          },
+          "side_b": {
+            "lose_ge_20": 53.46956734711049,
+            "lose_ge_5": 84.73441454400479,
+            "gain_ge_5": 3.87002532819724,
+            "gain_ge_20": 1.4934721166950233
+          },
+          "n_a": 196,
+          "n_b": 182
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 9.882734658776968,
+            "lose_ge_5": 24.634192051307974,
+            "gain_ge_5": 59.73659150403279,
+            "gain_ge_20": 49.45731775150033
+          },
+          "side_b": {
+            "lose_ge_20": 8.391144052130201,
+            "lose_ge_5": 29.295501759090875,
+            "gain_ge_5": 57.46313400371123,
+            "gain_ge_20": 46.16311979995527
+          },
+          "n_a": 189,
+          "n_b": 166
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 19.052013814605854,
+            "lose_ge_5": 52.24731969515354,
+            "gain_ge_5": 10.598240038784084,
+            "gain_ge_20": 10.598240038784084
+          },
+          "side_b": {
+            "lose_ge_20": 45.633625084266065,
+            "lose_ge_5": 76.63573661074929,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 23,
+          "n_b": 29
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 3.586043859560597,
+            "lose_ge_5": 47.369788775747054,
+            "gain_ge_5": 32.83702025451866,
+            "gain_ge_20": 12.552856522923836
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 17.00007597407531,
+            "gain_ge_5": 66.41595221815078,
+            "gain_ge_20": 35.35436061971468
+          },
+          "n_a": 33,
+          "n_b": 33
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 18.50605015885892,
+            "lose_ge_5": 82.38401045539557,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 81.99534134089384,
+            "lose_ge_5": 98.35829323670929,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 6,
+          "n_b": 9
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 26.265457051712616,
+            "lose_ge_5": 51.69437872779981,
+            "gain_ge_5": 41.121238002206205,
+            "gain_ge_20": 6.644931946005762
+          },
+          "side_b": {
+            "lose_ge_20": 15.642449987292597,
+            "lose_ge_5": 59.73586755255418,
+            "gain_ge_5": 21.828232218712557,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 24,
+          "n_b": 21
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 12,
+          "n_b": 23
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 27,
+          "n_b": 43
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "package_1b": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 44.47461759278351,
+            "lose_ge_5": 85.00614687366422,
+            "gain_ge_5": 3.628784923824991,
+            "gain_ge_20": 2.998853726220792
+          },
+          "side_b": {
+            "lose_ge_20": 45.03581134114832,
+            "lose_ge_5": 86.35511625993215,
+            "gain_ge_5": 3.94713983290447,
+            "gain_ge_20": 0.7176464756760554
+          },
+          "n_a": 180,
+          "n_b": 198
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 9.03439949604558,
+            "lose_ge_5": 27.85800343113641,
+            "gain_ge_5": 64.14545073975742,
+            "gain_ge_20": 49.33971154818764
+          },
+          "side_b": {
+            "lose_ge_20": 4.393697116950068,
+            "lose_ge_5": 21.10685135683579,
+            "gain_ge_5": 60.98925129205755,
+            "gain_ge_20": 49.55471115231672
+          },
+          "n_a": 168,
+          "n_b": 187
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 38.29417667816589,
+            "lose_ge_5": 61.99985507023603,
+            "gain_ge_5": 1.9962977033024223,
+            "gain_ge_20": 1.9962977033024223
+          },
+          "side_b": {
+            "lose_ge_20": 30.896046276535998,
+            "lose_ge_5": 65.0088453330338,
+            "gain_ge_5": 5.4147478378074805,
+            "gain_ge_20": 5.4147478378074805
+          },
+          "n_a": 22,
+          "n_b": 30
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 11.141994995338795,
+            "gain_ge_5": 74.86457975565477,
+            "gain_ge_20": 27.890805161670183
+          },
+          "side_b": {
+            "lose_ge_20": 0.13829083571120745,
+            "lose_ge_5": 28.428850445423738,
+            "gain_ge_5": 36.76687550343506,
+            "gain_ge_20": 24.249514121391023
+          },
+          "n_a": 32,
+          "n_b": 34
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 36.14750026784584,
+            "lose_ge_5": 79.60475694207713,
+            "gain_ge_5": 19.036047179826827,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 74.6755718030221,
+            "lose_ge_5": 99.99999999999999,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 8,
+          "n_b": 7
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 29.183160054750207,
+            "lose_ge_5": 46.46285431381905,
+            "gain_ge_5": 50.188287846305144,
+            "gain_ge_20": 18.41703797791622
+          },
+          "side_b": {
+            "lose_ge_20": 17.510130758673025,
+            "lose_ge_5": 67.46255250652905,
+            "gain_ge_5": 19.535393180154088,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 21,
+          "n_b": 24
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 18,
+          "n_b": 17
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 34,
+          "n_b": 36
+        }
+      },
+      "package_1a": {
+        "married:male": {
+          "side_a": {
+            "lose_ge_20": 50.87497513463652,
+            "lose_ge_5": 85.96479428099236,
+            "gain_ge_5": 3.628784923824991,
+            "gain_ge_20": 2.1649096874417317
+          },
+          "side_b": {
+            "lose_ge_20": 53.694778517333965,
+            "lose_ge_5": 87.06669913420436,
+            "gain_ge_5": 3.0525901924615955,
+            "gain_ge_20": 0.7176464756760554
+          },
+          "n_a": 180,
+          "n_b": 198
+        },
+        "married:female": {
+          "side_a": {
+            "lose_ge_20": 11.894881637811805,
+            "lose_ge_5": 28.351542258761366,
+            "gain_ge_5": 60.52730938214506,
+            "gain_ge_20": 47.708569728884136
+          },
+          "side_b": {
+            "lose_ge_20": 6.5375564871392315,
+            "lose_ge_5": 25.252756951416075,
+            "gain_ge_5": 56.875390250727705,
+            "gain_ge_20": 48.156761363818156
+          },
+          "n_a": 168,
+          "n_b": 187
+        },
+        "divorced:male": {
+          "side_a": {
+            "lose_ge_20": 42.43587406921055,
+            "lose_ge_5": 70.73846106549726,
+            "gain_ge_5": 1.9962977033024223,
+            "gain_ge_20": 1.9962977033024223
+          },
+          "side_b": {
+            "lose_ge_20": 30.896046276535998,
+            "lose_ge_5": 65.0088453330338,
+            "gain_ge_5": 5.4147478378074805,
+            "gain_ge_20": 5.4147478378074805
+          },
+          "n_a": 22,
+          "n_b": 30
+        },
+        "divorced:female": {
+          "side_a": {
+            "lose_ge_20": 0.48280261027427507,
+            "lose_ge_5": 16.035277954958048,
+            "gain_ge_5": 67.26129728668859,
+            "gain_ge_20": 24.530077032530297
+          },
+          "side_b": {
+            "lose_ge_20": 2.940000744273595,
+            "lose_ge_5": 46.8442199352482,
+            "gain_ge_5": 33.634804154007014,
+            "gain_ge_20": 24.249514121391023
+          },
+          "n_a": 32,
+          "n_b": 34
+        },
+        "widowed:male": {
+          "side_a": {
+            "lose_ge_20": 35.51684506822764,
+            "lose_ge_5": 79.60475694207712,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 57.63860226523513,
+            "lose_ge_5": 100.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 8,
+          "n_b": 7
+        },
+        "widowed:female": {
+          "side_a": {
+            "lose_ge_20": 20.93478587157895,
+            "lose_ge_5": 44.962824071273836,
+            "gain_ge_5": 50.188287846305144,
+            "gain_ge_20": 8.48807435633783
+          },
+          "side_b": {
+            "lose_ge_20": 21.11896341662245,
+            "lose_ge_5": 62.71391686108039,
+            "gain_ge_5": 19.369832720201337,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 21,
+          "n_b": 24
+        },
+        "never_married:male": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 18,
+          "n_b": 17
+        },
+        "never_married:female": {
+          "side_a": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "side_b": {
+            "lose_ge_20": 0.0,
+            "lose_ge_5": 0.0,
+            "gain_ge_5": 0.0,
+            "gain_ge_20": 0.0
+          },
+          "n_a": 34,
+          "n_b": 36
+        }
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "5fe23087d3c478cd78fb0d1b88a4dfd7bac64ddb",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "replication_r7_sharing.v1"
+  },
+  "elapsed_seconds": 20.8
+}
