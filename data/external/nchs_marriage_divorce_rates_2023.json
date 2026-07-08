@@ -1,0 +1,286 @@
+{
+  "schema_version": "nchs_marriage_divorce.v1",
+  "latest_year": 2023,
+  "first_year": 2000,
+  "measure": "crude_rate_per_1000_total_population",
+  "report": {
+    "title": "National Marriage and Divorce Rate Trends for 2000-2023",
+    "nvss_citation": "CDC/NCHS, National Vital Statistics System. National Marriage and Divorce Rate Trends for 2000-2023 (provisional). Hyattsville, MD: National Center for Health Statistics. Available from: https://www.cdc.gov/nchs/nvss/marriage-divorce.htm.",
+    "publisher": "National Center for Health Statistics (NCHS)",
+    "nvss_page": "https://www.cdc.gov/nchs/nvss/marriage-divorce.htm",
+    "faststats_page": "https://www.cdc.gov/nchs/fastats/marriage-divorce.htm",
+    "report_pdf_url": "https://www.cdc.gov/nchs/data/dvs/marriage-divorce/national-marriage-divorce-rates-00-23.pdf"
+  },
+  "fetch": {
+    "fetched_utc": "2026-07-07T23:30:42.976610+00:00",
+    "fetched_by": "scripts/fetch_nchs_marriage_divorce.py",
+    "source_format": "xlsx (cdc.gov/nchs/data/dvs machine-readable)",
+    "xlsx_url": "https://www.cdc.gov/nchs/data/dvs/marriage-divorce/national-marriage-divorce-rates-00-23.xlsx",
+    "xlsx_sha256": "44944f1af852bdded69bc005be2002981cfe44908e2affbd1d19388191f17043",
+    "n_bytes": 15798
+  },
+  "provisional_note": "NCHS labels this series provisional (permanent designation for incomplete-reporting-area data), not a signal a final version exists.",
+  "divorce_denominator_note": "The national divorce rate excludes California, Hawaii, Indiana, Minnesota, New Mexico (they do not report divorces to NVSS), so its population denominator is smaller than the marriage rate's. Recorded, not adjusted.",
+  "divorce_excluded_states": [
+    "California",
+    "Hawaii",
+    "Indiana",
+    "Minnesota",
+    "New Mexico"
+  ],
+  "concept_note": "Crude rates per 1,000 TOTAL population (all ages, both sexes) -- a loose order-of-magnitude anchor for the PSID age/duration-specific hazards, never a level target.",
+  "tables": {
+    "marriage": {
+      "2023": {
+        "count": 2041926,
+        "population": 334914895,
+        "rate_per_1000": 6.1
+      },
+      "2022": {
+        "count": 2065905,
+        "population": 333287557,
+        "rate_per_1000": 6.2
+      },
+      "2021": {
+        "count": 1985072,
+        "population": 331893745,
+        "rate_per_1000": 6.0
+      },
+      "2020": {
+        "count": 1676911,
+        "population": 329484123,
+        "rate_per_1000": 5.1
+      },
+      "2019": {
+        "count": 2015603,
+        "population": 328239523,
+        "rate_per_1000": 6.1
+      },
+      "2018": {
+        "count": 2132853,
+        "population": 327167434,
+        "rate_per_1000": 6.5
+      },
+      "2017": {
+        "count": 2236496,
+        "population": 325719178,
+        "rate_per_1000": 6.9
+      },
+      "2016": {
+        "count": 2251411,
+        "population": 323127513,
+        "rate_per_1000": 7.0
+      },
+      "2015": {
+        "count": 2221579,
+        "population": 321418820,
+        "rate_per_1000": 6.9
+      },
+      "2014": {
+        "count": 2140272,
+        "population": 308759713,
+        "rate_per_1000": 6.9
+      },
+      "2013": {
+        "count": 2081301,
+        "population": 306136672,
+        "rate_per_1000": 6.8
+      },
+      "2012": {
+        "count": 2131000,
+        "population": 313914040,
+        "rate_per_1000": 6.8
+      },
+      "2011": {
+        "count": 2118000,
+        "population": 311591917,
+        "rate_per_1000": 6.8
+      },
+      "2010": {
+        "count": 2096000,
+        "population": 308745538,
+        "rate_per_1000": 6.8
+      },
+      "2009": {
+        "count": 2080000,
+        "population": 306771529,
+        "rate_per_1000": 6.8
+      },
+      "2008": {
+        "count": 2157000,
+        "population": 304093966,
+        "rate_per_1000": 7.1
+      },
+      "2007": {
+        "count": 2197000,
+        "population": 301231207,
+        "rate_per_1000": 7.3
+      },
+      "2006": {
+        "count": 2193000,
+        "population": 294077247,
+        "rate_per_1000": 7.5
+      },
+      "2005": {
+        "count": 2249000,
+        "population": 295516599,
+        "rate_per_1000": 7.6
+      },
+      "2004": {
+        "count": 2279000,
+        "population": 292805298,
+        "rate_per_1000": 7.8
+      },
+      "2003": {
+        "count": 2245000,
+        "population": 290107933,
+        "rate_per_1000": 7.7
+      },
+      "2002": {
+        "count": 2290000,
+        "population": 287625193,
+        "rate_per_1000": 8.0
+      },
+      "2001": {
+        "count": 2326000,
+        "population": 284968955,
+        "rate_per_1000": 8.2
+      },
+      "2000": {
+        "count": 2315000,
+        "population": 281421906,
+        "rate_per_1000": 8.2
+      }
+    },
+    "divorce": {
+      "2023": {
+        "count": 672502,
+        "population": 279800079,
+        "rate_per_1000": 2.4
+      },
+      "2022": {
+        "count": 673989,
+        "population": 278154454,
+        "rate_per_1000": 2.4
+      },
+      "2021": {
+        "count": 695509,
+        "population": 276585104,
+        "rate_per_1000": 2.5
+      },
+      "2020": {
+        "count": 630505,
+        "population": 274190425,
+        "rate_per_1000": 2.3
+      },
+      "2019": {
+        "count": 746971,
+        "population": 272842748,
+        "rate_per_1000": 2.7
+      },
+      "2018": {
+        "count": 782038,
+        "population": 271791413,
+        "rate_per_1000": 2.9
+      },
+      "2017": {
+        "count": 787251,
+        "population": 270423493,
+        "rate_per_1000": 2.9
+      },
+      "2016": {
+        "count": 776288,
+        "population": 257904548,
+        "rate_per_1000": 3.0
+      },
+      "2015": {
+        "count": 800909,
+        "population": 258518265,
+        "rate_per_1000": 3.1
+      },
+      "2014": {
+        "count": 813862,
+        "population": 256483624,
+        "rate_per_1000": 3.2
+      },
+      "2013": {
+        "count": 832157,
+        "population": 254408815,
+        "rate_per_1000": 3.3
+      },
+      "2012": {
+        "count": 851000,
+        "population": 248041986,
+        "rate_per_1000": 3.4
+      },
+      "2011": {
+        "count": 877000,
+        "population": 246273366,
+        "rate_per_1000": 3.6
+      },
+      "2010": {
+        "count": 872000,
+        "population": 244122529,
+        "rate_per_1000": 3.6
+      },
+      "2009": {
+        "count": 840000,
+        "population": 242610561,
+        "rate_per_1000": 3.5
+      },
+      "2008": {
+        "count": 844000,
+        "population": 240545163,
+        "rate_per_1000": 3.5
+      },
+      "2007": {
+        "count": 856000,
+        "population": 238352850,
+        "rate_per_1000": 3.6
+      },
+      "2006": {
+        "count": 872000,
+        "population": 236094277,
+        "rate_per_1000": 3.7
+      },
+      "2005": {
+        "count": 847000,
+        "population": 233495163,
+        "rate_per_1000": 3.6
+      },
+      "2004": {
+        "count": 879000,
+        "population": 236402656,
+        "rate_per_1000": 3.7
+      },
+      "2003": {
+        "count": 927000,
+        "population": 243902090,
+        "rate_per_1000": 3.8
+      },
+      "2002": {
+        "count": 955000,
+        "population": 243108303,
+        "rate_per_1000": 3.9
+      },
+      "2001": {
+        "count": 940000,
+        "population": 236416762,
+        "rate_per_1000": 4.0
+      },
+      "2000": {
+        "count": 944000,
+        "population": 233550143,
+        "rate_per_1000": 4.0
+      }
+    }
+  },
+  "validation": {
+    "years_covered": [
+      2000,
+      2023
+    ],
+    "latest_year": 2023,
+    "marriage_gt_divorce_all_years": true
+  }
+}

@@ -793,3 +793,239 @@ def test_ratified_standing_rules_and_history_record():
     assert "PROSPECTIVE ONLY" in entry["content"]
     assert "4904161939" in entry["referee_round"]["review"]
     assert "4905067301" in entry["referee_round"]["verification"]
+
+
+# --------------------------------------------------------------------------
+# Gate 2 DRAFT threshold binding (gate_2.thresholds, status draft, v2)
+#
+# The gate-2 pre-lock evidence fills the gate_2 stub with a DRAFT thresholds
+# block (locked: false, status: draft_pending_referee_round) whose per-cell
+# |ln ratio| tolerances are machine-bound to the committed 100-seed
+# half-split floor runs/gate2_floors_v2.json exactly as the locked gate-1
+# geometry thresholds bind to theirs: tolerance == round(floor mean + k *
+# floor sd, rounding). v2 applies the round-1 referee amendments (PR #79
+# comment 4910467957): the option-(a) protocol, the 100-seed floor, the
+# T_max = ln(1.5) power cap with pre-registered aggregate supersession, the
+# joint/sequence cells, the governance inheritance, and the scope map.
+# These run everywhere (committed files only) and SKIP the moment gate_2
+# leaves the draft status -- a ratification round replaces them with locked
+# bindings, just as amendment 1/2's proposal-object tests went dormant.
+# --------------------------------------------------------------------------
+GATE2_FLOOR_RUN = "runs/gate2_floors_v2.json"
+GATE2_FLOOR_KEY = "noise_floor_seeds_0_99"
+
+
+def _gate_2() -> dict:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_2"]["thresholds"]
+
+
+def _gate_2_if_draft() -> dict | None:
+    g2 = _gate_2()
+    if g2.get("status") != "draft_pending_referee_round":
+        return None
+    return g2
+
+
+def _gate2_floor() -> dict:
+    return json.loads((ROOT / GATE2_FLOOR_RUN).read_text())
+
+
+def _gate2_derive(cell: str, k: float, rounding: int) -> float:
+    stats = _gate2_floor()[GATE2_FLOOR_KEY][cell]
+    return round(stats["mean"] + k * stats["sd"], rounding)
+
+
+def test_gate2_stays_locked_false():
+    """Gate 2 never locks in the pre-lock evidence PR (the ceremony is later)."""
+    assert _gate_2()["locked"] is False
+
+
+def test_gate2_floor_run_is_a_reported_anchor():
+    """The floor the DRAFT thresholds cite reads no gate and is pre-lock."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    assert g2["floor_run"] == GATE2_FLOOR_RUN
+    floor = _gate2_floor()
+    assert floor["reported_anchor_not_gated"] is True
+    assert floor["schema_version"] == "gate2_floors.v2"
+    assert "NOT RATIFIED" in floor["draft_thresholds_note"]
+
+
+def test_gate2_draft_thresholds_bind_to_floor():
+    """Every DRAFT tolerance == round(100-seed floor mean + k*sd, rounding).
+
+    The exact machine-binding the locked gate-1 geometry thresholds carry,
+    applied to each gate-2 view's ``tolerances`` against the committed
+    100-seed half-split floor. Every ``tolerances`` entry has a matching
+    ``derivations.rules`` entry whose ``key`` is the floor cell itself.
+    """
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not in draft_pending_referee_round status")
+    for view_name, view in g2["views"].items():
+        rules = view["derivations"]["rules"]
+        tolerances = view["tolerances"]
+        assert set(rules) == set(tolerances), view_name
+        assert view["derivations"]["floor_run"] == GATE2_FLOOR_RUN
+        for cell, rule in rules.items():
+            assert rule["key"] == cell, f"{view_name}.{cell}"
+            derived = _gate2_derive(cell, rule["k"], rule.get("rounding", 3))
+            assert derived == pytest.approx(tolerances[cell]), (
+                f"{view_name}.{cell}: derived {derived} != tolerance "
+                f"{tolerances[cell]}"
+            )
+
+
+def test_gate2_draft_k_matches_gate1_precedent():
+    """Every DRAFT k is the ~4-sigma gate-1 precedent, and marked draft."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    assert g2["holdout_basis"] == ["mh85_23", "cah85_23", "MX23REL"]
+    assert g2["floor_run"] == GATE2_FLOOR_RUN
+    for view in g2["views"].values():
+        for rule in view["derivations"]["rules"].values():
+            assert rule["k"] == 4
+
+
+def test_gate2_power_cap_binds_every_gated_cell():
+    """Finding 3: every gated tolerance <= T_max = ln(1.5), and the floor
+    partitioned exactly on that cap (+ >=20 events + supersession)."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    assert g2["power_cap"]["t_max"] == "ln(1.5)"
+    floor = _gate2_floor()
+    t_max = floor["internal_noise_floor"]["t_max"]
+    assert t_max == pytest.approx(math.log(1.5))
+    for view in g2["views"].values():
+        for cell, tol in view["tolerances"].items():
+            assert tol <= t_max, f"{cell} tolerance {tol} exceeds T_max"
+
+
+def test_gate2_report_only_matches_committed_floor_partition():
+    """report_only / gated == the floor's derived partition (events + power
+    cap + aggregate supersession), not hand-picked; the two are disjoint."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    floor = _gate2_floor()
+    partition = floor["gate_partition"]
+    assert set(g2["report_only"]) == set(partition["report_only"])
+
+    gated = set()
+    for view in g2["views"].values():
+        gated |= set(view["tolerances"])
+    assert gated == set(partition["gate_eligible"])
+    assert gated.isdisjoint(set(g2["report_only"]))
+    # Every gated cell carries a floor block; the partition covers all cells.
+    for cell in gated:
+        assert cell in floor[GATE2_FLOOR_KEY], cell
+
+
+def test_gate2_aggregations_are_pre_registered_and_consistent():
+    """Finding 3: the coverage-recovery aggregates match the floor, and a
+    gating aggregate demotes every per-age member it spans."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    floor = _gate2_floor()
+    yaml_aggs = g2["power_cap"]["aggregations"]
+    art_aggs = floor["aggregations"]
+    assert set(yaml_aggs) == set(art_aggs)
+    report_only = set(g2["report_only"])
+    gated = set()
+    for view in g2["views"].values():
+        gated |= set(view["tolerances"])
+    for agg, spec in yaml_aggs.items():
+        assert spec["gated"] == art_aggs[agg]["gated"], agg
+        if spec["gated"]:
+            assert agg in gated, agg
+            for member in art_aggs[agg]["members"]:
+                assert member in report_only, (agg, member)
+
+
+def test_gate2_protocol_is_option_a_gate1_mirror():
+    """Finding 1: one coherent protocol -- per-seed refit + simulate holdout,
+    scored against the holdout half's own rate, 4-of-5 conjunction."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    proto = g2["protocol"]
+    assert str(proto["option"]).strip().startswith("a")
+    assert proto["gate_seeds"] == [0, 1, 2, 3, 4]
+    for field in ("split", "candidate", "scored_against", "pass_rule"):
+        assert proto[field].strip(), field
+    # The finding-1 fix: the candidate is scored against the seed's HOLDOUT
+    # half's OWN empirical rate (side A / rate_a), not the full-panel ref.
+    assert "holdout" in proto["split"].lower()
+    assert "own empirical rate" in proto["scored_against"].lower()
+    assert "rate_a" in proto["scored_against"]
+    assert ">=4 of 5" in proto["pass_rule"]
+    # The OC recorded in the contract matches the artifact's recomputation.
+    oc = proto["faithful_candidate_oc"]
+    art_oc = _gate2_floor()["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == pytest.approx(art_oc["p_seed_pass"])
+    assert oc["p_gate_pass_4_of_5"] == pytest.approx(
+        art_oc["p_gate_pass_4_of_5"]
+    )
+    assert oc["n_gated_cells"] == art_oc["n_gated_cells"]
+
+
+def test_gate2_governance_inherits_gate1_and_pins_specifics():
+    """Finding 5: registration on #42, the inherited no_self_rescue + version
+    pin, the holdout-id commitment, the pinned scale, and the in-block weight
+    definition all reach gate 2."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    gov = g2["governance"]
+    assert "issue #42" in gov["registration"]
+    amend = gov["amendment_rules"]
+    assert amend["inherits"] == "gate_1"
+    assert "committed run verdict changes" in amend["no_self_rescue"]
+    assert "runs registered after its ratification" in amend["no_self_rescue"]
+    assert "version" in amend["classifier_version_pin"].lower()
+    assert "referee round" in amend["amendments_only_via"]
+    assert "holdout" in gov["candidate_scale"].lower()
+    assert "sha256" in gov["holdout_id_commitment"]
+    # The holdout ids are actually committed in the floor artifact.
+    floor = _gate2_floor()
+    assert floor["holdout_ids"]["gate_seeds"] == [0, 1, 2, 3, 4]
+    assert len(floor["holdout_ids"]["per_seed"]) == 5
+    weight = gov["weight_definition"]
+    assert "most-recent positive" in weight
+    assert "no unweighted gated statistic" in weight.lower()
+
+
+def test_gate2_scope_declares_provision_classes_and_gaps():
+    """Finding 7: the provision-class coverage map + the declared
+    marriage x earnings dependence gap + the caregiver/MX23REL precondition."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    cov = g2["scope"]["provision_class_coverage"]
+    assert "COVERED" in cov["marital_and_survivor_timing"]
+    assert "MX23REL" in cov["caregiver_and_child_in_care_survivor"]
+    assert "NOT COVERED" in cov["caregiver_and_child_in_care_survivor"]
+    joint = cov["marriage_x_earnings_joint"]
+    assert "NOT COVERED" in joint
+    assert "earnings" in joint
+    assert g2["scope"]["remarriage_numerator_note"].strip()
+
+
+def test_gate2_external_anchor_is_period_matched_and_decomposed():
+    """Finding 6: the ASFR anchor is period-matched and the marriage/divorce
+    anchor is concept-decomposed, both reported not gated."""
+    g2 = _gate_2_if_draft()
+    if g2 is None:
+        pytest.skip("gate_2 is not draft")
+    checks = g2["external_anchor_shape_checks"]
+    assert "period_matched" in checks["asfr"]
+    assert "concept_decomposition" in checks["marriage_divorce"]
+    floor = _gate2_floor()
+    md = floor["external_anchor"]["marriage_divorce"]
+    assert md["concept_decomposition"]["person_to_couple_factor"] == 2.0
+    assert "period_matched" in floor["external_anchor"]["asfr"]
