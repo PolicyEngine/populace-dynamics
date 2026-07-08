@@ -414,7 +414,21 @@ def test_real_panel_shape_pins():
     }
     # Every event age is at least the marriageable start age.
     assert int(panel.events.age.min()) >= transitions.START_AGE
-    # Reference moments cover the expected cell count (40 gated + 1 report).
+    # Reference moments cover the expected cell count: the round-1 v2 set
+    # (41 original + 4 aggregate hazards + 4 origin-split remarriage + 5
+    # cohort ever-married + 8 dissolved-state stock shares = 62).
     fert = transitions.build_fertility_panel(panel, births_mod.birth_history())
     cells = transitions.reference_moments(panel, fert)
-    assert len(cells) == 41
+    assert len(cells) == 62
+    # The added families are present.
+    for key in (
+        "widowhood.45+|male",
+        "widowhood.45-64|female",
+        "first_marriage.35+|female",
+        "remarriage.after_divorce",
+        "remarriage.widowed_under60",
+        "ever_married_by_40.c1980s",
+        "share_widowed.75+|female",
+        "share_divorced.55-64|male",
+    ):
+        assert key in cells, key

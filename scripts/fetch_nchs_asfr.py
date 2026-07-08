@@ -54,6 +54,13 @@ OUT_DIR = ROOT / "data" / "external"
 VINTAGE_YEAR = 2024
 PRIOR_YEAR = 2023
 
+#: Annual ASFR series for the gate-2 period-matched fertility anchor
+#: (finding 6): the earliest calendar year the DQS resource serves through
+#: the vintage. The Socrata feed for daba-4vfq begins at 2016; the annual
+#: rates net the vintage confound out of the PSID/NCHS ASFR ratios by
+#: matching each PSID woman-year to its own calendar year's national rate.
+ANNUAL_START_YEAR = 2016
+
 #: data.cdc.gov Socrata resource for the DQS birth/fertility-rate table.
 RESOURCE = "daba-4vfq"
 BASE_URL = f"https://data.cdc.gov/resource/{RESOURCE}.json"
@@ -245,6 +252,8 @@ def build(verbose: bool = True) -> dict[str, Any]:
                 f"(headline {v['tfr_published_headline']})"
             )
 
+    annual = _build_annual(verbose=verbose)
+
     return {
         "schema_version": "nchs_asfr.v1",
         "vintage_year": VINTAGE_YEAR,
@@ -282,6 +291,79 @@ def build(verbose: bool = True) -> dict[str, Any]:
             for year in (VINTAGE_YEAR, PRIOR_YEAR)
         },
         "validation": {str(y): validation[y] for y in validation},
+        "annual": annual,
+    }
+
+
+def _unimodal_hump(bands: dict[str, float]) -> tuple[bool, str]:
+    """(is the gate-2 ASFR series a single-peaked age hump, peak band)."""
+    series = [bands[b] for b in GATE2_BANDS]
+    peak = series.index(max(series))
+    up = all(series[i] <= series[i + 1] for i in range(peak))
+    down = all(
+        series[i] >= series[i + 1] for i in range(peak, len(series) - 1)
+    )
+    return (up and down), GATE2_BANDS[peak]
+
+
+def _build_annual(verbose: bool = True) -> dict[str, Any]:
+    """The annual ASFR series for the gate-2 period-matched anchor.
+
+    The DQS resource serves the same maternal-age birth-rate rows for
+    every ``time_period`` from :data:`ANNUAL_START_YEAR` through the
+    vintage. Each year is checked for band completeness and the unimodal
+    age hump; only 2023/2024 carry a published-headline cross-check (in
+    ``tables``). Stored with its own query URL and sha256 so the series is
+    reproducible and pinned.
+    """
+    years = tuple(range(ANNUAL_START_YEAR, VINTAGE_YEAR + 1))
+    url = _query_url(years)
+    if verbose:
+        print(f"fetching annual ASFR series {years[0]}-{years[-1]}: {url}")
+    payload = _fetch_bytes(url)
+    sha256 = hashlib.sha256(payload).hexdigest()
+    by_year = parse_asfr(json.loads(payload))
+    present = sorted(by_year)
+    if not present:
+        raise ValueError("annual ASFR feed returned no rows.")
+
+    tables: dict[str, dict[str, float]] = {}
+    validation: dict[str, Any] = {}
+    for year in present:
+        bands = by_year[year]
+        missing = set(GATE2_BANDS) - set(bands)
+        if missing:
+            raise ValueError(
+                f"annual {year}: missing ASFR bands {sorted(missing)}."
+            )
+        hump, peak = _unimodal_hump(bands)
+        if not hump:
+            raise ValueError(
+                f"annual {year}: ASFR is not a unimodal hump: "
+                f"{[bands[b] for b in GATE2_BANDS]}."
+            )
+        tables[str(year)] = {b: bands[b] for b in GATE2_BANDS}
+        validation[str(year)] = {"unimodal_hump": True, "peak_band": peak}
+    if verbose:
+        print(f"  annual years present: {present}")
+    return {
+        "band_note": (
+            "Annual national ASFR (live births per 1,000 women in the "
+            "maternal age band) for every calendar year the DQS resource "
+            "serves; the gate-2 period-matched fertility anchor weights "
+            "these by PSID woman-year exposure so the PSID/NCHS ratio is "
+            "not confounded by the secular fertility decline. Only 2023 "
+            "and 2024 carry a published-headline cross-check (see tables); "
+            "intermediate years are band-complete and unimodal-checked."
+        ),
+        "years": [str(y) for y in present],
+        "tables": tables,
+        "validation": validation,
+        "fetch": {
+            "query_url": url,
+            "response_sha256": sha256,
+            "n_bytes": len(payload),
+        },
     }
 
 

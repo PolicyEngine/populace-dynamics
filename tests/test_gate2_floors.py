@@ -1,23 +1,29 @@
-"""Tests for the gate-2 family-transition floors (runs/gate2_floors_v1.json).
+"""Tests for the gate-2 family-transition floors (runs/gate2_floors_v2.json).
 
 The artifact is PRE-LOCK EVIDENCE (reads no gate, changes no gate): the
-committed reference moments, the person-disjoint half-split noise floor
-the DRAFT gate-2 thresholds derive from, and the honest NCHS external
-anchors. It is pinned like the other ``runs/`` floors.
+committed reference moments, the 100-seed person-disjoint half-split noise
+floor the DRAFT gate-2 thresholds derive from, the coherent option-(a)
+scoring protocol, the power-cap partition, the joint/sequence statistics,
+and the concept-decomposed / period-matched NCHS anchors. It is pinned like
+the other ``runs/`` floors. v2 applies the round-1 referee amendments (PR
+#79 comment 4910467957); v1 is retained as the round-1 record.
 
 Two tiers, mirroring ``tests/test_mortality_floors.py``:
 
 * Always-runnable internal-consistency tests touching only committed
   files: the schema is a reported anchor whose thresholds are draft, not
   ratified; the NCHS references it cites are pinned by sha256; every
-  pooled floor statistic recomputes from the per-seed cells; every DRAFT
-  threshold recomputes as round(floor mean + k*sd); every external ratio
-  recomputes from its parts; and the gate-eligible/report-only partition
-  matches the stored stability data.
+  pooled floor statistic (mean/sd/realised sigma) recomputes from the
+  per-seed ``values``; every DRAFT threshold recomputes as
+  round(floor mean + k*sd) and is capped at T_max; the gate-eligible /
+  report-only partition derives from the events + power-cap rule with the
+  pre-registered aggregate supersession; the training-copy disclosure and
+  faithful-candidate OC recompute; and every external ratio / residual
+  recomputes from its parts.
 * A seed-0 + anchor reproduction pin (skipped when the PSID history files
-  are absent) that rebuilds the panel and reruns the seed-0 half-split and
-  the ASFR anchor, matching the committed numbers -- with populace.fit
-  never imported.
+  are absent) that rebuilds the panel and reruns the seed-0 half-split
+  (including the added cells), the holdout-id commitment and the ASFR
+  anchor -- with populace.fit never imported.
 """
 
 from __future__ import annotations
@@ -32,7 +38,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ARTIFACT = ROOT / "runs" / "gate2_floors_v1.json"
+ARTIFACT = ROOT / "runs" / "gate2_floors_v2.json"
 ASFR = ROOT / "data" / "external" / "nchs_asfr_2024.json"
 MD = ROOT / "data" / "external" / "nchs_marriage_divorce_rates_2023.json"
 SCRIPTS = ROOT / "scripts"
@@ -44,6 +50,8 @@ needs_real = pytest.mark.skipif(
     or not (REAL_DATA / "ind2023er").is_dir(),
     reason="PSID history files not staged",
 )
+
+FLOOR_KEY = "noise_floor_seeds_0_99"
 
 
 def _artifact() -> dict:
@@ -58,13 +66,19 @@ def _import_builder():
     return builder
 
 
+def _normal_cdf(z: float) -> float:
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
 # --------------------------------------------------------------------------
 # Schema and pre-lock framing (always runnable)
 # --------------------------------------------------------------------------
 def test_schema_and_reported_anchor():
     art = _artifact()
-    assert art["schema_version"] == "gate2_floors.v1"
-    assert art["run"] == "gate2_floors_v1"
+    assert art["schema_version"] == "gate2_floors.v2"
+    assert art["run"] == "gate2_floors_v2"
+    assert "gate2_floors_v1" in art["supersedes"]
+    assert "4910467957" in art["referee_round"]
     assert art["reported_anchor_not_gated"] is True
     assert "changes no gate" in art["purpose"]
     assert "family transitions" in art["component"]
@@ -103,23 +117,41 @@ def test_nchs_references_pinned_by_sha256():
 
 
 # --------------------------------------------------------------------------
-# Pooled floor recomputes from per-seed (always runnable)
+# 100-seed floor + realised sigma recompute from the values (always runnable)
 # --------------------------------------------------------------------------
-def test_pooled_floor_recomputes_from_per_seed():
+def test_floor_is_measured_on_100_seeds():
+    art = _artifact()
+    assert art["internal_noise_floor"]["floor_seeds"] == list(range(100))
+    assert art["internal_noise_floor"]["gate_seeds"] == [0, 1, 2, 3, 4]
+    for block in art[FLOOR_KEY].values():
+        assert block["n_seeds"] == 100
+        assert len(block["values"]) == 100
+
+
+def test_pooled_floor_recomputes_from_values():
+    """mean / sd / realised sigma recompute from the 100 stored draws."""
+    art = _artifact()
+    for key, block in art[FLOOR_KEY].items():
+        values = block["values"]
+        assert block["mean"] == pytest.approx(np.mean(values)), key
+        assert block["sd"] == pytest.approx(np.std(values, ddof=1)), key
+        rms = math.sqrt(sum(v * v for v in values) / len(values))
+        assert block["realized_sigma"] == pytest.approx(rms), key
+        pct = block["pct_diff_abs"]
+        assert pct["mean"] == pytest.approx(np.mean(pct["values"]))
+
+
+def test_stored_gate_seed_values_match_the_floor_head():
+    """The five stored per-seed entries are the floor's first five draws."""
     art = _artifact()
     per_seed = art["noise_floor_per_seed"]
-    assert [s["seed"] for s in per_seed] == list(
-        art["internal_noise_floor"]["seeds"]
-    )
-    for key, block in art["noise_floor_seeds_0_4"].items():
-        log_ratios = [s["cells"][key]["log_ratio_abs"] for s in per_seed]
-        assert all(v is not None for v in log_ratios), key
-        assert block["values"] == pytest.approx(log_ratios)
-        assert block["mean"] == pytest.approx(np.mean(log_ratios))
-        assert block["sd"] == pytest.approx(np.std(log_ratios, ddof=1))
-        pct = [s["cells"][key]["pct_diff_abs"] for s in per_seed]
-        assert block["pct_diff_abs"]["values"] == pytest.approx(pct)
-        assert block["pct_diff_abs"]["mean"] == pytest.approx(np.mean(pct))
+    assert [s["seed"] for s in per_seed] == art["internal_noise_floor"][
+        "gate_seeds"
+    ]
+    for key, block in art[FLOOR_KEY].items():
+        head = [s["cells"][key]["log_ratio_abs"] for s in per_seed]
+        assert all(v is not None for v in head), key
+        assert block["values"][: len(head)] == pytest.approx(head), key
 
 
 def test_per_seed_cells_are_internally_consistent():
@@ -134,14 +166,15 @@ def test_per_seed_cells_are_internally_consistent():
 
 
 # --------------------------------------------------------------------------
-# DRAFT thresholds recompute (always runnable)
+# DRAFT thresholds recompute + power cap (always runnable)
 # --------------------------------------------------------------------------
 def test_draft_thresholds_recompute_from_floor():
-    """Every DRAFT tolerance == round(floor mean + k*sd, rounding)."""
+    """Every DRAFT tolerance == round(floor mean + k*sd, rounding), and the
+    realised-sigma diagnostic == tolerance / RMS of the floor."""
     art = _artifact()
     k = art["draft_thresholds"]["k"]
     rounding = art["draft_thresholds"]["rounding"]
-    floor = art["noise_floor_seeds_0_4"]
+    floor = art[FLOOR_KEY]
     for key, spec in art["draft_thresholds"]["cells"].items():
         mean = floor[key]["mean"]
         sd = floor[key]["sd"]
@@ -149,6 +182,21 @@ def test_draft_thresholds_recompute_from_floor():
         assert spec["derivation"]["floor_sd"] == pytest.approx(sd)
         derived = round(mean + k * sd, rounding)
         assert spec["log_ratio_abs_max"] == pytest.approx(derived), key
+        sigma = floor[key]["realized_sigma"]
+        assert spec["realized_sigma"] == pytest.approx(sigma)
+        assert spec["tolerance_sigma_units"] == pytest.approx(
+            round(derived / sigma, 3)
+        )
+
+
+def test_every_gated_tolerance_respects_the_power_cap():
+    """Round-1 finding 3: no gated cell's tolerance exceeds T_max=ln(1.5)."""
+    art = _artifact()
+    t_max = art["internal_noise_floor"]["t_max"]
+    assert t_max == pytest.approx(math.log(1.5))
+    assert art["draft_thresholds"]["t_max"] == pytest.approx(math.log(1.5))
+    for key, spec in art["draft_thresholds"]["cells"].items():
+        assert spec["log_ratio_abs_max"] <= t_max, key
 
 
 def test_draft_thresholds_only_on_gate_eligible_cells():
@@ -161,17 +209,134 @@ def test_draft_thresholds_only_on_gate_eligible_cells():
         k for k, v in art["cell_stability"].items() if not v["gate_eligible"]
     }
     assert drafts == gate_eligible
+    assert drafts == set(art["gate_partition"]["gate_eligible"])
+    assert report_only == set(art["gate_partition"]["report_only"])
     assert drafts.isdisjoint(report_only)
-    # Reference moments cover every cell (gated + report-only).
     assert set(art["reference_moments"]) == gate_eligible | report_only
+
+
+# --------------------------------------------------------------------------
+# Power-cap partition + aggregation supersession (always runnable)
+# --------------------------------------------------------------------------
+def test_partition_derives_from_events_and_power_cap():
+    """gate_eligible == defined-on-all + >=20 events + tol<=T_max, unless a
+    per-age cell is superseded by a gating aggregate (then report-only)."""
+    art = _artifact()
+    stability = art["cell_stability"]
+    n_seeds = len(art["internal_noise_floor"]["floor_seeds"])
+    min_events = art["internal_noise_floor"]["min_events_for_gate"]
+    t_max = art["internal_noise_floor"]["t_max"]
+
+    for key, v in stability.items():
+        tol = v.get("tolerance")
+        events_ok = (
+            v["defined_seeds"] == n_seeds
+            and v["min_events_either_half"] >= min_events
+        )
+        passes = events_ok and tol is not None and tol <= t_max
+        superseded = str(v.get("report_reason", "")).startswith(
+            "superseded_by:"
+        )
+        if v["gate_eligible"]:
+            assert passes, key
+            assert not superseded, key
+        else:
+            # not gated => either fails the rule, or is superseded.
+            assert (not passes) or superseded, key
+
+
+def test_aggregation_supersession_is_coherent():
+    """A gating aggregate demotes every per-age member it spans."""
+    art = _artifact()
+    stability = art["cell_stability"]
+    aggs = art["aggregations"]
+    gate_eligible = set(art["gate_partition"]["gate_eligible"])
+    for agg, spec in aggs.items():
+        assert (agg in gate_eligible) == spec["gated"], agg
+        if spec["gated"]:
+            for member in spec["members"]:
+                assert member not in gate_eligible, (agg, member)
+                assert stability[member]["report_reason"] == (
+                    f"superseded_by:{agg}"
+                )
+
+
+def test_report_only_reasons_are_recorded():
+    """Every report-only cell carries a machine-readable demotion reason."""
+    art = _artifact()
+    stability = art["cell_stability"]
+    valid_prefixes = (
+        "below_20_events",
+        "undefined_on_some_seed",
+        "tolerance_above_t_max",
+        "aggregate_",
+        "superseded_by:",
+        "no_floor",
+    )
+    for key in art["gate_partition"]["report_only"]:
+        reason = stability[key]["report_reason"]
+        assert reason and reason.startswith(valid_prefixes), (key, reason)
+
+
+# --------------------------------------------------------------------------
+# Holdout-id commitment (always runnable format; reproduced under real data)
+# --------------------------------------------------------------------------
+def test_holdout_ids_committed_for_every_gate_seed():
+    art = _artifact()
+    hold = art["holdout_ids"]
+    assert hold["gate_seeds"] == [0, 1, 2, 3, 4]
+    assert hold["fraction"] == 0.5
+    assert "split_panel_by_person" in hold["numpy_generator"]
+    seeds = [e["seed"] for e in hold["per_seed"]]
+    assert seeds == [0, 1, 2, 3, 4]
+    for entry in hold["per_seed"]:
+        assert entry["n_holdout_persons"] > 0
+        assert len(entry["holdout_person_id_sha256"]) == 64
+
+
+# --------------------------------------------------------------------------
+# Training-copy disclosure + faithful OC (always runnable)
+# --------------------------------------------------------------------------
+def test_training_copy_disclosure_is_honest():
+    """A train-copy passes at the noise floor; disclosed as procedural."""
+    art = _artifact()
+    check = art["training_copy_check"]
+    assert check["passes_4_of_5"] is True
+    # It passes well within tolerance -- the score IS the floor value.
+    assert check["max_score_over_tolerance"] < 1.0
+    assert "procedural" in check["interpretation"]
+    assert "no_self_rescue" in check["interpretation"]
+
+
+def test_faithful_candidate_oc_recomputes():
+    """The OC recomputes from the stabilised floor: per-cell 2*Phi(tol/sig)-1,
+    seed = product over gated cells, gate = P(>=4/5)."""
+    art = _artifact()
+    oc = art["faithful_candidate_oc"]
+    floor = art[FLOOR_KEY]
+    tol = art["draft_thresholds"]["cells"]
+    p_seed = 1.0
+    for key, cell in oc["per_cell"].items():
+        sigma = floor[key]["realized_sigma"]
+        t = tol[key]["log_ratio_abs_max"]
+        p = 2.0 * _normal_cdf(t / sigma) - 1.0
+        assert cell["cell_pass_prob"] == pytest.approx(round(p, 6)), key
+        p_seed *= p
+    assert oc["n_gated_cells"] == len(art["gate_partition"]["gate_eligible"])
+    assert oc["p_seed_pass"] == pytest.approx(round(p_seed, 4))
+    p_gate = p_seed**5 + 5 * p_seed**4 * (1.0 - p_seed)
+    assert oc["p_gate_pass_4_of_5"] == pytest.approx(round(p_gate, 4))
+    # The stabilised floor delivers the intended ~4 sigma design.
+    assert oc["p_gate_pass_4_of_5"] > 0.9
 
 
 # --------------------------------------------------------------------------
 # External anchors recompute (always runnable)
 # --------------------------------------------------------------------------
-def test_asfr_ratios_recompute_from_parts():
+def test_asfr_window_ratios_recompute_from_parts():
     art = _artifact()
     for window in art["external_anchor"]["asfr"]["windows"].values():
+        assert window["vintage_confounded"] is True
         for band, cell in window["by_band"].items():
             if cell["ratio"] is None or cell["nchs_asfr_per_1000"] == 0:
                 continue
@@ -180,69 +345,74 @@ def test_asfr_ratios_recompute_from_parts():
             ), band
 
 
-def test_asfr_recent_window_tracks_reality():
-    """The concept-aligned recent-window ASFR sits near the NCHS level.
-
-    Not a gate -- a sanity check that the honest anchor lands where the
-    docstring says (recent-window median PSID/NCHS ratio ~1), evidence the
-    fertility construction is not wildly off despite the coverage caveats.
-    """
+def test_asfr_period_matched_recomputes_and_tracks_reality():
+    """Finding 6b: the period-matched ratio is observed / expected under
+    each band's own-year national ASFR, and lands near 1."""
     art = _artifact()
-    recent = art["external_anchor"]["asfr"]["windows"]["recent"]
-    assert 0.7 < recent["ratio_summary"]["median_ratio"] < 1.4
+    pm = art["external_anchor"]["asfr"]["period_matched"]
+    # matched years are within the PSID panel range.
+    assert pm["matched_years"]
+    assert max(pm["matched_years"]) <= 2023
+    for band, cell in pm["by_band"].items():
+        r = cell["period_matched_ratio"]
+        if r is None:
+            continue
+        # ratio = psid_asfr / exposure-weighted national asfr.
+        assert r == pytest.approx(
+            cell["psid_asfr_per_1000"]
+            / cell["exposure_weighted_nchs_asfr_per_1000"]
+        ), band
+    assert 0.7 < pm["ratio_summary"]["median_ratio"] < 1.4
 
 
-def test_marriage_divorce_ratios_recompute_and_ordering():
+def test_marriage_divorce_concept_decomposition_recomputes():
+    """Finding 6a: residual == raw ratio / (2 * 1/pop_15plus_share), and the
+    recent-window residual is a near-bullseye ~1."""
     art = _artifact()
     md = art["external_anchor"]["marriage_divorce"]
+    decomp = md["concept_decomposition"]
+    factor = decomp["person_to_couple_factor"] * (
+        1.0 / decomp["pop_15plus_share"]
+    )
+    assert decomp["concept_factor"] == pytest.approx(round(factor, 4))
     for window in md["windows"].values():
         m = window["psid_marriage_rate_per_1000_py15plus"]
         d = window["psid_divorce_rate_per_1000_py15plus"]
         assert window["marriage_ratio"] == pytest.approx(
             m / window["nchs_marriage_rate_per_1000_totalpop"]
         )
-        assert window["divorce_ratio"] == pytest.approx(
-            d / window["nchs_divorce_rate_per_1000_totalpop"]
+        assert window["marriage_residual_after_concept"] == pytest.approx(
+            round(window["marriage_ratio"] / factor, 3)
         )
-        # PSID crude-equivalent exceeds the national crude rate (the 15+
-        # denominator concept delta), reported not tuned.
+        assert window["divorce_residual_after_concept"] == pytest.approx(
+            round(window["divorce_ratio"] / factor, 3)
+        )
         assert window["marriage_ratio"] > 1.0
-        assert m > d  # marriage exceeds divorce, as nationally
+        assert m > d
+    recent = md["windows"]["recent"]
+    assert 0.9 < recent["marriage_residual_after_concept"] < 1.15
+    assert 0.9 < recent["divorce_residual_after_concept"] < 1.15
 
 
 # --------------------------------------------------------------------------
-# Stability partition (always runnable)
+# Stability partition covers every cell (always runnable)
 # --------------------------------------------------------------------------
-def test_stability_partition_matches_rule():
+def test_partition_is_a_real_cover_of_every_cell():
     art = _artifact()
-    stability = art["cell_stability"]
-    n_seeds = len(art["internal_noise_floor"]["seeds"])
-    min_events = art["internal_noise_floor"]["min_events_for_gate"]
-
-    gate_eligible, report_only = set(), set()
-    for key, v in stability.items():
-        expected = v["defined_seeds"] == n_seeds and (
-            v["min_events_either_half"] >= min_events
-        )
-        assert v["gate_eligible"] is expected, key
-        (gate_eligible if v["gate_eligible"] else report_only).add(key)
-
-    # A real, non-degenerate partition covering every cell.
+    gate_eligible = set(art["gate_partition"]["gate_eligible"])
+    report_only = set(art["gate_partition"]["report_only"])
     assert gate_eligible and report_only
     assert gate_eligible.isdisjoint(report_only)
-    assert len(gate_eligible) + len(report_only) == len(
-        art["reference_moments"]
-    )
-    # Every gate-eligible cell carries a noise-floor sd basis.
+    assert gate_eligible | report_only == set(art["reference_moments"])
     for key in gate_eligible:
-        assert key in art["noise_floor_seeds_0_4"], key
+        assert key in art[FLOOR_KEY], key
 
 
 # --------------------------------------------------------------------------
-# Seed-0 + anchor reproduction (needs PSID; NO populace-fit)
+# Seed-0 + holdout + anchor reproduction (needs PSID; NO populace-fit)
 # --------------------------------------------------------------------------
 @needs_real
-def test_seed0_and_anchor_reproduce_without_populace_fit():
+def test_seed0_holdout_and_anchor_reproduce_without_populace_fit():
     assert "populace.fit" not in sys.modules
     builder = _import_builder()
     assert (
@@ -256,6 +426,7 @@ def test_seed0_and_anchor_reproduce_without_populace_fit():
     ref0 = next(s for s in art["noise_floor_per_seed"] if s["seed"] == 0)
     assert got0["n_persons_side_a"] == ref0["n_persons_side_a"]
     assert got0["n_persons_side_b"] == ref0["n_persons_side_b"]
+    # The added families reproduce alongside the originals.
     for key, ref_cell in ref0["cells"].items():
         got_cell = got0["cells"][key]
         assert got_cell["rate_a"] == pytest.approx(
@@ -269,12 +440,25 @@ def test_seed0_and_anchor_reproduce_without_populace_fit():
                 ref_cell["log_ratio_abs"], abs=1e-12
             ), key
 
+    # Holdout-id commitment reproduces from the pinned generator.
+    got_hold = builder.holdout_id_commitment(panel)
+    for got, ref in zip(
+        got_hold["per_seed"], art["holdout_ids"]["per_seed"], strict=True
+    ):
+        assert got["seed"] == ref["seed"]
+        assert got["n_holdout_persons"] == ref["n_holdout_persons"]
+        assert (
+            got["holdout_person_id_sha256"] == ref["holdout_person_id_sha256"]
+        ), got["seed"]
+
     got_asfr = builder.asfr_anchor(fert)
-    ref_asfr = art["external_anchor"]["asfr"]["windows"]["recent"]["by_band"]
-    got_recent = got_asfr["windows"]["recent"]["by_band"]
-    for band, ref_cell in ref_asfr.items():
-        assert got_recent[band]["psid_asfr_per_1000"] == pytest.approx(
-            ref_cell["psid_asfr_per_1000"], abs=1e-9
+    ref_pm = art["external_anchor"]["asfr"]["period_matched"]["by_band"]
+    got_pm = got_asfr["period_matched"]["by_band"]
+    for band, ref_cell in ref_pm.items():
+        if ref_cell["period_matched_ratio"] is None:
+            continue
+        assert got_pm[band]["period_matched_ratio"] == pytest.approx(
+            ref_cell["period_matched_ratio"], abs=1e-9
         ), band
 
     assert "populace.fit" not in sys.modules

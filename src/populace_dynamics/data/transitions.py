@@ -83,11 +83,23 @@ __all__ = [
     "ASFR_AGE_BANDS",
     "COMPLETED_FERTILITY_AGE",
     "COHORT_DECADES",
+    "WIDOWHOOD_MALE_AGG_BAND",
+    "WIDOWHOOD_FEMALE_AGG_BAND",
+    "FIRST_MARRIAGE_AGG_BAND",
+    "EVER_MARRIED_BY_AGE",
+    "EVER_MARRIED_COHORT_DECADES",
+    "REMARRIAGE_WIDOWED_AGE_SPLIT",
+    "SHARE_WIDOWED_AGE_BANDS",
+    "SHARE_DIVORCED_AGE_BANDS",
     "MaritalPanel",
     "person_attributes",
     "build_marital_panel",
     "hazard_cells",
+    "aggregate_hazard_cells",
+    "remarriage_origin_cells",
     "occupancy_cells",
+    "cohort_nuptiality_cells",
+    "stock_occupancy_cells",
     "FertilityPanel",
     "build_fertility_panel",
     "fertility_cells",
@@ -145,6 +157,33 @@ COMPLETED_FERTILITY_AGE = 45
 #: Woman birth decades reported for completed fertility (women who could
 #: reach COMPLETED_FERTILITY_AGE by MAX_YEAR: born <= 1978).
 COHORT_DECADES: tuple[int, ...] = (1930, 1940, 1950, 1960, 1970)
+
+#: Pre-registered aggregate hazard bands that recover coverage when the
+#: per-age gate-2 cells fail the round-1 power cap (gate-2 finding 3): a
+#: single wide band pooling the demoted per-age cells' exposure into one
+#: high-power hazard. The band definitions are fixed before the tolerances
+#: are seen; which per-age cells demote is then derived from the floor.
+WIDOWHOOD_MALE_AGG_BAND: tuple[int, int] = (45, 120)
+WIDOWHOOD_FEMALE_AGG_BAND: tuple[int, int] = (45, 64)
+FIRST_MARRIAGE_AGG_BAND: tuple[int, int] = (35, 120)
+
+#: Age a person must be observed through for the cohort ever-married share.
+EVER_MARRIED_BY_AGE = 40
+#: Birth decades for the ever-married-by-40 cohort statistic (the nuptiality
+#: analogue of COHORT_DECADES; observed through EVER_MARRIED_BY_AGE by
+#: MAX_YEAR means born <= 1983). Binds the secular marriage decline a
+#: time-homogeneous candidate misses (gate-2 finding 4).
+EVER_MARRIED_COHORT_DECADES: tuple[int, ...] = (1940, 1950, 1960, 1970, 1980)
+
+#: Age that splits widow(er) remarriage on SSA's remarriage-before-60
+#: survivor-benefit-termination rule (gate-2 finding 4).
+REMARRIAGE_WIDOWED_AGE_SPLIT = 60
+
+#: Stock-occupancy age bands: the share of person-years CURRENTLY in a
+#: dissolved state, by age band x sex -- the integrative quantity a
+#: survivor/spousal score rides on (gate-2 finding 4).
+SHARE_WIDOWED_AGE_BANDS: tuple[tuple[int, int], ...] = ((65, 74), (75, 120))
+SHARE_DIVORCED_AGE_BANDS: tuple[tuple[int, int], ...] = ((45, 54), (55, 64))
 
 #: Post-dissolution states from which a person is at risk of remarriage.
 _REMARRIAGE_RISK_STATES = ("divorced", "widowed")
@@ -426,6 +465,7 @@ def _events_frame(episodes: pd.DataFrame, attrs: pd.DataFrame) -> pd.DataFrame:
                 "transition": "first_marriage",
                 "marriage_duration": pd.NA,
                 "years_since_dissolution": pd.NA,
+                "origin": pd.NA,
             }
         )
     )
@@ -458,6 +498,13 @@ def _events_frame(episodes: pd.DataFrame, attrs: pd.DataFrame) -> pd.DataFrame:
                 "years_since_dissolution": (
                     remar["start_year"] - remar["prev_end"]
                 ).astype("Int64"),
+                # Origin state from the dissolved marriage's how_ended, not
+                # the state-entering-year marital_state -- so the same-year
+                # dissolve-remarry events keep their true divorced/widowed
+                # origin instead of being labelled "married" (gate-2 f.4).
+                "origin": remar["prev_how_ended"]
+                .map(_DISSOLUTION_STATE)
+                .to_numpy(),
             }
         )
     )
@@ -482,6 +529,7 @@ def _events_frame(episodes: pd.DataFrame, attrs: pd.DataFrame) -> pd.DataFrame:
                         else pd.NA
                     ),
                     "years_since_dissolution": pd.NA,
+                    "origin": pd.NA,
                 }
             )
         )
@@ -691,6 +739,207 @@ def occupancy_cells(
     return cells
 
 
+def _weighted_rate(
+    events: pd.DataFrame, exposure: pd.DataFrame, *, weighted: bool
+) -> dict[str, float]:
+    """One hazard cell: weighted events / weighted exposure (a subset of the
+    rows already filtered by the caller)."""
+    ew = events["weight"] if weighted else pd.Series(1.0, index=events.index)
+    xw = (
+        exposure["weight"]
+        if weighted
+        else pd.Series(1.0, index=exposure.index)
+    )
+    return _rate_cell(float(ew.sum()), float(xw.sum()), int(len(events)))
+
+
+def aggregate_hazard_cells(
+    panel: MaritalPanel,
+    person_ids: set[int] | None = None,
+    *,
+    weighted: bool = True,
+) -> dict[str, dict[str, float]]:
+    """The pre-registered aggregate hazard cells (gate-2 finding 3).
+
+    ``widowhood.45+|male``, ``widowhood.45-64|female`` and
+    ``first_marriage.35+|{sex}`` -- the same discrete-time hazard as
+    :func:`hazard_cells` on a single wide band, pooling the exposure of
+    the per-age cells the round-1 power cap demotes so the coverage
+    survives at gate-eligible power. The bands are fixed a priori; which
+    per-age cells they supersede is derived from the floor.
+    """
+    py = panel.person_years
+    ev = panel.events
+    if person_ids is not None:
+        py = py[py["person_id"].isin(person_ids)]
+        ev = ev[ev["person_id"].isin(person_ids)]
+    married = py[py["marital_state"] == "married"]
+    never = py[py["marital_state"] == "never_married"]
+    widow_ev = ev[ev["transition"] == "widowhood"]
+    first_ev = ev[ev["transition"] == "first_marriage"]
+
+    def band_sex(
+        events: pd.DataFrame,
+        exposure: pd.DataFrame,
+        lo: int,
+        hi: int,
+        sex: str,
+    ) -> dict[str, float]:
+        e = events[
+            (events["age"] >= lo)
+            & (events["age"] <= hi)
+            & (events["sex"] == sex)
+        ]
+        x = exposure[
+            (exposure["age"] >= lo)
+            & (exposure["age"] <= hi)
+            & (exposure["sex"] == sex)
+        ]
+        return _weighted_rate(e, x, weighted=weighted)
+
+    cells: dict[str, dict[str, float]] = {}
+    lo, hi = WIDOWHOOD_MALE_AGG_BAND
+    cells[f"widowhood.{band_label(lo, hi)}|male"] = band_sex(
+        widow_ev, married, lo, hi, "male"
+    )
+    lo, hi = WIDOWHOOD_FEMALE_AGG_BAND
+    cells[f"widowhood.{band_label(lo, hi)}|female"] = band_sex(
+        widow_ev, married, lo, hi, "female"
+    )
+    lo, hi = FIRST_MARRIAGE_AGG_BAND
+    for sex in SEXES:
+        cells[f"first_marriage.{band_label(lo, hi)}|{sex}"] = band_sex(
+            first_ev, never, lo, hi, sex
+        )
+    return cells
+
+
+def remarriage_origin_cells(
+    panel: MaritalPanel,
+    person_ids: set[int] | None = None,
+    *,
+    weighted: bool = True,
+) -> dict[str, dict[str, float]]:
+    """Origin-split remarriage hazards (gate-2 finding 4).
+
+    Remarriage attributed to the dissolved marriage's ending (``origin``
+    from ``prev_how_ended``) over the person-years in that state:
+    ``remarriage.after_divorce`` / ``after_widowhood`` (the ~4x origin
+    differential an origin-blind candidate misses), and the widow(er)
+    split on SSA's age-60 remarriage rule (``remarriage.widowed_under60``
+    / ``widowed_60plus``, the ~7x age differential). The numerator's
+    same-year dissolve-remarry restriction (post-separation starts
+    excluded, :func:`_events_frame`) keeps numerator and denominator
+    state-consistent.
+    """
+    py = panel.person_years
+    ev = panel.events[panel.events["transition"] == "remarriage"]
+    if person_ids is not None:
+        py = py[py["person_id"].isin(person_ids)]
+        ev = ev[ev["person_id"].isin(person_ids)]
+    div_py = py[py["marital_state"] == "divorced"]
+    wid_py = py[py["marital_state"] == "widowed"]
+    from_div = ev[ev["origin"] == "divorced"]
+    from_wid = ev[ev["origin"] == "widowed"]
+    split = REMARRIAGE_WIDOWED_AGE_SPLIT
+    return {
+        "remarriage.after_divorce": _weighted_rate(
+            from_div, div_py, weighted=weighted
+        ),
+        "remarriage.after_widowhood": _weighted_rate(
+            from_wid, wid_py, weighted=weighted
+        ),
+        "remarriage.widowed_under60": _weighted_rate(
+            from_wid[from_wid["age"] < split],
+            wid_py[wid_py["age"] < split],
+            weighted=weighted,
+        ),
+        "remarriage.widowed_60plus": _weighted_rate(
+            from_wid[from_wid["age"] >= split],
+            wid_py[wid_py["age"] >= split],
+            weighted=weighted,
+        ),
+    }
+
+
+def cohort_nuptiality_cells(
+    panel: MaritalPanel,
+    person_ids: set[int] | None = None,
+    *,
+    weighted: bool = True,
+) -> dict[str, dict[str, float]]:
+    """Ever-married-by-40 share by birth-decade cohort (gate-2 finding 4).
+
+    Sexes pooled (the secular-decline statistic): among persons of a birth
+    decade observed through :data:`EVER_MARRIED_BY_AGE`, the weighted share
+    ever married by then. Binds the calendar/cohort trend a pooled-hazard
+    time-homogeneous candidate reproduces every marginal yet misses.
+    """
+    attrs = panel.attrs
+    ev = panel.events[panel.events["transition"] == "first_marriage"]
+    if person_ids is not None:
+        attrs = attrs[attrs["person_id"].isin(person_ids)]
+        ev = ev[ev["person_id"].isin(person_ids)]
+    first_age = ev.set_index("person_id")["age"]
+    target = EVER_MARRIED_BY_AGE
+    observed = attrs[attrs["censor_year"] >= attrs["birth_year"] + target]
+    decade = (observed["birth_year"] // 10 * 10).astype("int64")
+
+    cells: dict[str, dict[str, float]] = {}
+    for d in EVER_MARRIED_COHORT_DECADES:
+        grp = observed[decade == d]
+        w = grp["weight"] if weighted else pd.Series(1.0, index=grp.index)
+        ever = grp["person_id"].map(first_age)
+        ever_by = (ever.notna() & (ever <= target)).to_numpy()
+        den = float(w.sum())
+        num = float(w[ever_by].sum())
+        cells[f"ever_married_by_{target}.c{d}s"] = _rate_cell(
+            num, den, int(ever_by.sum())
+        )
+    return cells
+
+
+def stock_occupancy_cells(
+    panel: MaritalPanel,
+    person_ids: set[int] | None = None,
+    *,
+    weighted: bool = True,
+) -> dict[str, dict[str, float]]:
+    """Share currently widowed / divorced by age band x sex (gate-2 f.4).
+
+    A stock (person-year occupancy), not a flow: the weighted share of
+    person-years in the dissolved state among all person-years at that age
+    band x sex. It binds the integral of the hazards plus their sequencing
+    -- the quantity survivor/spousal eligibility rides on. ``n_events`` is
+    the in-state person-year count (the reliability basis, as for a flow).
+    """
+    py = panel.person_years
+    if person_ids is not None:
+        py = py[py["person_id"].isin(person_ids)]
+    cells: dict[str, dict[str, float]] = {}
+    for state, bands in (
+        ("widowed", SHARE_WIDOWED_AGE_BANDS),
+        ("divorced", SHARE_DIVORCED_AGE_BANDS),
+    ):
+        for lo, hi in bands:
+            for sex in SEXES:
+                grp = py[
+                    (py["age"] >= lo) & (py["age"] <= hi) & (py["sex"] == sex)
+                ]
+                w = (
+                    grp["weight"]
+                    if weighted
+                    else pd.Series(1.0, index=grp.index)
+                )
+                in_state = (grp["marital_state"] == state).to_numpy()
+                den = float(w.sum())
+                num = float(w[in_state].sum())
+                cells[f"share_{state}.{band_label(lo, hi)}|{sex}"] = (
+                    _rate_cell(num, den, int(in_state.sum()))
+                )
+    return cells
+
+
 # --------------------------------------------------------------------------
 # Fertility panel (woman-years + births) and cells
 # --------------------------------------------------------------------------
@@ -850,13 +1099,21 @@ def reference_moments(
 ) -> dict[str, dict[str, float]]:
     """Every gate-2 reference-moment cell for a person subset.
 
-    The union of :func:`hazard_cells`, :func:`occupancy_cells`, and
-    :func:`fertility_cells`. Calling it on ``person_ids=None`` gives the
-    committed reference moments; calling it on each half of a
+    The union of the per-age hazards (:func:`hazard_cells`), the aggregate
+    hazards (:func:`aggregate_hazard_cells`), the origin-split remarriage
+    (:func:`remarriage_origin_cells`), occupancy (:func:`occupancy_cells`),
+    the cohort ever-married share (:func:`cohort_nuptiality_cells`), the
+    dissolved-state stock shares (:func:`stock_occupancy_cells`), and
+    fertility (:func:`fertility_cells`). Calling it on ``person_ids=None``
+    gives the committed reference moments; calling it on each half of a
     person-disjoint split gives the noise-floor inputs.
     """
     cells: dict[str, dict[str, float]] = {}
     cells.update(hazard_cells(panel, person_ids, weighted=weighted))
+    cells.update(aggregate_hazard_cells(panel, person_ids, weighted=weighted))
+    cells.update(remarriage_origin_cells(panel, person_ids, weighted=weighted))
     cells.update(occupancy_cells(panel, person_ids, weighted=weighted))
+    cells.update(cohort_nuptiality_cells(panel, person_ids, weighted=weighted))
+    cells.update(stock_occupancy_cells(panel, person_ids, weighted=weighted))
     cells.update(fertility_cells(fert, person_ids, weighted=weighted))
     return cells
