@@ -1,0 +1,1149 @@
+{
+  "schema_version": "aux_benefit_examples.v1",
+  "run": "aux_benefit_examples_v1",
+  "description": "Spouse/survivor auxiliary-benefit worked examples (42 USC 402(b)/(c)/(e)/(f)): our outputs vs SSA published figures, the policyengine-us PIA foundation cross-check, and the couple/survivor grid. Phase-C plumbing for #74 \u2014 reported, NOT gated.",
+  "reported_not_gated": true,
+  "pe_us_revision": "bf71be3b",
+  "ssa_worked_examples": {
+    "note": "policyengine-us has no spousal/survivor computation (social_security_* are uprated survey inputs), so these auxiliary amounts are validated against SSA's published figures. Deceased-claim factors are derived from the pinned 402(q)/(w) machinery.",
+    "spousal": [
+      {
+        "name": "spouse_at_fra_half_pia",
+        "citation": "42 USC 402(b)(2)/(c)(2); SSA RS 00615.020; ssa.gov/benefits/retirement/planner/applying7.html",
+        "inputs": {
+          "own_pia": 0.0,
+          "worker_pia": 2000.0,
+          "months_early": 0
+        },
+        "our_output": 1000.0,
+        "expected": 1000.0,
+        "note": "spouse's benefit is one-half of the worker's PIA at FRA"
+      },
+      {
+        "name": "spouse_at_62_fra67",
+        "citation": "42 USC 402(q)(1); ssa.gov/OACT/quickcalc/spouse.html (32.5% at 62 when FRA is 67)",
+        "inputs": {
+          "own_pia": 0.0,
+          "worker_pia": 2000.0,
+          "months_early": 60
+        },
+        "our_output": 650.0,
+        "expected": 650.0,
+        "note": "36*25/36% + 24*5/12% = 35% reduction -> 65% of 50%"
+      },
+      {
+        "name": "spouse_at_62_fra66",
+        "citation": "42 USC 402(q)(1); SSA benefit-reduction table (35% at 62 when FRA is 66)",
+        "inputs": {
+          "own_pia": 0.0,
+          "worker_pia": 2000.0,
+          "months_early": 48
+        },
+        "our_output": 700.0,
+        "expected": 700.0,
+        "note": "36*25/36% + 12*5/12% = 30% reduction -> 70% of 50%"
+      },
+      {
+        "name": "spouse_dual_entitlement_excess",
+        "citation": "42 USC 402(k)(3)(A); SSA RS 00615.020 (excess spouse)",
+        "inputs": {
+          "own_pia": 600.0,
+          "worker_pia": 2000.0,
+          "months_early": 0
+        },
+        "our_output": 400.0,
+        "expected": 400.0,
+        "note": "excess of 50%*2000=1000 over own PIA 600"
+      }
+    ],
+    "survivor": [
+      {
+        "name": "widow_at_fra_full_pia",
+        "citation": "42 USC 402(e)(2)(A)/(f)(3)(A); SSA RS 00615.301; ssa.gov/benefits/survivors/",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 0,
+          "deceased_claimed_early_factor": 1.0
+        },
+        "our_output": 1000.0,
+        "expected": 1000.0,
+        "note": "widow(er) at survivor FRA gets 100% of the deceased PIA"
+      },
+      {
+        "name": "widow_at_60_floor",
+        "citation": "42 USC 402(q); SSA RS 00615.302 (71.5% at age 60)",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 84,
+          "deceased_claimed_early_factor": 1.0
+        },
+        "our_output": 715.0,
+        "expected": 715.0,
+        "note": "maximum 28.5% reduction over 84 months (age 60 to FRA 67)"
+      },
+      {
+        "name": "widow_at_62_fra66",
+        "citation": "42 USC 402(q); SSA survivors reduction table (81% at 62 when survivor FRA is 66)",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 48,
+          "deceased_claimed_early_factor": 1.0,
+          "survivor_reduction_period_months": 72
+        },
+        "our_output": 809.9999999999999,
+        "expected": 810.0,
+        "note": "0.285 * 48/72 = 0.19 reduction -> 81% of the deceased PIA"
+      },
+      {
+        "name": "rib_lim_82_5_floor",
+        "citation": "42 USC 402(e)(2)(D)/(k)(3)(A); SSA RS 00615.310 (RIB-LIM, 82.5% of PIA)",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 0,
+          "deceased_claimed_early_factor": 0.7499998
+        },
+        "our_output": 825.0,
+        "expected": 825.0,
+        "note": "deceased claimed at 62 (0.75 RIB < 0.825); widow gets 82.5%"
+      },
+      {
+        "name": "rib_lim_deceased_actual_higher",
+        "citation": "42 USC 402(e)(2)(D); SSA RS 00615.310 (larger of deceased actual or 82.5%)",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 0,
+          "deceased_claimed_early_factor": 0.86666656
+        },
+        "our_output": 866.66656,
+        "expected": 866.66656,
+        "note": "deceased claimed at 64 (0.86667 RIB > 0.825); widow gets the deceased's actual benefit = PIA * factor (the higher-of branch; the factor is cross-checked against pe-us in pe_us_pia_foundation)"
+      },
+      {
+        "name": "drc_pass_through",
+        "citation": "42 USC 402(e)/(f); SSA RS 00615.301 (widow inherits DRCs)",
+        "inputs": {
+          "own_pia": 0.0,
+          "deceased_pia": 1000.0,
+          "survivor_months_early": 0,
+          "deceased_claimed_early_factor": 1.32
+        },
+        "our_output": 1320.0,
+        "expected": 1320.0,
+        "note": "deceased claimed at 70 (1.32); widow inherits the credits = PIA * factor (the DRC pass-through branch)"
+      }
+    ],
+    "max_abs_deviation": 1.1368683772161603e-13,
+    "spousal_summary": {
+      "n": 4,
+      "max_abs_deviation": 0.0,
+      "argmax": "spouse_at_fra_half_pia"
+    },
+    "survivor_summary": {
+      "n": 6,
+      "max_abs_deviation": 1.1368683772161603e-13,
+      "argmax": "widow_at_62_fra66"
+    }
+  },
+  "pe_us_pia_foundation": {
+    "oracle": "policyengine_us Simulation",
+    "oracle_available": true,
+    "year": 2026,
+    "alignment_note": "pe-us ss_pia uses period-year bend points; the oracle uses 2026 as the eligibility year to align. ss_aime, ss_claiming_age and age are set directly; birth_year = year - age.",
+    "residual_note": "Residual deviations are pe-us float32 array storage (max PIA dev < 1e-4 dollars, i.e. under a hundredth of a cent); the oracle is exact float64. The statutory resolution is identical (both floor PIA to the dime over integer AIME and integer bend points).",
+    "n_cases": 40,
+    "max_pia_abs_deviation": 4.8828125045474735e-05,
+    "max_factor_abs_deviation": 5.245208734017126e-08,
+    "cases": [
+      {
+        "aime": 1000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 62,
+        "our_pia": 900.0,
+        "our_factor": 0.69999976,
+        "oracle_pia": 900.0,
+        "oracle_factor": 0.7,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 1.0339508027534805e-08
+      },
+      {
+        "aime": 1000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 65,
+        "our_pia": 900.0,
+        "our_factor": 0.86666656,
+        "oracle_pia": 900.0,
+        "oracle_factor": 0.866667,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 4.595336888790769e-09
+      },
+      {
+        "aime": 1000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 67,
+        "our_pia": 900.0,
+        "our_factor": 1.0,
+        "oracle_pia": 900.0,
+        "oracle_factor": 1.0,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 0.0
+      },
+      {
+        "aime": 1000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 70,
+        "our_pia": 900.0,
+        "our_factor": 1.24,
+        "oracle_pia": 900.0,
+        "oracle_factor": 1.24,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 9.536743172944284e-09
+      },
+      {
+        "aime": 1000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 62,
+        "our_pia": 900.0,
+        "our_factor": 0.7499998,
+        "oracle_pia": 900.0,
+        "oracle_factor": 0.75,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 2.1186065679579258e-08
+      },
+      {
+        "aime": 1000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 65,
+        "our_pia": 900.0,
+        "our_factor": 0.93333328,
+        "oracle_pia": 900.0,
+        "oracle_factor": 0.933333,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 2.2976684999065355e-09
+      },
+      {
+        "aime": 1000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 67,
+        "our_pia": 900.0,
+        "our_factor": 1.08,
+        "oracle_pia": 900.0,
+        "oracle_factor": 1.08,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 4.2915344167226976e-08
+      },
+      {
+        "aime": 1000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 70,
+        "our_pia": 900.0,
+        "our_factor": 1.32,
+        "oracle_pia": 900.0,
+        "oracle_factor": 1.32,
+        "pia_abs_dev": 0.0,
+        "factor_abs_dev": 5.245208734017126e-08
+      },
+      {
+        "aime": 2000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 62,
+        "our_pia": 1385.8,
+        "our_factor": 0.69999976,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 0.7,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 1.0339508027534805e-08
+      },
+      {
+        "aime": 2000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 65,
+        "our_pia": 1385.8,
+        "our_factor": 0.86666656,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 0.866667,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 4.595336888790769e-09
+      },
+      {
+        "aime": 2000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 67,
+        "our_pia": 1385.8,
+        "our_factor": 1.0,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 1.0,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 0.0
+      },
+      {
+        "aime": 2000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 70,
+        "our_pia": 1385.8,
+        "our_factor": 1.24,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 1.24,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 9.536743172944284e-09
+      },
+      {
+        "aime": 2000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 62,
+        "our_pia": 1385.8,
+        "our_factor": 0.7499998,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 0.75,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 2.1186065679579258e-08
+      },
+      {
+        "aime": 2000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 65,
+        "our_pia": 1385.8,
+        "our_factor": 0.93333328,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 0.933333,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 2.2976684999065355e-09
+      },
+      {
+        "aime": 2000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 67,
+        "our_pia": 1385.8,
+        "our_factor": 1.08,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 1.08,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 4.2915344167226976e-08
+      },
+      {
+        "aime": 2000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 70,
+        "our_pia": 1385.8,
+        "our_factor": 1.32,
+        "oracle_pia": 1385.8,
+        "oracle_factor": 1.32,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 5.245208734017126e-08
+      },
+      {
+        "aime": 4000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 62,
+        "our_pia": 2025.8,
+        "our_factor": 0.69999976,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 0.7,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 1.0339508027534805e-08
+      },
+      {
+        "aime": 4000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 65,
+        "our_pia": 2025.8,
+        "our_factor": 0.86666656,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 0.866667,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 4.595336888790769e-09
+      },
+      {
+        "aime": 4000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 67,
+        "our_pia": 2025.8,
+        "our_factor": 1.0,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 1.0,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 0.0
+      },
+      {
+        "aime": 4000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 70,
+        "our_pia": 2025.8,
+        "our_factor": 1.24,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 1.24,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 9.536743172944284e-09
+      },
+      {
+        "aime": 4000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 62,
+        "our_pia": 2025.8,
+        "our_factor": 0.7499998,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 0.75,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 2.1186065679579258e-08
+      },
+      {
+        "aime": 4000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 65,
+        "our_pia": 2025.8,
+        "our_factor": 0.93333328,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 0.933333,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 2.2976684999065355e-09
+      },
+      {
+        "aime": 4000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 67,
+        "our_pia": 2025.8,
+        "our_factor": 1.08,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 1.08,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 4.2915344167226976e-08
+      },
+      {
+        "aime": 4000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 70,
+        "our_pia": 2025.8,
+        "our_factor": 1.32,
+        "oracle_pia": 2025.8,
+        "oracle_factor": 1.32,
+        "pia_abs_dev": 4.8828125045474735e-05,
+        "factor_abs_dev": 5.245208734017126e-08
+      },
+      {
+        "aime": 6000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 62,
+        "our_pia": 2665.8,
+        "our_factor": 0.69999976,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 0.7,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 1.0339508027534805e-08
+      },
+      {
+        "aime": 6000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 65,
+        "our_pia": 2665.8,
+        "our_factor": 0.86666656,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 0.866667,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 4.595336888790769e-09
+      },
+      {
+        "aime": 6000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 67,
+        "our_pia": 2665.8,
+        "our_factor": 1.0,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 1.0,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 0.0
+      },
+      {
+        "aime": 6000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 70,
+        "our_pia": 2665.8,
+        "our_factor": 1.24,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 1.24,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 9.536743172944284e-09
+      },
+      {
+        "aime": 6000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 62,
+        "our_pia": 2665.8,
+        "our_factor": 0.7499998,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 0.75,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 2.1186065679579258e-08
+      },
+      {
+        "aime": 6000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 65,
+        "our_pia": 2665.8,
+        "our_factor": 0.93333328,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 0.933333,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 2.2976684999065355e-09
+      },
+      {
+        "aime": 6000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 67,
+        "our_pia": 2665.8,
+        "our_factor": 1.08,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 1.08,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 4.2915344167226976e-08
+      },
+      {
+        "aime": 6000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 70,
+        "our_pia": 2665.8,
+        "our_factor": 1.32,
+        "oracle_pia": 2665.8,
+        "oracle_factor": 1.32,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 5.245208734017126e-08
+      },
+      {
+        "aime": 9000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 62,
+        "our_pia": 3413.2,
+        "our_factor": 0.69999976,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 0.7,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 1.0339508027534805e-08
+      },
+      {
+        "aime": 9000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 65,
+        "our_pia": 3413.2,
+        "our_factor": 0.86666656,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 0.866667,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 4.595336888790769e-09
+      },
+      {
+        "aime": 9000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 67,
+        "our_pia": 3413.2,
+        "our_factor": 1.0,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 1.0,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 0.0
+      },
+      {
+        "aime": 9000,
+        "age": 66,
+        "birth_year": 1960,
+        "claim_age": 70,
+        "our_pia": 3413.2,
+        "our_factor": 1.24,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 1.24,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 9.536743172944284e-09
+      },
+      {
+        "aime": 9000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 62,
+        "our_pia": 3413.2,
+        "our_factor": 0.7499998,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 0.75,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 2.1186065679579258e-08
+      },
+      {
+        "aime": 9000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 65,
+        "our_pia": 3413.2,
+        "our_factor": 0.93333328,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 0.933333,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 2.2976684999065355e-09
+      },
+      {
+        "aime": 9000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 67,
+        "our_pia": 3413.2,
+        "our_factor": 1.08,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 1.08,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 4.2915344167226976e-08
+      },
+      {
+        "aime": 9000,
+        "age": 72,
+        "birth_year": 1954,
+        "claim_age": 70,
+        "our_pia": 3413.2,
+        "our_factor": 1.32,
+        "oracle_pia": 3413.2,
+        "oracle_factor": 1.32,
+        "pia_abs_dev": 4.882812481810106e-05,
+        "factor_abs_dev": 5.245208734017126e-08
+      }
+    ]
+  },
+  "couple_grid": [
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 699.9998,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 325.0,
+      "couple_total": 1024.9998
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 699.9998,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 500.0,
+      "couple_total": 1199.9998
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 1000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 325.0,
+      "couple_total": 1325.0
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 1000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 500.0,
+      "couple_total": 1500.0
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 699.9998,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 1259.9996
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 699.9998,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 1499.9998
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 1000.0,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 1559.9998
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 1000.0,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 1800.0
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 699.9998,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 1819.9994
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 699.9998,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 2299.9998
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 1000.0,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 2119.9996
+    },
+    {
+      "worker_pia": 1000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 1000.0,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 2600.0
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 1399.9995,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 650.0,
+      "couple_total": 2049.9995
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 1399.9995,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 1000.0,
+      "couple_total": 2399.9995
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 2000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 650.0,
+      "couple_total": 2650.0
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 2000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 1000.0,
+      "couple_total": 3000.0
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 1399.9995,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 130.0,
+      "couple_total": 2089.9993
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 1399.9995,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 200.0,
+      "couple_total": 2399.9995
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 2000.0,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 130.0,
+      "couple_total": 2689.9998
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 2000.0,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 200.0,
+      "couple_total": 3000.0
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 1399.9995,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 2519.9991
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 1399.9995,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 2999.9995
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 2000.0,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 3119.9996
+    },
+    {
+      "worker_pia": 2000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 2000.0,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 3600.0
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 2099.9993,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 975.0,
+      "couple_total": 3074.9993
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 2099.9993,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 1500.0,
+      "couple_total": 3599.9993
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 3000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 975.0,
+      "couple_total": 3975.0
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 0.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 3000.0,
+      "own_spouse": 0.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 1500.0,
+      "couple_total": 4500.0
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 2099.9993,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 455.0,
+      "couple_total": 3114.9991
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 2099.9993,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 700.0,
+      "couple_total": 3599.9993
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 3000.0,
+      "own_spouse": 559.9998,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 455.0,
+      "couple_total": 4014.9998
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 800.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 3000.0,
+      "own_spouse": 800.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 700.0,
+      "couple_total": 4500.0
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 62,
+      "own_worker": 2099.9993,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 3219.9989
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 62,
+      "spouse_claim_age": 67,
+      "own_worker": 2099.9993,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 3699.9993
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 62,
+      "own_worker": 3000.0,
+      "own_spouse": 1119.9996,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 4119.9996
+    },
+    {
+      "worker_pia": 3000.0,
+      "spouse_pia": 1600.0,
+      "worker_claim_age": 67,
+      "spouse_claim_age": 67,
+      "own_worker": 3000.0,
+      "own_spouse": 1600.0,
+      "excess_spousal_worker": 0.0,
+      "excess_spousal_spouse": 0.0,
+      "couple_total": 4600.0
+    }
+  ],
+  "survivor_grid": [
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 62,
+      "survivor_claim_age": 60,
+      "deceased_own_factor": 0.75,
+      "survivor_months_early": 84,
+      "survivor_own_benefit": 479.9997,
+      "widow_benefit": 1573.0
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 62,
+      "survivor_claim_age": 63,
+      "deceased_own_factor": 0.75,
+      "survivor_months_early": 48,
+      "survivor_own_benefit": 599.9998,
+      "widow_benefit": 1815.0
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 62,
+      "survivor_claim_age": 67,
+      "deceased_own_factor": 0.75,
+      "survivor_months_early": 0,
+      "survivor_own_benefit": 800.0,
+      "widow_benefit": 1815.0
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 66,
+      "survivor_claim_age": 60,
+      "deceased_own_factor": 1.0,
+      "survivor_months_early": 84,
+      "survivor_own_benefit": 479.9997,
+      "widow_benefit": 1573.0
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 66,
+      "survivor_claim_age": 63,
+      "deceased_own_factor": 1.0,
+      "survivor_months_early": 48,
+      "survivor_own_benefit": 599.9998,
+      "widow_benefit": 1841.7143
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 66,
+      "survivor_claim_age": 67,
+      "deceased_own_factor": 1.0,
+      "survivor_months_early": 0,
+      "survivor_own_benefit": 800.0,
+      "widow_benefit": 2200.0
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 70,
+      "survivor_claim_age": 60,
+      "deceased_own_factor": 1.32,
+      "survivor_months_early": 84,
+      "survivor_own_benefit": 479.9997,
+      "widow_benefit": 2076.36
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 70,
+      "survivor_claim_age": 63,
+      "deceased_own_factor": 1.32,
+      "survivor_months_early": 48,
+      "survivor_own_benefit": 599.9998,
+      "widow_benefit": 2431.0629
+    },
+    {
+      "surviving_own_pia": 800.0,
+      "deceased_pia": 2200.0,
+      "deceased_claim_age": 70,
+      "survivor_claim_age": 67,
+      "deceased_own_factor": 1.32,
+      "survivor_months_early": 0,
+      "survivor_own_benefit": 800.0,
+      "widow_benefit": 2904.0
+    }
+  ],
+  "panel_coverage": {
+    "available": true,
+    "source": "PSID Marriage History File mh85_23 (staged Release 2)",
+    "n_actual_marriage_episodes": 42666,
+    "joinable_spouse_share": 0.7622,
+    "spouse_in_file_share": 0.72,
+    "both_computable_share": 0.7132,
+    "n_widowhood_episodes": 3394,
+    "widowhood_share": 0.0795,
+    "note": "both_computable_share uses a PIA supply of every person with a known birth year (the structural both-spouse ceiling); a real PIA supply from a certified earnings history can only lower it."
+  },
+  "build": {
+    "timestamp": "2026-07-08T02:01:11.846745+00:00",
+    "builder": "scripts/build_aux_benefit_examples.py"
+  }
+}
