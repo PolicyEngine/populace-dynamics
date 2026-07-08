@@ -1,0 +1,675 @@
+{
+  "schema_version": "replication_caregiver.v1",
+  "run": "replication_caregiver_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4911453454",
+  "registration_pointer": "#42 comment 4911453454",
+  "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+  "purpose": "Caregiver-credit external-anchor replication: does our stack (real PSID Phase-A careers + observed births cah85_23 + the statutory 415(a)/(b) chain transported to a common 2050 cohort) reproduce the progressivity PATTERN of the caregiver credit -- the bottom-lifetime-earnings-quintile share of aggregate benefit gains (Smith/Johnson/Favreault 2020, Table 15)? Reads no gate, changes no gate; publishes regardless of outcome.",
+  "what_is_tested": "the progressivity STRUCTURE (the share of aggregate benefit gains reaching the bottom fifth of lifetime earners, and the ordering across the four plans' credit designs), not the population LEVELS -- every level difference vs the DYNASIM 2065 projection is a named delta",
+  "real_data_only": true,
+  "anchor_provenance": {
+    "paper": "Smith, K. E., Johnson, R. W. and Favreault, M. M. (2020). Five Democratic Approaches to Social Security Reform: Estimated Impact of Plans by 2020 Presidential Candidates. The Urban Institute (report 103050). DYNASIM3, ID980. 2020 Trustees intermediate assumptions.",
+    "source_files": [
+      "~/PolicyEngine/dynasim-refs/103050-five-dem.pdf",
+      "~/PolicyEngine/dynasim-refs/103050-five-dem.txt"
+    ],
+    "plan_definitions": {
+      "citation": "Table 2 (Major Benefit-Enhancing Provisions Included in the Democratic Candidates' Social Security Plans), printed p. 8; narrative 'PROVIDE SOCIAL SECURITY CREDITS TO CAREGIVERS', printed p. 11",
+      "credit_amount": {
+        "Biden": "own earnings plus up to 50% of the national average wage (modelled as a top-up to 50% of the average wage per the registration's common mechanic)",
+        "Buttigieg": "100% of the national average wage",
+        "Klobuchar": "50% of the national average wage",
+        "Warren": "100% of the national average wage"
+      },
+      "maximum_age_for_qualifying_child": {
+        "Biden": 11,
+        "Buttigieg": 17,
+        "Klobuchar": 5,
+        "Warren": 5
+      },
+      "year_cap": {
+        "Biden": 5,
+        "Buttigieg": null,
+        "Klobuchar": null,
+        "Warren": null
+      },
+      "mechanic_quote": "the other candidates' plans would replace a caregiver's earnings in the Social Security benefit formula with the caregiver credit as long as that credit exceeded the worker's earnings (printed p. 11)",
+      "biden_variant_note": "Biden's statutory design provides the credit on top of earnings and phases it out 50 cents per $1 earned; the registration models all four plans with the uniform top-up-to-credit-level mechanic, so Biden's phase-out is not separately encoded (a named simplification)."
+    },
+    "table15_bottom_fifth_2065": {
+      "citation": "Table 15 (Percentage of Benefit Increases Going to the Bottom Fifth of Lifetime Earners, 2065), printed p. 66, 'Create caregiver credit' row, scheduled scenario; DYNASIM3 ID980",
+      "quintile_variable_paper": "bottom fifth of the lifetime earnings distribution in 2065; couples split earnings and benefits in married years (Table 15 notes)",
+      "values_pct": {
+        "Biden": 54.0,
+        "Buttigieg": 52.0,
+        "Klobuchar": 62.0,
+        "Warren": 55.0
+      },
+      "band_pct": [
+        52.0,
+        62.0
+      ],
+      "headline_quote": "More than half of the benefit increases that would be provided by the caregiver credits ... would go [to] the bottom fifth of lifetime earners (printed p. 65-66)"
+    },
+    "share_gaining_2065": {
+      "citation": "narrative, printed p. 27-28",
+      "values_pct": {
+        "Biden": 36.0,
+        "Buttigieg": 45.0,
+        "Klobuchar": 27.0,
+        "Warren": 33.0
+      },
+      "note": "share of beneficiaries who would gain from each plan's caregiver credit in 2065; Buttigieg (broadest eligibility) highest, Klobuchar (narrowest age limit and smaller credit) lowest"
+    },
+    "cost_75yr_pct_payroll": {
+      "citation": "Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row, printed p. 19",
+      "values": {
+        "Biden": -0.12,
+        "Buttigieg": -0.51,
+        "Klobuchar": -0.12,
+        "Warren": -0.3
+      }
+    },
+    "named_population_deltas": [
+      "observed PSID retirees eligible 2005-2019 (born 1943-1957) transported to a common 2050 bracket geometry vs DYNASIM's projected 2065 beneficiaries",
+      "individual own-record earnings (this study) vs DYNASIM couples splitting earnings and benefits in married years (Table 15 note)",
+      "truncated observation window (ages 22-61 PSID careers transported to 2050) vs DYNASIM full projected careers -- our compressed careers expose more low-AIME person-years to the top-up, so bottom-quintile shares run higher than the anchor's",
+      "no projection: no mortality, benefit-receipt years, claim-age reduction, or behavioural response (cross-sectional PIA-gain proxy) vs DYNASIM's fully projected 2065 expenditure"
+    ]
+  },
+  "study_population": {
+    "career_frame_rule": "Phase-A pia_observed selection (reused from replication_r7_sharing): coverage >= 0.8 of ages 22-61, age-62 eligibility year in 2005-2019 (born 1943-1957), single-year gaps interpolated (mean of neighbours)",
+    "n_career_frame": 1549,
+    "n_scored": 1549,
+    "n_parents_in_frame": 1377,
+    "n_birth_records_joined": 82999,
+    "birth_join": "Childbirth & Adoption History File cah85_23; actual childbirth events (record_type=birth) with a resolvable birth year, joined on the shared PSID person id (parent_person_id); child age in a year = year - birth_year",
+    "weighting": "anchor weight = the person's last observed PSID cross-sectional weight",
+    "lifetime_earnings_quintile": "own-distribution weighted 20% quintiles of the baseline transported AIME (plan-independent; Q1 = bottom fifth)"
+  },
+  "conventions": {
+    "transport": "the 2050-eligibility transport from replication_ppi_mermin (build_transport): NAWI projected to the 2048 age-60 indexing year at the 2005 TR nominal wage growth, 2050 bend points per 415(a)(1)(B); every career transported to the same synthetic 2050 cohort",
+    "aime": "full statutory 42 USC 415(b) top-35 indexed earnings (indexed to NAWI[2048], each year capped at its historical wage base, over 35*12, floored) -- the original Phase-A AIME convention, available on the frame's full annual careers",
+    "pia_gain": "gain = reformed - baseline pre-415(g) PIA amount (the 90/32/15 bracket sum on the 2050 bends, ppi_mermin's scheduled_amount); the sub-$0.10 415(g) dime rounding is a nominal artifact omitted from the incidence gain",
+    "credit_top_up": "in a qualifying child-year (child younger than the plan's age limit) where earnings are below the credit level (fraction * NAWI[year]), earnings are topped up to the credit level; Biden's 5-year cap credits the benefit-maximising qualifying years (lowest NAWI-indexed earnings)",
+    "biden_cap_selection_sensitivity": "the Biden cap primary selection is benefit-maximising; a chronological (earliest-5) sensitivity is reported to show the cap-selection convention does not drive the finding",
+    "scale_invariance": "the transported AIME, the credit level, and the bend points all scale linearly with NAWI[2048], so every share reported here is invariant to the NAWI projection level",
+    "floor": "5-seed person-disjoint half-split (split_panel_by_person, fraction=0.5); floor per share = summary of |side_a - side_b| across seeds, own-distribution quintiles recomputed within each half"
+  },
+  "four_plan_table": [
+    {
+      "plan": "Biden",
+      "credit_fraction": 0.5,
+      "child_age_limit_max": 11,
+      "year_cap": 5,
+      "our_bottom_quintile_share_pct": 64.25346352898333,
+      "bottom_quintile_share_floor_mean": 1.1596819126991207,
+      "bottom_quintile_share_floor_sd": 0.7003618673116864,
+      "anchor_bottom_fifth_pct": 54.0,
+      "in_or_above_band": true,
+      "abs_gap_vs_anchor": 10.25,
+      "our_share_gaining_pct": 53.196946232505226,
+      "share_gaining_floor_mean": 1.8722694085532594,
+      "anchor_share_gaining_pct": 36.0,
+      "n_gainers": 843,
+      "aggregate_weighted_gain": 5439883748.839999
+    },
+    {
+      "plan": "Buttigieg",
+      "credit_fraction": 1.0,
+      "child_age_limit_max": 17,
+      "year_cap": null,
+      "our_bottom_quintile_share_pct": 58.23432761057711,
+      "bottom_quintile_share_floor_mean": 1.749556011238515,
+      "bottom_quintile_share_floor_sd": 1.7715100172848133,
+      "anchor_bottom_fifth_pct": 52.0,
+      "in_or_above_band": true,
+      "abs_gap_vs_anchor": 6.23,
+      "our_share_gaining_pct": 72.06653339009122,
+      "share_gaining_floor_mean": 1.7036671885113122,
+      "anchor_share_gaining_pct": 45.0,
+      "n_gainers": 1142,
+      "aggregate_weighted_gain": 30930371029.73
+    },
+    {
+      "plan": "Klobuchar",
+      "credit_fraction": 0.5,
+      "child_age_limit_max": 5,
+      "year_cap": null,
+      "our_bottom_quintile_share_pct": 70.74500501683046,
+      "bottom_quintile_share_floor_mean": 2.0826581226266,
+      "bottom_quintile_share_floor_sd": 1.0816253488196146,
+      "anchor_bottom_fifth_pct": 62.0,
+      "in_or_above_band": true,
+      "abs_gap_vs_anchor": 8.75,
+      "our_share_gaining_pct": 49.41676758760535,
+      "share_gaining_floor_mean": 2.5600038934303013,
+      "anchor_share_gaining_pct": 27.0,
+      "n_gainers": 774,
+      "aggregate_weighted_gain": 7387983778.44
+    },
+    {
+      "plan": "Warren",
+      "credit_fraction": 1.0,
+      "child_age_limit_max": 5,
+      "year_cap": null,
+      "our_bottom_quintile_share_pct": 58.463148909499374,
+      "bottom_quintile_share_floor_mean": 2.0055093348944495,
+      "bottom_quintile_share_floor_sd": 1.2345167849504723,
+      "anchor_bottom_fifth_pct": 55.0,
+      "in_or_above_band": true,
+      "abs_gap_vs_anchor": 3.46,
+      "our_share_gaining_pct": 67.6222648961561,
+      "share_gaining_floor_mean": 1.5376677294906187,
+      "anchor_share_gaining_pct": 33.0,
+      "n_gainers": 1077,
+      "aggregate_weighted_gain": 16454632956.380001
+    }
+  ],
+  "registered_expectation": {
+    "half_credit_in_or_above_band": {
+      "statement": "bottom-quintile share >= 52% (in or above the anchor band) for the 1/2-credit designs Biden and Klobuchar",
+      "our_shares_pct": {
+        "Biden": 64.25,
+        "Klobuchar": 70.75
+      },
+      "band_pct": [
+        52.0,
+        62.0
+      ],
+      "held": true
+    },
+    "plan_ordering_matches_anchor": {
+      "statement": "concentration endpoints (highest/lowest bottom-quintile share) and reach endpoints (highest/lowest share gaining) match the anchor's rankings",
+      "our_concentration_high": "Klobuchar",
+      "our_concentration_low": "Buttigieg",
+      "anchor_concentration_high": "Klobuchar",
+      "anchor_concentration_low": "Buttigieg",
+      "concentration_endpoints_match": true,
+      "our_reach_high": "Buttigieg",
+      "our_reach_low": "Klobuchar",
+      "anchor_reach_high": "Buttigieg",
+      "anchor_reach_low": "Klobuchar",
+      "reach_endpoints_match": true,
+      "spearman_rho_concentration": 0.8,
+      "spearman_rho_reach": 0.8,
+      "middle_pair_note": "Biden and Warren (the middle ranks) swap between our results and the anchor; they are near-tied in the anchor (54 vs 55) and the endpoints are the robust claim",
+      "held": true
+    },
+    "expectation_held": true
+  },
+  "full_sample_metrics": {
+    "Biden": {
+      "bottom_quintile_share_pct": 64.25346352898333,
+      "share_gaining_pct": 53.196946232505226,
+      "aggregate_weighted_gain": 5439883748.839999,
+      "n_gainers": 843,
+      "incidence_by_quintile": [
+        {
+          "quintile": 1,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 64.25346352898333,
+          "share_gaining_pct": 95.30551818076111,
+          "mean_gain": 518.3993325603277,
+          "mean_baseline_aime": 2975.153069063874
+        },
+        {
+          "quintile": 2,
+          "n_persons": 314,
+          "share_of_aggregate_gain_pct": 22.507911575520186,
+          "share_gaining_pct": 84.33423054973615,
+          "mean_gain": 181.7296200893357,
+          "mean_baseline_aime": 8174.84083113853
+        },
+        {
+          "quintile": 3,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 9.600958193111593,
+          "share_gaining_pct": 54.50484066245552,
+          "mean_gain": 77.54933455999283,
+          "mean_baseline_aime": 13284.931342506157
+        },
+        {
+          "quintile": 4,
+          "n_persons": 280,
+          "share_of_aggregate_gain_pct": 3.279746573960243,
+          "share_gaining_pct": 25.663529154442482,
+          "mean_gain": 26.438680235451223,
+          "mean_baseline_aime": 18393.78525670568
+        },
+        {
+          "quintile": 5,
+          "n_persons": 305,
+          "share_of_aggregate_gain_pct": 0.3579201284246522,
+          "share_gaining_pct": 6.160126333842793,
+          "mean_gain": 2.8916761110610145,
+          "mean_baseline_aime": 26765.01907393895
+        }
+      ]
+    },
+    "Buttigieg": {
+      "bottom_quintile_share_pct": 58.23432761057711,
+      "share_gaining_pct": 72.06653339009122,
+      "aggregate_weighted_gain": 30930371029.73,
+      "n_gainers": 1142,
+      "incidence_by_quintile": [
+        {
+          "quintile": 1,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 58.23432761057711,
+          "share_gaining_pct": 95.30551818076111,
+          "mean_gain": 2671.4218078692334,
+          "mean_baseline_aime": 2975.153069063874
+        },
+        {
+          "quintile": 2,
+          "n_persons": 314,
+          "share_of_aggregate_gain_pct": 26.871138985598364,
+          "share_gaining_pct": 87.52052874172264,
+          "mean_gain": 1233.5935911231234,
+          "mean_baseline_aime": 8174.84083113853
+        },
+        {
+          "quintile": 3,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 11.530759596164902,
+          "share_gaining_pct": 84.69246848691769,
+          "mean_gain": 529.5621362583896,
+          "mean_baseline_aime": 13284.931342506157
+        },
+        {
+          "quintile": 4,
+          "n_persons": 280,
+          "share_of_aggregate_gain_pct": 2.932201781990447,
+          "share_gaining_pct": 67.8595762980359,
+          "mean_gain": 134.39677558750927,
+          "mean_baseline_aime": 18393.78525670568
+        },
+        {
+          "quintile": 5,
+          "n_persons": 305,
+          "share_of_aggregate_gain_pct": 0.4315720256691824,
+          "share_gaining_pct": 24.919403956858414,
+          "mean_gain": 19.824960082551218,
+          "mean_baseline_aime": 26765.01907393895
+        }
+      ]
+    },
+    "Klobuchar": {
+      "bottom_quintile_share_pct": 70.74500501683046,
+      "share_gaining_pct": 49.41676758760535,
+      "aggregate_weighted_gain": 7387983778.44,
+      "n_gainers": 774,
+      "incidence_by_quintile": [
+        {
+          "quintile": 1,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 70.74500501683046,
+          "share_gaining_pct": 93.2441944485972,
+          "mean_gain": 775.1754086162545,
+          "mean_baseline_aime": 2975.153069063874
+        },
+        {
+          "quintile": 2,
+          "n_persons": 314,
+          "share_of_aggregate_gain_pct": 19.559639455314702,
+          "share_gaining_pct": 79.66380729958642,
+          "mean_gain": 214.48043305051348,
+          "mean_baseline_aime": 8174.84083113853
+        },
+        {
+          "quintile": 3,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 7.276433185042977,
+          "share_gaining_pct": 46.04690368951102,
+          "mean_gain": 79.82121923341109,
+          "mean_baseline_aime": 13284.931342506157
+        },
+        {
+          "quintile": 4,
+          "n_persons": 280,
+          "share_of_aggregate_gain_pct": 2.204039726307886,
+          "share_gaining_pct": 22.852586321102677,
+          "mean_gain": 24.129883084967116,
+          "mean_baseline_aime": 18393.78525670568
+        },
+        {
+          "quintile": 5,
+          "n_persons": 305,
+          "share_of_aggregate_gain_pct": 0.21488261650395832,
+          "share_gaining_pct": 5.256984309706233,
+          "mean_gain": 2.3577682897361285,
+          "mean_baseline_aime": 26765.01907393895
+        }
+      ]
+    },
+    "Warren": {
+      "bottom_quintile_share_pct": 58.463148909499374,
+      "share_gaining_pct": 67.6222648961561,
+      "aggregate_weighted_gain": 16454632956.380001,
+      "n_gainers": 1077,
+      "incidence_by_quintile": [
+        {
+          "quintile": 1,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 58.463148909499374,
+          "share_gaining_pct": 94.61467773435183,
+          "mean_gain": 1426.752606120686,
+          "mean_baseline_aime": 2975.153069063874
+        },
+        {
+          "quintile": 2,
+          "n_persons": 314,
+          "share_of_aggregate_gain_pct": 24.83158026430328,
+          "share_gaining_pct": 86.39787280306285,
+          "mean_gain": 606.4478452721,
+          "mean_baseline_aime": 8174.84083113853
+        },
+        {
+          "quintile": 3,
+          "n_persons": 325,
+          "share_of_aggregate_gain_pct": 12.52465897090051,
+          "share_gaining_pct": 77.73180939303221,
+          "mean_gain": 306.004622349336,
+          "mean_baseline_aime": 13284.931342506157
+        },
+        {
+          "quintile": 4,
+          "n_persons": 280,
+          "share_of_aggregate_gain_pct": 3.686766093039981,
+          "share_gaining_pct": 60.150789080520916,
+          "mean_gain": 89.89667942309055,
+          "mean_baseline_aime": 18393.78525670568
+        },
+        {
+          "quintile": 5,
+          "n_persons": 305,
+          "share_of_aggregate_gain_pct": 0.49384576225683846,
+          "share_gaining_pct": 19.18159836430169,
+          "mean_gain": 12.068503933674997,
+          "mean_baseline_aime": 26765.01907393895
+        }
+      ]
+    }
+  },
+  "biden_cap_sensitivity_chronological": {
+    "note": "Biden with the chronological (earliest-5) cap selection instead of benefit-maximising; primary Biden uses benefit-maximising",
+    "bottom_quintile_share_pct": 64.00001443391929,
+    "share_gaining_pct": 53.196946232505226,
+    "primary_bottom_quintile_share_pct": 64.25346352898333
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "half_metrics": {
+        "Biden": {
+          "side_a": {
+            "bottom_quintile_share_pct": 64.82144477029159,
+            "share_gaining_pct": 53.43610158496463,
+            "n": 752
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 63.73017080046604,
+            "share_gaining_pct": 52.971378324866,
+            "n": 797
+          }
+        },
+        "Buttigieg": {
+          "side_a": {
+            "bottom_quintile_share_pct": 57.897077704795166,
+            "share_gaining_pct": 71.25816464971872,
+            "n": 752
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 58.96725919690736,
+            "share_gaining_pct": 72.82897522336663,
+            "n": 797
+          }
+        },
+        "Klobuchar": {
+          "side_a": {
+            "bottom_quintile_share_pct": 68.98022308611549,
+            "share_gaining_pct": 49.64832164210725,
+            "n": 752
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 72.4684814206732,
+            "share_gaining_pct": 49.19836911547316,
+            "n": 797
+          }
+        },
+        "Warren": {
+          "side_a": {
+            "bottom_quintile_share_pct": 57.12626631427249,
+            "share_gaining_pct": 67.40342280947715,
+            "n": 752
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 60.04727994333307,
+            "share_gaining_pct": 67.82867362206554,
+            "n": 797
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "half_metrics": {
+        "Biden": {
+          "side_a": {
+            "bottom_quintile_share_pct": 64.2837693386256,
+            "share_gaining_pct": 52.01354795415229,
+            "n": 775
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 63.75242241658297,
+            "share_gaining_pct": 54.4415037884413,
+            "n": 774
+          }
+        },
+        "Buttigieg": {
+          "side_a": {
+            "bottom_quintile_share_pct": 57.90032454117816,
+            "share_gaining_pct": 70.83864932441152,
+            "n": 775
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 57.90321458470523,
+            "share_gaining_pct": 73.35787580600389,
+            "n": 774
+          }
+        },
+        "Klobuchar": {
+          "side_a": {
+            "bottom_quintile_share_pct": 70.69922906080666,
+            "share_gaining_pct": 48.35035270661212,
+            "n": 775
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 69.73361078381214,
+            "share_gaining_pct": 50.53829592018838,
+            "n": 774
+          }
+        },
+        "Warren": {
+          "side_a": {
+            "bottom_quintile_share_pct": 58.18772310990066,
+            "share_gaining_pct": 66.7800410257396,
+            "n": 775
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 57.67693287358856,
+            "share_gaining_pct": 68.50801578906382,
+            "n": 774
+          }
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "half_metrics": {
+        "Biden": {
+          "side_a": {
+            "bottom_quintile_share_pct": 63.84290767619794,
+            "share_gaining_pct": 55.11063477914442,
+            "n": 768
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 64.57942908628944,
+            "share_gaining_pct": 51.26386650028676,
+            "n": 781
+          }
+        },
+        "Buttigieg": {
+          "side_a": {
+            "bottom_quintile_share_pct": 57.79340524924809,
+            "share_gaining_pct": 71.50388629324975,
+            "n": 768
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 58.42966890720716,
+            "share_gaining_pct": 72.634881725146,
+            "n": 781
+          }
+        },
+        "Klobuchar": {
+          "side_a": {
+            "bottom_quintile_share_pct": 68.88758488083204,
+            "share_gaining_pct": 52.49115017437443,
+            "n": 768
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 71.07081452758409,
+            "share_gaining_pct": 46.311232636264506,
+            "n": 781
+          }
+        },
+        "Warren": {
+          "side_a": {
+            "bottom_quintile_share_pct": 57.10292311706604,
+            "share_gaining_pct": 67.35772335157492,
+            "n": 768
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 58.514176342537354,
+            "share_gaining_pct": 67.88948700973236,
+            "n": 781
+          }
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "half_metrics": {
+        "Biden": {
+          "side_a": {
+            "bottom_quintile_share_pct": 63.47584006467214,
+            "share_gaining_pct": 52.596133637636264,
+            "n": 770
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 64.580499789692,
+            "share_gaining_pct": 53.7731751331376,
+            "n": 779
+          }
+        },
+        "Buttigieg": {
+          "side_a": {
+            "bottom_quintile_share_pct": 59.42133581096411,
+            "share_gaining_pct": 71.05138424836483,
+            "n": 770
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 56.77896595704979,
+            "share_gaining_pct": 73.04014525993307,
+            "n": 779
+          }
+        },
+        "Klobuchar": {
+          "side_a": {
+            "bottom_quintile_share_pct": 70.13624424682708,
+            "share_gaining_pct": 48.34067751391965,
+            "n": 770
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 71.19658731889957,
+            "share_gaining_pct": 50.4488268444133,
+            "n": 779
+          }
+        },
+        "Warren": {
+          "side_a": {
+            "bottom_quintile_share_pct": 59.18606069851751,
+            "share_gaining_pct": 66.21280881430184,
+            "n": 770
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 57.5893399286622,
+            "share_gaining_pct": 68.97404968807382,
+            "n": 779
+          }
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "half_metrics": {
+        "Biden": {
+          "side_a": {
+            "bottom_quintile_share_pct": 65.07563371446278,
+            "share_gaining_pct": 52.4451383195162,
+            "n": 761
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 62.74102617794672,
+            "share_gaining_pct": 53.889996493535854,
+            "n": 788
+          }
+        },
+        "Buttigieg": {
+          "side_a": {
+            "bottom_quintile_share_pct": 60.157131073484244,
+            "share_gaining_pct": 71.3856550994332,
+            "n": 761
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 55.76105606480432,
+            "share_gaining_pct": 72.69419754328499,
+            "n": 788
+          }
+        },
+        "Klobuchar": {
+          "side_a": {
+            "bottom_quintile_share_pct": 71.79185958073496,
+            "share_gaining_pct": 48.44163327973771,
+            "n": 761
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 69.07601829797875,
+            "share_gaining_pct": 50.3156901380753,
+            "n": 788
+          }
+        },
+        "Warren": {
+          "side_a": {
+            "bottom_quintile_share_pct": 59.931042079806275,
+            "share_gaining_pct": 66.45562101915164,
+            "n": 761
+          },
+          "side_b": {
+            "bottom_quintile_share_pct": 56.34327326603333,
+            "share_gaining_pct": 68.6977295587627,
+            "n": 788
+          }
+        }
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "6b310a86957aa2d8141a6800be9b05b0f00710f7",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "replication_caregiver.v1"
+  },
+  "elapsed_seconds": 16.4
+}
