@@ -846,10 +846,13 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 ## What failure buys
 
-Thirteen registered runs, twelve published failures, one pass
-under a rule that refused to rescue its own trigger, two refereed
-amendments, and three graded forecasts is the protocol working as
-designed. Each failure published with the same prominence as a pass would,
+Nineteen registered runs across two gates — thirteen at gate 1, six
+at gate 2 — eighteen published failures against a single pass under a
+rule that refused to rescue its own trigger, two refereed gate-1
+amendments and a second gate locked through its own adversarial
+round, five external-anchor replications reported at the same
+standing as any gated run, and more than ten graded forecasts and
+directional calls is the protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
@@ -859,6 +862,165 @@ ratified amendment whose every verdict change is disclosed in the
 contract's own history. The contrast with
 validation by fidelity — where a model meets the tables it was fit
 to and the first hard test arrives after adoption — is the point.
+
+# The demographic layer and the replication anchors {#sec-gate2}
+
+The tally above compresses two developments the same protocol
+governed once gate 1 produced its first pass: a second stage gate,
+opened and locked on the family-transition layer, and the
+reform-scoring surface, tested against external anchors on real
+microdata. Neither is finished; both are on the public record with
+the discipline the earnings-history gate established.
+
+## The second gate's lock ceremony
+
+Gate 2 — family and benefit outputs — governs the demographic
+transitions survivor, spousal, and caregiver reforms score on:
+first-marriage, divorce, widowhood, and remarriage hazards, cohort
+nuptiality, fertility, and the dissolved-state stock shares
+eligibility rides on. It locked on 2026-07-08, through the ceremony
+gate 1 established: draft floors, an adversarial round, fixes,
+verification, and ratification by merge.
+
+The draft built the reference moments and a person-disjoint
+half-split noise floor on five split seeds, with each per-cell
+tolerance the floor mean plus four standard deviations across forty
+gate-eligible cells. The adversarial round returned *amend before
+lock*, and its objection was quantitative: on five seeds the floor's
+standard deviation is a five-draw estimate of a half-normal, so the
+committed tolerances realized anywhere from 0.9 to 5.6 times their
+own measured noise, and a faithful candidate — one drawing from the
+reference process itself — cleared the four-of-five gate with
+probability 0.023. The referee also showed that the draft's floor
+scale, pass statistic, and seed rule described three different
+experiments, and that a verbatim copy of a training half passed at
+the noise floor, which no moment gate can prevent — the memorization
+defense is procedural (registration, holdout exclusion, and the
+no-self-rescue rule), not a property of the cell set.
+
+The fixes rebuilt the floor on one hundred split seeds, stabilizing
+the estimator to roughly 3.2 times each cell's own noise; added a
+power cap that gates a cell only when its stabilized tolerance is at
+most ln(1.5) — a 1.5-times rate error — demoting under-powered
+per-age cells to report-only and recovering their coverage through
+pre-registered aggregates; and added the sequence and stock
+statistics a banded-marginal gate misses: origin-split remarriage,
+cohort ever-married-by-40, and dissolved-state stock shares by age
+and sex. Under the same rule on the rebuilt floor, the
+faithful-candidate operating characteristic is 0.969 over the
+resulting forty-six gated cells. Verification confirmed the
+amendments, and maintainer ratification by merge was the lock event.
+Every figure recomputes from the committed floor artifact
+(`runs/gate2_floors_v2.json`).
+
+The gate's external anchors are shape reports, not level gates, and
+the ceremony made the reason explicit. The raw recent PSID marriage
+and divorce rates run about 2.4 times the national vital-statistics
+rates — but the PSID counts persons transitioning where the
+vital-statistics series counts couples (a factor of two exactly)
+against a person-year denominator for the age-15-plus population (a
+further 1.22). Attributing those two concept factors leaves residuals
+of 1.036 for marriage and 0.989 for divorce: the anchor is a
+near-bullseye once the population concepts are aligned, and the
+period-matched fertility series sits at a median PSID/NCHS ratio of
+0.93.
+
+## The gate-2 candidate ladder
+
+Six candidates have run against the locked family-transition gate,
+each registered on the campaign registry
+([issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42))
+before its single scored run and graded against a pre-registered
+forecast after. The ladder narrows the failure without yet closing
+it. The base composition — stratified empirical hazards with a
+mortality-composed widowhood component — fails all five seeds across
+fifteen distinct cells. Adding an age-by-sex first-marriage
+interaction and a decade-period widowhood mortality makes the
+composed widowhood backfire, widening the failure to nineteen cells.
+Pooled-rate shrinkage un-explodes that cascade back to eight; a
+parametric per-sex mortality trend then fixes the 65–74 female
+widowed stock but lets the residual go diffuse. Replacing the trend's
+source — PSID's own male mortality slope was unstable — with an
+external NCHS life-table trend, and adding single-year-kernel
+fertility and an origin-split remarriage table, narrows the failure
+to six cells. The sharpest fix is the sixth: source-aligning the
+spouse-death level to the surviving spouse's own marriage-history
+widowhood incidence removes a sex-asymmetric wedge in the earlier
+death-record level — which understated female widowhood by 1.9 to 2.8
+times while overstating male — lifting the 75-plus female widow stock
+from one seed to four and clearing one full seed. Its residuals are
+the untargeted male lifetime-marriage sequence cell, two seeds over
+its 0.047 tolerance; a three-cell miss on a third seed; and the
+fertility clip inherited from candidate 5 on a fourth — one of the
+five seeds clears, the best result to date.
+
+| candidate | distinct failing cells | seeds passing | headline lesson |
+|---|---|---|---|
+| 1 — stratified hazards, composed widowhood | 15 | 0 / 5 | the base composition; young first-marriage and female widowed-stock cells drift |
+| 2 — + age×sex first marriage, period widowhood mortality | 19 | 0 / 5 | the composed widowhood backfires — the widest failure |
+| 3 — + pooled-rate mortality shrinkage | 8 | 0 / 5 | shrinkage un-explodes the cascade; the widowed stock persists |
+| 4 — + parametric per-sex mortality trend | 8 | 0 / 5 | fixes the 65–74 female widowed stock; the residual goes diffuse |
+| 5 — + external NCHS mortality trend, kernel fertility | 6 | 0 / 5 | an external trend replaces PSID's unstable male slope |
+| 6 — + source-aligned spouse-death level | 5 | 1 / 5 | removes the sex-asymmetric widowhood wedge (1.9–2.8×); the best result |
+
+: The gate-2 candidate ladder, from the committed run artifacts
+(`runs/gate2_hazard_v1.json` through `v6.json`). "Distinct failing
+cells" counts gated cells missing on at least one of the five locked
+seeds; the gate requires at least four of five seeds with every one
+of the forty-six gated cells inside its locked tolerance. {#tbl-ladder}
+
+## The replication anchors
+
+While the generative track worked the demographic gate, the
+reform-scoring surface — the statutory AIME/PIA chain and the
+survivor, spousal, and caregiver benefit plumbing, run on real PSID
+careers — was tested against five external DYNASIM anchors. Each is
+reported, not gated: registered on the campaign registry before the
+run and published regardless of outcome. Four score real careers
+directly; the price-indexing anchor additionally routes generated
+careers through the same calculator.
+
+| provision (anchor) | achieved replication | artifact / registration |
+|---|---|---|
+| progressive price indexing — @mermin2005benefitreductions | the price-indexing scalar lands at 66.73% of scheduled against DYNASIM's 67.8%; the progressive-price-indexing quintile pattern reproduces — real and generated careers decline together from 100% to 84% of scheduled across quintiles, matching DYNASIM's monotone gradient — with real-versus-generated gaps inside the floor at four of five quintiles | `replication_ppi_mermin_v1.json`; #42 c4907444903 |
+| normal-retirement-age increase to 70 — @mermin2005benefitreductions | 79.75% of scheduled overall, cross-quintile spread 0.045pp, each quintile within 0.03–0.33pp of Mermin's 79.4–79.9% row | `replication_mermin_rows_v1.json`; #42 c4911609804 |
+| COLA reduced 0.4pp — @mermin2005benefitreductions | 99.2% of scheduled at ages 62–67 (anchor 98.9%) and 93.0% at 80–85 (anchor 92.4%) | `replication_mermin_rows_v1.json`; #42 c4911609804 |
+| earnings sharing — @favreaultsteuerle2007modernfamily | the best-populated cell — married women, the large gainers — lands on DYNASIM: gain ≥20% 49 vs 44, gain ≥5% 63 vs 60, lose ≥5% 24 vs 22; all four registered directional calls hold | `replication_r7_sharing_v1.json`; #42 c4911171806 |
+| caregiver credit — @smith2020fivedem | all four candidate plans place 58–71% of aggregate gains in the bottom lifetime-earnings quintile, in or above the anchor's 52–62% band; the concentration and reach rankings match (Spearman 0.8) | `replication_caregiver_v1.json`; #42 c4911453454 |
+
+: The five external-anchor replications, reported not gated, from the
+committed diagnostic artifacts; each registered on
+[issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42)
+before its run. {#tbl-anchors}
+
+The discipline that makes those comparisons legible is that every
+level difference from the DYNASIM projections is named, not absorbed.
+The populations differ — observed PSID retirees eligible 2005–2019,
+born 1943–57, against DYNASIM's projected 1960–80 cohorts evaluated
+in 2049 — as do the windows (a biennial PIA-proxy convention, the
+national average wage projected forward to each indexing year) and
+the earnings concept (the earnings-sharing exercise scores real
+couples with both spouses computable, a shared-versus-individual
+distinction the incidence turns on). Where the older PSID cohorts
+hold more single-earner couples, married men lose harder than
+DYNASIM's 2049 projection, and the direction, not the level, is what
+the test certifies. The same discipline caught an error in an anchor:
+Favreault and Steuerle's Table 3 carries a package-1c married-women
+column summing to 109.1, a 9.1 in a "no change" cell where every
+comparable earnings-sharing cell reads 0.0 — a printed typo, flagged
+and carried verbatim, feeding no scored result.
+
+Two things are true at once, and the record keeps them distinct.
+Distributional scoring on validated real microdata is anchor-grade
+across the cataloged provision classes — price indexing,
+retirement-age and cost-of-living reductions, earnings sharing, and
+caregiver credits — each reproducing its DYNASIM incidence pattern
+within the noise floor or a named delta. The generated-population
+demographic track has not reached its own gate: six registered
+candidates in, the strongest clears one of five seeds. The paper
+reports both because the protocol scores both, and a reader who wants
+to know which claims are load-bearing today can read it off the
+record rather than the prose.
 
 # Related work {#sec-related}
 
