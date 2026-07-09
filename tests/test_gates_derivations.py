@@ -1676,44 +1676,53 @@ def test_gate2_ratified_faithful_oc_basis_matches_amended_estimator():
 
 
 def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
-    """No committed run's verdict changed at the flip: all stand FAIL.
+    """No committed run's verdict changed at the flip; candidate 16 is the first
+    pass -- a model delta under the locked gate, NOT an amendment self-rescue.
 
-    The strongest live form of no_self_rescue: every committed gate-2 run
-    artifact still records gate_2_pass false -- the nine pre-amendment
-    single-draw candidates (v1-v9) AND candidates 10, 11, 12, 13, 14 and 15,
-    the six fresh registrations under fresh_run_artifact_schema (the amended
-    mean-over-K=20-draws estimator). Candidate 11 (FAIL 1/5) split candidate
-    10's pooled 50+ remarriage band into 50-64/65-74/75+; the registered modal
-    share_widowed.75+|female persisted. Candidate 12 (FAIL 2/5) added the
-    entry-widowed observed initial state and an age-band-conditioned
-    spousal-gap draw: delta 1 cleared the widow-stock modal (75+ 1/5 -> 5/5),
-    but delta 2 was inert (the vestigial spouse-age gap does not enter the
-    composed widowhood hazard) so the female marriage count held the gate below
-    4/5. Candidate 13 (FAIL 2/5) gave the surviving-spouse widowhood table its
-    own 18-34 and 35-44 bands: it cleared both marriage-count cells (female
-    2/5 -> 5/5) and deflated the young widowed pool, but the deflated
-    young-widow inflow starved the elderly widowed stock and
-    share_widowed.75+|female regressed 5/5 -> 3/5, holding the gate at 2/5.
-    Candidate 14 (FAIL 2/5) split that table's pooled 75+ band into 75-84 and
+    The strongest live form of no_self_rescue: no PRE-candidate-16 run's verdict
+    was changed by the amendment-1 flip -- every gate-2 run through candidate 15
+    still records gate_2_pass false. The nine pre-amendment single-draw
+    candidates (v1-v9) AND candidates 10, 11, 12, 13, 14 and 15, the six fresh
+    registrations under fresh_run_artifact_schema (the amended
+    mean-over-K=20-draws estimator), all stand FAIL. Candidate 14 (FAIL 2/5)
+    split the surviving-spouse widowhood table's pooled 75+ band into 75-84 and
     85+: it recovered the 75+ widowhood incidence toward reference (seed-mean
     sim/ref 0.929 -> 0.952), but the exposure-preserving reallocation left the
-    aggregate 75+ widowed stock flat (0.841 -> 0.838), so
-    share_widowed.75+|female still failed seeds 0 and 3 and the gate held at
-    2/5. Candidate 15 (FAIL 3/5) removed the NCHS period-trend multiplier from
-    the widowhood hazard: the trend had suppressed the ELDERLY 75+ inflow
-    (~0.88-0.90 at late panel years past the 1995 anchor), so removing it
-    lifted the 75+ incidence past reference (seed-mean sim/ref 0.952 -> 1.060)
-    and cleared seed 0's stock, but the aggregate stock barely moved
-    (0.838 -> 0.841) and share_widowed.75+|female still failed seeds 2 and 3
-    (the failing seeds shifted {0,3} -> {2,3} on the tolerance edge), so the
-    gate improved to 3/5 -- still no passing run. The amendment rescued
-    nothing; the gate still has no passing run.
+    aggregate 75+ widowed stock flat (0.841 -> 0.838). Candidate 15 (FAIL 3/5)
+    removed the NCHS period-trend multiplier: it lifted the 75+ incidence past
+    reference (0.952 -> 1.060) and cleared seed 0's stock, but the aggregate
+    stock barely moved (0.838 -> 0.841) and share_widowed.75+|female still
+    failed seeds 2 and 3 on the tolerance edge, so the gate held at 3/5 -- no
+    passing run through candidate 15. The amendment rescued nothing.
+
+    Candidate 16 (PASS 4/5) is the FIRST passing gate-2 run -- registered on
+    issue #42 comment 4929419524 from forensics 4 (#108) and run ONCE under the
+    LOCKED gate and the already-ratified amendment 1. It conditions the
+    surviving-spouse widowhood hazard on the observed support-composition
+    stratum (whether the observed support window reaches age 75), both strata
+    train-estimated per band x sex, recombining to candidate 15's band aggregate
+    by the exposure-weighted identity. That closed the forensics-4 Q9
+    survival-to-75+ yield leak (75+ widowed stock 0.841 -> 0.914 of reference),
+    clearing share_widowed.75+|female on all five seeds; the gate passes 4/5 on
+    the registered pass path (seeds 0, 1, 3, 4), with seed 2 failing only the
+    RNG-isolated completed_fertility.c1970s split artifact. This is a MODEL
+    delta under the locked gate, not an amendment self-rescue: the gate
+    thresholds, protocol and amendment 1 were all locked/ratified BEFORE
+    candidate 16 was registered, so no committed verdict changed under a rule
+    proposed after its run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 15
+    assert len(runs) == 16
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
-        assert verdict["gate_2_pass"] is False, path.name
+        if path.name == "gate2_hazard_v16.json":
+            # candidate 16: the first passing run (a model delta, not a rescue).
+            assert verdict["gate_2_pass"] is True, path.name
+            assert verdict["n_seeds_pass"] == 4, path.name
+        else:
+            # every pre-candidate-16 run stands FAIL (the amendment rescued
+            # nothing; no verdict changed at the flip).
+            assert verdict["gate_2_pass"] is False, path.name
 
 
 def test_gate2_ratified_history_record():
