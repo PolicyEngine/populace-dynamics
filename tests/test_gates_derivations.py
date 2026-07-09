@@ -1567,6 +1567,327 @@ def test_gate2_amendment_fresh_run_artifact_schema():
 
 
 # --------------------------------------------------------------------------
+# Gate-2 amendment proposal 2 binding (gate_2.amendment_proposed,
+# proposal_number 2)
+#
+# The tranche-split proposal (external review #106 finding 4): re-scope the
+# locked gate_2 block as tranche 2a_marital_fertility, declare
+# 2b_relationship_household and 2c_marriage_earnings_joint as separate
+# UNLOCKED tranches, and add a certification_scope map -- so the fresh gate-2
+# PASS (candidate 16, PR #109) cannot be over-read as household /
+# auxiliary-benefit readiness. Like amendment 1 it is an inert public OBJECT:
+# it changes no locked value and no model reads it. Unlike amendment 1 it
+# moves NO number at all (a structural amendment, not an estimator
+# recalibration). These tests bind its structure (three tranches; 2a == the
+# locked 46 gated + 16 report-only cells, byte-identical to origin/master;
+# the certification_scope map covers every locked provision class) and its
+# honesty (no threshold / verdict / scored-cell moves; candidate 16 PASS and
+# candidates 1-15 FAIL stand unchanged; the flip edits cite text present in
+# the locked block). All are no-ops (skip) until an amendment_proposed with
+# proposal_number 2 exists -- so they stay dormant under amendment 1 and
+# after this proposal is itself ratified and consumed. They touch only
+# committed files.
+# --------------------------------------------------------------------------
+def _gate2_amendment2() -> dict | None:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    amendment = gates["gates"]["gate_2"].get("amendment_proposed")
+    if amendment is None or amendment.get("proposal_number") != 2:
+        return None
+    return amendment
+
+
+def _gate2_amend2_change(change_id: int) -> dict | None:
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        return None
+    for change in amendment["changes"]:
+        if change.get("id") == change_id:
+            return change
+    return None
+
+
+def _master_gate2() -> dict | None:
+    """origin/master gate_2, self-fetching the ref if needed."""
+    for attempt in range(2):
+        try:
+            text = subprocess.run(
+                ["git", "show", "origin/master:gates.yaml"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+            return yaml.safe_load(text)["gates"]["gate_2"]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            if attempt == 0:
+                subprocess.run(
+                    ["git", "fetch", "origin", "master"],
+                    cwd=ROOT,
+                    capture_output=True,
+                )
+                continue
+            return None
+    return None
+
+
+def _gated_report_sets(thresholds: dict) -> tuple[set, set]:
+    gated = set()
+    for view in thresholds["views"].values():
+        gated |= set(view["tolerances"])
+    return gated, set(thresholds["report_only"])
+
+
+def test_gate2_amendment2_status_and_number():
+    """Proposal 2 for gate 2, pending a referee round -- inert."""
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    assert amendment["proposal_number"] == 2
+    assert amendment["status"] == "proposed_pending_referee_round"
+
+
+def test_gate2_amendment2_is_structural_zero_threshold_movement():
+    """Every change is structural: no threshold / verdict / cell move."""
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    types = {c["type"] for c in amendment["changes"]}
+    assert types == {"structural_tranche_split", "language_rescope"}
+    for change in amendment["changes"]:
+        assert change["threshold_change"] is False, change["id"]
+        assert change["verdict_change"] is False, change["id"]
+        assert change["scored_cell_change"] is False, change["id"]
+
+
+def test_gate2_amendment2_declares_three_tranches():
+    """2a locked; 2b, 2c declared unlocked with no lock ceremony yet."""
+    change = _gate2_amend2_change(1)
+    if change is None:
+        pytest.skip("no gate_2 amendment 2 change 1")
+    a = change["tranche_2a"]
+    b = change["tranche_2b"]
+    c = change["tranche_2c"]
+    assert a["id"] == "2a_marital_fertility"
+    assert a["status"] == "locked"
+    assert b["id"] == "2b_relationship_household"
+    assert b["status"] == "unlocked"
+    assert b["locked"] is False
+    assert b["holdout_basis"] == ["MX23REL"]
+    assert b["lock_ceremony"]["exists"] is False
+    assert c["id"] == "2c_marriage_earnings_joint"
+    assert c["status"] == "unlocked"
+    assert c["locked"] is False
+    assert c["lock_ceremony"]["exists"] is False
+
+
+def test_gate2_amendment2_tranche_2a_is_the_locked_cells():
+    """2a == the locked 46 gated + 16 report-only cells; not MX23REL.
+
+    The counts recompute from the locked views' tolerances and the
+    report_only list AND from the committed floor's gate_partition, and 2a's
+    claimed holdouts are mh85_23 + cah85_23 (+ deaths), never MX23REL.
+    """
+    change = _gate2_amend2_change(1)
+    if change is None:
+        pytest.skip("no gate_2 amendment 2 change 1")
+    a = change["tranche_2a"]
+    assert a["gated_cells"] == 46
+    assert a["report_only_cells"] == 16
+    gated, report_only = _gated_report_sets(_gate_2())
+    assert len(gated) == a["gated_cells"]
+    assert len(report_only) == a["report_only_cells"]
+    # the committed floor partition is the canonical source.
+    partition = _gate2_floor()["gate_partition"]
+    assert set(partition["gate_eligible"]) == gated
+    assert set(partition["report_only"]) == report_only
+    # 2a claims only mh85_23 + cah85_23 (+ deaths), NOT MX23REL.
+    claims = a["claims_only"]
+    assert claims["holdouts"] == ["mh85_23", "cah85_23"]
+    assert claims["excludes"] == "MX23REL"
+
+
+def test_gate2_amendment2_cell_sets_byte_identical_to_master():
+    """The 46 gated + 16 report-only cell SETS equal origin/master's.
+
+    Direct form of "no scored cell changed": the sets derived from the
+    current locked block equal those derived from origin/master's locked
+    block. Skips only if the ref is unreachable.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    master = _master_gate2()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    cur_gated, cur_ro = _gated_report_sets(_gate_2())
+    m_gated, m_ro = _gated_report_sets(master["thresholds"])
+    assert cur_gated == m_gated
+    assert cur_ro == m_ro
+    assert len(cur_gated) == 46
+    assert len(cur_ro) == 16
+
+
+def test_gate2_amendment2_changes_no_locked_value():
+    """Parsed compare: gate_2.thresholds parses identical to origin/master.
+
+    The proposal adds only the amendment_proposed sibling; every locked
+    tolerance, the protocol, the power cap, the governance, the report_only
+    list, and the scope map are unchanged. gate_2 differs from master ONLY by
+    the added amendment_proposed key.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    master = _master_gate2()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    cur_g2 = gates["gates"]["gate_2"]
+    assert cur_g2["thresholds"] == master["thresholds"]
+    assert cur_g2["thresholds"]["locked"] is True
+    assert cur_g2["thresholds"]["status"] == "locked"
+    assert set(cur_g2) - set(master) == {"amendment_proposed"}
+
+
+def test_gate2_amendment2_certification_scope_covers_locked_classes():
+    """The map covers every provision class in the locked scope_note.
+
+    provision_class_map's classes equal the locked provision_class_coverage
+    keys; each requires_tranche references only declared tranches; each
+    locked_coverage is the leading token of the locked note; and the map
+    cites both the scope_note and #74.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    scope = amendment["certification_scope"]
+    locked_cov = _gate_2()["scope"]["provision_class_coverage"]
+    rows = scope["provision_class_map"]
+    assert {r["provision_class"] for r in rows} == set(locked_cov)
+    declared = {
+        "2a_marital_fertility",
+        "2b_relationship_household",
+        "2c_marriage_earnings_joint",
+    }
+    for r in rows:
+        assert set(r["requires_tranche"]) <= declared, r["provision_class"]
+        locked_text = locked_cov[r["provision_class"]]
+        assert locked_text.startswith(r["locked_coverage"]), r[
+            "provision_class"
+        ]
+    # both sources cited.
+    basis = scope["derivation_basis"]
+    assert "provision_class_coverage" in basis["locked_scope_note"]
+    assert "#74" in basis["provision_matrix"]
+    # 2a supports caregiver credits + survivor/spousal timing.
+    supports = " ".join(scope["tranches"]["2a_marital_fertility"]["supports"])
+    assert "caregiver credits" in supports
+    assert "survivor" in supports and "spousal" in supports
+    # 2b required for household poverty + child-in-care survivor; 2c joint.
+    b = " ".join(
+        scope["tranches"]["2b_relationship_household"]["required_for"]
+    )
+    assert "household-unit poverty" in b
+    assert "child-in-care survivor" in b
+    c = " ".join(
+        scope["tranches"]["2c_marriage_earnings_joint"]["required_for"]
+    )
+    assert "earnings" in c and "marital" in c
+
+
+def test_gate2_amendment2_verdict_preservation():
+    """Candidate 16 PASS and candidates 1-15 FAIL stand -- no re-scoring.
+
+    The disclosed verdicts equal the committed artifacts, and the amendment
+    records no_rescoring / no_verdict_change.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    vp = amendment["verdict_preservation"]
+    assert vp["no_rescoring"] is True
+    assert vp["no_verdict_change"] is True
+    # candidate 16 is a committed PASS 4/5.
+    p = vp["passing_run"]
+    assert p["run"] == "candidate 16"
+    c16 = json.loads((ROOT / p["artifact"]).read_text())["verdict"]
+    assert c16["gate_2_pass"] is True
+    assert c16["n_seeds_pass"] == p["n_seeds_pass"] == 4
+    # candidates 1-15 all committed FAIL.
+    for v in range(1, 16):
+        art = json.loads((ROOT / f"runs/gate2_hazard_v{v}.json").read_text())
+        assert art["verdict"]["gate_2_pass"] is False, v
+
+
+def test_gate2_amendment2_considered_and_rejected():
+    """The three rejected alternatives are recorded."""
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    ids = {e["id"] for e in amendment["considered_and_rejected"]}
+    assert {
+        "leave_scope_in_prose",
+        "unlock_2b_now",
+        "rename_gate2_to_gate2a_repo_wide",
+    } <= ids
+    for entry in amendment["considered_and_rejected"]:
+        assert entry["reason"].strip().startswith("REJECTED"), entry["id"]
+
+
+def test_gate2_amendment2_process_statement_and_no_self_rescue():
+    """Timing disclosed (first pass), no number moves, clause recorded."""
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    ps = amendment["process_statement"]
+    assert "after" in ps.lower()
+    assert "candidate 16" in ps
+    assert "no number" in ps.lower()
+    clause = amendment.get("no_self_rescue", "")
+    assert (
+        "committed run verdict changes under a rule proposed after" in clause
+    )
+    assert "applies only to runs registered after its ratification" in clause
+    gov = _gate_2()["governance"]["amendment_rules"]
+    assert gov["inherits"] == "gate_1"
+
+
+def test_gate2_amendment2_flip_edits_enumerated():
+    """The flip's locked-text edits cite text present in the locked block.
+
+    Each flip_edit's locked_text_now appears at its locked_path in the
+    current locked block, and flip_additions enumerate the new tranche stubs.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    flip = amendment["flip_on_ratification"]
+    edits = flip["flip_edits"]
+    assert {e["key"] for e in edits} == {
+        "description",
+        "holdout_basis",
+        "scope_note",
+    }
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+
+    def _resolve(path: str):
+        node = gates
+        for part in path.split("."):
+            node = node["gates"]["gate_2"] if part == "gate_2" else node[part]
+        return node
+
+    for e in edits:
+        node = _resolve(e["locked_path"])
+        hay = node if isinstance(node, str) else str(node)
+        assert e["locked_text_now"] in hay, e["key"]
+    # the additions name the three tranche structures the flip introduces.
+    additions = " ".join(flip["flip_additions"])
+    assert "2a_marital_fertility" in additions
+    assert "gate_2b" in additions
+    assert "gate_2c" in additions
+
+
+# --------------------------------------------------------------------------
 # Gate-2 amendment 1 RATIFIED bindings (live thresholds)
 #
 # Amendment 1 (proposed PR #96; referee AMEND comment 4915412987 -> fixes
@@ -1728,13 +2049,19 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
 def test_gate2_ratified_history_record():
     """gate_2.amendment_history[0] is complete, with all four ceremony pointers.
 
-    amendment_proposed is consumed by the flip; the history entry records the
-    full ceremony (adversarial review / fixes / verification / ratifying
-    merge) and the prospective-only content.
+    amendment 1's amendment_proposed was consumed by its flip; the history
+    entry records the full ceremony (adversarial review / fixes /
+    verification / ratifying merge) and the prospective-only content. A later
+    proposal (number >= 2) MAY reintroduce amendment_proposed for its own
+    ceremony -- it must be a strictly later proposal, never a re-presentation
+    of the ratified amendment 1.
     """
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
     gate_2 = gates["gates"]["gate_2"]
-    assert "amendment_proposed" not in gate_2  # object consumed by the flip
+    # Amendment 1's object was consumed by the flip. If an amendment_proposed
+    # is present, it is a strictly later proposal (>= 2), not amendment 1.
+    proposed = gate_2.get("amendment_proposed")
+    assert proposed is None or proposed.get("proposal_number", 0) >= 2
     entry = gate_2["amendment_history"][0]
     assert entry["id"] == "2026-07-08-mean-over-draws-estimator"
     for key in ("referee_round", "ratified", "flipped_live", "content"):
