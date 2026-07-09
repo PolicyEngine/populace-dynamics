@@ -1680,13 +1680,15 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
 
     The strongest live form of no_self_rescue: every committed gate-2 run
     artifact still records gate_2_pass false -- the nine pre-amendment
-    single-draw candidates (v1-v9) AND candidate 10, the first fresh
-    registration under fresh_run_artifact_schema (the amended
-    mean-over-K=20-draws estimator), which itself came back FAIL 1/5. The
-    amendment rescued nothing; the gate still has no passing run.
+    single-draw candidates (v1-v9) AND candidates 10 and 11, the two fresh
+    registrations under fresh_run_artifact_schema (the amended
+    mean-over-K=20-draws estimator), each of which itself came back FAIL 1/5
+    (candidate 11 split candidate 10's pooled 50+ remarriage band into
+    50-64/65-74/75+; the registered modal share_widowed.75+|female persisted).
+    The amendment rescued nothing; the gate still has no passing run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 10
+    assert len(runs) == 11
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_2_pass"] is False, path.name
