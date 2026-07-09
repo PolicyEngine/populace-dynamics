@@ -1,0 +1,3543 @@
+{
+  "schema_version": "gate2_forensics3.v1",
+  "run": "gate2_forensics3_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4920355640",
+  "registration_pointer": "4920355640",
+  "registration_title": "Registered diagnostic: forensics 3 -- the widowed life cycle's accounting",
+  "candidate_under_diagnosis": "gate-2 candidate 11 (run 1, PR #101): FAIL 1/5 under the amended mean-over-20-draws estimator; decider share_widowed.75+|female (persisted 4/5 via the untouched inflow shortfall); female marriage count regressed 3/5 -> 2/5",
+  "candidate11_spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4919417729",
+  "candidate11_registration_pointer": "4919417729",
+  "candidate11_artifact": "runs/gate2_hazard_v11.json",
+  "forensics2_artifact": "runs/gate2_forensics2_v1.json (#99)",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published candidate-11 per-seed scores read from runs/gate2_hazard_v11.json; the holdout (side A) is never simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout, side B = train complement (this diagnostic simulates side B)",
+    "fit_simulate_machinery": "scripts/run_gate2_candidate11.py (merged #101; reuses candidate 10's code objects rebound) fit_components + simulate_holdout reused on the train side; the Q6 taxonomy is a reference-construction audit with no simulation",
+    "q6_support_boundary": "observed PSID support window [first_wave, last_wave] per person from populace_dynamics.data.panels.demographic_panel (sequence 1-20, present in a responding family unit), NOT the reference's retrospective-to-age-15 exposure window",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "estimator": "mean_over_K20_draws",
+    "n_draws": 20,
+    "draw_rng_rule": "numpy default_rng(5200 + k) for k in 0..19 (the candidate-11 amended-estimator stream; the gate seed fixes the split, k varies only the simulation RNG)",
+    "reference": "side B's own observed marital panel (no rate_a/rate_b tolerance scoring; the decompositions compare simulated vs observed levels directly)"
+  },
+  "data": {
+    "marriage_history_persons": 55732,
+    "panel_persons_weighted": 41409,
+    "panel_retained_share": 0.743,
+    "n_person_years": 1164692,
+    "person_year_calendar_range": [
+      1899,
+      2023
+    ],
+    "n_transition_events": 42898,
+    "transition_event_counts": {
+      "first_marriage": 24297,
+      "divorce": 9793,
+      "remarriage": 6082,
+      "widowhood": 2726
+    },
+    "n_woman_years_15_49": 488960,
+    "n_maternal_births": 35408,
+    "n_completed_fertility_women": 8529,
+    "death_records_exact_year": 7816
+  },
+  "question_6_reference_reachability": {
+    "question": "Decompose how reference person-periods classified widowed-75+|female arise: widowhood observed within the panel support (reachable) vs marital status carried from a spouse-death predating support (initial-state only) vs statuses not derivable from any datable episode; measure the share a support-constrained simulation could produce under any transition rates, and whether the structurally unreachable share is an observed-initial-state fix (the marriage-count precedent), not a rate fix.",
+    "method": "Reference-construction audit (no simulation). Per gate seed, over side B's observed marital panel, each 75+ female widowed person-year's widowhood onset year (year - years_since_dissolution) is classified against the person's observed PSID support window [first_wave, last_wave] from populace_dynamics.data.panels.demographic_panel (present in a responding family unit, sequence 1-20). Buckets partition the 75+ widowed stock; means over the 5 gate seeds.",
+    "taxonomy_share_of_widowed_stock": {
+      "reachable_within_support": 0.8789265585911485,
+      "carried_predates_support": 0.12107344140885154,
+      "onset_after_support_end": 0.0,
+      "non_derivable": 0.0
+    },
+    "structurally_unreachable_share": 0.12107344140885154,
+    "initial_state_fixable_share": 0.12107344140885154,
+    "non_derivable_residual_share": 0.0,
+    "share_widowed_75plus_female": 0.521804500343905,
+    "reconstruction_window_carried_share": 0.0,
+    "carried_mass_diagnostics": {
+      "mean_onset_age": 48.325368490149565,
+      "share_first_observed_age_ge_60": 0.36214798425263905
+    },
+    "observed_initial_state_fix_applies": true,
+    "fix_verdict": "APPLIES -- the unreachable mass is carried marital status with a zero non-derivable residual, so an observed-initial-state injection (the marriage-count precedent, candidate 9 delta 1) recovers it; a transition-rate change cannot",
+    "per_seed": [
+      {
+        "seed": 0,
+        "reachable_within_support": 0.8885138436789625,
+        "carried_predates_support": 0.11148615632103741,
+        "onset_after_support_end": 0.0,
+        "non_derivable": 0.0,
+        "structurally_unreachable_share": 0.11148615632103741,
+        "initial_state_fixable_share": 0.11148615632103741
+      },
+      {
+        "seed": 1,
+        "reachable_within_support": 0.8830847203768777,
+        "carried_predates_support": 0.11691527962312237,
+        "onset_after_support_end": 0.0,
+        "non_derivable": 0.0,
+        "structurally_unreachable_share": 0.11691527962312237,
+        "initial_state_fixable_share": 0.11691527962312237
+      },
+      {
+        "seed": 2,
+        "reachable_within_support": 0.8727770734731173,
+        "carried_predates_support": 0.12722292652688277,
+        "onset_after_support_end": 0.0,
+        "non_derivable": 0.0,
+        "structurally_unreachable_share": 0.12722292652688277,
+        "initial_state_fixable_share": 0.12722292652688277
+      },
+      {
+        "seed": 3,
+        "reachable_within_support": 0.8733549420411428,
+        "carried_predates_support": 0.1266450579588571,
+        "onset_after_support_end": 0.0,
+        "non_derivable": 0.0,
+        "structurally_unreachable_share": 0.1266450579588571,
+        "initial_state_fixable_share": 0.1266450579588571
+      },
+      {
+        "seed": 4,
+        "reachable_within_support": 0.8769022133856421,
+        "carried_predates_support": 0.12309778661435804,
+        "onset_after_support_end": 0.0,
+        "non_derivable": 0.0,
+        "structurally_unreachable_share": 0.12309778661435804,
+        "initial_state_fixable_share": 0.12309778661435804
+      }
+    ],
+    "finding": "Of the reference 75+ female widowed stock (share 0.522 of all female 75+ person-years), 87.9% arises from a widowhood episode ending WITHIN the person's observed PSID support -- reachable by a support-constrained simulation under some widowhood hazard. The structurally unreachable share is 12.1%, and it is ENTIRELY carried marital status: 12.1% from a spouse-death that PREDATES the person's first observed wave (the person enters observation already widowed), with 0.00% onset-after-support-end and 0.00% non-derivable (years_since_dissolution is never NA -- unlike the marriage-count residual, every widowed person-year is derived from a datable widowhood episode, so there is no undatable-status category c). The carried widows were widowed young (mean onset age 48) and 36% were first observed at age >= 60 -- left-truncated elderly entrants and pre-1968 widowhoods. Under the reference's own retrospective-to-age-15 exposure window this share is 0.00% (forensics 2's boundary), so the carried mass is invisible until the tighter observed-support boundary is applied. Because the unreachable mass is carried status with a zero non-derivable residual, the fix is an OBSERVED-INITIAL-STATE injection (seed the entry-widowed state, exactly the marriage-count precedent of candidate 9 delta 1), NOT a transition-rate change."
+  },
+  "question_7_widowed_exposure_by_age": {
+    "question": "Simulated vs reference widowed person-years by age band x sex under candidate 11: is the widowed 50-64 pool inflated (which would explain the count over-production under correct rates), and does the ~10% incidence inflow shortfall concentrate in an age band? Plus cumulative survival-in-widowhood (time to remarriage/support-end) for widowhoods beginning at 50-64 vs 65+, simulated vs reference.",
+    "method": "Train-side. Per gate seed, fit candidate 11 on side B and simulate the SAME side B at the 20 draw seeds 5200+k; average the per-draw decompositions over draws, then over the 5 gate seeds. Reference = side B's observed marital panel. Widowed person-years and incidence share the panel's own state/event definitions; survival-in-widowhood is a weighted Kaplan-Meier of each widowed spell against remarriage (support-end = right-censoring), by onset age band.",
+    "pool_inflation_verdict": "50-64 female widowed pool inflated",
+    "widowed_person_years_by_age_sex": {
+      "15-49|female": {
+        "reference_widowed_py_weight": 21934412.6686,
+        "simulated_widowed_py_weight": 69387199.70764999,
+        "reference_widowed_share": 0.007012816270977741,
+        "simulated_widowed_share": 0.022203984228955982,
+        "sim_over_ref_weight_ratio": 3.163394468591383,
+        "sim_over_ref_share_ratio": 3.1662007631436575
+      },
+      "15-49|male": {
+        "reference_widowed_py_weight": 4613474.3884000005,
+        "simulated_widowed_py_weight": 12274115.669780001,
+        "reference_widowed_share": 0.001499882223655941,
+        "simulated_widowed_share": 0.003989878122236649,
+        "sim_over_ref_weight_ratio": 2.660492859923904,
+        "sim_over_ref_share_ratio": 2.660127614894575
+      },
+      "50-64|female": {
+        "reference_widowed_py_weight": 44684119.07439999,
+        "simulated_widowed_py_weight": 63001649.314789996,
+        "reference_widowed_share": 0.06567605004666768,
+        "simulated_widowed_share": 0.09264908041885286,
+        "sim_over_ref_weight_ratio": 1.4099337890021046,
+        "sim_over_ref_share_ratio": 1.4106981213550274
+      },
+      "50-64|male": {
+        "reference_widowed_py_weight": 8577947.652399998,
+        "simulated_widowed_py_weight": 10282614.855419999,
+        "reference_widowed_share": 0.014712305419530017,
+        "simulated_widowed_share": 0.017638780729334422,
+        "sim_over_ref_weight_ratio": 1.1987266968857122,
+        "sim_over_ref_share_ratio": 1.198913441935458
+      },
+      "65-74|female": {
+        "reference_widowed_py_weight": 52880247.6222,
+        "simulated_widowed_py_weight": 51260735.168570004,
+        "reference_widowed_share": 0.203414105499904,
+        "simulated_widowed_share": 0.19730101013871612,
+        "sim_over_ref_weight_ratio": 0.9693739623686993,
+        "sim_over_ref_share_ratio": 0.9699475346305777
+      },
+      "65-74|male": {
+        "reference_widowed_py_weight": 9967722.4736,
+        "simulated_widowed_py_weight": 9094511.136460003,
+        "reference_widowed_share": 0.047883968923977636,
+        "simulated_widowed_share": 0.043731059562417386,
+        "sim_over_ref_weight_ratio": 0.9123961025748119,
+        "sim_over_ref_share_ratio": 0.9132714047126386
+      },
+      "75+|female": {
+        "reference_widowed_py_weight": 94092072.25680001,
+        "simulated_widowed_py_weight": 75999266.75650999,
+        "reference_widowed_share": 0.521804500343905,
+        "simulated_widowed_share": 0.4213972022866471,
+        "sim_over_ref_weight_ratio": 0.8077116906203279,
+        "sim_over_ref_share_ratio": 0.8075767878753775
+      },
+      "75+|male": {
+        "reference_widowed_py_weight": 17033230.0962,
+        "simulated_widowed_py_weight": 15269991.286700001,
+        "reference_widowed_share": 0.15156190576019596,
+        "simulated_widowed_share": 0.13603872415185725,
+        "sim_over_ref_weight_ratio": 0.8964824170435315,
+        "sim_over_ref_share_ratio": 0.8975786063755375
+      }
+    },
+    "pool_5064_female": {
+      "reference_widowed_py_weight": 44684119.07439999,
+      "simulated_widowed_py_weight": 63001649.314789996,
+      "reference_widowed_share": 0.06567605004666768,
+      "simulated_widowed_share": 0.09264908041885286,
+      "sim_over_ref_weight_ratio": 1.4099337890021046,
+      "sim_over_ref_share_ratio": 1.4106981213550274
+    },
+    "inflow_incidence_by_age_sex": {
+      "female": {
+        "45-54": {
+          "reference": 0.005666372439473548,
+          "simulated": 0.005538499518123779,
+          "sim_over_ref_ratio": 0.977433018617172,
+          "inflow_shortfall": 0.022566981382827977
+        },
+        "55-64": {
+          "reference": 0.011476853315711513,
+          "simulated": 0.01078482310037731,
+          "sim_over_ref_ratio": 0.939702094616228,
+          "inflow_shortfall": 0.060297905383772
+        },
+        "65-74": {
+          "reference": 0.02514343505170723,
+          "simulated": 0.022954590064297266,
+          "sim_over_ref_ratio": 0.9129456662182941,
+          "inflow_shortfall": 0.0870543337817059
+        },
+        "75+": {
+          "reference": 0.05943439302008506,
+          "simulated": 0.053855158860327976,
+          "sim_over_ref_ratio": 0.9061278516317706,
+          "inflow_shortfall": 0.09387214836822944
+        }
+      },
+      "male": {
+        "45-54": {
+          "reference": 0.0018342582353241556,
+          "simulated": 0.0016787040056377254,
+          "sim_over_ref_ratio": 0.915195021785501,
+          "inflow_shortfall": 0.08480497821449895
+        },
+        "55-64": {
+          "reference": 0.004052441225033589,
+          "simulated": 0.0037365442566171213,
+          "sim_over_ref_ratio": 0.9220477359510996,
+          "inflow_shortfall": 0.07795226404890043
+        },
+        "65-74": {
+          "reference": 0.006192267560749763,
+          "simulated": 0.0054913772995772775,
+          "sim_over_ref_ratio": 0.8868120192972376,
+          "inflow_shortfall": 0.11318798070276237
+        },
+        "75+": {
+          "reference": 0.023926447415576448,
+          "simulated": 0.02063631258924144,
+          "sim_over_ref_ratio": 0.8624896220826714,
+          "inflow_shortfall": 0.13751037791732856
+        }
+      }
+    },
+    "inflow_shortfall_worst_female_band": "75+",
+    "survival_in_widowhood_female": {
+      "50-64": {
+        "reference_survival_curve": [
+          1.0,
+          0.989167117768174,
+          0.9693861673896901,
+          0.9497746518768466,
+          0.9369824808112629,
+          0.9128523954044565,
+          0.9128523954044565,
+          0.902631250898694,
+          0.890641365215018,
+          0.886462006167922,
+          0.8864542576022231,
+          0.8790687326234792,
+          0.8790687326234792,
+          0.8762331944096242,
+          0.8684141004394552,
+          0.8664694820907004,
+          0.8664694820907004,
+          0.8597412761468872,
+          0.8597412761468872,
+          0.8597412761468872,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693
+        ],
+        "simulated_survival_curve": [
+          1.0,
+          0.9778172487329829,
+          0.9578563372806522,
+          0.9370452030295935,
+          0.9183409114427654,
+          0.9001139571600456,
+          0.8842367995441845,
+          0.8703589961748778,
+          0.8588363041844017,
+          0.848790908868061,
+          0.8440079784153683,
+          0.839366507042058,
+          0.8358424845384942,
+          0.8310507240777308,
+          0.8266079082766955,
+          0.8247708099702569,
+          0.8219317880334917,
+          0.8207252542313992,
+          0.8203525289375216,
+          0.819526144493501,
+          0.8180427292873056,
+          0.8171957390969107,
+          0.8165773792135681,
+          0.8147999198403635,
+          0.8145088043577065,
+          0.8134724142039211,
+          0.8127040090796378,
+          0.8123278171454507,
+          0.8113075316919962,
+          0.8107667978924716,
+          0.8107667978924716
+        ],
+        "reference_reported": {
+          "1": 0.989167117768174,
+          "2": 0.9693861673896901,
+          "3": 0.9497746518768466,
+          "5": 0.9128523954044565,
+          "10": 0.8864542576022231,
+          "15": 0.8664694820907004,
+          "20": 0.8487695594970693
+        },
+        "simulated_reported": {
+          "1": 0.9778172487329829,
+          "2": 0.9578563372806522,
+          "3": 0.9370452030295935,
+          "5": 0.9001139571600456,
+          "10": 0.8440079784153683,
+          "15": 0.8247708099702569,
+          "20": 0.8180427292873056
+        },
+        "reference_restricted_mean_survival_years": 26.38861679572461,
+        "simulated_restricted_mean_survival_years": 25.39004873413589,
+        "sim_minus_ref_rmst": -0.9985680615887205
+      },
+      "65+": {
+        "reference_survival_curve": [
+          1.0,
+          0.9896273535947868,
+          0.9849894708269762,
+          0.9795797314062412,
+          0.9749939365479922,
+          0.9749939365479922,
+          0.9749939365479922,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435
+        ],
+        "simulated_survival_curve": [
+          1.0,
+          0.9917461462628243,
+          0.9865014004384696,
+          0.9809405472326237,
+          0.9756952878682797,
+          0.9740547620902047,
+          0.9724670103950913,
+          0.9711448282582987,
+          0.970038949474324,
+          0.9684721018023126,
+          0.9677191893155269,
+          0.9671941347302051,
+          0.9665222304789891,
+          0.9657695333926831,
+          0.9653340152412271,
+          0.9650903608264366,
+          0.9645031148851858,
+          0.9633810018777137,
+          0.9621045476935752,
+          0.9618414240060792,
+          0.9597056748294136,
+          0.9596782147894256,
+          0.9596782147894256,
+          0.9596782147894256,
+          0.9596782147894256,
+          0.9591265301414647,
+          0.9580388204611557,
+          0.9580388204611557,
+          0.9580388204611557,
+          0.9554925351955552,
+          0.9554925351955552
+        ],
+        "reference_reported": {
+          "1": 0.9896273535947868,
+          "2": 0.9849894708269762,
+          "3": 0.9795797314062412,
+          "5": 0.9749939365479922,
+          "10": 0.9714949915923435,
+          "15": 0.9714949915923435,
+          "20": 0.9714949915923435
+        },
+        "simulated_reported": {
+          "1": 0.9917461462628243,
+          "2": 0.9865014004384696,
+          "3": 0.9809405472326237,
+          "5": 0.9740547620902047,
+          "10": 0.9677191893155269,
+          "15": 0.9650903608264366,
+          "20": 0.9597056748294136
+        },
+        "reference_restricted_mean_survival_years": 29.195058163688223,
+        "simulated_restricted_mean_survival_years": 28.98316718217321,
+        "sim_minus_ref_rmst": -0.21189098151501184
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 0,
+        "reference_share_75plus": 0.5352125760882026,
+        "simulated_share_75plus": 0.4005971859925953,
+        "pool_5064_female_sim_over_ref": 1.3182363742293028
+      },
+      {
+        "seed": 1,
+        "reference_share_75plus": 0.5273048764555605,
+        "simulated_share_75plus": 0.4273337129190325,
+        "pool_5064_female_sim_over_ref": 1.355453595033045
+      },
+      {
+        "seed": 2,
+        "reference_share_75plus": 0.5204373575112432,
+        "simulated_share_75plus": 0.42407560384844756,
+        "pool_5064_female_sim_over_ref": 1.4734100318257644
+      },
+      {
+        "seed": 3,
+        "reference_share_75plus": 0.5074681273306444,
+        "simulated_share_75plus": 0.43013962529277566,
+        "pool_5064_female_sim_over_ref": 1.4279014555378042
+      },
+      {
+        "seed": 4,
+        "reference_share_75plus": 0.5185995643338744,
+        "simulated_share_75plus": 0.4248398833803847,
+        "pool_5064_female_sim_over_ref": 1.4669681792758464
+      }
+    ],
+    "finding": "Widowed exposure by age. The simulated widowed 50-64 female pool is INFLATED (1.41x the reference widowed person-year weight; share 0.093 vs ref 0.066). The widowhood-incidence inflow shortfall concentrates at 75+ (sim/ref 0.91, shortfall 9%); across female bands the sim runs 0.91-0.98 of the reference incidence. Survival-in-widowhood: for widowhoods beginning at 50-64 the simulated restricted-mean widowed duration is 25.4y vs ref 26.4y (-1.0y); for 65+ onset it is 29.0y vs ref 29.2y (-0.2y) -- candidate 11's 50+ band split brings elderly-onset survival close to the reference, so the residual 75+ stock gap is an INFLOW (incidence) shortfall, not an outflow (over-remarriage) one."
+  },
+  "published_outer_context": {
+    "note": "already-published candidate-11 side-A scores (runs/gate2_hazard_v11.json); the outer holdout is not simulated here -- context that the train-side decomposition reproduces the published outer failure",
+    "cells": {
+      "share_widowed.75+|female": {
+        "0": {
+          "rbar": 0.3992065000054743,
+          "rate_a": 0.5076166858383586,
+          "score": 0.24024778043835,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "1": {
+          "rbar": 0.42993110572894444,
+          "rate_a": 0.5155032908555559,
+          "score": 0.18151871063342725,
+          "pass": true,
+          "tolerance": 0.185
+        },
+        "2": {
+          "rbar": 0.4256845163257547,
+          "rate_a": 0.5222775396481519,
+          "score": 0.20450063183269757,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "3": {
+          "rbar": 0.42084073133270755,
+          "rate_a": 0.5361518436355753,
+          "score": 0.24216295958519984,
+          "pass": false,
+          "tolerance": 0.185
+        },
+        "4": {
+          "rbar": 0.43062460756414056,
+          "rate_a": 0.5242081880199894,
+          "score": 0.19665218034725415,
+          "pass": false,
+          "tolerance": 0.185
+        }
+      },
+      "mean_lifetime_marriages|male": {
+        "0": {
+          "rbar": 1.4562565513401478,
+          "rate_a": 1.4299017755985917,
+          "score": 0.01826338357603748,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "1": {
+          "rbar": 1.4671045963627953,
+          "rate_a": 1.4196640098460067,
+          "score": 0.03287056528518516,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "2": {
+          "rbar": 1.48428489929767,
+          "rate_a": 1.4084430355928594,
+          "score": 0.05244824277518411,
+          "pass": false,
+          "tolerance": 0.047
+        },
+        "3": {
+          "rbar": 1.4608098967439092,
+          "rate_a": 1.4471627949721892,
+          "score": 0.00938605923004011,
+          "pass": true,
+          "tolerance": 0.047
+        },
+        "4": {
+          "rbar": 1.4453544261403155,
+          "rate_a": 1.4309491460033885,
+          "score": 0.010016606535745164,
+          "pass": true,
+          "tolerance": 0.047
+        }
+      },
+      "mean_lifetime_marriages|female": {
+        "0": {
+          "rbar": 1.4491391282581965,
+          "rate_a": 1.414094367357325,
+          "score": 0.02448037234659406,
+          "pass": true,
+          "tolerance": 0.051
+        },
+        "1": {
+          "rbar": 1.4540152867701908,
+          "rate_a": 1.4088520058550364,
+          "score": 0.03155370013249253,
+          "pass": true,
+          "tolerance": 0.051
+        },
+        "2": {
+          "rbar": 1.472246964280667,
+          "rate_a": 1.3727545239321535,
+          "score": 0.06997045818471716,
+          "pass": false,
+          "tolerance": 0.051
+        },
+        "3": {
+          "rbar": 1.4722046657265058,
+          "rate_a": 1.3943762770142396,
+          "score": 0.05431384782105098,
+          "pass": false,
+          "tolerance": 0.051
+        },
+        "4": {
+          "rbar": 1.4839173891876796,
+          "rate_a": 1.378997100263118,
+          "score": 0.07332897950580966,
+          "pass": false,
+          "tolerance": 0.051
+        }
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 20801,
+      "n_holdout_persons": 20608,
+      "ref_support_taxonomy": {
+        "denominator_all_female_75plus_py_weight": 181396335.97100002,
+        "widowed_75plus_py_weight": 97085600.268,
+        "share_widowed_75plus_female": 0.5352125760882026,
+        "buckets_share_of_widowed_stock": {
+          "reachable_within_support": 0.8885138436789625,
+          "carried_predates_support": 0.11148615632103741,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "buckets_share_of_all_75plus_py": {
+          "reachable_within_support": 0.4755437831654481,
+          "carried_predates_support": 0.05966879292275448,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "structurally_unreachable_share": 0.11148615632103741,
+        "initial_state_fixable_share": 0.11148615632103741,
+        "reconciliation_remainder": 1.1102230246251565e-16,
+        "n_widowed_75plus_py": 4423,
+        "n_years_since_dissolution_na": 0,
+        "n_no_observed_support": 0,
+        "carried_mass_diagnostics": {
+          "mean_onset_age": 45.8516811813441,
+          "mean_first_observed_wave": 1970.74146512648,
+          "share_first_observed_age_ge_60": 0.235909308161627
+        },
+        "reconstruction_window_contrast": {
+          "reachable_within_exposure": 1.0,
+          "onset_before_exposure_start": 0.0,
+          "onset_after_exposure_end": 0.0,
+          "note": "the retrospective-to-age-15 exposure window has ~0 carried mass (forensics 2); the observed-support window is the tighter boundary that exposes the carried-status share"
+        }
+      },
+      "ref_stock": {
+        "share_75plus": 0.5352125760882026,
+        "share_65_74": 0.2029925646891553
+      },
+      "ref_widowed_by_age": {
+        "15-49|female": {
+          "widowed_py_weight": 21646024.916,
+          "all_py_weight": 3089572274.441,
+          "widowed_share": 0.007006155866645471,
+          "n_widowed_py": 1956
+        },
+        "15-49|male": {
+          "widowed_py_weight": 5413905.345,
+          "all_py_weight": 3107400178.283,
+          "widowed_share": 0.001742262030760217,
+          "n_widowed_py": 403
+        },
+        "50-64|female": {
+          "widowed_py_weight": 43869739.576000005,
+          "all_py_weight": 680701423.847,
+          "widowed_share": 0.064447844589584,
+          "n_widowed_py": 3615
+        },
+        "50-64|male": {
+          "widowed_py_weight": 9231584.194,
+          "all_py_weight": 579394920.345,
+          "widowed_share": 0.015933146580751976,
+          "n_widowed_py": 615
+        },
+        "65-74|female": {
+          "widowed_py_weight": 53509584.209,
+          "all_py_weight": 263603665.932,
+          "widowed_share": 0.2029925646891553,
+          "n_widowed_py": 3257
+        },
+        "65-74|male": {
+          "widowed_py_weight": 10255924.681,
+          "all_py_weight": 205321521.879,
+          "widowed_share": 0.04995055845652662,
+          "n_widowed_py": 608
+        },
+        "75+|female": {
+          "widowed_py_weight": 97085600.268,
+          "all_py_weight": 181396335.97100002,
+          "widowed_share": 0.5352125760882026,
+          "n_widowed_py": 4423
+        },
+        "75+|male": {
+          "widowed_py_weight": 18368584.733,
+          "all_py_weight": 107343230.319,
+          "widowed_share": 0.17112010397314004,
+          "n_widowed_py": 959
+        }
+      },
+      "ref_incidence": {
+        "female": {
+          "45-54": 0.005048846857654381,
+          "55-64": 0.011279029514184464,
+          "65-74": 0.023311842362908185,
+          "75+": 0.055847585768914416
+        },
+        "male": {
+          "45-54": 0.0021092737887348544,
+          "55-64": 0.0036366416854515687,
+          "65-74": 0.00667501778787954,
+          "75+": 0.02583874614728854
+        }
+      },
+      "ref_survival": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9990115274308973,
+              0.9809676376636285,
+              0.9592504071719181,
+              0.9440583256252277,
+              0.9198831033238125,
+              0.9198831033238125,
+              0.9198766737550655,
+              0.9024819827379897,
+              0.902473581466373,
+              0.9024604383057563,
+              0.8933901578632738,
+              0.8933901578632738,
+              0.8933901578632738,
+              0.8933901578632738,
+              0.8933726843403396,
+              0.8933726843403396,
+              0.8849423753926774,
+              0.8849423753926774,
+              0.8849423753926774,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706,
+              0.8716842096023706
+            ],
+            "reported": {
+              "1": 0.9990115274308973,
+              "2": 0.9809676376636285,
+              "3": 0.9592504071719181,
+              "5": 0.9198831033238125,
+              "10": 0.9024604383057563,
+              "15": 0.8933726843403396,
+              "20": 0.8716842096023706
+            },
+            "restricted_mean_survival_years": 26.954006212742367,
+            "n_spells": 317,
+            "spell_weight": 4356918.072,
+            "n_remarriage_events": 34
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9902160124449384,
+              0.9880461831719605,
+              0.9818748713732314,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276,
+              0.9759868931714276
+            ],
+            "reported": {
+              "1": 0.9902160124449384,
+              "2": 0.9880461831719605,
+              "3": 0.9818748713732314,
+              "5": 0.9759868931714276,
+              "10": 0.9759868931714276,
+              "15": 0.9759868931714276,
+              "20": 0.9759868931714276
+            },
+            "restricted_mean_survival_years": 29.311783182618672,
+            "n_spells": 336,
+            "spell_weight": 7080446.455,
+            "n_remarriage_events": 7
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9817894609858719,
+              0.9238194544727008,
+              0.8641993820207818,
+              0.7871285958676598,
+              0.7871285958676598,
+              0.7721911065093972,
+              0.7721911065093972,
+              0.7721081568749464,
+              0.6909329081297211,
+              0.6764538995649872,
+              0.6229958464672162,
+              0.5799239326341,
+              0.5799239326341,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746,
+              0.5528558489324746
+            ],
+            "reported": {
+              "1": 0.9817894609858719,
+              "2": 0.9238194544727008,
+              "3": 0.8641993820207818,
+              "5": 0.7871285958676598,
+              "10": 0.6764538995649872,
+              "15": 0.5528558489324746,
+              "20": 0.5528558489324746
+            },
+            "restricted_mean_survival_years": 19.209335810390606,
+            "n_spells": 90,
+            "spell_weight": 1403378.74,
+            "n_remarriage_events": 38
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9739829030283715,
+              0.9518647005648109,
+              0.937269940971267,
+              0.9155866088914867,
+              0.9155866088914867,
+              0.9155866088914867,
+              0.9155866088914867,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.9155446150110021,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759,
+              0.8415828883592759
+            ],
+            "reported": {
+              "1": 0.9739829030283715,
+              "2": 0.9518647005648109,
+              "3": 0.937269940971267,
+              "5": 0.9155866088914867,
+              "10": 0.9155446150110021,
+              "15": 0.9155446150110021,
+              "20": 0.9155446150110021
+            },
+            "restricted_mean_survival_years": 26.84337285886619,
+            "n_spells": 157,
+            "spell_weight": 2918949.454,
+            "n_remarriage_events": 21
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_75plus": 0.4005971859925953,
+        "share_65_74": 0.18890077362143082
+      },
+      "sim_widowed_by_age_mean": {
+        "75+|female": {
+          "n_widowed_py": 3347.0,
+          "all_py_weight": 181396335.97100005,
+          "widowed_share": 0.4005971859925953,
+          "widowed_py_weight": 72666861.73934999
+        },
+        "50-64|male": {
+          "n_widowed_py": 660.85,
+          "all_py_weight": 579394920.3449999,
+          "widowed_share": 0.018948159063273955,
+          "widowed_py_weight": 10978467.111149998
+        },
+        "15-49|male": {
+          "n_widowed_py": 1079.05,
+          "all_py_weight": 3107400178.2829995,
+          "widowed_share": 0.004898751968103817,
+          "widowed_py_weight": 15222382.739049997
+        },
+        "65-74|female": {
+          "n_widowed_py": 2738.65,
+          "all_py_weight": 263603665.932,
+          "widowed_share": 0.18890077362143082,
+          "widowed_py_weight": 49794936.424
+        },
+        "15-49|female": {
+          "n_widowed_py": 4325.5,
+          "all_py_weight": 3089572274.4410005,
+          "widowed_share": 0.019536795775354072,
+          "widowed_py_weight": 60360342.55894999
+        },
+        "75+|male": {
+          "n_widowed_py": 797.4,
+          "all_py_weight": 107343230.319,
+          "widowed_share": 0.14989364708826003,
+          "widowed_py_weight": 16090068.282750001
+        },
+        "65-74|male": {
+          "n_widowed_py": 517.25,
+          "all_py_weight": 205321521.87900004,
+          "widowed_share": 0.04396858649270191,
+          "widowed_py_weight": 9027697.09355
+        },
+        "50-64|female": {
+          "n_widowed_py": 3561.6,
+          "all_py_weight": 680701423.847,
+          "widowed_share": 0.08495749297866681,
+          "widowed_py_weight": 57830686.43705
+        }
+      },
+      "sim_incidence_mean": {
+        "female": {
+          "75+": 0.04979502239929362,
+          "55-64": 0.01077778203039868,
+          "45-54": 0.005064589067004727,
+          "65-74": 0.021594082492668833
+        },
+        "male": {
+          "75+": 0.022658624092157846,
+          "55-64": 0.003033327543203789,
+          "45-54": 0.002011275081282212,
+          "65-74": 0.0058022363648395055
+        }
+      },
+      "sim_survival_mean": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9885862688055159,
+              0.9750637372686566,
+              0.960964670013896,
+              0.9466691113118564,
+              0.9293488036649145,
+              0.911928595538518,
+              0.8963913099789963,
+              0.887987548279827,
+              0.8799288979150877,
+              0.8771884508944418,
+              0.8713281145537388,
+              0.8680050937605526,
+              0.8615753160029008,
+              0.8568441738506832,
+              0.8551117105482448,
+              0.8528797167575106,
+              0.852270727727435,
+              0.8517258137407646,
+              0.8514256167109743,
+              0.8473646378330052,
+              0.8472614699237715,
+              0.8465748141334399,
+              0.8420389025347751,
+              0.8420389025347751,
+              0.8412901913798587,
+              0.8412901913798587,
+              0.8412901913798587,
+              0.8393814234087895,
+              0.8393814234087895,
+              0.8393814234087895
+            ],
+            "reported": {
+              "1": 0.9885862688055159,
+              "2": 0.9750637372686566,
+              "3": 0.960964670013896,
+              "5": 0.9293488036649145,
+              "10": 0.8771884508944418,
+              "15": 0.8551117105482448,
+              "20": 0.8473646378330052
+            },
+            "restricted_mean_survival_years": 26.242517248650227,
+            "spell_weight": 3874892.35115
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9933783203191856,
+              0.9883091127245158,
+              0.9844849824594413,
+              0.981058171742516,
+              0.978983778654054,
+              0.9760928612643065,
+              0.9747907275200776,
+              0.9743673187341202,
+              0.9722338393303872,
+              0.9722338393303872,
+              0.9722338393303872,
+              0.9709130009265147,
+              0.9691882387507782,
+              0.9691882387507782,
+              0.9691867356438921,
+              0.9687095419376414,
+              0.9680389760923237,
+              0.9663963299892646,
+              0.9663302347405709,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9653480679686707,
+              0.9526166416406682,
+              0.9526166416406682
+            ],
+            "reported": {
+              "1": 0.9933783203191856,
+              "2": 0.9883091127245158,
+              "3": 0.9844849824594413,
+              "5": 0.978983778654054,
+              "10": 0.9722338393303872,
+              "15": 0.9691867356438921,
+              "20": 0.9653480679686707
+            },
+            "restricted_mean_survival_years": 29.109483983240516,
+            "spell_weight": 6097199.6862
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9268753720216637,
+              0.8718818018206059,
+              0.805470811674659,
+              0.7463292769078667,
+              0.7336583967614188,
+              0.7163659654982129,
+              0.6911744221883607,
+              0.6698118236539361,
+              0.6545939408116557,
+              0.6383891464971745,
+              0.6218516510102321,
+              0.6060654438887175,
+              0.5865122361309492,
+              0.5828425473430131,
+              0.5722872392804637,
+              0.5523121629644091,
+              0.5351242654640533,
+              0.5334062714476996,
+              0.5206687333633674,
+              0.5183641330044667,
+              0.5128714882219114,
+              0.5049629735117696,
+              0.49829867114481824,
+              0.48953623864331275,
+              0.48950763620298254,
+              0.47801867986457725,
+              0.47801867986457725,
+              0.47801867986457725,
+              0.47800077703174393,
+              0.47800077703174393
+            ],
+            "reported": {
+              "1": 0.9268753720216637,
+              "2": 0.8718818018206059,
+              "3": 0.805470811674659,
+              "5": 0.7336583967614188,
+              "10": 0.6383891464971745,
+              "15": 0.5722872392804637,
+              "20": 0.5183641330044667
+            },
+            "restricted_mean_survival_years": 17.96922024311494,
+            "spell_weight": 1149964.4129500003
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9615479837038112,
+              0.9349081028592365,
+              0.9063188763703385,
+              0.878785029317339,
+              0.8740457651789916,
+              0.8710105913845545,
+              0.8611234020236516,
+              0.8577184470397826,
+              0.8528281547672645,
+              0.8477469961866214,
+              0.8422135573459644,
+              0.8403962538192908,
+              0.8403962538192908,
+              0.8397407406551702,
+              0.8397371698552163,
+              0.8306246468656147,
+              0.8306246468656147,
+              0.8306246468656147,
+              0.8156121900484445,
+              0.8156121900484445,
+              0.8156121900484445,
+              0.8156121900484445,
+              0.8156121900484445,
+              0.8156121900484445,
+              0.7758940487185169,
+              0.7758940487185169,
+              0.7758940487185169,
+              0.7758940487185169,
+              0.7758940487185169,
+              0.7758940487185169
+            ],
+            "reported": {
+              "1": 0.9615479837038112,
+              "2": 0.9349081028592365,
+              "3": 0.9063188763703385,
+              "5": 0.8740457651789916,
+              "10": 0.8477469961866214,
+              "15": 0.8397371698552163,
+              "20": 0.8156121900484445
+            },
+            "restricted_mean_survival_years": 25.089428697525136,
+            "spell_weight": 2221612.2072
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.418083181873775,
+        0.39782911262627174,
+        0.38679829165467344,
+        0.4243264997828041,
+        0.39403116209263955,
+        0.4014939115398853,
+        0.42478433057941556,
+        0.4172167385569424,
+        0.4328896124316083,
+        0.3546117890787151,
+        0.36349375470043294,
+        0.3882585804669147,
+        0.3899733368280891,
+        0.3961512326108306,
+        0.40183338962068765,
+        0.3768676857339012,
+        0.3998592669126233,
+        0.41641723075418724,
+        0.4105879457284465,
+        0.41643666627906234
+      ],
+      "elapsed_seconds": 22.2
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 20652,
+      "n_holdout_persons": 20757,
+      "ref_support_taxonomy": {
+        "denominator_all_female_75plus_py_weight": 181638925.837,
+        "widowed_75plus_py_weight": 95779091.348,
+        "share_widowed_75plus_female": 0.5273048764555605,
+        "buckets_share_of_widowed_stock": {
+          "reachable_within_support": 0.8830847203768777,
+          "carried_predates_support": 0.11691527962312237,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "buckets_share_of_all_75plus_py": {
+          "reachable_within_support": 0.46565487937812267,
+          "carried_predates_support": 0.06164999707743785,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "structurally_unreachable_share": 0.11691527962312237,
+        "initial_state_fixable_share": 0.11691527962312237,
+        "reconciliation_remainder": 0.0,
+        "n_widowed_75plus_py": 4492,
+        "n_years_since_dissolution_na": 0,
+        "n_no_observed_support": 0,
+        "carried_mass_diagnostics": {
+          "mean_onset_age": 46.73195781888296,
+          "mean_first_observed_wave": 1972.7313215357046,
+          "share_first_observed_age_ge_60": 0.32220936794507377
+        },
+        "reconstruction_window_contrast": {
+          "reachable_within_exposure": 1.0,
+          "onset_before_exposure_start": 0.0,
+          "onset_after_exposure_end": 0.0,
+          "note": "the retrospective-to-age-15 exposure window has ~0 carried mass (forensics 2); the observed-support window is the tighter boundary that exposes the carried-status share"
+        }
+      },
+      "ref_stock": {
+        "share_75plus": 0.5273048764555605,
+        "share_65_74": 0.1998159083964095
+      },
+      "ref_widowed_by_age": {
+        "15-49|female": {
+          "widowed_py_weight": 21890418.184,
+          "all_py_weight": 3193357473.74,
+          "widowed_share": 0.006854985188476991,
+          "n_widowed_py": 2209
+        },
+        "15-49|male": {
+          "widowed_py_weight": 4020050.4620000003,
+          "all_py_weight": 3030753401.6610003,
+          "widowed_share": 0.0013264195166115518,
+          "n_widowed_py": 375
+        },
+        "50-64|female": {
+          "widowed_py_weight": 42181261.866,
+          "all_py_weight": 698661813.516,
+          "widowed_share": 0.060374362889140505,
+          "n_widowed_py": 3642
+        },
+        "50-64|male": {
+          "widowed_py_weight": 8997875.133000001,
+          "all_py_weight": 575977579.017,
+          "widowed_share": 0.015621919082955188,
+          "n_widowed_py": 607
+        },
+        "65-74|female": {
+          "widowed_py_weight": 53270818.588,
+          "all_py_weight": 266599486.575,
+          "widowed_share": 0.1998159083964095,
+          "n_widowed_py": 3196
+        },
+        "65-74|male": {
+          "widowed_py_weight": 10629734.139,
+          "all_py_weight": 207384499.438,
+          "widowed_share": 0.051256165083725956,
+          "n_widowed_py": 563
+        },
+        "75+|female": {
+          "widowed_py_weight": 95779091.348,
+          "all_py_weight": 181638925.837,
+          "widowed_share": 0.5273048764555605,
+          "n_widowed_py": 4492
+        },
+        "75+|male": {
+          "widowed_py_weight": 16768928.362,
+          "all_py_weight": 109013334.385,
+          "widowed_share": 0.1538245615236164,
+          "n_widowed_py": 785
+        }
+      },
+      "ref_incidence": {
+        "female": {
+          "45-54": 0.0051446280580795326,
+          "55-64": 0.011349124249343538,
+          "65-74": 0.026784409212394184,
+          "75+": 0.06661308189200933
+        },
+        "male": {
+          "45-54": 0.0019144365398060916,
+          "55-64": 0.004510403442892688,
+          "65-74": 0.006252364114606527,
+          "75+": 0.023488371983685905
+        }
+      },
+      "ref_survival": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9897154354679705,
+              0.9661937928370853,
+              0.9573426589990319,
+              0.9418369247332148,
+              0.9119021903634261,
+              0.9119021903634261,
+              0.9078562763603831,
+              0.889532990420424,
+              0.889532990420424,
+              0.889532990420424,
+              0.8800655322923006,
+              0.8800655322923006,
+              0.8763183482786858,
+              0.8672782697384483,
+              0.8576070542147932,
+              0.8576070542147932,
+              0.8488812801529378,
+              0.8488812801529378,
+              0.8488812801529378,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108,
+              0.8346669935353108
+            ],
+            "reported": {
+              "1": 0.9897154354679705,
+              "2": 0.9661937928370853,
+              "3": 0.9573426589990319,
+              "5": 0.9119021903634261,
+              "10": 0.889532990420424,
+              "15": 0.8576070542147932,
+              "20": 0.8346669935353108
+            },
+            "restricted_mean_survival_years": 26.202271000764366,
+            "n_spells": 293,
+            "spell_weight": 4409423.448,
+            "n_remarriage_events": 37
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9896657229753485,
+              0.9877258870534595,
+              0.9828473691015346,
+              0.9828473691015346,
+              0.9828473691015346,
+              0.9828473691015346,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785,
+              0.9770906957316785
+            ],
+            "reported": {
+              "1": 0.9896657229753485,
+              "2": 0.9877258870534595,
+              "3": 0.9828473691015346,
+              "5": 0.9828473691015346,
+              "10": 0.9770906957316785,
+              "15": 0.9770906957316785,
+              "20": 0.9770906957316785
+            },
+            "restricted_mean_survival_years": 29.358957783995233,
+            "n_spells": 355,
+            "spell_weight": 7599083.014,
+            "n_remarriage_events": 8
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9072746627065605,
+              0.8195183149684981,
+              0.7660313311396234,
+              0.7507006580879793,
+              0.7492980260966297,
+              0.6715601094131733,
+              0.6642351472775108,
+              0.6642034017772204,
+              0.6218123272942474,
+              0.6099757957891523,
+              0.6099757957891523,
+              0.5714368190182152,
+              0.5714368190182152,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5500682695255406,
+              0.5423544348256449,
+              0.5423544348256449,
+              0.5423544348256449,
+              0.5423544348256449,
+              0.5423544348256449,
+              0.5423544348256449
+            ],
+            "reported": {
+              "1": 0.9072746627065605,
+              "2": 0.8195183149684981,
+              "3": 0.7660313311396234,
+              "5": 0.7492980260966297,
+              "10": 0.6099757957891523,
+              "15": 0.5500682695255406,
+              "20": 0.5500682695255406
+            },
+            "restricted_mean_survival_years": 18.28233678211099,
+            "n_spells": 93,
+            "spell_weight": 1467755.569,
+            "n_remarriage_events": 41
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9750398780799934,
+              0.9223434907245631,
+              0.9071815369608056,
+              0.8936917941600322,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8698658015799234,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773,
+              0.8168658239455773
+            ],
+            "reported": {
+              "1": 0.9750398780799934,
+              "2": 0.9223434907245631,
+              "3": 0.9071815369608056,
+              "5": 0.8698658015799234,
+              "10": 0.8698658015799234,
+              "15": 0.8698658015799234,
+              "20": 0.8698658015799234
+            },
+            "restricted_mean_survival_years": 25.78476776465994,
+            "n_spells": 136,
+            "spell_weight": 2792734.756,
+            "n_remarriage_events": 18
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_75plus": 0.4273337129190325,
+        "share_65_74": 0.19054483707589265
+      },
+      "sim_widowed_by_age_mean": {
+        "75+|female": {
+          "n_widowed_py": 3569.6,
+          "all_py_weight": 181638925.83699998,
+          "widowed_share": 0.4273337129190325,
+          "widowed_py_weight": 77620436.58855
+        },
+        "50-64|male": {
+          "n_widowed_py": 550.85,
+          "all_py_weight": 575977579.017,
+          "widowed_share": 0.01639943174762227,
+          "widowed_py_weight": 9445704.995249998
+        },
+        "15-49|male": {
+          "n_widowed_py": 818.1,
+          "all_py_weight": 3030753401.6610003,
+          "widowed_share": 0.003975691026626045,
+          "widowed_py_weight": 12049339.1029
+        },
+        "65-74|female": {
+          "n_widowed_py": 2740.7,
+          "all_py_weight": 266599486.575,
+          "widowed_share": 0.19054483707589265,
+          "widowed_py_weight": 50799155.733950004
+        },
+        "15-49|female": {
+          "n_widowed_py": 4156.45,
+          "all_py_weight": 3193357473.74,
+          "widowed_share": 0.018182915644312722,
+          "widowed_py_weight": 58064549.56715001
+        },
+        "75+|male": {
+          "n_widowed_py": 730.4,
+          "all_py_weight": 109013334.38500002,
+          "widowed_share": 0.13610958953468763,
+          "widowed_py_weight": 14837760.19695
+        },
+        "65-74|male": {
+          "n_widowed_py": 501.0,
+          "all_py_weight": 207384499.43800002,
+          "widowed_share": 0.04350542852937443,
+          "widowed_py_weight": 9022351.518400002
+        },
+        "50-64|female": {
+          "n_widowed_py": 3494.8,
+          "all_py_weight": 698661813.5160002,
+          "widowed_share": 0.08183464722591519,
+          "widowed_py_weight": 57174743.03929999
+        }
+      },
+      "sim_incidence_mean": {
+        "female": {
+          "75+": 0.060505871545020296,
+          "55-64": 0.010522091978370927,
+          "45-54": 0.005056422666355982,
+          "65-74": 0.024029243839685015
+        },
+        "male": {
+          "75+": 0.02028719024159334,
+          "55-64": 0.004196801300602369,
+          "45-54": 0.0017148368514662935,
+          "65-74": 0.005578926094716883
+        }
+      },
+      "sim_survival_mean": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9712344944659449,
+              0.9496711266144386,
+              0.9267770162277434,
+              0.9113761130415267,
+              0.8909109968902934,
+              0.8758167712155978,
+              0.8616420408801455,
+              0.8518419336891594,
+              0.8400748758132097,
+              0.8351061708257118,
+              0.831787988023512,
+              0.8272570584476213,
+              0.8233897797722308,
+              0.8199917789119489,
+              0.8172280672445298,
+              0.8122794456374983,
+              0.8108755903664541,
+              0.8106945095254231,
+              0.8091624292986456,
+              0.8080766450170062,
+              0.8050551104659875,
+              0.8035648923841844,
+              0.8027632067008206,
+              0.8027632067008206,
+              0.802233016658566,
+              0.802233016658566,
+              0.8020715589231191,
+              0.8020715589231191,
+              0.8020715589231191,
+              0.8020715589231191
+            ],
+            "reported": {
+              "1": 0.9712344944659449,
+              "2": 0.9496711266144386,
+              "3": 0.9267770162277434,
+              "5": 0.8909109968902934,
+              "10": 0.8351061708257118,
+              "15": 0.8172280672445298,
+              "20": 0.8080766450170062
+            },
+            "restricted_mean_survival_years": 25.112093517170067,
+            "spell_weight": 3830913.6074
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9927072682524851,
+              0.9876263777566832,
+              0.9845254829299938,
+              0.9798362455895484,
+              0.9780087211451924,
+              0.9755272944419877,
+              0.9741847207402043,
+              0.9718025092448039,
+              0.9707346105333189,
+              0.9698428403438377,
+              0.9685292658710178,
+              0.9682761113060001,
+              0.9679580897182387,
+              0.9679580897182387,
+              0.9679580897182387,
+              0.9655884294557513,
+              0.9655884294557513,
+              0.9655884294557513,
+              0.9655884294557513,
+              0.9642802239856861,
+              0.9642758296148534,
+              0.9642758296148534,
+              0.9642758296148534,
+              0.9642758296148534,
+              0.9615174063750478,
+              0.9615174063750478,
+              0.9615174063750478,
+              0.9615174063750478,
+              0.9615174063750478,
+              0.9615174063750478
+            ],
+            "reported": {
+              "1": 0.9927072682524851,
+              "2": 0.9876263777566832,
+              "3": 0.9845254829299938,
+              "5": 0.9780087211451924,
+              "10": 0.9698428403438377,
+              "15": 0.9679580897182387,
+              "20": 0.9642802239856861
+            },
+            "restricted_mean_survival_years": 29.078317415828185,
+            "spell_weight": 6751521.12005
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.8826552937019949,
+              0.7785376888325187,
+              0.7198698141418872,
+              0.6580545470066838,
+              0.6377708255832645,
+              0.6237914452987952,
+              0.5975293253089011,
+              0.5813482538150703,
+              0.5492469488696827,
+              0.5365965412979252,
+              0.5148999466216282,
+              0.5041954967866994,
+              0.49514166723981834,
+              0.4914699382096184,
+              0.48448024661682315,
+              0.4824505226772704,
+              0.4722354420196826,
+              0.4668550946836114,
+              0.4618500815359018,
+              0.46002745856019667,
+              0.4534015827565783,
+              0.4534015827565783,
+              0.4525288465310403,
+              0.45252854719246827,
+              0.45252854719246827,
+              0.4442843075274432,
+              0.4442843075274432,
+              0.4442843075274432,
+              0.4442843075274432,
+              0.4442843075274432
+            ],
+            "reported": {
+              "1": 0.8826552937019949,
+              "2": 0.7785376888325187,
+              "3": 0.7198698141418872,
+              "5": 0.6377708255832645,
+              "10": 0.5365965412979252,
+              "15": 0.48448024661682315,
+              "20": 0.46002745856019667
+            },
+            "restricted_mean_survival_years": 15.884817222874323,
+            "spell_weight": 1368994.18965
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9690379228486167,
+              0.9338673638983517,
+              0.8994118019167047,
+              0.8686183994180137,
+              0.8514413223318277,
+              0.8364537814590021,
+              0.8277718368438405,
+              0.8198138733698432,
+              0.8152249454484781,
+              0.8069835717776922,
+              0.8069835717776922,
+              0.7982865710290523,
+              0.7897097972216158,
+              0.7845278868550656,
+              0.7792224332641362,
+              0.7697240018604825,
+              0.7697204700225362,
+              0.7575705097814189,
+              0.7458465857115298,
+              0.7458465857115298,
+              0.7458465857115298,
+              0.7257546577042172,
+              0.7257546577042172,
+              0.6976250031820902,
+              0.6976250031820902,
+              0.6976250031820902,
+              0.6976250031820902,
+              0.6976250031820902,
+              0.6976250031820902,
+              0.6976250031820902
+            ],
+            "reported": {
+              "1": 0.9690379228486167,
+              "2": 0.9338673638983517,
+              "3": 0.8994118019167047,
+              "5": 0.8514413223318277,
+              "10": 0.8069835717776922,
+              "15": 0.7792224332641362,
+              "20": 0.7458465857115298
+            },
+            "restricted_mean_survival_years": 23.456794155942028,
+            "spell_weight": 2047078.7516000003
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4437903832867731,
+        0.4625644196409639,
+        0.4248776082955646,
+        0.36752766765922745,
+        0.43451921548372635,
+        0.4211628679066817,
+        0.4381907078795714,
+        0.4425569000123727,
+        0.4259985896108952,
+        0.4171655805870487,
+        0.41627668422710834,
+        0.38846098667374385,
+        0.43746885354468246,
+        0.47196190285737427,
+        0.43999648608206055,
+        0.3951814516257081,
+        0.42877686882431043,
+        0.4323068110272024,
+        0.4392862093701415,
+        0.41860406378549314
+      ],
+      "elapsed_seconds": 24.2
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 20731,
+      "n_holdout_persons": 20678,
+      "ref_support_taxonomy": {
+        "denominator_all_female_75plus_py_weight": 171096176.552,
+        "widowed_75plus_py_weight": 89044842.005,
+        "share_widowed_75plus_female": 0.5204373575112432,
+        "buckets_share_of_widowed_stock": {
+          "reachable_within_support": 0.8727770734731173,
+          "carried_predates_support": 0.12722292652688277,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "buckets_share_of_all_75plus_py": {
+          "reachable_within_support": 0.4542257938147453,
+          "carried_predates_support": 0.0662115636964979,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "structurally_unreachable_share": 0.12722292652688277,
+        "initial_state_fixable_share": 0.12722292652688277,
+        "reconciliation_remainder": 0.0,
+        "n_widowed_75plus_py": 4557,
+        "n_years_since_dissolution_na": 0,
+        "n_no_observed_support": 0,
+        "carried_mass_diagnostics": {
+          "mean_onset_age": 48.52006514491796,
+          "mean_first_observed_wave": 1971.6036375350388,
+          "share_first_observed_age_ge_60": 0.4020370905885496
+        },
+        "reconstruction_window_contrast": {
+          "reachable_within_exposure": 1.0,
+          "onset_before_exposure_start": 0.0,
+          "onset_after_exposure_end": 0.0,
+          "note": "the retrospective-to-age-15 exposure window has ~0 carried mass (forensics 2); the observed-support window is the tighter boundary that exposes the carried-status share"
+        }
+      },
+      "ref_stock": {
+        "share_75plus": 0.5204373575112432,
+        "share_65_74": 0.19853259549102445
+      },
+      "ref_widowed_by_age": {
+        "15-49|female": {
+          "widowed_py_weight": 22971816.15,
+          "all_py_weight": 3053754752.773,
+          "widowed_share": 0.007522482324142159,
+          "n_widowed_py": 2239
+        },
+        "15-49|male": {
+          "widowed_py_weight": 3442451.539,
+          "all_py_weight": 3091986430.104,
+          "widowed_share": 0.00111334626358118,
+          "n_widowed_py": 338
+        },
+        "50-64|female": {
+          "widowed_py_weight": 46233652.765,
+          "all_py_weight": 656868518.539,
+          "widowed_share": 0.07038494228317167,
+          "n_widowed_py": 3873
+        },
+        "50-64|male": {
+          "widowed_py_weight": 7975604.868999999,
+          "all_py_weight": 593754394.621,
+          "widowed_share": 0.013432498253913414,
+          "n_widowed_py": 615
+        },
+        "65-74|female": {
+          "widowed_py_weight": 49013012.766,
+          "all_py_weight": 246876401.55400002,
+          "widowed_share": 0.19853259549102445,
+          "n_widowed_py": 3260
+        },
+        "65-74|male": {
+          "widowed_py_weight": 9191952.627,
+          "all_py_weight": 214107821.263,
+          "widowed_share": 0.042931419192337845,
+          "n_widowed_py": 573
+        },
+        "75+|female": {
+          "widowed_py_weight": 89044842.005,
+          "all_py_weight": 171096176.552,
+          "widowed_share": 0.5204373575112432,
+          "n_widowed_py": 4557
+        },
+        "75+|male": {
+          "widowed_py_weight": 15585438.961,
+          "all_py_weight": 114393397.336,
+          "widowed_share": 0.13624421797022027,
+          "n_widowed_py": 828
+        }
+      },
+      "ref_incidence": {
+        "female": {
+          "45-54": 0.006291009036152318,
+          "55-64": 0.01144653348017475,
+          "65-74": 0.02335948249390411,
+          "75+": 0.05987444256344912
+        },
+        "male": {
+          "45-54": 0.00187817921575143,
+          "55-64": 0.0035785698958623936,
+          "65-74": 0.005665093139641993,
+          "75+": 0.02297575378720866
+        }
+      },
+      "ref_survival": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.973388316426522,
+              0.9691769138269712,
+              0.9423576717916657,
+              0.9423576717916657,
+              0.9162288416861079,
+              0.9162288416861079,
+              0.89412675513382,
+              0.8812786852456415,
+              0.8702834677579326,
+              0.8702698165439607,
+              0.8606792363563023,
+              0.8606792363563023,
+              0.8569699322149873,
+              0.8463827985914927,
+              0.8463646079318736,
+              0.8463646079318736,
+              0.8375763191882645,
+              0.8375763191882645,
+              0.8375763191882645,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464,
+              0.8235602976274464
+            ],
+            "reported": {
+              "1": 0.973388316426522,
+              "2": 0.9691769138269712,
+              "3": 0.9423576717916657,
+              "5": 0.9162288416861079,
+              "10": 0.8702698165439607,
+              "15": 0.8463646079318736,
+              "20": 0.8235602976274464
+            },
+            "restricted_mean_survival_years": 25.865029632739923,
+            "n_spells": 311,
+            "spell_weight": 4436660.299,
+            "n_remarriage_events": 36
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9889899511084919,
+              0.9850634217131775,
+              0.9799697731523359,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737,
+              0.9741760015648737
+            ],
+            "reported": {
+              "1": 0.9889899511084919,
+              "2": 0.9850634217131775,
+              "3": 0.9799697731523359,
+              "5": 0.9741760015648737,
+              "10": 0.9741760015648737,
+              "15": 0.9741760015648737,
+              "20": 0.9741760015648737
+            },
+            "restricted_mean_survival_years": 29.2567751882256,
+            "n_spells": 358,
+            "spell_weight": 7132668.507999999,
+            "n_remarriage_events": 7
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.8769253679786381,
+              0.8170213781162152,
+              0.771726976206656,
+              0.7037703368038438,
+              0.6873083732604015,
+              0.6344991188582834,
+              0.6253586507151107,
+              0.6253586507151107,
+              0.5465082106044824,
+              0.5340528565151553,
+              0.5077029569286171,
+              0.46612089650453037,
+              0.46612089650453037,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745,
+              0.439841186162745
+            ],
+            "reported": {
+              "1": 0.8769253679786381,
+              "2": 0.8170213781162152,
+              "3": 0.771726976206656,
+              "5": 0.6873083732604015,
+              "10": 0.5340528565151553,
+              "15": 0.439841186162745,
+              "20": 0.439841186162745
+            },
+            "restricted_mean_survival_years": 15.73977483447824,
+            "n_spells": 85,
+            "spell_weight": 1303099.9139999999,
+            "n_remarriage_events": 39
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9688893939008214,
+              0.9039452240788471,
+              0.8946014551724116,
+              0.8662220437460271,
+              0.8341700970247642,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.8257537331536413,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976,
+              0.7527807482565976
+            ],
+            "reported": {
+              "1": 0.9688893939008214,
+              "2": 0.9039452240788471,
+              "3": 0.8946014551724116,
+              "5": 0.8341700970247642,
+              "10": 0.8257537331536413,
+              "15": 0.8257537331536413,
+              "20": 0.8257537331536413
+            },
+            "restricted_mean_survival_years": 24.381941693793465,
+            "n_spells": 146,
+            "spell_weight": 2686237.958,
+            "n_remarriage_events": 25
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_75plus": 0.42407560384844756,
+        "share_65_74": 0.19965060130572615
+      },
+      "sim_widowed_by_age_mean": {
+        "75+|female": {
+          "n_widowed_py": 3539.55,
+          "all_py_weight": 171096176.552,
+          "widowed_share": 0.42407560384844756,
+          "widowed_py_weight": 72557714.38745
+        },
+        "50-64|male": {
+          "n_widowed_py": 607.5,
+          "all_py_weight": 593754394.621,
+          "widowed_share": 0.017039369611584802,
+          "widowed_py_weight": 10117200.588450002
+        },
+        "15-49|male": {
+          "n_widowed_py": 815.4,
+          "all_py_weight": 3091986430.104001,
+          "widowed_share": 0.003828925531733913,
+          "widowed_py_weight": 11838985.786
+        },
+        "65-74|female": {
+          "n_widowed_py": 2849.85,
+          "all_py_weight": 246876401.554,
+          "widowed_share": 0.19965060130572615,
+          "widowed_py_weight": 49289022.01845
+        },
+        "15-49|female": {
+          "n_widowed_py": 5838.4,
+          "all_py_weight": 3053754752.7730002,
+          "widowed_share": 0.0263549305494712,
+          "widowed_py_weight": 80481494.42445001
+        },
+        "75+|male": {
+          "n_widowed_py": 690.65,
+          "all_py_weight": 114393397.336,
+          "widowed_share": 0.12930966853184675,
+          "widowed_py_weight": 14792172.291750003
+        },
+        "65-74|male": {
+          "n_widowed_py": 455.65,
+          "all_py_weight": 214107821.263,
+          "widowed_share": 0.03840938526224285,
+          "widowed_py_weight": 8223749.79455
+        },
+        "50-64|female": {
+          "n_widowed_py": 4364.85,
+          "all_py_weight": 656868518.5389999,
+          "widowed_share": 0.10370588004950257,
+          "widowed_py_weight": 68121127.7919
+        }
+      },
+      "sim_incidence_mean": {
+        "female": {
+          "75+": 0.05496134359302233,
+          "55-64": 0.010284812836421691,
+          "45-54": 0.006051088362573469,
+          "65-74": 0.0218979064206238
+        },
+        "male": {
+          "75+": 0.020108479737176797,
+          "55-64": 0.0032267751544437797,
+          "45-54": 0.0016592315418526072,
+          "65-74": 0.005265026669582449
+        }
+      },
+      "sim_survival_mean": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9742626537840877,
+              0.9483230135206417,
+              0.9267512557941802,
+              0.9035074890728699,
+              0.8827761732352786,
+              0.8608885460505927,
+              0.84281143603061,
+              0.8267437721446591,
+              0.8162398286777387,
+              0.8111408434735582,
+              0.8051278276359335,
+              0.8016586994768906,
+              0.7952382767564448,
+              0.7861034471768794,
+              0.7829724052972381,
+              0.7795297272174869,
+              0.7769351428898295,
+              0.7768232520368299,
+              0.7745290864185861,
+              0.774442933673412,
+              0.7740127975224372,
+              0.7740127539371847,
+              0.7733777488638865,
+              0.7733290679952102,
+              0.7721232555817004,
+              0.7700276824390705,
+              0.7700276824390705,
+              0.7700276824390705,
+              0.7700276824390705,
+              0.7700276824390705
+            ],
+            "reported": {
+              "1": 0.9742626537840877,
+              "2": 0.9483230135206417,
+              "3": 0.9267512557941802,
+              "5": 0.8827761732352786,
+              "10": 0.8111408434735582,
+              "15": 0.7829724052972381,
+              "20": 0.774442933673412
+            },
+            "restricted_mean_survival_years": 24.363799846459514,
+            "spell_weight": 3633682.2053000005
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.990046964969309,
+              0.9839480962834519,
+              0.9795685420489761,
+              0.9727834774804205,
+              0.9708598147867471,
+              0.9704180156092562,
+              0.9691195144549127,
+              0.9686940357244597,
+              0.9673216318341445,
+              0.9666251195540481,
+              0.9666251195540481,
+              0.9666251195540481,
+              0.9657607012986011,
+              0.9649173139057249,
+              0.9649173139057249,
+              0.9648279381682092,
+              0.9608666818249418,
+              0.959007456081863,
+              0.9590062363084944,
+              0.9531210909079565,
+              0.9531210909079565,
+              0.9531210909079565,
+              0.9531210909079565,
+              0.9531210909079565,
+              0.9531210909079565,
+              0.9476825425064123,
+              0.9476825425064123,
+              0.9476825425064123,
+              0.9476825425064123,
+              0.9476825425064123
+            ],
+            "reported": {
+              "1": 0.990046964969309,
+              "2": 0.9839480962834519,
+              "3": 0.9795685420489761,
+              "5": 0.9708598147867471,
+              "10": 0.9666251195540481,
+              "15": 0.9649173139057249,
+              "20": 0.9531210909079565
+            },
+            "restricted_mean_survival_years": 28.869078351327175,
+            "spell_weight": 5844233.89005
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.8658835232884423,
+              0.771778294973898,
+              0.6959284849423393,
+              0.6197764238386261,
+              0.5966894386827611,
+              0.5689400100728144,
+              0.5450435720313862,
+              0.5220438607815183,
+              0.49858011725862167,
+              0.4852249732094882,
+              0.4721679820357654,
+              0.45678864675047093,
+              0.44838698032654484,
+              0.4315867906743379,
+              0.4250420769800212,
+              0.4181566147347948,
+              0.4181566147347948,
+              0.4136873663916276,
+              0.4107235792940438,
+              0.40312446335174573,
+              0.40311821932893466,
+              0.40311821932893466,
+              0.3882707827963461,
+              0.3833045912724276,
+              0.3833045912724276,
+              0.3833045912724276,
+              0.3833045912724276,
+              0.3833045912724276,
+              0.3833045912724276,
+              0.3833045912724276
+            ],
+            "reported": {
+              "1": 0.8658835232884423,
+              "2": 0.771778294973898,
+              "3": 0.6959284849423393,
+              "5": 0.5966894386827611,
+              "10": 0.4852249732094882,
+              "15": 0.4250420769800212,
+              "20": 0.40312446335174573
+            },
+            "restricted_mean_survival_years": 14.345349174715249,
+            "spell_weight": 1126757.52605
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9632567598661442,
+              0.9294742968749647,
+              0.8913013930833706,
+              0.8483004569105054,
+              0.8279769953461974,
+              0.8114039350802423,
+              0.79808381147763,
+              0.7888223242435337,
+              0.7799805108224651,
+              0.7738813877094556,
+              0.7684849381685048,
+              0.7632371799376214,
+              0.7632371799376214,
+              0.7485993175009524,
+              0.7397157234691314,
+              0.735767330714558,
+              0.7341171007452313,
+              0.7275684546670733,
+              0.7275684546670733,
+              0.7275684546670733,
+              0.7275684546670733,
+              0.7275684546670733,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975,
+              0.7177487622423975
+            ],
+            "reported": {
+              "1": 0.9632567598661442,
+              "2": 0.9294742968749647,
+              "3": 0.8913013930833706,
+              "5": 0.8279769953461974,
+              "10": 0.7738813877094556,
+              "15": 0.7397157234691314,
+              "20": 0.7275684546670733
+            },
+            "restricted_mean_survival_years": 23.045473013162674,
+            "spell_weight": 2167982.36645
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4521987742460491,
+        0.35008032654543764,
+        0.4601434591092253,
+        0.43197870448926784,
+        0.4357779075287492,
+        0.46326555342345827,
+        0.4355134897205217,
+        0.4124184410255027,
+        0.42755511511835065,
+        0.4011827877354027,
+        0.4576696750859373,
+        0.40310741116437754,
+        0.40879255799584036,
+        0.41539085640174833,
+        0.43767452186893807,
+        0.42558746032451206,
+        0.47033359919379997,
+        0.3978105788548341,
+        0.3827067857714474,
+        0.41232407136555244
+      ],
+      "elapsed_seconds": 24.2
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 20747,
+      "n_holdout_persons": 20662,
+      "ref_support_taxonomy": {
+        "denominator_all_female_75plus_py_weight": 186518335.699,
+        "widowed_75plus_py_weight": 94652110.53,
+        "share_widowed_75plus_female": 0.5074681273306444,
+        "buckets_share_of_widowed_stock": {
+          "reachable_within_support": 0.8733549420411428,
+          "carried_predates_support": 0.1266450579588571,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "buckets_share_of_all_75plus_py": {
+          "reachable_within_support": 0.4431997969325822,
+          "carried_predates_support": 0.06426833039806214,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "structurally_unreachable_share": 0.1266450579588571,
+        "initial_state_fixable_share": 0.1266450579588571,
+        "reconciliation_remainder": 0.0,
+        "n_widowed_75plus_py": 4443,
+        "n_years_since_dissolution_na": 0,
+        "n_no_observed_support": 0,
+        "carried_mass_diagnostics": {
+          "mean_onset_age": 48.971655667650126,
+          "mean_first_observed_wave": 1971.4103094063123,
+          "share_first_observed_age_ge_60": 0.3316963824511874
+        },
+        "reconstruction_window_contrast": {
+          "reachable_within_exposure": 1.0,
+          "onset_before_exposure_start": 0.0,
+          "onset_after_exposure_end": 0.0,
+          "note": "the retrospective-to-age-15 exposure window has ~0 carried mass (forensics 2); the observed-support window is the tighter boundary that exposes the carried-status share"
+        }
+      },
+      "ref_stock": {
+        "share_75plus": 0.5074681273306444,
+        "share_65_74": 0.21287775034312112
+      },
+      "ref_widowed_by_age": {
+        "15-49|female": {
+          "widowed_py_weight": 22644277.949999996,
+          "all_py_weight": 3184120199.566,
+          "widowed_share": 0.007111627869163495,
+          "n_widowed_py": 2029
+        },
+        "15-49|male": {
+          "widowed_py_weight": 5053916.137,
+          "all_py_weight": 3094484130.848,
+          "widowed_share": 0.0016332015041276185,
+          "n_widowed_py": 360
+        },
+        "50-64|female": {
+          "widowed_py_weight": 46377996.37,
+          "all_py_weight": 693308566.655,
+          "widowed_share": 0.06689373044063125,
+          "n_widowed_py": 3704
+        },
+        "50-64|male": {
+          "widowed_py_weight": 8477607.309,
+          "all_py_weight": 593519438.446,
+          "widowed_share": 0.014283622000985763,
+          "n_widowed_py": 536
+        },
+        "65-74|female": {
+          "widowed_py_weight": 55927729.570999995,
+          "all_py_weight": 262722287.702,
+          "widowed_share": 0.21287775034312112,
+          "n_widowed_py": 3326
+        },
+        "65-74|male": {
+          "widowed_py_weight": 10629304.751,
+          "all_py_weight": 217432939.777,
+          "widowed_share": 0.04888543916989511,
+          "n_widowed_py": 602
+        },
+        "75+|female": {
+          "widowed_py_weight": 94652110.53,
+          "all_py_weight": 186518335.699,
+          "widowed_share": 0.5074681273306444,
+          "n_widowed_py": 4443
+        },
+        "75+|male": {
+          "widowed_py_weight": 18755482.392,
+          "all_py_weight": 124055283.891,
+          "widowed_share": 0.15118648560330028,
+          "n_widowed_py": 912
+        }
+      },
+      "ref_incidence": {
+        "female": {
+          "45-54": 0.00558150117719465,
+          "55-64": 0.012000448198902778,
+          "65-74": 0.025896671087588717,
+          "75+": 0.05416140383551548
+        },
+        "male": {
+          "45-54": 0.0017941730744362565,
+          "55-64": 0.003951857851724029,
+          "65-74": 0.007142042617173654,
+          "75+": 0.02295745310226276
+        }
+      },
+      "ref_survival": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9850098721894263,
+              0.9529743600378513,
+              0.9370360663818302,
+              0.9237649393063463,
+              0.9095590664704049,
+              0.9095590664704049,
+              0.9095590664704049,
+              0.8981841552900943,
+              0.88829097881394,
+              0.8882790303600338,
+              0.8882790303600338,
+              0.8882790303600338,
+              0.8849537386454062,
+              0.8754182422366025,
+              0.8754020301990365,
+              0.8754020301990365,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971,
+              0.8677053722330971
+            ],
+            "reported": {
+              "1": 0.9850098721894263,
+              "2": 0.9529743600378513,
+              "3": 0.9370360663818302,
+              "5": 0.9095590664704049,
+              "10": 0.8882790303600338,
+              "15": 0.8754020301990365,
+              "20": 0.8677053722330971
+            },
+            "restricted_mean_survival_years": 26.637825915054243,
+            "n_spells": 322,
+            "spell_weight": 4984193.26,
+            "n_remarriage_events": 35
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9881091304705727,
+              0.980510806871921,
+              0.9754287716000102,
+              0.9696508288756284,
+              0.9696508288756284,
+              0.9696508288756284,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982,
+              0.9635056264525982
+            ],
+            "reported": {
+              "1": 0.9881091304705727,
+              "2": 0.980510806871921,
+              "3": 0.9754287716000102,
+              "5": 0.9696508288756284,
+              "10": 0.9635056264525982,
+              "15": 0.9635056264525982,
+              "20": 0.9635056264525982
+            },
+            "restricted_mean_survival_years": 28.977136230431746,
+            "n_spells": 350,
+            "spell_weight": 7200566.77,
+            "n_remarriage_events": 10
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9395765896008303,
+              0.8534481949770458,
+              0.8019306417024424,
+              0.7568396816582971,
+              0.7417087863229856,
+              0.6729083289118641,
+              0.6729083289118641,
+              0.6729083289118641,
+              0.6189219520895586,
+              0.6055196027250332,
+              0.6055196027250332,
+              0.5649726657884221,
+              0.5649726657884221,
+              0.5649726657884221,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931,
+              0.5433672275752931
+            ],
+            "reported": {
+              "1": 0.9395765896008303,
+              "2": 0.8534481949770458,
+              "3": 0.8019306417024424,
+              "5": 0.7417087863229856,
+              "10": 0.6055196027250332,
+              "15": 0.5433672275752931,
+              "20": 0.5433672275752931
+            },
+            "restricted_mean_survival_years": 18.330983677106772,
+            "n_spells": 80,
+            "spell_weight": 1342009.311,
+            "n_remarriage_events": 35
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9852636258315688,
+              0.9266684139669311,
+              0.9191628629920224,
+              0.9030631296561017,
+              0.8859620881703416,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212,
+              0.8586715710521212
+            ],
+            "reported": {
+              "1": 0.9852636258315688,
+              "2": 0.9266684139669311,
+              "3": 0.9191628629920224,
+              "5": 0.8859620881703416,
+              "10": 0.8586715710521212,
+              "15": 0.8586715710521212,
+              "20": 0.8586715710521212
+            },
+            "restricted_mean_survival_years": 26.08690939691999,
+            "n_spells": 157,
+            "spell_weight": 3126175.44,
+            "n_remarriage_events": 22
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_75plus": 0.43013962529277566,
+        "share_65_74": 0.20414436654184825
+      },
+      "sim_widowed_by_age_mean": {
+        "75+|female": {
+          "n_widowed_py": 3521.3,
+          "all_py_weight": 186518335.69899997,
+          "widowed_share": 0.43013962529277566,
+          "widowed_py_weight": 80228927.02780001
+        },
+        "50-64|male": {
+          "n_widowed_py": 573.9,
+          "all_py_weight": 593519438.4459999,
+          "widowed_share": 0.01600476072910333,
+          "widowed_py_weight": 9499136.6004
+        },
+        "15-49|male": {
+          "n_widowed_py": 786.1,
+          "all_py_weight": 3094484130.848,
+          "widowed_share": 0.0035712051079646737,
+          "widowed_py_weight": 11051037.5346
+        },
+        "65-74|female": {
+          "n_widowed_py": 2846.15,
+          "all_py_weight": 262722287.70199996,
+          "widowed_share": 0.20414436654184825,
+          "widowed_py_weight": 53633274.999350004
+        },
+        "15-49|female": {
+          "n_widowed_py": 5108.55,
+          "all_py_weight": 3184120199.5660005,
+          "widowed_share": 0.022921455095915637,
+          "widowed_py_weight": 72984668.17435001
+        },
+        "75+|male": {
+          "n_widowed_py": 740.95,
+          "all_py_weight": 124055283.89099999,
+          "widowed_share": 0.12712322991019415,
+          "widowed_py_weight": 15770308.37565
+        },
+        "65-74|male": {
+          "n_widowed_py": 527.8,
+          "all_py_weight": 217432939.777,
+          "widowed_share": 0.045573748993657286,
+          "widowed_py_weight": 9909234.220350001
+        },
+        "50-64|female": {
+          "n_widowed_py": 3973.65,
+          "all_py_weight": 693308566.6550001,
+          "widowed_share": 0.0955176550625309,
+          "widowed_py_weight": 66223208.521649994
+        }
+      },
+      "sim_incidence_mean": {
+        "female": {
+          "75+": 0.05046277283026056,
+          "55-64": 0.011567245445232858,
+          "45-54": 0.005560025440625894,
+          "65-74": 0.023473389836485694
+        },
+        "male": {
+          "75+": 0.019016046492257823,
+          "55-64": 0.003821303620034444,
+          "45-54": 0.0015076864638637322,
+          "65-74": 0.006027582765232756
+        }
+      },
+      "sim_survival_mean": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9716870110686688,
+              0.948160749628169,
+              0.9286739194610766,
+              0.904959287042594,
+              0.8915373019986046,
+              0.8801490551790352,
+              0.8699862183681351,
+              0.8594011312161989,
+              0.8509067671892871,
+              0.8463995662166187,
+              0.8435624513396378,
+              0.8401754548017546,
+              0.8363044633936184,
+              0.8338371153697419,
+              0.8338371153697419,
+              0.8338358645130818,
+              0.8331979273994181,
+              0.8331979273994181,
+              0.8331957432843293,
+              0.8331957432843293,
+              0.8325173759271791,
+              0.8325173759271791,
+              0.8325173759271791,
+              0.8311104793825699,
+              0.8299386956999472,
+              0.8299386956999472,
+              0.828219193764458,
+              0.8250265344682551,
+              0.8250265344682551,
+              0.8250265344682551
+            ],
+            "reported": {
+              "1": 0.9716870110686688,
+              "2": 0.948160749628169,
+              "3": 0.9286739194610766,
+              "5": 0.8915373019986046,
+              "10": 0.8463995662166187,
+              "15": 0.8338371153697419,
+              "20": 0.8331957432843293
+            },
+            "restricted_mean_survival_years": 25.598039609256684,
+            "spell_weight": 4197403.93115
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.99268111474617,
+              0.9878738373630757,
+              0.9805649365057286,
+              0.9764520204271108,
+              0.9756047074003062,
+              0.9740918898921175,
+              0.9730691150325704,
+              0.9720345759121092,
+              0.9707659952693106,
+              0.9685897153049604,
+              0.9672780168511709,
+              0.9662567400282212,
+              0.9657469207123723,
+              0.9651373121115243,
+              0.9644063566460593,
+              0.9644063566460593,
+              0.9644063566460593,
+              0.9615259575715053,
+              0.9602776541560869,
+              0.9602776541560869,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799,
+              0.9601447483269799
+            ],
+            "reported": {
+              "1": 0.99268111474617,
+              "2": 0.9878738373630757,
+              "3": 0.9805649365057286,
+              "5": 0.9756047074003062,
+              "10": 0.9685897153049604,
+              "15": 0.9644063566460593,
+              "20": 0.9602776541560869
+            },
+            "restricted_mean_survival_years": 29.0128947166484,
+            "spell_weight": 6327110.667699999
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.910114091033406,
+              0.8341813424566711,
+              0.7787864803273048,
+              0.7260793459022065,
+              0.6896642452672731,
+              0.6643144096120495,
+              0.65326819791329,
+              0.6348355214921182,
+              0.5924560635702435,
+              0.5758023172631505,
+              0.562493160101737,
+              0.5374054403186602,
+              0.5227860034131041,
+              0.5179647399278161,
+              0.5106010582017069,
+              0.5101840538038449,
+              0.4998952612620867,
+              0.4900079062537711,
+              0.4900079062537711,
+              0.4876280080327507,
+              0.4876280080327507,
+              0.48690600850146587,
+              0.4794846847754628,
+              0.4794846847754628,
+              0.47670547255916784,
+              0.4722371938959939,
+              0.4722371938959939,
+              0.470167891163379,
+              0.470167891163379,
+              0.46214052925306914
+            ],
+            "reported": {
+              "1": 0.910114091033406,
+              "2": 0.8341813424566711,
+              "3": 0.7787864803273048,
+              "5": 0.6896642452672731,
+              "10": 0.5758023172631505,
+              "15": 0.5106010582017069,
+              "20": 0.4876280080327507
+            },
+            "restricted_mean_survival_years": 16.945635110423087,
+            "spell_weight": 1267913.4681999998
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9733931220047415,
+              0.9464817024596763,
+              0.9084676981802502,
+              0.8812857667647718,
+              0.8722638850321998,
+              0.8553245411442386,
+              0.8386122061642174,
+              0.8252907021131868,
+              0.8102244018143356,
+              0.8102226294340664,
+              0.802809697100902,
+              0.7922952391385331,
+              0.7832027170616089,
+              0.7808016052609068,
+              0.7783905159726945,
+              0.7783905159726945,
+              0.7783905159726945,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7585431651571672,
+              0.7166077091476926,
+              0.7166077091476926,
+              0.7166077091476926
+            ],
+            "reported": {
+              "1": 0.9733931220047415,
+              "2": 0.9464817024596763,
+              "3": 0.9084676981802502,
+              "5": 0.8722638850321998,
+              "10": 0.8102226294340664,
+              "15": 0.7783905159726945,
+              "20": 0.7585431651571672
+            },
+            "restricted_mean_survival_years": 23.95110224060647,
+            "spell_weight": 2247340.80435
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4309370761044752,
+        0.4104416831251538,
+        0.43191868439147735,
+        0.40976592884862295,
+        0.43778725052411993,
+        0.4229368004939953,
+        0.4482424777471797,
+        0.4051893337712491,
+        0.4300226247431074,
+        0.4103538672225583,
+        0.4496039842127414,
+        0.3823508553179866,
+        0.4388594116671547,
+        0.39702439128828776,
+        0.4407292019357254,
+        0.4139178035374992,
+        0.45460034086854983,
+        0.4111871277940595,
+        0.46911317040273764,
+        0.5078104918588323
+      ],
+      "elapsed_seconds": 24.6
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 20761,
+      "n_holdout_persons": 20648,
+      "ref_support_taxonomy": {
+        "denominator_all_female_75plus_py_weight": 181062082.56,
+        "widowed_75plus_py_weight": 93898717.133,
+        "share_widowed_75plus_female": 0.5185995643338744,
+        "buckets_share_of_widowed_stock": {
+          "reachable_within_support": 0.8769022133856421,
+          "carried_predates_support": 0.12309778661435804,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "buckets_share_of_all_75plus_py": {
+          "reachable_within_support": 0.4547611058252041,
+          "carried_predates_support": 0.06383845850867031,
+          "onset_after_support_end": 0.0,
+          "non_derivable": 0.0
+        },
+        "structurally_unreachable_share": 0.12309778661435804,
+        "initial_state_fixable_share": 0.12309778661435804,
+        "reconciliation_remainder": -2.220446049250313e-16,
+        "n_widowed_75plus_py": 4552,
+        "n_years_since_dissolution_na": 0,
+        "n_no_observed_support": 0,
+        "carried_mass_diagnostics": {
+          "mean_onset_age": 51.55148263795267,
+          "mean_first_observed_wave": 1972.8212307918936,
+          "share_first_observed_age_ge_60": 0.5188877721167575
+        },
+        "reconstruction_window_contrast": {
+          "reachable_within_exposure": 1.0,
+          "onset_before_exposure_start": 0.0,
+          "onset_after_exposure_end": 0.0,
+          "note": "the retrospective-to-age-15 exposure window has ~0 carried mass (forensics 2); the observed-support window is the tighter boundary that exposes the carried-status share"
+        }
+      },
+      "ref_stock": {
+        "share_75plus": 0.5185995643338744,
+        "share_65_74": 0.20285170857980953
+      },
+      "ref_widowed_by_age": {
+        "15-49|female": {
+          "widowed_py_weight": 20519526.143,
+          "all_py_weight": 3123771784.388,
+          "widowed_share": 0.0065688301064605855,
+          "n_widowed_py": 2118
+        },
+        "15-49|male": {
+          "widowed_py_weight": 5137048.459,
+          "all_py_weight": 3050174541.277,
+          "widowed_share": 0.0016841818031991375,
+          "n_widowed_py": 342
+        },
+        "50-64|female": {
+          "widowed_py_weight": 44757944.795,
+          "all_py_weight": 675292248.164,
+          "widowed_share": 0.066279370030811,
+          "n_widowed_py": 3847
+        },
+        "50-64|male": {
+          "widowed_py_weight": 8207066.757,
+          "all_py_weight": 574308664.4449999,
+          "widowed_share": 0.014290341179043747,
+          "n_widowed_py": 625
+        },
+        "65-74|female": {
+          "widowed_py_weight": 52680092.977,
+          "all_py_weight": 259697556.14,
+          "widowed_share": 0.20285170857980953,
+          "n_widowed_py": 3315
+        },
+        "65-74|male": {
+          "widowed_py_weight": 9131696.17,
+          "all_py_weight": 196819649.583,
+          "widowed_share": 0.046396262717402666,
+          "n_widowed_py": 589
+        },
+        "75+|female": {
+          "widowed_py_weight": 93898717.133,
+          "all_py_weight": 181062082.56,
+          "widowed_share": 0.5185995643338744,
+          "n_widowed_py": 4552
+        },
+        "75+|male": {
+          "widowed_py_weight": 15687716.033,
+          "all_py_weight": 107868165.65,
+          "widowed_share": 0.1454341597307027,
+          "n_widowed_py": 803
+        }
+      },
+      "ref_incidence": {
+        "female": {
+          "45-54": 0.00626587706828686,
+          "55-64": 0.011309131135952033,
+          "65-74": 0.02636477010174097,
+          "75+": 0.06067545104053693
+        },
+        "male": {
+          "45-54": 0.001475228557892146,
+          "55-64": 0.004584733249237267,
+          "65-74": 0.005226820144447104,
+          "75+": 0.024371912057436388
+        }
+      },
+      "ref_survival": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9987104373260544,
+              0.977618132582914,
+              0.9528864550397874,
+              0.9328945425998603,
+              0.9066887751785316,
+              0.9066887751785316,
+              0.8817374827737964,
+              0.8817290123809403,
+              0.8817290123809403,
+              0.8817290123809403,
+              0.872929706245486,
+              0.872929706245486,
+              0.8695337950457683,
+              0.8596010337674591,
+              0.8596010337674591,
+              0.8596010337674591,
+              0.8596010337674591,
+              0.8596010337674591,
+              0.8596010337674591,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219,
+              0.8462309244871219
+            ],
+            "reported": {
+              "1": 0.9987104373260544,
+              "2": 0.977618132582914,
+              "3": 0.9528864550397874,
+              "5": 0.9066887751785316,
+              "10": 0.8817290123809403,
+              "15": 0.8596010337674591,
+              "20": 0.8462309244871219
+            },
+            "restricted_mean_survival_years": 26.28395121732214,
+            "n_spells": 325,
+            "spell_weight": 4868079.797,
+            "n_remarriage_events": 34
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9911559509745825,
+              0.9836010553243618,
+              0.9777778718040944,
+              0.9723085900264968,
+              0.9723085900264968,
+              0.9723085900264968,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397,
+              0.9667157410411397
+            ],
+            "reported": {
+              "1": 0.9911559509745825,
+              "2": 0.9836010553243618,
+              "3": 0.9777778718040944,
+              "5": 0.9723085900264968,
+              "10": 0.9667157410411397,
+              "15": 0.9667157410411397,
+              "20": 0.9667157410411397
+            },
+            "restricted_mean_survival_years": 29.070638433169872,
+            "n_spells": 342,
+            "spell_weight": 7558868.0940000005,
+            "n_remarriage_events": 9
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9644626824474313,
+              0.8769341857976298,
+              0.809093094153439,
+              0.7401717390373491,
+              0.723181904917822,
+              0.6942905423996529,
+              0.6942905423996529,
+              0.6942116688973842,
+              0.6427392966097658,
+              0.6426922685228565,
+              0.6101215962552196,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396,
+              0.5674943625264396
+            ],
+            "reported": {
+              "1": 0.9644626824474313,
+              "2": 0.8769341857976298,
+              "3": 0.809093094153439,
+              "5": 0.723181904917822,
+              "10": 0.6426922685228565,
+              "15": 0.5674943625264396,
+              "20": 0.5674943625264396
+            },
+            "restricted_mean_survival_years": 18.874582409440553,
+            "n_spells": 89,
+            "spell_weight": 1330946.1090000002,
+            "n_remarriage_events": 37
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9696873328221576,
+              0.9210510627904366,
+              0.9133106255674819,
+              0.8995292429801085,
+              0.888723543771526,
+              0.888723543771526,
+              0.8666646847588231,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.8666136794123094,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948,
+              0.826243832895948
+            ],
+            "reported": {
+              "1": 0.9696873328221576,
+              "2": 0.9210510627904366,
+              "3": 0.9133106255674819,
+              "5": 0.888723543771526,
+              "10": 0.8666136794123094,
+              "15": 0.8666136794123094,
+              "20": 0.8666136794123094
+            },
+            "restricted_mean_survival_years": 25.87610619778156,
+            "n_spells": 134,
+            "spell_weight": 2502867.403,
+            "n_remarriage_events": 23
+          }
+        }
+      },
+      "sim_stock_mean": {
+        "share_75plus": 0.4248398833803847,
+        "share_65_74": 0.20326447214868276
+      },
+      "sim_widowed_by_age_mean": {
+        "75+|female": {
+          "n_widowed_py": 3440.5,
+          "all_py_weight": 181062082.56,
+          "widowed_share": 0.4248398833803847,
+          "widowed_py_weight": 76922394.03940001
+        },
+        "50-64|male": {
+          "n_widowed_py": 676.95,
+          "all_py_weight": 574308664.4449999,
+          "widowed_share": 0.019802182495087747,
+          "widowed_py_weight": 11372564.98185
+        },
+        "15-49|male": {
+          "n_widowed_py": 778.7,
+          "all_py_weight": 3050174541.277,
+          "widowed_share": 0.0036748169767547986,
+          "widowed_py_weight": 11208833.18635
+        },
+        "65-74|female": {
+          "n_widowed_py": 2836.55,
+          "all_py_weight": 259697556.14000005,
+          "widowed_share": 0.20326447214868276,
+          "widowed_py_weight": 52787286.6671
+        },
+        "15-49|female": {
+          "n_widowed_py": 5311.15,
+          "all_py_weight": 3123771784.388,
+          "widowed_share": 0.02402382407972629,
+          "widowed_py_weight": 75044943.81334999
+        },
+        "75+|male": {
+          "n_widowed_py": 686.25,
+          "all_py_weight": 107868165.65000002,
+          "widowed_share": 0.1377574856942976,
+          "widowed_py_weight": 14859647.2864
+        },
+        "65-74|male": {
+          "n_widowed_py": 516.15,
+          "all_py_weight": 196819649.58300003,
+          "widowed_share": 0.04719814853411043,
+          "widowed_py_weight": 9289523.055450002
+        },
+        "50-64|female": {
+          "n_widowed_py": 4049.75,
+          "all_py_weight": 675292248.1639999,
+          "widowed_share": 0.09722972677764888,
+          "widowed_py_weight": 65658480.78405
+        }
+      },
+      "sim_incidence_mean": {
+        "female": {
+          "75+": 0.0535507839340431,
+          "55-64": 0.010772183211462389,
+          "45-54": 0.005960372054058822,
+          "65-74": 0.023778327732022993
+        },
+        "male": {
+          "75+": 0.021111222383021384,
+          "55-64": 0.004404513664801226,
+          "45-54": 0.0015004900897237824,
+          "65-74": 0.004783114603514794
+        }
+      },
+      "sim_survival_mean": {
+        "female": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9833158155406971,
+              0.9680630593713551,
+              0.9420591536510715,
+              0.9251925567449796,
+              0.9059965100111377,
+              0.892401029737179,
+              0.8809639756165021,
+              0.8682071355921638,
+              0.8568041747449813,
+              0.8502048606665111,
+              0.8450261536574679,
+              0.8421161162056521,
+              0.8387457844634589,
+              0.8362630260742246,
+              0.8347047513915294,
+              0.831134186041881,
+              0.8303468827738587,
+              0.8293211419851726,
+              0.8293178467549701,
+              0.8271336866287747,
+              0.8271319416451781,
+              0.8262170596858527,
+              0.8233023651751571,
+              0.8233023651751571,
+              0.8217769116995329,
+              0.8200304592207465,
+              0.8200304592207465,
+              0.8200304592207465,
+              0.8173267902231235,
+              0.8173267902231235
+            ],
+            "reported": {
+              "1": 0.9833158155406971,
+              "2": 0.9680630593713551,
+              "3": 0.9420591536510715,
+              "5": 0.9059965100111377,
+              "10": 0.8502048606665111,
+              "15": 0.8347047513915294,
+              "20": 0.8271336866287747
+            },
+            "restricted_mean_survival_years": 25.633793449142935,
+            "spell_weight": 3924831.9897999996
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9899170630269717,
+              0.9847495780646213,
+              0.9755587922189786,
+              0.9683465241018032,
+              0.9668167884647243,
+              0.9662049907677892,
+              0.9645600635437285,
+              0.9632963077561273,
+              0.9613044320444015,
+              0.9613044320444015,
+              0.9613044320444015,
+              0.9605401805801614,
+              0.9601937164834256,
+              0.959469121719869,
+              0.9589833082182683,
+              0.9589833082182683,
+              0.9580045653694924,
+              0.9580045653694924,
+              0.9580045653694924,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678,
+              0.9555013371286678
+            ],
+            "reported": {
+              "1": 0.9899170630269717,
+              "2": 0.9847495780646213,
+              "3": 0.9755587922189786,
+              "5": 0.9668167884647243,
+              "10": 0.9613044320444015,
+              "15": 0.9589833082182683,
+              "20": 0.9555013371286678
+            },
+            "restricted_mean_survival_years": 28.84606144382177,
+            "spell_weight": 6330321.554950001
+          }
+        },
+        "male": {
+          "50-64": {
+            "survival_curve": [
+              1.0,
+              0.9149528113042154,
+              0.8493137557664665,
+              0.7716254934905631,
+              0.7080671834424251,
+              0.6987350801454454,
+              0.6797015513981536,
+              0.6680662797205748,
+              0.6455554229187548,
+              0.629769874891755,
+              0.6151382830934463,
+              0.6038340200843342,
+              0.6011696997000283,
+              0.5981982414657983,
+              0.5944204389772832,
+              0.5883312932997309,
+              0.5799370100213125,
+              0.5784407747192553,
+              0.5711956109692556,
+              0.5698786350979091,
+              0.5613559452535276,
+              0.5613559452535276,
+              0.5613559452535276,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254,
+              0.5399607168563254
+            ],
+            "reported": {
+              "1": 0.9149528113042154,
+              "2": 0.8493137557664665,
+              "3": 0.7716254934905631,
+              "5": 0.6987350801454454,
+              "10": 0.6151382830934463,
+              "15": 0.5883312932997309,
+              "20": 0.5613559452535276
+            },
+            "restricted_mean_survival_years": 18.470085031117893,
+            "spell_weight": 1339519.4808999998
+          },
+          "65+": {
+            "survival_curve": [
+              1.0,
+              0.9544587516731523,
+              0.9176710977592965,
+              0.8845869657809852,
+              0.8545622536011086,
+              0.8381318744367287,
+              0.8273264964634836,
+              0.8124995525523362,
+              0.805740095508846,
+              0.7867962855194263,
+              0.7844921333434727,
+              0.7844903999435411,
+              0.7819205699960967,
+              0.774013832559113,
+              0.7695871348707841,
+              0.7695871348707841,
+              0.7695871348707841,
+              0.7651313289109775,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.7569865034701742,
+              0.6861256584649584,
+              0.6861256584649584,
+              0.6861256584649584,
+              0.6861256584649584,
+              0.6861256584649584
+            ],
+            "reported": {
+              "1": 0.9544587516731523,
+              "2": 0.9176710977592965,
+              "3": 0.8845869657809852,
+              "5": 0.8381318744367287,
+              "10": 0.7844921333434727,
+              "15": 0.7695871348707841,
+              "20": 0.7569865034701742
+            },
+            "restricted_mean_survival_years": 23.3671033627471,
+            "spell_weight": 1908272.6228500002
+          }
+        }
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4197130381277771,
+        0.45823916704098255,
+        0.40013598989723237,
+        0.4352319472459734,
+        0.4258527657354699,
+        0.4322951708072964,
+        0.4054598755577243,
+        0.4398752397460549,
+        0.4087081456023655,
+        0.40751207579062987,
+        0.49344969879263934,
+        0.4211819428163768,
+        0.40730148793887816,
+        0.4358191840848337,
+        0.39807073753896405,
+        0.4840561403680786,
+        0.3856533387649554,
+        0.44474391710542355,
+        0.4235831890069253,
+        0.36991461563911443
+      ],
+      "elapsed_seconds": 24.1
+    }
+  ],
+  "candidate_12_implications": "Q6: candidate 11's residual share_widowed.75+|female under-production is NOT closable by any transition-rate change alone -- 12.1% of the reference 75+ female widowed stock is structurally unreachable by a support-constrained simulation, and it is entirely carried marital status (spouse-death predating the person's first observed wave) with a zero non-derivable residual. That is the marriage-count precedent exactly: an observed-initial-state injection (seed the entry-widowed state, as candidate 9 delta 1 seeded the observed lifetime-marriage count), not a rate fix. Q7: within the reachable stock the residual gap is an INFLOW shortfall -- female widowhood incidence runs below the reference and concentrates at 75+; the elderly-onset survival-in-widowhood curve now tracks the reference (candidate 11's 50+ remarriage split fixed the outflow), and the widowed 50-64 pool is inflated. So candidate 12's highest-value lever is a mortality/incidence-side raise of widowhood inflow (especially at the worst band) PLUS an observed-initial-state seed for the carried-widow share; a further remarriage-rate move would trade margins, not close the gap. Registered only after citing this evidence, under the one-shot rule.",
+  "revision_pins": {
+    "populace_dynamics_sha": "590871afee21461d55daaa7b25be61e3f7b59847",
+    "candidate11_runner": "scripts/run_gate2_candidate11.py",
+    "candidate11_runner_sha256": "9bb97a4a946f09f7a66c7bf4730e667d22c6543f8182f4d2d32b54bb21e78e11",
+    "candidate11_artifact": "runs/gate2_hazard_v11.json",
+    "candidate11_artifact_sha256": "cddd55d647dc6b92fe75ed554d05bf4796c0afb81ca9aa351e1720bd46e14eb1",
+    "forensics2_runner": "scripts/gate2_forensics2.py",
+    "forensics2_runner_sha256": "7143a7ad8051f9d10073ef699c75ec78b0aa6e91495927067526594d661a4dbd",
+    "forensics2_artifact": "runs/gate2_forensics2_v1.json",
+    "gates_yaml_locked": true,
+    "gates_yaml_status": "locked",
+    "sklearn_version": "1.9.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "scipy_version": "1.18.0",
+    "schema_version": "gate2_forensics3.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 22.2,
+    "1": 24.2,
+    "2": 24.2,
+    "3": 24.6,
+    "4": 24.1
+  },
+  "total_per_seed_compute_seconds": 119.3,
+  "elapsed_seconds": 135.2
+}
