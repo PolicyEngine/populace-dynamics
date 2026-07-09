@@ -1296,9 +1296,10 @@ gates:
               required_before_any_2b_pass: >-
                 the SAME ceremony 2a followed -- a pre-registered gate on a
                 100-seed split noise floor over MX23REL household-composition
-                transitions, a power cap, an adversarial referee round, and a
-                ratifying merge. None of these exists yet, so 2b is honestly
-                unlocked.
+                transitions, a power cap, an adversarial referee round, a
+                verification round, and a ratifying merge (proposal -> referee
+                -> fixes -> verification -> ratify). None of these exists yet,
+                so 2b is honestly unlocked.
           tranche_2c:
             id: 2c_marriage_earnings_joint
             status: unlocked
@@ -1316,8 +1317,10 @@ gates:
               exists: false
               required_before_any_2c_pass: >-
                 same ceremony as 2a/2b -- a pre-registered gate on an assortative
-                marriage x earnings floor, a referee round, and a ratifying
-                merge. None exists yet, so 2c is honestly unlocked.
+                marriage x earnings floor, a referee round, a verification
+                round, and a ratifying merge (proposal -> referee -> fixes ->
+                verification -> ratify). None exists yet, so 2c is honestly
+                unlocked.
         - id: 2
           title: >-
             re-scope the description and holdout_basis language so tranche 2a
@@ -1329,11 +1332,15 @@ gates:
           scored_cell_change: false
           currently_locked:
             description: >-
-              "Marriage, divorce, fertility, and household-composition
+              'Marriage, divorce, fertility, and household-composition
               transitions score against mh85_23, cah85_23, and MX23REL
-              holdouts; benefit formulas earn per-rule 'computes exactly'
-              status." -- names household-composition transitions and MX23REL
-              as if scored.
+              holdouts; benefit formulas earn per-rule "computes exactly"
+              status.' -- verbatim gate_2.description (quote marks reproduced
+              as in the locked block; fix C1). The FIRST clause names
+              household-composition transitions and MX23REL as if scored (what
+              finding 4 flags); the SECOND clause ("computes exactly") is the
+              separate statutory-formula oracle certification, disposed of in
+              flip_on_ratification.flip_edits.description_formula_clause.
             holdout_basis: "[mh85_23, cah85_23, MX23REL]"
             scope_note_caveat: >-
               the locked scope_note's provision_class_coverage already states
@@ -1348,7 +1355,12 @@ gates:
               state stock, and fertility transitions against mh85_23 and
               cah85_23 (+ ind2023er deaths); household-composition transitions
               (MX23REL) are the separate UNLOCKED tranche 2b, and the marriage
-              x earnings joint is the separate UNLOCKED tranche 2c.
+              x earnings joint is the separate UNLOCKED tranche 2c. The locked
+              description's SECOND clause -- benefit formulas earn per-rule
+              "computes exactly" status -- is RETAINED verbatim (fix C1): it is
+              the statutory-formula oracle certification (#78/#80), gate-1 +
+              oracle territory outside the gate-2 tranche split, so the flip
+              neither deletes nor re-scopes it.
             holdout_basis_2a: [mh85_23, cah85_23]
             holdout_basis_2b: [MX23REL]
             note: >-
@@ -1383,22 +1395,46 @@ gates:
               46 gated cells, on mh85_23 + cah85_23 (+ deaths).
             supports:
               - >-
-                survivor / spousal ELIGIBILITY-TIMING incidence on real or
-                generated marital histories -- when survivor and spousal
-                eligibility opens and closes (locked provision_class_coverage
+                survivor / spousal ELIGIBILITY-TIMING incidence in GENERATED
+                marital histories -- when survivor and spousal eligibility
+                opens and closes (locked provision_class_coverage
                 .marital_and_survivor_timing = COVERED (gated); #74 MS-timing
-                component on the mh85_23 holdout).
+                component on the mh85_23 holdout). Evidence source: the 2a
+                PASS certifies the GENERATED side. The REAL-couples side of
+                this timing was validated SEPARATELY on real PSID couples with
+                no generated component (#84 earnings-sharing winners/losers
+                replication, memo on #74) -- that record, not any gate-2
+                verdict, carries the real-history side (fix A3: the tranche
+                pass does not stand in for the real-data replication).
               - >-
                 caregiver credits' childbearing / care-year ELIGIBILITY basis --
                 the fertility process (#74 FC component, Phase D), gated here via
-                the fertility cells (asfr.*, completed_fertility.*). 2a certifies
-                the demographic INPUT the credit keys on.
+                the fertility cells (asfr.*, completed_fertility.*). Evidence
+                source: the 2a PASS certifies this GENERATED demographic INPUT
+                the credit keys on; the REAL-data caregiver replication ran
+                SEPARATELY on real careers + observed births (#86 anchor-2), the
+                fertility-history basis only -- no child-in-care or household
+                component was scored there or here (that is 2b).
+              - >-
+                by-marital-status subgroup rows on the generated panel -- the
+                by-sex x marital-status splits ride on 2a's marital states and
+                the gated dissolved-state stock cells (share_divorced /
+                share_widowed), so they are certified HERE, under 2a, not 2b
+                (fix A1: they do not require household composition).
             does_not_support:
               - >-
-                household-unit incidence, poverty rows, or benefit LEVELS for any
-                provision -- those require 2b (household composition) or 2c
-                (marriage x earnings), per the boundaries below. A 2a pass alone
-                does NOT authorize CPS household-benefit deployment.
+                household-unit incidence and poverty rows -- those require 2b
+                (household composition).
+              - >-
+                spousal / survivor benefit LEVELS in GENERATED panels -- those
+                require 2c (marriage x earnings). But OWN-RECORD benefit levels
+                (bend points, the PIA formula, the taxable-maximum benefit
+                side, COLA) are NOT gate-2 tranche territory at all: they rest
+                on gate 1 (earnings) + the statutory-formula oracle (#78/#80;
+                #74's EH + SF components), OUTSIDE 2a / 2b / 2c (fix A2: do not
+                mark already-certified own-record scoring surfaces as tranche-
+                gated). A 2a pass alone does NOT authorize CPS household-
+                benefit deployment.
           2b_relationship_household:
             required_for:
               - >-
@@ -1410,9 +1446,19 @@ gates:
                 HERE, "depend on household composition ... the MX23REL ...
                 tranche").
               - >-
-                the household / poverty / subgroup rows of caregiver-credit and
-                minimum-benefit provisions -- #74's "(check)" columns (needed
-                only for poverty/household rows, not the core calculation).
+                the household-UNIT poverty rows of caregiver-credit and
+                minimum-benefit provisions -- household income aggregation
+                (#74 anchor 4's "household income" surface). By-marital-status
+                SUBGROUP rows do NOT belong here: they ride on 2a's marital
+                states and gated stock cells (share_divorced / share_widowed),
+                so they are certified under 2a. And #74's "(check)" columns
+                are NOT evidence of a 2b requirement: those marks are COMPONENT
+                requirements, not household-tranche marks -- for minimum
+                benefits they sit on MS and FC (2a-territory processes), for
+                caregiver credits on DI (disability, outside gate 2's tranches
+                entirely). The legend reads "needed only for poverty / household
+                or subgroup rows, not the core benefit calculation" (fix A1:
+                restore "or subgroup"; only household-UNIT rows -> 2b).
           2c_marriage_earnings_joint:
             required_for:
               - >-
@@ -1426,9 +1472,12 @@ gates:
                 distinct from 2a's eligibility timing).
         provision_class_map:
           # One row per class in the locked scope_note. requires_tranche lists
-          # every tranche a class's certification needs; locked_coverage is the
-          # leading token of the locked provision_class_coverage entry, bound to
-          # it by tests/test_gates_derivations.py.
+          # every tranche a class's certification needs; locked_coverage is
+          # the exact coverage designation of the locked provision_class
+          # _coverage entry (its text before the " -- " gloss). Both are bound
+          # EXACTLY -- pinned per-class lists and tokens, not subset /
+          # startswith -- by tests/test_gates_derivations.py (referee fix B:
+          # a one-token flip breaks a test).
           - provision_class: marital_and_survivor_timing
             locked_coverage: COVERED
             requires_tranche: [2a_marital_fertility]
@@ -1540,15 +1589,51 @@ gates:
         goalpost moves; the only thing that changes is that the certification
         claim is made explicit and honest about which tranche the pass covers
         (2a) and which it does not (2b, 2c).
+      governance:
+        # Standing governance rule recommended by THIS amendment's referee
+        # round (finding 8's standing fix for finding 3's residual pattern
+        # risk): a gate or tranche must never headline a broader surface than
+        # its cells actually score. Attributed to this round and enumerated
+        # for promotion into the locked gate_2.governance on ratification.
+        standing_rule:
+          id: description_claims_exactly_the_scored_surface
+          rule: >-
+            A gate or tranche's description and holdout_basis must claim
+            EXACTLY the surface its gated cells score at lock time -- no
+            provision class, holdout, or transition named in the headline
+            beyond what the cells actually gate. A headline broader than the
+            scored surface is a lock defect, to be corrected before
+            ratification.
+          rationale: >-
+            Forecloses the broad-headline -> bank the pass -> re-scope-down
+            pattern (finding 3's residual accommodation risk). Gate 2 hit
+            exactly this: a description and holdout_basis naming MX23REL /
+            household-composition transitions the cells never scored, latent
+            until the first pass made it load-bearing (finding 4).
+          applies_to:
+            - 2b_relationship_household
+            - 2c_marriage_earnings_joint
+            - gate_3
+          attributed_to: >-
+            amendment 2 referee round -- external architecture review #106
+            finding 4; PR #111 adversarial round (finding 8 recommendation).
+          promoted_by_flip: >-
+            on ratification the flip adds this rule to the locked
+            gate_2.governance (see flip_on_ratification.flip_additions), so it
+            binds 2b / 2c / gate 3 at their own lock ceremonies.
       flip_on_ratification:
         # On maintainer ratification-by-merge, a follow-up flip PR moves the
         # re-scoped language and the tranche structure INTO the locked block
         # (exactly as PR #96 flipped amendment 1). This proposal itself edits
         # none of these (gate_2.thresholds is byte-identical to origin/master).
-        # flip_edits enumerates every locked-TEXT replacement the flip will
-        # make -- each cites text present in the current locked block, verified
-        # by tests/test_gates_derivations.py -- and flip_additions enumerates
-        # the new keys the flip introduces.
+        # flip_edits enumerates every locked-TEXT edit the flip will make AND
+        # every explicit retention (fix C1's formula clause) -- each cites
+        # text present in the current locked block, verified by
+        # tests/test_gates_derivations.py; flip_additions enumerates the new
+        # keys the flip introduces; name_disposition records the C3
+        # recommendation for gate_2.name. The enumeration is COMPLETE: every
+        # locked element under the restructured subtree is an enumerated edit
+        # or an explicit retention.
         performed_by: >-
           a follow-up flip PR, only after adversarial referee round +
           verification + maintainer ratification-by-merge.
@@ -1559,9 +1644,24 @@ gates:
               household-composition transitions score against mh85_23,
               cah85_23, and MX23REL
             flip_change: >-
-              rewrite so tranche 2a's description claims only mh85_23 + cah85_23
-              (+ ind2023er deaths); the household-composition / MX23REL clause
-              moves into the gate_2b (unlocked) declaration.
+              rewrite the description's FIRST clause so tranche 2a claims only
+              mh85_23 + cah85_23 (+ ind2023er deaths); the household-
+              composition / MX23REL clause moves into the gate_2b (unlocked)
+              declaration. The SECOND clause is handled by
+              description_formula_clause below (retained, not rewritten).
+          - key: description_formula_clause
+            locked_path: gate_2.description
+            locked_text_now: benefit formulas earn per-rule
+            flip_change: >-
+              RETAINED verbatim (fix C1). The "computes exactly" clause is the
+              statutory-formula ORACLE certification (#78/#80) -- gate-1 +
+              oracle territory, outside the gate-2 tranche split (per
+              certification_scope, own-record benefit levels are not 2a / 2b /
+              2c). The flip does NOT delete it (it names real, still-valid
+              certification surface) and does NOT re-scope it; it stays in the
+              gate_2 description unchanged, and is mirrored in
+              changes[id=2].proposed.description so the flip keeps no text the
+              proposal presents as replaced.
           - key: holdout_basis
             locked_path: gate_2.thresholds.holdout_basis
             locked_text_now: MX23REL
@@ -1576,6 +1676,25 @@ gates:
               the provision_class_coverage prose gains explicit tranche ids
               (2a / 2b / 2c) and the certification_scope map is promoted into
               the locked scope.
+          - key: scope_note_draft_label
+            locked_path: gate_2.thresholds.scope.note
+            locked_text_now: This DRAFT tranche
+            flip_change: >-
+              relabel the stale "This DRAFT tranche covers..." heading to
+              "tranche 2a_marital_fertility covers..." -- drop the pre-lock
+              DRAFT label now that 2a is the ratified locked tranche (fix C2).
+              Precedent: the amendment-1 flip enumerated the stray "DRAFT" in
+              pass_rule.
+          - key: scope_note_holdout_xref
+            locked_path: gate_2.thresholds.scope.provision_class_coverage.caregiver_and_child_in_care_survivor
+            locked_text_now: named in holdout_basis but not scored in this draft
+            flip_change: >-
+              re-point the cross-reference (fix C2). Once flip edit
+              holdout_basis removes MX23REL from gate_2.thresholds
+              .holdout_basis, "the MX23REL relationship-matrix tranche named in
+              holdout_basis but not scored in this draft" goes stale; re-point
+              it to the unlocked gate_2b tranche (holdout_basis_2b = [MX23REL]),
+              not the 2a holdout_basis.
         flip_additions:
           - >-
             tranche_id 2a_marital_fertility added inside
@@ -1589,6 +1708,31 @@ gates:
           - >-
             certification_scope (this proposal's map) promoted into the locked
             gate_2.thresholds.scope.
+          - >-
+            governance.standing_rule
+            (description_claims_exactly_the_scored_surface) promoted into the
+            locked gate_2.governance -- binds every future tranche / gate to
+            headline exactly its scored surface at lock time (finding 8).
+        name_disposition:
+          # C3 (referee recommendation): gate_2.name ("family and benefit
+          # outputs") is untouched by the flip and STAYS. Recorded so the flip
+          # enumeration is complete -- every locked element under the
+          # restructured subtree is either an enumerated flip_edit or an
+          # explicit retention.
+          recommendation: retain
+          gate_2_name_now: family and benefit outputs
+          reason: >-
+            gate_2 is the tranche CONTAINER: post-flip it holds tranche 2a
+            (locked) plus the 2b / 2c unlocked sibling stubs, so "family and
+            benefit outputs" correctly headlines the container, not a single
+            tranche. A rename would churn frozen artifacts and the ~1,258-test
+            suite for no certification gain (see considered_and_rejected
+            .rename_gate2_to_gate2a_repo_wide); the tranche id lives INSIDE
+            gate_2 (the 2a / 2b / 2c declarations), so the container name need
+            not move. The certification claim is carried by the tranche map,
+            not the container headline.
+          attributed_to: >-
+            amendment 2 referee round (review #106 finding 4; PR #111), C3.
       ceremony_next_steps: >-
         Adversarial referee round on this proposal -> fixes if any ->
         verification -> maintainer ratification by merge -> a follow-up flip PR

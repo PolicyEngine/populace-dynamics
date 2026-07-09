@@ -1732,8 +1732,13 @@ def test_gate2_amendment2_changes_no_locked_value():
 
     The proposal adds only the amendment_proposed sibling; every locked
     tolerance, the protocol, the power cap, the governance, the report_only
-    list, and the scope map are unchanged. gate_2 differs from master ONLY by
-    the added amendment_proposed key.
+    list, and the scope map are unchanged. gate_2 adds AT MOST the
+    amendment_proposed key beyond master's (referee fix D1: subset, not
+    equality -- at the ratifying merge both sides contain the object, the
+    difference is empty, and the strict-equality form turned master CI red
+    for ~68 minutes at amendment 1's ratification, run 28954709231 on
+    fec27eb, until the flip landed. The thresholds-equality and locked-flag
+    asserts hold in EVERY state, so they stay unconditional).
     """
     amendment = _gate2_amendment2()
     if amendment is None:
@@ -1746,16 +1751,19 @@ def test_gate2_amendment2_changes_no_locked_value():
     assert cur_g2["thresholds"] == master["thresholds"]
     assert cur_g2["thresholds"]["locked"] is True
     assert cur_g2["thresholds"]["status"] == "locked"
-    assert set(cur_g2) - set(master) == {"amendment_proposed"}
+    # subset: {} at the ratify-merge window, {amendment_proposed} before it;
+    # anything else (a second added key, a removed key surfacing as a bogus
+    # diff) still fails loudly.
+    assert set(cur_g2) - set(master) <= {"amendment_proposed"}
 
 
 def test_gate2_amendment2_certification_scope_covers_locked_classes():
     """The map covers every provision class in the locked scope_note.
 
     provision_class_map's classes equal the locked provision_class_coverage
-    keys; each requires_tranche references only declared tranches; each
-    locked_coverage is the leading token of the locked note; and the map
-    cites both the scope_note and #74.
+    keys; each row's requires_tranche list and locked_coverage token are bound
+    EXACTLY (referee fix B / P1: a one-token flip must break a test), and the
+    map cites both the scope_note and #74.
     """
     amendment = _gate2_amendment2()
     if amendment is None:
@@ -1763,18 +1771,47 @@ def test_gate2_amendment2_certification_scope_covers_locked_classes():
     scope = amendment["certification_scope"]
     locked_cov = _gate_2()["scope"]["provision_class_coverage"]
     rows = scope["provision_class_map"]
-    assert {r["provision_class"] for r in rows} == set(locked_cov)
+    by_class = {r["provision_class"]: r for r in rows}
+    assert set(by_class) == set(locked_cov)
+    # EXACT per-class bindings. requires_tranche is order-sensitive and the
+    # locked_coverage token is pinned, so caregiver [2a, 2b] -> [2a], or
+    # "NOT COVERED HERE" -> "NOT COVERED" (in EITHER the map or the locked
+    # note), breaks this test -- the P1 hole the <= / startswith form left.
+    expected = {
+        "marital_and_survivor_timing": {
+            "locked_coverage": "COVERED",
+            "requires_tranche": ["2a_marital_fertility"],
+        },
+        "caregiver_and_child_in_care_survivor": {
+            "locked_coverage": "NOT COVERED HERE",
+            "requires_tranche": [
+                "2a_marital_fertility",
+                "2b_relationship_household",
+            ],
+        },
+        "marriage_x_earnings_joint": {
+            "locked_coverage": "NOT COVERED",
+            "requires_tranche": ["2c_marriage_earnings_joint"],
+        },
+    }
+    assert set(by_class) == set(expected)
     declared = {
         "2a_marital_fertility",
         "2b_relationship_household",
         "2c_marriage_earnings_joint",
     }
-    for r in rows:
-        assert set(r["requires_tranche"]) <= declared, r["provision_class"]
-        locked_text = locked_cov[r["provision_class"]]
-        assert locked_text.startswith(r["locked_coverage"]), r[
-            "provision_class"
-        ]
+    for cls, exp in expected.items():
+        r = by_class[cls]
+        # exact, order-sensitive list -- a single-token flip breaks it.
+        assert r["requires_tranche"] == exp["requires_tranche"], cls
+        assert set(r["requires_tranche"]) <= declared, cls
+        # exact coverage token (not startswith).
+        assert r["locked_coverage"] == exp["locked_coverage"], cls
+        # and the token must EXACTLY reproduce the locked note's coverage
+        # designation (before the " -- " gloss and any "(gated)" paren), so a
+        # degrade in EITHER the map or the note breaks the test.
+        note_cov = locked_cov[cls].split(" -- ")[0].split(" (")[0].strip()
+        assert r["locked_coverage"] == note_cov, cls
     # both sources cited.
     basis = scope["derivation_basis"]
     assert "provision_class_coverage" in basis["locked_scope_note"]
@@ -1857,6 +1894,10 @@ def test_gate2_amendment2_flip_edits_enumerated():
 
     Each flip_edit's locked_text_now appears at its locked_path in the
     current locked block, and flip_additions enumerate the new tranche stubs.
+    Referee fixes C1-C3: the enumeration is COMPLETE -- the computes-exactly
+    formula clause has an explicit disposition, the stale "This DRAFT
+    tranche" label and the holdout_basis cross-reference are enumerated as
+    edits, and gate_2.name carries a recommendation-level disposition.
     """
     amendment = _gate2_amendment2()
     if amendment is None:
@@ -1865,8 +1906,11 @@ def test_gate2_amendment2_flip_edits_enumerated():
     edits = flip["flip_edits"]
     assert {e["key"] for e in edits} == {
         "description",
+        "description_formula_clause",
         "holdout_basis",
         "scope_note",
+        "scope_note_draft_label",
+        "scope_note_holdout_xref",
     }
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
 
@@ -1880,11 +1924,81 @@ def test_gate2_amendment2_flip_edits_enumerated():
         node = _resolve(e["locked_path"])
         hay = node if isinstance(node, str) else str(node)
         assert e["locked_text_now"] in hay, e["key"]
-    # the additions name the three tranche structures the flip introduces.
+    by_key = {e["key"]: e for e in edits}
+    # C1: the formula clause is RETAINED, not silently deleted or kept.
+    assert "RETAINED" in by_key["description_formula_clause"]["flip_change"]
+    # C2: the stale DRAFT label and the holdout_basis cross-reference.
+    assert (
+        "This DRAFT tranche"
+        in by_key["scope_note_draft_label"]["locked_text_now"]
+    )
+    assert (
+        "named in holdout_basis"
+        in by_key["scope_note_holdout_xref"]["locked_text_now"]
+    )
+    # C3: gate_2.name has a recommendation-level disposition quoting the
+    # live name exactly.
+    nd = flip["name_disposition"]
+    assert nd["recommendation"] == "retain"
+    assert nd["gate_2_name_now"] == gates["gates"]["gate_2"]["name"]
+    assert nd["reason"]
+    # the additions name the three tranche structures the flip introduces,
+    # plus the standing governance rule (finding 8).
     additions = " ".join(flip["flip_additions"])
     assert "2a_marital_fertility" in additions
     assert "gate_2b" in additions
     assert "gate_2c" in additions
+    assert "standing_rule" in additions
+
+
+def test_gate2_amendment2_formula_clause_disposition():
+    """Fix C1: the computes-exactly clause has an explicit disposition.
+
+    currently_locked.description quotes the live gate_2.description VERBATIM
+    (folded to one line), proposed.description states the clause is RETAINED
+    (statutory-formula oracle territory, outside the tranche split), and the
+    live locked description still carries the clause the flip retains.
+    """
+    change = _gate2_amend2_change(2)
+    if change is None:
+        pytest.skip("no gate_2 amendment 2 change 2")
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    live_description = gates["gates"]["gate_2"]["description"]
+    quoted = change["currently_locked"]["description"]
+    # verbatim quote: the live description appears inside the quoted text,
+    # quote marks and all (both are folded scalars -- single-line strings).
+    assert live_description in quoted
+    # the second clause is live, and its disposition is mirrored in
+    # proposed.description (fix C1: no silent delete, no silent keep).
+    assert 'per-rule "computes exactly"' in live_description
+    proposed = change["proposed"]["description"]
+    assert "computes exactly" in proposed
+    assert "RETAINED" in proposed
+
+
+def test_gate2_amendment2_standing_governance_rule():
+    """Finding 8's standing rule, attributed to this referee round.
+
+    A gate / tranche description and holdout_basis must claim EXACTLY the
+    scored surface at lock time; the rule applies to 2b / 2c / gate 3 and is
+    enumerated for promotion into the locked governance by the flip.
+    """
+    amendment = _gate2_amendment2()
+    if amendment is None:
+        pytest.skip("no gate_2 amendment_proposed proposal 2")
+    rule = amendment["governance"]["standing_rule"]
+    assert rule["id"] == "description_claims_exactly_the_scored_surface"
+    assert "EXACTLY" in rule["rule"]
+    assert "holdout_basis" in rule["rule"]
+    assert set(rule["applies_to"]) == {
+        "2b_relationship_household",
+        "2c_marriage_earnings_joint",
+        "gate_3",
+    }
+    # attributed to THIS round, not presented as pre-existing.
+    assert "#106" in rule["attributed_to"]
+    assert "#111" in rule["attributed_to"]
+    assert rule["promoted_by_flip"]
 
 
 # --------------------------------------------------------------------------
@@ -2059,9 +2173,16 @@ def test_gate2_ratified_history_record():
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
     gate_2 = gates["gates"]["gate_2"]
     # Amendment 1's object was consumed by the flip. If an amendment_proposed
-    # is present, it is a strictly later proposal (>= 2), not amendment 1.
+    # is present, it is a STRICTLY LATER proposal than every ratified one --
+    # the floor derives from the history length (referee fix D2), so the
+    # invariant self-tightens at every future ratification instead of
+    # admitting a re-presented consumed object once history grows past the
+    # old hard-coded 2.
     proposed = gate_2.get("amendment_proposed")
-    assert proposed is None or proposed.get("proposal_number", 0) >= 2
+    history_floor = len(gate_2["amendment_history"]) + 1
+    assert (
+        proposed is None or proposed.get("proposal_number", 0) >= history_floor
+    )
     entry = gate_2["amendment_history"][0]
     assert entry["id"] == "2026-07-08-mean-over-draws-estimator"
     for key in ("referee_round", "ratified", "flipped_live", "content"):
