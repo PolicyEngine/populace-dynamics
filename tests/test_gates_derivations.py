@@ -1680,8 +1680,8 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
 
     The strongest live form of no_self_rescue: every committed gate-2 run
     artifact still records gate_2_pass false -- the nine pre-amendment
-    single-draw candidates (v1-v9) AND candidates 10, 11, 12, 13 and 14, the
-    five fresh registrations under fresh_run_artifact_schema (the amended
+    single-draw candidates (v1-v9) AND candidates 10, 11, 12, 13, 14 and 15,
+    the six fresh registrations under fresh_run_artifact_schema (the amended
     mean-over-K=20-draws estimator). Candidate 11 (FAIL 1/5) split candidate
     10's pooled 50+ remarriage band into 50-64/65-74/75+; the registered modal
     share_widowed.75+|female persisted. Candidate 12 (FAIL 2/5) added the
@@ -1699,10 +1699,18 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
     sim/ref 0.929 -> 0.952), but the exposure-preserving reallocation left the
     aggregate 75+ widowed stock flat (0.841 -> 0.838), so
     share_widowed.75+|female still failed seeds 0 and 3 and the gate held at
-    2/5. The amendment rescued nothing; the gate still has no passing run.
+    2/5. Candidate 15 (FAIL 3/5) removed the NCHS period-trend multiplier from
+    the widowhood hazard: the trend had suppressed the ELDERLY 75+ inflow
+    (~0.88-0.90 at late panel years past the 1995 anchor), so removing it
+    lifted the 75+ incidence past reference (seed-mean sim/ref 0.952 -> 1.060)
+    and cleared seed 0's stock, but the aggregate stock barely moved
+    (0.838 -> 0.841) and share_widowed.75+|female still failed seeds 2 and 3
+    (the failing seeds shifted {0,3} -> {2,3} on the tolerance edge), so the
+    gate improved to 3/5 -- still no passing run. The amendment rescued
+    nothing; the gate still has no passing run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 14
+    assert len(runs) == 15
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_2_pass"] is False, path.name
