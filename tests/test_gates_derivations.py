@@ -1680,7 +1680,7 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
 
     The strongest live form of no_self_rescue: every committed gate-2 run
     artifact still records gate_2_pass false -- the nine pre-amendment
-    single-draw candidates (v1-v9) AND candidates 10, 11 and 12, the three
+    single-draw candidates (v1-v9) AND candidates 10, 11, 12 and 13, the four
     fresh registrations under fresh_run_artifact_schema (the amended
     mean-over-K=20-draws estimator). Candidate 11 (FAIL 1/5) split candidate
     10's pooled 50+ remarriage band into 50-64/65-74/75+; the registered modal
@@ -1689,10 +1689,15 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
     spousal-gap draw: delta 1 cleared the widow-stock modal (75+ 1/5 -> 5/5),
     but delta 2 was inert (the vestigial spouse-age gap does not enter the
     composed widowhood hazard) so the female marriage count held the gate below
-    4/5. The amendment rescued nothing; the gate still has no passing run.
+    4/5. Candidate 13 (FAIL 2/5) gave the surviving-spouse widowhood table its
+    own 18-34 and 35-44 bands: it cleared both marriage-count cells (female
+    2/5 -> 5/5) and deflated the young widowed pool, but the deflated
+    young-widow inflow starved the elderly widowed stock and
+    share_widowed.75+|female regressed 5/5 -> 3/5, holding the gate at 2/5. The
+    amendment rescued nothing; the gate still has no passing run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 12
+    assert len(runs) == 13
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_2_pass"] is False, path.name
