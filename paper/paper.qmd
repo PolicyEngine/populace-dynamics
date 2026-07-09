@@ -846,13 +846,16 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 ## What failure buys
 
-Nineteen registered runs across two gates — thirteen at gate 1, six
-at gate 2 — eighteen published failures against a single pass under a
-rule that refused to rescue its own trigger, two refereed gate-1
-amendments and a second gate locked through its own adversarial
-round, five external-anchor replications reported at the same
-standing as any gated run, and more than ten graded forecasts and
-directional calls is the protocol working as designed. Each failure published with the same prominence as a pass would,
+Twenty-nine registered runs across two gates — thirteen at gate 1,
+sixteen at gate 2 — twenty-seven published failures against two passes
+under a rule that refused to rescue its own trigger, two refereed
+gate-1 amendments and a second gate locked through its own adversarial
+round and amended once more, prospectively, to align its estimator
+with its own operating characteristic, four registered forensics
+rounds and a reform-delta diagnostic feeding the next registration,
+five external-anchor replications reported at the same
+standing as any gated run, and twenty-two forecasts registered and all
+twenty-two graded is the protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
@@ -867,10 +870,13 @@ to and the first hard test arrives after adoption — is the point.
 
 The tally above compresses two developments the same protocol
 governed once gate 1 produced its first pass: a second stage gate,
-opened and locked on the family-transition layer, and the
-reform-scoring surface, tested against external anchors on real
-microdata. Neither is finished; both are on the public record with
-the discipline the earnings-history gate established.
+opened and locked on the family-transition layer, which its sixteenth
+registered candidate passed on the marital-transition and fertility
+tranche, and the reform-scoring surface, tested against external
+anchors on real microdata. Neither program is closed — the gate's
+household-composition tranche and forward projection remain — and both
+are on the public record with the discipline the earnings-history gate
+established.
 
 ## The second gate's lock ceremony
 
@@ -927,12 +933,13 @@ period-matched fertility series sits at a median PSID/NCHS ratio of
 
 ## The gate-2 candidate ladder
 
-Six candidates have run against the locked family-transition gate,
+Sixteen candidates have run against the locked family-transition gate,
 each registered on the campaign registry
 ([issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42))
 before its single scored run and graded against a pre-registered
-forecast after. The ladder narrows the failure without yet closing
-it. The base composition — stratified empirical hazards with a
+forecast after. The ladder narrows the failure from fifteen distinct
+cells to a single pass, and the record of what each step cost is the
+evidence the gate exists to produce. The base composition — stratified empirical hazards with a
 mortality-composed widowhood component — fails all five seeds across
 fifteen distinct cells. Adding an age-by-sex first-marriage
 interaction and a decade-period widowhood mortality makes the
@@ -951,8 +958,38 @@ times while overstating male — lifting the 75-plus female widow stock
 from one seed to four and clearing one full seed. Its residuals are
 the untargeted male lifetime-marriage sequence cell, two seeds over
 its 0.047 tolerance; a three-cell miss on a third seed; and the
-fertility clip inherited from candidate 5 on a fourth — one of the
-five seeds clears, the best result to date.
+fertility clip inherited from candidate 5 on a fourth — the first
+candidate to clear a seed.
+
+Candidates 7 through 9, still under the gate's original single-draw
+estimator, worked the two chronic marriage-count cells. Order-conditioned
+remarriage (candidate 7) fired the registered change-what-works risk —
+seed 0 regressed from forty-six passing cells to forty-four — and fixed
+the sign, since the generator under-produces lifetime marriages;
+an aggregate-preserving order split (candidate 8) isolated the deficit
+as compositional rather than a remarriage-level error, reconciled to a
+zero residual; and observed undatable-marriage initial states (candidate
+9) cured the male count while the observed residual overshot the female
+one. By candidate 9 every remaining failing cell's twenty-draw-mean
+tilt measured sub-tolerance while single draws still decided verdicts:
+the binding constraint had become the gate's estimator, not the model,
+and the ladder paused for a refereed amendment.
+
+The seven candidates that followed ran under the amended
+mean-over-draws estimator against one named level target — the
+elderly-widow stock — that four forensics rounds resolved in turn.
+Candidate 10 confirmed the stock cell as an unambiguous level
+under-production rather than absorbed draw noise; candidate 11's
+elderly-remarriage split exposed two compensating errors in the pooled
+band; candidate 12 cleared the cell on all five seeds with observed
+already-widowed initial states, while falsifying a co-registered
+spousal-gap-draw delta on the run's own inertness test; candidates 13
+and 14 re-banded the young and the oldest surviving-spouse widowhood,
+trading the stock against aging-in; and candidate 15 removed the
+deployment-time NCHS mortality trend the gate's untrended reference
+does not carry, reaching three of five seeds — the ladder's best short
+of a pass. Candidate 16 conditioned the widowhood hazard on one
+observed covariate and passed.
 
 | candidate | distinct failing cells | seeds passing | headline lesson |
 |---|---|---|---|
@@ -961,13 +998,141 @@ five seeds clears, the best result to date.
 | 3 — + pooled-rate mortality shrinkage | 8 | 0 / 5 | shrinkage un-explodes the cascade; the widowed stock persists |
 | 4 — + parametric per-sex mortality trend | 8 | 0 / 5 | fixes the 65–74 female widowed stock; the residual goes diffuse |
 | 5 — + external NCHS mortality trend, kernel fertility | 6 | 0 / 5 | an external trend replaces PSID's unstable male slope |
-| 6 — + source-aligned spouse-death level | 5 | 1 / 5 | removes the sex-asymmetric widowhood wedge (1.9–2.8×); the best result |
+| 6 — + source-aligned spouse-death level | 5 | 1 / 5 | removes the sex-asymmetric widowhood wedge (1.9–2.8×); first seed cleared |
+| 7 — + marriage-order remarriage, marital-status fertility | 7 | 0 / 5 | the change-what-works risk fires — seed 0 regresses 46→44; the generator under-produces lifetime marriages |
+| 8 — + order-split remarriage, aggregate counts preserved | 6 | 0 / 5 | the marriage-count deficit is compositional, not remarriage-level (reconciled to zero residual) |
+| 9 — + observed undatable-marriage initial state, low-parity fertility | 7 | 0 / 5 | the count fix cures males but overshoots females; sub-tolerance tilts expose the single-draw estimator as binding |
+| 10 — first run under the amended estimator; + age-band remarriage | 4 | 1 / 5 | under the mean estimator the 75+ widow stock is a level miss, not draw noise |
+| 11 — + 50–64 / 65–74 / 75+ remarriage split | 4 | 1 / 5 | the pooled elderly band hid two compensating errors; splitting trades outflow for aging-in |
+| 12 — + entry-widowed initial states, age-conditioned gap draws | 3 | 2 / 5 | observed already-widowed states clear the 75+ stock 5/5; the gap-draw delta is proven inert |
+| 13 — + young surviving-spouse widowhood bands (18–34, 35–44) | 2 | 2 / 5 | removes an order-of-magnitude young-widowhood rate error; both counts clear, but less aging-in lowers the stock |
+| 14 — + split the 75+ widowhood band (75–84, 85+) | 2 | 2 / 5 | re-banding recovers incidence (0.93→0.95) but a fixed aggregate cannot lift the stock |
+| 15 — − NCHS mortality trend inside the gate | 2 | 3 / 5 | the gate's reference is the untrended panel; removal reaches three seeds but leaves a survival-to-75 stock leak |
+| 16 — + widowhood support-composition stratum | 1 | 4 / 5 | **PASS** — conditioning on the observed support window closes the yield leak; the sole miss is an RNG-isolated fertility split artifact |
 
 : The gate-2 candidate ladder, from the committed run artifacts
-(`runs/gate2_hazard_v1.json` through `v6.json`). "Distinct failing
+(`runs/gate2_hazard_v1.json` through `v16.json`). "Distinct failing
 cells" counts gated cells missing on at least one of the five locked
 seeds; the gate requires at least four of five seeds with every one
-of the forty-six gated cells inside its locked tolerance. {#tbl-ladder}
+of the forty-six gated cells inside its locked tolerance, which
+candidate 16 is the first to meet. Candidates 10–16 are scored under
+the amendment-1 mean-over-draws estimator; candidates 1–9's committed
+verdicts stand. {#tbl-ladder}
+
+## The estimator amendment
+
+Candidate 9's grading named a constraint the model could not move.
+Every failing cell's mean over twenty pre-registered simulation draws
+sat inside its tolerance, yet single draws — one frozen replicate per
+seed — were deciding the verdicts. The gate had ratified its operating
+characteristic on a draw-noise-free basis: a faithful candidate — one
+drawing from the reference process itself — modeled per cell as a
+half-normal with the floor's own standard deviation and no
+simulation-draw term, which gives a per-seed pass probability of 0.9404
+and a four-of-five gate pass of 0.9685. But the single-draw estimator
+the gate shipped with injected a per-cell draw-noise term the
+tolerances never budgeted for, dropping that same faithful candidate to
+roughly 0.885 and 0.896 on the six measured cells: the pass probability
+the gate was ratified to deliver was not merely hard but unachievable
+under its own estimator.
+
+The fix — proposed as an inert object, carried through an adversarial
+round and verification, and flipped live in a follow-up merge, the
+ceremony gate 1's second amendment established — scores each cell on the
+mean cell rate over twenty pre-registered draws rather than one, leaving
+the tolerances and the forty-six-cell four-of-five conjunction
+untouched. Averaging over twenty draws shrinks the injected noise toward
+the draw-noise-free rate the tolerance was measured against, restoring
+the faithful candidate to roughly 0.939 and 0.967 — back to the numbers
+the gate was locked with, now achievable because the estimator finally
+shares their derivation basis. It is an estimator aligned to its own
+operating characteristic, not a loosened error budget: the four
+noise-dominated cells collapse toward zero clip probability while the
+one systematically mistuned marriage-count cell fails harder under the
+mean, not softer, and a candidate with gross level errors still fails by
+orders of magnitude at any number of draws. The amendment is prospective
+only — candidates 1 through 9 stand as committed failures under the
+no-self-rescue rule, and candidate 10 was registered as the first fresh
+run under it. The operating characteristic recomputes from the committed
+floor artifact (`runs/gate2_floors_v2.json`), and the record keeps the
+better-measured gate and the better model distinct exactly as gate 1
+did.
+
+## Four forensics rounds
+
+Between the scored runs the ladder registered four diagnostic rounds on
+the campaign registry, each reported, never gated, published whatever it
+found, and cited by the candidate it licensed. They are the method's
+throughline: candidates 9, 11, 12, and 16 — the pass among them — each
+registered only after, and citing, the round that preceded it.
+
+The first round decomposed the two chronic marriage-count cells on the
+training halves and found the male deficit was not a rate error but a
+measurement-concept residual — the reference carries lifetime-marriage
+counts from episodes with undatable start or dissolution years that no
+hazard model can generate, so the fix is an observed initial state, not
+a dial. Its stability sub-question, twenty redraws of the same
+specification, measured every remaining clip's mean tilt sub-tolerance,
+the evidence that motivated the estimator amendment. The second round
+decomposed the elderly-widow stock gap and the female count residual and
+found one mechanism behind both: a pooled fifty-plus current-age
+remarriage band applying a rate roughly nine times too high to 75-plus
+widows, depleting the stock from the outflow side while carrying the
+female count over-production. The third round audited how the reference
+constructs the 75-plus widowed stock and found that 12.1 percent of it
+is carried from spouse deaths predating the person's panel support —
+structurally unreachable by any transition rate, and entirely fixable by
+an observed initial state — while the simulated young-widowed pool ran
+to 3.16 times reference at ages 15 to 49, fed by the youngest
+surviving-spouse band edge. The fourth round split its two remaining
+cells: seed 2's fertility clip decomposed as a split artifact — a
+systematic deficit comfortably inside tolerance, wrapped in a
+maximum-of-five reference draw and a minimum-of-five simulation draw,
+isolated from the widowhood delta's random stream and so failing
+regardless, which fixed the pass path at seeds 0, 1, 3, and 4 — and the
+elderly-stock leak decomposed as a survival-to-75 yield gap: real
+widowhoods correlate with long observed support, which a uniform
+within-band hazard cannot see, so simulated 50-to-64-onset widowhoods
+reached age-75 windows at 39 percent against the reference's 57 percent.
+Candidate 16 conditioned on exactly that window.
+
+## The first gate-2 pass
+
+Candidate 16 added one covariate to the surviving-spouse widowhood
+hazard: whether a person's observed support window reaches age 75, a
+binary stratum known in advance from the panel attributes alone — the
+same observed-data class as the initial-state fixes — true of 3,147 of
+41,409 persons, a 12.7 percent exposure-weighted share. Within each age
+band and sex the two strata are train-estimated and recombine to
+candidate 15's band aggregate by an exposure-weighted identity, so
+aggregate widowhood incidence is preserved (recombination residual
+1.7e-18, reconciled to zero; 75-plus incidence moves from 1.060 to 1.061
+of reference) while the event composition matches the reference's window
+correlation, and all four gated widowhood-incidence cells hold on every
+seed.
+
+The delta closed the yield leak the fourth forensics round had sized.
+The 50-to-64-onset survival-to-75 yield rose from 0.581 to 0.816 of
+reference as the share of those widowhoods whose window reaches 75 moved
+from 0.391 to 0.551 toward the reference's 0.572, lifting the 75-plus
+female widowed stock from 0.841 to 0.914 of reference. The chronic stock
+cell cleared all five seeds — scores 0.057 to 0.111 against a 0.185
+tolerance, with the two seeds candidate 15 had failed both flipping —
+and the marriage counts the recomposed exposure put at risk held on both
+sexes, minimum margins plus 0.008 and plus 0.011. The gate passed four
+of five.
+
+The scope is on the record with the pass. It is a model delta under a
+locked gate — thresholds, protocol, and the ratified estimator amendment
+all fixed before the run was registered — not an amendment rescuing its
+own trigger; candidates 1 through 15 stand as committed failures. It
+certifies the marital-transition and fertility tranche the locked cells
+score, and no more: the household-composition tranche and the
+marriage-by-earnings joint the gate's own scope note names remain
+unscored, and the sole failing cell anywhere in the passing run is seed
+2's completed-fertility clip — the split artifact the fourth forensics
+round diagnosed, byte-identical to candidate 15 and isolated by
+construction from the delta that carried the gate.
 
 ## The replication anchors
 
@@ -1016,10 +1181,12 @@ across the cataloged provision classes — price indexing,
 retirement-age and cost-of-living reductions, earnings sharing, and
 caregiver credits — each reproducing its DYNASIM incidence pattern
 within the noise floor or a named delta. The generated-population
-demographic track has not reached its own gate: six registered
-candidates in, the strongest clears one of five seeds. The paper
-reports both because the protocol scores both, and a reader who wants
-to know which claims are load-bearing today can read it off the
+demographic track reached its own gate at the sixteenth candidate, on
+the marital-transition and fertility tranche, and the tranches it does
+not yet score — household composition and the marriage-by-earnings
+joint — stay named and unscored rather than assumed. The paper reports
+all of it because the protocol scores all of it, and a reader who
+wants to know which claims are load-bearing today can read it off the
 record rather than the prose.
 
 # Related work {#sec-related}
