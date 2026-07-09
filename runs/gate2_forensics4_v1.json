@@ -1,0 +1,2867 @@
+{
+  "schema_version": "gate2_forensics4.v1",
+  "run": "gate2_forensics4_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4928761676",
+  "registration_pointer": "4928761676",
+  "registration_title": "Registered diagnostic: forensics 4 -- the last two cells",
+  "candidate_under_diagnosis": "gate-2 candidate 15 (run 1, PR #107): FAIL 3/5 under the amended mean-over-20-draws estimator -- the ladder's best. Failing seeds {2, 3} both clip share_widowed.75+|female; seed 2 also clips completed_fertility.c1970s. Removing the NCHS period-trend multiplier lifted 75+ widowhood incidence past reference but the aggregate 75+ widowed stock held at 0.841 of reference",
+  "candidate15_spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4928232089",
+  "candidate15_registration_pointer": "4928232089",
+  "candidate15_artifact": "runs/gate2_hazard_v15.json",
+  "forensics1_artifact": "runs/gate2_forensics_v1.json (#94)",
+  "forensics3_artifact": "runs/gate2_forensics3_v1.json (#102)",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published candidate-15 per-seed scores read from runs/gate2_hazard_v15.json; the holdout (side A) is never simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(panel.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout, side B = train complement (this diagnostic simulates side B)",
+    "fit_simulate_machinery": "scripts/run_gate2_candidate15.py (merged #107; reuses candidate 14's code objects rebound) fit_components + simulate_holdout reused on the train side",
+    "q8_functions_reused": "scripts/gate2_forensics.py (#94) parity_distribution / age_at_birth_profile / censoring_check for completed_fertility.c1970s, imported verbatim",
+    "q9_functions_reused": "scripts/gate2_forensics3.py (#102) widowhood_survival_curves / observed_support / _widowed_spells for the yield / survival terms",
+    "q9_support_boundary": "observed PSID support window [first_wave, last_wave] per person from populace_dynamics.data.panels.demographic_panel, applied identically to the simulated and reference panels; the onset buckets partition the full reconstruction-window 75+ widowed stock and reconcile to it",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "estimator": "mean_over_K20_draws",
+    "n_draws": 20,
+    "draw_rng_rule": "numpy default_rng(5200 + k) for k in 0..19 (candidate 15's amended-estimator stream; the gate seed fixes the split, k varies only the simulation RNG)",
+    "gate_score": "|ln(rbar / rate_a)|; rbar == side-A simulated mean over 20 draws, rate_a == side-A observed reference (both published in the candidate-15 artifact)"
+  },
+  "data": {
+    "marriage_history_persons": 55732,
+    "panel_persons_weighted": 41409,
+    "panel_retained_share": 0.743,
+    "n_person_years": 1164692,
+    "person_year_calendar_range": [
+      1899,
+      2023
+    ],
+    "n_transition_events": 42898,
+    "transition_event_counts": {
+      "first_marriage": 24297,
+      "divorce": 9793,
+      "remarriage": 6082,
+      "widowhood": 2726
+    },
+    "n_woman_years_15_49": 488960,
+    "n_maternal_births": 35408,
+    "n_completed_fertility_women": 8529,
+    "death_records_exact_year": 7816
+  },
+  "question_8_completed_fertility_c1970s": {
+    "question": "completed_fertility.c1970s, seed-resolved: decompose the c1970s completed-fertility gap per split by parity margin (0->1, 1->2, 2->3+) and by age-at-birth, on each seed's holdout half. Is seed 2's failure a sim-side deficit in a fixable margin, a high-side reference draw, or both; and is the deficit cohort-exposure or parity-progression rates? Size each margin against the +0.011 need.",
+    "method": "Train-side. Per gate seed, fit candidate 15 on side B and simulate the SAME side B at the 20 draw seeds 5200+k; average the per-draw parity/age decompositions over draws. Reference = side B's observed fertility panel. mean parity == sum_k P(parity>=k), so the mean splits additively into 0->1 (P>=1), 1->2 (P>=2) and 2->3+ (sum_{k>=3} P>=k). The gate score |ln(rbar/rate_a)| is read from the committed candidate-15 side-A scores and split exactly into a systematic-deficit term (full-panel ref / seed-mean sim) and the seed's reference-draw and sim-draw excursions.",
+    "full_panel_reference": 2.1555667821566518,
+    "seed_mean_rbar": 2.0014647998572355,
+    "seed_mean_sideB_margins": {
+      "reference_margins": {
+        "0_to_1": 0.8600535965348112,
+        "1_to_2": 0.6859361425588094,
+        "2_to_3plus": 0.5748056746139234
+      },
+      "simulated_margins": {
+        "0_to_1": 0.8244217503028974,
+        "1_to_2": 0.6508087016012496,
+        "2_to_3plus": 0.5238730044902046
+      },
+      "margin_gap": {
+        "0_to_1": 0.03563184623191373,
+        "1_to_2": 0.03512744095755982,
+        "2_to_3plus": 0.050932670123718826
+      },
+      "margin_share_of_gap": {
+        "0_to_1": 0.2928036249775313,
+        "1_to_2": 0.28865868980276255,
+        "2_to_3plus": 0.41853768521970613
+      }
+    },
+    "largest_gap_margin": "2_to_3plus",
+    "seed2_classification": "both",
+    "seed2_classification_text": "Seed 2's completed_fertility.c1970s failure is BOTH a sim-side deficit AND a high-side reference draw -- a split artifact on top of a benign systematic deficit, not a fixable single-margin fertility problem. Its published side-A score 0.1816 exceeds the 0.171 tolerance by +0.0106 (the +0.011 need) and splits EXACTLY into three log terms: a systematic sim deficit +0.0742 (ref_full 2.1556 / sim_seed_mean 2.0015; common to all five seeds and well inside tolerance), a seed-2 high-side reference draw +0.0549 (rate_a 2.2772 is the MAX of the five holdout draws, vs full-panel 2.1556), and a seed-2 low-side sim draw +0.0525 (rbar 1.8991 is the MIN of the five). Either excursion regressing to typical clears the cell: ref->full-panel gives 0.1267 (PASS), sim->seed-mean gives 0.1290 (PASS) -- each excursion is ~5x the +0.011 need, so no single fertility margin must move. On side B the gap is BROAD across margins (0->1 +0.0356, 1->2 +0.0351, 2->3+ +0.0509; largest lumped == the 2to3plus tail), none dominant.",
+    "cohort_exposure_vs_progression": "The sim deficit is PARITY-PROGRESSION RATES, not cohort-exposure. Completed fertility is marital-state-independent and the simulation copies the observed person attributes, so within one split the completed-fertility denominator (1970s-born women observed through age 45, and their weights) is byte-identical between sim and reference -- censoring_check.shared == True and only n_births differs. Cohort-exposure (support-window composition of 1970s-born women) varies only ACROSS splits: the holdout reference rate_a ranges 2.140-2.277 over the five seeds (seed 2 the max, 2.277), while the simulated rbar ranges only 1.899-2.060. That cross-split composition variance IS the high-side-reference-draw axis; the within-split progression-rate deficit is the systematic sim shortfall.",
+    "per_seed": [
+      {
+        "seed": 0,
+        "reference_mean_parity_sideB": 2.166860513813928,
+        "simulated_mean_parity_sideB": 2.062892557337625,
+        "mean_parity_gap_sideB": 0.10396795647630297,
+        "reference_margins_sideB": {
+          "0_to_1": 0.870980660444445,
+          "1_to_2": 0.6982887672277085,
+          "2_to_3plus": 0.5975910861417746
+        },
+        "simulated_margins_sideB": {
+          "0_to_1": 0.8424448463173446,
+          "1_to_2": 0.6596160870833715,
+          "2_to_3plus": 0.560831623936909
+        },
+        "margin_gap_sideB": {
+          "0_to_1": 0.02853581412710038,
+          "1_to_2": 0.038672680144337,
+          "2_to_3plus": 0.03675946220486559
+        },
+        "margin_ln_leverage_sideB": {
+          "0_to_1": 0.013832913413546259,
+          "1_to_2": 0.018746822274761644,
+          "2_to_3plus": 0.017819377976867324
+        },
+        "reference_parity_shares_sideB": {
+          "mean_parity": 2.166860513813928,
+          "share_ge_1": 0.870980660444445,
+          "share_ge_2": 0.6982887672277085,
+          "share_ge_3plus": 0.34868730159711686,
+          "share_ge_4plus": 0.14785835910310513
+        },
+        "simulated_parity_shares_sideB": {
+          "mean_parity": 2.062892557337625,
+          "share_ge_1": 0.8424448463173446,
+          "share_ge_2": 0.6596160870833715,
+          "share_ge_3plus": 0.3385059809668148,
+          "share_ge_4plus": 0.14597507551044384
+        },
+        "denominator_weight_sideB": 8894465.0,
+        "n_women_sideB": 669,
+        "reference_mean_mother_age_sideB": 27.86106172274286,
+        "simulated_mean_mother_age_sideB": 27.630345785025753,
+        "age_shift_sideB": -0.23071593771710752,
+        "published_sideA": {
+          "rbar": 2.058703038749931,
+          "rate_a": 2.1455306947212773,
+          "score": 0.04131074022076007,
+          "tolerance": 0.171,
+          "pass": true,
+          "excess_over_tolerance": -0.12968925977923995
+        },
+        "score_split_attribution": {
+          "high_side_reference_draw": -0.004666765030892008,
+          "systematic_sim_deficit": 0.07417438452188475,
+          "seed_sim_draw": -0.028196879270232792,
+          "reconstructed_score": 0.04131074022075995,
+          "rate_a_is_max_over_seeds": false,
+          "rbar_is_min_over_seeds": false,
+          "counterfactual_ref_to_full_panel_score": 0.04597750525165205,
+          "counterfactual_sim_to_seed_mean_score": 0.06950761949099288
+        }
+      },
+      {
+        "seed": 1,
+        "reference_mean_parity_sideB": 2.101706346915778,
+        "simulated_mean_parity_sideB": 2.004732175869229,
+        "mean_parity_gap_sideB": 0.09697417104654882,
+        "reference_margins_sideB": {
+          "0_to_1": 0.8664380651659883,
+          "1_to_2": 0.6817685102992881,
+          "2_to_3plus": 0.5534997714505017
+        },
+        "simulated_margins_sideB": {
+          "0_to_1": 0.8246917493891045,
+          "1_to_2": 0.6598112113539438,
+          "2_to_3plus": 0.5202292151261807
+        },
+        "margin_gap_sideB": {
+          "0_to_1": 0.04174631577688381,
+          "1_to_2": 0.02195729894534426,
+          "2_to_3plus": 0.033270556324320966
+        },
+        "margin_ln_leverage_sideB": {
+          "0_to_1": 0.020823886741271603,
+          "1_to_2": 0.010952734340098984,
+          "2_to_3plus": 0.016596010541854663
+        },
+        "reference_parity_shares_sideB": {
+          "mean_parity": 2.101706346915778,
+          "share_ge_1": 0.8664380651659883,
+          "share_ge_2": 0.6817685102992881,
+          "share_ge_3plus": 0.3304406611138759,
+          "share_ge_4plus": 0.13967790901389862
+        },
+        "simulated_parity_shares_sideB": {
+          "mean_parity": 2.004732175869229,
+          "share_ge_1": 0.8246917493891045,
+          "share_ge_2": 0.6598112113539438,
+          "share_ge_3plus": 0.32340494030931927,
+          "share_ge_4plus": 0.12887550006578274
+        },
+        "denominator_weight_sideB": 9614985.0,
+        "n_women_sideB": 669,
+        "reference_mean_mother_age_sideB": 27.96524412549457,
+        "simulated_mean_mother_age_sideB": 27.914990660020504,
+        "age_shift_sideB": -0.05025346547406784,
+        "published_sideA": {
+          "rbar": 2.017085012375478,
+          "rate_a": 2.2113201981368418,
+          "score": 0.09193630588075492,
+          "tolerance": 0.171,
+          "pass": true,
+          "excess_over_tolerance": -0.07906369411924509
+        },
+        "score_split_attribution": {
+          "high_side_reference_draw": 0.02553601495845828,
+          "systematic_sim_deficit": 0.07417438452188475,
+          "seed_sim_draw": -0.0077740935995880755,
+          "reconstructed_score": 0.09193630588075496,
+          "rate_a_is_max_over_seeds": false,
+          "rbar_is_min_over_seeds": false,
+          "counterfactual_ref_to_full_panel_score": 0.0664002909222968,
+          "counterfactual_sim_to_seed_mean_score": 0.09971039948034302
+        }
+      },
+      {
+        "seed": 2,
+        "reference_mean_parity_sideB": 2.025053993690435,
+        "simulated_mean_parity_sideB": 1.9139182193702962,
+        "mean_parity_gap_sideB": 0.11113577432013888,
+        "reference_margins_sideB": {
+          "0_to_1": 0.8427089296147783,
+          "1_to_2": 0.6651784651741657,
+          "2_to_3plus": 0.5171665989014911
+        },
+        "simulated_margins_sideB": {
+          "0_to_1": 0.8075468761533745,
+          "1_to_2": 0.6343816388438249,
+          "2_to_3plus": 0.47198970437309684
+        },
+        "margin_gap_sideB": {
+          "0_to_1": 0.035162053461403775,
+          "1_to_2": 0.030796826330340754,
+          "2_to_3plus": 0.04517689452839424
+        },
+        "margin_ln_leverage_sideB": {
+          "0_to_1": 0.018371763801366885,
+          "1_to_2": 0.016090983417501144,
+          "2_to_3plus": 0.02360440173000601
+        },
+        "reference_parity_shares_sideB": {
+          "mean_parity": 2.025053993690435,
+          "share_ge_1": 0.8427089296147783,
+          "share_ge_2": 0.6651784651741657,
+          "share_ge_3plus": 0.33620484379697474,
+          "share_ge_4plus": 0.1251182782914489
+        },
+        "simulated_parity_shares_sideB": {
+          "mean_parity": 1.9139182193702962,
+          "share_ge_1": 0.8075468761533745,
+          "share_ge_2": 0.6343816388438249,
+          "share_ge_3plus": 0.3185690473759193,
+          "share_ge_4plus": 0.110672784799922
+        },
+        "denominator_weight_sideB": 9117269.0,
+        "n_women_sideB": 646,
+        "reference_mean_mother_age_sideB": 27.80998589652707,
+        "simulated_mean_mother_age_sideB": 27.712636531712796,
+        "age_shift_sideB": -0.09734936481427425,
+        "published_sideA": {
+          "rbar": 1.8990897735454433,
+          "rate_a": 2.277157860123279,
+          "score": 0.18155340796758151,
+          "tolerance": 0.171,
+          "pass": false,
+          "excess_over_tolerance": 0.010553407967581502
+        },
+        "score_split_attribution": {
+          "high_side_reference_draw": 0.054874415859398055,
+          "systematic_sim_deficit": 0.07417438452188475,
+          "seed_sim_draw": 0.052504607586298664,
+          "reconstructed_score": 0.18155340796758146,
+          "rate_a_is_max_over_seeds": true,
+          "rbar_is_min_over_seeds": true,
+          "counterfactual_ref_to_full_panel_score": 0.12667899210818345,
+          "counterfactual_sim_to_seed_mean_score": 0.12904880038128294
+        }
+      },
+      {
+        "seed": 3,
+        "reference_mean_parity_sideB": 2.1732788235397993,
+        "simulated_mean_parity_sideB": 2.0398613259318394,
+        "mean_parity_gap_sideB": 0.13341749760795985,
+        "reference_margins_sideB": {
+          "0_to_1": 0.8613100612771355,
+          "1_to_2": 0.6988236672108481,
+          "2_to_3plus": 0.6131450950518158
+        },
+        "simulated_margins_sideB": {
+          "0_to_1": 0.8289385622589309,
+          "1_to_2": 0.6653564846838457,
+          "2_to_3plus": 0.5455662789890628
+        },
+        "margin_gap_sideB": {
+          "0_to_1": 0.032371499018204575,
+          "1_to_2": 0.033467182527002426,
+          "2_to_3plus": 0.06757881606275296
+        },
+        "margin_ln_leverage_sideB": {
+          "0_to_1": 0.015869460637681722,
+          "1_to_2": 0.01640659691006893,
+          "2_to_3plus": 0.03312912265341465
+        },
+        "reference_parity_shares_sideB": {
+          "mean_parity": 2.1732788235397993,
+          "share_ge_1": 0.8613100612771355,
+          "share_ge_2": 0.6988236672108481,
+          "share_ge_3plus": 0.3464606354729646,
+          "share_ge_4plus": 0.16174818938677377
+        },
+        "simulated_parity_shares_sideB": {
+          "mean_parity": 2.0398613259318394,
+          "share_ge_1": 0.8289385622589309,
+          "share_ge_2": 0.6653564846838457,
+          "share_ge_3plus": 0.3149129359948043,
+          "share_ge_4plus": 0.14324810394279536
+        },
+        "denominator_weight_sideB": 8947383.0,
+        "n_women_sideB": 666,
+        "reference_mean_mother_age_sideB": 28.09455360855635,
+        "simulated_mean_mother_age_sideB": 27.988662874685765,
+        "age_shift_sideB": -0.10589073387058434,
+        "published_sideA": {
+          "rbar": 2.0602485332657303,
+          "rate_a": 2.1396493136089396,
+          "score": 0.037815320719324155,
+          "tolerance": 0.171,
+          "pass": true,
+          "excess_over_tolerance": -0.13318467928067584
+        },
+        "score_split_attribution": {
+          "high_side_reference_draw": -0.007411753476605986,
+          "systematic_sim_deficit": 0.07417438452188475,
+          "seed_sim_draw": -0.028947310325954698,
+          "reconstructed_score": 0.03781532071932407,
+          "rate_a_is_max_over_seeds": false,
+          "rbar_is_min_over_seeds": false,
+          "counterfactual_ref_to_full_panel_score": 0.04522707419593016,
+          "counterfactual_sim_to_seed_mean_score": 0.06676263104527885
+        }
+      },
+      {
+        "seed": 4,
+        "reference_mean_parity_sideB": 2.137077390577779,
+        "simulated_mean_parity_sideB": 1.974113003462768,
+        "mean_parity_gap_sideB": 0.16296438711501104,
+        "reference_margins_sideB": {
+          "0_to_1": 0.8588302661717084,
+          "1_to_2": 0.6856213028820373,
+          "2_to_3plus": 0.5926258215240334
+        },
+        "simulated_margins_sideB": {
+          "0_to_1": 0.8184867173957324,
+          "1_to_2": 0.6348780860412623,
+          "2_to_3plus": 0.5207482000257734
+        },
+        "margin_gap_sideB": {
+          "0_to_1": 0.04034354877597601,
+          "1_to_2": 0.050743216840774985,
+          "2_to_3plus": 0.07187762149826005
+        },
+        "margin_ln_leverage_sideB": {
+          "0_to_1": 0.020436291491525496,
+          "1_to_2": 0.025704312140068433,
+          "2_to_3plus": 0.036410084616321545
+        },
+        "reference_parity_shares_sideB": {
+          "mean_parity": 2.137077390577779,
+          "share_ge_1": 0.8588302661717084,
+          "share_ge_2": 0.6856213028820373,
+          "share_ge_3plus": 0.3476799870302088,
+          "share_ge_4plus": 0.15917924500850103
+        },
+        "simulated_parity_shares_sideB": {
+          "mean_parity": 1.974113003462768,
+          "share_ge_1": 0.8184867173957324,
+          "share_ge_2": 0.6348780860412623,
+          "share_ge_3plus": 0.31224627845975417,
+          "share_ge_4plus": 0.13689075237259882
+        },
+        "denominator_weight_sideB": 9622360.0,
+        "n_women_sideB": 685,
+        "reference_mean_mother_age_sideB": 27.74992705542092,
+        "simulated_mean_mother_age_sideB": 27.56830645413217,
+        "age_shift_sideB": -0.18162060128874913,
+        "published_sideA": {
+          "rbar": 1.9721976413495947,
+          "rate_a": 2.1747359030206908,
+          "score": 0.09775875830315171,
+          "tolerance": 0.171,
+          "pass": true,
+          "excess_over_tolerance": -0.0732412416968483
+        },
+        "score_split_attribution": {
+          "high_side_reference_draw": 0.008853536333132305,
+          "systematic_sim_deficit": 0.07417438452188475,
+          "seed_sim_draw": 0.014730837448134498,
+          "reconstructed_score": 0.09775875830315156,
+          "rate_a_is_max_over_seeds": false,
+          "rbar_is_min_over_seeds": false,
+          "counterfactual_ref_to_full_panel_score": 0.08890522197001947,
+          "counterfactual_sim_to_seed_mean_score": 0.08302792085501717
+        }
+      }
+    ],
+    "finding": "Seed 2's completed_fertility.c1970s failure is BOTH a sim-side deficit AND a high-side reference draw -- a split artifact on top of a benign systematic deficit, not a fixable single-margin fertility problem. Its published side-A score 0.1816 exceeds the 0.171 tolerance by +0.0106 (the +0.011 need) and splits EXACTLY into three log terms: a systematic sim deficit +0.0742 (ref_full 2.1556 / sim_seed_mean 2.0015; common to all five seeds and well inside tolerance), a seed-2 high-side reference draw +0.0549 (rate_a 2.2772 is the MAX of the five holdout draws, vs full-panel 2.1556), and a seed-2 low-side sim draw +0.0525 (rbar 1.8991 is the MIN of the five). Either excursion regressing to typical clears the cell: ref->full-panel gives 0.1267 (PASS), sim->seed-mean gives 0.1290 (PASS) -- each excursion is ~5x the +0.011 need, so no single fertility margin must move. On side B the gap is BROAD across margins (0->1 +0.0356, 1->2 +0.0351, 2->3+ +0.0509; largest lumped == the 2to3plus tail), none dominant."
+  },
+  "question_9_reachable_stock_ledger": {
+    "question": "the reachable-stock ledger under candidate 15: per seed, expected 75+ female widowed person-years == sum over onset-age bands of (inflow rate x married exposure x survival-to-75+ within observed support), computed identically on sim and reference, term by term, to locate the ~17%-of-reachable leak among onset-age composition, support-truncation asymmetry, 50-64 onset survival -1.0y, and carried-widow remarriage. Size the identified term against seed 3's +0.023.",
+    "method": "Train-side. Per gate seed, fit candidate 15 on side B and simulate the SAME side B at the 20 draw seeds 5200+k; average the per-draw ledgers. Reference = side B's observed marital panel. The 75+ widowed person-years are partitioned by widowhood onset (year - years_since_dissolution) against the observed support window [first_wave, last_wave]; reachable onsets enter inflow_rate x exposure x yield per onset-age band (yield == realized 75+ widowed person-years per onset). The leak is attributed by swapping one factor (inflow, yield) from sim to ref per band; survival-in-widowhood is a weighted Kaplan-Meier by onset band.",
+    "full_panel_reference": 0.5214099859203369,
+    "seed_mean_rbar": 0.43827244239821306,
+    "systematic_stock_deficit_abs_ln": 0.17369592183219712,
+    "stock_share": {
+      "reference": 0.521804500343905,
+      "simulated": 0.4392885809208079,
+      "sim_over_ref": 0.8418643009619245
+    },
+    "carried_share_of_reference_stock": 0.12107344140885154,
+    "buckets_weight": {
+      "W_total": {
+        "reference": 94092072.25680001,
+        "simulated": 79222908.89607,
+        "sim_over_ref": 0.8419721980386565
+      },
+      "W_reachable": {
+        "reference": 82712825.99360001,
+        "simulated": 62286392.909169994,
+        "sim_over_ref": 0.7530439464610902
+      },
+      "W_carried": {
+        "reference": 11379246.263199998,
+        "simulated": 16936515.986899998,
+        "sim_over_ref": 1.4883688774424344
+      },
+      "W_after_support_end": {
+        "reference": 0.0,
+        "simulated": 0.0,
+        "sim_over_ref": null
+      },
+      "W_non_derivable": {
+        "reference": 0.0,
+        "simulated": 0.0,
+        "sim_over_ref": null
+      },
+      "W_reachable_in_window": {
+        "reference": 82712825.99360001,
+        "simulated": 62286392.909169994,
+        "sim_over_ref": 0.7530439464610902
+      },
+      "W_reachable_tail": {
+        "reference": 0.0,
+        "simulated": 0.0,
+        "sim_over_ref": null
+      }
+    },
+    "ledger_by_onset_band": {
+      "15-49": {
+        "inflow_rate_b": {
+          "reference": 0.0016567492186367896,
+          "simulated": 0.002710272358387272,
+          "sim_over_ref": 1.6358977737242242
+        },
+        "exposure_b": {
+          "reference": 1042302520.0139999,
+          "simulated": 1000741498.51376,
+          "sim_over_ref": 0.9601257593623762
+        },
+        "yield_b": {
+          "reference": 1.4877403493865082,
+          "simulated": 0.737017657527707,
+          "sim_over_ref": 0.4953940100042505
+        },
+        "W_reach_b": {
+          "reference": 2558180.0,
+          "simulated": 2020089.5860300001,
+          "sim_over_ref": 0.7896588926619706
+        },
+        "inflow_b": {
+          "reference": 1725886.9158,
+          "simulated": 2712041.55595,
+          "sim_over_ref": 1.5713900668242147
+        },
+        "mean_onset_age": {
+          "reference": 40.09839261729469,
+          "simulated": 39.56429436689854,
+          "sim_over_ref": 0.9866803077247093
+        },
+        "share_window_reaches_75": {
+          "reference": 0.33051704199970755,
+          "simulated": 0.18177565235219273,
+          "sim_over_ref": 0.5499736148321016
+        },
+        "mean_window_years_after_onset": {
+          "reference": 25.402231667355146,
+          "simulated": 21.17907499763168,
+          "sim_over_ref": 0.8337485963821549
+        }
+      },
+      "50-64": {
+        "inflow_rate_b": {
+          "reference": 0.009432171452686877,
+          "simulated": 0.009281329322364095,
+          "sim_over_ref": 0.9840076984309045
+        },
+        "exposure_b": {
+          "reference": 443355585.6984,
+          "simulated": 441737096.68761003,
+          "sim_over_ref": 0.9963494561408526
+        },
+        "yield_b": {
+          "reference": 5.0928561347980095,
+          "simulated": 2.9564209314602756,
+          "sim_over_ref": 0.5805035236043501
+        },
+        "W_reach_b": {
+          "reference": 21185507.863199998,
+          "simulated": 12152756.49738,
+          "sim_over_ref": 0.573635363185689
+        },
+        "inflow_b": {
+          "reference": 4181969.0816,
+          "simulated": 4100473.82804,
+          "sim_over_ref": 0.980512707777165
+        },
+        "mean_onset_age": {
+          "reference": 57.59100247163464,
+          "simulated": 57.385892108257266,
+          "sim_over_ref": 0.9964384998597933
+        },
+        "share_window_reaches_75": {
+          "reference": 0.5718652172621947,
+          "simulated": 0.39051431880119203,
+          "sim_over_ref": 0.682878250002299
+        },
+        "mean_window_years_after_onset": {
+          "reference": 19.29849420737806,
+          "simulated": 15.044741887906435,
+          "sim_over_ref": 0.7795811282599778
+        }
+      },
+      "65-74": {
+        "inflow_rate_b": {
+          "reference": 0.024794779335553255,
+          "simulated": 0.025797630938097567,
+          "sim_over_ref": 1.0404460789496248
+        },
+        "exposure_b": {
+          "reference": 155250607.556,
+          "simulated": 146589379.95639998,
+          "sim_over_ref": 0.944211312690188
+        },
+        "yield_b": {
+          "reference": 7.703014369424258,
+          "simulated": 6.069763245948714,
+          "sim_over_ref": 0.7879724682900187
+        },
+        "W_reach_b": {
+          "reference": 29694125.7366,
+          "simulated": 22949204.26234,
+          "sim_over_ref": 0.7728533402838518
+        },
+        "inflow_b": {
+          "reference": 3849288.7944,
+          "simulated": 3780762.73936,
+          "sim_over_ref": 0.9821977360753777
+        },
+        "mean_onset_age": {
+          "reference": 69.58502249328859,
+          "simulated": 68.78326179012342,
+          "sim_over_ref": 0.9884779701947715
+        },
+        "share_window_reaches_75": {
+          "reference": 0.787607771528477,
+          "simulated": 0.680566031752136,
+          "sim_over_ref": 0.8640925805383946
+        },
+        "mean_window_years_after_onset": {
+          "reference": 12.063325621070451,
+          "simulated": 11.01534358550387,
+          "sim_over_ref": 0.9131266063368033
+        }
+      },
+      "75+": {
+        "inflow_rate_b": {
+          "reference": 0.058776739975363715,
+          "simulated": 0.06436016703648861,
+          "sim_over_ref": 1.094993820063263
+        },
+        "exposure_b": {
+          "reference": 64065715.865600005,
+          "simulated": 61119368.97039,
+          "sim_over_ref": 0.9540105522056291
+        },
+        "yield_b": {
+          "reference": 7.7950235265410495,
+          "simulated": 6.445833979342034,
+          "sim_over_ref": 0.8269165522586045
+        },
+        "W_reach_b": {
+          "reference": 29275012.3938,
+          "simulated": 25164342.563419998,
+          "sim_over_ref": 0.859584352174328
+        },
+        "inflow_b": {
+          "reference": 3755085.4758,
+          "simulated": 3907353.6103600003,
+          "sim_over_ref": 1.040549845147682
+        },
+        "mean_onset_age": {
+          "reference": 81.185045676052,
+          "simulated": 80.9116227463684,
+          "sim_over_ref": 0.996632102286736
+        },
+        "share_window_reaches_75": {
+          "reference": 1.0,
+          "simulated": 1.0,
+          "sim_over_ref": 1.0
+        },
+        "mean_window_years_after_onset": {
+          "reference": 7.8687249860314505,
+          "simulated": 7.098986452608335,
+          "sim_over_ref": 0.9021774766827466
+        }
+      }
+    },
+    "survival_in_widowhood_female": {
+      "50-64": {
+        "reference_survival_curve": [
+          1.0,
+          0.989167117768174,
+          0.9693861673896901,
+          0.9497746518768466,
+          0.9369824808112629,
+          0.9128523954044565,
+          0.9128523954044565,
+          0.902631250898694,
+          0.890641365215018,
+          0.886462006167922,
+          0.8864542576022231,
+          0.8790687326234792,
+          0.8790687326234792,
+          0.8762331944096242,
+          0.8684141004394552,
+          0.8664694820907004,
+          0.8664694820907004,
+          0.8597412761468872,
+          0.8597412761468872,
+          0.8597412761468872,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693,
+          0.8487695594970693
+        ],
+        "simulated_survival_curve": [
+          1.0,
+          0.9804253046654331,
+          0.9629431845942943,
+          0.9438096682661289,
+          0.9273316749998998,
+          0.9118531307479397,
+          0.8981323107803364,
+          0.88527362709026,
+          0.8750106097815987,
+          0.8662182274065147,
+          0.8620187682411993,
+          0.8577632988140591,
+          0.8538073060620013,
+          0.849963505857974,
+          0.8464582394105579,
+          0.8450055759442797,
+          0.8424028320949548,
+          0.841498619356404,
+          0.8411909488233478,
+          0.8403946871917768,
+          0.8391416040023307,
+          0.8381781573184718,
+          0.8372705373059676,
+          0.8360416495343816,
+          0.8358053346086793,
+          0.8350133798181103,
+          0.8350133798181103,
+          0.8346993533687769,
+          0.8341920218624465,
+          0.833487858993386,
+          0.833487858993386
+        ],
+        "reference_reported": {
+          "1": 0.989167117768174,
+          "2": 0.9693861673896901,
+          "3": 0.9497746518768466,
+          "5": 0.9128523954044565,
+          "10": 0.8864542576022231,
+          "15": 0.8664694820907004,
+          "20": 0.8487695594970693
+        },
+        "simulated_reported": {
+          "1": 0.9804253046654331,
+          "2": 0.9629431845942943,
+          "3": 0.9438096682661289,
+          "5": 0.9118531307479397,
+          "10": 0.8620187682411993,
+          "15": 0.8450055759442797,
+          "20": 0.8391416040023307
+        },
+        "reference_restricted_mean_survival_years": 26.38861679572461,
+        "simulated_restricted_mean_survival_years": 25.92383265575301,
+        "sim_minus_ref_rmst": -0.4647841399715986
+      },
+      "65+": {
+        "reference_survival_curve": [
+          1.0,
+          0.9896273535947868,
+          0.9849894708269762,
+          0.9795797314062412,
+          0.9749939365479922,
+          0.9749939365479922,
+          0.9749939365479922,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435,
+          0.9714949915923435
+        ],
+        "simulated_survival_curve": [
+          1.0,
+          0.992453807973893,
+          0.9869623226056762,
+          0.9812523846343035,
+          0.9758146614369455,
+          0.9737309285917197,
+          0.9718530212987584,
+          0.9707966999648525,
+          0.9697980683526535,
+          0.968301975652138,
+          0.9675315001062588,
+          0.9669754735437526,
+          0.9663794566557247,
+          0.9653211081028491,
+          0.9649120133948568,
+          0.9649117584774098,
+          0.9643141342139294,
+          0.9631468584167531,
+          0.9621629943013172,
+          0.9618753925204453,
+          0.9603353923115543,
+          0.9603024911073351,
+          0.9597054936208538,
+          0.9597054936208538,
+          0.9597054936208538,
+          0.958857632548113,
+          0.9587586100947508,
+          0.9587586100947508,
+          0.9587586100947508,
+          0.9561962111853093,
+          0.9561962111853093
+        ],
+        "reference_reported": {
+          "1": 0.9896273535947868,
+          "2": 0.9849894708269762,
+          "3": 0.9795797314062412,
+          "5": 0.9749939365479922,
+          "10": 0.9714949915923435,
+          "15": 0.9714949915923435,
+          "20": 0.9714949915923435
+        },
+        "simulated_reported": {
+          "1": 0.992453807973893,
+          "2": 0.9869623226056762,
+          "3": 0.9812523846343035,
+          "5": 0.9737309285917197,
+          "10": 0.9675315001062588,
+          "15": 0.9649117584774098,
+          "20": 0.9603353923115543
+        },
+        "reference_restricted_mean_survival_years": 29.195058163688223,
+        "simulated_restricted_mean_survival_years": 28.985774809728674,
+        "sim_minus_ref_rmst": -0.2092833539595489
+      }
+    },
+    "leak_attribution": {
+      "onset_age_composition_of_inflow": {
+        "note": "inflow_rate x exposure swap (sim onset-age inflow -> ref): the reachable-stock change from matching the reference inflow composition, yields held at sim",
+        "reachable_weight_change": -966064.7966714948
+      },
+      "inflow_rate_only": {
+        "reachable_weight_change": -3672023.622796707
+      },
+      "married_exposure_only": {
+        "reachable_weight_change": 2705958.826125212
+      },
+      "survival_to_75plus_yield": {
+        "note": "yield swap (sim survival-to-75+ within support -> ref): the reachable-stock change from matching the reference yield, inflow held at sim -- the 50-64/65-74 onset survival term",
+        "reachable_weight_change": 22278999.89940609
+      },
+      "carried_widow_handling": {
+        "note": "W_carried (entry-widowed injection): sim vs ref. Positive gap == under-production; negative == over-production (an offset, not a leak)",
+        "carried_weight_change": -5557269.7237,
+        "sim_over_ref": 1.4883688774424344
+      },
+      "support_truncation_asymmetry": {
+        "note": "two probes. (1) forward reconstruction-tail (last_wave, censor] share of reachable 75+ widowed person-years -- ~0 both sides because censor tracks last_wave. (2) the reachable-onset window geometry: the share of each band's reachable widowhood inflow whose observed window min(last_wave, censor) reaches age 75 -- if the simulated process selects mid-age onsets with shorter windows than the reference, the yield leaks by support truncation, not by remarriage (the survival curves track)",
+        "reference_tail_share_of_reachable": 0.0,
+        "simulated_tail_share_of_reachable": 0.0,
+        "window_reaches_75_by_onset_band": {
+          "15-49": {
+            "reference": 0.33051704199970755,
+            "simulated": 0.18177565235219273,
+            "sim_minus_ref": -0.14874138964751482
+          },
+          "50-64": {
+            "reference": 0.5718652172621947,
+            "simulated": 0.39051431880119203,
+            "sim_minus_ref": -0.18135089846100272
+          },
+          "65-74": {
+            "reference": 0.787607771528477,
+            "simulated": 0.680566031752136,
+            "sim_minus_ref": -0.10704173977634102
+          },
+          "75+": {
+            "reference": 1.0,
+            "simulated": 1.0,
+            "sim_minus_ref": 0.0
+          }
+        }
+      }
+    },
+    "dominant_term": "survival_to_75plus_yield",
+    "dominant_term_within_yield": "support_window_truncation",
+    "yield_sub_attribution": {
+      "note": "the dominant ledger term is the yield (survival-to-75+ within support); within it, over-remarriage is ruled out (survival-in-widowhood tracks the reference) and the driver is support-window truncation -- the simulated widowhood process selects mid-age onsets with shorter observed windows, so fewer reachable widows survive in support to 75+",
+      "survival_in_widowhood_sim_minus_ref_rmst_50_64": -0.4647841399715986,
+      "window_reaches_75_ref_50_64": 0.5718652172621947,
+      "window_reaches_75_sim_50_64": 0.39051431880119203
+    },
+    "dominant_term_reachable_weight_change": 22278999.89940609,
+    "total_gap_person_years": 14869163.360730007,
+    "reachable_gap_person_years": 20426433.084430017,
+    "carried_gap_person_years": -5557269.7237,
+    "seed3_sizing": {
+      "published_score": 0.20799545004981465,
+      "tolerance": 0.185,
+      "need": 0.022995450049814653,
+      "sideB_stock_ratio": 0.8419721980386565,
+      "sideB_abs_ln": 0.172008284241413,
+      "counterfactual_stock_ratio_yield_fix": 1.0022268264763607,
+      "counterfactual_abs_ln_yield_fix": 0.0022243507729096143,
+      "abs_ln_reduction": 0.1697839334685034,
+      "yield_fix_bands": [
+        "50-64",
+        "65-74"
+      ]
+    },
+    "finding": "The ~17%-of-reachable 75+ widowed-stock leak is the SURVIVAL-TO-75+ YIELD (realized 75+ widowed person-years per onset within observed support), concentrated at mid-age onset -- and within the yield the driver is SUPPORT-WINDOW TRUNCATION, not over-remarriage. Term by term the reachable stock is sim/ref 0.753 while the inflow rate is at or above reference every band (1.04x at 65-74, 1.09x at 75+), married exposure is ~1.0x, and the carried mass is OVER-produced (W_carried sim/ref 1.49x -- an offset, so carried-widow handling is NOT the leak). The yield leaks worst at onset 15-49 (sim/ref 0.50x). Decomposing the yield: survival-in-widowhood TRACKS the reference (50-64 onset restricted-mean widowed duration sim 25.9y vs ref 26.4y, -0.5y -- far milder than the registered -1.0y candidate; 65+ onset -0.2y), so over-remarriage is NOT the driver. The support-window geometry is: at 50-64 onset only 39% of the simulated reachable widowhoods have an observed window reaching age 75 vs 57% in the reference (-18%), and the mean observed window after onset is 15.0y vs 19.3y -- the simulated widowhood process selects mid-age onsets with systematically shorter support windows (the lifted hazard also over-produces carried widows off the retrospective region), so fewer reachable widows survive IN SUPPORT to 75+. A single factor swap (sim yield -> ref, inflow held) changes the reachable stock by 22,279,000 person-years, 150% of the 14,869,163 NET gap (over 100% because inflow already exceeds reference), vs onset-composition -6% and carried -37%. Sizing against seed 3's +0.023: the systematic stock deficit is 0.1737 |ln| (the ~17% leak, just under the 0.185 tolerance) and seed 3 needs only +0.0230; closing the 50-64+65-74 onset yield alone moves the side-B stock ratio 0.842->1.002 and the |ln| distance 0.172->0.002, a 0.170 reduction -- ~7x seed 3's +0.023 need. The dominant term over-clears the failing seed by an order of magnitude."
+  },
+  "published_outer_context": {
+    "note": "already-published candidate-15 side-A scores (runs/gate2_hazard_v15.json); the outer holdout is not simulated here -- the only side-A numbers this diagnostic uses",
+    "completed_fertility.c1970s": {
+      "0": {
+        "rbar": 2.058703038749931,
+        "rate_a": 2.1455306947212773,
+        "score": 0.04131074022076007,
+        "tolerance": 0.171,
+        "pass": true
+      },
+      "1": {
+        "rbar": 2.017085012375478,
+        "rate_a": 2.2113201981368418,
+        "score": 0.09193630588075492,
+        "tolerance": 0.171,
+        "pass": true
+      },
+      "2": {
+        "rbar": 1.8990897735454433,
+        "rate_a": 2.277157860123279,
+        "score": 0.18155340796758151,
+        "tolerance": 0.171,
+        "pass": false
+      },
+      "3": {
+        "rbar": 2.0602485332657303,
+        "rate_a": 2.1396493136089396,
+        "score": 0.037815320719324155,
+        "tolerance": 0.171,
+        "pass": true
+      },
+      "4": {
+        "rbar": 1.9721976413495947,
+        "rate_a": 2.1747359030206908,
+        "score": 0.09775875830315171,
+        "tolerance": 0.171,
+        "pass": true
+      }
+    },
+    "share_widowed.75+|female": {
+      "0": {
+        "rbar": 0.42199080867968225,
+        "rate_a": 0.5076166858383586,
+        "score": 0.18474307390302666,
+        "tolerance": 0.185,
+        "pass": true
+      },
+      "1": {
+        "rbar": 0.45093436135378706,
+        "rate_a": 0.5155032908555559,
+        "score": 0.1338218985743846,
+        "tolerance": 0.185,
+        "pass": true
+      },
+      "2": {
+        "rbar": 0.43400958745555085,
+        "rate_a": 0.5222775396481519,
+        "score": 0.1851325069700747,
+        "tolerance": 0.185,
+        "pass": false
+      },
+      "3": {
+        "rbar": 0.4354682815013741,
+        "rate_a": 0.5361518436355753,
+        "score": 0.20799545004981465,
+        "tolerance": 0.185,
+        "pass": false
+      },
+      "4": {
+        "rbar": 0.44895917300067134,
+        "rate_a": 0.5242081880199894,
+        "score": 0.1549569559188472,
+        "tolerance": 0.185,
+        "pass": true
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 20801,
+      "n_holdout_persons": 20608,
+      "ref_parity": {
+        "denominator_weight": 8894465.0,
+        "n_women": 669,
+        "mean_parity": 2.166860513813928,
+        "share_ge_1": 0.870980660444445,
+        "share_ge_2": 0.6982887672277085,
+        "share_ge_3plus": 0.34868730159711686,
+        "share_ge_4plus": 0.14785835910310513
+      },
+      "ref_age": {
+        "n_births": 1421,
+        "mean_mother_age": 27.86106172274286,
+        "share_by_asfr_band": {
+          "15-19": 0.0935864487058928,
+          "20-24": 0.22622470930605504,
+          "25-29": 0.28794347612141163,
+          "30-34": 0.24250316731737734,
+          "35-39": 0.11892610101719953,
+          "40-44": 0.02821088687749318,
+          "45-49": 0.0026052106545704423
+        }
+      },
+      "ref_censoring": {
+        "reference_construction": "completed parity = all birth-type events of women observed through 45, any mother age (transitions.build_fertility_panel all_births, no age window)",
+        "simulation_construction": "births generated only at mother age in [15, 49] (candidate 1 _ASFR_LO/_ASFR_HI)",
+        "n_reference_cohort_births": 1429,
+        "share_outside_15_49": 0.0023555726869078013,
+        "count_outside_15_49": 8,
+        "per_person_outside_15_49": 0.0050073838055464835,
+        "shared": true
+      },
+      "sim_parity_mean": {
+        "share_ge_2": 0.6596160870833715,
+        "share_ge_4plus": 0.14597507551044384,
+        "mean_parity": 2.062892557337625,
+        "share_ge_1": 0.8424448463173446,
+        "share_ge_3plus": 0.3385059809668148
+      },
+      "sim_age_mean": 27.630345785025753,
+      "sim_age_band_mean": {
+        "15-19": 0.10630912388043641,
+        "20-24": 0.2410296473687364,
+        "25-29": 0.264427445550126,
+        "30-34": 0.23530505200916876,
+        "35-39": 0.11812330719713944,
+        "40-44": 0.03168371488319463,
+        "45-49": 0.0031217091111983603
+      },
+      "ref_ledger": {
+        "all_75plus_py_weight": 181396335.97100002,
+        "share_widowed_75plus": 0.5352125760882026,
+        "W_total": 97085600.268,
+        "W_reachable": 86261899.86,
+        "W_carried": 10823700.408,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 86261899.86,
+        "W_reachable_tail": 0.0,
+        "reconciliation_remainder": 0.0,
+        "ledger_reachable_from_bands": 86261899.86,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 4143377.0,
+            "inflow_b": 1753988.345,
+            "exposure_b": 1045758482.469,
+            "inflow_rate_b": 0.0016772403708922288,
+            "yield_b": 2.3622602805835635,
+            "mean_onset_age": 41.05706737863187,
+            "share_window_reaches_75": 0.3919758087104051,
+            "mean_window_years_after_onset": 26.201410680411335
+          },
+          "50-64": {
+            "W_reach_b": 25564397.536,
+            "inflow_b": 3906905.057,
+            "exposure_b": 448317035.37,
+            "inflow_rate_b": 0.00871460316866076,
+            "yield_b": 6.543388478354824,
+            "mean_onset_age": 57.76613864000535,
+            "share_window_reaches_75": 0.6173044417035088,
+            "mean_window_years_after_onset": 20.605550425076533
+          },
+          "65-74": {
+            "W_reach_b": 29054355.985,
+            "inflow_b": 3755135.199,
+            "exposure_b": 159919732.085,
+            "inflow_rate_b": 0.023481375000078682,
+            "yield_b": 7.737233001021437,
+            "mean_onset_age": 69.49246366721827,
+            "share_window_reaches_75": 0.817768075785332,
+            "mean_window_years_after_onset": 12.195658890576206
+          },
+          "75+": {
+            "W_reach_b": 27499769.339,
+            "inflow_b": 3592697.3719999995,
+            "exposure_b": 65027855.412,
+            "inflow_rate_b": 0.055248590765258676,
+            "yield_b": 7.654351728403804,
+            "mean_onset_age": 81.16337954306275,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.732773808202625
+          }
+        },
+        "n_widowed_75plus_py": 4423
+      },
+      "sim_ledger_mean": {
+        "all_75plus_py_weight": 181396335.97100005,
+        "share_widowed_75plus": 0.418003770553128,
+        "W_total": 75824352.40040001,
+        "W_reachable": 60312338.480299994,
+        "W_carried": 15512013.9201,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 60312338.480299994,
+        "W_reachable_tail": 0.0,
+        "ledger_reachable_from_bands": 60312338.480299994,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2074159.0125,
+            "inflow_b": 2615406.2755,
+            "exposure_b": 993026565.3516,
+            "inflow_rate_b": 0.002632761308772334,
+            "yield_b": 0.7841417370828568,
+            "mean_onset_age": 39.58525501215604,
+            "share_window_reaches_75": 0.18547308877819205,
+            "mean_window_years_after_onset": 21.399925990767166
+          },
+          "50-64": {
+            "W_reach_b": 11670340.569100002,
+            "inflow_b": 4009582.73455,
+            "exposure_b": 443689032.0651,
+            "inflow_rate_b": 0.009040238185479953,
+            "yield_b": 2.9143265302490255,
+            "mean_onset_age": 57.42253206690108,
+            "share_window_reaches_75": 0.40081699746152466,
+            "mean_window_years_after_onset": 14.978950415076891
+          },
+          "65-74": {
+            "W_reach_b": 22194524.55685,
+            "inflow_b": 3686873.3364500003,
+            "exposure_b": 151227231.17470002,
+            "inflow_rate_b": 0.02437864295672552,
+            "yield_b": 6.033744466124938,
+            "mean_onset_age": 68.78668353203868,
+            "share_window_reaches_75": 0.687886440864329,
+            "mean_window_years_after_onset": 11.009445806475487
+          },
+          "75+": {
+            "W_reach_b": 24373314.34185,
+            "inflow_b": 3832929.3791499995,
+            "exposure_b": 64833077.05429999,
+            "inflow_rate_b": 0.05918213495029582,
+            "yield_b": 6.37343644977758,
+            "mean_onset_age": 81.14282798353096,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 6.968850483389521
+          }
+        }
+      },
+      "ref_survival": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9990115274308973,
+            0.9809676376636285,
+            0.9592504071719181,
+            0.9440583256252277,
+            0.9198831033238125,
+            0.9198831033238125,
+            0.9198766737550655,
+            0.9024819827379897,
+            0.902473581466373,
+            0.9024604383057563,
+            0.8933901578632738,
+            0.8933901578632738,
+            0.8933901578632738,
+            0.8933901578632738,
+            0.8933726843403396,
+            0.8933726843403396,
+            0.8849423753926774,
+            0.8849423753926774,
+            0.8849423753926774,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706,
+            0.8716842096023706
+          ],
+          "reported": {
+            "1": 0.9990115274308973,
+            "2": 0.9809676376636285,
+            "3": 0.9592504071719181,
+            "5": 0.9198831033238125,
+            "10": 0.9024604383057563,
+            "15": 0.8933726843403396,
+            "20": 0.8716842096023706
+          },
+          "restricted_mean_survival_years": 26.954006212742367
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9902160124449384,
+            0.9880461831719605,
+            0.9818748713732314,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276,
+            0.9759868931714276
+          ],
+          "reported": {
+            "1": 0.9902160124449384,
+            "2": 0.9880461831719605,
+            "3": 0.9818748713732314,
+            "5": 0.9759868931714276,
+            "10": 0.9759868931714276,
+            "15": 0.9759868931714276,
+            "20": 0.9759868931714276
+          },
+          "restricted_mean_survival_years": 29.311783182618672
+        }
+      },
+      "sim_survival_mean": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9900382336300261,
+            0.9786223561883446,
+            0.9647390367401616,
+            0.9503836434189159,
+            0.9338517492014382,
+            0.9197411393778857,
+            0.9055012071528006,
+            0.8973923670026963,
+            0.8901586034146158,
+            0.8865981261169347,
+            0.8819145314529843,
+            0.8787390234942933,
+            0.8740359359654544,
+            0.8707238945418485,
+            0.8691755357196873,
+            0.8673219579339232,
+            0.8663414467412771,
+            0.8658472662666021,
+            0.8655708519130773,
+            0.8621846258629835,
+            0.8620797470557624,
+            0.8614000588755399,
+            0.8588920931972686,
+            0.8588920931972686,
+            0.8581661278977449,
+            0.8581661278977449,
+            0.8581661278977449,
+            0.8581661278977449,
+            0.8581661278977449,
+            0.8581661278977449
+          ],
+          "reported": {
+            "1": 0.9900382336300261,
+            "2": 0.9786223561883446,
+            "3": 0.9647390367401616,
+            "5": 0.9338517492014382,
+            "10": 0.8865981261169347,
+            "15": 0.8691755357196873,
+            "20": 0.8621846258629835
+          },
+          "restricted_mean_survival_years": 26.609142291848258
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9928094451891847,
+            0.9879218518218748,
+            0.9840011852328587,
+            0.9805100228275135,
+            0.9777490551635568,
+            0.9746506624377392,
+            0.9734402467782293,
+            0.9730234903170564,
+            0.9703970114166862,
+            0.9703970114166862,
+            0.9703970114166862,
+            0.9694474586274924,
+            0.967527434212165,
+            0.967527434212165,
+            0.967527434212165,
+            0.9670165534010613,
+            0.9663193482176873,
+            0.9646358135003137,
+            0.9646358135003137,
+            0.9646358135003137,
+            0.9646358135003137,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9616508260679071,
+            0.9488388315207003,
+            0.9488388315207003
+          ],
+          "reported": {
+            "1": 0.9928094451891847,
+            "2": 0.9879218518218748,
+            "3": 0.9840011852328587,
+            "5": 0.9777490551635568,
+            "10": 0.9703970114166862,
+            "15": 0.967527434212165,
+            "20": 0.9646358135003137
+          },
+          "restricted_mean_survival_years": 29.048439356418804
+        }
+      },
+      "support_geometry": {
+        "mean_first_wave_minus_start_exposure": 4.051443870720979,
+        "mean_censor_minus_last_wave": -0.1490724803977816,
+        "share_start_exposure_before_first_wave": 0.5383438515968636,
+        "share_censor_after_last_wave": 0.0
+      },
+      "per_draw_share_widowed_75plus": [
+        0.4431611729514298,
+        0.4002071073288162,
+        0.406302296689073,
+        0.4282843634196682,
+        0.40356190113290535,
+        0.4223665730781278,
+        0.4257919963297823,
+        0.43077591612155,
+        0.44561108326864285,
+        0.3707539248904777,
+        0.3870527896507487,
+        0.4417208105504947,
+        0.41543526644908424,
+        0.41858089895012457,
+        0.4163322988622749,
+        0.3956105466786975,
+        0.4125402667668197,
+        0.42616639771245884,
+        0.4385604838441623,
+        0.43125931638722026
+      ],
+      "elapsed_seconds": 19.8
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 20652,
+      "n_holdout_persons": 20757,
+      "ref_parity": {
+        "denominator_weight": 9614985.0,
+        "n_women": 669,
+        "mean_parity": 2.101706346915778,
+        "share_ge_1": 0.8664380651659883,
+        "share_ge_2": 0.6817685102992881,
+        "share_ge_3plus": 0.3304406611138759,
+        "share_ge_4plus": 0.13967790901389862
+      },
+      "ref_age": {
+        "n_births": 1423,
+        "mean_mother_age": 27.96524412549457,
+        "share_by_asfr_band": {
+          "15-19": 0.10455506447288591,
+          "20-24": 0.21545896473700685,
+          "25-29": 0.2592164966778652,
+          "30-34": 0.25193516180568215,
+          "35-39": 0.14002692735621028,
+          "40-44": 0.02582132684213434,
+          "45-49": 0.0029860581082152365
+        }
+      },
+      "ref_censoring": {
+        "reference_construction": "completed parity = all birth-type events of women observed through 45, any mother age (transitions.build_fertility_panel all_births, no age window)",
+        "simulation_construction": "births generated only at mother age in [15, 49] (candidate 1 _ASFR_LO/_ASFR_HI)",
+        "n_reference_cohort_births": 1429,
+        "share_outside_15_49": 0.0028044397421669934,
+        "count_outside_15_49": 6,
+        "per_person_outside_15_49": 0.005818521817766747,
+        "shared": true
+      },
+      "sim_parity_mean": {
+        "share_ge_2": 0.6598112113539438,
+        "share_ge_4plus": 0.12887550006578274,
+        "mean_parity": 2.004732175869229,
+        "share_ge_1": 0.8246917493891045,
+        "share_ge_3plus": 0.32340494030931927
+      },
+      "sim_age_mean": 27.914990660020504,
+      "sim_age_band_mean": {
+        "15-19": 0.10812131275216645,
+        "20-24": 0.22955001253236337,
+        "25-29": 0.24773361335129765,
+        "30-34": 0.2415056639187722,
+        "35-39": 0.13531877543880683,
+        "40-44": 0.03454696467475981,
+        "45-49": 0.0032236573318335945
+      },
+      "ref_ledger": {
+        "all_75plus_py_weight": 181638925.837,
+        "share_widowed_75plus": 0.5273048764555605,
+        "W_total": 95779091.348,
+        "W_reachable": 84581052.10100001,
+        "W_carried": 11198039.247000001,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 84581052.10100001,
+        "W_reachable_tail": 0.0,
+        "reconciliation_remainder": -1.4901161193847656e-08,
+        "ledger_reachable_from_bands": 84581052.10100001,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2937556.0,
+            "inflow_b": 1664191.298,
+            "exposure_b": 1044995658.326,
+            "inflow_rate_b": 0.0015925341744155207,
+            "yield_b": 1.7651552459926396,
+            "mean_onset_age": 40.14238710074063,
+            "share_window_reaches_75": 0.32399039740682506,
+            "mean_window_years_after_onset": 25.56114074993799
+          },
+          "50-64": {
+            "W_reach_b": 19919448.707000002,
+            "inflow_b": 4049807.3419999997,
+            "exposure_b": 448230121.445,
+            "inflow_rate_b": 0.00903510752232418,
+            "yield_b": 4.918616374763835,
+            "mean_onset_age": 58.13145287492543,
+            "share_window_reaches_75": 0.5840367430495906,
+            "mean_window_years_after_onset": 18.637206043911608
+          },
+          "65-74": {
+            "W_reach_b": 31670200.312,
+            "inflow_b": 4082250.201999999,
+            "exposure_b": 157033830.17299998,
+            "inflow_rate_b": 0.02599599205790684,
+            "yield_b": 7.75802529117004,
+            "mean_onset_age": 69.60039544264075,
+            "share_window_reaches_75": 0.793303228306142,
+            "mean_window_years_after_onset": 11.958482927401914
+          },
+          "75+": {
+            "W_reach_b": 30053847.082000002,
+            "inflow_b": 3947924.131,
+            "exposure_b": 59650089.203,
+            "inflow_rate_b": 0.06618471462070245,
+            "yield_b": 7.612569564346575,
+            "mean_onset_age": 81.01039814460407,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.705692826547381
+          }
+        },
+        "n_widowed_75plus_py": 4492
+      },
+      "sim_ledger_mean": {
+        "all_75plus_py_weight": 181638925.83699998,
+        "share_widowed_75plus": 0.45303242616174844,
+        "W_total": 82288323.25735001,
+        "W_reachable": 65261199.36534999,
+        "W_carried": 17027123.891999997,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 65261199.36534999,
+        "W_reachable_tail": 0.0,
+        "ledger_reachable_from_bands": 65261199.36534999,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 1902309.145,
+            "inflow_b": 2663393.0796,
+            "exposure_b": 998521502.7494001,
+            "inflow_rate_b": 0.0026683484592378735,
+            "yield_b": 0.7031846405330325,
+            "mean_onset_age": 38.88634005657452,
+            "share_window_reaches_75": 0.18401941419819198,
+            "mean_window_years_after_onset": 21.953062980415098
+          },
+          "50-64": {
+            "W_reach_b": 11707319.370300004,
+            "inflow_b": 4096153.7325000004,
+            "exposure_b": 447998720.89239997,
+            "inflow_rate_b": 0.009145213166611325,
+            "yield_b": 2.8485652608377308,
+            "mean_onset_age": 57.50061121144135,
+            "share_window_reaches_75": 0.38277800731696054,
+            "mean_window_years_after_onset": 14.837103387949544
+          },
+          "65-74": {
+            "W_reach_b": 24303021.224050004,
+            "inflow_b": 4032951.9739999995,
+            "exposure_b": 148288914.52515,
+            "inflow_rate_b": 0.027221483671215036,
+            "yield_b": 6.021983000084822,
+            "mean_onset_age": 68.75530376479635,
+            "share_window_reaches_75": 0.6800639810607384,
+            "mean_window_years_after_onset": 11.000441713096034
+          },
+          "75+": {
+            "W_reach_b": 27348549.626,
+            "inflow_b": 4195644.58115,
+            "exposure_b": 58459654.93970001,
+            "inflow_rate_b": 0.07197680483553866,
+            "yield_b": 6.52341209821436,
+            "mean_onset_age": 80.71888099911925,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.177240020249246
+          }
+        }
+      },
+      "ref_survival": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9897154354679705,
+            0.9661937928370853,
+            0.9573426589990319,
+            0.9418369247332148,
+            0.9119021903634261,
+            0.9119021903634261,
+            0.9078562763603831,
+            0.889532990420424,
+            0.889532990420424,
+            0.889532990420424,
+            0.8800655322923006,
+            0.8800655322923006,
+            0.8763183482786858,
+            0.8672782697384483,
+            0.8576070542147932,
+            0.8576070542147932,
+            0.8488812801529378,
+            0.8488812801529378,
+            0.8488812801529378,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108,
+            0.8346669935353108
+          ],
+          "reported": {
+            "1": 0.9897154354679705,
+            "2": 0.9661937928370853,
+            "3": 0.9573426589990319,
+            "5": 0.9119021903634261,
+            "10": 0.889532990420424,
+            "15": 0.8576070542147932,
+            "20": 0.8346669935353108
+          },
+          "restricted_mean_survival_years": 26.202271000764366
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9896657229753485,
+            0.9877258870534595,
+            0.9828473691015346,
+            0.9828473691015346,
+            0.9828473691015346,
+            0.9828473691015346,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785,
+            0.9770906957316785
+          ],
+          "reported": {
+            "1": 0.9896657229753485,
+            "2": 0.9877258870534595,
+            "3": 0.9828473691015346,
+            "5": 0.9828473691015346,
+            "10": 0.9770906957316785,
+            "15": 0.9770906957316785,
+            "20": 0.9770906957316785
+          },
+          "restricted_mean_survival_years": 29.358957783995233
+        }
+      },
+      "sim_survival_mean": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9753811700167312,
+            0.9563581067280316,
+            0.9367499996303252,
+            0.923300619612218,
+            0.906138442572533,
+            0.8925883773389103,
+            0.8798568658667403,
+            0.8719001779597709,
+            0.8594167007494136,
+            0.8552802540065058,
+            0.8524355965400936,
+            0.8489839210618637,
+            0.8458707719887588,
+            0.8430824390341682,
+            0.8407392454855966,
+            0.8360981232747422,
+            0.8354147359992371,
+            0.8352472496944738,
+            0.8339300137450151,
+            0.8329396274547491,
+            0.8288591504830831,
+            0.8258668086603953,
+            0.8251697201935837,
+            0.8251697201935837,
+            0.8251697201935837,
+            0.8251697201935837,
+            0.8250419752011826,
+            0.8250419752011826,
+            0.8250419752011826,
+            0.8250419752011826
+          ],
+          "reported": {
+            "1": 0.9753811700167312,
+            "2": 0.9563581067280316,
+            "3": 0.9367499996303252,
+            "5": 0.906138442572533,
+            "10": 0.8552802540065058,
+            "15": 0.8407392454855966,
+            "20": 0.8329396274547491
+          },
+          "restricted_mean_survival_years": 25.717285179482424
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9941452221759247,
+            0.9903646753963191,
+            0.9867614116151581,
+            0.9812833932003425,
+            0.9789879233026166,
+            0.9763456062084723,
+            0.9750252099391327,
+            0.9730723099913388,
+            0.972043089585445,
+            0.9711224302685115,
+            0.9697663144195057,
+            0.969484420163649,
+            0.9691695429784628,
+            0.9691695429784628,
+            0.9691695429784628,
+            0.9667842415534942,
+            0.9667842415534942,
+            0.9667842415534942,
+            0.9667842415534942,
+            0.9654041299104567,
+            0.9654041299104567,
+            0.9654041299104567,
+            0.9654041299104567,
+            0.9654041299104567,
+            0.9611648245467524,
+            0.9611648245467524,
+            0.9611648245467524,
+            0.9611648245467524,
+            0.9611648245467524,
+            0.9611648245467524
+          ],
+          "reported": {
+            "1": 0.9941452221759247,
+            "2": 0.9903646753963191,
+            "3": 0.9867614116151581,
+            "5": 0.9789879233026166,
+            "10": 0.9711224302685115,
+            "15": 0.9691695429784628,
+            "20": 0.9654041299104567
+          },
+          "restricted_mean_survival_years": 29.107057198248583
+        }
+      },
+      "support_geometry": {
+        "mean_first_wave_minus_start_exposure": 4.252460257380772,
+        "mean_censor_minus_last_wave": -0.17117713853141558,
+        "share_start_exposure_before_first_wave": 0.5381339894019682,
+        "share_censor_after_last_wave": 9.462528387585163e-05
+      },
+      "per_draw_share_widowed_75plus": [
+        0.46176998231793387,
+        0.487041734503472,
+        0.44129906492582843,
+        0.4091370522345487,
+        0.4546991517066995,
+        0.4370276024877812,
+        0.4660306812701755,
+        0.4502245592576703,
+        0.4578966737153971,
+        0.44398219243692894,
+        0.4478546595898739,
+        0.4178287890344941,
+        0.4643964838500345,
+        0.5032059419136984,
+        0.47071829384042424,
+        0.412143761916867,
+        0.46074932471304164,
+        0.45707813134451,
+        0.46232533164922485,
+        0.4552391105263635
+      ],
+      "elapsed_seconds": 22.7
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 20731,
+      "n_holdout_persons": 20678,
+      "ref_parity": {
+        "denominator_weight": 9117269.0,
+        "n_women": 646,
+        "mean_parity": 2.025053993690435,
+        "share_ge_1": 0.8427089296147783,
+        "share_ge_2": 0.6651784651741657,
+        "share_ge_3plus": 0.33620484379697474,
+        "share_ge_4plus": 0.1251182782914489
+      },
+      "ref_age": {
+        "n_births": 1329,
+        "mean_mother_age": 27.80998589652707,
+        "share_by_asfr_band": {
+          "15-19": 0.08816624891324097,
+          "20-24": 0.23959488866612372,
+          "25-29": 0.28158574600939884,
+          "30-34": 0.2589549906531164,
+          "35-39": 0.09994642824256873,
+          "40-44": 0.02578469980712518,
+          "45-49": 0.005966997708426159
+        }
+      },
+      "ref_censoring": {
+        "reference_construction": "completed parity = all birth-type events of women observed through 45, any mother age (transitions.build_fertility_panel all_births, no age window)",
+        "simulation_construction": "births generated only at mother age in [15, 49] (candidate 1 _ASFR_LO/_ASFR_HI)",
+        "n_reference_cohort_births": 1337,
+        "share_outside_15_49": 0.0018893290903675766,
+        "count_outside_15_49": 8,
+        "per_person_outside_15_49": 0.0037766791788198858,
+        "shared": true
+      },
+      "sim_parity_mean": {
+        "share_ge_2": 0.6343816388438249,
+        "share_ge_4plus": 0.110672784799922,
+        "mean_parity": 1.9139182193702962,
+        "share_ge_1": 0.8075468761533745,
+        "share_ge_3plus": 0.3185690473759193
+      },
+      "sim_age_mean": 27.712636531712796,
+      "sim_age_band_mean": {
+        "15-19": 0.1001635760232645,
+        "20-24": 0.23476413799054283,
+        "25-29": 0.26393340167323553,
+        "30-34": 0.263663401969577,
+        "35-39": 0.10471008925387834,
+        "40-44": 0.026519932732680256,
+        "45-49": 0.006245460356821506
+      },
+      "ref_ledger": {
+        "all_75plus_py_weight": 171096176.552,
+        "share_widowed_75plus": 0.5204373575112432,
+        "W_total": 89044842.005,
+        "W_reachable": 77716296.613,
+        "W_carried": 11328545.391999999,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 77716296.613,
+        "W_reachable_tail": 0.0,
+        "reconciliation_remainder": -1.4901161193847656e-08,
+        "ledger_reachable_from_bands": 77716296.613,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2010608.0,
+            "inflow_b": 1753581.7070000002,
+            "exposure_b": 1000769404.269,
+            "inflow_rate_b": 0.0017522335310409323,
+            "yield_b": 1.1465721796560688,
+            "mean_onset_age": 40.371452505121276,
+            "share_window_reaches_75": 0.33180318754317384,
+            "mean_window_years_after_onset": 25.424698021784277
+          },
+          "50-64": {
+            "W_reach_b": 19276303.916,
+            "inflow_b": 3977300.0379999997,
+            "exposure_b": 427344207.704,
+            "inflow_rate_b": 0.00930701754299868,
+            "yield_b": 4.846580276023924,
+            "mean_onset_age": 57.25044256568103,
+            "share_window_reaches_75": 0.5701187225845394,
+            "mean_window_years_after_onset": 19.856182590819166
+          },
+          "65-74": {
+            "W_reach_b": 25274350.612,
+            "inflow_b": 3478983.851,
+            "exposure_b": 151771197.56599998,
+            "inflow_rate_b": 0.022922556498159746,
+            "yield_b": 7.264865746569975,
+            "mean_onset_age": 69.70447740862481,
+            "share_window_reaches_75": 0.7876593155821464,
+            "mean_window_years_after_onset": 11.601579216413558
+          },
+          "75+": {
+            "W_reach_b": 31155034.085,
+            "inflow_b": 3824732.455,
+            "exposure_b": 64581963.960999995,
+            "inflow_rate_b": 0.05922291953384531,
+            "yield_b": 8.145676711130896,
+            "mean_onset_age": 80.89047025120611,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 8.241659940891212
+          }
+        },
+        "n_widowed_75plus_py": 4557
+      },
+      "sim_ledger_mean": {
+        "all_75plus_py_weight": 171096176.552,
+        "share_widowed_75plus": 0.4407170100167769,
+        "W_total": 75404995.3553,
+        "W_reachable": 58740325.79390001,
+        "W_carried": 16664669.561399996,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 58740325.79390001,
+        "W_reachable_tail": 0.0,
+        "ledger_reachable_from_bands": 58740325.79390001,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2064883.0791000002,
+            "inflow_b": 2685316.9273,
+            "exposure_b": 971080097.6489999,
+            "inflow_rate_b": 0.002765968209850741,
+            "yield_b": 0.7616865135583637,
+            "mean_onset_age": 39.889854535643565,
+            "share_window_reaches_75": 0.18119714010419452,
+            "mean_window_years_after_onset": 20.77917561124965
+          },
+          "50-64": {
+            "W_reach_b": 10780092.202650001,
+            "inflow_b": 3856341.480499999,
+            "exposure_b": 424045203.67985,
+            "inflow_rate_b": 0.009094732853618302,
+            "yield_b": 2.8000300777439993,
+            "mean_onset_age": 57.255126131556004,
+            "share_window_reaches_75": 0.3901907529416354,
+            "mean_window_years_after_onset": 15.132036700582066
+          },
+          "65-74": {
+            "W_reach_b": 20991446.7536,
+            "inflow_b": 3429679.11695,
+            "exposure_b": 139699055.92309996,
+            "inflow_rate_b": 0.024552901790882757,
+            "yield_b": 6.085076894644401,
+            "mean_onset_age": 68.8184776745176,
+            "share_window_reaches_75": 0.6834507605958683,
+            "mean_window_years_after_onset": 11.010370962947931
+          },
+          "75+": {
+            "W_reach_b": 24903903.758549996,
+            "inflow_b": 3831581.32145,
+            "exposure_b": 57115538.89914999,
+            "inflow_rate_b": 0.06736505118645461,
+            "yield_b": 6.51390971010422,
+            "mean_onset_age": 80.67582222366067,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.266564393283746
+          }
+        }
+      },
+      "ref_survival": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.973388316426522,
+            0.9691769138269712,
+            0.9423576717916657,
+            0.9423576717916657,
+            0.9162288416861079,
+            0.9162288416861079,
+            0.89412675513382,
+            0.8812786852456415,
+            0.8702834677579326,
+            0.8702698165439607,
+            0.8606792363563023,
+            0.8606792363563023,
+            0.8569699322149873,
+            0.8463827985914927,
+            0.8463646079318736,
+            0.8463646079318736,
+            0.8375763191882645,
+            0.8375763191882645,
+            0.8375763191882645,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464,
+            0.8235602976274464
+          ],
+          "reported": {
+            "1": 0.973388316426522,
+            "2": 0.9691769138269712,
+            "3": 0.9423576717916657,
+            "5": 0.9162288416861079,
+            "10": 0.8702698165439607,
+            "15": 0.8463646079318736,
+            "20": 0.8235602976274464
+          },
+          "restricted_mean_survival_years": 25.865029632739923
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9889899511084919,
+            0.9850634217131775,
+            0.9799697731523359,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737,
+            0.9741760015648737
+          ],
+          "reported": {
+            "1": 0.9889899511084919,
+            "2": 0.9850634217131775,
+            "3": 0.9799697731523359,
+            "5": 0.9741760015648737,
+            "10": 0.9741760015648737,
+            "15": 0.9741760015648737,
+            "20": 0.9741760015648737
+          },
+          "restricted_mean_survival_years": 29.2567751882256
+        }
+      },
+      "sim_survival_mean": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9780394197857586,
+            0.9556707870266552,
+            0.9363623213245876,
+            0.9159135026150308,
+            0.8996182004504127,
+            0.8814545828855123,
+            0.8643956634542842,
+            0.8507774166732325,
+            0.8426892237156597,
+            0.8378415590452603,
+            0.8322538799712078,
+            0.8261193465009006,
+            0.8205297399546208,
+            0.8136229364548069,
+            0.811377634390474,
+            0.8078784488825402,
+            0.8056038661541965,
+            0.8049960097552546,
+            0.8039577292381809,
+            0.8038735191930918,
+            0.8038735191930918,
+            0.8038735191930918,
+            0.8033442982445855,
+            0.8033007286076129,
+            0.8023502259278343,
+            0.8023502259278343,
+            0.8023502259278343,
+            0.8023502259278343,
+            0.8023502259278343,
+            0.8023502259278343
+          ],
+          "reported": {
+            "1": 0.9780394197857586,
+            "2": 0.9556707870266552,
+            "3": 0.9363623213245876,
+            "5": 0.8996182004504127,
+            "10": 0.8378415590452603,
+            "15": 0.811377634390474,
+            "20": 0.8038735191930918
+          },
+          "restricted_mean_survival_years": 25.121469208277055
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9910041756303218,
+            0.9846885477931833,
+            0.9797093362604737,
+            0.9729147626229064,
+            0.970999461957662,
+            0.9703012317287442,
+            0.9689798233075491,
+            0.9686101444188315,
+            0.9672732087830646,
+            0.9665143553894536,
+            0.9665143553894536,
+            0.9665143553894536,
+            0.9656628840400497,
+            0.9650233240679823,
+            0.9650233240679823,
+            0.9649313849866529,
+            0.9608811441181505,
+            0.9608811441181505,
+            0.9608811441181505,
+            0.9570582170694453,
+            0.9570582170694453,
+            0.9570582170694453,
+            0.9570582170694453,
+            0.9570582170694453,
+            0.9570582170694453,
+            0.9565631048026344,
+            0.9565631048026344,
+            0.9565631048026344,
+            0.9565631048026344,
+            0.9565631048026344
+          ],
+          "reported": {
+            "1": 0.9910041756303218,
+            "2": 0.9846885477931833,
+            "3": 0.9797093362604737,
+            "5": 0.970999461957662,
+            "10": 0.9665143553894536,
+            "15": 0.9650233240679823,
+            "20": 0.9570582170694453
+          },
+          "restricted_mean_survival_years": 28.94247293461806
+        }
+      },
+      "support_geometry": {
+        "mean_first_wave_minus_start_exposure": 4.160163684811572,
+        "mean_censor_minus_last_wave": -0.15740388275599543,
+        "share_start_exposure_before_first_wave": 0.5402550437761705,
+        "share_censor_after_last_wave": 9.516558812333461e-05
+      },
+      "per_draw_share_widowed_75plus": [
+        0.46267383948197677,
+        0.35927029251479475,
+        0.4772534265088199,
+        0.43556151717598907,
+        0.45975026345543724,
+        0.441633786427922,
+        0.4454550232327158,
+        0.41604461393306297,
+        0.4548380317975629,
+        0.41871323844122793,
+        0.4524721503316087,
+        0.4192085464995833,
+        0.4486367134082093,
+        0.44672444689475765,
+        0.45642378257509436,
+        0.4445631725784516,
+        0.49268795916301633,
+        0.42851201146343204,
+        0.43124638895466605,
+        0.4226709954972086
+      ],
+      "elapsed_seconds": 21.4
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 20747,
+      "n_holdout_persons": 20662,
+      "ref_parity": {
+        "denominator_weight": 8947383.0,
+        "n_women": 666,
+        "mean_parity": 2.1732788235397993,
+        "share_ge_1": 0.8613100612771355,
+        "share_ge_2": 0.6988236672108481,
+        "share_ge_3plus": 0.3464606354729646,
+        "share_ge_4plus": 0.16174818938677377
+      },
+      "ref_age": {
+        "n_births": 1441,
+        "mean_mother_age": 28.09455360855635,
+        "share_by_asfr_band": {
+          "15-19": 0.0953228331959462,
+          "20-24": 0.22311771417451443,
+          "25-29": 0.2623421944013573,
+          "30-34": 0.25245493432993,
+          "35-39": 0.13390584728156968,
+          "40-44": 0.028202858896531447,
+          "45-49": 0.004653617720150907
+        }
+      },
+      "ref_censoring": {
+        "reference_construction": "completed parity = all birth-type events of women observed through 45, any mother age (transitions.build_fertility_panel all_births, no age window)",
+        "simulation_construction": "births generated only at mother age in [15, 49] (candidate 1 _ASFR_LO/_ASFR_HI)",
+        "n_reference_cohort_births": 1448,
+        "share_outside_15_49": 0.002206803911024813,
+        "count_outside_15_49": 7,
+        "per_person_outside_15_49": 0.004715121728889889,
+        "shared": true
+      },
+      "sim_parity_mean": {
+        "share_ge_2": 0.6653564846838457,
+        "share_ge_4plus": 0.14324810394279536,
+        "mean_parity": 2.0398613259318394,
+        "share_ge_1": 0.8289385622589309,
+        "share_ge_3plus": 0.3149129359948043
+      },
+      "sim_age_mean": 27.988662874685765,
+      "sim_age_band_mean": {
+        "15-19": 0.10224239575824638,
+        "20-24": 0.2277012351932597,
+        "25-29": 0.2547013171142644,
+        "30-34": 0.2458069461324099,
+        "35-39": 0.12913774571355363,
+        "40-44": 0.034139360522122256,
+        "45-49": 0.006270999566143655
+      },
+      "ref_ledger": {
+        "all_75plus_py_weight": 186518335.699,
+        "share_widowed_75plus": 0.5074681273306444,
+        "W_total": 94652110.53,
+        "W_reachable": 82664888.506,
+        "W_carried": 11987222.024,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 82664888.506,
+        "W_reachable_tail": 0.0,
+        "reconciliation_remainder": 0.0,
+        "ledger_reachable_from_bands": 82664888.506,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 1300857.0,
+            "inflow_b": 1789442.308,
+            "exposure_b": 1062315018.342,
+            "inflow_rate_b": 0.0016844742633807985,
+            "yield_b": 0.7269622463849782,
+            "mean_onset_age": 39.48736575138582,
+            "share_window_reaches_75": 0.24809182057184265,
+            "mean_window_years_after_onset": 24.88597615464449
+          },
+          "50-64": {
+            "W_reach_b": 22825779.536,
+            "inflow_b": 4584367.688999999,
+            "exposure_b": 454757390.838,
+            "inflow_rate_b": 0.01008090859293611,
+            "yield_b": 4.9790464213351635,
+            "mean_onset_age": 57.58009009582304,
+            "share_window_reaches_75": 0.5550714283031412,
+            "mean_window_years_after_onset": 19.002161462315467
+          },
+          "65-74": {
+            "W_reach_b": 30694118.265,
+            "inflow_b": 3952707.9429999995,
+            "exposure_b": 154241221.847,
+            "inflow_rate_b": 0.025626793509979446,
+            "yield_b": 7.765339283251974,
+            "mean_onset_age": 69.59940300957368,
+            "share_window_reaches_75": 0.7876799146048116,
+            "mean_window_years_after_onset": 12.255010152668902
+          },
+          "75+": {
+            "W_reach_b": 27844133.705,
+            "inflow_b": 3592055.914,
+            "exposure_b": 67164687.322,
+            "inflow_rate_b": 0.05348131670410399,
+            "yield_b": 7.751586938409779,
+            "mean_onset_age": 81.82143563397771,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.830023022575923
+          }
+        },
+        "n_widowed_75plus_py": 4443
+      },
+      "sim_ledger_mean": {
+        "all_75plus_py_weight": 186518335.69899997,
+        "share_widowed_75plus": 0.44226583512047846,
+        "W_total": 82490687.50320001,
+        "W_reachable": 64382646.248699985,
+        "W_carried": 18108041.2545,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 64382646.248699985,
+        "W_reachable_tail": 0.0,
+        "ledger_reachable_from_bands": 64382646.248699985,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2132803.76365,
+            "inflow_b": 2835856.73995,
+            "exposure_b": 1020055032.7272999,
+            "inflow_rate_b": 0.0027806057826730264,
+            "yield_b": 0.7440600317344873,
+            "mean_onset_age": 39.73194833631741,
+            "share_window_reaches_75": 0.17558070181788557,
+            "mean_window_years_after_onset": 21.020914968106176
+          },
+          "50-64": {
+            "W_reach_b": 13676537.992449999,
+            "inflow_b": 4443569.64105,
+            "exposure_b": 454184876.58074987,
+            "inflow_rate_b": 0.009787112090709045,
+            "yield_b": 3.0690198582365036,
+            "mean_onset_age": 57.507519735873004,
+            "share_window_reaches_75": 0.3700009337248455,
+            "mean_window_years_after_onset": 14.840023963618114
+          },
+          "65-74": {
+            "W_reach_b": 24127329.50525,
+            "inflow_b": 3898081.5253,
+            "exposure_b": 148834218.94239998,
+            "inflow_rate_b": 0.02620505533296631,
+            "yield_b": 6.200870580700205,
+            "mean_onset_age": 68.78027219670301,
+            "share_window_reaches_75": 0.6650541967327663,
+            "mean_window_years_after_onset": 11.052375390259943
+          },
+          "75+": {
+            "W_reach_b": 24445974.98735,
+            "inflow_b": 3789018.7711000005,
+            "exposure_b": 64612580.926699996,
+            "inflow_rate_b": 0.0589367974016318,
+            "yield_b": 6.455021446972408,
+            "mean_onset_age": 81.1965313693457,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.0824388667352025
+          }
+        }
+      },
+      "ref_survival": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9850098721894263,
+            0.9529743600378513,
+            0.9370360663818302,
+            0.9237649393063463,
+            0.9095590664704049,
+            0.9095590664704049,
+            0.9095590664704049,
+            0.8981841552900943,
+            0.88829097881394,
+            0.8882790303600338,
+            0.8882790303600338,
+            0.8882790303600338,
+            0.8849537386454062,
+            0.8754182422366025,
+            0.8754020301990365,
+            0.8754020301990365,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971,
+            0.8677053722330971
+          ],
+          "reported": {
+            "1": 0.9850098721894263,
+            "2": 0.9529743600378513,
+            "3": 0.9370360663818302,
+            "5": 0.9095590664704049,
+            "10": 0.8882790303600338,
+            "15": 0.8754020301990365,
+            "20": 0.8677053722330971
+          },
+          "restricted_mean_survival_years": 26.637825915054243
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9881091304705727,
+            0.980510806871921,
+            0.9754287716000102,
+            0.9696508288756284,
+            0.9696508288756284,
+            0.9696508288756284,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982,
+            0.9635056264525982
+          ],
+          "reported": {
+            "1": 0.9881091304705727,
+            "2": 0.980510806871921,
+            "3": 0.9754287716000102,
+            "5": 0.9696508288756284,
+            "10": 0.9635056264525982,
+            "15": 0.9635056264525982,
+            "20": 0.9635056264525982
+          },
+          "restricted_mean_survival_years": 28.977136230431746
+        }
+      },
+      "sim_survival_mean": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9718960621700455,
+            0.9505821091931539,
+            0.9307707402318357,
+            0.9118982753877948,
+            0.9010946007750178,
+            0.8908750002943002,
+            0.8817326289407292,
+            0.8718317898771278,
+            0.8647257540178839,
+            0.8610481737070804,
+            0.8580782914921399,
+            0.8537050510597206,
+            0.8507371243056958,
+            0.848507934205658,
+            0.848507934205658,
+            0.848507934205658,
+            0.8479254394703425,
+            0.8479254394703425,
+            0.8479242023581415,
+            0.8479242023581415,
+            0.847293796880224,
+            0.847293796880224,
+            0.847293796880224,
+            0.8461557918886842,
+            0.845045954425547,
+            0.845045954425547,
+            0.8436035671712805,
+            0.8410669096396287,
+            0.8395522361818777,
+            0.8395522361818777
+          ],
+          "reported": {
+            "1": 0.9718960621700455,
+            "2": 0.9505821091931539,
+            "3": 0.9307707402318357,
+            "5": 0.9010946007750178,
+            "10": 0.8610481737070804,
+            "15": 0.848507934205658,
+            "20": 0.8479242023581415
+          },
+          "restricted_mean_survival_years": 25.978102728281577
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9930769448931149,
+            0.98764855319642,
+            0.9796762026861738,
+            0.9763568147505707,
+            0.9747377003292577,
+            0.9727030571973879,
+            0.9721013462081001,
+            0.9710985999091092,
+            0.9698316313867885,
+            0.9676587663679361,
+            0.9662347494044109,
+            0.9651623834080387,
+            0.9646197829087171,
+            0.9639645802208738,
+            0.9639645802208738,
+            0.9639645802208738,
+            0.9639645802208738,
+            0.9607287943610683,
+            0.959290785456709,
+            0.959290785456709,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126,
+            0.9591262794356126
+          ],
+          "reported": {
+            "1": 0.9930769448931149,
+            "2": 0.98764855319642,
+            "3": 0.9796762026861738,
+            "5": 0.9747377003292577,
+            "10": 0.9676587663679361,
+            "15": 0.9639645802208738,
+            "20": 0.959290785456709
+          },
+          "restricted_mean_survival_years": 28.987338013160137
+        }
+      },
+      "support_geometry": {
+        "mean_first_wave_minus_start_exposure": 4.040157998683345,
+        "mean_censor_minus_last_wave": -0.16204269726323708,
+        "share_start_exposure_before_first_wave": 0.5380419448885545,
+        "share_censor_after_last_wave": 9.404683532399135e-05
+      },
+      "per_draw_share_widowed_75plus": [
+        0.42747156334093045,
+        0.421020128405644,
+        0.4601530780250263,
+        0.42311452469937044,
+        0.4470923815692566,
+        0.43075610530675973,
+        0.4586765369709369,
+        0.40890203821612214,
+        0.44212172650992687,
+        0.4587303139090723,
+        0.4450115548851372,
+        0.393854306637982,
+        0.44478282080470427,
+        0.4295565012669666,
+        0.4501567039848413,
+        0.4346494811310642,
+        0.473460841772209,
+        0.4202958402197468,
+        0.47826424877582835,
+        0.4972460059780452
+      ],
+      "elapsed_seconds": 20.9
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 20761,
+      "n_holdout_persons": 20648,
+      "ref_parity": {
+        "denominator_weight": 9622360.0,
+        "n_women": 685,
+        "mean_parity": 2.137077390577779,
+        "share_ge_1": 0.8588302661717084,
+        "share_ge_2": 0.6856213028820373,
+        "share_ge_3plus": 0.3476799870302088,
+        "share_ge_4plus": 0.15917924500850103
+      },
+      "ref_age": {
+        "n_births": 1463,
+        "mean_mother_age": 27.74992705542092,
+        "share_by_asfr_band": {
+          "15-19": 0.093795052649148,
+          "20-24": 0.2362295752105929,
+          "25-29": 0.28061871751753925,
+          "30-34": 0.24964297100628122,
+          "35-39": 0.1111344522839212,
+          "40-44": 0.027030274396981236,
+          "45-49": 0.0015489569355361655
+        }
+      },
+      "ref_censoring": {
+        "reference_construction": "completed parity = all birth-type events of women observed through 45, any mother age (transitions.build_fertility_panel all_births, no age window)",
+        "simulation_construction": "births generated only at mother age in [15, 49] (candidate 1 _ASFR_LO/_ASFR_HI)",
+        "n_reference_cohort_births": 1472,
+        "share_outside_15_49": 0.0027663097060823517,
+        "count_outside_15_49": 9,
+        "per_person_outside_15_49": 0.00586394605897098,
+        "shared": true
+      },
+      "sim_parity_mean": {
+        "share_ge_2": 0.6348780860412623,
+        "share_ge_4plus": 0.13689075237259882,
+        "mean_parity": 1.974113003462768,
+        "share_ge_1": 0.8184867173957324,
+        "share_ge_3plus": 0.31224627845975417
+      },
+      "sim_age_mean": 27.56830645413217,
+      "sim_age_band_mean": {
+        "15-19": 0.10813820953308932,
+        "20-24": 0.23996113765566304,
+        "25-29": 0.2690212551452832,
+        "30-34": 0.23258572892586593,
+        "35-39": 0.11437761066141428,
+        "40-44": 0.03322035634304025,
+        "45-49": 0.0026957017356439863
+      },
+      "ref_ledger": {
+        "all_75plus_py_weight": 181062082.56,
+        "share_widowed_75plus": 0.5185995643338744,
+        "W_total": 93898717.133,
+        "W_reachable": 82339992.88800001,
+        "W_carried": 11558724.245,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 82339992.88800001,
+        "W_reachable_tail": 0.0,
+        "reconciliation_remainder": -1.4901161193847656e-08,
+        "ledger_reachable_from_bands": 82339992.888,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 2398502.0,
+            "inflow_b": 1668230.921,
+            "exposure_b": 1057674036.664,
+            "inflow_rate_b": 0.0015772637534544687,
+            "yield_b": 1.4377517943152907,
+            "mean_onset_age": 39.43369035059385,
+            "share_window_reaches_75": 0.35672399576629116,
+            "mean_window_years_after_onset": 24.937932729997634
+          },
+          "50-64": {
+            "W_reach_b": 18341609.621,
+            "inflow_b": 4391465.282000001,
+            "exposure_b": 438129173.135,
+            "inflow_rate_b": 0.010023220436514657,
+            "yield_b": 4.1766491235123,
+            "mean_onset_age": 57.22688818173833,
+            "share_window_reaches_75": 0.5327947506701933,
+            "mean_window_years_after_onset": 18.391370514767512
+          },
+          "65-74": {
+            "W_reach_b": 31777603.509,
+            "inflow_b": 3977366.7770000002,
+            "exposure_b": 153287056.109,
+            "inflow_rate_b": 0.025947179611641558,
+            "yield_b": 7.989608525107866,
+            "mean_onset_age": 69.52837293838542,
+            "share_window_reaches_75": 0.7516283233639531,
+            "mean_window_years_after_onset": 12.305896918291674
+          },
+          "75+": {
+            "W_reach_b": 29822277.758,
+            "inflow_b": 3818017.507,
+            "exposure_b": 63903983.43,
+            "inflow_rate_b": 0.05974615825290815,
+            "yield_b": 7.810932690414193,
+            "mean_onset_age": 81.03954480740938,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 7.833475331940116
+          }
+        },
+        "n_widowed_75plus_py": 4552
+      },
+      "sim_ledger_mean": {
+        "all_75plus_py_weight": 181062082.56,
+        "share_widowed_75plus": 0.4424238627519076,
+        "W_total": 80106185.96409999,
+        "W_reachable": 62735454.65760001,
+        "W_carried": 17370731.3065,
+        "W_after_support_end": 0.0,
+        "W_non_derivable": 0.0,
+        "W_reachable_in_window": 62735454.65760001,
+        "W_reachable_tail": 0.0,
+        "ledger_reachable_from_bands": 62735454.65760001,
+        "bands": {
+          "15-49": {
+            "W_reach_b": 1926292.9298999999,
+            "inflow_b": 2760234.7574,
+            "exposure_b": 1021024294.0915,
+            "inflow_rate_b": 0.0027036780314023826,
+            "yield_b": 0.6920153647297947,
+            "mean_onset_age": 39.72807389380115,
+            "share_window_reaches_75": 0.1826079168624995,
+            "mean_window_years_after_onset": 20.74229543762032
+          },
+          "50-64": {
+            "W_reach_b": 12929492.3524,
+            "inflow_b": 4096721.5515999994,
+            "exposure_b": 438767650.21995,
+            "inflow_rate_b": 0.009339350315401847,
+            "yield_b": 3.1501629302341194,
+            "mean_onset_age": 57.24367139551494,
+            "share_window_reaches_75": 0.4087849025609941,
+            "mean_window_years_after_onset": 15.435594972305552
+          },
+          "65-74": {
+            "W_reach_b": 23129699.27195,
+            "inflow_b": 3856227.7440999993,
+            "exposure_b": 144897479.21665,
+            "inflow_rate_b": 0.026630070938698187,
+            "yield_b": 6.007141288189201,
+            "mean_onset_age": 68.77557178256146,
+            "share_window_reaches_75": 0.6863747795069782,
+            "mean_window_years_after_onset": 11.004084054739966
+          },
+          "75+": {
+            "W_reach_b": 24749970.10335,
+            "inflow_b": 3887593.99895,
+            "exposure_b": 60575993.0321,
+            "inflow_rate_b": 0.06434004680852218,
+            "yield_b": 6.363390191641601,
+            "mean_onset_age": 80.82405115618536,
+            "share_window_reaches_75": 1.0,
+            "mean_window_years_after_onset": 6.9998384993839595
+          }
+        }
+      },
+      "ref_survival": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9987104373260544,
+            0.977618132582914,
+            0.9528864550397874,
+            0.9328945425998603,
+            0.9066887751785316,
+            0.9066887751785316,
+            0.8817374827737964,
+            0.8817290123809403,
+            0.8817290123809403,
+            0.8817290123809403,
+            0.872929706245486,
+            0.872929706245486,
+            0.8695337950457683,
+            0.8596010337674591,
+            0.8596010337674591,
+            0.8596010337674591,
+            0.8596010337674591,
+            0.8596010337674591,
+            0.8596010337674591,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219,
+            0.8462309244871219
+          ],
+          "reported": {
+            "1": 0.9987104373260544,
+            "2": 0.977618132582914,
+            "3": 0.9528864550397874,
+            "5": 0.9066887751785316,
+            "10": 0.8817290123809403,
+            "15": 0.8596010337674591,
+            "20": 0.8462309244871219
+          },
+          "restricted_mean_survival_years": 26.28395121732214
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9911559509745825,
+            0.9836010553243618,
+            0.9777778718040944,
+            0.9723085900264968,
+            0.9723085900264968,
+            0.9723085900264968,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397,
+            0.9667157410411397
+          ],
+          "reported": {
+            "1": 0.9911559509745825,
+            "2": 0.9836010553243618,
+            "3": 0.9777778718040944,
+            "5": 0.9723085900264968,
+            "10": 0.9667157410411397,
+            "15": 0.9667157410411397,
+            "20": 0.9667157410411397
+          },
+          "restricted_mean_survival_years": 29.070638433169872
+        }
+      },
+      "sim_survival_mean": {
+        "50-64": {
+          "survival_curve": [
+            1.0,
+            0.9867716377246044,
+            0.973482563835286,
+            0.9504262434037347,
+            0.9351623339655397,
+            0.9185626607402968,
+            0.9060024540050733,
+            0.8948817700367455,
+            0.8831512973951657,
+            0.8741008551350007,
+            0.8693257283302153,
+            0.8641341946138702,
+            0.8614891881932281,
+            0.8586439570753397,
+            0.856353992816308,
+            0.8552275299199836,
+            0.8522076961779103,
+            0.8522076084169667,
+            0.8519387789300664,
+            0.8505906387044696,
+            0.8487860451426876,
+            0.848784572980197,
+            0.8479185029205866,
+            0.8455083391562468,
+            0.8455083391562468,
+            0.8443348706458419,
+            0.8443348706458419,
+            0.8443348706458419,
+            0.8443348706458419,
+            0.8423287297582908,
+            0.8423287297582908
+          ],
+          "reported": {
+            "1": 0.9867716377246044,
+            "2": 0.973482563835286,
+            "3": 0.9504262434037347,
+            "5": 0.9185626607402968,
+            "10": 0.8693257283302153,
+            "15": 0.8552275299199836,
+            "20": 0.8487860451426876
+          },
+          "restricted_mean_survival_years": 26.193163870875726
+        },
+        "65+": {
+          "survival_curve": [
+            1.0,
+            0.9912332519809194,
+            0.984187984820584,
+            0.9761137873768533,
+            0.9680083137833945,
+            0.9661805022055052,
+            0.9652645489214485,
+            0.9644368735912522,
+            0.9631857971269318,
+            0.9619649370887066,
+            0.9619649370887066,
+            0.9619649370887066,
+            0.9612886656899903,
+            0.9596258963748504,
+            0.9588751854947999,
+            0.9588739109075652,
+            0.9588739109075652,
+            0.9577849779735589,
+            0.9577849779735589,
+            0.9577849779735589,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847,
+            0.955288015620847
+          ],
+          "reported": {
+            "1": 0.9912332519809194,
+            "2": 0.984187984820584,
+            "3": 0.9761137873768533,
+            "5": 0.9661805022055052,
+            "10": 0.9619649370887066,
+            "15": 0.9588739109075652,
+            "20": 0.955288015620847
+          },
+          "restricted_mean_survival_years": 28.843566546197774
+        }
+      },
+      "support_geometry": {
+        "mean_first_wave_minus_start_exposure": 3.9590032910202164,
+        "mean_censor_minus_last_wave": -0.15684062059238363,
+        "share_start_exposure_before_first_wave": 0.536436295251528,
+        "share_censor_after_last_wave": 9.402914903620122e-05
+      },
+      "per_draw_share_widowed_75plus": [
+        0.44138689758258354,
+        0.4540929359064144,
+        0.42293895805944715,
+        0.4588293871770211,
+        0.4542887854542526,
+        0.4237970022054296,
+        0.43350012990704445,
+        0.4502773780588951,
+        0.4357525732802441,
+        0.44579835452987293,
+        0.48414014579199144,
+        0.4406789779387369,
+        0.43225774105997333,
+        0.4643005917660422,
+        0.4152397596944994,
+        0.49642246131359197,
+        0.41288340605619067,
+        0.45541891866108886,
+        0.4392919171226393,
+        0.3871809334721925
+      ],
+      "elapsed_seconds": 21.6
+    }
+  ],
+  "candidate_16_implications": "Q8: the completed_fertility.c1970s failure is a SINGLE-SEED SPLIT ARTIFACT, not a structural fertility deficit -- seed 2 is 'both' (a high-side reference draw, the max rate_a of the five holdouts, AND a low-side sim draw, the min rbar, atop a benign systematic deficit), the only failing seed, exceeding tolerance by just +0.011, and either split excursion regressing to typical clears it. The within-split sim deficit is parity-progression rates (the completed-women denominator is identical sim vs ref), broad across margins, none dominant. So candidate 16 should NOT spend its one delta on fertility: the +0.011 is inside split noise and a broad progression lift buys only marginal headroom. Q9: the binding failure is the 75+ widowed STOCK, and its ~17% leak is the survival_to_75plus_yield -- the realized survival-to-75+ within observed support, concentrated at 50-64/65-74 onset. CRUCIALLY, the yield leak is SUPPORT-WINDOW TRUNCATION, not over-remarriage: survival-in-widowhood tracks the reference (50-64 restricted-mean -0.5y, far milder than the registered -1.0y candidate), but only 39% of the simulated reachable 50-64-onset widowhoods have an observed window reaching age 75 vs 57% in the reference. Inflow is at or above reference (candidate 15's trend removal did its job) and the carried mass is OVER-produced (the lifted hazard over the retrospective region over-injects entry-widowed). So a remarriage/outflow delta would NOT help (survival already tracks), nor more incidence, nor more carried injection. The highest-value lever is the reachable-onset window composition -- a support/initial-state-handling move (the marriage-count / entry-widowed precedent family), not a hazard rate, that keeps long-window mid-age onsets reachable instead of losing them to short windows or to over-injected carried status. Whatever closes the mid-age-onset yield has ~7x headroom over seed 3's +0.023. Candidate 16 registers only after -- and citing -- this evidence, under the one-shot rule.",
+  "revision_pins": {
+    "populace_dynamics_sha": "3f3b9ecf152fca680e0c3f6848c7628bf7ec46d1",
+    "candidate15_runner": "scripts/run_gate2_candidate15.py",
+    "candidate15_runner_sha256": "800c3dc72cacf528e4cac0bed7193601ec6fc2cc10bd10523826e3fc366f109f",
+    "candidate15_artifact": "runs/gate2_hazard_v15.json",
+    "candidate15_artifact_sha256": "f16b14c7e34d0e50d634c58cf4e26285816985c28c8263be4cd43893795b04d3",
+    "forensics1_runner": "scripts/gate2_forensics.py",
+    "forensics1_runner_sha256": "add7f8aaf20fcb241e7873f400f998e5a2e7635df02057c8a07150d0718f77b2",
+    "forensics3_runner": "scripts/gate2_forensics3.py",
+    "forensics3_runner_sha256": "ca6f7acbe7dacbe9a83e811026ffa0db06e976bd716c7d4578dd19bd8e7d55c8",
+    "gates_yaml_locked": true,
+    "gates_yaml_status": "locked",
+    "sklearn_version": "1.9.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "scipy_version": "1.18.0",
+    "schema_version": "gate2_forensics4.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 19.8,
+    "1": 22.7,
+    "2": 21.4,
+    "3": 20.9,
+    "4": 21.6
+  },
+  "total_per_seed_compute_seconds": 106.4,
+  "elapsed_seconds": 124.1
+}
