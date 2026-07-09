@@ -1680,8 +1680,8 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
 
     The strongest live form of no_self_rescue: every committed gate-2 run
     artifact still records gate_2_pass false -- the nine pre-amendment
-    single-draw candidates (v1-v9) AND candidates 10, 11, 12 and 13, the four
-    fresh registrations under fresh_run_artifact_schema (the amended
+    single-draw candidates (v1-v9) AND candidates 10, 11, 12, 13 and 14, the
+    five fresh registrations under fresh_run_artifact_schema (the amended
     mean-over-K=20-draws estimator). Candidate 11 (FAIL 1/5) split candidate
     10's pooled 50+ remarriage band into 50-64/65-74/75+; the registered modal
     share_widowed.75+|female persisted. Candidate 12 (FAIL 2/5) added the
@@ -1693,11 +1693,16 @@ def test_gate2_ratified_amendment_is_prospective_no_verdict_changed():
     own 18-34 and 35-44 bands: it cleared both marriage-count cells (female
     2/5 -> 5/5) and deflated the young widowed pool, but the deflated
     young-widow inflow starved the elderly widowed stock and
-    share_widowed.75+|female regressed 5/5 -> 3/5, holding the gate at 2/5. The
-    amendment rescued nothing; the gate still has no passing run.
+    share_widowed.75+|female regressed 5/5 -> 3/5, holding the gate at 2/5.
+    Candidate 14 (FAIL 2/5) split that table's pooled 75+ band into 75-84 and
+    85+: it recovered the 75+ widowhood incidence toward reference (seed-mean
+    sim/ref 0.929 -> 0.952), but the exposure-preserving reallocation left the
+    aggregate 75+ widowed stock flat (0.841 -> 0.838), so
+    share_widowed.75+|female still failed seeds 0 and 3 and the gate held at
+    2/5. The amendment rescued nothing; the gate still has no passing run.
     """
     runs = sorted(ROOT.glob("runs/gate2_hazard_v*.json"))
-    assert len(runs) == 13
+    assert len(runs) == 14
     for path in runs:
         verdict = json.loads(path.read_text())["verdict"]
         assert verdict["gate_2_pass"] is False, path.name
