@@ -114,7 +114,16 @@ def test_provenance_pins_present():
     art = _artifact()
     pins = art["revision_pins"]
     assert pins["artifact_schema_version"] == "gate2b_floors.v1"
-    assert "populace_dynamics_sha" in pins
+    # Fix H: the round-1 referee flagged the old populace_dynamics_sha pin (a
+    # parent-master commit carrying neither the build script nor the module).
+    # The rebuilt artifact pins the origin/master base the branch extends and
+    # documents the branch-HEAD build convention explicitly (a commit cannot
+    # embed its own hash).
+    assert "populace_dynamics_sha" not in pins
+    assert "base_sha" in pins
+    note = pins["build_commit_note"]
+    assert "gate2b-floors" in note
+    assert "base_sha" in note
 
 
 # --------------------------------------------------------------------------
@@ -377,6 +386,133 @@ def test_faithful_candidate_oc_recomputes():
 
 
 # --------------------------------------------------------------------------
+# Round-1 fixes A-H disclosures (always runnable)
+# --------------------------------------------------------------------------
+def test_protocol_is_the_ratified_k20_estimator():
+    """Fix A: the scoring protocol is tranche 2a's ratified mean-over-K=20
+    estimator (amendment 1), not the superseded single frozen draw the
+    round-1 referee flagged. Tolerances and OC do not move; the estimator
+    now shares the OC's draw-noise-free basis."""
+    art = _artifact()
+    proto = art["protocol"]
+    assert proto["candidate_draws"] == 20
+    assert "5200" in proto["candidate_draw_stream"]
+    assert "K=20" in proto["estimator"]
+    assert "NOT the mean of the per-draw" in proto["estimator"]
+    basis = proto["basis_note"]
+    assert "DRAW-NOISE-FREE" in basis
+    assert "UNACHIEVABLE" in basis
+    schema = proto["fresh_run_artifact_schema"]
+    n_gated = art["gate_partition"]["n_gate_eligible"]
+    assert schema["per_draw_per_cell_rates"]["shape"] == [20, n_gated, 5]
+    assert schema["undefined_draw_rule"]["pre_specified"] is True
+    assert schema["per_draw_dispersion_disclosure"]["report_only"] is True
+
+
+def test_multigen_rule_is_b11017_three_generations():
+    """Fix B/C: multigen is >= 3 distinct lineal generations (Census
+    B11017), not span >= 2; the artifact documents the concept and the MX7
+    code-88 first-year-cohabitor frame (not the MX8 step-great-grandparent
+    the old map bled in)."""
+    art = _artifact()
+    rule = art["panel_construction"]["multigen_rule"]
+    assert "THREE OR MORE" in rule
+    assert "B11017" in rule
+    assert "first_year_cohabitor" in rule
+    assert "88" in rule
+    assert "kipped-generation" in rule
+
+
+def test_estimand_named_and_era_mixture_disclosed():
+    """Fix D: the pooled estimand is named as effectively-1997-2023 (per
+    description_claims_exactly_the_scored_surface), with the era weight
+    shares, report-only per-era slices, and the 1993-96 core-longitudinal
+    weight correction disclosed."""
+    art = _artifact()
+    estimand = art["data"]["estimand"]
+    assert "1997-2023" in estimand
+    assert "1969-2023" in estimand  # says it is explicitly NOT this
+    shares = {
+        e["era"]: e["weight_share_pct"]
+        for e in art["data"]["era_weight_shares"]
+    }
+    post97 = shares["1997-1999"] + shares["2000-2009"] + shares["2010-2023"]
+    assert post97 > 99.0
+    assert art["data"]["post_1997_weight_share_pct"] > 99.0
+    slices = art["era_slices"]
+    assert "REPORT-ONLY" in slices["note"]
+    assert set(slices) - {"note"}
+    assert "LONGITUDINAL" in art["data"]["weights"]
+
+
+def test_zero_weight_drop_is_characterized():
+    """Fix D/G finding 6a: the ~17.8% zero-wave-weight drop is characterized
+    (era concentration + composition), not just caveated. Dropped
+    person-waves are compositionally different from kept ones."""
+    art = _artifact()
+    drop = art["zero_weight_drop"]
+    assert 15.0 < drop["dropped_share_pct"] < 20.0
+    assert drop["dropped_share_in_1990_1996_pct"] > 50.0
+    comp = drop["composition_unweighted_kept_vs_dropped"]
+    assert (
+        comp["coresident_spouse"]["dropped"]
+        > comp["coresident_spouse"]["kept"]
+    )
+    assert (
+        comp["coresident_parent"]["dropped"]
+        < comp["coresident_parent"]["kept"]
+    )
+
+
+def test_transition_families_are_present_and_power_priced():
+    """Fix E: the tranche name is 'transitions'. Wave-to-wave families
+    (parental-home exit, spousal-coresidence loss, multigen entry/exit) are
+    priced by the identical 100-seed machinery, gated where the cap admits
+    and report-only otherwise."""
+    art = _artifact()
+    ref = art["reference_moments"]
+    gated = set(art["gate_partition"]["gate_eligible"])
+    report = set(art["gate_partition"]["report_only"])
+    trans = [
+        k
+        for k in ref
+        if k.startswith(
+            (
+                "parental_home_exit",
+                "spousal_loss",
+                "multigen_entry",
+                "multigen_exit",
+            )
+        )
+    ]
+    assert len(trans) == 12
+    for k in trans:
+        assert (k in gated) ^ (k in report), k
+    # parental-home exit + multigen entry/exit clear the cap; spousal loss
+    # at 55+ is too noisy and stays report-only.
+    assert "parental_home_exit.15-24|female" in gated
+    assert "multigen_entry" in gated
+    assert "multigen_exit" in gated
+    assert "spousal_loss.75+|female" in report
+
+
+def test_coresident_spouse_sex_ordering_catches_fm_swap():
+    """Finding 9 / fix H: an always-runnable structural invariant a
+    self-consistent F/M cell swap would violate. The referee swapped
+    coresident_spouse.65-74|female<->male across every artifact site and it
+    passed all always-runnable tests (caught only by the PSID-gated seed-0
+    repro). Elderly men are far likelier to have a living coresident spouse
+    than elderly women (widowhood asymmetry), so male > female at every
+    older band -- a swap at any of them fails here without any PSID."""
+    art = _artifact()
+    ref = art["reference_moments"]
+    for band in ("55-64", "65-74", "75+"):
+        m = ref[f"coresident_spouse.{band}|male"]["rate"]
+        f = ref[f"coresident_spouse.{band}|female"]["rate"]
+        assert m > f, band
+
+
+# --------------------------------------------------------------------------
 # Seed-0 + holdout reproduction (needs PSID; NO populace-fit)
 # --------------------------------------------------------------------------
 @needs_real
@@ -387,7 +523,7 @@ def test_seed0_and_holdout_reproduce_without_populace_fit():
         "populace.fit" not in sys.modules
     ), "importing the gate-2b builder pulled populace.fit"
 
-    panel, _ = builder.load_panel()
+    panel, _, _ = builder.load_panel()
     art = _artifact()
 
     got0 = builder.measure_seed_halfsplit(0, panel)

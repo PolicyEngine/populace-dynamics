@@ -177,3 +177,53 @@ def test_no_gated_cell_is_a_pooled_aggregate_member():
     for agg, members in builder.AGGREGATIONS.items():
         if agg in gated:
             assert not (set(members) & gated), agg
+
+
+# --------------------------------------------------------------------------
+# Constant pins: close the T_max / MIN_EVENTS perturbation dead zones (fix H)
+# --------------------------------------------------------------------------
+def test_builder_power_cap_and_events_constants_are_pinned():
+    """Finding 9 / fix H: close the T_MAX and MIN_EVENTS perturbation dead
+    zones. The partition reconstruction is insensitive to small moves of
+    these constants -- no gated tolerance sits in the ln(1.5)->ln(1.51) gap,
+    and no cell sits in the 15..926 min-event gap -- so a partition test
+    alone lets a quiet mutation through (referee perturbation table). Bind
+    the builder constants directly, and tie the committed artifact to them."""
+    builder = _builder()
+    assert builder.T_MAX == math.log(1.5)
+    assert builder.T_MAX_SOURCE == "ln(1.5)"
+    assert builder.MIN_EVENTS_FOR_GATE == 20
+    assert builder.DRAFT_K == 4
+    assert builder.DRAFT_ROUNDING == 3
+    assert builder.CANDIDATE_DRAWS == 20
+    art = _artifact()
+    assert art["internal_noise_floor"]["t_max"] == builder.T_MAX
+    assert (
+        art["internal_noise_floor"]["min_events_for_gate"]
+        == builder.MIN_EVENTS_FOR_GATE
+    )
+    assert art["draft_thresholds"]["k"] == builder.DRAFT_K
+    assert art["protocol"]["candidate_draws"] == builder.CANDIDATE_DRAWS
+
+
+def test_multigen_5564_is_standalone_not_superseded():
+    """Fix G: the multigen aggregate pools 65+ only, so multigen.55-64 is
+    judged on its own merit and is never superseded by a gating pool. It
+    fails the power cap on the corrected floor, but it is no longer masked
+    inside a 55+ pool where a 55-64 error could be offset at 75+."""
+    art = _artifact()
+    builder = _builder()
+    assert set(builder.AGGREGATIONS) == {
+        "coresident_parent.45+|female",
+        "coresident_parent.45+|male",
+        "coresident_grandchild.55+|female",
+        "coresident_grandchild.55+|male",
+        "multigen.65+|female",
+        "multigen.65+|male",
+    }
+    members = {m for ms in builder.AGGREGATIONS.values() for m in ms}
+    for sex in ("female", "male"):
+        cell = f"multigen.55-64|{sex}"
+        assert cell not in members
+        reason = art["cell_stability"][cell]["report_reason"]
+        assert not reason.startswith("superseded_by:"), reason

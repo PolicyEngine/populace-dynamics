@@ -185,6 +185,67 @@ def test_multigen_is_three_lineal_generations():
     assert not bool(roster.loc[3001, "multigen"])
 
 
+def test_first_year_cohabitor_is_not_multigen():
+    """MX7 code 88 is a first-year cohabitor (generation 0), NOT the MX8
+    'step great-grandparent' (+2): a household of RP + RP's child + a
+    first-year cohabitor spans two generations {0, -1}, so it is NOT
+    multigenerational (referee round-1 finding 2 / fix B). Under the old
+    88 -> +2 frame-bleed this same household spanned a spurious third
+    generation and was wrongly flagged multigen."""
+    rows = [
+        _row(2001, 11, 6001, 10, 10, 6001, 10),  # RP (gen 0)
+        _row(2001, 11, 6002, 30, 10, 6002, 30),  # RP's child (gen -1)
+        _row(2001, 11, 6003, 88, 10, 6003, 88),  # first-year cohabitor gen 0
+    ]
+    roster = hc.household_roster(pd.DataFrame(rows)).set_index("person_id")
+    assert roster.loc[6001, "hh_size"] == 3
+    for pid in (6001, 6002, 6003):
+        assert not bool(roster.loc[pid, "multigen"]), pid
+
+
+def test_transition_columns_and_parental_home_exit():
+    """A person coresident with a parent in one wave and not in the next
+    observed wave (<= 2-year gap) is a parental-home exit (fix E). The
+    panel carries the has_next / next_* columns and the transition families
+    price the wave-to-wave change through the same machinery."""
+    rows = [
+        # wave 2001: 7001 (age 20) lives with parent 7002 (age 45).
+        _row(2001, 20, 7002, 10, 10, 7002, 10),  # parent = RP (self)
+        _row(2001, 20, 7001, 30, 10, 7001, 30),  # child (self)
+        _row(2001, 20, 7002, 10, 50, 7001, 30),  # parent -> child
+        _row(2001, 20, 7001, 30, 30, 7002, 10),  # child -> parent
+        # wave 2003: 7001 (age 22) now lives alone.
+        _row(2003, 21, 7001, 10, 10, 7001, 10),
+    ]
+    demo = pd.DataFrame(
+        [
+            (7001, 2001, 20, 100.0),
+            (7002, 2001, 45, 100.0),
+            (7001, 2003, 22, 100.0),
+        ],
+        columns=["person_id", "period", "age", "weight"],
+    )
+    sex = pd.DataFrame(
+        [(7001, "female"), (7002, "male")],
+        columns=["person_id", "sex"],
+    )
+    pw = hc.join_demographics(
+        hc.household_roster(pd.DataFrame(rows)), demo, sex
+    )
+    assert {"has_next", "next_coresident_parent"} <= set(pw.columns)
+    w2001 = pw[(pw.person_id == 7001) & (pw.year == 2001)].iloc[0]
+    assert bool(w2001["has_next"])
+    assert bool(w2001["coresident_parent"])
+    assert not bool(w2001["next_coresident_parent"])
+    panel = hc.HouseholdCompositionPanel(
+        person_waves=pw, attrs=pw[["person_id"]].drop_duplicates()
+    )
+    cells = hc.reference_moments(panel, weighted=True)
+    exit_cell = cells["parental_home_exit.15-24|female"]
+    assert exit_cell["rate"] == pytest.approx(1.0)
+    assert exit_cell["n_events"] == 1
+
+
 def test_pre1983_era_generation_frame():
     """The abbreviated pre-1983 rel-to-RP frame still resolves the lineal
     generations it carries (child=3, grandchild=6)."""
@@ -284,8 +345,9 @@ def test_reference_moments_cell_schema_and_rate():
         person_waves=pw, attrs=pw[["person_id"]].drop_duplicates()
     )
     cells = hc.reference_moments(panel, weighted=True)
-    # 5 band families x 7 bands x 2 sexes + 5 hh_size + 6 aggregates.
-    assert len(cells) == 5 * 7 * 2 + 5 + 6
+    # 5 band families x 7 bands x 2 sexes + 5 hh_size + 6 aggregates
+    # + 12 transitions (4 parental_home_exit + 6 spousal_loss + 2 multigen).
+    assert len(cells) == 5 * 7 * 2 + 5 + 6 + 12
     for cell in cells.values():
         assert set(cell) == {"rate", "num_wt", "den_wt", "n_events"}
         if cell["den_wt"] > 0:
@@ -307,8 +369,8 @@ def test_aggregation_members_map_is_coherent():
         "coresident_parent.45+|male",
         "coresident_grandchild.55+|female",
         "coresident_grandchild.55+|male",
-        "multigen.55+|female",
-        "multigen.55+|male",
+        "multigen.65+|female",
+        "multigen.65+|male",
     }
     # coresident_parent.45+ pools the four 45+ per-band cells.
     assert members["coresident_parent.45+|female"] == [
@@ -317,8 +379,15 @@ def test_aggregation_members_map_is_coherent():
         "coresident_parent.65-74|female",
         "coresident_parent.75+|female",
     ]
-    # 55+ aggregates pool exactly three bands.
-    assert len(members["multigen.55+|male"]) == 3
+    # multigen pools 65+ only (two bands: 65-74, 75+) so multigen.55-64 is
+    # judged standalone, never superseded (referee round-1 finding 6b/fix G).
+    assert members["multigen.65+|male"] == [
+        "multigen.65-74|male",
+        "multigen.75+|male",
+    ]
+    all_members = {m for ms in members.values() for m in ms}
+    assert "multigen.55-64|male" not in all_members
+    assert "multigen.55-64|female" not in all_members
 
 
 def test_person_ids_subset_restricts_moments():
@@ -346,7 +415,7 @@ def test_real_panel_builds_and_moment_grid_is_complete():
     assert len(panel.person_waves) > 100_000
     assert panel.attrs["person_id"].is_unique
     cells = hc.reference_moments(panel, weighted=True)
-    assert len(cells) == 5 * 7 * 2 + 5 + 6
+    assert len(cells) == 5 * 7 * 2 + 5 + 6 + 12
     # coresident_parent peaks young, coresident_child peaks middle-age:
     # the direction convention holds on real data.
     assert (
