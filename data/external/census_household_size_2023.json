@@ -1,0 +1,53 @@
+{
+  "schema_version": "census_household_size.v1",
+  "table": "HH-4",
+  "title": "Households by Size: 1960 to Present (row for 2023)",
+  "survey": "Current Population Survey, Annual Social and Economic Supplement (CPS ASEC)",
+  "reference_year": 2023,
+  "units": "thousands of households (counts); share of households / share of persons (derived)",
+  "provenance": {
+    "source": "U.S. Census Bureau, Historical Households Tables, Table HH-4 (Households by Size: 1960 to Present)",
+    "source_url": "https://www.census.gov/data/tables/time-series/demo/families/households.html",
+    "file_url": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/households/hh4.xls",
+    "table_id": "HH-4",
+    "fetch_method": "direct HTTPS GET of the published .xls time-series file from www2.census.gov (the Census Data API needs a key and data.census.gov is a JS SPA; the static table file is keyless and authoritative). Parsed with xlrd.",
+    "fetched_utc": "2026-07-10T09:53:47+00:00",
+    "file_sha256": "9ac805cd902da55988327a37e73e3ff5d1abd9d7aee014002e26b3e05384d79d",
+    "file_last_saved": "2025-11-18 (per the .xls document metadata; the time series is revised as new CPS ASEC years post)",
+    "extracted_row": "2023",
+    "note": "Counts are the verbatim 2023 row of HH-4 (numbers in thousands). Household-level and person-level shares are derived here (see derived). This is a HOUSEHOLD concept; the PSID gate measures a person-weighted FAMILY-UNIT size, so the anchor decomposition names the household-vs-person weighting and family-unit-vs-household deltas rather than treating this as a level target."
+  },
+  "counts_thousands": {
+    "all_households": 131434,
+    "one": 38097,
+    "two": 45959,
+    "three": 19771,
+    "four": 16038,
+    "five": 7192,
+    "six": 2721,
+    "seven_or_more": 1656
+  },
+  "average_people_per_household": 2.51,
+  "derived": {
+    "household_level_share": {
+      "1": 0.2899,
+      "2": 0.3497,
+      "3": 0.1504,
+      "4": 0.122,
+      "5+": 0.088
+    },
+    "person_level_share": {
+      "1": 0.1197,
+      "2": 0.2889,
+      "3": 0.1864,
+      "4": 0.2016,
+      "5+": 0.2034
+    },
+    "person_level_note": "Persons in size-k households = k * (households of size k); the open 7+ bucket uses a size midpoint of 7.5. Total persons in households ~= 318,186 thousand. The person-level share is the concept-matched weighting for the PSID person-level hh_size distribution; the residual after matching weighting is the family-unit-vs-household delta."
+  },
+  "validation": {
+    "counts_sum_to_all_households": true,
+    "household_level_share_sums_to_1": true,
+    "person_level_share_sums_to_1": true
+  }
+}

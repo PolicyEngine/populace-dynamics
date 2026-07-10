@@ -1,0 +1,392 @@
+{
+  "schema_version": "gate2b_anchor.v1",
+  "run": "gate2b_anchor_v1",
+  "reported_anchor_not_gated": true,
+  "gated": false,
+  "purpose": "External concept-decomposed Census/CPS shape/ratio anchor for the gate-2b household-composition floor. Required by runs/gate2b_floors_v1.json external_anchor.required_before_ratifying_flip (round-1 referee finding F); bundled by the gate-2b lock flip. Reads the frozen floor's PSID reference_moments and the committed Census/CPS benchmarks; reports per-cell PSID/Census ratios with the family-unit-vs-household concept delta NAMED. REPORTED, NEVER GATED. No calibration -- honest ratios, no floor value moves.",
+  "ceremony": {
+    "tranche": "2b_relationship_household",
+    "step": "external anchor, bundled with the ratifying flip (after floor -> referee -> fixes -> verification)",
+    "mirrors_tranche_2a": "runs/gate2_floors_v2.json external_anchor (concept-decomposed NCHS marriage/divorce + ASFR)",
+    "gates_this_run": false
+  },
+  "floor_source": "runs/gate2b_floors_v1.json",
+  "floor_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821",
+  "census_sources": [
+    {
+      "file": "data/external/census_household_size_2023.json",
+      "table_id": "HH-4",
+      "source_url": "https://www.census.gov/data/tables/time-series/demo/families/households.html",
+      "reference_year": 2023,
+      "fetched_utc": "2026-07-10T09:53:47+00:00",
+      "sha256": "52be0def9f460fd68878cca66341654bf70c0ee5bf7b558a76ed74c0c8e6038b"
+    },
+    {
+      "file": "data/external/census_living_arrangements_2023.json",
+      "table_id": "AD-3",
+      "source_url": "https://www.census.gov/data/tables/time-series/demo/families/adults.html",
+      "reference_year": 2023,
+      "fetched_utc": "2026-07-10T09:53:47+00:00",
+      "sha256": "c89e9faaa5a16bc82d5669b2066a17dae9e176cb95ada031fb34f98630e9c60c"
+    },
+    {
+      "file": "data/external/census_multigenerational_2020.json",
+      "table_id": "B11017",
+      "source_url": "https://www.census.gov/library/stories/2023/06/several-generations-under-one-roof.html",
+      "reference_year": 2020,
+      "fetched_utc": "2026-07-10T09:53:47+00:00",
+      "sha256": "f3f56c7fa064ba02f06ae152ec815b94340e6e2d7a8ab77ce74c8ce9b2f3a066"
+    }
+  ],
+  "concept_bridge": {
+    "family_unit_vs_household": "The PSID FAMILY UNIT is narrower than the Census HOUSEHOLD (PSID splits subfamilies and applies its own cohabitor/roomer rules); every ratio here carries this delta, so the anchor is a shape/ratio report, never a level gate -- the household analogue of 2a's person-vs-couple x denominator decomposition.",
+    "person_vs_household_weighting": "PSID stocks are person-weighted; Census hh_size and B11017 are household-weighted. hh_size is bridged by reweighting Census household counts to persons; multigen names the unit delta rather than differencing.",
+    "spouse_or_partner_inclusion": "PSID coresident_spouse = codes 20 (spouse) and 22 (partner); the concept-matched Census anchor adds CPS living_with_partner to living_with_spouse.",
+    "multigen_b11017_bridge": "A multigenerational household has THREE OR MORE generations living together (per the Census story wording). This matches the gate-2b B11017 rule after fixes B/C (>= 3 distinct lineal generations present); the span>=2 predecessor the round-1 referee rejected would NOT be concept-matched to B11017.",
+    "in_law_and_greatgrand_note": "flip-note 3: the PSID MX7 generation map places lineal in-laws in the generation count (37 child-in-law -1, 57 parent-in-law +1, 67/69 +2) while the MX8 coresidence sets EXCLUDE in-law-by-marriage links; and great-grand codes lump at +/-2 (65, 68/69) -- a strict +/-3 map would move 811 person-waves (0.09% of the panel). ACS relationship coding also lumps grandchild+, so the committed choice is concept-consistent with B11017.",
+    "grandparent_vs_grandchild_side": "coresident_grandchild is grandparent-side; the only published Census person share (8.4% of children in a grandparent's home) is grandchild-side -- direction only.",
+    "age_band_deltas": "PSID 15-24 includes ages 15-17 (CPS bands start at 18); PSID 35-44/45-54/55-64 each map to the single CPS 35-64 band.",
+    "transitions_no_cross_sectional_anchor": "parental_home_exit / spousal_loss / multigen_entry / multigen_exit are flows; no cross-sectional Census level (flip-note 4)."
+  },
+  "families": {
+    "hh_size": {
+      "statistic": "person-level household-size share (PSID family unit)",
+      "census_table": "HH-4",
+      "census_reference_year": 2023,
+      "concept_delta": "TWO named deltas. (1) household-vs-person weighting: HH-4 is a share of HOUSEHOLDS; the PSID hh_size is a share of PERSONS, so the concept-matched Census column is census_person_level (household counts x size, renormalised). (2) family-unit fragmentation: the PSID family unit splits subfamilies out of the Census household, shifting person mass from large units to 1-2 person units -- so the residual ratio rises above 1 at size 1-2 and falls below 1 at size 4/5+, a monotonic concept signature, not noise.",
+      "cells": [
+        {
+          "cell": "hh_size.1",
+          "psid_ref": 0.1803,
+          "census_household_level": 0.2899,
+          "census_person_level": 0.1197,
+          "ratio_vs_person_level": 1.5061,
+          "ratio_vs_household_level": 0.6219
+        },
+        {
+          "cell": "hh_size.2",
+          "psid_ref": 0.3262,
+          "census_household_level": 0.3497,
+          "census_person_level": 0.2889,
+          "ratio_vs_person_level": 1.1292,
+          "ratio_vs_household_level": 0.9329
+        },
+        {
+          "cell": "hh_size.3",
+          "psid_ref": 0.18,
+          "census_household_level": 0.1504,
+          "census_person_level": 0.1864,
+          "ratio_vs_person_level": 0.9654,
+          "ratio_vs_household_level": 1.1965
+        },
+        {
+          "cell": "hh_size.4",
+          "psid_ref": 0.1746,
+          "census_household_level": 0.122,
+          "census_person_level": 0.2016,
+          "ratio_vs_person_level": 0.8659,
+          "ratio_vs_household_level": 1.4309
+        },
+        {
+          "cell": "hh_size.5+",
+          "psid_ref": 0.139,
+          "census_household_level": 0.088,
+          "census_person_level": 0.2034,
+          "ratio_vs_person_level": 0.6833,
+          "ratio_vs_household_level": 1.5793
+        }
+      ]
+    },
+    "coresident_spouse": {
+      "statistic": "coresident spouse/partner share (PSID codes 20/22)",
+      "census_table": "AD-3",
+      "census_reference_year": 2023,
+      "concept_delta": "PSID coresident_spouse counts a coresident spouse OR partner (MX8 codes 20 and 22); CPS living_with_spouse is married-spouse-present only. The concept factor is the partner-inclusion: adding CPS living_with_partner gives the matched anchor, and residual_vs_spouse_plus_partner collapses toward 1 (the 2a person-vs-couple pattern). Age-band deltas remain: PSID 15-24 includes ages 15-17 (CPS 18-24) and PSID 35-44/45-54/55-64 each map to the single CPS 35-64 band, so those residuals carry a band-composition term, not a data disagreement.",
+      "cells": [
+        {
+          "cell": "coresident_spouse.15-24|female",
+          "psid_ref": 0.1617,
+          "cps_band": "18-24",
+          "census_spouse_only": 0.078,
+          "census_spouse_plus_partner": 0.195,
+          "raw_ratio_vs_spouse_only": 2.0736,
+          "residual_vs_spouse_plus_partner": 0.8294
+        },
+        {
+          "cell": "coresident_spouse.15-24|male",
+          "psid_ref": 0.0966,
+          "cps_band": "18-24",
+          "census_spouse_only": 0.044,
+          "census_spouse_plus_partner": 0.128,
+          "raw_ratio_vs_spouse_only": 2.1949,
+          "residual_vs_spouse_plus_partner": 0.7545
+        },
+        {
+          "cell": "coresident_spouse.25-34|female",
+          "psid_ref": 0.6223,
+          "cps_band": "25-34",
+          "census_spouse_only": 0.427,
+          "census_spouse_plus_partner": 0.591,
+          "raw_ratio_vs_spouse_only": 1.4573,
+          "residual_vs_spouse_plus_partner": 1.0529
+        },
+        {
+          "cell": "coresident_spouse.25-34|male",
+          "psid_ref": 0.5613,
+          "cps_band": "25-34",
+          "census_spouse_only": 0.35,
+          "census_spouse_plus_partner": 0.503,
+          "raw_ratio_vs_spouse_only": 1.6037,
+          "residual_vs_spouse_plus_partner": 1.1159
+        },
+        {
+          "cell": "coresident_spouse.35-44|female",
+          "psid_ref": 0.7135,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.623,
+          "census_spouse_plus_partner": 0.686,
+          "raw_ratio_vs_spouse_only": 1.1453,
+          "residual_vs_spouse_plus_partner": 1.0402
+        },
+        {
+          "cell": "coresident_spouse.35-44|male",
+          "psid_ref": 0.7367,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.618,
+          "census_spouse_plus_partner": 0.688,
+          "raw_ratio_vs_spouse_only": 1.1921,
+          "residual_vs_spouse_plus_partner": 1.0708
+        },
+        {
+          "cell": "coresident_spouse.45-54|female",
+          "psid_ref": 0.6979,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.623,
+          "census_spouse_plus_partner": 0.686,
+          "raw_ratio_vs_spouse_only": 1.1202,
+          "residual_vs_spouse_plus_partner": 1.0173
+        },
+        {
+          "cell": "coresident_spouse.45-54|male",
+          "psid_ref": 0.7623,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.618,
+          "census_spouse_plus_partner": 0.688,
+          "raw_ratio_vs_spouse_only": 1.2335,
+          "residual_vs_spouse_plus_partner": 1.108
+        },
+        {
+          "cell": "coresident_spouse.55-64|female",
+          "psid_ref": 0.6769,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.623,
+          "census_spouse_plus_partner": 0.686,
+          "raw_ratio_vs_spouse_only": 1.0865,
+          "residual_vs_spouse_plus_partner": 0.9867
+        },
+        {
+          "cell": "coresident_spouse.55-64|male",
+          "psid_ref": 0.782,
+          "cps_band": "35-64",
+          "census_spouse_only": 0.618,
+          "census_spouse_plus_partner": 0.688,
+          "raw_ratio_vs_spouse_only": 1.2653,
+          "residual_vs_spouse_plus_partner": 1.1366
+        },
+        {
+          "cell": "coresident_spouse.65-74|female",
+          "psid_ref": 0.587,
+          "cps_band": "65-74",
+          "census_spouse_only": 0.555,
+          "census_spouse_plus_partner": 0.581,
+          "raw_ratio_vs_spouse_only": 1.0576,
+          "residual_vs_spouse_plus_partner": 1.0103
+        },
+        {
+          "cell": "coresident_spouse.65-74|male",
+          "psid_ref": 0.811,
+          "cps_band": "65-74",
+          "census_spouse_only": 0.674,
+          "census_spouse_plus_partner": 0.713,
+          "raw_ratio_vs_spouse_only": 1.2033,
+          "residual_vs_spouse_plus_partner": 1.1375
+        },
+        {
+          "cell": "coresident_spouse.75+|female",
+          "psid_ref": 0.3133,
+          "cps_band": "75+",
+          "census_spouse_only": 0.359,
+          "census_spouse_plus_partner": 0.371,
+          "raw_ratio_vs_spouse_only": 0.8726,
+          "residual_vs_spouse_plus_partner": 0.8444
+        },
+        {
+          "cell": "coresident_spouse.75+|male",
+          "psid_ref": 0.7171,
+          "cps_band": "75+",
+          "census_spouse_only": 0.676,
+          "census_spouse_plus_partner": 0.697,
+          "raw_ratio_vs_spouse_only": 1.0607,
+          "residual_vs_spouse_plus_partner": 1.0288
+        }
+      ]
+    },
+    "coresident_parent": {
+      "statistic": "share living with a coresident parent (PSID codes 30/33/35/38 as ego)",
+      "census_table": "AD-3",
+      "census_reference_year": 2023,
+      "concept_delta": "CPS child_of_householder counts an adult living in a parent's home as the householder's child; PSID coresident_parent counts any coresident parent in the family unit (broader). At 15-24 the PSID ratio exceeds 1 chiefly through the age-floor delta (PSID keeps ages 15-17, ~universally with a parent; CPS band is 18-24). At 25-34 the ratio sits below 1 (child-of-householder is a stricter arrangement than any coresident parent). CPS has no child_of_householder column at 65-74/75+: concept gap.",
+      "cells": [
+        {
+          "cell": "coresident_parent.15-24|female",
+          "psid_ref": 0.6912,
+          "cps_band": "18-24",
+          "census_child_of_householder": 0.541,
+          "raw_ratio": 1.2776
+        },
+        {
+          "cell": "coresident_parent.15-24|male",
+          "psid_ref": 0.7592,
+          "cps_band": "18-24",
+          "census_child_of_householder": 0.577,
+          "raw_ratio": 1.3158
+        },
+        {
+          "cell": "coresident_parent.25-34|female",
+          "psid_ref": 0.0996,
+          "cps_band": "25-34",
+          "census_child_of_householder": 0.114,
+          "raw_ratio": 0.8734
+        },
+        {
+          "cell": "coresident_parent.25-34|male",
+          "psid_ref": 0.1549,
+          "cps_band": "25-34",
+          "census_child_of_householder": 0.188,
+          "raw_ratio": 0.8239
+        },
+        {
+          "cell": "coresident_parent.35-44|female",
+          "psid_ref": 0.0405,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.03,
+          "raw_ratio": 1.349
+        },
+        {
+          "cell": "coresident_parent.35-44|male",
+          "psid_ref": 0.0598,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.064,
+          "raw_ratio": 0.9336
+        },
+        {
+          "cell": "coresident_parent.45-54|female",
+          "psid_ref": 0.0264,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.03,
+          "raw_ratio": 0.881
+        },
+        {
+          "cell": "coresident_parent.45-54|male",
+          "psid_ref": 0.0426,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.064,
+          "raw_ratio": 0.6652
+        },
+        {
+          "cell": "coresident_parent.55-64|female",
+          "psid_ref": 0.0204,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.03,
+          "raw_ratio": 0.6791
+        },
+        {
+          "cell": "coresident_parent.55-64|male",
+          "psid_ref": 0.0245,
+          "cps_band": "35-64",
+          "census_child_of_householder": 0.064,
+          "raw_ratio": 0.3832
+        }
+      ],
+      "no_census_level_cells": [
+        "coresident_parent.65-74|female",
+        "coresident_parent.65-74|male",
+        "coresident_parent.75+|female",
+        "coresident_parent.75+|male"
+      ]
+    },
+    "multigen": {
+      "statistic": "person share in a >=3-generation (B11017) family unit",
+      "census_table": "B11017",
+      "census_reference_year": 2020,
+      "concept_delta": "The B11017 concept now MATCHES (both are >=3 distinct generations after fixes B/C -- the span>=2 predecessor did not). But the anchor is a HOUSEHOLD share (4.7% of households, 7.2% of family households, 2020) while the PSID cells are a PERSON share by age x sex; persons-in-multigen-households exceed the multigen-household share (larger households), so a level difference is a unit artifact, reported not differenced. The grandchild-side corroborator (8.4% of children under 18 in a grandparent's home, 2020) fixes the DIRECTION.",
+      "person_vs_household_note": "raw_ratio_person_over_household is person-share / household-share and is expected to exceed 1 by the unit delta alone; it is NOT a residual and is not expected near 1.",
+      "cells": [
+        {
+          "cell": "multigen.15-24|female",
+          "psid_ref": 0.0876,
+          "census_household_share_2020": 0.047,
+          "raw_ratio_person_over_household": 1.8629,
+          "concept_gap": true
+        },
+        {
+          "cell": "multigen.25-34|female",
+          "psid_ref": 0.0417,
+          "census_household_share_2020": 0.047,
+          "raw_ratio_person_over_household": 0.8875,
+          "concept_gap": true
+        },
+        {
+          "cell": "multigen.45-54|female",
+          "psid_ref": 0.0471,
+          "census_household_share_2020": 0.047,
+          "raw_ratio_person_over_household": 1.0028,
+          "concept_gap": true
+        }
+      ]
+    },
+    "coresident_grandchild": {
+      "statistic": "grandparent-side share with a coresident grandchild",
+      "census_direction_anchor": {
+        "children_under_18_in_grandparents_home_2020_pct": 8.4,
+        "note": "This is a GRANDCHILD-side share (children living with a grandparent); the PSID cells are GRANDPARENT-side (adults with a coresident grandchild) -- a different denominator. Direction only, no per-cell ratio."
+      },
+      "gated_cells": [
+        "coresident_grandchild.45-54|female",
+        "coresident_grandchild.55+|female"
+      ]
+    },
+    "coresident_child": {
+      "statistic": "share living with a coresident child",
+      "census_level": "none",
+      "note": "No clean published per-age x sex Census level for 'lives with an own/step/social child' that matches the PSID coresidence concept; the ACS own-children-in-household tables are householder-keyed and family-typed. Reported as a concept gap; the 35-44 female PSID rate (~0.77) is consistent in direction with peak-childrearing family-household shares."
+    },
+    "transitions": {
+      "statistic": "wave-to-wave household-composition transitions",
+      "families": [
+        "parental_home_exit",
+        "spousal_loss",
+        "multigen_entry",
+        "multigen_exit"
+      ],
+      "census_level": "none",
+      "note": "Transitions are FLOWS; there is no cross-sectional Census stock to anchor a level against (flip-note 4). Per-era PSID transition rates could be added at a later anchor round; round 1 did not require them."
+    }
+  },
+  "summary": {
+    "n_cells_with_census_ratio": 32,
+    "families_with_clean_residual": [
+      "hh_size",
+      "coresident_spouse",
+      "coresident_parent"
+    ],
+    "families_reported_as_concept_gap": [
+      "multigen",
+      "coresident_grandchild",
+      "coresident_child",
+      "transitions"
+    ],
+    "coresident_spouse_residual_note": "After the partner-inclusion concept factor, the 14 coresident_spouse residuals sit near 1 for the clean-band cells (25-34, 65-74, 75+), the 2a-style bullseye; the 15-24 and 35-64-mapped cells carry a named band term.",
+    "calibration": "none -- ratios are reported, no floor moves"
+  }
+}

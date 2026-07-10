@@ -97,17 +97,22 @@ def test_ceremony_block_writes_no_gates_yaml():
     assert art["draft_thresholds"]["note"].find("NOT yet mirrored") >= 0
 
 
-def test_gates_yaml_gate_2b_still_an_unlocked_stub():
-    """Guard the 'gates.yaml UNTOUCHED' constraint: gate_2b must remain an
-    unlocked stub with no thresholds block (the flip comes later)."""
+def test_gates_yaml_gate_2b_is_locked_after_the_flip():
+    """Post-lock guard (2026-07-10 flip): gate_2b is LOCKED with a thresholds
+    block that cites THIS floor. Before the flip this floor's build wrote no
+    gates.yaml block (the artifact still records that, see
+    test_ceremony_block_writes_no_gates_yaml); the ratifying flip inserted the
+    thresholds and flipped locked. The 46-cell tolerance <-> floor binding
+    lives in tests/test_gates_derivations.py (the locked gate-2b section)."""
     yaml = pytest.importorskip("yaml")
     spec = yaml.safe_load((ROOT / "gates.yaml").read_text())
     gate_2b = spec["gates"]["gate_2"]["gate_2b"]
-    assert gate_2b["locked"] is False
-    assert gate_2b["status"] == "unlocked"
+    assert gate_2b["locked"] is True
+    assert gate_2b["status"] == "locked"
     assert gate_2b["holdout_basis"] == ["MX23REL"]
-    assert "thresholds" not in gate_2b
-    assert gate_2b["lock_ceremony"]["exists"] is False
+    assert "thresholds" in gate_2b
+    assert gate_2b["thresholds"]["floor_run"] == "runs/gate2b_floors_v1.json"
+    assert gate_2b["lock_ceremony"]["exists"] is True
 
 
 def test_provenance_pins_present():
