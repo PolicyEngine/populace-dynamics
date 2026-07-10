@@ -1323,31 +1323,702 @@ gates:
             rates match the national rates within ~4%, and marriage exceeds
             divorce. Reported, never gated on level.
     gate_2b:
-      # Unlocked sibling tranche added by the amendment-2 flip
-      # (amendment_history entry 2). The household-composition / MX23REL
-      # clause moved here out of the gate_2 description and holdout_basis.
+      # LOCKED sibling tranche. Added UNLOCKED by the amendment-2 flip
+      # (amendment_history entry 2); LOCKED 2026-07-10 by the gate-2b lock
+      # ceremony -- pre-lock floor #118 (runs/gate2b_floors_v1.json) ->
+      # round-1 adversarial referee AMEND BEFORE LOCK (comment 4931849367,
+      # findings 1-9 / required fixes A-H) -> fixes (comment 4932310897,
+      # artifact sha256 b7c9a112...) -> verification LOCK AS-IS (comment
+      # 4932491912, five flip-time notes) -> ratifying merge of PR #118
+      # (merge commit 2b2f3cb) under the maintainer's standing campaign
+      # directive of 2026-07-07. This flip inserts the thresholds block; the
+      # evidence floor runs/gate2b_floors_v1.json is RATIFIED = FROZEN and is
+      # only READ (round(mean + 4*sd, 3), k = 4, T_max = ln(1.5)), never
+      # rewritten. Bindings go LOCKED-HOT (the 2a lesson): the derivation
+      # tests run unconditionally. gate_1 / gate_2 (2a) / gate_2c untouched.
       id: 2b_relationship_household
-      status: unlocked
-      locked: false
+      status: locked
+      locked: true
       covers: >-
-        household-composition transitions (who lives with whom) -- the
-        MX23REL relationship-matrix. The amendment-2 flip moved this clause
-        out of the gate_2 description and holdout_basis into this unlocked
-        sibling; tranche 2a explicitly does NOT score it.
+        household-composition STOCKS and wave-to-wave TRANSITIONS (who lives
+        with whom) from the MX23REL relationship matrix: coresident
+        spouse/partner, coresident parent, coresident child, coresident
+        grandchild, >=3-generation (Census B11017) and person-level
+        household-size STOCKS, plus parental-home exit (15-34), multigen
+        entry and multigen exit TRANSITIONS. (flip-note 5: the amendment-2
+        stub read "household-composition transitions" ONLY; the ratified
+        package gates stocks AND transitions, exactly as the floor's
+        draft_thresholds_note describes -- so the covers text now names
+        both.) The marriage x earnings joint (who marries whom) stays the
+        separate UNLOCKED tranche 2c; tranche 2a (marital/fertility) does
+        NOT score household composition.
       holdout_basis: [MX23REL]
       data_staged: >-
-        MX23REL (person-relationship map) is staged on disk per issue #74
-        (data-already-staged section), alongside mh85_23 / cah85_23 /
-        ind2023er. No floor, no scored run exists for it.
+        MX23REL (the 1968-2023 Family Relationship Matrix) is staged on disk
+        per issue #74 (data-already-staged section), alongside mh85_23 /
+        cah85_23 / ind2023er. The 100-seed person-disjoint half-split floor
+        over it is runs/gate2b_floors_v1.json (RATIFIED, frozen).
       lock_ceremony:
-        exists: false
-        required_before_any_2b_pass: >-
-          the SAME ceremony 2a followed -- a pre-registered gate on a
-          100-seed split noise floor over MX23REL household-composition
-          transitions, a power cap, an adversarial referee round, a
-          verification round, and a ratifying merge (proposal -> referee
-          -> fixes -> verification -> ratify). None of these exists yet,
-          so 2b is honestly unlocked.
+        exists: true
+        completed: >-
+          2026-07-10. The SAME ceremony 2a followed -- a pre-registered gate
+          on a 100-seed split noise floor over MX23REL household-composition
+          STOCKS + TRANSITIONS, a T_max = ln(1.5) power cap, an adversarial
+          referee round, a verification round, and a ratifying merge
+          (proposal #118 -> referee 4931849367 -> fixes 4932310897 ->
+          verification 4932491912 -> ratify by merge of #118, 2b2f3cb). The
+          full record is in thresholds.ceremony_record and history entry
+          2026-07-10-gate2b-lock.
+      thresholds:
+        # DRAFT -> LOCKED. Every tolerance below is machine-bound to the
+        # ratified 100-seed half-split floor runs/gate2b_floors_v1.json by
+        # tests/test_gates_derivations.py exactly as the locked gate-2a and
+        # gate-1 thresholds bind to theirs: tolerance == round(floor mean +
+        # k * floor sd, rounding), k = 4 (the 2a precedent), rounding = 3,
+        # AND tolerance <= T_max = ln(1.5) (the power cap). The lock ceremony
+        # ratified k = 4; the frozen floor is READ, never rewritten. 46 cells
+        # gate; 47 are report-only; the partition is the floor's own
+        # gate_partition (events + power cap + aggregate supersession).
+        locked: true
+        status: locked
+        tranche_id: 2b_relationship_household
+        holdout_basis: [MX23REL]
+        floor_run: runs/gate2b_floors_v1.json
+        external_anchor: runs/gate2b_anchor_v1.json
+        ceremony_record:
+          round_1_referee: >-
+            comment 4931849367 -- round-1 adversarial referee AMEND BEFORE
+            LOCK (nine findings / required fixes A-H: the superseded
+            single-draw estimator, the MX7/MX8 code-88 multigen frame bleed,
+            the span>=2 vs Census-B11017 multigen concept, the pooled-era
+            estimand honesty, the missing transition families, the
+            un-bundled external anchor, the 55-64 multigen supersession, and
+            the record/pin/perturbation nits).
+          fixes: >-
+            comment 4932310897 -- fixes A-H applied and the floor rebuilt
+            end-to-end (populace.fit never imported); artifact sha256
+            b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821;
+            K=20 estimator, B11017 multigen, transition families, named
+            estimand, anchor-required-before-flip.
+          verification: >-
+            comment 4932491912 -- verification round LOCK AS-IS (every number
+            recomputed from the committed artifacts, the multigen family
+            recomputed fully independently, one transition cell re-priced,
+            the new bindings perturbation-tested, and a full rebuild
+            reproduced the artifact bit-identically except elapsed_seconds).
+            Five flip-time notes are implemented by this flip (see
+            flip_notes_implemented).
+          ratified: >-
+            2026-07-10 by merge of PR 118 (merge commit 2b2f3cb) under the
+            maintainer's standing campaign directive of 2026-07-07 ("build
+            until reasonable for scoring these reforms"), exercised only
+            after the full lock ceremony (round-1 AMEND 4931849367 -> fixes
+            4932310897 -> verification LOCK AS-IS 4932491912). Locked
+            thresholds change only through a public amendment noted in this
+            file's history (amendment_rules apply, including no_self_rescue).
+          delegated_authority: >-
+            The standing campaign directive of 2026-07-07 delegates the
+            ratifying-merge authority for a ceremony that has cleared the
+            adversarial + verification rounds; the pre-lock floor was
+            ratified by the merge of #118 itself, and this flip RECORDS the
+            completed ceremony and flips locked -- it is not a
+            re-ratification and moves no threshold.
+          flip_notes_implemented:
+            note_1_weight_definition: >-
+              governance.weight_definition carries the 2a-mirroring block
+              (person-constant most-recent positive PSID weight; no
+              unweighted gated statistic).
+            note_2_external_anchor_bundled: >-
+              external_anchor points to runs/gate2b_anchor_v1.json, bundled
+              in this flip PR before ratification (finding F).
+            note_3_b11017_bridge: >-
+              multigen_concept records the in-law generation-count inclusion
+              and the great-grand +/-2 lumping the B11017 bridge notes name.
+            note_4_era_slices_transitions: >-
+              era_slices (report-only) cover the stock families; per-era
+              transition rates are deferred (not required at this round).
+            note_5_covers_stocks_and_transitions: >-
+              the covers text names STOCKS and TRANSITIONS, not "transitions"
+              alone.
+        estimand: >-
+          Wave-weighted pooled PSID cross-sections, EFFECTIVELY 1997-2023
+          (finding D): 1997+ carries 99.81% of the pooled weight, 1969-1996
+          carries 0.19%. Per governance.amendment_rules
+          .description_claims_exactly_the_scored_surface, the scored surface
+          is a recent-cross-section estimand, NOT a 1969-2023 average; the
+          floor's data.era_weight_shares and report-only era_slices carry the
+          era mixture, and ~17.8% zero-wave-weight person-waves are dropped
+          (floor data.zero_weight_drop, not composition-neutral).
+        statistic: >-
+          Per cell, the absolute log rate ratio |ln(rbar_candidate,s /
+          rate_a,s)| between the candidate's household-composition rate for
+          the seed-s holdout persons -- rbar_candidate,s, the MEAN over K=20
+          pre-registered draws (5200 + k) of the cell RATE -- and that seed's
+          HOLDOUT half's own empirical rate (rate_a in the floor's
+          noise_floor_per_seed). Symmetric and scale-free, the same shape as
+          the tranche-2a family-transition statistic.
+        protocol:
+          option: >-
+            a -- the gate-1 / tranche-2a mirror: per-seed person-disjoint
+            holdout with train-complement fitting, for which the half-vs-half
+            floor is exactly the null. The 4-of-5 seed conjunction is
+            operative (both the candidate rate and the reference rate vary
+            with the seed).
+          estimator: >-
+            mean-over-K=20-draws (tranche 2a amendment 1, ratified
+            2026-07-08, PR 96), re-used VERBATIM. rbar_candidate,s is the MEAN
+            over K=20 pre-registered simulation draws (numpy
+            default_rng(5200 + k), k=0..19; a stream DISTINCT from the split
+            seeds), scored ONCE per cell as |ln(rbar_candidate,s /
+            rate_a,s)| -- NOT the mean of the per-draw |ln| scores. Fix A
+            replaced the superseded single-draw replicate (round-1 finding 1).
+          candidate_draws: 20
+          candidate_draw_stream: numpy.random.default_rng(5200 + k), k=0..K-1
+          gate_seeds: [0, 1, 2, 3, 4]
+          floor_seeds: 0-99 (tolerance stability)
+          split: >-
+            Person-disjoint 50/50 half-split of the MX23REL person panel's
+            persons (split_panel_by_person, fraction=0.5, seed=s). Side A (the
+            drawn half) is seed s's HOLDOUT; side B is the train complement.
+            Per-seed holdout person-ids are sha256-committed in the floor's
+            holdout_ids, derivable from the seed via the pinned numpy
+            Generator.
+          varies_per_seed: >-
+            the 50/50 person split (holdout = side A of split_panel_by_person
+            (seed=s)), the candidate's fit complement, and its K=20 simulated
+            draws of the holdout.
+          candidate: >-
+            Refit per seed on side B (the seed-s holdout persons excluded from
+            all fitting); SIMULATE side A's persons' households at K=20
+            pre-registered draws (default_rng(5200 + k)); form the 20-draw
+            mean cell rate rbar_candidate,s; emit each cell's rate at holdout
+            (~50%) scale.
+          scored_against: >-
+            side A's own empirical rate (rate_a), committed per gate seed in
+            the floor's noise_floor_per_seed. The half-vs-half floor
+            |ln(rate_A/rate_B)| is exactly the null a faithful candidate
+            realises.
+          pass_rule: >-
+            Seed-level conjunction. Seed s passes iff every gate-eligible
+            cell's |ln(rbar_candidate,s / rate_a,s)| <= its derived tolerance
+            at seed s (rbar_candidate,s the mean over K=20 draws of the cell
+            RATE, then scored once, NOT the mean of the per-draw |ln|); the
+            gate passes iff >=4 of 5 gate seeds pass. Report-only cells and
+            the external anchor are published, never gated.
+          faithful_candidate_oc:
+            n_gated_cells: 46
+            p_seed_pass: 0.9397
+            p_gate_pass_4_of_5: 0.9678
+            basis_note: >-
+              Computed on a DRAW-NOISE-FREE half-normal basis (a faithful
+              candidate's per-cell score ~ half-normal(realized_sigma), floor
+              sigmas only, no simulation-draw term). The mean-over-K=20-draws
+              estimator SHARES that basis, so the OC is ACHIEVABLE; under the
+              SUPERSEDED single-draw estimator it was UNACHIEVABLE (round-1
+              finding 1: one replicate injects ~one extra floor-sigma per
+              cell, dropping a faithful candidate to roughly P(seed) 0.67 /
+              P(gate>=4/5) 0.46). Numbers unchanged; the estimator now shares
+              the OC's derivation basis. Bound to the floor's
+              faithful_candidate_oc by tests/test_gates_derivations.py.
+          fresh_run_artifact_schema:
+            applies_to: >-
+              a fresh candidate one-shot run registered AFTER this gate_2b
+              lock; NEVER the floor build (which measures the real-vs-real
+              half-vs-half null, no simulation, no draws).
+            per_draw_per_cell_rates:
+              required: true
+              shape: [20, 46, 5]
+              shape_dims: K_draws x gated_cells x gate_seeds
+              rule: >-
+                commit every draw's per-cell rate r[k, cell, s] for all K=20
+                draws (default_rng(5200 + k), k=0..19), all 46 gated cells,
+                and all 5 gate seeds -- so rbar_candidate,s recomputes
+                cell-by-cell and |ln(rbar / rate_a)| is independently
+                auditable, not taken on trust.
+            undefined_draw_rule:
+              required: true
+              pre_specified: true
+              rule: >-
+                if any gated cell's rate is UNDEFINED on any draw (empty
+                simulated denominator), the RUN IS INVALIDATED and must be
+                re-registered and re-run. No draw may be dropped, skipped,
+                substituted, or re-rolled; rbar is always the mean over ALL K
+                registered draws.
+            per_draw_dispersion_disclosure:
+              required: true
+              gated: false
+              report_only: true
+              commit:
+                per_cell_per_draw_sd: >-
+                  the sd across the K=20 draws of each gated cell's rate, per
+                  gated cell per gate seed.
+                max_per_draw_abs_ln_per_cell: >-
+                  the maximum over the K=20 draws of |ln(r[k, cell, s] /
+                  rate_a,s)| per gated cell per gate seed.
+              note: >-
+                REPORT-ONLY: no dispersion cap gates the run; the disclosure
+                lets a referee see whether a passing 20-draw mean conceals a
+                wild individual draw.
+        power_cap:
+          # Finding 3 / fix: gate a cell only if its stabilised tolerance is
+          # tight enough to reject a materially wrong model. Which cells
+          # demote is DERIVED from the floor (cell_stability), never
+          # hand-picked. Aggregate bands fixed a priori before the rebuild.
+          t_max: ln(1.5)
+          rule: >-
+            gate-eligible iff defined on every one of the 100 seeds AND >=20
+            events on the weaker half of the worst seed AND stabilised
+            tolerance <= T_max = ln(1.5) AND not superseded by a gating
+            aggregate.
+          aggregations:
+            "coresident_parent.45+|female":
+              gated: false
+              members_demoted_to_report_only: >-
+                coresident_parent.45-54|female,
+                coresident_parent.55-64|female,
+                coresident_parent.65-74|female, coresident_parent.75+|female
+            "coresident_parent.45+|male":
+              gated: false
+              members_demoted_to_report_only: >-
+                coresident_parent.45-54|male, coresident_parent.55-64|male,
+                coresident_parent.65-74|male, coresident_parent.75+|male
+            "coresident_grandchild.55+|female":
+              gated: true
+              members_demoted_to_report_only: >-
+                coresident_grandchild.55-64|female,
+                coresident_grandchild.65-74|female,
+                coresident_grandchild.75+|female
+            "coresident_grandchild.55+|male":
+              gated: false
+              members_demoted_to_report_only: >-
+                coresident_grandchild.55-64|male,
+                coresident_grandchild.65-74|male,
+                coresident_grandchild.75+|male
+            "multigen.65+|female":
+              gated: false
+              members_demoted_to_report_only: >-
+                multigen.65-74|female, multigen.75+|female
+            "multigen.65+|male":
+              gated: false
+              members_demoted_to_report_only: >-
+                multigen.65-74|male, multigen.75+|male
+          demoted_and_report_only: >-
+            Only coresident_grandchild.55+|female gates among the six tail
+            aggregates (fix H: 5 of 6 fail the cap); the coresident_parent
+            45+ and multigen 65+ aggregates and the coresident_grandchild
+            55+|male aggregate exceed T_max. multigen.55-64|{female,male} are
+            judged STANDALONE (fix G: the multigen aggregate pools 65+ only,
+            so a 55-64 error can no longer be offset at 75+), and both fail
+            the cap honestly. All demoted cells are report-only.
+        governance:
+          # The registration / one-shot / amendment machinery reaches gate 2b
+          # by inheriting gate 1's, exactly as tranche 2a does.
+          registration: >-
+            Pre-registered on issue #42, as every gate-1 / gate-2 candidate
+            run. A gate-2b candidate registers its spec, its fitting
+            exclusions (the seed-s holdout persons), and its simulation seeds
+            BEFORE scoring. Outer runs are one-shot.
+          amendment_rules:
+            inherits: gate_1
+            no_self_rescue: >-
+              Inherited verbatim from gate_1.amendment_rules: no candidate's
+              committed run verdict changes under a rule proposed after that
+              run; a gate rule amendment applies only to runs registered
+              after its ratification.
+            classifier_version_pin: >-
+              Inherited: any version-sensitive scoring component records the
+              library version used to derive a floor and to score candidates,
+              and the two must match.
+            amendments_only_via: >-
+              public proposal + adversarial referee round + verification +
+              maintainer ratification by merge -- the same ceremony gate 1
+              and tranche 2a amendments follow.
+            description_claims_exactly_the_scored_surface: >-
+              This tranche is bound by the standing rule promoted into
+              gate_2.governance.amendment_rules (amendment 2): the covers /
+              holdout_basis / estimand claim EXACTLY the scored surface --
+              stocks + the six gated transitions, effectively 1997-2023,
+              MX23REL only. No provision class or holdout is headlined beyond
+              what the cells gate.
+          candidate_scale: >-
+            PINNED to the seed-s holdout half (~50% of persons, side A); the
+            candidate simulates exactly those persons, fixing the output
+            scale the floor and tolerances are measured at.
+          holdout_id_commitment: >-
+            The sorted person-id list of each gate seed's holdout (side A) is
+            sha256-committed in runs/gate2b_floors_v1.json holdout_ids,
+            derivable from the seed via the pinned numpy Generator, so a
+            candidate cannot pick its split.
+          weight_definition: >-
+            flip-note 1 (mirrors tranche 2a's weight_definition). Every gated
+            statistic is weighted by the person-constant most-recent positive
+            PSID wave weight (populace_dynamics.data.panels.demographic_panel;
+            population-scaled only from 1997, so the pooled estimand is
+            effectively 1997-2023); persons with no positive wave weight, no
+            joined age, or na sex are excluded (~17.8%, characterised in the
+            floor's zero_weight_drop). There is NO unweighted gated statistic;
+            the unweighted rate is reported alongside. The weighting is
+            load-bearing (the weighted/unweighted gap exceeds tolerance on
+            several cells), so it is pinned here, not inherited implicitly.
+        multigen_concept:
+          # flip-note 3: the one-sentence B11017-bridge items the
+          # verification round asked to record when the bridge is built (the
+          # external anchor, runs/gate2b_anchor_v1.json, carries them too).
+          rule: >-
+            multigen is >=3 DISTINCT lineal generations present in the family
+            unit (Census B11017), counted over lineal kin only;
+            skipped-generation households (grandparent + grandchild, no
+            middle) are 2 generations and NOT multigenerational (fix C).
+            Generation offsets read ego_rel_to_rp (MX7): code 88 is
+            first_year_cohabitor (gen 0), NOT the MX8 step-great-grandparent
+            (fix B).
+          in_law_generation_note: >-
+            the MX7 generation map places lineal IN-LAWS in the generation
+            count (37 child-in-law -1, 57 parent-in-law +1, 67/69 +2) while
+            the MX8 coresidence sets EXCLUDE in-law-by-marriage links --
+            internally consistent, and stated so the B11017 bridge is honest.
+          great_grand_note: >-
+            great-grand codes lump at +/-2 (65, 68/69); a strict +/-3 map
+            would move 811 person-waves (0.09% of the panel). ACS relationship
+            coding also lumps grandchild+, so the committed choice is
+            concept-consistent with B11017.
+        views:
+          coresident_spouse_stock:
+            statistic: >-
+              coresident spouse/partner share by age band x sex (MX8 codes
+              20/22), person-weighted family-unit coresidence -- the dense,
+              low-noise family that anchors the gate's power (all 14 band x
+              sex cells gate)
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "coresident_spouse.15-24|female": 0.158
+              "coresident_spouse.15-24|male": 0.192
+              "coresident_spouse.25-34|female": 0.074
+              "coresident_spouse.25-34|male": 0.073
+              "coresident_spouse.35-44|female": 0.063
+              "coresident_spouse.35-44|male": 0.07
+              "coresident_spouse.45-54|female": 0.077
+              "coresident_spouse.45-54|male": 0.079
+              "coresident_spouse.55-64|female": 0.095
+              "coresident_spouse.55-64|male": 0.079
+              "coresident_spouse.65-74|female": 0.139
+              "coresident_spouse.65-74|male": 0.085
+              "coresident_spouse.75+|female": 0.298
+              "coresident_spouse.75+|male": 0.173
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "coresident_spouse.15-24|female": { key: "coresident_spouse.15-24|female", k: 4, rounding: 3 }
+                "coresident_spouse.15-24|male": { key: "coresident_spouse.15-24|male", k: 4, rounding: 3 }
+                "coresident_spouse.25-34|female": { key: "coresident_spouse.25-34|female", k: 4, rounding: 3 }
+                "coresident_spouse.25-34|male": { key: "coresident_spouse.25-34|male", k: 4, rounding: 3 }
+                "coresident_spouse.35-44|female": { key: "coresident_spouse.35-44|female", k: 4, rounding: 3 }
+                "coresident_spouse.35-44|male": { key: "coresident_spouse.35-44|male", k: 4, rounding: 3 }
+                "coresident_spouse.45-54|female": { key: "coresident_spouse.45-54|female", k: 4, rounding: 3 }
+                "coresident_spouse.45-54|male": { key: "coresident_spouse.45-54|male", k: 4, rounding: 3 }
+                "coresident_spouse.55-64|female": { key: "coresident_spouse.55-64|female", k: 4, rounding: 3 }
+                "coresident_spouse.55-64|male": { key: "coresident_spouse.55-64|male", k: 4, rounding: 3 }
+                "coresident_spouse.65-74|female": { key: "coresident_spouse.65-74|female", k: 4, rounding: 3 }
+                "coresident_spouse.65-74|male": { key: "coresident_spouse.65-74|male", k: 4, rounding: 3 }
+                "coresident_spouse.75+|female": { key: "coresident_spouse.75+|female", k: 4, rounding: 3 }
+                "coresident_spouse.75+|male": { key: "coresident_spouse.75+|male", k: 4, rounding: 3 }
+          coresident_parent_stock:
+            statistic: >-
+              share living with a coresident parent by age band x sex; only
+              the dense young-adult bands (15-24, 25-34) clear the cap, the
+              older bands are report-only or superseded by the 45+ aggregate
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "coresident_parent.15-24|female": 0.05
+              "coresident_parent.15-24|male": 0.047
+              "coresident_parent.25-34|female": 0.299
+              "coresident_parent.25-34|male": 0.255
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "coresident_parent.15-24|female": { key: "coresident_parent.15-24|female", k: 4, rounding: 3 }
+                "coresident_parent.15-24|male": { key: "coresident_parent.15-24|male", k: 4, rounding: 3 }
+                "coresident_parent.25-34|female": { key: "coresident_parent.25-34|female", k: 4, rounding: 3 }
+                "coresident_parent.25-34|male": { key: "coresident_parent.25-34|male", k: 4, rounding: 3 }
+          coresident_child_stock:
+            statistic: >-
+              share living with a coresident child by age band x sex
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "coresident_child.15-24|female": 0.167
+              "coresident_child.15-24|male": 0.3
+              "coresident_child.25-34|female": 0.087
+              "coresident_child.25-34|male": 0.106
+              "coresident_child.35-44|female": 0.053
+              "coresident_child.35-44|male": 0.071
+              "coresident_child.45-54|female": 0.086
+              "coresident_child.45-54|male": 0.104
+              "coresident_child.55-64|female": 0.183
+              "coresident_child.55-64|male": 0.196
+              "coresident_child.65-74|female": 0.358
+              "coresident_child.65-74|male": 0.367
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "coresident_child.15-24|female": { key: "coresident_child.15-24|female", k: 4, rounding: 3 }
+                "coresident_child.15-24|male": { key: "coresident_child.15-24|male", k: 4, rounding: 3 }
+                "coresident_child.25-34|female": { key: "coresident_child.25-34|female", k: 4, rounding: 3 }
+                "coresident_child.25-34|male": { key: "coresident_child.25-34|male", k: 4, rounding: 3 }
+                "coresident_child.35-44|female": { key: "coresident_child.35-44|female", k: 4, rounding: 3 }
+                "coresident_child.35-44|male": { key: "coresident_child.35-44|male", k: 4, rounding: 3 }
+                "coresident_child.45-54|female": { key: "coresident_child.45-54|female", k: 4, rounding: 3 }
+                "coresident_child.45-54|male": { key: "coresident_child.45-54|male", k: 4, rounding: 3 }
+                "coresident_child.55-64|female": { key: "coresident_child.55-64|female", k: 4, rounding: 3 }
+                "coresident_child.55-64|male": { key: "coresident_child.55-64|male", k: 4, rounding: 3 }
+                "coresident_child.65-74|female": { key: "coresident_child.65-74|female", k: 4, rounding: 3 }
+                "coresident_child.65-74|male": { key: "coresident_child.65-74|male", k: 4, rounding: 3 }
+          coresident_grandchild_stock:
+            statistic: >-
+              share living with a coresident grandchild by age band x sex; the
+              55+ female aggregate replaces the demoted per-age tail
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "coresident_grandchild.45-54|female": 0.397
+              "coresident_grandchild.55+|female": 0.348
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "coresident_grandchild.45-54|female": { key: "coresident_grandchild.45-54|female", k: 4, rounding: 3 }
+                "coresident_grandchild.55+|female": { key: "coresident_grandchild.55+|female", k: 4, rounding: 3 }
+          multigen_stock:
+            statistic: >-
+              >=3-distinct-generation (Census B11017) household share by age
+              band x sex; only the dense female bands (15-24, 25-34, 45-54)
+              clear the cap
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "multigen.15-24|female": 0.27
+              "multigen.25-34|female": 0.386
+              "multigen.45-54|female": 0.346
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "multigen.15-24|female": { key: "multigen.15-24|female", k: 4, rounding: 3 }
+                "multigen.25-34|female": { key: "multigen.25-34|female", k: 4, rounding: 3 }
+                "multigen.45-54|female": { key: "multigen.45-54|female", k: 4, rounding: 3 }
+          household_size:
+            statistic: >-
+              person-level household-size share distribution (1..4 and open
+              5+)
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "hh_size.1": 0.119
+              "hh_size.2": 0.068
+              "hh_size.3": 0.072
+              "hh_size.4": 0.073
+              "hh_size.5+": 0.094
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "hh_size.1": { key: "hh_size.1", k: 4, rounding: 3 }
+                "hh_size.2": { key: "hh_size.2", k: 4, rounding: 3 }
+                "hh_size.3": { key: "hh_size.3", k: 4, rounding: 3 }
+                "hh_size.4": { key: "hh_size.4", k: 4, rounding: 3 }
+                "hh_size.5+": { key: "hh_size.5+", k: 4, rounding: 3 }
+          household_transitions:
+            statistic: >-
+              wave-to-wave household-composition transitions: parental-home
+              exit 15-34 by sex, and multigenerational entry/exit (pooled).
+              Spousal-coresidence loss 55+ is too noisy and is report-only
+            floor_run: runs/gate2b_floors_v1.json
+            tolerances:
+              "multigen_entry": 0.159
+              "multigen_exit": 0.176
+              "parental_home_exit.15-24|female": 0.159
+              "parental_home_exit.15-24|male": 0.223
+              "parental_home_exit.25-34|female": 0.384
+              "parental_home_exit.25-34|male": 0.37
+            derivations:
+              floor_run: runs/gate2b_floors_v1.json
+              rules:
+                "multigen_entry": { key: "multigen_entry", k: 4, rounding: 3 }
+                "multigen_exit": { key: "multigen_exit", k: 4, rounding: 3 }
+                "parental_home_exit.15-24|female": { key: "parental_home_exit.15-24|female", k: 4, rounding: 3 }
+                "parental_home_exit.15-24|male": { key: "parental_home_exit.15-24|male", k: 4, rounding: 3 }
+                "parental_home_exit.25-34|female": { key: "parental_home_exit.25-34|female", k: 4, rounding: 3 }
+                "parental_home_exit.25-34|male": { key: "parental_home_exit.25-34|male", k: 4, rounding: 3 }
+        report_only:
+          - "coresident_child.75+|female"
+          - "coresident_child.75+|male"
+          - "coresident_grandchild.15-24|female"
+          - "coresident_grandchild.15-24|male"
+          - "coresident_grandchild.25-34|female"
+          - "coresident_grandchild.25-34|male"
+          - "coresident_grandchild.35-44|female"
+          - "coresident_grandchild.35-44|male"
+          - "coresident_grandchild.45-54|male"
+          - "coresident_grandchild.55+|male"
+          - "coresident_grandchild.55-64|female"
+          - "coresident_grandchild.55-64|male"
+          - "coresident_grandchild.65-74|female"
+          - "coresident_grandchild.65-74|male"
+          - "coresident_grandchild.75+|female"
+          - "coresident_grandchild.75+|male"
+          - "coresident_parent.35-44|female"
+          - "coresident_parent.35-44|male"
+          - "coresident_parent.45+|female"
+          - "coresident_parent.45+|male"
+          - "coresident_parent.45-54|female"
+          - "coresident_parent.45-54|male"
+          - "coresident_parent.55-64|female"
+          - "coresident_parent.55-64|male"
+          - "coresident_parent.65-74|female"
+          - "coresident_parent.65-74|male"
+          - "coresident_parent.75+|female"
+          - "coresident_parent.75+|male"
+          - "multigen.15-24|male"
+          - "multigen.25-34|male"
+          - "multigen.35-44|female"
+          - "multigen.35-44|male"
+          - "multigen.45-54|male"
+          - "multigen.55-64|female"
+          - "multigen.55-64|male"
+          - "multigen.65+|female"
+          - "multigen.65+|male"
+          - "multigen.65-74|female"
+          - "multigen.65-74|male"
+          - "multigen.75+|female"
+          - "multigen.75+|male"
+          - "spousal_loss.55-64|female"
+          - "spousal_loss.55-64|male"
+          - "spousal_loss.65-74|female"
+          - "spousal_loss.65-74|male"
+          - "spousal_loss.75+|female"
+          - "spousal_loss.75+|male"
+        external_anchor_report:
+          # flip-note 2 / round-1 finding F: the concept-decomposed ACS/CPS
+          # shape/ratio anchor is bundled in THIS flip PR, before
+          # ratification -- REPORTED, never a level gate. Built by
+          # scripts/gate2b_anchor_decomposition.py from the FROZEN floor's
+          # reference_moments and the sha-pinned Census/CPS files in
+          # data/external/; it moves no floor value (no calibration).
+          run: runs/gate2b_anchor_v1.json
+          reported_anchor_not_gated: true
+          status: bundled_before_flip
+          census_sources:
+            - data/external/census_household_size_2023.json
+            - data/external/census_living_arrangements_2023.json
+            - data/external/census_multigenerational_2020.json
+          concept_delta: >-
+            The PSID FAMILY UNIT is narrower than the Census HOUSEHOLD (PSID
+            splits subfamilies), so the levels are not directly comparable --
+            the household analogue of the person-vs-couple x denominator
+            decomposition tranche 2a applied to the crude marriage rate. The
+            anchor NAMES, per family: household-vs-person weighting (hh_size,
+            multigen), family-unit fragmentation (all), the spouse-OR-partner
+            inclusion of PSID codes 20/22 (coresident_spouse), the
+            child-of-householder vs any-coresident-parent gap and the 15-24
+            age-floor / 35-64 band-aggregation deltas (coresident_parent),
+            and the grandparent-side vs grandchild-side denominator
+            (coresident_grandchild). After the partner-inclusion concept
+            factor the coresident_spouse residuals land near 1 -- the 2a
+            named-denominator-delta bullseye.
+          multigen_bridge: >-
+            multigen is now Census B11017 (>=3 distinct generations after
+            fixes B/C), so it maps to ACS table B11017 directly; the span>=2
+            predecessor would have embedded a 14.7% first-year-cohabitor
+            artifact and 30.8% skipped-generation households B11017 excludes.
+          transitions_note: >-
+            flip-note 4: parental_home_exit / spousal_loss / multigen_entry /
+            multigen_exit are flows with no cross-sectional Census level; the
+            floor's report-only era_slices cover the stock families, and
+            per-era transition rates are deferred (not required at this
+            round).
+        certification_scope:
+          # What a gate-2b PASS certifies, consistent with the locked tranche
+          # map in gate_2.thresholds.scope.certification_scope
+          # (2b_relationship_household.required_for). DERIVED, not new: this
+          # is the 2b side of the map amendment 2 promoted into the locked
+          # scope.
+          tranche: 2b_relationship_household
+          certifies: >-
+            the household-composition STOCK processes (coresident spouse /
+            parent / child / grandchild, >=3-generation B11017, person-level
+            household size) and the six gated wave-to-wave TRANSITIONS
+            (parental-home exit 15-34 by sex, multigen entry, multigen exit)
+            -- the 46 gated cells on the MX23REL holdout.
+          supports:
+            - >-
+              household-UNIT poverty statistics -- who lives with whom (locked
+              map 2b_relationship_household.required_for: household-unit
+              poverty, the MX23REL relationship matrix). A 2b PASS certifies
+              the GENERATED household-composition side.
+            - >-
+              the child-in-care survivor component -- it depends on household
+              composition (locked provision_class_coverage
+              .caregiver_and_child_in_care_survivor = NOT COVERED HERE, "the
+              MX23REL ... tranche"); 2b certifies the household-composition
+              basis it keys on.
+            - >-
+              the household-UNIT poverty rows of caregiver-credit and
+              minimum-benefit provisions -- household income aggregation (#74
+              anchor 4's "household income" surface).
+          does_not_support:
+            - >-
+              by-marital-status SUBGROUP rows -- those ride on tranche 2a's
+              marital states and gated stock cells (share_divorced /
+              share_widowed), certified under 2a, not 2b (locked map).
+            - >-
+              spousal / survivor benefit LEVELS in generated panels -- those
+              require tranche 2c (marriage x earnings joint), which stays
+              UNLOCKED; and OWN-RECORD benefit levels rest on gate 1
+              (earnings) + the statutory-formula oracle (#78/#80), OUTSIDE
+              2a / 2b / 2c.
+      history:
+        - id: 2026-07-10-gate2b-lock
+          proposed: 2026-07-09
+          flipped_live: this pull request
+          referee_round:
+            floor: >-
+              PR 118 (runs/gate2b_floors_v1.json), the pre-lock 100-seed
+              split noise floor over MX23REL household composition (stocks +
+              transitions), ratified by merge (commit 2b2f3cb).
+            review: >-
+              comment 4931849367 (verdict AMEND BEFORE LOCK; nine findings /
+              required fixes A-H -- the superseded single-draw estimator, the
+              MX7/MX8 code-88 multigen frame bleed, the span>=2 vs B11017
+              concept, the pooled-era estimand honesty, the missing
+              transition families, the un-bundled external anchor, the 55-64
+              multigen supersession, and the record/pin/perturbation nits)
+            fixes: >-
+              comment 4932310897 (fixes A-H applied, floor rebuilt
+              end-to-end; artifact sha256 b7c9a112...; K=20 estimator,
+              B11017 multigen, transition families, named estimand,
+              anchor-required-before-flip)
+            verification: >-
+              comment 4932491912 (verdict LOCK AS-IS; every number recomputed
+              from the committed artifacts, the multigen family recomputed
+              fully independently, one transition cell re-priced, the new
+              bindings perturbation-tested, and a full rebuild reproduced the
+              artifact bit-identically except elapsed_seconds; five flip-time
+              notes recorded)
+          ratified: >-
+            2026-07-10 by merge of PR 118 (merge commit 2b2f3cb) under the
+            maintainer's standing campaign directive of 2026-07-07, exercised
+            only after the full ceremony (round-1 AMEND 4931849367 -> fixes
+            4932310897 -> verification LOCK AS-IS 4932491912). This flip
+            records the completed ceremony and flips locked; no_self_rescue
+            applies.
+          content: >-
+            The gate_2b stub (added UNLOCKED by amendment 2, the tranche
+            split) is flipped to LOCKED: locked true / status locked, the
+            tranche_id, the K=20 mean-over-draws protocol (tranche 2a
+            amendment 1), the T_max = ln(1.5) power cap, the 46 gated cells
+            in seven views with tolerances machine-derived as round(floor
+            mean + 4*sd, 3) from the FROZEN floor runs/gate2b_floors_v1.json,
+            the 47 report-only cells, the governance (weight_definition, the
+            standing description-claims-exactly rule, no_self_rescue), the
+            certification_scope, the estimand named effectively-1997-2023,
+            and the external anchor runs/gate2b_anchor_v1.json bundled in this
+            PR. ZERO threshold movement vs the ratified floor: the flip READS
+            the frozen artifact and rewrites nothing. The five verification
+            flip-time notes are implemented (ceremony_record
+            .flip_notes_implemented). Bindings go LOCKED-HOT.
     gate_2c:
       # Unlocked sibling tranche added by the amendment-2 flip
       # (amendment_history entry 2). The marriage x earnings joint the
