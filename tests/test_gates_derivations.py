@@ -2333,12 +2333,14 @@ def test_gate2_certification_scope_is_live_and_bound_exactly():
 def test_gate2b_2c_sibling_tranches_live():
     """gate_2b / gate_2c live as sibling tranches (amendment-2 flip_additions).
 
-    Flip-time update: 2b was LOCKED on 2026-07-10 (its own lock ceremony), so
-    it now carries locked: true / status: locked with a thresholds block and a
-    completed lock_ceremony; 2c stays UNLOCKED with exists: false whose step
-    list names the verification round. 2b holds the MX23REL holdout the
-    amendment-2 flip moved out of tranche 2a. (The full gate-2b lock bindings
-    live in the locked gate-2b section below.)
+    Flip-time update: BOTH siblings are now LOCKED (each by its own lock
+    ceremony on 2026-07-10). 2b carries locked: true / status: locked with a
+    thresholds block and a completed lock_ceremony; 2c likewise carries
+    locked: true / status: locked with a thresholds block and a completed
+    lock_ceremony (the gate-2c lock flip updates this 2c half exactly as the
+    gate-2b lock flip updated the 2b half). 2b holds the MX23REL holdout the
+    amendment-2 flip moved out of tranche 2a. (The full gate-2b / gate-2c lock
+    bindings live in the locked sections below.)
     """
     g2 = _gate_2_block()
     b = g2["gate_2b"]
@@ -2350,13 +2352,10 @@ def test_gate2b_2c_sibling_tranches_live():
     assert "thresholds" in b
     c = g2["gate_2c"]
     assert c["id"] == "2c_marriage_earnings_joint"
-    assert c["status"] == "unlocked"
-    assert c["locked"] is False
-    assert c["lock_ceremony"]["exists"] is False
-    assert (
-        "verification round"
-        in c["lock_ceremony"]["required_before_any_2c_pass"]
-    )
+    assert c["status"] == "locked"
+    assert c["locked"] is True
+    assert c["lock_ceremony"]["exists"] is True
+    assert "thresholds" in c
 
 
 def test_gate2_standing_governance_rule_promoted_live():
@@ -2909,6 +2908,530 @@ def test_gate2b_flip_leaves_locked_tranche_2a_byte_identical():
     a_gated, a_report = _gated_report_sets(cur_g2["thresholds"])
     assert len(a_gated) == 46
     assert len(a_report) == 16
+    # subset: the flip adds no gate_2 top-level key (gate_2b/gate_2c/
+    # amendment_history all pre-exist); a bogus added/removed key fails loudly.
+    assert set(cur_g2) - set(master) == set()
+    assert set(master) - set(cur_g2) == set()
+
+
+# --------------------------------------------------------------------------
+# Gate 2c LOCKED threshold binding (gate_2.gate_2c.thresholds, status locked)
+#
+# The gate-2c lock flip (2026-07-10) turns the amendment-2 unlocked stub into
+# a LOCKED sibling tranche: it inserts a thresholds block whose 27 per-cell
+# |ln ratio| tolerances are machine-bound to the RATIFIED, FROZEN 100-seed
+# COUPLE-DISJOINT half-split floor runs/gate2c_floors_v1.json exactly as the
+# locked gate-2a / gate-2b / gate-1 thresholds bind to theirs -- tolerance ==
+# round(floor mean + 4 * floor sd, 3), capped at T_max = ln(1.5), partitioned
+# by the floor's own events + power-cap rule (27 gate / 22 report-only; no
+# coverage-recovery aggregates). These are LOCKED-HOT (the 2a lesson: bindings
+# never go dormant post-flip); they run everywhere (committed files only).
+# They do NOT touch the locked tranche-2a / gate-2b sections above, and a
+# D1-style SUBSET master-compare proves the flip leaves gate_2.thresholds AND
+# gate_2b byte-identical to origin/master (no red-master window).
+# --------------------------------------------------------------------------
+GATE2C_FLOOR_RUN = "runs/gate2c_floors_v1.json"
+GATE2C_ANCHOR_RUN = "runs/gate2c_anchor_v1.json"
+GATE2C_FLOOR_KEY = "noise_floor_seeds_0_99"
+
+
+def _gate_2c_block() -> dict:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_2"]["gate_2c"]
+
+
+def _gate_2c() -> dict:
+    """gate_2c.thresholds. Retained-name helper; post-lock the bindings run
+    unconditionally (the amendment-2 locked-hot lesson)."""
+    return _gate_2c_block()["thresholds"]
+
+
+def _gate2c_floor() -> dict:
+    return json.loads((ROOT / GATE2C_FLOOR_RUN).read_text())
+
+
+def _gate2c_derive(cell: str, k: float, rounding: int) -> float:
+    stats = _gate2c_floor()[GATE2C_FLOOR_KEY][cell]
+    return round(stats["mean"] + k * stats["sd"], rounding)
+
+
+def _gate2c_gated_set() -> set:
+    gated = set()
+    for view in _gate_2c()["views"].values():
+        gated |= set(view["tolerances"])
+    return gated
+
+
+def test_gate2c_locked_with_ceremony_record():
+    """Gate 2c is locked, with the full lock ceremony recorded in-contract.
+
+    ceremony_record carries the three ceremony comment ids, the re-homing
+    chain (#124 -> #128 -> #129), the ratifying squash merge 3053795, the
+    delegated-authority note, and no_self_rescue."""
+    b = _gate_2c_block()
+    assert b["locked"] is True
+    assert b["status"] == "locked"
+    g2c = _gate_2c()
+    assert g2c["locked"] is True
+    assert g2c["status"] == "locked"
+    assert g2c["tranche_id"] == "2c_marriage_earnings_joint"
+    record = json.dumps(g2c["ceremony_record"])
+    for token in (
+        "4935540075",  # round-1 adversarial referee AMEND BEFORE LOCK
+        "4937213555",  # fixes A-H
+        "4937857811",  # verification LOCK AS-IS
+        "PR 129",  # ratifying PR (re-homed head)
+        "3053795",  # ratifying squash merge commit
+        "#124",  # re-homing chain
+        "#128",
+        "no_self_rescue",
+    ):
+        assert token in record, token
+    assert "delegated" in record.lower()
+    assert "re-homed" in record.lower()
+
+
+def test_gate2c_floor_run_is_the_ratified_frozen_anchor():
+    """The floor the locked thresholds cite reads no gate and is frozen."""
+    g2c = _gate_2c()
+    assert g2c["floor_run"] == GATE2C_FLOOR_RUN
+    floor = _gate2c_floor()
+    assert floor["reported_anchor_not_gated"] is True
+    assert floor["schema_version"] == "gate2c_floors.v1"
+    assert floor["holdout_basis"] == [
+        "mh85_23",
+        "family_earnings_panel_gate1_certified",
+    ]
+
+
+def test_gate2c_locked_thresholds_bind_to_floor():
+    """Every locked tolerance == round(100-seed floor mean + k*sd, rounding).
+
+    The exact machine-binding the locked gate-2a / gate-2b views carry,
+    applied to each gate-2c view's tolerances against the committed 100-seed
+    couple-disjoint floor. Every tolerances entry has a matching
+    derivations.rules entry keyed on the floor cell itself."""
+    g2c = _gate_2c()
+    for view_name, view in g2c["views"].items():
+        rules = view["derivations"]["rules"]
+        tolerances = view["tolerances"]
+        assert set(rules) == set(tolerances), view_name
+        assert view["derivations"]["floor_run"] == GATE2C_FLOOR_RUN
+        assert view["floor_run"] == GATE2C_FLOOR_RUN
+        for cell, rule in rules.items():
+            assert rule["key"] == cell, f"{view_name}.{cell}"
+            derived = _gate2c_derive(cell, rule["k"], rule.get("rounding", 3))
+            assert derived == pytest.approx(tolerances[cell]), (
+                f"{view_name}.{cell}: derived {derived} != tolerance "
+                f"{tolerances[cell]}"
+            )
+
+
+def test_gate2c_locked_k_is_4_and_holdout_is_mh85_x_earnings():
+    """Every locked k is the ~4-sigma gate-1 / 2a precedent; the holdout is
+    mh85_23 crossed with the gate-1-certified earnings panel."""
+    g2c = _gate_2c()
+    assert g2c["holdout_basis"] == [
+        "mh85_23",
+        "family_earnings_panel_gate1_certified",
+    ]
+    assert g2c["floor_run"] == GATE2C_FLOOR_RUN
+    for view in g2c["views"].values():
+        for rule in view["derivations"]["rules"].values():
+            assert rule["k"] == 4
+
+
+def test_gate2c_power_cap_binds_every_gated_cell():
+    """Every gated tolerance <= T_max = ln(1.5); the floor partitioned exactly
+    on that cap (+ >=20 events); gate-2c declares NO aggregates."""
+    g2c = _gate_2c()
+    assert g2c["power_cap"]["t_max"] == "ln(1.5)"
+    assert g2c["power_cap"]["aggregations"] == {}
+    floor = _gate2c_floor()
+    t_max = floor["internal_noise_floor"]["t_max"]
+    assert t_max == pytest.approx(math.log(1.5))
+    for view in g2c["views"].values():
+        for cell, tol in view["tolerances"].items():
+            assert tol <= t_max, f"{cell} tolerance {tol} exceeds T_max"
+
+
+def test_gate2c_partition_matches_committed_floor_27_22():
+    """gated / report_only == the floor's derived partition (events + power
+    cap; no aggregates), not hand-picked; counts 27 / 22; disjoint; a real
+    cover of every reference moment; and the report-only machine reasons are
+    exactly 16 tolerance_above_t_max + 6 below_20_events."""
+    g2c = _gate_2c()
+    floor = _gate2c_floor()
+    partition = floor["gate_partition"]
+    gated = _gate2c_gated_set()
+    report_only = set(g2c["report_only"])
+    assert gated == set(partition["gate_eligible"])
+    assert report_only == set(partition["report_only"])
+    assert len(gated) == 27
+    assert len(report_only) == 22
+    assert gated.isdisjoint(report_only)
+    assert gated | report_only == set(floor["reference_moments"])
+    for cell in gated:
+        assert cell in floor[GATE2C_FLOOR_KEY], cell
+    # machine reasons for the demotions (16 cap + 6 events), from the floor.
+    reasons = {}
+    for cell in report_only:
+        reasons.setdefault(floor["cell_stability"][cell]["report_reason"], 0)
+        reasons[floor["cell_stability"][cell]["report_reason"]] += 1
+    assert reasons == {"tolerance_above_t_max": 16, "below_20_events": 6}
+
+
+def test_gate2c_no_aggregations_reason_is_power_not_masking():
+    """gate-2c declares no coverage-recovery aggregates; the recorded reason
+    the sparse cells are report-only is POWER (fix H(i)), matching the floor's
+    pooled_age_power (no pooled t{o}.35+|sex aggregate is standalone-gateable
+    either)."""
+    g2c = _gate_2c()
+    assert g2c["power_cap"]["aggregations"] == {}
+    demoted = g2c["power_cap"]["demoted_and_report_only"]
+    assert "POWER, not masking" in demoted
+    assert "16 tolerance_above_t_max" in demoted or "16" in demoted
+    floor = _gate2c_floor()
+    assert floor["pooled_age_power"]["any_standalone_gateable"] is False
+
+
+def test_gate2c_protocol_is_the_ratified_k20_2a_estimator():
+    """The scoring protocol is tranche 2a's ratified mean-over-K=20 estimator
+    (amendment 1), adopted from the START; the conventions (default_rng(5200 +
+    k), K=20, scored once not mean-of-|ln|) match the locked gate_2 (2a)
+    protocol; the fresh-run schema is [20, 27, 5]; the OC matches the floor."""
+    g2c = _gate_2c()
+    proto = g2c["protocol"]
+    assert str(proto["option"]).strip().startswith("a")
+    assert proto["gate_seeds"] == [0, 1, 2, 3, 4]
+    assert proto["candidate_draws"] == 20
+    assert "5200" in proto["candidate_draw_stream"]
+    assert "K=20" in proto["estimator"]
+    assert "NOT the mean of the per-draw" in proto["estimator"]
+    basis = proto["faithful_candidate_oc"]["basis_note"]
+    assert "DRAW-NOISE-FREE" in basis
+    assert "UNACHIEVABLE" in basis
+    # estimator-convention equality with the locked 2a protocol.
+    g2a = _gate_2()
+    a_candidate = g2a["protocol"]["candidate"]
+    assert "5200 + k" in a_candidate
+    assert "5200 + k" in proto["candidate_draw_stream"]
+    assert "K=20" in g2a["statistic"] or "K=20" in a_candidate
+    # fresh-run schema: per-draw rates [20, 27, 5], invalidation, report.
+    schema = proto["fresh_run_artifact_schema"]
+    assert schema["per_draw_per_cell_rates"]["shape"] == [20, 27, 5]
+    assert schema["undefined_draw_rule"]["pre_specified"] is True
+    assert schema["per_draw_dispersion_disclosure"]["report_only"] is True
+    # The OC recorded in the contract matches the artifact's recomputation.
+    oc = proto["faithful_candidate_oc"]
+    art_oc = _gate2c_floor()["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == pytest.approx(art_oc["p_seed_pass"])
+    assert oc["p_gate_pass_4_of_5"] == pytest.approx(
+        art_oc["p_gate_pass_4_of_5"]
+    )
+    assert oc["n_gated_cells"] == art_oc["n_gated_cells"] == 27
+
+
+def test_gate2c_oc_recomputes_from_tolerances_and_sigmas():
+    """The faithful-candidate OC (0.9641 / 0.988) recomputes from the locked
+    tolerances and the floor sigmas on the draw-noise-free half-normal basis,
+    independent of the stored value."""
+    g2c = _gate_2c()
+    floor = _gate2c_floor()[GATE2C_FLOOR_KEY]
+    tolerances = {}
+    for view in g2c["views"].values():
+        tolerances.update(view["tolerances"])
+    assert len(tolerances) == 27
+    p_seed = 1.0
+    for cell, tol in tolerances.items():
+        sigma = floor[cell]["realized_sigma"]
+        p_seed *= 2.0 * _normal_cdf(tol / sigma) - 1.0
+    p_gate = p_seed**5 + 5 * p_seed**4 * (1.0 - p_seed)
+    assert round(p_seed, 4) == 0.9641
+    assert round(p_gate, 4) == 0.988
+    oc = g2c["protocol"]["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == round(p_seed, 4)
+    assert oc["p_gate_pass_4_of_5"] == round(p_gate, 4)
+
+
+def test_gate2c_candidate_construction_is_pinned():
+    """fix D + flip-notes 3/4: the candidate-side couple universe and
+    orientation are pinned -- directed both-orientation emission (single
+    orientation NON-CONFORMANT), the committed-cut provenance (not recomputed
+    on simulated output), and the CI-invisible A5b residual recorded."""
+    cc = _gate_2c()["protocol"]["candidate_construction"]
+    emission = cc["couple_emission"]
+    assert "DIRECTED" in emission
+    assert "BOTH directions" in emission
+    assert "NON-CONFORMANT" in emission
+    assert "4.9x" in emission
+    # flip-note 4: committed cut provenance, not recomputed on sim output.
+    cut = cc["cut_provenance"]
+    assert "COMMITTED" in cut
+    assert "NOT values recomputed on simulated output" in cut
+    # flip-note 3: the A5b residual shape is documented with the PSID catch.
+    a5b = cc["ci_invisible_a5b_residual"]
+    assert "marriage.all" in a5b and "divorce.all" in a5b
+    assert "0.3%" in a5b
+    assert "1.0572" in a5b and "1.0542" in a5b
+    assert "seed-0 reproduction pin" in a5b or "seed-0 repro" in a5b
+    # the per-year axis + detrend pins are present.
+    assert "per-year" in cc["earnings_axis"]
+    assert "placebo deflator" in cc["event_window_support_and_detrend"]
+
+
+def test_gate2c_governance_weight_definition_mirrors_2a():
+    """The lock carries a weight_definition mirroring 2a/2b's (person-constant
+    most-recent positive PSID weight; no unweighted gated statistic; every
+    gated family incl. the event windows), plus inherited no_self_rescue and
+    the promoted standing description-claims-exactly rule."""
+    gov = _gate_2c()["governance"]
+    weight = gov["weight_definition"]
+    assert "most-recent positive" in weight
+    assert "no unweighted gated statistic" in weight.lower()
+    assert "event-window" in weight
+    amend = gov["amendment_rules"]
+    assert amend["inherits"] == "gate_1"
+    assert "committed run verdict changes" in amend["no_self_rescue"]
+    assert "runs registered after its ratification" in amend["no_self_rescue"]
+    assert "EXACTLY" in amend["description_claims_exactly_the_scored_surface"]
+    assert "issue #42" in gov["registration"]
+    assert "sha256" in gov["holdout_id_commitment"]
+    assert "component_id" in gov["holdout_id_commitment"]
+
+
+def test_gate2c_estimand_named_selected_1968_2022_with_era_facts():
+    """flip-note 5: the estimand is named as the SELECTED couple universe on
+    the true 1968-2022 panel (per description-claims-exactly), and the
+    enumerated window facts ride as NUMBERS, incl. the 41.8% pre-1993 overlap
+    quantified (not the artifact's qualitative 'a substantial share')."""
+    g2c = _gate_2c()
+    estimand = g2c["estimand"]
+    assert "SELECTED universe" in estimand
+    assert "1968-2022" in estimand
+    assert "NOT all PSID marriages" in estimand
+    era = g2c["era_facts"]
+    assert era["earnings_income_year_range"] == [1968, 2022]
+    assert era["supported_marriage_windows_overlapping_pre_1993_pct"] == 41.8
+    assert era["supply_persons_with_pre_1993_positive_year_pct"] == 69.0
+    assert era["observed_positive_years_max"] == 42
+    # the number is present where the floor carried only the qualitative text.
+    floor = _gate2c_floor()
+    conv = floor["panel_construction"]["event_window_convention"]
+    assert "substantial share" in conv  # the floor's qualitative version
+    assert "41.8" not in conv  # the number was NOT in the floor text
+
+
+def test_gate2c_external_anchor_is_bundled_before_the_flip():
+    """flip-note 7: the concept-bridged published assortative-mating anchor is
+    bundled in this flip; the pointer resolves to a committed
+    reported-not-gated artifact built from the frozen floor and the cited
+    published benchmark files, and it moves no floor value (no calibration)."""
+    g2c = _gate_2c()
+    assert g2c["external_anchor"] == GATE2C_ANCHOR_RUN
+    report = g2c["external_anchor_report"]
+    assert report["run"] == GATE2C_ANCHOR_RUN
+    assert report["reported_anchor_not_gated"] is True
+    assert report["status"] == "bundled_before_flip"
+    anchor = json.loads((ROOT / GATE2C_ANCHOR_RUN).read_text())
+    assert anchor["schema_version"] == "gate2c_anchor.v1"
+    assert anchor["gated"] is False
+    assert anchor["reported_anchor_not_gated"] is True
+    # the anchor reads the SAME frozen floor the lock cites.
+    assert anchor["floor_source"] == GATE2C_FLOOR_RUN
+    floor_sha = hashlib.sha256(
+        (ROOT / GATE2C_FLOOR_RUN).read_bytes()
+    ).hexdigest()
+    assert anchor["floor_sha256"] == floor_sha
+    # the published sources the report names are the ones the anchor consumed.
+    anchor_files = {s["file"] for s in anchor["published_sources"]}
+    assert set(report["published_sources"]) == anchor_files
+    for rel in anchor_files:
+        assert (ROOT / rel).exists(), rel
+    assert anchor["summary"]["calibration"].startswith("none")
+
+
+def test_gate2c_anchor_moments_recompute_and_are_honest():
+    """The anchor's OUR-side moments recompute from the frozen floor: the
+    per-year within-couple rank 0.4928 comes straight from the floor
+    decomposition, and the contingency relative-diagonal delta recomputes from
+    the frozen 3x3 assort_mating reference moments. Nothing is calibrated."""
+    anchor = json.loads((ROOT / GATE2C_ANCHOR_RUN).read_text())
+    floor = _gate2c_floor()
+    decomp = floor["assortative_correlation_report_only"]["decomposition"]
+    moments = anchor["our_moments"]
+    assert moments["within_couple_earnings_rank_spearman"] == pytest.approx(
+        decomp["earnings_axis_spearman"]
+    )
+    assert moments["within_sex_rank_spearman"] == pytest.approx(
+        decomp["within_sex_aime_proxy_rank_spearman"]
+    )
+    # recompute delta_t (relative sum of diagonals) from the frozen 3x3.
+    ref = floor["reference_moments"]
+    matrix = [
+        [ref[f"assort_mating.own{o}_spouse{s}"]["rate"] for s in (1, 2, 3)]
+        for o in (1, 2, 3)
+    ]
+    total = sum(sum(r) for r in matrix)
+    row = [sum(r) / total for r in matrix]
+    col = [sum(matrix[o][s] for o in range(3)) / total for s in range(3)]
+    obs = sum(matrix[i][i] for i in range(3)) / total
+    exp = sum(row[i] * col[i] for i in range(3))
+    delta = round(obs / exp, 4)
+    assert moments["contingency_relative_diagonal_delta"] == pytest.approx(
+        delta
+    )
+    # direction: our rank above the Schwartz annual-earnings Pearson, our
+    # contingency delta above independence (1.0). Reported, not calibrated.
+    assert moments["within_couple_earnings_rank_spearman"] > 0.23
+    assert moments["contingency_relative_diagonal_delta"] > 1.0
+    assert anchor["summary"]["any_level_calibrated"] is False
+
+
+def test_gate2c_within_sex_rank_implementation_delta_recorded():
+    """flip-note 6: the committed within-sex AIME-proxy rank rho 0.2165 is
+    carried, and the 0.2165-vs-round-1-0.2133 implementation delta is
+    documented as report-only / immaterial."""
+    g2c = _gate_2c()
+    assert g2c["assortative_decomposition"][
+        "within_sex_aime_proxy_rank_spearman"
+    ] == pytest.approx(0.2165)
+    delta = g2c["external_anchor_report"][
+        "within_sex_rank_implementation_delta"
+    ]
+    assert "0.2165" in delta
+    assert "0.2133" in delta
+    assert "immaterial" in delta
+    # and it matches the frozen floor's committed decomposition value.
+    floor = _gate2c_floor()
+    decomp = floor["assortative_correlation_report_only"]["decomposition"]
+    assert decomp["within_sex_aime_proxy_rank_spearman"] == pytest.approx(
+        0.2165
+    )
+
+
+def test_gate2c_certification_scope_consistent_with_locked_2a_map():
+    """The 2c certification_scope certifies the 27 gated marriage x earnings
+    cells and supports spousal/survivor LEVELS; it is consistent with (and
+    does not rewrite) the locked tranche-2a map's marriage_x_earnings_joint
+    entry, which stays as-is."""
+    csc = _gate_2c()["certification_scope"]
+    assert csc["tranche"] == "2c_marriage_earnings_joint"
+    certifies = csc["certifies"]
+    assert "27 gated cells" in certifies
+    assert "assortative-mating" in certifies or "JOINT" in certifies
+    supports = " ".join(csc["supports"])
+    assert "spousal / survivor benefit LEVELS" in supports
+    dns = " ".join(csc["does_not_support"])
+    assert "2b" in dns and "OUTSIDE" in dns
+    # consistent with the locked 2a map's 2c required_for (NOT rewritten).
+    locked_map = _gate_2()["scope"]["certification_scope"]["tranches"]
+    c_required = " ".join(
+        locked_map["2c_marriage_earnings_joint"]["required_for"]
+    )
+    assert "spousal / survivor benefit LEVELS" in c_required
+    assert "who" in c_required and "marries whom" in c_required
+    # the locked 2a provision map's marriage_x_earnings_joint entry is still
+    # the amendment-2 text (NOT COVERED by 2a; requires 2c) -- untouched.
+    pmap = {
+        row["provision_class"]: row
+        for row in _gate_2()["scope"]["certification_scope"][
+            "provision_class_map"
+        ]
+    }
+    mxe = pmap["marriage_x_earnings_joint"]
+    assert mxe["locked_coverage"] == "NOT COVERED"
+    assert mxe["requires_tranche"] == ["2c_marriage_earnings_joint"]
+
+
+def test_gate2c_history_entry_records_the_lock():
+    """gate_2c.history carries the 2026-07-10-gate2c-lock entry with the three
+    ceremony comment ids, the ratifying merge (#129 / 3053795), and
+    no_self_rescue."""
+    hist = _gate_2c_block()["history"]
+    entry = next(e for e in hist if e["id"] == "2026-07-10-gate2c-lock")
+    assert entry["flipped_live"] == "this pull request"
+    rr = entry["referee_round"]
+    assert "4935540075" in rr["review"]
+    assert "4937213555" in rr["fixes"]
+    assert "4937857811" in rr["verification"]
+    assert "3053795" in entry["ratified"]
+    assert "PR 129" in entry["ratified"]
+    assert "no_self_rescue" in entry["ratified"]
+    assert "ZERO threshold movement" in entry["content"]
+
+
+def test_gate2c_flip_notes_all_seven_implemented():
+    """The seven verification-round flip-time notes are enumerated as
+    implemented in the ceremony_record."""
+    notes = _gate_2c()["ceremony_record"]["flip_notes_implemented"]
+    assert set(notes) == {
+        "note_1_corrected_warts_carried",
+        "note_2_readme_tiers_rows_restored",
+        "note_3_a5b_residual_documented",
+        "note_4_candidate_cut_provenance_explicit",
+        "note_5_window_overlap_quantified",
+        "note_6_within_sex_rank_delta_recorded",
+        "note_7_external_anchor_bundled",
+    }
+    for key, text in notes.items():
+        assert text.strip(), key
+
+
+def test_gate2c_covers_names_the_scored_surface():
+    """The covers text names the marriage x earnings joint on the per-year
+    axis and the scored surface (description-claims-exactly), not the
+    amendment-2 stub's generic 'joint of marriage and earnings' alone."""
+    covers = _gate_2c_block()["covers"]
+    assert "MARRIAGE and EARNINGS" in covers
+    assert "per-year" in covers
+    assert "27 gated cells" in covers
+    assert "description_claims_exactly_the_scored_surface" in covers
+
+
+def test_gate2c_corrected_warts_carried_not_round1_submission():
+    """flip-note 1: the flip carries the CORRECTED fixes-round warts, not
+    #124's round-1 submission text. The record names couple-disjoint /
+    1968-2022 / per-year axis / detrended / not-symmetric, and the #124-body
+    pointer is annotated as superseded."""
+    g2c = _gate_2c()
+    rehome = g2c["ceremony_record"]["re_homing"]
+    assert "superseded" in rehome
+    assert "1993-2022" in rehome  # names the convicted text as superseded
+    # corrected facts ride in the record, not the round-1 versions.
+    dca = g2c["directed_couple_record_accuracy"]
+    assert dca["one_directional_records"] == 237
+    assert dca["start_year_mismatched_mirror_pairs"] == 144
+    assert "NOT all PSID marriages" in g2c["estimand"]
+    n1 = g2c["ceremony_record"]["flip_notes_implemented"][
+        "note_1_corrected_warts_carried"
+    ]
+    assert "couple-disjoint" in n1
+    assert "1968-2022" in n1
+    assert "per-year earnings axis" in n1
+
+
+def test_gate2c_flip_leaves_locked_2a_and_2b_byte_identical():
+    """D1 SUBSET master-compare (the form that held at #112 / #122, no
+    red-master window): the flip changes only gate_2c, so gate_2.thresholds
+    (tranche 2a) AND gate_2b stay byte-identical to origin/master and gate_2
+    gains no top-level key. These asserts hold in EVERY state (before and
+    after the flip merges), so they are unconditional."""
+    master = _master_gate2()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    cur_g2 = gates["gates"]["gate_2"]
+    # locked tranche-2a thresholds unchanged (holds in every state).
+    assert cur_g2["thresholds"] == master["thresholds"]
+    assert cur_g2["thresholds"]["locked"] is True
+    # the 2a scored surface is still 46 gated + 16 report-only.
+    a_gated, a_report = _gated_report_sets(cur_g2["thresholds"])
+    assert len(a_gated) == 46
+    assert len(a_report) == 16
+    # locked gate-2b block unchanged (holds in every state).
+    assert cur_g2["gate_2b"] == master["gate_2b"]
+    assert cur_g2["gate_2b"]["locked"] is True
     # subset: the flip adds no gate_2 top-level key (gate_2b/gate_2c/
     # amendment_history all pre-exist); a bogus added/removed key fails loudly.
     assert set(cur_g2) - set(master) == set()

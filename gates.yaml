@@ -2020,28 +2020,768 @@ gates:
             flip-time notes are implemented (ceremony_record
             .flip_notes_implemented). Bindings go LOCKED-HOT.
     gate_2c:
-      # Unlocked sibling tranche added by the amendment-2 flip
-      # (amendment_history entry 2). The marriage x earnings joint the
-      # locked scope_note declares a later tranche.
+      # LOCKED sibling tranche. Added UNLOCKED by the amendment-2 flip
+      # (amendment_history entry 2); LOCKED 2026-07-10 by the gate-2c lock
+      # ceremony -- pre-lock floor #124 (runs/gate2c_floors_v1.json, the
+      # marriage x earnings joint) -> round-1 adversarial referee AMEND
+      # BEFORE LOCK (comment 4935540075, findings 1-8 / required fixes A-H)
+      # -> fixes (comment 4937213555, commit e8580ec, artifact sha256
+      # 8259126e...) -> verification LOCK AS-IS (comment 4937857811, seven
+      # flip-time notes) -> ratifying merge of PR #129 (squash 3053795)
+      # under the maintainer's standing campaign directive of 2026-07-07.
+      # The ceremony branch was re-homed #124 -> #128 -> #129 (the earlier
+      # PRs were closed unmerged; the merged content is the same floor). This
+      # flip inserts the thresholds block; the evidence floor
+      # runs/gate2c_floors_v1.json is RATIFIED = FROZEN and is only READ
+      # (round(mean + 4*sd, 3), k = 4, T_max = ln(1.5)), never rewritten.
+      # Bindings go LOCKED-HOT (the 2a lesson): the derivation tests run
+      # unconditionally. gate_1 / gate_2 (2a) / gate_2b untouched.
       id: 2c_marriage_earnings_joint
-      status: unlocked
-      locked: false
+      status: locked
+      locked: true
       covers: >-
-        the joint of marriage and earnings (who marries whom) in generated
-        panels, on which spousal / survivor benefit LEVELS depend. No gate-2
-        statistic touches it; the locked scope_note already declares it a
-        later tranche (reported-not-gated, not silence).
-      holdout_basis: >-
-        mh85_23 marital histories crossed with the gate-1-certified earnings
-        histories; no single staged holdout file, and no floor.
+        the joint of MARRIAGE and EARNINGS (who marries whom by earnings) in
+        generated panels, on which spousal / survivor benefit LEVELS depend.
+        Scored on the per-year NAWI-indexed earnings axis (fix C): the
+        own-tercile x spouse-tercile assortative-mating contingency, the
+        earnings-conditional first-marriage and remarriage hazards, the
+        placebo-detrended around-event (marriage / divorce) earnings
+        dynamics, and the couple's shared-earnings distribution shape -- the
+        27 gated cells on the mh85_23 x gate-1-earnings-panel holdout. Per
+        governance.amendment_rules.description_claims_exactly_the_scored_surface,
+        the surface claimed is EXACTLY the SELECTED universe of PSID couples
+        with a computable per-year earnings axis for both partners (NOT all
+        PSID marriages), on the true 1968-2022 earnings panel (fix B). No
+        gate-2 (2a) or gate_2b statistic touches it; the locked 2a scope_note
+        already declares it a later tranche (reported-not-gated, not silence).
+      holdout_basis: [mh85_23, family_earnings_panel_gate1_certified]
+      data_staged: >-
+        mh85_23 (the Marriage History File, joinable spouse_person_id) and the
+        gate-1-certified family_earnings_panel (head/spouse family-file labor
+        income, income years 1968-2022) are staged on disk alongside cah85_23
+        / ind2023er. The 100-seed COUPLE-DISJOINT half-split floor over the
+        selected couple universe is runs/gate2c_floors_v1.json (RATIFIED,
+        frozen). There is no single staged holdout FILE (the holdout is the
+        derived couple set), so the holdout is the couple-graph component
+        commitment in the floor's holdout_ids.
       lock_ceremony:
-        exists: false
-        required_before_any_2c_pass: >-
-          same ceremony as 2a/2b -- a pre-registered gate on an assortative
-          marriage x earnings floor, an adversarial referee round, a
-          verification round, and a ratifying merge (proposal -> referee ->
-          fixes -> verification -> ratify). None exists yet, so 2c is
-          honestly unlocked.
+        exists: true
+        completed: >-
+          2026-07-10. The SAME ceremony 2a / 2b followed -- a pre-registered
+          gate on a 100-seed COUPLE-DISJOINT split noise floor over the
+          marriage x earnings joint, a T_max = ln(1.5) power cap, an
+          adversarial referee round, a verification round, and a ratifying
+          merge (proposal #124 -> referee 4935540075 -> fixes 4937213555 ->
+          verification 4937857811 -> ratify by merge of the re-homed #129,
+          squash 3053795). The full record is in thresholds.ceremony_record
+          and history entry 2026-07-10-gate2c-lock.
+      thresholds:
+        # DRAFT -> LOCKED. Every tolerance below is machine-bound to the
+        # ratified 100-seed COUPLE-DISJOINT half-split floor
+        # runs/gate2c_floors_v1.json by tests/test_gates_derivations.py
+        # exactly as the locked gate-2a / gate-2b / gate-1 thresholds bind to
+        # theirs: tolerance == round(floor mean + k * floor sd, rounding),
+        # k = 4 (the 2a precedent), rounding = 3, AND tolerance <= T_max =
+        # ln(1.5) (the power cap). The lock ceremony ratified k = 4; the
+        # frozen floor is READ, never rewritten. 27 cells gate; 22 are
+        # report-only; the partition is the floor's own gate_partition
+        # (events + power cap; gate-2c declares NO coverage-recovery
+        # aggregates).
+        locked: true
+        status: locked
+        tranche_id: 2c_marriage_earnings_joint
+        holdout_basis: [mh85_23, family_earnings_panel_gate1_certified]
+        floor_run: runs/gate2c_floors_v1.json
+        external_anchor: runs/gate2c_anchor_v1.json
+        ceremony_record:
+          round_1_referee: >-
+            comment 4935540075 -- round-1 adversarial referee AMEND BEFORE
+            LOCK (eight findings / required fixes A-H: the ego-split floor
+            that was not couple-disjoint, the false "1993-2022" estimand
+            window, the career-sum AIME proxy dominated by observation
+            mechanics, the unpinned candidate couple-universe/orientation, the
+            nominal event-window drift, the CI-blind knobs and label-swap
+            gaps, the event-window weight definition, and the record nits).
+          fixes: >-
+            comment 4937213555 -- fixes A-H applied and the floor rebuilt
+            end-to-end (populace.fit never imported); artifact sha256
+            8259126e4504a4f44840cdad264ab0a0fa32cd76ce4897986da97244090c8625;
+            couple-disjoint component floor, true 1968-2022 estimand, per-year
+            earnings axis, pinned candidate construction, placebo-detrended
+            event windows, knob pins + two label-swap invariants,
+            anchor-required-before-flip. Re-priced 27 gated / 22 report-only,
+            faithful OC 0.9641 / 0.988, per-year within-couple rank 0.4928.
+          verification: >-
+            comment 4937857811 -- verification round LOCK AS-IS (every number
+            recomputed from the committed artifacts with independent
+            implementations -- own BFS components, own Spearman, own placebo
+            windows, own splitter; the three round-1 BLOCKERs dissolved; a
+            full rebuild reproduced the artifact bit-identically except the
+            two sha pins). Seven flip-time notes are implemented by this flip
+            (see flip_notes_implemented); none was blocking.
+          re_homing: >-
+            the ceremony branch was re-homed across three PRs -- #124 (the
+            round-1-reviewed floors submission and fixes) -> #128 (re-homed)
+            -> #129 (head gate2c-floors-v2, the verification-round head
+            0e821f6). #124 and #128 were CLOSED unmerged; the merged content
+            is the same fixes-round floor. The #124 BODY is the historical
+            floors-submission record AS REVIEWED IN ROUND 1 -- its WARTS carry
+            the convicted "1993-2022" / ego-split / career-AIME text, all
+            superseded by the fixes round; the flip carries the CORRECTED
+            warts (flip-note 1), not #124's.
+          ratified: >-
+            2026-07-10 by merge of PR 129 (squash merge commit 3053795) under
+            the maintainer's standing campaign directive of 2026-07-07 ("build
+            until reasonable for scoring these reforms"), exercised only after
+            the full lock ceremony (round-1 AMEND 4935540075 -> fixes
+            4937213555 -> verification LOCK AS-IS 4937857811). Locked
+            thresholds change only through a public amendment noted in this
+            file's history (amendment_rules apply, including no_self_rescue).
+          delegated_authority: >-
+            The standing campaign directive of 2026-07-07 delegates the
+            ratifying-merge authority for a ceremony that has cleared the
+            adversarial + verification rounds; the pre-lock floor was ratified
+            by the merge of #129 itself, and this flip RECORDS the completed
+            ceremony and flips locked -- it is not a re-ratification and moves
+            no threshold.
+          flip_notes_implemented:
+            note_1_corrected_warts_carried: >-
+              the flip record carries the CORRECTED (fixes-round) warts, not
+              #124's original submission warts: couple-disjoint component
+              floor (not ego-split), true 1968-2022 estimand (not
+              "1993-2022"), per-year earnings axis (not the career-sum AIME
+              proxy), placebo-detrended event windows (not raw nominal),
+              directed_couple_record_accuracy (not "symmetric by
+              construction"), and pooled_age_power (POWER, not masking). The
+              #124-body pointer is annotated in re_homing as "reviewed in
+              round 1; warts superseded by the fixes round".
+            note_2_readme_tiers_rows_restored: >-
+              tests/README-tiers.md lost its four non-unit tier rows in the
+              master merge; the flip restores the artifact / integration_psid
+              / reproduction_legacy / oracle_policyengine rows and the total
+              (enforced live by tests/tier_counts.json).
+            note_3_a5b_residual_documented: >-
+              the marriage.all<->divorce.all ONLY swap (round-1's literal A5)
+              stays always-runnable-invisible -- the two detrended references
+              differ 0.3% (1.0572 vs 1.0542) and no re-measure-robust data-free
+              invariant orders them; the PSID seed-0 repro pin catches it (~22s).
+              Recorded in protocol.candidate_construction.ci_invisible_a5b_residual.
+            note_4_candidate_cut_provenance_explicit: >-
+              protocol.candidate_construction.cut_provenance states EXPLICITLY
+              that candidate evaluation uses the COMMITTED tercile cut levels,
+              shared-quintile cutpoints and placebo deflators (fixed on the
+              full real earnings supply), NOT values recomputed on simulated
+              output.
+            note_5_window_overlap_quantified: >-
+              estimand.era_facts carries the NUMBER (41.8% of supported
+              marriage windows overlap pre-1993), not the artifact's
+              qualitative "a substantial share of events".
+            note_6_within_sex_rank_delta_recorded: >-
+              external_anchor_report.within_sex_rank_implementation_delta
+              records the committed within-sex AIME-proxy rank rho 0.2165 vs
+              the round-1-quoted 0.2133 -- a within-sex ranking implementation
+              delta on the same construct, report-only, decomposition-internal,
+              immaterial to any gate.
+            note_7_external_anchor_bundled: >-
+              external_anchor points to runs/gate2c_anchor_v1.json, bundled in
+              this flip PR before ratification (the floor's
+              external_anchor.required_before_ratifying_flip dependency).
+        estimand: >-
+          the marriage x earnings joint of the SELECTED universe of PSID
+          couples with a computable per-year earnings axis for BOTH partners
+          (age-60 indexing year within the NAWI series, >= 5 observed
+          positive-earnings years) -- NOT all PSID marriages (7,994 directed /
+          4,078 unordered couples over 14,952 earnings-supply persons; 32,522
+          joinable marriage episodes). Per governance.amendment_rules
+          .description_claims_exactly_the_scored_surface, the scored surface is
+          this selected-couple estimand on the TRUE 1968-2022 family-earnings
+          panel (fix B, correcting the round-1 "1993-2022"), NOT a full-career
+          measure; the floor's selection_estimand and report-only
+          marriage_decade_slices carry the cohort concentration.
+        era_facts:
+          # flip-note 5: the enumerated fix-B window facts, carried as
+          # NUMBERS (the floor's event_window_convention states them
+          # qualitatively as "a substantial share of events").
+          earnings_income_year_range: [1968, 2022]
+          supported_marriage_windows_overlapping_pre_1993_pct: 41.8
+          supply_persons_with_pre_1993_positive_year_pct: 69.0
+          mean_pre_1993_dollar_share_pct: 68.0
+          observed_positive_years_median: 13
+          observed_positive_years_p90: 28
+          observed_positive_years_max: 42
+          truncation_note: >-
+            truncation is COHORT-GRADED (a 1940s-born ego is observed
+            near-fully, annual 1968-1996; a post-1970-born ego is heavily
+            truncated) -- the round-1 "levels are uniform lower bounds" reading
+            inverts by cohort. The gated moments use terciles / within-couple
+            ranks / cutpoint ratios, robust to that truncation.
+        statistic: >-
+          Per cell, the absolute log rate ratio |ln(rbar_candidate,s /
+          rate_a,s)| between the candidate's marriage x earnings rate for the
+          seed-s holdout couples -- rbar_candidate,s, the MEAN over K=20
+          pre-registered draws (5200 + k) of the cell RATE -- and that seed's
+          HOLDOUT half's own empirical rate (rate_a in the floor's
+          noise_floor_per_seed). Symmetric and scale-free, the same shape as
+          the tranche-2a / 2b statistic.
+        protocol:
+          option: >-
+            a -- the gate-1 / tranche-2a/2b mirror: per-seed COUPLE-DISJOINT
+            holdout with train-complement fitting, for which the half-vs-half
+            floor is exactly the null. The 4-of-5 seed conjunction is operative
+            (both the candidate rate and the reference rate vary with the seed).
+          estimator: >-
+            mean-over-K=20-draws (tranche 2a amendment 1, ratified 2026-07-08,
+            PR 96), re-used VERBATIM and adopted FROM THE START of this 2c
+            build. rbar_candidate,s is the MEAN over K=20 pre-registered
+            simulation draws (numpy default_rng(5200 + k), k=0..19; a stream
+            DISTINCT from the split seeds), scored ONCE per cell as
+            |ln(rbar_candidate,s / rate_a,s)| -- NOT the mean of the per-draw
+            |ln| scores. The superseded single-draw replicate the 2b round-1
+            referee flagged never enters.
+          candidate_draws: 20
+          candidate_draw_stream: numpy.random.default_rng(5200 + k), k=0..K-1
+          gate_seeds: [0, 1, 2, 3, 4]
+          floor_seeds: 0-99 (tolerance stability)
+          split: >-
+            COUPLE-DISJOINT 50/50 half-split by couple-graph CONNECTED
+            COMPONENT (split_panel_by_person on attrs.component_id,
+            fraction=0.5, seed=s; fix A). Union-find over the directed-couple
+            edges groups both members of every couple into one component (<= 4
+            persons), so NO couple straddles the two halves. Side A (the drawn
+            half) is seed s's HOLDOUT; side B is the train complement. Per-seed
+            holdout component/person-ids are sha256-committed in the floor's
+            holdout_ids, derivable from the seed via the pinned numpy
+            Generator.
+          varies_per_seed: >-
+            the 50/50 couple-disjoint split by component (holdout = side A of
+            split_panel_by_person(component_id, seed=s)), the candidate's fit
+            complement, and its K=20 simulated draws of the holdout.
+          candidate: >-
+            Refit per seed on side B (the seed-s holdout couples excluded from
+            all fitting); SIMULATE side A's couples / marital events / earnings
+            at K=20 pre-registered draws (default_rng(5200 + k)); form the
+            20-draw mean cell rate rbar_candidate,s; emit each cell's rate at
+            holdout (~50%) scale.
+          scored_against: >-
+            side A's own empirical rate (rate_a), committed per gate seed in
+            the floor's noise_floor_per_seed. The half-vs-half floor
+            |ln(rate_A/rate_B)| is exactly the null a faithful candidate
+            realises.
+          pass_rule: >-
+            Seed-level conjunction. Seed s passes iff every gate-eligible
+            cell's |ln(rbar_candidate,s / rate_a,s)| <= its derived tolerance
+            at seed s (rbar_candidate,s the mean over K=20 draws of the cell
+            RATE, then scored once, NOT the mean of the per-draw |ln|); the
+            gate passes iff >=4 of 5 gate seeds pass. Report-only cells and the
+            external anchor are published, never gated.
+          candidate_construction:
+            # fix D (round-1 finding 4): the candidate-side couple universe
+            # and orientation the round-1 draft left implicit, pinned here.
+            couple_emission: >-
+              DIRECTED records per holdout ego: for each holdout-side couple
+              emit one record per ego, and BOTH directions (ego A -> spouse B
+              AND ego B -> spouse A) when both partners are holdout egos -- the
+              reference is symmetrized-directed and a single-orientation (each
+              couple once, one sex as ego) emission is NON-CONFORMANT (round-1
+              measured 6/9 assort cells beyond tolerance, up to 4.9x).
+            earnings_axis: >-
+              the per-year mean NAWI-indexed positive-year earnings (fix C),
+              the both-axis selection applied to the SIMULATED careers: a
+              couple enters only where BOTH partners are admitted (age-60
+              indexing year in the NAWI series and >= MIN_EARNINGS_YEARS
+              observed positive years) on the PSID observation grid.
+            observation_grid: >-
+              simulate earnings on the PSID family-file observation grid
+              (annual income years 1968-1996, biennial 1998-2022; family-file
+              income refers to the prior year), which defines which years are
+              "observed", the MIN_EARNINGS_YEARS admission on that grid, and
+              the NAWI-window birth filter -- nominal dollars, NOT real.
+            weight: >-
+              the demographic most-recent-positive PSID weight for every gated
+              family INCLUDING the six event windows (fix F).
+            event_window_support_and_detrend: >-
+              earnings_around_* uses only events with an observed positive year
+              in BOTH +/-3y sub-windows, and the emitted statistic is the
+              post/pre median NET of the committed placebo deflator (fix E), so
+              a real-terms candidate is scored on the event increment, not
+              nominal drift.
+            cut_provenance: >-
+              flip-note 4: candidate evaluation uses the COMMITTED tercile cut
+              levels, the shared-earnings adjacent-quintile cutpoints, and the
+              placebo drift deflators -- all fixed on the FULL REAL earnings
+              supply and applied to every half-split and to every candidate
+              draw -- NOT values recomputed on simulated output. Recomputing
+              cuts on candidate output would let a candidate shift its own
+              categories; the categories are frozen with the floor.
+            ci_invisible_a5b_residual: >-
+              flip-note 3: a consistent marriage.all<->divorce.all-ONLY swap
+              (round-1's literal A5) stays invisible to the always-runnable
+              tier -- the two placebo-detrended references differ only 0.3%
+              (1.0572 vs 1.0542) and no re-measure-robust data-free invariant
+              can order them. The always-runnable label-swap invariant catches
+              the marriage<->divorce FAMILY swap (sexed cells); the .all-only
+              residual is defended by the PSID seed-0 reproduction pin
+              (verified catch ~22s), not a CI invariant. Recorded as a known,
+              bounded shape, not a defect.
+            note: >-
+              Fix D pins the CANDIDATE-side couple universe and orientation
+              the round-1 draft left implicit; the protocol pins draws /
+              stream / shape / invalidation.
+          faithful_candidate_oc:
+            n_gated_cells: 27
+            p_seed_pass: 0.9641
+            p_gate_pass_4_of_5: 0.988
+            basis_note: >-
+              Computed on a DRAW-NOISE-FREE half-normal basis (a faithful
+              candidate's per-cell score ~ half-normal(realized_sigma), floor
+              sigmas only, no simulation-draw term). The mean-over-K=20-draws
+              estimator SHARES that basis, so the OC is ACHIEVABLE; under a
+              SINGLE-draw estimator it would be UNACHIEVABLE (tranche 2a
+              amendment-1 finding 1: one replicate injects ~one extra
+              floor-sigma per cell). This 2c build adopts the ratified K=20
+              estimator FROM THE START, so the single-draw defect the 2b
+              round-1 referee flagged never enters. Bound to the floor's
+              faithful_candidate_oc by tests/test_gates_derivations.py.
+          fresh_run_artifact_schema:
+            applies_to: >-
+              a fresh candidate one-shot run registered AFTER this gate_2c
+              lock; NEVER the floor build (which measures the real-vs-real
+              half-vs-half null, no simulation, no draws).
+            per_draw_per_cell_rates:
+              required: true
+              shape: [20, 27, 5]
+              shape_dims: K_draws x gated_cells x gate_seeds
+              rule: >-
+                commit every draw's per-cell rate r[k, cell, s] for all K=20
+                draws (default_rng(5200 + k), k=0..19), all 27 gated cells, and
+                all 5 gate seeds -- so rbar_candidate,s recomputes cell-by-cell
+                and |ln(rbar / rate_a)| is independently auditable, not taken
+                on trust.
+            undefined_draw_rule:
+              required: true
+              pre_specified: true
+              rule: >-
+                if any gated cell's rate is UNDEFINED on any draw (empty
+                simulated denominator), the RUN IS INVALIDATED and must be
+                re-registered and re-run. No draw may be dropped, skipped,
+                substituted, or re-rolled; rbar is always the mean over ALL K
+                registered draws.
+            per_draw_dispersion_disclosure:
+              required: true
+              gated: false
+              report_only: true
+              commit:
+                per_cell_per_draw_sd: >-
+                  the sd across the K=20 draws of each gated cell's rate, per
+                  gated cell per gate seed.
+                max_per_draw_abs_ln_per_cell: >-
+                  the maximum over the K=20 draws of |ln(r[k, cell, s] /
+                  rate_a,s)| per gated cell per gate seed.
+              note: >-
+                REPORT-ONLY: no dispersion cap gates the run; the disclosure
+                lets a referee see whether a passing 20-draw mean conceals a
+                wild individual draw.
+        power_cap:
+          # Gate a cell only if its stabilised tolerance is tight enough to
+          # reject a materially wrong model. Which cells demote is DERIVED
+          # from the floor (cell_stability), never hand-picked.
+          t_max: ln(1.5)
+          rule: >-
+            gate-eligible iff defined on every one of the 100 seeds AND >=20
+            events on the weaker half of the worst seed AND stabilised
+            tolerance <= T_max = ln(1.5). gate-2c declares NO coverage-recovery
+            aggregates, so no cell is superseded by a gating aggregate.
+          aggregations: {}
+          demoted_and_report_only: >-
+            22 cells are report-only, all by the floor's OWN machine reason: 16
+            carry tolerance_above_t_max (the sparse late-first-marriage /
+            remarriage / anti-diagonal-corner cells whose stabilised tolerance
+            exceeds ln(1.5)) and 6 carry below_20_events (the 45+ first-marriage
+            tercile cells). NO coverage-recovery aggregate is added: fix H(i)
+            measured that NO pooled t{o}.35+|sex aggregate is standalone-gateable
+            either (tolerances [0.634, 1.265], all above ln(1.5)), so the honest
+            reason the sparse cells stay report-only is POWER, not masking.
+        governance:
+          # The registration / one-shot / amendment machinery reaches gate 2c
+          # by inheriting gate 1's, exactly as tranche 2a / 2b do.
+          registration: >-
+            Pre-registered on issue #42, as every gate-1 / gate-2 candidate
+            run. A gate-2c candidate registers its spec, its fitting exclusions
+            (the seed-s holdout couples), and its simulation seeds BEFORE
+            scoring. Outer runs are one-shot.
+          amendment_rules:
+            inherits: gate_1
+            no_self_rescue: >-
+              Inherited verbatim from gate_1.amendment_rules: no candidate's
+              committed run verdict changes under a rule proposed after that
+              run; a gate rule amendment applies only to runs registered after
+              its ratification.
+            classifier_version_pin: >-
+              Inherited: any version-sensitive scoring component records the
+              library version used to derive a floor and to score candidates,
+              and the two must match (pe-us revision bf71be3b pins the NAWI /
+              wage-base tables the earnings axis indexes on).
+            amendments_only_via: >-
+              public proposal + adversarial referee round + verification +
+              maintainer ratification by merge -- the same ceremony gate 1 and
+              tranche 2a / 2b amendments follow.
+            description_claims_exactly_the_scored_surface: >-
+              This tranche is bound by the standing rule promoted into
+              gate_2.governance.amendment_rules (amendment 2): the covers /
+              holdout_basis / estimand claim EXACTLY the scored surface -- the
+              selected per-year-earnings couple universe on the 1968-2022
+              panel, the 27 gated cells, mh85_23 x the gate-1 earnings panel.
+              No provision class or holdout is headlined beyond what the cells
+              gate.
+          candidate_scale: >-
+            PINNED to the seed-s holdout half (~50% of couple-graph components,
+            side A); the candidate simulates exactly those couples, fixing the
+            output scale the floor and tolerances are measured at.
+          holdout_id_commitment: >-
+            The sorted holdout ego person-ids of each gate seed's holdout (side
+            A, selected by couple-graph component_id) are sha256-committed in
+            runs/gate2c_floors_v1.json holdout_ids, derivable from the seed via
+            the pinned numpy Generator on attrs.component_id (fix A,
+            couple-disjoint), so a candidate cannot pick its split and no couple
+            straddles.
+          weight_definition: >-
+            mirrors tranche 2a / 2b weight_definition. Every gated statistic is
+            weighted by the person-constant most-recent positive PSID wave
+            weight (populace_dynamics.data.panels.demographic_panel), for EVERY
+            gated family INCLUDING the six event-window cells (fix F). There is
+            NO unweighted gated statistic; the unweighted rate is reported
+            alongside. The weighting is load-bearing, so it is pinned here, not
+            inherited implicitly.
+        assortative_decomposition:
+          # REPORT-ONLY construct-validity decomposition (fix C), carried so
+          # the external-anchor bridge reads honestly. Never gated.
+          reported_not_gated: true
+          earnings_axis_spearman: 0.4928
+          career_aime_proxy_spearman_cross_sex: 0.1194
+          within_sex_aime_proxy_rank_spearman: 0.2165
+          observed_positive_years_spearman: -0.0954
+          split_half_reliability: 0.977
+          spearman_brown: 0.9884
+          note: >-
+            the gated earnings axis is the per-year mean indexed earnings
+            (within-couple rank ~0.4928, literature-scale sorting); the round-1
+            career-sum AIME proxy correlated only ~0.1194 cross-sex because
+            cross-sex tercile pooling halves it (within-sex rank 0.2165) and the
+            observed-positive-years count anti-correlates within couples
+            (-0.0954). The proxy's split-half reliability 0.977 (Spearman-Brown
+            0.9884), so the weak career-AIME signal is NOT sampling noise -- it
+            is what the career sum measures, which is why the axis is the
+            per-year measure. See external_anchor_report
+            .within_sex_rank_implementation_delta (flip-note 6).
+        directed_couple_record_accuracy:
+          # fix H record correction (superseding #124's "symmetric by
+          # construction"): the contingency is NOT symmetric by construction.
+          one_directional_records: 237
+          start_year_mismatched_mirror_pairs: 144
+          start_year_mismatched_mirror_records: 288
+          off_diagonal_asymmetry_example: { n_own1_spouse2: 671, n_own2_spouse1: 656 }
+          note: >-
+            a two-sample-member marriage yields two directed records only when
+            BOTH partners have a marriage record naming the other; some records
+            are one-directional and some mirrored pairs disagree on start_year,
+            so the decade slices and off-diagonal cells are direction-dependent.
+            The effective independent unit is the couple, priced by the
+            couple-disjoint floor.
+        boundary_fragility:
+          # fix H(ii): a few tolerances sit near the ln(1.5) cap and could
+          # cross under re-measure; the lock FREEZES the committed partition.
+          method: >-
+            B=5000 bootstrap over each cell's 100 committed floor values;
+            tolerance recomputed per resample; p(cross T_max=ln(1.5)). Deterministic
+            (numpy default_rng(20260710)).
+          disclosed: >-
+            11 near-cap flippers are disclosed in the floor's boundary_fragility
+            (e.g. gated first_marriage_by_earnings.t1.18-24|male p_flip_out 0.276;
+            report-only first_marriage_by_earnings.t1.25-34|female p_flip_in
+            0.482). Disclosure, not defect: the lock freezes the committed 27/22
+            partition.
+        views:
+          assort_mating:
+            statistic: >-
+              own-tercile x spouse-tercile earnings contingency share over
+              directed couples (3x3) on the per-year indexed earnings axis (fix
+              C); the strong diagonal (own3_spouse3 0.240 > own1_spouse1 0.109)
+              carries the sorting. The two anti-diagonal corners (own1_spouse3
+              / own3_spouse1) thin under the per-year diagonal and are
+              report-only via the cap.
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "assort_mating.own1_spouse1": 0.351
+              "assort_mating.own1_spouse2": 0.302
+              "assort_mating.own2_spouse1": 0.347
+              "assort_mating.own2_spouse2": 0.273
+              "assort_mating.own2_spouse3": 0.266
+              "assort_mating.own3_spouse2": 0.258
+              "assort_mating.own3_spouse3": 0.27
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "assort_mating.own1_spouse1": { key: "assort_mating.own1_spouse1", k: 4, rounding: 3 }
+                "assort_mating.own1_spouse2": { key: "assort_mating.own1_spouse2", k: 4, rounding: 3 }
+                "assort_mating.own2_spouse1": { key: "assort_mating.own2_spouse1", k: 4, rounding: 3 }
+                "assort_mating.own2_spouse2": { key: "assort_mating.own2_spouse2", k: 4, rounding: 3 }
+                "assort_mating.own2_spouse3": { key: "assort_mating.own2_spouse3", k: 4, rounding: 3 }
+                "assort_mating.own3_spouse2": { key: "assort_mating.own3_spouse2", k: 4, rounding: 3 }
+                "assort_mating.own3_spouse3": { key: "assort_mating.own3_spouse3", k: 4, rounding: 3 }
+          first_marriage_by_earnings:
+            statistic: >-
+              first-marriage hazard by earnings-axis tercile x age band x sex
+              (never-married person-years at risk); only the dense young-adult
+              bands (18-24 all terciles, 25-34 tercile 3) clear the cap, the
+              older/sparser bands are report-only (power).
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "first_marriage_by_earnings.t1.18-24|female": 0.207
+              "first_marriage_by_earnings.t1.18-24|male": 0.393
+              "first_marriage_by_earnings.t2.18-24|female": 0.23
+              "first_marriage_by_earnings.t2.18-24|male": 0.253
+              "first_marriage_by_earnings.t3.18-24|female": 0.269
+              "first_marriage_by_earnings.t3.18-24|male": 0.218
+              "first_marriage_by_earnings.t3.25-34|female": 0.379
+              "first_marriage_by_earnings.t3.25-34|male": 0.206
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "first_marriage_by_earnings.t1.18-24|female": { key: "first_marriage_by_earnings.t1.18-24|female", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t1.18-24|male": { key: "first_marriage_by_earnings.t1.18-24|male", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t2.18-24|female": { key: "first_marriage_by_earnings.t2.18-24|female", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t2.18-24|male": { key: "first_marriage_by_earnings.t2.18-24|male", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t3.18-24|female": { key: "first_marriage_by_earnings.t3.18-24|female", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t3.18-24|male": { key: "first_marriage_by_earnings.t3.18-24|male", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t3.25-34|female": { key: "first_marriage_by_earnings.t3.25-34|female", k: 4, rounding: 3 }
+                "first_marriage_by_earnings.t3.25-34|male": { key: "first_marriage_by_earnings.t3.25-34|male", k: 4, rounding: 3 }
+          remarriage_by_earnings:
+            statistic: >-
+              remarriage hazard by earnings-axis tercile x sex (post-dissolution
+              person-years at risk); only the two dense-enough cells
+              (t1|female, t3|male) clear the cap.
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "remarriage_by_earnings.t1|female": 0.389
+              "remarriage_by_earnings.t3|male": 0.37
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "remarriage_by_earnings.t1|female": { key: "remarriage_by_earnings.t1|female", k: 4, rounding: 3 }
+                "remarriage_by_earnings.t3|male": { key: "remarriage_by_earnings.t3|male", k: 4, rounding: 3 }
+          earnings_around_marriage:
+            statistic: >-
+              placebo-DETRENDED weighted median (post/pre) earnings ratio around
+              marriage, by sex + all (fix E: net of generic nominal drift). The
+              F/M asymmetry the family really carries is preserved (male 1.112 >
+              female 0.997).
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "earnings_around_marriage.all": 0.056
+              "earnings_around_marriage.female": 0.063
+              "earnings_around_marriage.male": 0.078
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "earnings_around_marriage.all": { key: "earnings_around_marriage.all", k: 4, rounding: 3 }
+                "earnings_around_marriage.female": { key: "earnings_around_marriage.female", k: 4, rounding: 3 }
+                "earnings_around_marriage.male": { key: "earnings_around_marriage.male", k: 4, rounding: 3 }
+          earnings_around_divorce:
+            statistic: >-
+              placebo-DETRENDED weighted median (post/pre) earnings ratio around
+              divorce, by sex + all (fix E). The F/M asymmetry is preserved
+              (female 1.112 > male 0.993).
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "earnings_around_divorce.all": 0.073
+              "earnings_around_divorce.female": 0.11
+              "earnings_around_divorce.male": 0.09
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "earnings_around_divorce.all": { key: "earnings_around_divorce.all", k: 4, rounding: 3 }
+                "earnings_around_divorce.female": { key: "earnings_around_divorce.female", k: 4, rounding: 3 }
+                "earnings_around_divorce.male": { key: "earnings_around_divorce.male", k: 4, rounding: 3 }
+          shared_earnings_ratio:
+            statistic: >-
+              adjacent-quintile cutpoint ratios of the couple's combined
+              earnings axis (scale-free distribution shape); all four gate.
+            floor_run: runs/gate2c_floors_v1.json
+            tolerances:
+              "shared_earnings_ratio.q40_q20": 0.13
+              "shared_earnings_ratio.q60_q40": 0.104
+              "shared_earnings_ratio.q80_q20": 0.175
+              "shared_earnings_ratio.q80_q60": 0.092
+            derivations:
+              floor_run: runs/gate2c_floors_v1.json
+              rules:
+                "shared_earnings_ratio.q40_q20": { key: "shared_earnings_ratio.q40_q20", k: 4, rounding: 3 }
+                "shared_earnings_ratio.q60_q40": { key: "shared_earnings_ratio.q60_q40", k: 4, rounding: 3 }
+                "shared_earnings_ratio.q80_q20": { key: "shared_earnings_ratio.q80_q20", k: 4, rounding: 3 }
+                "shared_earnings_ratio.q80_q60": { key: "shared_earnings_ratio.q80_q60", k: 4, rounding: 3 }
+        report_only:
+          - "assort_mating.own1_spouse3"
+          - "assort_mating.own3_spouse1"
+          - "first_marriage_by_earnings.t1.25-34|female"
+          - "first_marriage_by_earnings.t1.25-34|male"
+          - "first_marriage_by_earnings.t1.35-44|female"
+          - "first_marriage_by_earnings.t1.35-44|male"
+          - "first_marriage_by_earnings.t1.45+|female"
+          - "first_marriage_by_earnings.t1.45+|male"
+          - "first_marriage_by_earnings.t2.25-34|female"
+          - "first_marriage_by_earnings.t2.25-34|male"
+          - "first_marriage_by_earnings.t2.35-44|female"
+          - "first_marriage_by_earnings.t2.35-44|male"
+          - "first_marriage_by_earnings.t2.45+|female"
+          - "first_marriage_by_earnings.t2.45+|male"
+          - "first_marriage_by_earnings.t3.35-44|female"
+          - "first_marriage_by_earnings.t3.35-44|male"
+          - "first_marriage_by_earnings.t3.45+|female"
+          - "first_marriage_by_earnings.t3.45+|male"
+          - "remarriage_by_earnings.t1|male"
+          - "remarriage_by_earnings.t2|female"
+          - "remarriage_by_earnings.t2|male"
+          - "remarriage_by_earnings.t3|female"
+        external_anchor_report:
+          # flip-note 7 / the floor's external_anchor
+          # .required_before_ratifying_flip: the concept-bridged published
+          # assortative-mating anchor is bundled in THIS flip PR, before
+          # ratification -- REPORTED, never a level gate. Built by
+          # scripts/gate2c_anchor_decomposition.py from the FROZEN floor's
+          # decomposition + contingency and the committed, cited published
+          # benchmark files in data/external/; it moves no floor value (no
+          # calibration).
+          run: runs/gate2c_anchor_v1.json
+          reported_anchor_not_gated: true
+          status: bundled_before_flip
+          published_sources:
+            - data/external/schwartz_2010_spousal_earnings_correlation.json
+            - data/external/greenwood_2014_assortative_mating.json
+          concept_delta: >-
+            The couple earnings axis is the PSID-observed mean indexed
+            positive-year earnings (per-year earnings-capacity, income years
+            1968-2022, cohort-graded truncation; fix C), NOT the true SSA
+            covered-earnings AIME, so LEVELS are not level-comparable to
+            SSA/OCACT tabulations. The anchor bridges the per-year within-couple
+            rank sorting (~0.49) to the published series -- Schwartz (2010) CPS
+            ASEC spouses'-earnings Pearson (dual-earner .08 -> .23; the
+            concept-matched both-positive row) and Greenwood et al. (2014)
+            educational relative-sum-of-diagonals delta (~1.6-2.0). Named
+            deltas: rank vs Pearson, per-year capacity vs annual earnings, the
+            selected truncated-support both-positive universe, education vs
+            earnings. Our per-year rank 0.4928 sits ABOVE the annual-earnings
+            Pearson and our contingency delta 1.3689 BELOW the educational
+            delta, both as the concept deltas predict -- direction validated,
+            no calibration.
+          within_sex_rank_implementation_delta: >-
+            flip-note 6: the committed within-sex AIME-proxy rank rho is 0.2165
+            (assortative_decomposition.within_sex_aime_proxy_rank_spearman); the
+            round-1 referee quoted 0.2133 -- a within-sex ranking implementation
+            delta on the same construct (tie-handling / rank convention),
+            report-only, decomposition-internal, immaterial to any gate. The
+            flip carries the committed 0.2165.
+          calibration: none -- the bridge names concept deltas, moves no floor value
+        certification_scope:
+          # What a gate-2c PASS certifies. The locked tranche-2a
+          # certification_scope map's marriage_x_earnings_joint pointer is NOT
+          # amended by this flip: its text ("NOT COVERED -- no gate-2
+          # statistic touches the marriage x earnings joint ... Declared the
+          # separate ... tranche 2c") speaks to tranche 2a's OWN coverage and
+          # stays TRUE after 2c locks; it does not anticipate an update, and
+          # the exact #122 precedent left the locked 2a map's 2b pointer
+          # ("separate UNLOCKED tranche 2b_relationship_household")
+          # untouched when 2b locked. So the 2c scope is recorded HERE, in the
+          # locked gate_2c block, consistent with (not rewriting) the locked
+          # 2a map.
+          tranche: 2c_marriage_earnings_joint
+          certifies: >-
+            the marriage x earnings JOINT processes on the per-year earnings
+            axis -- the own x spouse assortative-mating contingency, the
+            earnings-conditional first-marriage and remarriage hazards, the
+            placebo-detrended around-event earnings dynamics, and the
+            shared-earnings distribution shape -- the 27 gated cells on the
+            mh85_23 x gate-1-earnings-panel holdout.
+          supports:
+            - >-
+              spousal / survivor benefit LEVELS in GENERATED panels -- earnings
+              sharing, the spousal amount, the survivor 75% (locked 2a map
+              2c_marriage_earnings_joint.required_for: "spousal / survivor
+              benefit LEVELS ... depend on the marriage x earnings joint for
+              the benefit level, distinct from 2a's eligibility timing"). A 2c
+              PASS certifies the GENERATED who-marries-whom-by-earnings side
+              those levels key on.
+            - >-
+              the joint earnings x marital processes in generated panels (locked
+              2a map: "who marries whom", locked provision_class_coverage
+              .marriage_x_earnings_joint).
+          does_not_support:
+            - >-
+              survivor / spousal ELIGIBILITY TIMING -- that is tranche 2a's
+              marital-transition surface (certified under 2a), distinct from the
+              earnings-level joint 2c certifies.
+            - >-
+              household-UNIT poverty / composition rows -- those require tranche
+              2b (MX23REL household composition). And OWN-RECORD benefit levels
+              (bend points, the PIA formula) rest on gate 1 (earnings) + the
+              statutory-formula oracle (#78/#80), OUTSIDE 2a / 2b / 2c.
+          consistent_with_locked_2a_map: >-
+            the locked gate_2.thresholds.scope.certification_scope.tranches
+            .2c_marriage_earnings_joint.required_for entry (spousal/survivor
+            LEVELS; who marries whom) is the 2a side of this map; this block is
+            the 2c side, DERIVED from it, not a rewrite of it.
+      history:
+        - id: 2026-07-10-gate2c-lock
+          proposed: 2026-07-10
+          flipped_live: this pull request
+          referee_round:
+            floor: >-
+              PR 124/128/129 (runs/gate2c_floors_v1.json), the pre-lock 100-seed
+              COUPLE-DISJOINT split noise floor over the marriage x earnings
+              joint, ratified by merge (squash commit 3053795 of the re-homed
+              #129).
+            review: >-
+              comment 4935540075 (verdict AMEND BEFORE LOCK; eight findings /
+              required fixes A-H -- the ego-split floor, the false "1993-2022"
+              estimand, the career-sum proxy, the unpinned candidate universe,
+              the nominal event-window drift, the CI-blind knobs, the
+              event-window weight, and the record nits)
+            fixes: >-
+              comment 4937213555 (fixes A-H applied, floor rebuilt end-to-end;
+              artifact sha256 8259126e...; couple-disjoint component floor, true
+              1968-2022 estimand, per-year earnings axis, pinned candidate
+              construction, placebo-detrended event windows, knob pins,
+              anchor-required-before-flip; re-priced 27 gated / 22 report-only,
+              OC 0.9641 / 0.988)
+            verification: >-
+              comment 4937857811 (verdict LOCK AS-IS; every number recomputed
+              from the committed artifacts with independent implementations, the
+              three round-1 BLOCKERs dissolved, the new bindings
+              perturbation-tested, and a full rebuild reproduced the artifact
+              bit-identically except the two sha pins; seven flip-time notes
+              recorded)
+          ratified: >-
+            2026-07-10 by merge of PR 129 (squash merge commit 3053795, the
+            re-homed ceremony branch #124 -> #128 -> #129) under the
+            maintainer's standing campaign directive of 2026-07-07, exercised
+            only after the full ceremony (round-1 AMEND 4935540075 -> fixes
+            4937213555 -> verification LOCK AS-IS 4937857811). This flip records
+            the completed ceremony and flips locked; no_self_rescue applies.
+          content: >-
+            The gate_2c stub (added UNLOCKED by amendment 2, the tranche split)
+            is flipped to LOCKED: locked true / status locked, the tranche_id,
+            the K=20 mean-over-draws protocol (tranche 2a amendment 1), the
+            T_max = ln(1.5) power cap, the 27 gated cells in six views with
+            tolerances machine-derived as round(floor mean + 4*sd, 3) from the
+            FROZEN COUPLE-DISJOINT floor runs/gate2c_floors_v1.json, the 22
+            report-only cells (16 tolerance_above_t_max + 6 below_20_events),
+            the governance (weight_definition, the standing
+            description-claims-exactly rule, no_self_rescue), the
+            certification_scope, the estimand named as the selected 1968-2022
+            couple universe, and the external anchor runs/gate2c_anchor_v1.json
+            bundled in this PR. ZERO threshold movement vs the ratified floor:
+            the flip READS the frozen artifact and rewrites nothing. The seven
+            verification flip-time notes are implemented (ceremony_record
+            .flip_notes_implemented). Bindings go LOCKED-HOT.
     amendment_history:
       - id: 2026-07-08-mean-over-draws-estimator
         proposed: 2026-07-08

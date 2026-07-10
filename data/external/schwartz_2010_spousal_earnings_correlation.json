@@ -1,0 +1,35 @@
+{
+  "schema_version": "spousal_earnings_correlation.v1",
+  "source_short": "Schwartz (2010)",
+  "title": "Earnings Inequality and the Changing Association between Spouses' Earnings",
+  "author": "Christine R. Schwartz",
+  "journal": "American Journal of Sociology 115(5): 1524-1557",
+  "year": 2010,
+  "doi": "10.1086/651373",
+  "survey": "March Current Population Survey (CPS ASEC), 1968-2006 (earnings years 1967-2005)",
+  "universe": "married couples, householder and spouse; married-spouse-present",
+  "statistic": "Pearson correlation between husband's and wife's ANNUAL earnings, by period; reported for ALL married couples and for DUAL-EARNER couples (both spouses with positive earnings) separately",
+  "provenance": {
+    "source": "Schwartz, Christine R. 2010. 'Earnings Inequality and the Changing Association between Spouses' Earnings.' American Journal of Sociology 115(5): 1524-1557.",
+    "open_access_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2908420/",
+    "publisher_url": "https://www.journals.uchicago.edu/doi/10.1086/651373",
+    "table_or_figure": "Figure 2 (correlation between spouses' earnings, 1967-70 to 2003-5)",
+    "fetch_method": "WebFetch of the open-access PMC full text (PMC2908420) on 2026-07-10; values transcribed from the Figure 2 series and the accompanying text, with the verbatim sentence recorded below. The PMC PDF endpoint returns an HTML interstitial to keyless programmatic clients (like the Census API key wall in the gate-2b sources), so there is no single fixed-byte source file to sha256; the open-access URL + DOI + the verbatim quote are the record of provenance.",
+    "fetched_utc": "2026-07-10T00:00:00+00:00",
+    "source_file_sha256": null,
+    "sha256_note": "No fixed-byte file sha256: the open-access source is a rendered PMC HTML page, not a downloadable fixed artifact for a keyless client. Provenance is the pinned URL + DOI + the verbatim Figure-2 quote.",
+    "verbatim_quote": "Among dual-earner couples, the correlation between spouses' earnings rose from .08 in 1967-70 to .23 in 2003-5, or almost tripled. Trends for all couples mirror those for dual-earners, but they are lower or negative, moving from -.08 to .12.",
+    "note": "The correlation measure is Pearson's r on annual earnings levels. Schwartz notes it 'remains quite low', consistent with Cancian et al. (1993) and Reed and Cancian (2009)."
+  },
+  "figures": {
+    "all_married_couples": {
+      "period_1967_1970_pearson": -0.08,
+      "period_2003_2005_pearson": 0.12
+    },
+    "dual_earner_couples": {
+      "period_1967_1970_pearson": 0.08,
+      "period_2003_2005_pearson": 0.23
+    }
+  },
+  "concept_note": "This is a Pearson (level) correlation of ANNUAL earnings including all annual labor-supply and zero-year variation. The gate-2c couple axis is a Spearman RANK correlation of a per-year earnings-CAPACITY axis (mean NAWI-indexed positive-year earnings), measured over the SELECTED both-positive-earner PSID couple universe. The concept-matched Schwartz row is therefore DUAL-EARNER (both positive), not all-couples; and the rank-vs-Pearson and capacity-vs-annual deltas both raise a rank-capacity correlation above the annual-earnings Pearson value. Reported as a direction/order-of-magnitude anchor, never a level target."
+}

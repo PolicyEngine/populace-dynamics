@@ -1,0 +1,117 @@
+{
+  "schema_version": "gate2c_anchor.v1",
+  "run": "gate2c_anchor_v1",
+  "reported_anchor_not_gated": true,
+  "gated": false,
+  "purpose": "External concept-bridged assortative-mating anchor for the gate-2c marriage x earnings joint floor. Required by runs/gate2c_floors_v1.json external_anchor.required_before_ratifying_flip; bundled by the gate-2c lock flip. Reads the frozen floor's per-year earnings-rank correlation and 3x3 contingency and the committed published benchmarks (Schwartz 2010 CPS ASEC spouses' earnings; Greenwood et al. 2014 educational assortative mating); reports OUR value next to the published value with the concept delta NAMED. REPORTED, NEVER GATED. No calibration -- honest bridge, no floor value moves.",
+  "ceremony": {
+    "tranche": "2c_marriage_earnings_joint",
+    "step": "external anchor, bundled with the ratifying flip (after floor -> referee -> fixes -> verification)",
+    "mirrors": "runs/gate2_floors_v2.json (2a NCHS) + runs/gate2b_anchor_v1.json (2b Census/CPS)",
+    "gates_this_run": false
+  },
+  "floor_source": "runs/gate2c_floors_v1.json",
+  "floor_sha256": "8259126e4504a4f44840cdad264ab0a0fa32cd76ce4897986da97244090c8625",
+  "published_sources": [
+    {
+      "file": "data/external/schwartz_2010_spousal_earnings_correlation.json",
+      "source": "Schwartz, Christine R. 2010. 'Earnings Inequality and the Changing Association between Spouses' Earnings.' American Journal of Sociology 115(5): 1524-1557.",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2908420/",
+      "doi": "10.1086/651373",
+      "reference_years": "1967-2005 (CPS ASEC)",
+      "fetched_utc": "2026-07-10T00:00:00+00:00",
+      "source_file_sha256": null,
+      "committed_file_sha256": "4cf5a6348e61975bdc0693e347b8403ca35242b8888d86afa62a14024f49480e"
+    },
+    {
+      "file": "data/external/greenwood_2014_assortative_mating.json",
+      "source": "Greenwood, Jeremy, Nezih Guner, Georgi Kocharkov, and Cezar Santos. 2014. 'Marry Your Like: Assortative Mating and Income Inequality.' American Economic Review: Papers & Proceedings 104(5): 348-353.",
+      "source_url": "https://www.nber.org/system/files/working_papers/w19829/w19829.pdf",
+      "reference_years": "1960-2005 (Census/ACS)",
+      "fetched_utc": "2026-07-10T00:00:00+00:00",
+      "source_file_sha256": "e134e53a9a17bcb0571bb58245eb61f8b707a5734694f65def6fe037873d37cb",
+      "committed_file_sha256": "db89e1417749d5c2feee76257525b2846d69587dd17a759204fd7dfa0ee201f4"
+    }
+  ],
+  "our_moments": {
+    "within_couple_earnings_rank_spearman": 0.4928,
+    "career_sum_proxy_spearman_cross_sex": 0.1194,
+    "within_sex_rank_spearman": 0.2165,
+    "observed_positive_years_spearman": -0.0954,
+    "contingency_relative_diagonal_delta": 1.3689,
+    "n_directed_couples": 7994
+  },
+  "concept_bridge": {
+    "truncated_support_selected_couples": "The gate-2c couples are a SELECTED, truncated-support set: both partners must carry a per-year earnings axis (family-file head/spouse labor income, income years 1968-2022, cohort-graded truncation) and >= 5 observed positive years, with age-60 in the NAWI window. The published series are drawn from full cross-sections (CPS ASEC married couples; Census/ACS married couples). Every comparison here carries that universe delta -- reported as a direction/order-of-magnitude bridge, never a level target.",
+    "rank_vs_pearson": "our axis is a Spearman RANK correlation; Schwartz is a Pearson LEVEL correlation of annual earnings.",
+    "capacity_vs_annual_earnings": "our axis is per-year earnings CAPACITY (mean indexed positive-year earnings), stripping labor-supply and zero-year variation that depress the annual-earnings Pearson.",
+    "education_vs_earnings": "the Greenwood series measures EDUCATIONAL sorting, a proxy for the earnings-capacity axis; the contingency-delta bridge carries this extra proxy delta.",
+    "bridge_target_is_the_per_year_axis": "per the frozen floor's external_anchor.concept_delta, the anchor bridges to the per-year sorting (~0.49), NOT the round-1 career-sum proxy rho (~0.12, an observation-mechanics artifact)."
+  },
+  "facets": {
+    "within_couple_rank_correlation": {
+      "our_statistic": "within-couple Spearman RANK correlation of the per-year NAWI-indexed positive-year earnings axis (fix C), over the selected both-positive PSID couples",
+      "our_value": 0.4928,
+      "anchor_source": "Schwartz (2010)",
+      "anchor_statistic": "Pearson correlation of spouses' ANNUAL earnings (CPS ASEC, Schwartz 2010 Figure 2)",
+      "anchor_dual_earner_pearson": {
+        "1967_1970": 0.08,
+        "2003_2005": 0.23
+      },
+      "anchor_all_couples_pearson": {
+        "1967_1970": -0.08,
+        "2003_2005": 0.12
+      },
+      "concept_matched_row": "DUAL-EARNER (both spouses positive), mirroring the gate-2c both-positive couple selection -- NOT the all-couples row",
+      "concept_deltas": [
+        "rank (Spearman) vs level (Pearson): rank correlations of right-skewed earnings sit above the Pearson value",
+        "per-year earnings-CAPACITY axis (mean indexed positive-year earnings) vs ANNUAL earnings: the capacity axis strips labor-supply/hours and zero-year variation, raising the sorting signal",
+        "selected both-positive universe (age-60 in the NAWI window, >= 5 positive years) vs all married couples: selection on both-earner status is the dual-earner analogue",
+        "pooled marriage decades 1924-2022, concentrated in older decades (the age-60/NAWI selection) vs a single CPS year -- Schwartz's series RISES over time, so a pooled value brackets between the period endpoints"
+      ],
+      "direction": "positive, moderate sorting. Our per-year rank 0.4928 lies ABOVE the Schwartz dual-earner annual-earnings Pearson (0.23 in 2003-5) exactly as the rank + capacity + selection deltas predict; direction and order of magnitude agree, no level is matched.",
+      "career_sum_caveat": "the round-1 career-sum AIME proxy rho (0.1194) happens to sit near the Schwartz all-couples Pearson (0.12, 2003-5), but for the WRONG reason: it is halved by cross-sex tercile pooling (within-sex rank 0.2165) and contaminated by the observed-positive-years anti-correlation (-0.0954). That coincidence is exactly why the gated axis is the per-year measure (0.4928), not the career sum -- the anchor bridges to 0.4928, not 0.1194.",
+      "calibration": "none -- reported, no floor value moves"
+    },
+    "contingency_diagonal_concentration": {
+      "our_statistic": "relative sum of the 3x3 own-tercile x spouse-tercile earnings contingency diagonals (Greenwood et al. delta_t, computed on the frozen gate-2c contingency)",
+      "our_relative_diagonal_delta": 1.3689,
+      "our_diagonal_detail": {
+        "observed_diagonal_mass": 0.4752,
+        "independence_expected_diagonal_mass": 0.3471,
+        "relative_sum_of_diagonals_delta": 1.3689,
+        "row_marginals_own": [
+          0.2524,
+          0.3357,
+          0.4118
+        ],
+        "col_marginals_spouse": [
+          0.2428,
+          0.3419,
+          0.4154
+        ]
+      },
+      "our_corner_ratio_own3_spouse3_over_own1_spouse1": 2.208,
+      "anchor_source": "Greenwood, Guner, Kocharkov & Santos (2014)",
+      "anchor_statistic": "delta_t on the 5x5 husband-wife EDUCATION contingency (Greenwood et al. 2014 Figure 1, figure-read)",
+      "anchor_education_delta_range": [
+        1.6,
+        2.0
+      ],
+      "anchor_is_figure_read": true,
+      "concept_deltas": [
+        "3x3 earnings terciles vs 5x5 education levels (finer education grid admits larger diagonal concentration)",
+        "earnings-capacity sorting vs EDUCATIONAL sorting (education is a proxy; educational homogamy is the stronger-measured channel)"
+      ],
+      "direction": "both deltas exceed 1 (positive sorting). Our earnings-capacity delta sits BELOW the Greenwood educational delta_t (~1.6-2.0), consistent with educational homogamy being stronger than earnings-capacity homogamy -- direction validated, no calibration.",
+      "calibration": "none -- reported, no floor value moves"
+    }
+  },
+  "summary": {
+    "n_facets": 2,
+    "bridged_moment": "within-couple per-year earnings rank 0.4928",
+    "direction_agrees": true,
+    "any_level_calibrated": false,
+    "calibration": "none -- values are reported, no floor moves"
+  }
+}
