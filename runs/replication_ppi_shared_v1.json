@@ -1,0 +1,1840 @@
+{
+  "schema_version": "replication_ppi_shared.v1",
+  "run": "replication_ppi_shared_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4931009783",
+  "registration_pointer": "#42 comment 4931009783",
+  "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+  "phase_a_individual_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4907444903",
+  "r7_join_machinery_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4911171806",
+  "purpose": "Shared-earnings companion to the Phase-A PI/PPI replication: report Mermin (2005)'s own-record price-indexing and progressive-price-indexing benefit cuts by SHARED lifetime-earnings quintile -- the paper's exact quintile concept -- computed on REAL PSID couples, closing the Phase-A individual-vs-shared named delta. Reads no gate, changes no gate; publishes regardless of outcome.",
+  "real_data_only_scope": {
+    "real_data_only": true,
+    "tranche_map_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/112",
+    "statement": "The ratified gate-2 tranche map (gates.yaml gate_2 ... provision_class_coverage.marriage_x_earnings_joint, #112) declares the marriage x earnings joint -- who marries whom as a function of earnings -- NOT COVERED and the separate UNLOCKED tranche 2c_marriage_earnings_joint (reported-not-gated). A generated-couples version of this diagnostic (synthetic spouses drawn jointly with earnings) would require that unlocked tranche 2c, so this diagnostic runs on REAL PSID couples only: a Phase-A career-frame person whose marriage-history spouses all carry a computable earnings record (the R7 join). No generated component; the five seeds drive only the real-vs-real half-split floors. The tranche map further records (certification_scope) that OWN-RECORD benefit levels are OUTSIDE tranches 2a/2b/2c (already certified), and the benefit ratio here is exactly that own-record surface -- only the shared RANKING touches marriage, and it uses real couples.",
+    "gate_2_marriage_x_earnings_joint_scope": "NOT COVERED -- no gate-2 statistic touches the marriage x earnings joint (who marries whom), on which spousal/survivor benefit LEVELS depend. Declared the separate UNLOCKED tranche 2c_marriage_earnings_joint (reported-not-gated), not silence."
+  },
+  "design": "The benefit reform is the Phase-A encoding VERBATIM on OWN AIME (PPI bend at the weighted 30th percentile of own AIME); the shared lifetime earnings is Mermin's RANKING variable only. So the individual and shared versions share the identical per-person own-record PI/PPI ratio and differ ONLY in the reporting quintile (own-AIME quintile vs shared-AIME quintile), exactly as Mermin reports own-record benefits by shared-lifetime-income quintile.",
+  "anchor_provenance": {
+    "paper": "Mermin, G. B. T. (2005). The Effect of Benefit Reductions on the Distribution of Social Security Benefits. Urban Institute report 411260. DYNASIM3, Runid 432. 2005 Trustees intermediate assumptions.",
+    "source_files": [
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.pdf",
+      "~/PolicyEngine/dynasim-refs/411260-benefit-reductions.txt"
+    ],
+    "shared_lifetime_earnings_definition": {
+      "citation": "printed page 3 (Methodology) and footnote 9",
+      "quote": "To classify individuals by lifetime income the analysis uses shared lifetime earnings. The earnings stream used to calculate shared lifetime earnings includes a worker's entire earnings in years he or she is single and half of the earnings of both the worker and the worker's spouse in years he or she is married.",
+      "footnote_9_quote": "This report uses shared lifetime earnings to better classify the well-being of individuals who share resources with their spouses. For instance, when using shared lifetime earnings a nonworking spouse of a high-wage worker is not classified as low-income. Similar to Social Security's average indexed monthly earnings, earnings are wage-indexed to equate the same relative earnings over time.",
+      "encoding": "couple mean 0.5*(own + spouse) in married years, own earnings when single; the raw couple mean is wage-indexed and capped at the taxable maximum by the Phase-A transport (cap-after-averaging, per fn.9's 'like AIME'); the shared measure is the RANKING variable only -- benefits stay own-record",
+      "capping_convention_note": "Mermin's fn.9 ties the shared stream to AIME (cap at the taxable maximum, wage-indexed), applied to the couple mean -> cap AFTER averaging. This differs from Favreault-Steuerle (2007)'s 'capped ... PRIOR to sharing' (the R7 convention). On this compressed common support the cap almost never binds, so the choice is numerically immaterial here."
+    },
+    "population_and_quintile": {
+      "citation": "Table 2 title + notes (PDF p.16); p.3 (Methodology)",
+      "population": "retired workers aged 62-67 in 2050, own-record benefits only, N=5351 -- so the PI/PPI percent-of-scheduled is an OWN-record quantity, reported by SHARED-lifetime-income quintile",
+      "career_average_definition": "career average annual earnings = average indexed monthly earnings * 12 (Figure 1 note, PDF p.14); the shared measure ranks on shared AIME (equivalently shared AIME*12)"
+    },
+    "table2_retired_workers_62_67_in_2050": {
+      "citation": "Table 2, PDF p.16 (Percent of Scheduled Benefits)",
+      "quintile_order": "lowest -> highest shared-lifetime-income",
+      "scheduled_mean_2005usd": {
+        "by_quintile": [
+          9200,
+          13900,
+          18100,
+          21900,
+          25600
+        ],
+        "all": 17700
+      },
+      "price_indexing_pct": {
+        "by_quintile": [
+          67.8,
+          67.8,
+          67.9,
+          67.8,
+          67.8
+        ],
+        "all": 67.8
+      },
+      "progressive_price_indexing_pct": {
+        "by_quintile": [
+          98.7,
+          90.4,
+          81.3,
+          75.7,
+          71.7
+        ],
+        "all": 80.4
+      }
+    },
+    "named_population_deltas": [
+      "truncated observation window: gate-filtered ages 25-59, 1998-2022 biennial PSID careers through the committed PIA-proxy convention (this study) vs full 415(b) careers (Mermin) -- compresses the AIME distribution, flattening and raising the incidence gradient, so the upper quintiles stay compressed by construction",
+      "observed cohorts: PSID retired workers observed 1998-2022 transported to a single 2050-eligibility cohort (this study) vs Mermin's projected 62-67-in-2050 retirees",
+      "common-support restriction: the identical gate-filtered support and proxy-AIME convention as the Phase-A run, so the individual and shared versions differ ONLY in the ranking variable",
+      "the individual-vs-shared quintile-concept delta the Phase-A run named is CLOSED here: the shared measure is computed exactly (spouse-shared during marriage on real couples)"
+    ]
+  },
+  "transport_and_conventions": {
+    "eligibility_year": 2050,
+    "index_year": 2048,
+    "index_nawi": 169240.76360352724,
+    "bend_points_2050": [
+      3115.0,
+      18777.0
+    ],
+    "pia_factors": [
+      0.9,
+      0.32,
+      0.15
+    ],
+    "wedge": 0.6673406036884157,
+    "wedge_years": 38,
+    "wedge_formula": "(1.028/1.039)**(2050-2012)",
+    "aime_convention": "committed PIA-proxy biennial convention (cap at the historical wage base; NAWI-index to 2048; top min(10,n) over count*12*2; 415(b) dollar floor) -- imported from the Phase-A transport VERBATIM",
+    "ppi_bend": "weighted 30th percentile of OWN transported AIME (the benefit-relevant distribution); identical for the individual and shared versions",
+    "shared_measure": "couple mean 0.5*(own + spouse) in marriage years (R7 join machinery), own earnings when single; ranked by shared transported AIME; cap-after-averaging via the transport",
+    "quintile_variable_individual": "own-distribution transported AIME; weighted 20% quintiles",
+    "quintile_variable_shared": "shared-distribution transported AIME; weighted 20% quintiles"
+  },
+  "study_population": {
+    "career_frame_rule": "Phase-A coverage_selected_persons on the gate panel (positive-earnings biennial coverage >= 0.8 over the person's observed in-window span AND >= 8 positive biennial observations)",
+    "n_gate_panel_persons": 22300,
+    "n_career_frame": 4835,
+    "n_study": 3131,
+    "marriage_joinability": {
+      "definition": "share of Phase-A career-frame persons whose relevant marriage spouses all carry a computable earnings record (never-married trivially joinable)",
+      "n_career_frame_classified": 4835,
+      "n_marriage_joinable": 3131,
+      "marriage_joinable_share": 0.6476,
+      "by_marital_status": {
+        "married": {
+          "n": 3310,
+          "n_joinable": 2054,
+          "share": 0.6205
+        },
+        "divorced": {
+          "n": 857,
+          "n_joinable": 444,
+          "share": 0.5181
+        },
+        "widowed": {
+          "n": 97,
+          "n_joinable": 62,
+          "share": 0.6392
+        },
+        "never_married": {
+          "n": 571,
+          "n_joinable": 571,
+          "share": 1.0
+        }
+      }
+    },
+    "ever_married_sharing": {
+      "n_study": 3131,
+      "n_ever_married_sharing": 2532,
+      "n_never_married_own_only": 599
+    },
+    "n_reshuffled_own_vs_shared": 1294,
+    "weighted_share_reshuffled": 0.45789232221501175,
+    "weighting": "anchor weight = the person's chronologically last observed gate-panel cross-sectional weight (the Phase-A anchor)"
+  },
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "common_support": "gate-filtered ages 25-59, 1998-2022 biennial",
+    "floor": "real-vs-real 50/50 person-disjoint half-split (split_panel_by_person, fraction=0.5) on the study population; per-quintile A-vs-B gap on each grouping, pooled over 5 seeds",
+    "metric": "weighted-mean own-record reform/scheduled PIA ratio (percent) by quintile, grouped by own AIME (individual) and by shared AIME (shared); deterministic full sample; floors per quintile"
+  },
+  "three_way_comparison": {
+    "columns": "individual (own quintile) / shared (shared quintile) / anchor (Mermin DYNASIM), percent of scheduled",
+    "ppi_by_quintile": [
+      {
+        "quintile": 1,
+        "anchor_dynasim_ppi_pct": 98.7,
+        "individual_ppi_pct": 100.0,
+        "shared_ppi_pct": 99.48774605791598,
+        "shared_minus_individual_pp": -0.5122539420840155,
+        "individual_abs_gap_vs_anchor_pp": 1.2999999999999972,
+        "shared_abs_gap_vs_anchor_pp": 0.7877460579159816,
+        "shared_closer_to_anchor": true,
+        "abs_shared_minus_individual_pp": 0.5122539420840155,
+        "regroup_exceeds_shared_floor": true,
+        "individual_floor_pp": {
+          "mean": 0.0,
+          "sd": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 5,
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "shared_floor_pp": {
+          "mean": 0.07711114803262831,
+          "sd": 0.03166938825504283,
+          "min": 0.054606582466576015,
+          "max": 0.12845811531336437,
+          "n_seeds": 5,
+          "values": [
+            0.059413326296805735,
+            0.054606582466576015,
+            0.08724746020735097,
+            0.12845811531336437,
+            0.055830255879044444
+          ]
+        }
+      },
+      {
+        "quintile": 2,
+        "anchor_dynasim_ppi_pct": 90.4,
+        "individual_ppi_pct": 99.23171378910398,
+        "shared_ppi_pct": 97.12051383498364,
+        "shared_minus_individual_pp": -2.1111999541203375,
+        "individual_abs_gap_vs_anchor_pp": 8.831713789103972,
+        "shared_abs_gap_vs_anchor_pp": 6.720513834983635,
+        "shared_closer_to_anchor": true,
+        "abs_shared_minus_individual_pp": 2.1111999541203375,
+        "regroup_exceeds_shared_floor": true,
+        "individual_floor_pp": {
+          "mean": 0.12706295360924003,
+          "sd": 0.045273585820511664,
+          "min": 0.07116175121427659,
+          "max": 0.1841644132303628,
+          "n_seeds": 5,
+          "values": [
+            0.09282058197344156,
+            0.13669784734847212,
+            0.1841644132303628,
+            0.15047017427964704,
+            0.07116175121427659
+          ]
+        },
+        "shared_floor_pp": {
+          "mean": 0.2965920209234099,
+          "sd": 0.20558598693399405,
+          "min": 0.05509793441031263,
+          "max": 0.5874519414898742,
+          "n_seeds": 5,
+          "values": [
+            0.5874519414898742,
+            0.3794161957805784,
+            0.05509793441031263,
+            0.15787965727243147,
+            0.3031143756638528
+          ]
+        }
+      },
+      {
+        "quintile": 3,
+        "anchor_dynasim_ppi_pct": 81.3,
+        "individual_ppi_pct": 94.48642092531685,
+        "shared_ppi_pct": 93.80152921921307,
+        "shared_minus_individual_pp": -0.6848917061037838,
+        "individual_abs_gap_vs_anchor_pp": 13.186420925316853,
+        "shared_abs_gap_vs_anchor_pp": 12.501529219213069,
+        "shared_closer_to_anchor": true,
+        "abs_shared_minus_individual_pp": 0.6848917061037838,
+        "regroup_exceeds_shared_floor": true,
+        "individual_floor_pp": {
+          "mean": 0.34520240296953375,
+          "sd": 0.25515111363467446,
+          "min": 0.04018952111820795,
+          "max": 0.7023667266937395,
+          "n_seeds": 5,
+          "values": [
+            0.4886435102559119,
+            0.25467169844969817,
+            0.24014055833011128,
+            0.7023667266937395,
+            0.04018952111820795
+          ]
+        },
+        "shared_floor_pp": {
+          "mean": 0.44240437222177886,
+          "sd": 0.3377456544190452,
+          "min": 0.03933190772849571,
+          "max": 0.9097103662118968,
+          "n_seeds": 5,
+          "values": [
+            0.6431471641350726,
+            0.30531671671568006,
+            0.03933190772849571,
+            0.9097103662118968,
+            0.3145157063177493
+          ]
+        }
+      },
+      {
+        "quintile": 4,
+        "anchor_dynasim_ppi_pct": 75.7,
+        "individual_ppi_pct": 89.40769468392202,
+        "shared_ppi_pct": 90.49474510613521,
+        "shared_minus_individual_pp": 1.0870504222131956,
+        "individual_abs_gap_vs_anchor_pp": 13.707694683922014,
+        "shared_abs_gap_vs_anchor_pp": 14.79474510613521,
+        "shared_closer_to_anchor": false,
+        "abs_shared_minus_individual_pp": 1.0870504222131956,
+        "regroup_exceeds_shared_floor": true,
+        "individual_floor_pp": {
+          "mean": 0.5815440287076626,
+          "sd": 0.23619118618450383,
+          "min": 0.21733730740119483,
+          "max": 0.8580633157570503,
+          "n_seeds": 5,
+          "values": [
+            0.6941677953018228,
+            0.8580633157570503,
+            0.21733730740119483,
+            0.5918862837627046,
+            0.5462654413155406
+          ]
+        },
+        "shared_floor_pp": {
+          "mean": 0.43814554769996616,
+          "sd": 0.41907992353242485,
+          "min": 0.037589122056360225,
+          "max": 1.1055986245880405,
+          "n_seeds": 5,
+          "values": [
+            0.553310070773847,
+            1.1055986245880405,
+            0.17526570367462568,
+            0.037589122056360225,
+            0.3189642174069576
+          ]
+        }
+      },
+      {
+        "quintile": 5,
+        "anchor_dynasim_ppi_pct": 71.7,
+        "individual_ppi_pct": 84.38759537227402,
+        "shared_ppi_pct": 86.61598538533354,
+        "shared_minus_individual_pp": 2.228390013059524,
+        "individual_abs_gap_vs_anchor_pp": 12.687595372274018,
+        "shared_abs_gap_vs_anchor_pp": 14.915985385333542,
+        "shared_closer_to_anchor": false,
+        "abs_shared_minus_individual_pp": 2.228390013059524,
+        "regroup_exceeds_shared_floor": true,
+        "individual_floor_pp": {
+          "mean": 0.3173160640074627,
+          "sd": 0.15891021466666047,
+          "min": 0.14059635362221456,
+          "max": 0.4940495768224764,
+          "n_seeds": 5,
+          "values": [
+            0.47255376055890963,
+            0.4940495768224764,
+            0.27429507078301185,
+            0.14059635362221456,
+            0.20508555825070118
+          ]
+        },
+        "shared_floor_pp": {
+          "mean": 0.6081266086290981,
+          "sd": 0.37652885086784454,
+          "min": 0.16449757665257891,
+          "max": 1.1450799929486806,
+          "n_seeds": 5,
+          "values": [
+            1.1450799929486806,
+            0.7613815512921605,
+            0.16449757665257891,
+            0.3663411903465601,
+            0.6033327319055104
+          ]
+        }
+      }
+    ],
+    "ppi_all": {
+      "anchor_dynasim_pct": 80.4,
+      "individual_overall_pct": 93.5039118153652,
+      "shared_overall_pct": 93.5039118153652,
+      "note": "individual and shared share the identical per-person own-record ratio, so the population 'all' PPI ratio is the same for both -- only the by-quintile grouping differs"
+    },
+    "pi_scalars": {
+      "individual_by_quintile_pct": [
+        66.73406036884157,
+        66.73406036884158,
+        66.73406036884158,
+        66.73406036884158,
+        66.73406036884157
+      ],
+      "shared_by_quintile_pct": [
+        66.73406036884157,
+        66.73406036884157,
+        66.73406036884157,
+        66.73406036884157,
+        66.73406036884157
+      ],
+      "overall_pct": 66.73406036884157,
+      "wedge_implied_scalar_pct": 66.73406036884157,
+      "anchor_dynasim_pct": 67.8,
+      "anchor_dynasim_by_quintile": [
+        67.8,
+        67.8,
+        67.9,
+        67.8,
+        67.8
+      ],
+      "note": "PI scales all PIA factors by the same wedge W, so the PI/scheduled ratio is W for every career, quintile invariant under either ranking (Mermin's PI row is likewise flat at 67.8)"
+    },
+    "pre_registered_expectations": {
+      "prediction": "the shared-quintile PPI gradient moves CLOSER to Mermin's levels than the Phase-A individual version at Q1-Q2 (spousal sharing pulls low-own-earnings wives of higher earners up the distribution, so shared Q1 picks up some above-bend careers the individual Q1 lacked); monotonicity holds; Q1 within 3pp of the anchor's 98.7 (the individual version sat at 100.0); the upper quintiles remain compressed by the truncated-window support restriction (named, not chased)",
+      "anchor_q1_ppi_pct": 98.7,
+      "individual_q1_ppi_pct": 100.0,
+      "shared_q1_ppi_pct": 99.48774605791598,
+      "shared_q1_within_3pp_of_anchor": true,
+      "shared_closer_at_q1": true,
+      "shared_closer_at_q2": true,
+      "shared_closer_at_q1_q2": true,
+      "shared_ppi_monotone_nonincreasing": true,
+      "top_quintile_shared_abs_gap_vs_anchor_pp": 14.915985385333542,
+      "top_quintile_still_compressed": true,
+      "all_core_expectations_held": true
+    },
+    "phase_a_full_population_reference": {
+      "available": true,
+      "source": "runs/replication_ppi_mermin_v1.json",
+      "note": "the Phase-A individual version on its full population (larger than this run's marriage-joinable intersection); shown for context, not as the three-way individual column (which is recomputed here on the identical study population)",
+      "individual_ppi_by_quintile_pct": [
+        100.0,
+        99.32791659885845,
+        94.84416373149558,
+        90.00971976042061,
+        84.65031922800884
+      ],
+      "individual_pi_overall_pct": 66.73406036884157
+    }
+  },
+  "full_sample": {
+    "n_persons": 3131,
+    "n_zero_scheduled_excluded": 0,
+    "bend30_own_aime": 5768.275858233167,
+    "own_quintile_cutpoints_aime": [
+      4756.0,
+      6933.076476017507,
+      9364.90289379247,
+      13425.264375223776
+    ],
+    "shared_quintile_cutpoints_aime": [
+      4747.33422732162,
+      6789.867742292946,
+      8829.149380644525,
+      11926.166828428304
+    ],
+    "n_reshuffled_own_vs_shared": 1294,
+    "weighted_share_reshuffled": 0.45789232221501175,
+    "overall_pi_ratio_pct": 66.73406036884157,
+    "overall_ppi_ratio_pct": 93.5039118153652,
+    "by_own_quintile": [
+      {
+        "quintile": 1,
+        "n_persons": 789,
+        "n_positive": 789,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 100.0,
+        "mean_own_aime": 3365.6469887469116,
+        "mean_shared_aime": 4541.862681192967,
+        "mean_scheduled_amount": 2699.808937934421
+      },
+      {
+        "quintile": 2,
+        "n_persons": 701,
+        "n_positive": 701,
+        "pi_ratio_pct": 66.73406036884158,
+        "ppi_ratio_pct": 99.23171378910398,
+        "mean_own_aime": 5787.235210779505,
+        "mean_shared_aime": 6311.767272099644,
+        "mean_scheduled_amount": 3658.6152674494415
+      },
+      {
+        "quintile": 3,
+        "n_persons": 611,
+        "n_positive": 611,
+        "pi_ratio_pct": 66.73406036884158,
+        "ppi_ratio_pct": 94.48642092531685,
+        "mean_own_aime": 8073.146438266866,
+        "mean_shared_aime": 7980.06793891357,
+        "mean_scheduled_amount": 4390.106860245396
+      },
+      {
+        "quintile": 4,
+        "n_persons": 552,
+        "n_positive": 552,
+        "pi_ratio_pct": 66.73406036884158,
+        "ppi_ratio_pct": 89.40769468392202,
+        "mean_own_aime": 11180.852598061396,
+        "mean_shared_aime": 9550.240921161147,
+        "mean_scheduled_amount": 5384.572831379646
+      },
+      {
+        "quintile": 5,
+        "n_persons": 478,
+        "n_positive": 478,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 84.38759537227402,
+        "mean_own_aime": 15942.023290274803,
+        "mean_shared_aime": 13490.988847834127,
+        "mean_scheduled_amount": 6908.147452887936
+      }
+    ],
+    "by_shared_quintile": [
+      {
+        "quintile": 1,
+        "n_persons": 781,
+        "n_positive": 781,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 99.48774605791598,
+        "mean_own_aime": 4183.544326722728,
+        "mean_shared_aime": 3483.4246629135782,
+        "mean_scheduled_amount": 3009.2749718291657
+      },
+      {
+        "quintile": 2,
+        "n_persons": 692,
+        "n_positive": 692,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 97.12051383498364,
+        "mean_own_aime": 6573.847660156236,
+        "mean_shared_aime": 5786.200569771969,
+        "mean_scheduled_amount": 3892.0084729898845
+      },
+      {
+        "quintile": 3,
+        "n_persons": 616,
+        "n_positive": 616,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 93.80152921921307,
+        "mean_own_aime": 8605.794963690905,
+        "mean_shared_aime": 7753.127189336663,
+        "mean_scheduled_amount": 4549.1504509440365
+      },
+      {
+        "quintile": 4,
+        "n_persons": 556,
+        "n_positive": 556,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 90.49474510613521,
+        "mean_own_aime": 10797.045384566962,
+        "mean_shared_aime": 10206.307763709756,
+        "mean_scheduled_amount": 5249.966234965112
+      },
+      {
+        "quintile": 5,
+        "n_persons": 486,
+        "n_positive": 486,
+        "pi_ratio_pct": 66.73406036884157,
+        "ppi_ratio_pct": 86.61598538533354,
+        "mean_own_aime": 14189.646579923998,
+        "mean_shared_aime": 14648.129380116046,
+        "mean_scheduled_amount": 6341.531198038125
+      }
+    ]
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_persons_side_a": 1597,
+      "n_persons_side_b": 1534,
+      "side_a": {
+        "n_persons": 1597,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5846.120451507501,
+        "own_quintile_cutpoints_aime": [
+          4796.639416792358,
+          6957.231192744178,
+          9225.854071562326,
+          13431.359453760419
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4763.735081967213,
+          6791.941645065192,
+          8862.294509182437,
+          11733.275276207167
+        ],
+        "n_reshuffled_own_vs_shared": 679,
+        "weighted_share_reshuffled": 0.4687438812035943,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.69443130530625,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 411,
+            "n_positive": 411,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3417.096654226503,
+            "mean_shared_aime": 4513.000162677707,
+            "mean_scheduled_amount": 2736.496641865823
+          },
+          {
+            "quintile": 2,
+            "n_persons": 352,
+            "n_positive": 352,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.29504840438037,
+            "mean_own_aime": 5826.562955458592,
+            "mean_shared_aime": 6440.150754193234,
+            "mean_scheduled_amount": 3671.20014574675
+          },
+          {
+            "quintile": 3,
+            "n_persons": 307,
+            "n_positive": 307,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.74559922114986,
+            "mean_own_aime": 8034.68782142741,
+            "mean_shared_aime": 8175.9064627678,
+            "mean_scheduled_amount": 4377.800102856771
+          },
+          {
+            "quintile": 4,
+            "n_persons": 289,
+            "n_positive": 289,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.78680488378761,
+            "mean_own_aime": 11027.025061519556,
+            "mean_shared_aime": 9360.550997824834,
+            "mean_scheduled_amount": 5335.348019686257
+          },
+          {
+            "quintile": 5,
+            "n_persons": 238,
+            "n_positive": 238,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.63940110488196,
+            "mean_own_aime": 15784.698770757283,
+            "mean_shared_aime": 13189.024804601524,
+            "mean_scheduled_amount": 6857.803606642332
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 404,
+            "n_positive": 404,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.52005827057019,
+            "mean_own_aime": 4209.342555124448,
+            "mean_shared_aime": 3478.0770096665747,
+            "mean_scheduled_amount": 3033.87543869739
+          },
+          {
+            "quintile": 2,
+            "n_persons": 345,
+            "n_positive": 345,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 97.42946090821728,
+            "mean_own_aime": 6453.629676735727,
+            "mean_shared_aime": 5833.918946943289,
+            "mean_scheduled_amount": 3847.7887988232833
+          },
+          {
+            "quintile": 3,
+            "n_persons": 314,
+            "n_positive": 314,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 93.50391643318372,
+            "mean_own_aime": 8890.36509348995,
+            "mean_shared_aime": 7787.954426190553,
+            "mean_scheduled_amount": 4646.934847587529
+          },
+          {
+            "quintile": 4,
+            "n_persons": 286,
+            "n_positive": 286,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 90.78815072432658,
+            "mean_own_aime": 10769.211070392144,
+            "mean_shared_aime": 10126.661794482243,
+            "mean_scheduled_amount": 5247.233357888016
+          },
+          {
+            "quintile": 5,
+            "n_persons": 248,
+            "n_positive": 248,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 87.22133729055723,
+            "mean_own_aime": 13772.475914696694,
+            "mean_shared_aime": 14460.13571236517,
+            "mean_scheduled_amount": 6204.309909401657
+          }
+        ]
+      },
+      "side_b": {
+        "n_persons": 1534,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5714.862345821592,
+        "own_quintile_cutpoints_aime": [
+          4736.764029873495,
+          6908.747461279461,
+          9564.54288087328,
+          13399.056438286514
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4682.304433942881,
+          6778.491560835723,
+          8779.331965551357,
+          12062.0
+        ],
+        "n_reshuffled_own_vs_shared": 628,
+        "weighted_share_reshuffled": 0.45387666310946434,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.34745921354161,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 381,
+            "n_positive": 381,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3315.4603329414053,
+            "mean_shared_aime": 4606.612128097118,
+            "mean_scheduled_amount": 2662.829346886731
+          },
+          {
+            "quintile": 2,
+            "n_persons": 347,
+            "n_positive": 347,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.20222782240693,
+            "mean_own_aime": 5751.03675313908,
+            "mean_shared_aime": 6178.78022479899,
+            "mean_scheduled_amount": 3647.0317610045054
+          },
+          {
+            "quintile": 3,
+            "n_persons": 307,
+            "n_positive": 307,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.25695571089395,
+            "mean_own_aime": 8129.181952757054,
+            "mean_shared_aime": 7809.78532874923,
+            "mean_scheduled_amount": 4408.038224882258
+          },
+          {
+            "quintile": 4,
+            "n_persons": 259,
+            "n_positive": 259,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.09263708848579,
+            "mean_own_aime": 11328.063874023583,
+            "mean_shared_aime": 9692.929293584639,
+            "mean_scheduled_amount": 5431.680439687547
+          },
+          {
+            "quintile": 5,
+            "n_persons": 240,
+            "n_positive": 240,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.16684734432305,
+            "mean_own_aime": 16109.245555148587,
+            "mean_shared_aime": 13802.964076409256,
+            "mean_scheduled_amount": 6961.658577647549
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 373,
+            "n_positive": 373,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.46064494427338,
+            "mean_own_aime": 4161.777499177894,
+            "mean_shared_aime": 3488.782919206344,
+            "mean_scheduled_amount": 2985.655036352441
+          },
+          {
+            "quintile": 2,
+            "n_persons": 350,
+            "n_positive": 350,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 96.8420089667274,
+            "mean_own_aime": 6687.930630160625,
+            "mean_shared_aime": 5736.800153638551,
+            "mean_scheduled_amount": 3933.9881514785798
+          },
+          {
+            "quintile": 3,
+            "n_persons": 302,
+            "n_positive": 302,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.14706359731879,
+            "mean_own_aime": 8326.815603956962,
+            "mean_shared_aime": 7718.691666206265,
+            "mean_scheduled_amount": 4452.763816520855
+          },
+          {
+            "quintile": 4,
+            "n_persons": 268,
+            "n_positive": 268,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.23484065355274,
+            "mean_own_aime": 10847.196962385786,
+            "mean_shared_aime": 10285.304286057753,
+            "mean_scheduled_amount": 5262.837745478427
+          },
+          {
+            "quintile": 5,
+            "n_persons": 241,
+            "n_positive": 241,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.07625729760855,
+            "mean_own_aime": 14581.270291048853,
+            "mean_shared_aime": 14830.295498293042,
+            "mean_scheduled_amount": 6467.3880830334465
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1,
+      "n_persons_side_a": 1587,
+      "n_persons_side_b": 1544,
+      "side_a": {
+        "n_persons": 1587,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5816.0,
+        "own_quintile_cutpoints_aime": [
+          4756.4564114552895,
+          7052.045211819153,
+          9429.673062527087,
+          13951.985975484706
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4747.526834749854,
+          6813.268295861844,
+          8873.695854278147,
+          12078.046891129121
+        ],
+        "n_reshuffled_own_vs_shared": 630,
+        "weighted_share_reshuffled": 0.44412186822155614,
+        "overall_pi_ratio_pct": 66.73406036884158,
+        "overall_ppi_ratio_pct": 93.36764150083559,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 399,
+            "n_positive": 399,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3258.509663908351,
+            "mean_shared_aime": 4345.227970224011,
+            "mean_scheduled_amount": 2636.7047028416173
+          },
+          {
+            "quintile": 2,
+            "n_persons": 359,
+            "n_positive": 359,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.18714588411659,
+            "mean_own_aime": 5832.948188700369,
+            "mean_shared_aime": 6356.378337542459,
+            "mean_scheduled_amount": 3673.243420384118
+          },
+          {
+            "quintile": 3,
+            "n_persons": 296,
+            "n_positive": 296,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 94.43114870093358,
+            "mean_own_aime": 8156.343874561872,
+            "mean_shared_aime": 7982.239409954644,
+            "mean_scheduled_amount": 4416.730039859799
+          },
+          {
+            "quintile": 4,
+            "n_persons": 295,
+            "n_positive": 295,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.01200664073193,
+            "mean_own_aime": 11566.999981257899,
+            "mean_shared_aime": 9834.761714343507,
+            "mean_scheduled_amount": 5508.139994002528
+          },
+          {
+            "quintile": 5,
+            "n_persons": 238,
+            "n_positive": 238,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 84.21316394810509,
+            "mean_own_aime": 16223.55527632801,
+            "mean_shared_aime": 13787.263075428136,
+            "mean_scheduled_amount": 6998.237688424963
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 403,
+            "n_positive": 403,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.52274837997442,
+            "mean_own_aime": 4012.5125326024177,
+            "mean_shared_aime": 3350.4196942439507,
+            "mean_scheduled_amount": 2917.7937291813723
+          },
+          {
+            "quintile": 2,
+            "n_persons": 349,
+            "n_positive": 349,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.30613868207205,
+            "mean_own_aime": 6524.121653304152,
+            "mean_shared_aime": 5824.453867089017,
+            "mean_scheduled_amount": 3878.964957830262
+          },
+          {
+            "quintile": 3,
+            "n_persons": 309,
+            "n_positive": 309,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 93.80627240980043,
+            "mean_own_aime": 8697.680018146622,
+            "mean_shared_aime": 7854.403935473639,
+            "mean_scheduled_amount": 4586.318860423228
+          },
+          {
+            "quintile": 4,
+            "n_persons": 280,
+            "n_positive": 280,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.76927448301774,
+            "mean_own_aime": 11395.469752081844,
+            "mean_shared_aime": 10364.29801147444,
+            "mean_scheduled_amount": 5438.796950451698
+          },
+          {
+            "quintile": 5,
+            "n_persons": 246,
+            "n_positive": 246,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.42921097407562,
+            "mean_own_aime": 14414.911927108618,
+            "mean_shared_aime": 14915.723813610557,
+            "mean_scheduled_amount": 6413.118611223219
+          }
+        ]
+      },
+      "side_b": {
+        "n_persons": 1544,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5766.0,
+        "own_quintile_cutpoints_aime": [
+          4756.0,
+          6733.450189319755,
+          9256.273324467798,
+          12803.59607105931
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4747.888669809973,
+          6776.001943406301,
+          8779.127495457476,
+          11602.832715614984
+        ],
+        "n_reshuffled_own_vs_shared": 659,
+        "weighted_share_reshuffled": 0.4700871269841087,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.71587368229252,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 390,
+            "n_positive": 390,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3478.4332535788785,
+            "mean_shared_aime": 4748.865185874882,
+            "mean_scheduled_amount": 2766.2404171777216
+          },
+          {
+            "quintile": 2,
+            "n_persons": 340,
+            "n_positive": 340,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.32384373146506,
+            "mean_own_aime": 5748.1064730684175,
+            "mean_shared_aime": 6324.383851941829,
+            "mean_scheduled_amount": 3646.0940713818936
+          },
+          {
+            "quintile": 3,
+            "n_persons": 315,
+            "n_positive": 315,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.68582039938327,
+            "mean_own_aime": 7974.967870515269,
+            "mean_shared_aime": 7972.6637614653355,
+            "mean_scheduled_amount": 4358.689718564887
+          },
+          {
+            "quintile": 4,
+            "n_persons": 260,
+            "n_positive": 260,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.87006995648898,
+            "mean_own_aime": 10823.592642639413,
+            "mean_shared_aime": 9100.893721759025,
+            "mean_scheduled_amount": 5270.2496456446115
+          },
+          {
+            "quintile": 5,
+            "n_persons": 239,
+            "n_positive": 239,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.70721352492757,
+            "mean_own_aime": 15585.991009009727,
+            "mean_shared_aime": 13268.003195192832,
+            "mean_scheduled_amount": 6794.217122883113
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 378,
+            "n_positive": 378,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.46814179750784,
+            "mean_own_aime": 4362.795340602451,
+            "mean_shared_aime": 3622.821408458448,
+            "mean_scheduled_amount": 3105.1524990452967
+          },
+          {
+            "quintile": 2,
+            "n_persons": 345,
+            "n_positive": 345,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 96.92672248629147,
+            "mean_own_aime": 6667.074839997904,
+            "mean_shared_aime": 5750.349703219005,
+            "mean_scheduled_amount": 3918.916968876284
+          },
+          {
+            "quintile": 3,
+            "n_persons": 307,
+            "n_positive": 307,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.11158912651611,
+            "mean_own_aime": 8346.597176378875,
+            "mean_shared_aime": 7656.906900568603,
+            "mean_scheduled_amount": 4458.091216902564
+          },
+          {
+            "quintile": 4,
+            "n_persons": 268,
+            "n_positive": 268,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.87487310760578,
+            "mean_own_aime": 10530.960858754073,
+            "mean_shared_aime": 10059.268080408508,
+            "mean_scheduled_amount": 5167.720528280582
+          },
+          {
+            "quintile": 5,
+            "n_persons": 246,
+            "n_positive": 246,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 87.19059252536778,
+            "mean_own_aime": 13721.693112527755,
+            "mean_shared_aime": 14338.89569897038,
+            "mean_scheduled_amount": 6192.133448604381
+          }
+        ]
+      }
+    },
+    {
+      "seed": 2,
+      "n_persons_side_a": 1564,
+      "n_persons_side_b": 1567,
+      "side_a": {
+        "n_persons": 1564,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5743.146023918136,
+        "own_quintile_cutpoints_aime": [
+          4696.34383006324,
+          6920.504201781483,
+          9318.378790027511,
+          13578.443045129383
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4752.5540288630555,
+          6833.504546637744,
+          8963.744406468395,
+          12204.833965091018
+        ],
+        "n_reshuffled_own_vs_shared": 646,
+        "weighted_share_reshuffled": 0.45631426561418986,
+        "overall_pi_ratio_pct": 66.73406036884158,
+        "overall_ppi_ratio_pct": 93.44422081189636,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 395,
+            "n_positive": 395,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3389.2411841921844,
+            "mean_shared_aime": 4501.275877559272,
+            "mean_scheduled_amount": 2721.0886678649445
+          },
+          {
+            "quintile": 2,
+            "n_persons": 351,
+            "n_positive": 351,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.12526913277883,
+            "mean_own_aime": 5771.348967659864,
+            "mean_shared_aime": 6408.074400532117,
+            "mean_scheduled_amount": 3653.5316696511563
+          },
+          {
+            "quintile": 3,
+            "n_persons": 303,
+            "n_positive": 303,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.58259395128935,
+            "mean_own_aime": 7995.072498484044,
+            "mean_shared_aime": 8021.157820661341,
+            "mean_scheduled_amount": 4365.123199514894
+          },
+          {
+            "quintile": 4,
+            "n_persons": 275,
+            "n_positive": 275,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.2695199963175,
+            "mean_own_aime": 11253.236256969882,
+            "mean_shared_aime": 9630.61131231228,
+            "mean_scheduled_amount": 5407.735602230362
+          },
+          {
+            "quintile": 5,
+            "n_persons": 240,
+            "n_positive": 240,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 84.23715096646166,
+            "mean_own_aime": 16073.28303296739,
+            "mean_shared_aime": 13774.447976184334,
+            "mean_scheduled_amount": 6950.150570549563
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 391,
+            "n_positive": 391,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.43889678709354,
+            "mean_own_aime": 4189.977028564795,
+            "mean_shared_aime": 3500.129104402447,
+            "mean_scheduled_amount": 3021.6295808759614
+          },
+          {
+            "quintile": 2,
+            "n_persons": 350,
+            "n_positive": 350,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.02068701353018,
+            "mean_own_aime": 6585.392967358836,
+            "mean_shared_aime": 5815.221515825745,
+            "mean_scheduled_amount": 3892.9905956425473
+          },
+          {
+            "quintile": 3,
+            "n_persons": 298,
+            "n_positive": 298,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 93.87683269510136,
+            "mean_own_aime": 8521.379882471108,
+            "mean_shared_aime": 7810.799046199734,
+            "mean_scheduled_amount": 4524.4954079642885
+          },
+          {
+            "quintile": 4,
+            "n_persons": 283,
+            "n_positive": 283,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.31073704426232,
+            "mean_own_aime": 10944.098782716266,
+            "mean_shared_aime": 10366.15266021437,
+            "mean_scheduled_amount": 5295.569489830136
+          },
+          {
+            "quintile": 5,
+            "n_persons": 242,
+            "n_positive": 242,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.57700543262656,
+            "mean_own_aime": 14225.844997168624,
+            "mean_shared_aime": 14828.73163090851,
+            "mean_scheduled_amount": 6357.493262192612
+          }
+        ]
+      },
+      "side_b": {
+        "n_persons": 1567,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5770.213974468457,
+        "own_quintile_cutpoints_aime": [
+          4789.905753928586,
+          6940.803881452037,
+          9376.31578546976,
+          13190.83315990288
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4747.0,
+          6740.386679665453,
+          8619.14313559322,
+          11613.0
+        ],
+        "n_reshuffled_own_vs_shared": 655,
+        "weighted_share_reshuffled": 0.4739122472538433,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.52964261482254,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 395,
+            "n_positive": 395,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3352.4232642574225,
+            "mean_shared_aime": 4579.157752463586,
+            "mean_scheduled_amount": 2682.9717312087605
+          },
+          {
+            "quintile": 2,
+            "n_persons": 349,
+            "n_positive": 349,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.30943354600919,
+            "mean_own_aime": 5804.565680879206,
+            "mean_shared_aime": 6226.776552341124,
+            "mean_scheduled_amount": 3664.1610178813457
+          },
+          {
+            "quintile": 3,
+            "n_persons": 309,
+            "n_positive": 309,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.34245339295924,
+            "mean_own_aime": 8147.033226120822,
+            "mean_shared_aime": 7930.387302317463,
+            "mean_scheduled_amount": 4413.750632358663
+          },
+          {
+            "quintile": 4,
+            "n_persons": 277,
+            "n_positive": 277,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 89.4868573037187,
+            "mean_own_aime": 11120.877589394144,
+            "mean_shared_aime": 9479.108250727246,
+            "mean_scheduled_amount": 5365.380828606126
+          },
+          {
+            "quintile": 5,
+            "n_persons": 237,
+            "n_positive": 237,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.51144603724467,
+            "mean_own_aime": 15802.46425593533,
+            "mean_shared_aime": 13207.183317926421,
+            "mean_scheduled_amount": 6863.488561899308
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 389,
+            "n_positive": 389,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.52614424730089,
+            "mean_own_aime": 4172.813271343008,
+            "mean_shared_aime": 3464.0297357030986,
+            "mean_scheduled_amount": 2995.182726153508
+          },
+          {
+            "quintile": 2,
+            "n_persons": 342,
+            "n_positive": 342,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.07578494794049,
+            "mean_own_aime": 6627.4968685447375,
+            "mean_shared_aime": 5763.288245684852,
+            "mean_scheduled_amount": 3911.097926181426
+          },
+          {
+            "quintile": 3,
+            "n_persons": 314,
+            "n_positive": 314,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 93.83750078737286,
+            "mean_own_aime": 8606.578191645816,
+            "mean_shared_aime": 7705.458913585806,
+            "mean_scheduled_amount": 4547.876959532723
+          },
+          {
+            "quintile": 4,
+            "n_persons": 278,
+            "n_positive": 278,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.48600274793695,
+            "mean_own_aime": 10789.956756799229,
+            "mean_shared_aime": 10043.200290318726,
+            "mean_scheduled_amount": 5252.4518348004585
+          },
+          {
+            "quintile": 5,
+            "n_persons": 244,
+            "n_positive": 244,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.74150300927914,
+            "mean_own_aime": 14012.805628868844,
+            "mean_shared_aime": 14422.8200866592,
+            "mean_scheduled_amount": 6277.299564573331
+          }
+        ]
+      }
+    },
+    {
+      "seed": 3,
+      "n_persons_side_a": 1585,
+      "n_persons_side_b": 1546,
+      "side_a": {
+        "n_persons": 1585,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5888.7851441431785,
+        "own_quintile_cutpoints_aime": [
+          4820.372318858716,
+          7124.959417732686,
+          9721.4392797937,
+          13707.212352496064
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4733.0,
+          6799.4506727554435,
+          8990.649113368676,
+          12064.493118742621
+        ],
+        "n_reshuffled_own_vs_shared": 672,
+        "weighted_share_reshuffled": 0.4633514017487811,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.40320857246063,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 402,
+            "n_positive": 402,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3340.2670234744764,
+            "mean_shared_aime": 4438.198978243652,
+            "mean_scheduled_amount": 2679.2615684643083
+          },
+          {
+            "quintile": 2,
+            "n_persons": 361,
+            "n_positive": 361,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.16488970901696,
+            "mean_own_aime": 5922.830991258765,
+            "mean_shared_aime": 6452.737476345525,
+            "mean_scheduled_amount": 3702.005917202805
+          },
+          {
+            "quintile": 3,
+            "n_persons": 312,
+            "n_positive": 312,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 94.16831613636131,
+            "mean_own_aime": 8378.643180084406,
+            "mean_shared_aime": 7899.782945894635,
+            "mean_scheduled_amount": 4487.865817627009
+          },
+          {
+            "quintile": 4,
+            "n_persons": 272,
+            "n_positive": 272,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.17382177490867,
+            "mean_own_aime": 11520.55096486981,
+            "mean_shared_aime": 9770.746529603623,
+            "mean_scheduled_amount": 5493.27630875834
+          },
+          {
+            "quintile": 5,
+            "n_persons": 238,
+            "n_positive": 238,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.49145345800665,
+            "mean_own_aime": 16031.076164402984,
+            "mean_shared_aime": 13799.714085178985,
+            "mean_scheduled_amount": 6936.644372608955
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 382,
+            "n_positive": 382,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.43379795270214,
+            "mean_own_aime": 4211.759081229706,
+            "mean_shared_aime": 3473.4215231955095,
+            "mean_scheduled_amount": 3005.2363909884534
+          },
+          {
+            "quintile": 2,
+            "n_persons": 362,
+            "n_positive": 362,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 97.20137502144813,
+            "mean_own_aime": 6587.21618424612,
+            "mean_shared_aime": 5769.439148158141,
+            "mean_scheduled_amount": 3896.9093367439377
+          },
+          {
+            "quintile": 3,
+            "n_persons": 314,
+            "n_positive": 314,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 93.47446584630056,
+            "mean_own_aime": 8945.574901247357,
+            "mean_shared_aime": 7824.715679182342,
+            "mean_scheduled_amount": 4656.53309873532
+          },
+          {
+            "quintile": 4,
+            "n_persons": 274,
+            "n_positive": 274,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.42529229163438,
+            "mean_own_aime": 10982.393389117377,
+            "mean_shared_aime": 10412.143024453328,
+            "mean_scheduled_amount": 5310.852071459212
+          },
+          {
+            "quintile": 5,
+            "n_persons": 253,
+            "n_positive": 253,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.5037823759441,
+            "mean_own_aime": 14432.817149752058,
+            "mean_shared_aime": 14848.486642350717,
+            "mean_scheduled_amount": 6418.343909827423
+          }
+        ]
+      },
+      "side_b": {
+        "n_persons": 1546,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5686.375834975251,
+        "own_quintile_cutpoints_aime": [
+          4731.033649455568,
+          6714.287224669603,
+          9012.021397271805,
+          13224.392466097443
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4754.740245475656,
+          6779.0,
+          8600.53625509089,
+          11703.997397053034
+        ],
+        "n_reshuffled_own_vs_shared": 641,
+        "weighted_share_reshuffled": 0.4617107164656211,
+        "overall_pi_ratio_pct": 66.73406036884158,
+        "overall_ppi_ratio_pct": 93.66247522596196,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 392,
+            "n_positive": 392,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3398.5603874823933,
+            "mean_shared_aime": 4651.066634538809,
+            "mean_scheduled_amount": 2723.73958493775
+          },
+          {
+            "quintile": 2,
+            "n_persons": 335,
+            "n_positive": 335,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 99.31535988329661,
+            "mean_own_aime": 5673.266666327001,
+            "mean_shared_aime": 6260.832110294741,
+            "mean_scheduled_amount": 3622.1453332246406
+          },
+          {
+            "quintile": 3,
+            "n_persons": 304,
+            "n_positive": 304,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.87068286305505,
+            "mean_own_aime": 7786.140356055122,
+            "mean_shared_aime": 7897.6780903879435,
+            "mean_scheduled_amount": 4298.264913937639
+          },
+          {
+            "quintile": 4,
+            "n_persons": 281,
+            "n_positive": 281,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.76570805867138,
+            "mean_own_aime": 10813.621701349168,
+            "mean_shared_aime": 9458.09907032242,
+            "mean_scheduled_amount": 5267.058944431735
+          },
+          {
+            "quintile": 5,
+            "n_persons": 234,
+            "n_positive": 234,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.35085710438443,
+            "mean_own_aime": 15845.270056211932,
+            "mean_shared_aime": 13133.951810189064,
+            "mean_scheduled_amount": 6877.186417987818
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 397,
+            "n_positive": 397,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.5622560680155,
+            "mean_own_aime": 4158.911192264961,
+            "mean_shared_aime": 3489.8846207269276,
+            "mean_scheduled_amount": 3014.6016676629392
+          },
+          {
+            "quintile": 2,
+            "n_persons": 331,
+            "n_positive": 331,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.0434953641757,
+            "mean_own_aime": 6581.773746807035,
+            "mean_shared_aime": 5797.809242846734,
+            "mean_scheduled_amount": 3893.5029763003745
+          },
+          {
+            "quintile": 3,
+            "n_persons": 303,
+            "n_positive": 303,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 94.38417621251246,
+            "mean_own_aime": 8141.466129103886,
+            "mean_shared_aime": 7689.857343151693,
+            "mean_scheduled_amount": 4401.93438780469
+          },
+          {
+            "quintile": 4,
+            "n_persons": 276,
+            "n_positive": 276,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.46288141369074,
+            "mean_own_aime": 10734.108338500599,
+            "mean_shared_aime": 9981.750073391016,
+            "mean_scheduled_amount": 5231.336903942324
+          },
+          {
+            "quintile": 5,
+            "n_persons": 239,
+            "n_positive": 239,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 86.87012356629066,
+            "mean_own_aime": 13887.574682570472,
+            "mean_shared_aime": 14426.588517176702,
+            "mean_scheduled_amount": 6242.767855351132
+          }
+        ]
+      }
+    },
+    {
+      "seed": 4,
+      "n_persons_side_a": 1541,
+      "n_persons_side_b": 1590,
+      "side_a": {
+        "n_persons": 1541,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5673.893561040949,
+        "own_quintile_cutpoints_aime": [
+          4741.5297201847325,
+          6750.565313169803,
+          9186.398744769875,
+          12864.743219264892
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4655.9792787944025,
+          6617.6127406465675,
+          8507.888034048126,
+          11669.803605022533
+        ],
+        "n_reshuffled_own_vs_shared": 646,
+        "weighted_share_reshuffled": 0.4671636147953148,
+        "overall_pi_ratio_pct": 66.73406036884157,
+        "overall_ppi_ratio_pct": 93.61173098595388,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 387,
+            "n_positive": 387,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3374.550329573422,
+            "mean_shared_aime": 4452.990501628783,
+            "mean_scheduled_amount": 2720.971867295459
+          },
+          {
+            "quintile": 2,
+            "n_persons": 334,
+            "n_positive": 334,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.2866271622015,
+            "mean_own_aime": 5676.094954705652,
+            "mean_shared_aime": 6168.408087166242,
+            "mean_scheduled_amount": 3623.050385505808
+          },
+          {
+            "quintile": 3,
+            "n_persons": 313,
+            "n_positive": 313,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.53906123196056,
+            "mean_own_aime": 7933.804381651094,
+            "mean_shared_aime": 8021.264845254963,
+            "mean_scheduled_amount": 4345.51740212835
+          },
+          {
+            "quintile": 4,
+            "n_persons": 262,
+            "n_positive": 262,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.70916405205017,
+            "mean_own_aime": 10811.00716511436,
+            "mean_shared_aime": 9151.588552397083,
+            "mean_scheduled_amount": 5266.222292836595
+          },
+          {
+            "quintile": 5,
+            "n_persons": 245,
+            "n_positive": 245,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.53188679711016,
+            "mean_own_aime": 15606.627813392335,
+            "mean_shared_aime": 13020.509493441836,
+            "mean_scheduled_amount": 6800.820900285547
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 373,
+            "n_positive": 373,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.43370644243261,
+            "mean_own_aime": 4161.779141233319,
+            "mean_shared_aime": 3382.732615352489,
+            "mean_scheduled_amount": 3006.6330894387174
+          },
+          {
+            "quintile": 2,
+            "n_persons": 328,
+            "n_positive": 328,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.30585770881191,
+            "mean_own_aime": 6408.034487944675,
+            "mean_shared_aime": 5660.083628636502,
+            "mean_scheduled_amount": 3847.4560503938033
+          },
+          {
+            "quintile": 3,
+            "n_persons": 303,
+            "n_positive": 303,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 93.80254203033356,
+            "mean_own_aime": 8491.334591710922,
+            "mean_shared_aime": 7556.439399214,
+            "mean_scheduled_amount": 4519.126171593827
+          },
+          {
+            "quintile": 4,
+            "n_persons": 288,
+            "n_positive": 288,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.52049452052616,
+            "mean_own_aime": 10652.750493312302,
+            "mean_shared_aime": 9905.420261866922,
+            "mean_scheduled_amount": 5199.633765974275
+          },
+          {
+            "quintile": 5,
+            "n_persons": 249,
+            "n_positive": 249,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 87.00081883772557,
+            "mean_own_aime": 13688.309813703358,
+            "mean_shared_aime": 14309.066531145556,
+            "mean_scheduled_amount": 6183.561991710863
+          }
+        ]
+      },
+      "side_b": {
+        "n_persons": 1590,
+        "n_zero_scheduled_excluded": 0,
+        "bend30_own_aime": 5886.031472320376,
+        "own_quintile_cutpoints_aime": [
+          4778.0,
+          7034.876713751558,
+          9600.174714895953,
+          13811.891878839648
+        ],
+        "shared_quintile_cutpoints_aime": [
+          4794.243082724487,
+          6971.0,
+          9137.327417335093,
+          12196.234825792211
+        ],
+        "n_reshuffled_own_vs_shared": 668,
+        "weighted_share_reshuffled": 0.45911424690666736,
+        "overall_pi_ratio_pct": 66.73406036884158,
+        "overall_ppi_ratio_pct": 93.44002608436685,
+        "by_own_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 401,
+            "n_positive": 401,
+            "pi_ratio_pct": 66.73406036884158,
+            "ppi_ratio_pct": 100.0,
+            "mean_own_aime": 3354.993164262242,
+            "mean_shared_aime": 4624.894657801546,
+            "mean_scheduled_amount": 2678.5431255679077
+          },
+          {
+            "quintile": 2,
+            "n_persons": 365,
+            "n_positive": 365,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.21546541098722,
+            "mean_own_aime": 5895.861361893272,
+            "mean_shared_aime": 6483.645195828412,
+            "mean_scheduled_amount": 3693.3756358058467
+          },
+          {
+            "quintile": 3,
+            "n_persons": 307,
+            "n_positive": 307,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.49887171084235,
+            "mean_own_aime": 8210.500544016624,
+            "mean_shared_aime": 7982.495942952402,
+            "mean_scheduled_amount": 4434.060174085319
+          },
+          {
+            "quintile": 4,
+            "n_persons": 279,
+            "n_positive": 279,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 89.16289861073463,
+            "mean_own_aime": 11547.724641867813,
+            "mean_shared_aime": 9848.962669590292,
+            "mean_scheduled_amount": 5501.971885397701
+          },
+          {
+            "quintile": 5,
+            "n_persons": 238,
+            "n_positive": 238,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 84.32680123885946,
+            "mean_own_aime": 16224.703338111156,
+            "mean_shared_aime": 13932.199842069687,
+            "mean_scheduled_amount": 6998.60506819557
+          }
+        ],
+        "by_shared_quintile": [
+          {
+            "quintile": 1,
+            "n_persons": 407,
+            "n_positive": 407,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 99.48953669831165,
+            "mean_own_aime": 4237.433450433217,
+            "mean_shared_aime": 3582.3958121699934,
+            "mean_scheduled_amount": 3022.7925415780046
+          },
+          {
+            "quintile": 2,
+            "n_persons": 360,
+            "n_positive": 360,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 97.00274333314806,
+            "mean_own_aime": 6718.051893007279,
+            "mean_shared_aime": 5917.794595271581,
+            "mean_scheduled_amount": 3929.3884664135294
+          },
+          {
+            "quintile": 3,
+            "n_persons": 319,
+            "n_positive": 319,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 94.1170577366513,
+            "mean_own_aime": 8529.205630505858,
+            "mean_shared_aime": 7958.68347232518,
+            "mean_scheduled_amount": 4518.539705394782
+          },
+          {
+            "quintile": 4,
+            "n_persons": 269,
+            "n_positive": 269,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 90.2015303031192,
+            "mean_own_aime": 11216.623048388805,
+            "mean_shared_aime": 10467.986790668125,
+            "mean_scheduled_amount": 5391.465116733138
+          },
+          {
+            "quintile": 5,
+            "n_persons": 235,
+            "n_positive": 235,
+            "pi_ratio_pct": 66.73406036884157,
+            "ppi_ratio_pct": 86.39748610582006,
+            "mean_own_aime": 14545.207221592584,
+            "mean_shared_aime": 14955.698568227714,
+            "mean_scheduled_amount": 6449.710576972077
+          }
+        ]
+      }
+    }
+  ],
+  "revision_pins": {
+    "populace_dynamics_sha": "e86ec0c6b3508ebb0d08afe24ba16282a99769a2",
+    "pe_us_revision": "bf71be3b",
+    "artifact_schema_version": "replication_ppi_shared.v1",
+    "gates_yaml": {
+      "gate_1_locked": true,
+      "amendments_ratified": [
+        {
+          "id": "2026-07-06-decision-relevant-recalibration",
+          "ratified": "2026-07-06 by maintainer merge of PR 57 (merge commit 0c324a71)"
+        },
+        {
+          "id": "2026-07-07-mean-based-classifier-gating",
+          "ratified": "2026-07-07 by merge of PR 67 (merge commit 4e06e244), under the maintainer's standing delegation of 2026-07-06, exercised only after the full ceremony (adversarial round, fixes, verification RATIFY AS-IS)"
+        }
+      ],
+      "gate_2_marriage_x_earnings_joint_scope": "NOT COVERED -- no gate-2 statistic touches the marriage x earnings joint (who marries whom), on which spousal/survivor benefit LEVELS depend. Declared the separate UNLOCKED tranche 2c_marriage_earnings_joint (reported-not-gated), not silence."
+    }
+  },
+  "elapsed_seconds": 56.1
+}
