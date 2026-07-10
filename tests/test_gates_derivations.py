@@ -891,7 +891,9 @@ def test_gate2_locked_thresholds_bind_to_floor():
 def test_gate2_locked_k_matches_gate1_precedent():
     """Every locked k is the ~4-sigma gate-1 precedent."""
     g2 = _gate_2_if_draft()
-    assert g2["holdout_basis"] == ["mh85_23", "cah85_23", "MX23REL"]
+    # Post amendment-2 flip: tranche 2a's holdout_basis is re-scoped to
+    # mh85_23 + cah85_23 (MX23REL moved to the unlocked gate_2b tranche).
+    assert g2["holdout_basis"] == ["mh85_23", "cah85_23"]
     assert g2["floor_run"] == GATE2_FLOOR_RUN
     for view in g2["views"].values():
         for rule in view["derivations"]["rules"].values():
@@ -2197,3 +2199,249 @@ def test_gate2_ratified_history_record():
     assert "fec27eb51" in entry["ratified"]  # ratifying merge commit
     assert "PROSPECTIVE ONLY" in entry["content"]
     assert "1-9 stand FAIL" in entry["content"]
+
+
+# --------------------------------------------------------------------------
+# Gate-2 amendment 2 RATIFIED bindings (live thresholds + tranche structure)
+#
+# Amendment 2 (the explicit tranche split; proposed PR #111; referee AMEND
+# comment 4930448912 -> fixes 81ea41e / comment 4930615774 -> verification
+# RATIFY AS-IS comment 4930753295 -> ratified by merge 8a4a240; flipped live
+# this PR). The proposal-object tests above (guarded on proposal_number == 2)
+# go dormant once amendment_proposed is removed; these bind the SAME
+# load-bearing guarantees at their LIVE post-flip locations: the re-scoped
+# description / holdout_basis, the tranche_id, the promoted certification
+# _scope map (with the two verification-round nits), the gate_2b / gate_2c
+# unlocked siblings, the promoted standing governance rule, and the second
+# history entry with all four ceremony pointers. ZERO THRESHOLD MOVEMENT: the
+# 46-cell scored surface stays byte-identical (also bound in the always-hot
+# locked section above). They touch only committed files.
+# --------------------------------------------------------------------------
+def _gate_2_block() -> dict:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_2"]
+
+
+def _gate2_scope() -> dict:
+    return _gate_2()["scope"]
+
+
+def test_gate2_tranche2a_description_and_holdout_basis_rescoped():
+    """flip_edits description / holdout_basis + tranche_id, applied live.
+
+    Tranche 2a claims only mh85_23 + cah85_23 (+ deaths); household
+    composition / MX23REL is named as the separate UNLOCKED tranche 2b, not a
+    2a holdout; the "computes exactly" statutory-formula oracle clause is
+    RETAINED verbatim (fix C1); holdout_basis drops MX23REL; and thresholds
+    carries tranche_id 2a_marital_fertility.
+    """
+    desc = _gate_2_block()["description"]
+    assert "tranche 2a_marital_fertility scores" in desc
+    assert "mh85_23 and cah85_23" in desc
+    assert "UNLOCKED tranche 2b" in desc  # MX23REL re-homed, not a 2a holdout
+    # fix C1: the second clause is RETAINED verbatim.
+    assert 'benefit formulas earn per-rule "computes exactly" status' in desc
+    thr = _gate_2()
+    assert thr["tranche_id"] == "2a_marital_fertility"
+    assert thr["holdout_basis"] == ["mh85_23", "cah85_23"]
+    assert "MX23REL" not in thr["holdout_basis"]
+
+
+def test_gate2_scope_note_draft_label_dropped_and_xref_repointed():
+    """flip_edits scope_note_draft_label / scope_note_holdout_xref, applied.
+
+    The stale pre-lock "This DRAFT tranche" heading is relabeled to tranche
+    2a_marital_fertility; the caregiver cross-reference no longer cites the
+    (now MX23REL-free) 2a holdout_basis but the unlocked gate_2b tranche.
+    """
+    scope = _gate2_scope()
+    note = scope["note"]
+    assert "This DRAFT tranche" not in note
+    assert note.strip().startswith("tranche 2a_marital_fertility covers")
+    care = scope["provision_class_coverage"][
+        "caregiver_and_child_in_care_survivor"
+    ]
+    assert "2b_relationship_household" in care
+    assert "gate_2b.holdout_basis" in care
+    assert "not scored in this draft" not in care  # stale xref repointed
+
+
+def test_gate2_certification_scope_is_live_and_bound_exactly():
+    """certification_scope promoted into the locked scope; map bound EXACTLY.
+
+    provision_class_map's classes equal the locked provision_class_coverage
+    keys; each row's requires_tranche list (order-sensitive) and
+    locked_coverage token are pinned AND cross-checked against the locked
+    note's designation, so a one-token flip in EITHER breaks (referee fix B /
+    P1). The two verification-round nits are asserted: the 2b legend quote
+    matches the derivation_basis quote (nit 1), and COLA is qualified as
+    riding CA/M/DI rather than a pure gate-1 + oracle surface (nit 2).
+    """
+    scope = _gate2_scope()
+    csc = scope["certification_scope"]
+    locked_cov = scope["provision_class_coverage"]
+    rows = {r["provision_class"]: r for r in csc["provision_class_map"]}
+    assert set(rows) == set(locked_cov)
+    expected = {
+        "marital_and_survivor_timing": {
+            "locked_coverage": "COVERED",
+            "requires_tranche": ["2a_marital_fertility"],
+        },
+        "caregiver_and_child_in_care_survivor": {
+            "locked_coverage": "NOT COVERED HERE",
+            "requires_tranche": [
+                "2a_marital_fertility",
+                "2b_relationship_household",
+            ],
+        },
+        "marriage_x_earnings_joint": {
+            "locked_coverage": "NOT COVERED",
+            "requires_tranche": ["2c_marriage_earnings_joint"],
+        },
+    }
+    assert set(rows) == set(expected)
+    for cls, exp in expected.items():
+        r = rows[cls]
+        assert r["requires_tranche"] == exp["requires_tranche"], cls
+        assert r["locked_coverage"] == exp["locked_coverage"], cls
+        note_cov = locked_cov[cls].split(" -- ")[0].split(" (")[0].strip()
+        assert r["locked_coverage"] == note_cov, cls
+    basis = csc["derivation_basis"]
+    assert "provision_class_coverage" in basis["locked_scope_note"]
+    assert "#74" in basis["provision_matrix"]
+    supports = " ".join(csc["tranches"]["2a_marital_fertility"]["supports"])
+    assert "caregiver credits" in supports
+    assert "survivor" in supports and "spousal" in supports
+    b = " ".join(csc["tranches"]["2b_relationship_household"]["required_for"])
+    assert "household-unit poverty" in b
+    assert "child-in-care survivor" in b
+    c = " ".join(csc["tranches"]["2c_marriage_earnings_joint"]["required_for"])
+    assert "earnings" in c and "marital" in c
+    # NIT 1: the 2b legend quote spacing matches the derivation_basis quote.
+    assert "poverty/household" in b
+    assert "poverty / household" not in b
+    assert "poverty/household" in basis["provision_matrix"]
+    # NIT 2: COLA qualified (rides CA/M/DI; #78 covers CA, M/DI uncertified),
+    # while the tranche-boundary claim (OUTSIDE 2a/2b/2c) is preserved.
+    dns = " ".join(csc["tranches"]["2a_marital_fertility"]["does_not_support"])
+    assert "CA, M, DI" in dns
+    assert "M / DI are uncertified" in dns
+    assert "OUTSIDE 2a / 2b / 2c" in dns
+
+
+def test_gate2b_2c_unlocked_sibling_tranches_live():
+    """gate_2b / gate_2c declared UNLOCKED sibling tranches (flip_additions).
+
+    Each carries locked: false, status: unlocked, no floor, and a
+    lock_ceremony with exists: false whose step list names the verification
+    round. 2b holds the MX23REL holdout the flip moved out of tranche 2a.
+    """
+    g2 = _gate_2_block()
+    b = g2["gate_2b"]
+    assert b["id"] == "2b_relationship_household"
+    assert b["status"] == "unlocked"
+    assert b["locked"] is False
+    assert b["holdout_basis"] == ["MX23REL"]
+    assert b["lock_ceremony"]["exists"] is False
+    assert (
+        "verification round"
+        in b["lock_ceremony"]["required_before_any_2b_pass"]
+    )
+    c = g2["gate_2c"]
+    assert c["id"] == "2c_marriage_earnings_joint"
+    assert c["status"] == "unlocked"
+    assert c["locked"] is False
+    assert c["lock_ceremony"]["exists"] is False
+    assert (
+        "verification round"
+        in c["lock_ceremony"]["required_before_any_2c_pass"]
+    )
+
+
+def test_gate2_standing_governance_rule_promoted_live():
+    """The standing rule promoted into locked governance.amendment_rules.
+
+    description_claims_exactly_the_scored_surface: a gate / tranche
+    description and holdout_basis must claim EXACTLY the scored surface at
+    lock time; applies to 2b / 2c / gate 3, attributed to the amendment-2
+    referee round (#106 finding 4 / PR #111), not presented as pre-existing.
+    The inherited rules are untouched by the promotion.
+    """
+    amend = _gate_2()["governance"]["amendment_rules"]
+    rule = amend["description_claims_exactly_the_scored_surface"]
+    assert "EXACTLY" in rule["rule"]
+    assert "holdout_basis" in rule["rule"]
+    assert set(rule["applies_to"]) == {
+        "2b_relationship_household",
+        "2c_marriage_earnings_joint",
+        "gate_3",
+    }
+    assert "#106" in rule["attributed_to"]
+    assert "#111" in rule["attributed_to"]
+    assert amend["inherits"] == "gate_1"
+    assert "committed run verdict changes" in amend["no_self_rescue"]
+
+
+def test_gate2_tranche_split_history_record():
+    """gate_2.amendment_history[1] records amendment 2 with all four pointers.
+
+    amendment_proposed is consumed by the flip; the second history entry
+    records the full ceremony (adversarial review 4930448912 / fixes 81ea41e
+    + comment 4930615774 / verification 4930753295 / ratifying merge 8a4a240)
+    and the zero-movement, structural-only content citing review #106 finding
+    4 and the candidate-16 pass (#109).
+    """
+    g2 = _gate_2_block()
+    assert "amendment_proposed" not in g2  # object consumed by the flip
+    entry = g2["amendment_history"][1]
+    assert entry["id"] == "2026-07-09-tranche-split"
+    for key in ("referee_round", "ratified", "flipped_live", "content"):
+        assert entry[key], key
+    assert entry["flipped_live"] == "this pull request"
+    rr = entry["referee_round"]
+    assert "4930448912" in rr["review"]  # adversarial AMEND round
+    assert "81ea41e" in rr["fixes"]  # fix commit
+    assert "4930615774" in rr["fixes"]  # fixes-summary comment
+    assert "4930753295" in rr["verification"]  # verification RATIFY AS-IS
+    assert "PR 111" in entry["ratified"]
+    assert "8a4a240" in entry["ratified"]  # ratifying merge commit
+    content = entry["content"]
+    assert "ZERO THRESHOLD MOVEMENT" in content
+    assert "#106" in content and "#109" in content
+    assert "v1-v15 stand FAIL" in content
+    assert "v16 stands PASS" in content
+
+
+def test_gate2_tranche_split_zero_threshold_movement_vs_master():
+    """The tranche-2a scored surface is byte-identical to origin/master.
+
+    The strongest live form of "zero threshold movement": the 46 gated + 16
+    report-only cell SETS, every view's tolerances/derivations, the protocol,
+    the power cap, and the report_only list equal origin/master's -- only the
+    naming, scope prose, certification map, sibling stubs, governance rule,
+    and history changed. Skips only if the ref is unreachable.
+    """
+    master = _master_gate2()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    cur = _gate_2()
+    mt = master["thresholds"]
+    for key in ("views", "power_cap", "protocol", "report_only", "statistic"):
+        assert cur[key] == mt[key], key
+    cur_gated, cur_ro = _gated_report_sets(cur)
+    m_gated, m_ro = _gated_report_sets(mt)
+    assert cur_gated == m_gated and len(cur_gated) == 46
+    assert cur_ro == m_ro and len(cur_ro) == 16
+
+
+def test_gate2_amendment2_proposal_object_consumed_and_dormant():
+    """The amendment-2 proposal object is consumed; its tests are dormant-safe.
+
+    Post-flip amendment_proposed is gone, so _gate2_amendment2() returns None
+    (every proposal-object test skips) and the merge-safe D1 guard
+    (test_gate2_amendment2_changes_no_locked_value) no longer runs its
+    thresholds-equality assertion against the now-restructured block -- the
+    "naturally passes post-flip" state the referee's fix D1 anticipated.
+    """
+    assert _gate2_amendment2() is None
+    assert "amendment_proposed" not in _gate_2_block()
