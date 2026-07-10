@@ -1,0 +1,776 @@
+{
+ "schema_version": "m2_pseudo_projection.v1",
+ "run": "m2_pseudo_projection_v1",
+ "reported_not_gated": true,
+ "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4931333382",
+ "registration_pointer": "#42 comment 4931333382",
+ "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+ "roadmap_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/113",
+ "purpose": "M2 same-frame pseudo-projection: add the revenue side and trust-fund-style accounting (taxable payroll, combined-OASDI revenue, claiming x survival outlays on a calendar ledger, a PV balance analogue, and a calibrated-reserve exhaustion year) to the #115 common frame, and evaluate the Smith (2015) solvency provisions' balance and exhaustion-delta orderings. Levels are frame-relative; signs and orderings are the transportable content. Reads no gate, changes no gate; publishes regardless of outcome.",
+ "grading_note": "the orchestrator grades the pre-registered forecasts on #42; this artifact reports outcomes vs forecasts and does not grade",
+ "common_frame": {
+  "description": "the #115 common frame (replication_cost_ordering.build_common_frame): family_earnings_panel + r7 _person_history + full-415(b) transported_aime + ppi_mermin scheduled_amount, intersected with the sex-resolvable set",
+  "population": "Phase-A pia_observed rule: coverage >= 0.8 of ages 22-61, age-62 eligibility 2005-2019 (born 1943-1957)",
+  "earnings_year_range": "1968-2018 (ages 22-61)",
+  "benefit_year_range": "2005-2057 (claim age to age 100)",
+  "n_careers_caregiver": 1549,
+  "n_careers_mermin_sex_resolvable": 1549,
+  "n_common_frame": 1549,
+  "weight_sum": 33696344.0
+ },
+ "calibration_disclosure": {
+  "target_year": 2034,
+  "target_source": "Smith (2015) baseline combined-OASDI exhaustion 2034 (printed p.1, p.2)",
+  "calibrated_reserve": 7889236006574.162,
+  "baseline_exhaustion_year": 2034.0,
+  "note": "the initial reserve is CALIBRATED (not derived) so the baseline path crosses zero in Smith's own 2034 baseline year; calibration anchors the level so that provision exhaustion DELTAS are the test, not the level"
+ },
+ "revenue_side": {
+  "oasdi_combined_rate": {
+   "combined": 0.124,
+   "employee": 0.062,
+   "employer": 0.062,
+   "source": "policyengine-us gov/irs/payroll/social_security/rate",
+   "reference": "26 USC 3101(a) (employee) + 3111(a) (employer)"
+  },
+  "taxable_payroll_convention": "each year's earnings capped at that year's historical wage base (params.wage_base_for) and NAWI-indexed to the 2048 age-60 indexing year -- the committed AIME-convention capping (replication_ppi_mermin.transported_person_aime per-year step) reused verbatim, over all working years",
+  "cap_150k": {
+   "nominal": 150000.0,
+   "base_year": 2016,
+   "encoding": "$150k stated in 2016 dollars, wage-indexed by NAWI to each earnings year (42 USC 430); always above the current-law base, so it raises taxable payroll for high earners only"
+  },
+  "payroll_increments": {
+   "payroll_plus_1pp": 0.01,
+   "payroll_plus_2pp": 0.02
+  }
+ },
+ "outlay_side": {
+  "convention": "own-record scheduled benefit = 12 * PIA * sum_{claim c <= age} pmf(c) * benefit_factor(c), survival-weighted (NCHS 2023 x PSID-band, from 62 to age) and placed at calendar year birth_year + age; the B2 claim distribution and B1 survival reused verbatim",
+  "fra_to_72": "reuses replication_mermin_rows.benefit_factor_at_fra at 72*12 months; baseline is the committed FRA-67 expectation (claiming.benefit_factor at the 1988 cohort)"
+ },
+ "balance_analogue": {
+  "definition": "[PV(revenue) - PV(outlays)] / PV(taxable payroll), a %-of-taxable-payroll actuarial-balance analogue; flows discounted to the horizon start (the TR projection-start PV convention)",
+  "discount_rate": 0.029,
+  "discount_base_year": 1965,
+  "tr_vintage_cite": "2014 OASDI Trustees Report, Table V.B1 intermediate ultimate assumptions (real interest 2.9%, CPI 2.7%, real-wage differential 1.13%) -- the vintage Smith (2015) states the DYNASIM projection uses (Smith p.2). Carried as a TR-cited constant (no TR PDF staged; no policyengine-us rate node); parameterises only the frame-relative balance analogue, which is not graded.",
+  "baseline_balance": 0.04689166331354922,
+  "baseline_sign_note": "the baseline balance analogue is frame-relative and NOT graded (only the provision deltas and their signs are): on this frame it is POSITIVE because revenue is the full combined-OASDI rate on all taxable payroll while outlays are OASI retired-worker benefits only (no DI, no auxiliary) and fall later on the calendar, so discounting favours the earlier revenue. The undiscounted, reserve-calibrated exhaustion ledger is the deficit view (it exhausts at the Smith 2034 baseline by construction). F1 tests the DIRECTION of each provision's balance change, which is unaffected by the baseline sign"
+ },
+ "exhaustion_analogue": {
+  "definition": "the year the cumulative (revenue - outlay) ledger path crosses zero (fractional, linearly interpolated); undiscounted per the registration wording",
+  "horizon": [
+   1965,
+   2075
+  ],
+  "baseline_exhaustion_year": 2034.0,
+  "censored_note": "a provision whose fund never crosses within the horizon is recorded exhausts_within_horizon=false with a censored delta (horizon end - 2034); on this closed-cohort frame FRA->72's outlay cut exceeds the remaining lifetime deficit, so the calibrated fund never exhausts"
+ },
+ "anchor_provenance": {
+  "smith_baseline_exhaustion_year": 2034,
+  "smith_solvency_year_deltas": {
+   "cap_150k": 1,
+   "elimination": 21,
+   "payroll_plus_1pp": 5,
+   "payroll_plus_2pp": 18,
+   "fra_to_72": 0.5
+  },
+  "smith_revenue_order": [
+   "elimination",
+   "payroll_plus_2pp",
+   "payroll_plus_1pp",
+   "cap_150k"
+  ],
+  "smith_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+  "reverified_pdftotext": "Smith deltas + 2034 baseline re-verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09 per #74 protocol note 3"
+ },
+ "provisions": [
+  {
+   "provision": "cap_150k",
+   "family": "smith_2015_solvency",
+   "side": "revenue",
+   "balance_analogue": 0.053154118080107754,
+   "balance_analogue_delta": 0.0062624547665585326,
+   "balance_delta_floor_abs_mean": 0.000863038473499711,
+   "exhaustion_year": 2035.1188537982976,
+   "exhaustion_delta_years": 1.1188537982975504,
+   "exhausts_within_horizon": true,
+   "exhaustion_delta_floor_abs_mean": 0.17312791775998448,
+   "anchor_smith_year_delta": 1,
+   "anchor_units": "additional years of trust-fund reserves (Smith 2015, 2014 TR intermediate)",
+   "anchor_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+   "units_differ_note": "frame-relative closed-cohort exhaustion delta (much compressed range vs Smith's open 75-yr projection); signs and orderings are the transportable content"
+  },
+  {
+   "provision": "elimination",
+   "family": "smith_2015_solvency",
+   "side": "revenue",
+   "balance_analogue": 0.06118610701057222,
+   "balance_analogue_delta": 0.014294443697022999,
+   "balance_delta_floor_abs_mean": 0.002909266471921086,
+   "exhaustion_year": 2037.2048065597855,
+   "exhaustion_delta_years": 3.2048065597855384,
+   "exhausts_within_horizon": true,
+   "exhaustion_delta_floor_abs_mean": 0.9070226514154911,
+   "anchor_smith_year_delta": 21,
+   "anchor_units": "additional years of trust-fund reserves (Smith 2015, 2014 TR intermediate)",
+   "anchor_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+   "units_differ_note": "frame-relative closed-cohort exhaustion delta (much compressed range vs Smith's open 75-yr projection); signs and orderings are the transportable content"
+  },
+  {
+   "provision": "payroll_plus_1pp",
+   "family": "smith_2015_solvency",
+   "side": "revenue",
+   "balance_analogue": 0.05689166331354923,
+   "balance_analogue_delta": 0.010000000000000009,
+   "balance_delta_floor_abs_mean": 2.0816681711721685e-17,
+   "exhaustion_year": 2035.950472894025,
+   "exhaustion_delta_years": 1.950472894025097,
+   "exhausts_within_horizon": true,
+   "exhaustion_delta_floor_abs_mean": 0.03931637861073796,
+   "anchor_smith_year_delta": 5,
+   "anchor_units": "additional years of trust-fund reserves (Smith 2015, 2014 TR intermediate)",
+   "anchor_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+   "units_differ_note": "frame-relative closed-cohort exhaustion delta (much compressed range vs Smith's open 75-yr projection); signs and orderings are the transportable content"
+  },
+  {
+   "provision": "payroll_plus_2pp",
+   "family": "smith_2015_solvency",
+   "side": "revenue",
+   "balance_analogue": 0.06689166331354923,
+   "balance_analogue_delta": 0.02000000000000001,
+   "balance_delta_floor_abs_mean": 3.053113317719181e-17,
+   "exhaustion_year": 2038.2313708228655,
+   "exhaustion_delta_years": 4.231370822865529,
+   "exhausts_within_horizon": true,
+   "exhaustion_delta_floor_abs_mean": 0.10825024148552984,
+   "anchor_smith_year_delta": 18,
+   "anchor_units": "additional years of trust-fund reserves (Smith 2015, 2014 TR intermediate)",
+   "anchor_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+   "units_differ_note": "frame-relative closed-cohort exhaustion delta (much compressed range vs Smith's open 75-yr projection); signs and orderings are the transportable content"
+  },
+  {
+   "provision": "fra_to_72",
+   "family": "smith_2015_solvency",
+   "side": "outlay",
+   "balance_analogue": 0.072506643421113,
+   "balance_analogue_delta": 0.02561498010756378,
+   "balance_delta_floor_abs_mean": 0.0002747751289989053,
+   "exhaustion_year": null,
+   "exhaustion_delta_years": 41.0,
+   "exhausts_within_horizon": false,
+   "exhaustion_delta_floor_abs_mean": 0.0,
+   "anchor_smith_year_delta": 0.5,
+   "anchor_units": "additional years of trust-fund reserves (Smith 2015, 2014 TR intermediate)",
+   "anchor_cite": "Smith, K. E. (2015). Can Social Security Be Solvent? Urban Institute 72196, DYNASIM (2014 Trustees intermediate assumptions). Baseline combined-OASDI exhaustion 2034 (printed p.1, p.2). Solvency-year deltas: cap-$150k +1yr (to 2035, p.3), full elimination +21yr (through 2055, p.3), payroll +1pp +5yr (p.3), +2pp +18yr (p.3), FRA->72 <1yr (p.2 'too little too late'). Verified against 72196-can-ss-be-solvent.pdf via pdftotext on 2026-07-09.",
+   "units_differ_note": "frame-relative closed-cohort exhaustion delta (much compressed range vs Smith's open 75-yr projection); signs and orderings are the transportable content"
+  },
+  {
+   "provision": "price_indexing",
+   "family": "mermin_quartet_outlay",
+   "side": "outlay",
+   "outlay_delta": -0.3326593963115843,
+   "outlay_delta_pct": -33.266,
+   "outlay_delta_floor_abs_mean": 7.771561172376095e-17,
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "encoding_reuse": "replication_cost_ordering._mermin_pairs (verbatim); the #115 committed benefit-side delta on this frame",
+   "in_F4": true
+  },
+  {
+   "provision": "progressive_price_indexing",
+   "family": "mermin_quartet_outlay",
+   "side": "outlay",
+   "outlay_delta": -0.11000744343246105,
+   "outlay_delta_pct": -11.001,
+   "outlay_delta_floor_abs_mean": 0.010183857028116422,
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "encoding_reuse": "replication_cost_ordering._mermin_pairs (verbatim); the #115 committed benefit-side delta on this frame",
+   "in_F4": true
+  },
+  {
+   "provision": "nra_raised_to_70",
+   "family": "mermin_quartet_outlay",
+   "side": "outlay",
+   "outlay_delta": -0.20234306477534883,
+   "outlay_delta_pct": -20.234,
+   "outlay_delta_floor_abs_mean": 3.6053228851151695e-05,
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "encoding_reuse": "replication_cost_ordering._mermin_pairs (verbatim); the #115 committed benefit-side delta on this frame",
+   "in_F4": true
+  },
+  {
+   "provision": "reduced_cola",
+   "family": "mermin_quartet_outlay",
+   "side": "outlay",
+   "outlay_delta": -0.007987803755968265,
+   "outlay_delta_pct": -0.799,
+   "outlay_delta_floor_abs_mean": 7.234202954483834e-06,
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "encoding_reuse": "replication_cost_ordering._mermin_pairs (verbatim); the #115 committed benefit-side delta on this frame",
+   "in_F4": true
+  }
+ ],
+ "floors": {
+  "convention": "per scored quantity, the person-disjoint half-split A-vs-B gap over the 5 locked seeds (split_panel_by_person fraction=0.5); each half calibrates its own 2034 baseline reserve before its provision deltas",
+  "per_provision": {
+   "smith": {
+    "cap_150k": {
+     "balance_delta": {
+      "per_seed_signed_gap": [
+       0.000603030278265082,
+       0.0015290410427894474,
+       0.0006626222701758,
+       0.0005199319543753023,
+       0.0010005668218929231
+      ],
+      "abs": {
+       "mean": 0.000863038473499711,
+       "sd": 0.00041471872049676735,
+       "min": 0.0005199319543753023,
+       "max": 0.0015290410427894474,
+       "n_seeds": 5,
+       "values": [
+        0.000603030278265082,
+        0.0015290410427894474,
+        0.0006626222701758,
+        0.0005199319543753023,
+        0.0010005668218929231
+       ]
+      }
+     },
+     "exhaustion_delta_years": {
+      "per_seed_signed_gap": [
+       0.060866341027349335,
+       0.3287331767005526,
+       0.115069723817669,
+       0.11675326720819612,
+       0.2442170800461554
+      ],
+      "abs": {
+       "mean": 0.17312791775998448,
+       "sd": 0.11002065979134087,
+       "min": 0.060866341027349335,
+       "max": 0.3287331767005526,
+       "n_seeds": 5,
+       "values": [
+        0.060866341027349335,
+        0.3287331767005526,
+        0.115069723817669,
+        0.11675326720819612,
+        0.2442170800461554
+       ]
+      }
+     }
+    },
+    "elimination": {
+     "balance_delta": {
+      "per_seed_signed_gap": [
+       -0.0007485765194654367,
+       0.00569951920943082,
+       0.002321855185828524,
+       0.0007276942683913309,
+       0.005048687176489319
+      ],
+      "abs": {
+       "mean": 0.002909266471921086,
+       "sd": 0.002352420118686349,
+       "min": 0.0007276942683913309,
+       "max": 0.00569951920943082,
+       "n_seeds": 5,
+       "values": [
+        0.0007485765194654367,
+        0.00569951920943082,
+        0.002321855185828524,
+        0.0007276942683913309,
+        0.005048687176489319
+       ]
+      }
+     },
+     "exhaustion_delta_years": {
+      "per_seed_signed_gap": [
+       -0.560999140396234,
+       1.7102878355622124,
+       0.7122585976242135,
+       0.17540625569904478,
+       1.3761614277957506
+      ],
+      "abs": {
+       "mean": 0.9070226514154911,
+       "sd": 0.6241502232784714,
+       "min": 0.17540625569904478,
+       "max": 1.7102878355622124,
+       "n_seeds": 5,
+       "values": [
+        0.560999140396234,
+        1.7102878355622124,
+        0.7122585976242135,
+        0.17540625569904478,
+        1.3761614277957506
+       ]
+      }
+     }
+    },
+    "payroll_plus_1pp": {
+     "balance_delta": {
+      "per_seed_signed_gap": [
+       -1.3877787807814457e-17,
+       3.469446951953614e-17,
+       3.469446951953614e-17,
+       -2.0816681711721685e-17,
+       0.0
+      ],
+      "abs": {
+       "mean": 2.0816681711721685e-17,
+       "sd": 1.471961680016039e-17,
+       "min": 0.0,
+       "max": 3.469446951953614e-17,
+       "n_seeds": 5,
+       "values": [
+        1.3877787807814457e-17,
+        3.469446951953614e-17,
+        3.469446951953614e-17,
+        2.0816681711721685e-17,
+        0.0
+       ]
+      }
+     },
+     "exhaustion_delta_years": {
+      "per_seed_signed_gap": [
+       -0.03219292363610293,
+       0.07410023953798373,
+       0.020971282944856284,
+       0.025276715766494817,
+       0.04404073116825202
+      ],
+      "abs": {
+       "mean": 0.03931637861073796,
+       "sd": 0.02131099931162127,
+       "min": 0.020971282944856284,
+       "max": 0.07410023953798373,
+       "n_seeds": 5,
+       "values": [
+        0.03219292363610293,
+        0.07410023953798373,
+        0.020971282944856284,
+        0.025276715766494817,
+        0.04404073116825202
+       ]
+      }
+     }
+    },
+    "payroll_plus_2pp": {
+     "balance_delta": {
+      "per_seed_signed_gap": [
+       -6.938893903907228e-18,
+       -3.469446951953614e-17,
+       4.85722573273506e-17,
+       3.469446951953614e-17,
+       -2.7755575615628914e-17
+      ],
+      "abs": {
+       "mean": 3.053113317719181e-17,
+       "sd": 1.5202354861220293e-17,
+       "min": 6.938893903907228e-18,
+       "max": 4.85722573273506e-17,
+       "n_seeds": 5,
+       "values": [
+        6.938893903907228e-18,
+        3.469446951953614e-17,
+        4.85722573273506e-17,
+        3.469446951953614e-17,
+        2.7755575615628914e-17
+       ]
+      }
+     },
+     "exhaustion_delta_years": {
+      "per_seed_signed_gap": [
+       -0.10087753510788389,
+       0.19542737643064356,
+       0.06383617230608252,
+       0.0671701660785402,
+       0.11393995750449903
+      ],
+      "abs": {
+       "mean": 0.10825024148552984,
+       "sd": 0.05326059674249518,
+       "min": 0.06383617230608252,
+       "max": 0.19542737643064356,
+       "n_seeds": 5,
+       "values": [
+        0.10087753510788389,
+        0.19542737643064356,
+        0.06383617230608252,
+        0.0671701660785402,
+        0.11393995750449903
+       ]
+      }
+     }
+    },
+    "fra_to_72": {
+     "balance_delta": {
+      "per_seed_signed_gap": [
+       -0.00012801997365615575,
+       -0.0004430197245367182,
+       0.0003078736535433238,
+       -0.00013314276149440502,
+       -0.0003618195317639239
+      ],
+      "abs": {
+       "mean": 0.0002747751289989053,
+       "sd": 0.0001401564192714901,
+       "min": 0.00012801997365615575,
+       "max": 0.0004430197245367182,
+       "n_seeds": 5,
+       "values": [
+        0.00012801997365615575,
+        0.0004430197245367182,
+        0.0003078736535433238,
+        0.00013314276149440502,
+        0.0003618195317639239
+       ]
+      }
+     },
+     "exhaustion_delta_years": {
+      "per_seed_signed_gap": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "abs": {
+       "mean": 0.0,
+       "sd": 0.0,
+       "min": 0.0,
+       "max": 0.0,
+       "n_seeds": 5,
+       "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      }
+     }
+    }
+   },
+   "quartet": {
+    "price_indexing": {
+     "per_seed_signed_gap": [
+      0.0,
+      -1.6653345369377348e-16,
+      0.0,
+      -1.6653345369377348e-16,
+      -5.551115123125783e-17
+     ],
+     "abs": {
+      "mean": 7.771561172376095e-17,
+      "sd": 8.41868291085074e-17,
+      "min": 0.0,
+      "max": 1.6653345369377348e-16,
+      "n_seeds": 5,
+      "values": [
+       0.0,
+       1.6653345369377348e-16,
+       0.0,
+       1.6653345369377348e-16,
+       5.551115123125783e-17
+      ]
+     }
+    },
+    "progressive_price_indexing": {
+     "per_seed_signed_gap": [
+      -0.01619326659710435,
+      0.008496283981522135,
+      -0.018934192494068344,
+      0.006364143475863213,
+      -0.0009313985920240686
+     ],
+     "abs": {
+      "mean": 0.010183857028116422,
+      "sd": 0.00734383203196762,
+      "min": 0.0009313985920240686,
+      "max": 0.018934192494068344,
+      "n_seeds": 5,
+      "values": [
+       0.01619326659710435,
+       0.008496283981522135,
+       0.018934192494068344,
+       0.006364143475863213,
+       0.0009313985920240686
+      ]
+     }
+    },
+    "nra_raised_to_70": {
+     "per_seed_signed_gap": [
+      2.9443760389408213e-05,
+      1.2280921087293173e-05,
+      -7.754342847754447e-05,
+      -4.150630282015455e-05,
+      1.9491731481358077e-05
+     ],
+     "abs": {
+      "mean": 3.6053228851151695e-05,
+      "sd": 2.5662538678224195e-05,
+      "min": 1.2280921087293173e-05,
+      "max": 7.754342847754447e-05,
+      "n_seeds": 5,
+      "values": [
+       2.9443760389408213e-05,
+       1.2280921087293173e-05,
+       7.754342847754447e-05,
+       4.150630282015455e-05,
+       1.9491731481358077e-05
+      ]
+     }
+    },
+    "reduced_cola": {
+     "per_seed_signed_gap": [
+      -2.415860487908761e-06,
+      -3.6715453659800362e-06,
+      -2.1959062898877293e-05,
+      -3.5093714777327534e-06,
+      4.615174541920328e-06
+     ],
+     "abs": {
+      "mean": 7.234202954483834e-06,
+      "sd": 8.268375489721938e-06,
+      "min": 2.415860487908761e-06,
+      "max": 2.1959062898877293e-05,
+      "n_seeds": 5,
+      "values": [
+       2.415860487908761e-06,
+       3.6715453659800362e-06,
+       2.1959062898877293e-05,
+       3.5093714777327534e-06,
+       4.615174541920328e-06
+      ]
+     }
+    }
+   }
+  }
+ },
+ "results_vs_forecasts": {
+  "F1": {
+   "forecast": "100%: all five Smith provisions improve the balance analogue and delay exhaustion; the Mermin quartet reduces outlays",
+   "result_pct": 100.0,
+   "met": true
+  },
+  "F2": {
+   "forecast": "exhaustion-delay order elimination > +2pp > +1pp > cap-$150k (Smith +21 > +18 > +5 > +1)",
+   "result_order": [
+    "payroll_plus_2pp",
+    "elimination",
+    "payroll_plus_1pp",
+    "cap_150k"
+   ],
+   "kendall_tau_vs_smith": 0.6666666666666669,
+   "met": false
+  },
+  "F3": {
+   "forecast": "FRA->72 ranks above cap-$150k and +1pp (opposite Smith's <1yr smallest)",
+   "result_ranks_above_cap_150k": true,
+   "result_ranks_above_plus_1pp": true,
+   "met": true
+  },
+  "F4": {
+   "forecast": "outlay-side order PI > NRA->70 > PPI > COLA-0.4 persists (the #115 T2 PPI<->NRA swap)",
+   "result_order": [
+    "price_indexing",
+    "nra_raised_to_70",
+    "progressive_price_indexing",
+    "reduced_cola"
+   ],
+   "met": true
+  }
+ },
+ "forecasts_detail": {
+  "F1": {
+   "checks": [
+    {
+     "provision": "cap_150k",
+     "kind": "balance_improves",
+     "value": 0.0062624547665585326,
+     "ok": true
+    },
+    {
+     "provision": "cap_150k",
+     "kind": "exhaustion_delays",
+     "value": 1.1188537982975504,
+     "ok": true
+    },
+    {
+     "provision": "elimination",
+     "kind": "balance_improves",
+     "value": 0.014294443697022999,
+     "ok": true
+    },
+    {
+     "provision": "elimination",
+     "kind": "exhaustion_delays",
+     "value": 3.2048065597855384,
+     "ok": true
+    },
+    {
+     "provision": "payroll_plus_1pp",
+     "kind": "balance_improves",
+     "value": 0.010000000000000009,
+     "ok": true
+    },
+    {
+     "provision": "payroll_plus_1pp",
+     "kind": "exhaustion_delays",
+     "value": 1.950472894025097,
+     "ok": true
+    },
+    {
+     "provision": "payroll_plus_2pp",
+     "kind": "balance_improves",
+     "value": 0.02000000000000001,
+     "ok": true
+    },
+    {
+     "provision": "payroll_plus_2pp",
+     "kind": "exhaustion_delays",
+     "value": 4.231370822865529,
+     "ok": true
+    },
+    {
+     "provision": "fra_to_72",
+     "kind": "balance_improves",
+     "value": 0.02561498010756378,
+     "ok": true
+    },
+    {
+     "provision": "fra_to_72",
+     "kind": "exhaustion_delays",
+     "value": 41.0,
+     "ok": true
+    },
+    {
+     "provision": "price_indexing",
+     "kind": "outlay_reduces",
+     "value": -0.3326593963115843,
+     "ok": true
+    },
+    {
+     "provision": "progressive_price_indexing",
+     "kind": "outlay_reduces",
+     "value": -0.11000744343246105,
+     "ok": true
+    },
+    {
+     "provision": "nra_raised_to_70",
+     "kind": "outlay_reduces",
+     "value": -0.20234306477534883,
+     "ok": true
+    },
+    {
+     "provision": "reduced_cola",
+     "kind": "outlay_reduces",
+     "value": -0.007987803755968265,
+     "ok": true
+    }
+   ],
+   "n_ok": 14,
+   "n_total": 14,
+   "pct_agreement": 100.0,
+   "forecast_pct": 100.0,
+   "met": true
+  },
+  "F2": {
+   "our_exhaustion_deltas": {
+    "cap_150k": 1.1188537982975504,
+    "elimination": 3.2048065597855384,
+    "payroll_plus_1pp": 1.950472894025097,
+    "payroll_plus_2pp": 4.231370822865529
+   },
+   "our_order": [
+    "payroll_plus_2pp",
+    "elimination",
+    "payroll_plus_1pp",
+    "cap_150k"
+   ],
+   "registered_order": [
+    "elimination",
+    "payroll_plus_2pp",
+    "payroll_plus_1pp",
+    "cap_150k"
+   ],
+   "kendall_tau_vs_smith": 0.6666666666666669,
+   "forecast_order": [
+    "elimination",
+    "payroll_plus_2pp",
+    "payroll_plus_1pp",
+    "cap_150k"
+   ],
+   "met": false,
+   "smith_year_deltas": {
+    "cap_150k": 1,
+    "elimination": 21,
+    "payroll_plus_1pp": 5,
+    "payroll_plus_2pp": 18
+   },
+   "note": "our +2pp and elimination deltas are close (a frame near-tie): only ~12.7% of taxable payroll on this frame is above the wage base, below the 16.1% (2/12.4) that would put full elimination above +2pp. The one adjacent swap (elimination<->+2pp, tau=0.667) is the taxable-max analogue of the #115 T2 compressed-careers swap; the rest of the order (+1pp > cap-$150k, both below the top pair) matches Smith"
+  },
+  "F3": {
+   "fra_to_72_exhaustion_delta": 41.0,
+   "fra_to_72_exhausts_within_horizon": false,
+   "cap_150k_delta": 1.1188537982975504,
+   "payroll_plus_1pp_delta": 1.950472894025097,
+   "ranks_above_cap_150k": true,
+   "ranks_above_plus_1pp": true,
+   "smith_has_fra_smallest": true,
+   "forecast": "FRA->72 ranks ABOVE cap-$150k and +1pp (opposite Smith's <1yr smallest); mechanism: completed careers, no phase-in",
+   "met": true
+  },
+  "F4": {
+   "quartet_deltas": {
+    "price_indexing": -0.3326593963115843,
+    "progressive_price_indexing": -0.11000744343246105,
+    "nra_raised_to_70": -0.20234306477534883,
+    "reduced_cola": -0.007987803755968265
+   },
+   "our_order_by_reduction": [
+    "price_indexing",
+    "nra_raised_to_70",
+    "progressive_price_indexing",
+    "reduced_cola"
+   ],
+   "registered_order": [
+    "price_indexing",
+    "nra_raised_to_70",
+    "progressive_price_indexing",
+    "reduced_cola"
+   ],
+   "ppi_nra_swap_persists": true,
+   "forecast_order": [
+    "price_indexing",
+    "nra_raised_to_70",
+    "progressive_price_indexing",
+    "reduced_cola"
+   ],
+   "met": true
+  }
+ },
+ "named_deltas": [
+  "frame-relative levels: a pseudo-projection on observed COMPLETED PSID careers (born 1943-1957) under the Phase-A 2050 transport, not a Trustees-assumption projection -- the balance analogue and exhaustion year are frame-relative by construction; only signs, orderings, and delta-orderings are transportable",
+  "calibrated (not derived) initial reserve: the reserve is set so the baseline exhausts in Smith's own 2034 baseline year -- calibration anchors the level so provision DELTAS are the test",
+  "observed cohorts stand in for a projected population: the frame's cross-cohort composition (people of many ages coexisting on the calendar ledger) is the pseudo-projection; earnings run 1968-2018 and benefits 2005-2057, a closed-cohort horizon",
+  "compressed top tail (the F2 elimination<->+2pp swap driver): only ~12.7% of taxable payroll on this frame sits above the wage base, below the ~16.1% (2/12.4) that would put full elimination above +2pp -- the same observed-career compression that flipped PPI<->NRA in #115's T2, now at the taxable maximum",
+  "no DI: disability incidence, DI->retirement conversion, and the DI trust fund are out of scope (M4); OASI/retired-worker outlays only",
+  "no immigration: no entrant cohorts (M6); a closed observed-cohort frame, so a large enough benefit cut (FRA->72) makes the calibrated fund permanently solvent on-frame (the F3 mechanism)",
+  "no behavioral response: claiming is the committed B2 distribution held fixed across baseline and reform (the Mermin 'same draw' convention); no labor-supply or claim-age response to the rate, cap, or FRA changes",
+  "no benefit feedback from cap changes: raising/eliminating the taxable maximum is scored on the revenue side only; the higher covered earnings do not raise the PIA (Smith nets a modest benefit feedback that would shrink elimination further, not rescue F2)",
+  "no phase-in (the F3 mechanism, named in advance): Smith phases the provisions against a fixed 2087 horizon, so FRA->72 'does too little too late' (<1yr); our frame applies each schedule to completed careers immediately, so FRA->72's outlay cut is large",
+  "undiscounted exhaustion ledger, wage-indexed real flows: the cumulative (revenue - outlay) path carries no interest (per the registration's wording), while the separate PV balance analogue discounts at the 2014 TR real interest rate -- two accounting views, both frame-relative",
+  "combined OASDI rate from the pe-us statute series (12.4%) applied as the current-law scheduled rate to all taxable payroll, not the historical rate ramp -- the scheduled-rate convention a Trustees projection uses"
+ ],
+ "commit": "747966cd7426a2a2292ce3dd093a8fe65d9a9351",
+ "pe_us_revision": "bf71be3b",
+ "elapsed_seconds": 40.8
+}
