@@ -1,0 +1,715 @@
+{
+ "schema_version": "replication_cost_ordering.v1",
+ "run": "replication_cost_ordering_v1",
+ "reported_not_gated": true,
+ "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4931034068",
+ "registration_pointer": "#42 comment 4931034068",
+ "program_design_issue": "https://github.com/PolicyEngine/populace-dynamics/issues/74",
+ "purpose": "Cost-ordering synthesis: score every committed provision encoding ONCE on a single common Phase-A frame and test the aggregate cost deltas ORDINALLY against the anchors' published cost columns (Mermin 75-yr payroll effects; Five-Approaches A-table). Signs and orderings are the transportable content; no level matching is claimed. Reads no gate, changes no gate; publishes regardless of outcome.",
+ "grading_note": "the orchestrator grades the pre-registered forecasts on #42; this artifact reports outcomes vs forecasts and does not grade",
+ "common_frame": {
+  "description": "the canonical Phase-A career frame (family_earnings_panel + r7 _person_history + full-415(b) transported_aime + ppi_mermin build_transport/scheduled_amount), intersected with the sex-resolvable set -- the frame the NRA/COLA and caregiver replications both build identically",
+  "population": "Phase-A pia_observed rule: coverage >= 0.8 of ages 22-61, age-62 eligibility year 2005-2019 (born 1943-1957)",
+  "baseline": "scheduled PIA (pre-415(g) 90/32/15 on the 2050 bends), replication_ppi_mermin.scheduled_amount -- SCHEDULED (not payable) denominator per #74 protocol note 1",
+  "aime_convention": "full statutory 42 USC 415(b) top-35 transported AIME (replication_caregiver.transported_aime)",
+  "common_evaluation_ages": "retired workers 62-67 in 2050",
+  "wedge": 0.6673406036884157,
+  "bend_points_2050": [
+   3115.0,
+   18777.0
+  ],
+  "ppi_deviation_note": "ppi_mermin's biennial gate panel + biennial-proxy AIME is its documented generator-forced deviation; this synthesis uses no generator, so PI/PPI (pure AIME functions) run on the canonical full-415(b) frame the anchor tables target",
+  "n_careers_caregiver": 1549,
+  "n_careers_mermin_sex_resolvable": 1549,
+  "n_common_frame": 1549,
+  "weight_sum": 33696344.0
+ },
+ "encoding_reuse": {
+  "price_indexing": "replication_ppi_mermin.price_indexed_amount (verbatim)",
+  "progressive_price_indexing": "replication_ppi_mermin.progressive_price_indexed_amount (verbatim; 30th-pctile bend = the frame's own weighted 30th percentile)",
+  "nra_raised_to_70": "replication_mermin_rows.score_population NRA factors (expected_nra_factors / benefit_factor_at_fra, verbatim)",
+  "reduced_cola": "replication_mermin_rows._coefficient_table / cola_group_coefficients (verbatim), dollar-weighted over 62-67",
+  "caregiver_plans": "replication_caregiver.score_population gains (qualifying_years / reformed_history / transported_aime, verbatim)",
+  "earnings_sharing": "replication_r7_sharing.aggregate_cost_change on score_population (verbatim, own couples frame -- excluded from the common frame)"
+ },
+ "anchor_provenance": {
+  "mermin_payroll_pct": {
+   "price_indexing": 0.68,
+   "progressive_price_indexing": -0.14,
+   "reduced_cola": -1.12,
+   "nra_raised_to_70": -0.5
+  },
+  "mermin_scheduled_deficit_pct": -1.69,
+  "mermin_pct_of_scheduled_2050": {
+   "price_indexing": 69.3,
+   "progressive_price_indexing": 81.8,
+   "reduced_cola": 98.3,
+   "nra_raised_to_70": 85.2
+  },
+  "mermin_cite": "Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1 ('Annual Mean Social Security Benefits at Ages 62 to 67, by Policy Scenario'), '75-year deficit/surplus (percent of taxable payroll)' row; verified against 411260-benefit-reductions.{txt,pdf} PDF p.15, narrative printed p.5-6",
+  "caregiver_a_table_cost_pct_payroll": {
+   "Biden": -0.12,
+   "Buttigieg": -0.51,
+   "Klobuchar": -0.12,
+   "Warren": -0.3
+  },
+  "caregiver_cite": "Smith/Johnson/Favreault (2020), Urban Institute 103050, DYNASIM3 ID980, Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row; verified against 103050-five-dem.{txt,pdf} printed p.19 (PDF p.29)",
+  "reverified_pdftotext": "each anchor number re-verified against pdftotext output on 2026-07-09 per #74 protocol note 3"
+ },
+ "provisions": [
+  {
+   "provision": "price_indexing",
+   "family": "mermin_savings",
+   "in_common_frame": true,
+   "our_delta": -0.3326593963115843,
+   "our_delta_pct": -33.266,
+   "our_pct_of_scheduled": 66.73,
+   "floor_abs_mean": 7.771561172376095e-17,
+   "floor_abs_max": 1.6653345369377348e-16,
+   "anchor_value_payroll_pct": 0.68,
+   "anchor_pct_of_scheduled_2050": 69.3,
+   "anchor_units": "75-yr OASDI effect, % of taxable payroll (positive = improves solvency = bigger benefit cut)",
+   "anchor_cite": "Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1 ('Annual Mean Social Security Benefits at Ages 62 to 67, by Policy Scenario'), '75-year deficit/surplus (percent of taxable payroll)' row; verified against 411260-benefit-reductions.{txt,pdf} PDF p.15, narrative printed p.5-6",
+   "units_differ_note": "delta vs the scheduled PIA (claim-age factor cancels -- this provision does not alter it); % change, not a level",
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "in_T2": true
+  },
+  {
+   "provision": "progressive_price_indexing",
+   "family": "mermin_savings",
+   "in_common_frame": true,
+   "our_delta": -0.11000744343246105,
+   "our_delta_pct": -11.001,
+   "our_pct_of_scheduled": 89.0,
+   "floor_abs_mean": 0.010183857028116422,
+   "floor_abs_max": 0.018934192494068344,
+   "anchor_value_payroll_pct": -0.14,
+   "anchor_pct_of_scheduled_2050": 81.8,
+   "anchor_units": "75-yr OASDI effect, % of taxable payroll (positive = improves solvency = bigger benefit cut)",
+   "anchor_cite": "Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1 ('Annual Mean Social Security Benefits at Ages 62 to 67, by Policy Scenario'), '75-year deficit/surplus (percent of taxable payroll)' row; verified against 411260-benefit-reductions.{txt,pdf} PDF p.15, narrative printed p.5-6",
+   "units_differ_note": "delta vs the scheduled PIA (claim-age factor cancels -- this provision does not alter it); % change, not a level",
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "in_T2": true
+  },
+  {
+   "provision": "nra_raised_to_70",
+   "family": "mermin_savings",
+   "in_common_frame": true,
+   "our_delta": -0.20234306477534883,
+   "our_delta_pct": -20.234,
+   "our_pct_of_scheduled": 79.77,
+   "floor_abs_mean": 3.6053228851151695e-05,
+   "floor_abs_max": 7.754342847754447e-05,
+   "anchor_value_payroll_pct": -0.5,
+   "anchor_pct_of_scheduled_2050": 85.2,
+   "anchor_units": "75-yr OASDI effect, % of taxable payroll (positive = improves solvency = bigger benefit cut)",
+   "anchor_cite": "Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1 ('Annual Mean Social Security Benefits at Ages 62 to 67, by Policy Scenario'), '75-year deficit/surplus (percent of taxable payroll)' row; verified against 411260-benefit-reductions.{txt,pdf} PDF p.15, narrative printed p.5-6",
+   "units_differ_note": "delta vs the claim-adjusted scheduled benefit (PIA * expected claim-age factor -- the claim-age factor is this provision's mechanism); % change at ages 62-67, not a level",
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "in_T2": true
+  },
+  {
+   "provision": "reduced_cola",
+   "family": "mermin_savings",
+   "in_common_frame": true,
+   "our_delta": -0.007987803755968265,
+   "our_delta_pct": -0.799,
+   "our_pct_of_scheduled": 99.2,
+   "floor_abs_mean": 7.234202954483834e-06,
+   "floor_abs_max": 2.1959062898877293e-05,
+   "anchor_value_payroll_pct": -1.12,
+   "anchor_pct_of_scheduled_2050": 98.3,
+   "anchor_units": "75-yr OASDI effect, % of taxable payroll (positive = improves solvency = bigger benefit cut)",
+   "anchor_cite": "Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1 ('Annual Mean Social Security Benefits at Ages 62 to 67, by Policy Scenario'), '75-year deficit/surplus (percent of taxable payroll)' row; verified against 411260-benefit-reductions.{txt,pdf} PDF p.15, narrative printed p.5-6",
+   "units_differ_note": "delta vs the claim-adjusted scheduled benefit (PIA * expected claim-age factor -- the claim-age factor is this provision's mechanism); % change at ages 62-67, not a level",
+   "expected_sign": "negative",
+   "sign_ok": true,
+   "in_T2": true
+  },
+  {
+   "provision": "caregiver_Biden",
+   "family": "caregiver_credit",
+   "in_common_frame": true,
+   "plan_design": {
+    "credit_fraction_of_avg_wage": 0.5,
+    "child_age_limit": 12,
+    "year_cap": 5
+   },
+   "our_delta": 0.027455890283327157,
+   "our_delta_pct": 2.746,
+   "floor_abs_mean": 0.0022007261334831838,
+   "floor_abs_max": 0.004470888189737631,
+   "anchor_value_payroll_pct": -0.12,
+   "anchor_units": "75-yr actuarial-balance cost, % of taxable payroll (negative = a cost = a bigger benefit expansion)",
+   "anchor_cite": "Smith/Johnson/Favreault (2020), Urban Institute 103050, DYNASIM3 ID980, Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row; verified against 103050-five-dem.{txt,pdf} printed p.19 (PDF p.29)",
+   "units_differ_note": "delta vs the scheduled PIA (benefit GAIN from the credited-history PIA); cross-sectional PIA-gain proxy, no projection/DI interaction",
+   "expected_sign": "positive",
+   "sign_ok": true,
+   "in_T3": true
+  },
+  {
+   "provision": "caregiver_Buttigieg",
+   "family": "caregiver_credit",
+   "in_common_frame": true,
+   "plan_design": {
+    "credit_fraction_of_avg_wage": 1.0,
+    "child_age_limit": 18,
+    "year_cap": null
+   },
+   "our_delta": 0.15611011422734103,
+   "our_delta_pct": 15.611,
+   "floor_abs_mean": 0.012477244510965907,
+   "floor_abs_max": 0.02322014829842095,
+   "anchor_value_payroll_pct": -0.51,
+   "anchor_units": "75-yr actuarial-balance cost, % of taxable payroll (negative = a cost = a bigger benefit expansion)",
+   "anchor_cite": "Smith/Johnson/Favreault (2020), Urban Institute 103050, DYNASIM3 ID980, Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row; verified against 103050-five-dem.{txt,pdf} printed p.19 (PDF p.29)",
+   "units_differ_note": "delta vs the scheduled PIA (benefit GAIN from the credited-history PIA); cross-sectional PIA-gain proxy, no projection/DI interaction",
+   "expected_sign": "positive",
+   "sign_ok": true,
+   "in_T3": true
+  },
+  {
+   "provision": "caregiver_Klobuchar",
+   "family": "caregiver_credit",
+   "in_common_frame": true,
+   "plan_design": {
+    "credit_fraction_of_avg_wage": 0.5,
+    "child_age_limit": 6,
+    "year_cap": null
+   },
+   "our_delta": 0.03728823655084615,
+   "our_delta_pct": 3.729,
+   "floor_abs_mean": 0.0025071818357630697,
+   "floor_abs_max": 0.006426287805381854,
+   "anchor_value_payroll_pct": -0.12,
+   "anchor_units": "75-yr actuarial-balance cost, % of taxable payroll (negative = a cost = a bigger benefit expansion)",
+   "anchor_cite": "Smith/Johnson/Favreault (2020), Urban Institute 103050, DYNASIM3 ID980, Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row; verified against 103050-five-dem.{txt,pdf} printed p.19 (PDF p.29)",
+   "units_differ_note": "delta vs the scheduled PIA (benefit GAIN from the credited-history PIA); cross-sectional PIA-gain proxy, no projection/DI interaction",
+   "expected_sign": "positive",
+   "sign_ok": true,
+   "in_T3": true
+  },
+  {
+   "provision": "caregiver_Warren",
+   "family": "caregiver_credit",
+   "in_common_frame": true,
+   "plan_design": {
+    "credit_fraction_of_avg_wage": 1.0,
+    "child_age_limit": 6,
+    "year_cap": null
+   },
+   "our_delta": 0.08304894331595333,
+   "our_delta_pct": 8.305,
+   "floor_abs_mean": 0.005290275844412643,
+   "floor_abs_max": 0.01304398842583998,
+   "anchor_value_payroll_pct": -0.3,
+   "anchor_units": "75-yr actuarial-balance cost, % of taxable payroll (negative = a cost = a bigger benefit expansion)",
+   "anchor_cite": "Smith/Johnson/Favreault (2020), Urban Institute 103050, DYNASIM3 ID980, Table 3 (actuarial balance as a percentage of taxable payroll, 2019-93), 'Provide caregiver credits' row; verified against 103050-five-dem.{txt,pdf} printed p.19 (PDF p.29)",
+   "units_differ_note": "delta vs the scheduled PIA (benefit GAIN from the credited-history PIA); cross-sectional PIA-gain proxy, no projection/DI interaction",
+   "expected_sign": "positive",
+   "sign_ok": true,
+   "in_T3": true
+  }
+ ],
+ "floors": {
+  "convention": "per provision, the person-disjoint half-split A-vs-B aggregate-cost-delta gap over the 5 locked seeds (split_panel_by_person fraction=0.5, seed=s); the abs-gap mean is the sampling-noise scale at half sample. PI's floor is exactly 0 (a uniform scalar W-1); NRA/COLA floors are ~1e-4 (the actuarial factors are near population-invariant)",
+  "per_provision": {
+   "price_indexing": {
+    "per_seed_signed_gap": [
+     0.0,
+     -1.6653345369377348e-16,
+     0.0,
+     -1.6653345369377348e-16,
+     -5.551115123125783e-17
+    ],
+    "abs": {
+     "mean": 7.771561172376095e-17,
+     "sd": 8.41868291085074e-17,
+     "min": 0.0,
+     "max": 1.6653345369377348e-16,
+     "n_seeds": 5,
+     "values": [
+      0.0,
+      1.6653345369377348e-16,
+      0.0,
+      1.6653345369377348e-16,
+      5.551115123125783e-17
+     ]
+    },
+    "signed": {
+     "mean": -7.771561172376095e-17,
+     "sd": 8.41868291085074e-17,
+     "min": -1.6653345369377348e-16,
+     "max": 0.0,
+     "n_seeds": 5,
+     "values": [
+      0.0,
+      -1.6653345369377348e-16,
+      0.0,
+      -1.6653345369377348e-16,
+      -5.551115123125783e-17
+     ]
+    }
+   },
+   "progressive_price_indexing": {
+    "per_seed_signed_gap": [
+     -0.01619326659710435,
+     0.008496283981522135,
+     -0.018934192494068344,
+     0.006364143475863213,
+     -0.0009313985920240686
+    ],
+    "abs": {
+     "mean": 0.010183857028116422,
+     "sd": 0.00734383203196762,
+     "min": 0.0009313985920240686,
+     "max": 0.018934192494068344,
+     "n_seeds": 5,
+     "values": [
+      0.01619326659710435,
+      0.008496283981522135,
+      0.018934192494068344,
+      0.006364143475863213,
+      0.0009313985920240686
+     ]
+    },
+    "signed": {
+     "mean": -0.004239686045162283,
+     "sd": 0.012692591408897523,
+     "min": -0.018934192494068344,
+     "max": 0.008496283981522135,
+     "n_seeds": 5,
+     "values": [
+      -0.01619326659710435,
+      0.008496283981522135,
+      -0.018934192494068344,
+      0.006364143475863213,
+      -0.0009313985920240686
+     ]
+    }
+   },
+   "nra_raised_to_70": {
+    "per_seed_signed_gap": [
+     2.9443760389408213e-05,
+     1.2280921087293173e-05,
+     -7.754342847754447e-05,
+     -4.150630282015455e-05,
+     1.9491731481358077e-05
+    ],
+    "abs": {
+     "mean": 3.6053228851151695e-05,
+     "sd": 2.5662538678224195e-05,
+     "min": 1.2280921087293173e-05,
+     "max": 7.754342847754447e-05,
+     "n_seeds": 5,
+     "values": [
+      2.9443760389408213e-05,
+      1.2280921087293173e-05,
+      7.754342847754447e-05,
+      4.150630282015455e-05,
+      1.9491731481358077e-05
+     ]
+    },
+    "signed": {
+     "mean": -1.1566663667927913e-05,
+     "sd": 4.600136295964006e-05,
+     "min": -7.754342847754447e-05,
+     "max": 2.9443760389408213e-05,
+     "n_seeds": 5,
+     "values": [
+      2.9443760389408213e-05,
+      1.2280921087293173e-05,
+      -7.754342847754447e-05,
+      -4.150630282015455e-05,
+      1.9491731481358077e-05
+     ]
+    }
+   },
+   "reduced_cola": {
+    "per_seed_signed_gap": [
+     -2.415860487908761e-06,
+     -3.6715453659800362e-06,
+     -2.1959062898877293e-05,
+     -3.5093714777327534e-06,
+     4.615174541920328e-06
+    ],
+    "abs": {
+     "mean": 7.234202954483834e-06,
+     "sd": 8.268375489721938e-06,
+     "min": 2.415860487908761e-06,
+     "max": 2.1959062898877293e-05,
+     "n_seeds": 5,
+     "values": [
+      2.415860487908761e-06,
+      3.6715453659800362e-06,
+      2.1959062898877293e-05,
+      3.5093714777327534e-06,
+      4.615174541920328e-06
+     ]
+    },
+    "signed": {
+     "mean": -5.388133137715703e-06,
+     "sd": 9.873863242681418e-06,
+     "min": -2.1959062898877293e-05,
+     "max": 4.615174541920328e-06,
+     "n_seeds": 5,
+     "values": [
+      -2.415860487908761e-06,
+      -3.6715453659800362e-06,
+      -2.1959062898877293e-05,
+      -3.5093714777327534e-06,
+      4.615174541920328e-06
+     ]
+    }
+   },
+   "caregiver_Biden": {
+    "per_seed_signed_gap": [
+     0.003372687862116558,
+     0.00019528514748253303,
+     0.004470888189737631,
+     -0.0004470427619032817,
+     -0.0025177267061759143
+    ],
+    "abs": {
+     "mean": 0.0022007261334831838,
+     "sd": 0.0018523510961892036,
+     "min": 0.00019528514748253303,
+     "max": 0.004470888189737631,
+     "n_seeds": 5,
+     "values": [
+      0.003372687862116558,
+      0.00019528514748253303,
+      0.004470888189737631,
+      0.0004470427619032817,
+      0.0025177267061759143
+     ]
+    },
+    "signed": {
+     "mean": 0.0010148183462515051,
+     "sd": 0.002863193781764928,
+     "min": -0.0025177267061759143,
+     "max": 0.004470888189737631,
+     "n_seeds": 5,
+     "values": [
+      0.003372687862116558,
+      0.00019528514748253303,
+      0.004470888189737631,
+      -0.0004470427619032817,
+      -0.0025177267061759143
+     ]
+    }
+   },
+   "caregiver_Buttigieg": {
+    "per_seed_signed_gap": [
+     0.01058462949057204,
+     -0.011093827932073835,
+     0.02322014829842095,
+     -0.0060727780523892605,
+     -0.011414838781373449
+    ],
+    "abs": {
+     "mean": 0.012477244510965907,
+     "sd": 0.00638458517419092,
+     "min": 0.0060727780523892605,
+     "max": 0.02322014829842095,
+     "n_seeds": 5,
+     "values": [
+      0.01058462949057204,
+      0.011093827932073835,
+      0.02322014829842095,
+      0.0060727780523892605,
+      0.011414838781373449
+     ]
+    },
+    "signed": {
+     "mean": 0.0010446666046312891,
+     "sd": 0.015297084875426257,
+     "min": -0.011414838781373449,
+     "max": 0.02322014829842095,
+     "n_seeds": 5,
+     "values": [
+      0.01058462949057204,
+      -0.011093827932073835,
+      0.02322014829842095,
+      -0.0060727780523892605,
+      -0.011414838781373449
+     ]
+    }
+   },
+   "caregiver_Klobuchar": {
+    "per_seed_signed_gap": [
+     0.0011036805437093927,
+     -0.0018525648519695376,
+     0.006426287805381854,
+     0.0015272188045411805,
+     -0.0016261571732133842
+    ],
+    "abs": {
+     "mean": 0.0025071818357630697,
+     "sd": 0.0022076153917718125,
+     "min": 0.0011036805437093927,
+     "max": 0.006426287805381854,
+     "n_seeds": 5,
+     "values": [
+      0.0011036805437093927,
+      0.0018525648519695376,
+      0.006426287805381854,
+      0.0015272188045411805,
+      0.0016261571732133842
+     ]
+    },
+    "signed": {
+     "mean": 0.0011156930256899012,
+     "sd": 0.0033429108581439623,
+     "min": -0.0018525648519695376,
+     "max": 0.006426287805381854,
+     "n_seeds": 5,
+     "values": [
+      0.0011036805437093927,
+      -0.0018525648519695376,
+      0.006426287805381854,
+      0.0015272188045411805,
+      -0.0016261571732133842
+     ]
+    }
+   },
+   "caregiver_Warren": {
+    "per_seed_signed_gap": [
+     0.0016759822874106989,
+     -0.006592691530363987,
+     0.01304398842583998,
+     -0.0008513053101737583,
+     -0.004287411668274788
+    ],
+    "abs": {
+     "mean": 0.005290275844412643,
+     "sd": 0.004888498217505152,
+     "min": 0.0008513053101737583,
+     "max": 0.01304398842583998,
+     "n_seeds": 5,
+     "values": [
+      0.0016759822874106989,
+      0.006592691530363987,
+      0.01304398842583998,
+      0.0008513053101737583,
+      0.004287411668274788
+     ]
+    },
+    "signed": {
+     "mean": 0.0005977124408876294,
+     "sd": 0.007644253577526789,
+     "min": -0.006592691530363987,
+     "max": 0.01304398842583998,
+     "n_seeds": 5,
+     "values": [
+      0.0016759822874106989,
+      -0.006592691530363987,
+      0.01304398842583998,
+      -0.0008513053101737583,
+      -0.004287411668274788
+     ]
+    }
+   }
+  }
+ },
+ "earnings_sharing": {
+  "provision": "earnings_sharing_1b",
+  "family": "favreault_steuerle_2007",
+  "common_frame": false,
+  "excluded_from_common_frame": true,
+  "exclusion_reason": "intrinsically a couples provision: the committed encoding needs marriage episodes, spouse PIA records, the 402(b)/(c)/(e)/(f) auxiliary-benefit plumbing, each person's ACTUAL eligibility year (not the 2050 transport), and a package global-benefit-increase scalar -- none on the single-person 2050-transport common frame. Per the frozen spec, recorded as excluded-with-reason and scored on its own committed couples frame instead of adapting it.",
+  "n_scored_couples_frame": 1016,
+  "our_delta_1b": -0.042300000000000004,
+  "our_delta_1b_pct": -4.23,
+  "our_delta_1b_noscalar": -0.08349999999999999,
+  "our_delta_1b_noscalar_pct": -8.35,
+  "package_global_increase": 0.045,
+  "anchor_cite": "Favreault-Steuerle (2007), Urban Institute 311436, DYNASIM3 runid 440v2; earnings-sharing packages cost-balanced by design (package 1b carries a +4.5% global benefit increase calibrated for 2049 cost neutrality) -- no strict aggregate sign stated",
+  "t1_role": "descriptive",
+  "t1_note": "the anchor's earnings-sharing packages are cost-balanced by design (a DYNASIM-calibrated global increase for 2049 cost neutrality), so no strict aggregate sign is stated; on our observed 1943-57 sample package 1b is a NET REDUCTION (-4.23% with the calibrated scalar, -8.35% without) -- a named population delta, recorded not chased"
+ },
+ "cola_cross_checks": {
+  "committed_per_capita_cola_pct_62_67": 99.1979308567756,
+  "committed_per_capita_cola_pct_80_85": 93.01450397829619,
+  "dollar_weighted_delta_62_67": -0.007987803755968265,
+  "note": "the T2 COLA delta is dollar-weighted over 62-67; the committed per-capita cola_pct is reported for cross-check (they agree because the COLA ratio is PIA-independent). 80-85 is a secondary, later-life COLA compounding row"
+ },
+ "tests": {
+  "T1_sign_agreement": {
+   "checks": [
+    {
+     "provision": "price_indexing",
+     "delta": -0.3326593963115843,
+     "expected_sign": "negative",
+     "ok": true
+    },
+    {
+     "provision": "progressive_price_indexing",
+     "delta": -0.11000744343246105,
+     "expected_sign": "negative",
+     "ok": true
+    },
+    {
+     "provision": "nra_raised_to_70",
+     "delta": -0.20234306477534883,
+     "expected_sign": "negative",
+     "ok": true
+    },
+    {
+     "provision": "reduced_cola",
+     "delta": -0.007987803755968265,
+     "expected_sign": "negative",
+     "ok": true
+    },
+    {
+     "provision": "caregiver_Biden",
+     "delta": 0.027455890283327157,
+     "expected_sign": "positive",
+     "ok": true
+    },
+    {
+     "provision": "caregiver_Buttigieg",
+     "delta": 0.15611011422734103,
+     "expected_sign": "positive",
+     "ok": true
+    },
+    {
+     "provision": "caregiver_Klobuchar",
+     "delta": 0.03728823655084615,
+     "expected_sign": "positive",
+     "ok": true
+    },
+    {
+     "provision": "caregiver_Warren",
+     "delta": 0.08304894331595333,
+     "expected_sign": "positive",
+     "ok": true
+    }
+   ],
+   "n_ok": 8,
+   "n_total": 8,
+   "pct_agreement": 100.0,
+   "forecast_pct": 100.0,
+   "forecast_met": true
+  },
+  "T2_mermin_kendall_tau": {
+   "provisions": [
+    "price_indexing",
+    "progressive_price_indexing",
+    "nra_raised_to_70",
+    "reduced_cola"
+   ],
+   "our_delta": {
+    "price_indexing": -0.3326593963115843,
+    "progressive_price_indexing": -0.11000744343246105,
+    "nra_raised_to_70": -0.20234306477534883,
+    "reduced_cola": -0.007987803755968265
+   },
+   "our_benefit_reduction": {
+    "price_indexing": 0.3326593963115843,
+    "progressive_price_indexing": 0.11000744343246105,
+    "nra_raised_to_70": 0.20234306477534883,
+    "reduced_cola": 0.007987803755968265
+   },
+   "anchor_payroll_pct": {
+    "price_indexing": 0.68,
+    "progressive_price_indexing": -0.14,
+    "nra_raised_to_70": -0.5,
+    "reduced_cola": -1.12
+   },
+   "anchor_deficit_reduction_pct": {
+    "price_indexing": 2.37,
+    "progressive_price_indexing": 1.5499999999999998,
+    "nra_raised_to_70": 1.19,
+    "reduced_cola": 0.5699999999999998
+   },
+   "our_order_by_reduction": [
+    "price_indexing",
+    "nra_raised_to_70",
+    "progressive_price_indexing",
+    "reduced_cola"
+   ],
+   "anchor_order_by_reduction": [
+    "price_indexing",
+    "progressive_price_indexing",
+    "nra_raised_to_70",
+    "reduced_cola"
+   ],
+   "kendall_tau": 0.6666666666666669,
+   "kendall_tau_pct_scheduled_xcheck": 0.6666666666666669,
+   "alignment": "both series are benefit-reduction magnitudes (bigger = bigger cut), so perfect agreement is tau = +1",
+   "forecast_tau": 1.0,
+   "forecast_met": false
+  },
+  "T3_caregiver_kendall_tau": {
+   "plans": [
+    "Biden",
+    "Buttigieg",
+    "Klobuchar",
+    "Warren"
+   ],
+   "our_gain_delta": {
+    "Biden": 0.027455890283327157,
+    "Buttigieg": 0.15611011422734103,
+    "Klobuchar": 0.03728823655084615,
+    "Warren": 0.08304894331595333
+   },
+   "anchor_cost_pct_payroll": {
+    "Biden": -0.12,
+    "Buttigieg": -0.51,
+    "Klobuchar": -0.12,
+    "Warren": -0.3
+   },
+   "our_order_by_gain": [
+    "Buttigieg",
+    "Warren",
+    "Klobuchar",
+    "Biden"
+   ],
+   "anchor_order_by_cost": [
+    "Buttigieg",
+    "Warren",
+    "Biden",
+    "Klobuchar"
+   ],
+   "kendall_tau": 0.9128709291752769,
+   "alignment": "our benefit-gain vs anchor cost magnitude (bigger = more costly); perfect agreement is tau = +1; tau-b handles the Biden/Klobuchar anchor tie at -0.12",
+   "forecast_tau_min": 0.8,
+   "forecast_met": true
+  }
+ },
+ "results_vs_forecasts": {
+  "T1": {
+   "forecast": "100% sign agreement",
+   "result_pct": 100.0,
+   "met": true
+  },
+  "T2": {
+   "forecast": "kendall tau = 1.0",
+   "result_tau": 0.6666666666666669,
+   "met": false
+  },
+  "T3": {
+   "forecast": "kendall tau >= 0.8 (<= one adjacent swap)",
+   "result_tau": 0.9128709291752769,
+   "met": true
+  }
+ },
+ "named_deltas": [
+  "no long-run projection: observed COMPLETED PSID careers under the Phase-A 2050 transport, not a Trustees-assumption Phase-E projection -- so units differ (our benefit-side % change vs the anchor's 75-yr % of taxable payroll); signs and orderings are the transportable content, absolute levels are not compared",
+  "no revenue side: benefit-side provisions only (the donut cap and payroll-rate rows are out of scope until Phase E)",
+  "observed cohorts: PSID retirees born 1943-1957 (eligible 2005-2019) transported to a common 2050 bracket geometry vs DYNASIM's projected 2050/2065 beneficiaries",
+  "common-support restriction: the aggregate runs on the sex-resolvable Phase-A careers (the Marriage History join the NRA/COLA claim distribution needs)",
+  "PPI/NRA ordering driver (the T2 swap): our observed careers are compressed relative to the bends (most AIME below the second bend), so progressive price indexing -- which bites only ABOVE the 30th-percentile bend -- cuts LESS than the uniform NRA actuarial reduction on our frame, flipping PPI and NRA versus DYNASIM's fuller projected careers (documented in the ppi_mermin artifact)",
+  "caregiver frame omits DI interactions (the registration's named T3 delta) and models Biden's phase-out as the uniform top-up-to-credit mechanic",
+  "NRA/COLA baseline = the claim-adjusted scheduled benefit (the claim factor is the reform mechanism); PI/PPI/caregiver baseline = the scheduled PIA (the claim factor cancels) -- both are '% change vs current-law scheduled', per-provision units-differ note carried",
+  "COLA aggregate is dollar-weighted (scheduled PIA) over the common evaluation ages 62-67; the committed per-capita cola_pct barely differs because the COLA ratio is PIA-independent",
+  "earnings sharing excluded from the single-person common frame (intrinsically a couples provision) and scored on its own committed couples frame; recorded descriptively for T1"
+ ],
+ "commit": "e86ec0c6b3508ebb0d08afe24ba16282a99769a2",
+ "pe_us_revision": "bf71be3b",
+ "elapsed_seconds": 80.2
+}
