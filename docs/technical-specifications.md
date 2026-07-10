@@ -251,7 +251,7 @@ The 4-table structure maps to PolicyEngine's entity hierarchy:
 | RELATIONSHIP | `tax_unit`, `spm_unit`, `family`, `household` | Family structure, filing status |
 | EVENT | `person` (time-series) | Claiming decisions, disability onset |
 
-For PolicyEngine integration, the 4-table structure will be flattened into the entity-based format that PolicyEngine-Core expects, with earnings histories stored as person-level arrays and family relationships encoded through entity membership. The benefit calculations themselves (AIME, PIA, spousal benefits, family maximum) then run through PolicyEngine-US's existing Social Security implementation.
+For PolicyEngine integration, the 4-table structure will be flattened into the entity-based format that PolicyEngine-Core expects, with earnings histories stored as person-level arrays and family relationships encoded through entity membership. PolicyEngine-US provides the parameterized own-benefit foundation for AIME and PIA, but it has no upstream 42 USC 402 auxiliary-benefit formulas; this repository therefore carries the spouse and survivor rates as statute-cited local constants validated against SSA worked examples. Under W3, Axiom/rulespec encodings of those auxiliary rules will be cross-validated against this repository's frozen oracle and then upstreamed as real formulas to PolicyEngine-US; see [ADR 0001](adr/0001-populace-axiom-seam-ownership.md).
 
 ### Implementation priority
 
