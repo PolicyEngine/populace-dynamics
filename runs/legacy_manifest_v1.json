@@ -1,0 +1,253 @@
+{
+  "schema_version": "legacy_manifest.v1",
+  "generated_at_commit": "747966cd7426a2a2292ce3dd093a8fe65d9a9351",
+  "contract_revision": "e4809a320f0a770bab606633ba33b6b2c957cbab",
+  "entries": [
+    {
+      "path": "gates.yaml",
+      "sha256": "d47f632c9ef1df99da9727346293886a8bba6055e3cc852f846893f2070e2ba8",
+      "n_bytes": 82728,
+      "originating_commit": "84a6721b686cef465150212432d8fc517dd53122"
+    },
+    {
+      "path": "runs/gate2_forensics2_v1.json",
+      "sha256": "0be61b459b115b29ea1c3df9a4cc9e86f2aab0a879c6ced06a80dcf45a7c0259",
+      "n_bytes": 88058,
+      "originating_commit": "a1b43f02d4d1921e9261aa186161a840dfd1e4c9"
+    },
+    {
+      "path": "runs/gate2_forensics3_v1.json",
+      "sha256": "d94d0596eda4ba3fb2baf04e9190710d17b44338dc05b338ad8102eb0b9748e4",
+      "n_bytes": 124888,
+      "originating_commit": "307651da778bce02d513eda1600ee6215748ff73"
+    },
+    {
+      "path": "runs/gate2_forensics4_v1.json",
+      "sha256": "f02e34bb54ed95871006d47b6cb7fa767139c4a0848f766b68c3d8ed4b4a4654",
+      "n_bytes": 110185,
+      "originating_commit": "5a9bd27ec821885923c4bcde9f0d89bafa0d91dc"
+    },
+    {
+      "path": "runs/gate2_forensics_v1.json",
+      "sha256": "b879c69e5f7fa7339aa94989dca1b1c8d84cc4f3c300889a931d0768fc672cf9",
+      "n_bytes": 140742,
+      "originating_commit": "da64d7e3f9ea1eb6e0cbe0131ff2d2928b6b0b8b"
+    },
+    {
+      "path": "runs/gate2_hazard_v1.json",
+      "sha256": "e1381021e57d3d54358f39df03a11ec5def2bac81dd6990902512af33f89b9f2",
+      "n_bytes": 137257,
+      "originating_commit": "3faee4962d6d9305cee6179a4662ef42344a5508"
+    },
+    {
+      "path": "runs/gate2_hazard_v10.json",
+      "sha256": "c0788db5642dcbc4c9e55fee2d88f7a1e94ed74218f7b2c01e697451dc72ff50",
+      "n_bytes": 756545,
+      "originating_commit": "a5b3cab1415fb96753954c3d99c3d54818ec57fc"
+    },
+    {
+      "path": "runs/gate2_hazard_v11.json",
+      "sha256": "cddd55d647dc6b92fe75ed554d05bf4796c0afb81ca9aa351e1720bd46e14eb1",
+      "n_bytes": 799265,
+      "originating_commit": "590871afee21461d55daaa7b25be61e3f7b59847"
+    },
+    {
+      "path": "runs/gate2_hazard_v12.json",
+      "sha256": "1157aaad8537dbae51384556ce89dc377a4787c0e050ec3f1481fc88574ac17f",
+      "n_bytes": 853827,
+      "originating_commit": "f2d3784dfd359220ea94efe1ad58832d78ced9cf"
+    },
+    {
+      "path": "runs/gate2_hazard_v13.json",
+      "sha256": "3dccc6ab7c3ce56e4fd8af7cee4e550f50f23717a85e67bc3b521bb9ec7230f0",
+      "n_bytes": 889115,
+      "originating_commit": "5d0e1031053219f4916afe1bcd3fea148498deed"
+    },
+    {
+      "path": "runs/gate2_hazard_v14.json",
+      "sha256": "f57becc7f87c69ad94ce4b6b0d97d76e1e219eff64501be24674ed4b4b91b07b",
+      "n_bytes": 930262,
+      "originating_commit": "784bdf0f646af71d5102a590659d33c5d34f7be0"
+    },
+    {
+      "path": "runs/gate2_hazard_v15.json",
+      "sha256": "f16b14c7e34d0e50d634c58cf4e26285816985c28c8263be4cd43893795b04d3",
+      "n_bytes": 954120,
+      "originating_commit": "3f3b9ecf152fca680e0c3f6848c7628bf7ec46d1"
+    },
+    {
+      "path": "runs/gate2_hazard_v16.json",
+      "sha256": "ab533ecf4f614e85a0cb17e1d916ad4910b20ef9261c16321750b4b715c77c85",
+      "n_bytes": 1074032,
+      "originating_commit": "9e8a18d523737a23216a0208fe4f477b89c87dff"
+    },
+    {
+      "path": "runs/gate2_hazard_v2.json",
+      "sha256": "8687a4f43d8372329bb74518e1e2b2fbc2b43a67d9f55dd2100655465aa80285",
+      "n_bytes": 160150,
+      "originating_commit": "4b7b6539a80674c69a3068a88572f6c475954667"
+    },
+    {
+      "path": "runs/gate2_hazard_v3.json",
+      "sha256": "5b5c77390686dd4901e13e72202ba84b338e3071e682b6ca9eefb03e23328f12",
+      "n_bytes": 145010,
+      "originating_commit": "e010f6710b27e260373ac8f4478c5a2292a1cb40"
+    },
+    {
+      "path": "runs/gate2_hazard_v4.json",
+      "sha256": "d8dd0c526ed080599a5429f70371ebfc9174f7de09bae09edade52167aa9cb91",
+      "n_bytes": 158897,
+      "originating_commit": "943f3feabf15c51b8946bbe9156953e5353db930"
+    },
+    {
+      "path": "runs/gate2_hazard_v5.json",
+      "sha256": "5f1a5b7a465884653070d88b0351a7894ca70f0b104b820c95da363edcd02f5d",
+      "n_bytes": 199425,
+      "originating_commit": "f5f9bb0a5dd59d73c5fd5c9ffccb695dedadc9c9"
+    },
+    {
+      "path": "runs/gate2_hazard_v6.json",
+      "sha256": "e777c16a44facc7f083ec70df3a08d7ad88e885e575945e1ec1057e04e70d0eb",
+      "n_bytes": 224493,
+      "originating_commit": "c82caa333c1f26416bf084cfce4aca4d871225de"
+    },
+    {
+      "path": "runs/gate2_hazard_v7.json",
+      "sha256": "1d3cb937e36e3f5ecbe39e755d543ac225731206e54fb608cf7b06dbdf14edb3",
+      "n_bytes": 269762,
+      "originating_commit": "a3e7e6cae6ebb34f5990eac7b8019fb290700908"
+    },
+    {
+      "path": "runs/gate2_hazard_v8.json",
+      "sha256": "60a32d6ed26a5b3d1d0e02b68b2ecc841b7d2bc33ba5e96c628e1f2395b53013",
+      "n_bytes": 271568,
+      "originating_commit": "efb81ddbf7a89f2c2d027eb6b0ae2c740e332308"
+    },
+    {
+      "path": "runs/gate2_hazard_v9.json",
+      "sha256": "7c8d79cb96ca947ac7396c3cee8f4097544d274118967790eaa50c674bb6d761",
+      "n_bytes": 280047,
+      "originating_commit": "6b404e8e4e527bcc9280cd814daec7b1131ddeda"
+    },
+    {
+      "path": "scripts/gate2_forensics.py",
+      "sha256": "add7f8aaf20fcb241e7873f400f998e5a2e7635df02057c8a07150d0718f77b2",
+      "n_bytes": 59031,
+      "originating_commit": "da64d7e3f9ea1eb6e0cbe0131ff2d2928b6b0b8b"
+    },
+    {
+      "path": "scripts/gate2_forensics2.py",
+      "sha256": "7143a7ad8051f9d10073ef699c75ec78b0aa6e91495927067526594d661a4dbd",
+      "n_bytes": 57802,
+      "originating_commit": "a1b43f02d4d1921e9261aa186161a840dfd1e4c9"
+    },
+    {
+      "path": "scripts/gate2_forensics3.py",
+      "sha256": "ca6f7acbe7dacbe9a83e811026ffa0db06e976bd716c7d4578dd19bd8e7d55c8",
+      "n_bytes": 57324,
+      "originating_commit": "307651da778bce02d513eda1600ee6215748ff73"
+    },
+    {
+      "path": "scripts/gate2_forensics4.py",
+      "sha256": "77a091590660d7a313f124ad1dd2422804ff7764764b47668249aadb74957640",
+      "n_bytes": 68784,
+      "originating_commit": "5a9bd27ec821885923c4bcde9f0d89bafa0d91dc"
+    },
+    {
+      "path": "scripts/run_gate2_candidate1.py",
+      "sha256": "f4245b0f685da85c10d43a9dad5c59c48f1a6ed12e85bad73a168ae6c9144f35",
+      "n_bytes": 60129,
+      "originating_commit": "3faee4962d6d9305cee6179a4662ef42344a5508"
+    },
+    {
+      "path": "scripts/run_gate2_candidate10.py",
+      "sha256": "b2237754c763bae972c351af95799c23bfee2ddcf88110f4604c1823236ea2f8",
+      "n_bytes": 71830,
+      "originating_commit": "a5b3cab1415fb96753954c3d99c3d54818ec57fc"
+    },
+    {
+      "path": "scripts/run_gate2_candidate11.py",
+      "sha256": "9bb97a4a946f09f7a66c7bf4730e667d22c6543f8182f4d2d32b54bb21e78e11",
+      "n_bytes": 54410,
+      "originating_commit": "590871afee21461d55daaa7b25be61e3f7b59847"
+    },
+    {
+      "path": "scripts/run_gate2_candidate12.py",
+      "sha256": "c4ffbf0a2681c1ca7ffd79bbd240dfe80ef05c14a27c03a74a86fbb3f206173f",
+      "n_bytes": 88197,
+      "originating_commit": "f2d3784dfd359220ea94efe1ad58832d78ced9cf"
+    },
+    {
+      "path": "scripts/run_gate2_candidate13.py",
+      "sha256": "75093c083793d8c86fb0465bbccf207dafb367ec96896d3d625066e8c1e654e9",
+      "n_bytes": 67859,
+      "originating_commit": "5d0e1031053219f4916afe1bcd3fea148498deed"
+    },
+    {
+      "path": "scripts/run_gate2_candidate14.py",
+      "sha256": "a459d2b38cfc1c32624daedca47d2d3250b88cdc093e627e70299f739efee6fd",
+      "n_bytes": 72122,
+      "originating_commit": "784bdf0f646af71d5102a590659d33c5d34f7be0"
+    },
+    {
+      "path": "scripts/run_gate2_candidate15.py",
+      "sha256": "800c3dc72cacf528e4cac0bed7193601ec6fc2cc10bd10523826e3fc366f109f",
+      "n_bytes": 79539,
+      "originating_commit": "3f3b9ecf152fca680e0c3f6848c7628bf7ec46d1"
+    },
+    {
+      "path": "scripts/run_gate2_candidate16.py",
+      "sha256": "ea800d8c8f1a8c79a9ce9af43d9aa6acc3c5e9254978923e63699bf70635a5cd",
+      "n_bytes": 110260,
+      "originating_commit": "9e8a18d523737a23216a0208fe4f477b89c87dff"
+    },
+    {
+      "path": "scripts/run_gate2_candidate2.py",
+      "sha256": "f3d70d7fa7b750b0330dc535550e3b0a4f93dd8510cdd4ba2b92c52953f5f12d",
+      "n_bytes": 43059,
+      "originating_commit": "4b7b6539a80674c69a3068a88572f6c475954667"
+    },
+    {
+      "path": "scripts/run_gate2_candidate3.py",
+      "sha256": "245a97dd45d3e1ae70e6990700d355f12e9b5c1e0016c87877a5dd8452515b30",
+      "n_bytes": 38048,
+      "originating_commit": "e010f6710b27e260373ac8f4478c5a2292a1cb40"
+    },
+    {
+      "path": "scripts/run_gate2_candidate4.py",
+      "sha256": "a755ac2e5cac74044778df8564ecefce399e0676a6fbf94b9f0c2ff11d4e4ad7",
+      "n_bytes": 57859,
+      "originating_commit": "943f3feabf15c51b8946bbe9156953e5353db930"
+    },
+    {
+      "path": "scripts/run_gate2_candidate5.py",
+      "sha256": "aaf186c4689854672bd2aa878746379d618a9284f30fca3fd9b10c8cf99bc6dd",
+      "n_bytes": 62687,
+      "originating_commit": "f5f9bb0a5dd59d73c5fd5c9ffccb695dedadc9c9"
+    },
+    {
+      "path": "scripts/run_gate2_candidate6.py",
+      "sha256": "a24a2e7a90b96cb255b883500d65d72444cd147f756dac28dc090dcd937ccec9",
+      "n_bytes": 61941,
+      "originating_commit": "c82caa333c1f26416bf084cfce4aca4d871225de"
+    },
+    {
+      "path": "scripts/run_gate2_candidate7.py",
+      "sha256": "06a7667cc25054eed036d44e55d76090918c65f88b3e1070a9a5a006ae7682c3",
+      "n_bytes": 69569,
+      "originating_commit": "a3e7e6cae6ebb34f5990eac7b8019fb290700908"
+    },
+    {
+      "path": "scripts/run_gate2_candidate8.py",
+      "sha256": "611d0809273ebd997049f42b6fdc6a8c59c616e51914f24fb7f60bfd852e05b3",
+      "n_bytes": 67752,
+      "originating_commit": "efb81ddbf7a89f2c2d027eb6b0ae2c740e332308"
+    },
+    {
+      "path": "scripts/run_gate2_candidate9.py",
+      "sha256": "bb9a17ab0e22820ee5dadbb2aa1ad033bd6a84c9a6edfbdce36a22a313910477",
+      "n_bytes": 57692,
+      "originating_commit": "6b404e8e4e527bcc9280cd814daec7b1131ddeda"
+    }
+  ]
+}
