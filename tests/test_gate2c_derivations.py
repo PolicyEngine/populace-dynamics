@@ -214,11 +214,74 @@ def test_builder_power_cap_and_events_constants_are_pinned():
     assert art["protocol"]["candidate_draws"] == builder.CANDIDATE_DRAWS
 
 
+def test_load_bearing_knobs_are_pinned_against_the_artifact():
+    """Fix G (round-1 finding 6): close the CI-blind knob dead zones. The
+    committed artifact's knobs block equals the builder / module constants, so
+    mutating MIN_EARNINGS_YEARS, AIME_TERCILE_QUANTILES, EVENT_WINDOW_YEARS,
+    the draw-stream base or the split fraction is caught WITHOUT the PSID
+    reproduction (round-1: each of these mutations passed all 38 CI tests)."""
+    builder = _builder()
+    from populace_dynamics.data import couple_earnings as ce
+
+    knobs = _artifact()["knobs"]
+    assert knobs["min_earnings_years"] == ce.MIN_EARNINGS_YEARS == 5
+    assert (
+        tuple(knobs["aime_tercile_quantiles"])
+        == ce.AIME_TERCILE_QUANTILES
+        == (1.0 / 3.0, 2.0 / 3.0)
+    )
+    assert knobs["event_window_years"] == ce.EVENT_WINDOW_YEARS == 3
+    assert knobs["placebo_min_event_gap"] == ce.PLACEBO_MIN_EVENT_GAP == 4
+    assert knobs["draw_stream_base"] == builder.DRAW_STREAM_BASE == 5200
+    assert knobs["split_fraction"] == builder.SPLIT_FRACTION == 0.5
+    # The split object is the couple-graph component (fix A), pinned so an
+    # ego-split regression is caught.
+    assert builder.SPLIT_COLUMN == "component_id"
+    assert (
+        _artifact()["internal_noise_floor"]["split_unit"]
+        == "couple_graph_component"
+    )
+    # The draw-stream base is reflected in the pinned stream text.
+    assert str(builder.DRAW_STREAM_BASE) in builder.CANDIDATE_DRAW_STREAM
+
+
 # --------------------------------------------------------------------------
 # ALWAYS-RUNNABLE label-swap catches (2b finding 9): data-free structural
 # invariants a self-consistent cell swap would violate, caught in CI with
 # no PSID / pe-us reproduction.
 # --------------------------------------------------------------------------
+def test_assortative_diagonal_concentration_catches_corner_swap():
+    """Fix G (round-1 finding 6): the assortative family had no structural
+    invariant, so a consistent own1_spouse1<->own3_spouse3 swap passed all 38
+    CI tests. On the per-year earnings axis the top-tercile concordant share
+    strictly exceeds the bottom-tercile one (strong positive sorting
+    concentrates the high-high corner); the swap inverts it -- caught here
+    with no PSID."""
+    rm = _artifact()["reference_moments"]
+    hi = rm["assort_mating.own3_spouse3"]["rate"]
+    lo = rm["assort_mating.own1_spouse1"]["rate"]
+    assert hi > lo, (hi, lo)
+    assert hi > 1.5 * lo, (hi, lo)
+
+
+def test_event_window_sex_asymmetry_catches_marriage_divorce_swap():
+    """Fix G (round-1 finding 6): the event-window family had no structural
+    invariant, so a consistent earnings_around_marriage<->divorce swap passed
+    all 38 CI tests. The real event structure is the F/M asymmetry (detrended,
+    fix E): earnings rise more for men around marriage and more for women
+    around divorce -- a marriage/divorce swap inverts BOTH, caught with no
+    PSID."""
+    rm = _artifact()["reference_moments"]
+    assert (
+        rm["earnings_around_marriage.male"]["rate"]
+        > rm["earnings_around_marriage.female"]["rate"]
+    )
+    assert (
+        rm["earnings_around_divorce.female"]["rate"]
+        > rm["earnings_around_divorce.male"]["rate"]
+    )
+
+
 def test_first_marriage_age_monotonicity_catches_age_swap():
     """First-marriage hazard falls steeply with age: at every AIME tercile x
     sex the 18-24 rate exceeds the 45+ rate (~5-15x). A self-consistent swap

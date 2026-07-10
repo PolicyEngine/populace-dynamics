@@ -309,14 +309,45 @@ def test_partition_is_a_real_cover_of_every_cell():
         assert key in art[FLOOR_KEY], key
 
 
-def test_assortative_contingency_family_is_fully_gated():
-    """The dense 3x3 own-tercile x spouse-tercile contingency -- the family
-    that anchors the assortative-mating gate -- gates on every cell."""
+def test_assortative_contingency_dense_cells_gate_corners_demote():
+    """The 3x3 own-tercile x spouse-tercile contingency (the family that
+    anchors the assortative-mating gate) gates on its 7 dense cells; the two
+    opposite-extreme CORNERS (own1_spouse3, own3_spouse1) demote at the cap
+    -- under the fix-C per-year earnings axis the strong diagonal makes those
+    corners sparse, and the fix-A couple-disjoint floor prices their noise
+    honestly (round-1 predicted own1_spouse1 would demote under the
+    career-AIME basis; the per-year axis makes own1_spouse1 dense enough to
+    gate and demotes the corners instead)."""
     art = _artifact()
     gated = set(art["gate_partition"]["gate_eligible"])
-    for o in (1, 2, 3):
-        for u in (1, 2, 3):
-            assert f"assort_mating.own{o}_spouse{u}" in gated
+    # every diagonal (concordant) cell gates.
+    for t in (1, 2, 3):
+        assert f"assort_mating.own{t}_spouse{t}" in gated, t
+    dense = [
+        "own1_spouse1",
+        "own1_spouse2",
+        "own2_spouse1",
+        "own2_spouse2",
+        "own2_spouse3",
+        "own3_spouse2",
+        "own3_spouse3",
+    ]
+    for cell in dense:
+        assert f"assort_mating.{cell}" in gated, cell
+    for corner in ("own1_spouse3", "own3_spouse1"):
+        key = f"assort_mating.{corner}"
+        assert key not in gated, corner
+        assert (
+            art["cell_stability"][key]["report_reason"]
+            == "tolerance_above_t_max"
+        ), corner
+    n_gated_assort = sum(
+        1
+        for o in (1, 2, 3)
+        for u in (1, 2, 3)
+        if f"assort_mating.own{o}_spouse{u}" in gated
+    )
+    assert n_gated_assort == 7
 
 
 # --------------------------------------------------------------------------
@@ -350,14 +381,22 @@ def test_all_four_families_present_and_priced():
 
 
 def test_assortative_correlation_is_report_only():
-    """The within-couple AIME Spearman rho is reported, never gated (a
+    """The within-couple earnings Spearman rho (per-year axis) is reported
+    with the fix-C construct-validity decomposition, never gated (a
     correlation is not a scale-free |ln ratio|)."""
     art = _artifact()
     corr = art["assortative_correlation_report_only"]
     assert corr["gated"] is False
     assert corr["report_only"] is True
-    assert corr["overall"]["spearman_aime"] is not None
+    assert corr["overall"]["spearman_earnings"] is not None
     assert "by_marriage_decade" in corr
+    # Fix C: the decomposition rides in the artifact so the anchor bridge is
+    # not a contradiction -- per-year sorting ~0.49 vs career-AIME ~0.12.
+    dec = corr["decomposition"]
+    assert dec["earnings_axis_spearman"] > 0.4
+    assert dec["career_aime_proxy_spearman_cross_sex"] < 0.2
+    assert dec["observed_positive_years_spearman"] < 0.0
+    assert dec["career_aime_proxy_split_half_reliability"] > 0.9
     # It never leaks into the gated cell set.
     gated = set(art["gate_partition"]["gate_eligible"])
     assert not any("spearman" in k for k in gated)
@@ -378,7 +417,10 @@ def test_estimand_named_and_selection_disclosed():
     sel = art["selection_estimand"]
     assert sel["join_coverage_both_over_joinable"] is not None
     assert sel["join_coverage_both_over_ego_supply"] is not None
-    assert sel["aime_is_partial_career_proxy"] is True
+    assert sel["earnings_axis_is_partial_career"] is True
+    # Fix B: the description matches the true 1968-2022 scored surface.
+    assert sel["earnings_income_year_range"] == [1968, 2022]
+    assert "1968-2022" in sel["observed_window_facts"]
     slices = art["marriage_decade_slices"]
     assert "REPORT-ONLY" in slices["note"]
     # At least a few dense decades carry couples.
@@ -390,16 +432,40 @@ def test_estimand_named_and_selection_disclosed():
     assert len(dense) >= 3
 
 
-def test_couple_correlation_wart_disclosed():
-    """The person-disjoint-by-ego split is not couple-disjoint; the wart is
-    disclosed (a couple can straddle the split via its two directed
-    records)."""
+def test_couple_disjoint_split_disclosed():
+    """Fix A: the floor splits couple-disjoint by couple-graph component (not
+    ego), so no couple straddles the two halves; the round-1 straddle and its
+    both-directions consequence (tighter tolerances AND a lower couple-level
+    OC) are disclosed."""
     art = _artifact()
-    wart = art["panel_construction"]["couple_correlation_wart"]
-    assert "NOT couple-disjoint" in wart
-    assert "conservative" in wart
-    caveats = art["panel_construction"]["coverage_caveats"]
+    pc = art["panel_construction"]
+    note = pc["couple_disjoint_split"]
+    assert "50.4%" in note
+    assert "1.2-1.46x" in note or "1.46x" in note
+    assert "0.83/0.80" in note
+    assert "component" in pc["split_unit"]
+    assert (
+        art["internal_noise_floor"]["split_unit"] == "couple_graph_component"
+    )
+    caveats = pc["coverage_caveats"]
+    assert any("couple-disjoint" in c for c in caveats)
     assert any("partial career" in c for c in caveats)
+
+
+def test_couple_disjoint_floor_blocks_present():
+    """Fix E/H blocks ride in the artifact: the placebo drift deflators, the
+    boundary-fragility bootstrap, and the pooled-35+ power fact."""
+    art = _artifact()
+    placebo = art["event_window_placebo"]
+    assert set(placebo["placebo_deflators"]) == {"all", "female", "male"}
+    assert all(1.0 < v < 1.5 for v in placebo["placebo_deflators"].values())
+    assert "boundary_fragility" in art
+    assert art["boundary_fragility"]["n_boot"] == 5000
+    pooled = art["pooled_age_power"]
+    assert pooled["any_standalone_gateable"] is False
+    rec = art["directed_couple_record_accuracy"]
+    assert rec["one_directional_records"] > 0
+    assert rec["start_year_mismatched_mirror_pairs"] > 0
 
 
 # --------------------------------------------------------------------------
