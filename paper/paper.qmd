@@ -848,14 +848,19 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 Twenty-nine registered runs across two gates — thirteen at gate 1,
 sixteen at gate 2 — twenty-seven published failures against two passes
-under a rule that refused to rescue its own trigger, two refereed
-gate-1 amendments and a second gate locked through its own adversarial
-round and amended once more, prospectively, to align its estimator
-with its own operating characteristic, four registered forensics
-rounds and a reform-delta diagnostic feeding the next registration,
-five external-anchor replications reported at the same
-standing as any gated run, and twenty-two forecasts registered and all
-twenty-two graded is the protocol working as designed. Each failure published with the same prominence as a pass would,
+under a rule that refused to rescue its own trigger, three gates
+locked through their own adversarial rounds with four ratified
+amendments among them — two at gate 1, and at gate 2 an estimator
+aligned to its operating characteristic and then a tranche structure
+made explicit, the third gate on household composition locked as-is
+without a candidate ladder yet — four registered forensics rounds and
+a reform-delta diagnostic feeding the next registration, a
+cross-anchor cost-ordering synthesis and a same-frame revenue
+pseudo-projection that between them isolated the compression the
+representative-frame transport must remove, six external-anchor
+replications reported at the same standing as any gated run, and
+twenty-five forecasts registered and all twenty-five graded is the
+protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
 registrations predate the runs, the artifacts recompute, and the
@@ -868,8 +873,9 @@ to and the first hard test arrives after adoption — is the point.
 
 # The demographic layer and the replication anchors {#sec-gate2}
 
-The tally above compresses two developments the same protocol
-governed once gate 1 produced its first pass: a second stage gate,
+The tally above compresses several developments the same protocol
+governed once gate 1 produced its first pass; this section details the
+first two and the sections that follow the rest: a second stage gate,
 opened and locked on the family-transition layer, which its sixteenth
 registered candidate passed on the marital-transition and fertility
 tranche, and the reform-scoring surface, tested against external
@@ -1139,11 +1145,15 @@ construction from the delta that carried the gate.
 While the generative track worked the demographic gate, the
 reform-scoring surface — the statutory AIME/PIA chain and the
 survivor, spousal, and caregiver benefit plumbing, run on real PSID
-careers — was tested against five external DYNASIM anchors. Each is
+careers — was tested against six external DYNASIM anchors. Each is
 reported, not gated: registered on the campaign registry before the
 run and published regardless of outcome. Four score real careers
 directly; the price-indexing anchor additionally routes generated
-careers through the same calculator.
+careers through the same calculator. A sixth, added once the gate-2a
+pass validated the marital histories it needs, recomputes Mermin's
+exact shared-earnings quintile concept on real couples and closes the
+own-versus-shared concept delta the price-indexing anchor had carried
+(@sec-surface).
 
 | provision (anchor) | achieved replication | artifact / registration |
 |---|---|---|
@@ -1152,11 +1162,14 @@ careers through the same calculator.
 | COLA reduced 0.4pp — @mermin2005benefitreductions | 99.2% of scheduled at ages 62–67 (anchor 98.9%) and 93.0% at 80–85 (anchor 92.4%) | `replication_mermin_rows_v1.json`; #42 c4911609804 |
 | earnings sharing — @favreaultsteuerle2007modernfamily | the best-populated cell — married women, the large gainers — lands on DYNASIM: gain ≥20% 49 vs 44, gain ≥5% 63 vs 60, lose ≥5% 24 vs 22; all four registered directional calls hold | `replication_r7_sharing_v1.json`; #42 c4911171806 |
 | caregiver credit — @smith2020fivedem | all four candidate plans place 58–71% of aggregate gains in the bottom lifetime-earnings quintile, in or above the anchor's 52–62% band; the concentration and reach rankings match (Spearman 0.8) | `replication_caregiver_v1.json`; #42 c4911453454 |
+| shared-earnings progressive price indexing — @mermin2005benefitreductions | Mermin's exact shared-lifetime-earnings quintile concept on 3,131 real couples (own-record benefits, shared ranking): shared Q1 lands at 99.49% of scheduled against the anchor's 98.7 where the own-record analogue read 100.00, Q1–Q3 each move closer to the anchor, the distribution stays monotone (99.49 → 86.62), and the price-indexing wedge is flat at 66.73% against 67.8; 45.8% of the persons change quintile between the two rankings; all four registered calls hold | `replication_ppi_shared_v1.json`; #42 c4931009783 |
 
-: The five external-anchor replications, reported not gated, from the
+: The six external-anchor replications, reported not gated, from the
 committed diagnostic artifacts; each registered on
 [issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42)
-before its run. {#tbl-anchors}
+before its run. The shared-earnings row (@sec-surface) was run after
+the gate-2a pass validated the marital histories it requires.
+{#tbl-anchors}
 
 The discipline that makes those comparisons legible is that every
 level difference from the DYNASIM projections is named, not absorbed.
@@ -1188,6 +1201,219 @@ joint — stay named and unscored rather than assumed. The paper reports
 all of it because the protocol scores all of it, and a reader who
 wants to know which claims are load-bearing today can read it off the
 record rather than the prose.
+
+# The reform-scoring surface, tested against itself {#sec-surface}
+
+The gate-2a pass validated the marital histories the anchor
+replications need, and three registered diagnostics followed — each
+reported, not gated, each graded against a forecast filed before the
+run. One closed the concept delta the price-indexing anchor had
+carried; the other two scored the committed encodings against each
+other and added the revenue side the projection roadmap requires, and
+both surfaced the same distortion a representative-frame transport
+exists to remove.
+
+## The shared-earnings concept, closed
+
+@sec-gate2's progressive-price-indexing anchor reproduced Mermin's
+quintile gradient in shape but not in grouping:
+@mermin2005benefitreductions ranks retired workers by *shared*
+lifetime earnings — own earnings when single, half the couple's when
+married — and the Phase-A run could only rank by own record. With the
+gate-2a marital histories in hand the exact concept becomes computable
+on real couples, and the sixth anchor in @tbl-anchors runs it, holding
+the benefit reform at the Phase-A encoding verbatim and changing only
+the ranking variable. On the 3,131 couples with both spouses
+computable, 45.8 percent of persons change quintile between the own
+and shared rankings, and the regrouping moves the bottom onto the
+anchor: shared Q1 lands at 99.49 percent of scheduled against Mermin's
+98.7, where the own-record analogue read a flat 100.00, and Q1 through
+Q3 each sit closer to the anchor than the own-record version. The
+distribution stays monotone and the price-indexing wedge is flat at
+66.73 percent against Mermin's flat 67.8. The one carried delta is
+stated rather than chased: the upper quintiles move slightly *away*
+from the anchor under shared ranking — the arithmetic complement of
+pulling the low-earning spouses of high earners up out of the top
+groups — and the top stays compressed against Mermin's 71.7 by the
+truncated observation window. All four registered calls held; the
+own-versus-shared concept delta the earlier anchor named is closed on
+real data, and the generated-couples version of the same concept waits
+on the marriage-by-earnings tranche.
+
+## Cost ordering and a revenue projection: two compression fingerprints
+
+The anchor replications each scored one provision family in isolation.
+A cost-ordering synthesis then scored every committed encoding once on
+a single common frame — 1,549 sex-resolvable careers under the Phase-A
+2050 transport — and tested the aggregate cost deltas *ordinally*
+against the anchors' published cost columns, since observed completed
+careers are not a Trustees projection and the levels differ by
+construction. The signs all agreed, eight of eight — four Mermin
+provisions score as savings, four caregiver plans as costs — and the
+caregiver ordering matched the anchor at rank correlation 0.913, its
+one inversion a pair the anchor itself ties. But the Mermin quartet's
+cost ordering broke on a single adjacent swap: the frame ranks the
+retirement-age increase above progressive price indexing, where
+DYNASIM ranks them the other way. The mechanism is the compressed
+support the earlier anchors already named — on these observed careers
+most indexed earnings sit below the thirtieth-percentile bend that
+progressive price indexing protects, so it bites lightly (−11.0
+percent) while the uniform retirement-age reduction cuts across the
+board (−20.2 percent). The forecast of a perfect ordering failed, and
+the miss is a diagnosis: progressive price indexing is exactly the
+provision whose relative magnitude depends on getting the earnings
+distribution right.
+
+The same distortion reappeared on the revenue side. The first roadmap
+milestone added a taxable-payroll aggregation, a present-value balance
+analogue, and an endogenous trust-fund-exhaustion ledger to that
+common frame, calibrated so the baseline exhausts in the 2034 year
+@smith2015solvency reads from its own DYNASIM run, and scored the five
+solvency provisions Smith projects — levels frame-relative and
+ungraded, signs and orderings the content. Every sign held, fourteen
+of fourteen, and a registered *disagreement* held in its stated
+direction: raising the full retirement age to 72 exhausts Smith's fund
+by under a year because his increase phases in against a fixed
+horizon, but on completed careers with no phase-in the cut never lets
+the calibrated fund exhaust at all, so it ranks first where Smith
+ranks it last. The revenue ordering then broke on one adjacent swap,
+as the benefit ordering had — the frame puts a two-point payroll-rate
+rise above full removal of the taxable maximum, where Smith has
+removal first, because only about 12.7 percent of the frame's taxable
+payroll sits above the wage base, under the 16.1 percent break-even
+where removal's revenue would overtake the rate rise and under the
+roughly 17–18 percent the administrative data carries. It is the
+taxable-maximum analogue of the bend-point swap: the same
+truncated-career compression, once at the benefit bends and once at
+the contribution ceiling. The record commits both as before-and-after
+test cases for the representative-frame transport, the milestone whose
+whole job is to make the frame's distribution representative enough
+that both orderings come out right.
+
+# A household gate and the projection roadmap {#sec-projection}
+
+Alongside the surface work, an external architecture review reset the
+engineering standard for deployment, a third stage gate locked on
+household composition, a disability module landed, and the program
+published the capability path from here to a full projection. None of
+it moved a locked threshold.
+
+## Hardening the ledger for deployment
+
+An external architecture review of the candidate chain through its
+fourteenth member returned a one-line thesis — preserve the research
+ledger, stop extending its execution architecture, which had grown too
+implicit for deployment on the production population — and its ten
+findings dispatched into the contract's own machinery. A blocker, that
+gate 2 overclaimed which tranche it certified, became the ratified
+tranche amendment that split the family gate into its
+marital-transition, household-composition, and marriage-by-earnings
+tranches and promoted the rule binding each to its scored surface.
+Three priority-zero fixes landed as a legacy digest manifest with a
+no-overwrite guard, per-marker test tiers, and a seam-ownership
+record. The priority-one item became a flattened component registry
+that ports the passing sixteenth candidate into immutable, injected
+components with no runner imports, carrying a compatibility
+certificate that reproduces the candidate's committed 20-by-46-by-5
+rate cube bit-for-bit — 4,600 of 4,600 values equal to the IEEE-754
+bit, signed zeros included — and its gate-2a pass verdict. A referee
+certified the certificate real rather than vacuous by re-deriving the
+cube independently and confirming that every mutation it injected was
+caught.
+
+## The household-composition gate
+
+The gate-2 pass certified the marital-transition tranche and named
+household composition as unscored; it now carries its own locked gate.
+Gate 2b — coresidence of spouses, children, parents, grandchildren,
+multigenerational households, and household size, read from the PSID
+relationship matrix — locked on 2026-07-10 through the ceremony gate 2
+established, and the ceremony is the point, because the draft floor did
+not survive its adversarial round. The referee returned *amend before
+lock* on nine findings, three of them blockers, and earned the
+standing by reproducing the floor twice: a full rerun bit-identical to
+the committed artifact, and a fully independent recompute from its own
+parsers that matched all 81 reference moments, all 405 per-seed cell
+values, and all five holdout hashes to nine decimals. The three
+blockers were the discipline working, not failing. The draft protocol
+had reintroduced the single-draw estimator gate 2's own amendment had
+already retired, making its stated operating characteristic
+unachievable. The multigenerational family carried a code-frame bug
+that mapped first-year cohabitors to a spurious extra generation,
+which the referee's independent recompute showed flipped 13,400 of
+91,261 multigenerational person-waves — 14.7 percent, concentrated in
+exactly the young cells the family gates. And the headline estimand,
+"waves 1969–2023," was not the scored surface: a weight rescaling
+leaves the first 28 waves carrying 0.19 percent of the estimand's
+weight, so the gate effectively certifies 1997–2023, which the
+standing rule that a tranche describe exactly its scored surface —
+promoted a day earlier by the tranche amendment above — forbids it to
+hide.
+
+The eight required fixes adopted the ratified mean-over-draws
+estimator, corrected the cohabitor code and pinned the
+multigenerational concept to three distinct generations, restated the
+estimand as effectively 1997–2023, and — the review's own precondition
+for any level anchor — bundled a concept-decomposed Census anchor
+before the flip rather than after. That anchor carries the discipline
+the marriage-and-divorce anchor established one tranche earlier: the
+PSID family unit is not the Census household, so each ratio carries a
+named concept factor, and after the partner-inclusion bridge all
+fourteen coresident-spouse cells land between 0.75 and 1.14 of their
+Census counterparts, the widowhood-asymmetric 0.84 at the oldest women
+stated honestly below one. Verification returned *lock as-is*, the
+maintainer ratified by merge, and the flip that inserted the
+thresholds — 46 gated cells against 47 report-only, the
+faithful-candidate operating characteristic recomputing to 0.9397 per
+seed and 0.9678 at four of five — passed its own flip-fidelity
+referee, who recomputed every number, re-fetched the ceremony
+comments, and mutated the new bindings to confirm they bite, clearing
+all eight verification sections before the merge. What the lock does
+not claim is a pass: no candidate has run against gate 2b, and its
+ladder is future work. The gate is built; the model has not yet
+cleared it.
+
+## Disability and the capability roadmap
+
+The disability module added the last major transition process in
+reported-not-calibrated form: DI incidence and recovery hazards from
+PSID self-reported work limitation, and the statutory conversion at
+full retirement age, where a disabled worker's benefit becomes a
+retirement benefit at the same primary amount — a factor of exactly
+one — so that the claiming sampler's excluded conversion mass
+reconstitutes the full administrative entrant mix. Its validation
+follows the anchor pattern: the PSID disabled-to-retired transition,
+read against the archived conversion column of the 2023 SSA
+supplement, runs at 0.267 of the administrative share for women and
+0.322 for men, reported as a ratio far below one and never calibrated
+toward it, because seven named concept deltas separate a self-reported
+labor-force status from an adjudicated award — definition, insured
+population, severity threshold, recovery churn, conversion
+denominator, biennial timing, and secular period. A wanted-tables list
+names the exact administrative series a future level-anchored
+disability gate will need, pinning the gate before its components as
+the contract requires.
+
+These modules sit on a published roadmap of eight capability
+milestones that carries the program from replicating DYNASIM's
+incidence patterns to a projection in its class. The layer certified
+or anchor-validated today — earnings, marital and fertility dynamics,
+mortality, claiming, and the statutory formula with its auxiliary
+benefits — is the first milestone; the same-frame pseudo-projection
+and the disability module are two more; ahead lie the household and
+assortative-mating tranches, the household gate now locked above but
+not yet passed, the transport of the certified generators from their
+PSID estimation basis onto the representative population — the
+scientific crux and the funded build — a year-by-year projection
+engine, full revenue and trust-fund accounting, and per-year execution
+of the statutory rules on the projected panel. The architectural bet
+under all of it is a single object: one person-period panel — the
+cross-sectional population extended through time, with future births
+and immigrants entering as new persons — of which every product, from
+a one-year tax-benefit microsimulation to a local-area cut to the
+seventy-five-year projection, is a row, column, or time slice, rather
+than the separately funded and mutually unreconcilable models a
+projection of this kind has historically required.
 
 # Related work {#sec-related}
 

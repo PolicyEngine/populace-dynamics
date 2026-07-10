@@ -1,0 +1,60 @@
+{
+  "schema_version": "census_living_arrangements.v1",
+  "table": "AD-3",
+  "title": "Living Arrangements of Adults by Age Group and Sex (row for 2023)",
+  "survey": "Current Population Survey, Annual Social and Economic Supplement (CPS ASEC)",
+  "reference_year": 2023,
+  "units": "percent of the age x sex population (columns), with the total population in thousands",
+  "provenance": {
+    "source": "U.S. Census Bureau, Historical Living Arrangements of Adults, Table AD-3 (Living Arrangements of Adults by Age Group), five age-band files",
+    "source_url": "https://www.census.gov/data/tables/time-series/demo/families/adults.html",
+    "file_urls": {
+      "18-24": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/adults/ad3-18-24.xls",
+      "25-34": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/adults/ad3-25-34.xls",
+      "35-64": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/adults/ad3-35-64.xls",
+      "65-74": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/adults/ad3-65-74.xls",
+      "75+": "https://www2.census.gov/programs-surveys/demo/tables/families/time-series/adults/ad3-75andover.xls"
+    },
+    "table_id": "AD-3",
+    "fetch_method": "direct HTTPS GET of the published .xls time-series files from www2.census.gov (keyless, authoritative); parsed with xlrd; the 2023 row of each age-band file transcribed verbatim.",
+    "fetched_utc": "2026-07-10T09:53:47+00:00",
+    "file_sha256": {
+      "18-24": "fab09f0f4a82d585a6c5c9bd1dc6106a4840742ea042381190d94335cfc65ce4",
+      "25-34": "43d95703ff447b53927cbc32d42afc0d052aaf82f335f19b227c1e9a1f3f3ce5",
+      "35-64": "d5b2c208efcebc30a0859673c359775480587f3ddb6794219177dc7f5cb46c89",
+      "65-74": "d793e8504a3e65ef20e37242a5d9be77ad5d722456ae35ca78138ee7de0c4094",
+      "75+": "2ea5df7ec4e2687884ae9a8e04149842afd3ac97e54f19c5282b34085f4b53d2"
+    },
+    "category_note": "AD-3 categories are mutually exclusive shares of the age x sex population: living_alone, living_with_spouse (married, spouse present), child_of_householder (living in a parent's home as the householder's child; absent from the 65-74 and 75+ tables), living_with_partner (unmarried cohabiting partner), living_with_other_relatives, living_with_nonrelatives. The PSID coresident_spouse concept covers MX8 codes 20 AND 22, i.e. married spouse OR partner, so the concept-matched Census anchor for coresident_spouse is living_with_spouse + living_with_partner (the decomposition names this)."
+  },
+  "bands": {
+    "18-24": {
+      "population_thousands": {"male": 15477, "female": 14965},
+      "male":   {"living_alone": 5.6, "living_with_spouse": 4.4, "child_of_householder": 57.7, "living_with_partner": 8.4, "living_with_other_relatives": 15.5, "living_with_nonrelatives": 8.4},
+      "female": {"living_alone": 4.3, "living_with_spouse": 7.8, "child_of_householder": 54.1, "living_with_partner": 11.7, "living_with_other_relatives": 13.9, "living_with_nonrelatives": 8.2}
+    },
+    "25-34": {
+      "population_thousands": {"male": 22668, "female": 22235},
+      "male":   {"living_alone": 12.6, "living_with_spouse": 35.0, "child_of_householder": 18.8, "living_with_partner": 15.3, "living_with_other_relatives": 10.4, "living_with_nonrelatives": 7.9},
+      "female": {"living_alone": 10.3, "living_with_spouse": 42.7, "child_of_householder": 11.4, "living_with_partner": 16.4, "living_with_other_relatives": 14.5, "living_with_nonrelatives": 4.6}
+    },
+    "35-64": {
+      "population_thousands": {"male": 61920, "female": 62878},
+      "male":   {"living_alone": 13.0, "living_with_spouse": 61.8, "child_of_householder": 6.4, "living_with_partner": 7.0, "living_with_other_relatives": 8.5, "living_with_nonrelatives": 3.3},
+      "female": {"living_alone": 11.5, "living_with_spouse": 62.3, "child_of_householder": 3.0, "living_with_partner": 6.3, "living_with_other_relatives": 15.5, "living_with_nonrelatives": 1.5}
+    },
+    "65-74": {
+      "population_thousands": {"male": 15997, "female": 17997},
+      "male":   {"living_alone": 20.8, "living_with_spouse": 67.4, "living_with_partner": 3.9, "living_with_other_relatives": 5.9, "living_with_nonrelatives": 1.9},
+      "female": {"living_alone": 27.1, "living_with_spouse": 55.5, "living_with_partner": 2.6, "living_with_other_relatives": 13.6, "living_with_nonrelatives": 1.3}
+    },
+    "75+": {
+      "population_thousands": {"male": 10263, "female": 13471},
+      "male":   {"living_alone": 23.0, "living_with_spouse": 67.6, "living_with_partner": 2.1, "living_with_other_relatives": 6.2, "living_with_nonrelatives": 1.1},
+      "female": {"living_alone": 41.8, "living_with_spouse": 35.9, "living_with_partner": 1.2, "living_with_other_relatives": 20.1, "living_with_nonrelatives": 1.0}
+    }
+  },
+  "band_mapping_to_psid": {
+    "note": "CPS AD-3 bands do not match the PSID gate bands one-for-one. The anchor decomposition maps: PSID 15-24 -> CPS 18-24 (PSID includes ages 15-17, near-universally with a parent and unpartnered; named age-floor delta); PSID 25-34 -> CPS 25-34 (clean); PSID 35-44, 45-54, 55-64 -> the single CPS 35-64 band (named band-aggregation delta); PSID 65-74 -> CPS 65-74 (clean); PSID 75+ -> CPS 75+ (clean)."
+  }
+}

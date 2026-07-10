@@ -1,0 +1,29 @@
+{
+  "schema_version": "census_multigenerational.v1",
+  "table": "B11017",
+  "title": "Multigenerational Households (three or more generations under one roof)",
+  "survey": "2020 Census / ACS table B11017 concept, as published by the U.S. Census Bureau",
+  "reference_year": 2020,
+  "prior_year": 2010,
+  "units": "count of households; share of households; share of children (derived by Census)",
+  "provenance": {
+    "source": "U.S. Census Bureau, 'Several Generations Under One Roof' (America Counts story, June 2023), reporting 2020 Census multigenerational-household figures; the tabulation concept is ACS table B11017 (Multigenerational Households).",
+    "source_url": "https://www.census.gov/library/stories/2023/06/several-generations-under-one-roof.html",
+    "table_id": "B11017",
+    "acs_table_landing": "https://data.census.gov/table/ACSDT1Y2023.B11017",
+    "fetch_method": "WebFetch of the Census Bureau America Counts story page (the exact B11017 API counts require a Census API key and data.census.gov is a JS SPA; the Census Bureau's own published figures in the story are used, which are rounded to the tenth of a percent / to the hundred-thousand household).",
+    "fetched_utc": "2026-07-10T09:53:47+00:00",
+    "definition": "A multigenerational household has THREE OR MORE generations living together (per the Census story wording). This matches the gate-2b B11017 rule after fixes B/C (>= 3 distinct lineal generations present); the span>=2 predecessor the round-1 referee rejected would NOT be concept-matched to B11017.",
+    "note": "These are published, rounded Census figures for 2020 (a decennial-era benchmark). The PSID gate estimand is effectively 1997-2023, so the anchor carries an era delta in addition to the unit (household-vs-person) and family-unit-vs-household deltas. Reported, never a level target."
+  },
+  "figures": {
+    "multigenerational_households_2020": 6000000,
+    "multigenerational_households_2010": 5100000,
+    "share_of_all_households_2020_pct": 4.7,
+    "share_of_family_households_2020_pct": 7.2,
+    "children_under_18_in_grandparents_home_2020": 6100000,
+    "children_under_18_in_grandparents_home_2020_pct": 8.4,
+    "children_under_18_in_grandparents_home_2010": 5800000
+  },
+  "concept_note": "The gate-2b multigen cells are a PERSON-LEVEL share (share of persons whose family unit spans >= 3 lineal generations), by age x sex. The 4.7% here is a HOUSEHOLD-level share. Persons-in-multigen-households exceed the multigen-household share (multigen households are larger), so the person-level PSID rate sits above 4.7% by construction; the anchor names the household-vs-person and family-unit-vs-household deltas rather than differencing the levels. The children-in-grandparents'-home figure (8.4%) is a grandchild-side person share and anchors the DIRECTION of the coresident_grandchild family, whose PSID cells are grandparent-side (a different denominator, named)."
+}
