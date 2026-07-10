@@ -1,0 +1,42 @@
+{
+  "schema_version": "assortative_mating_series.v1",
+  "source_short": "Greenwood, Guner, Kocharkov & Santos (2014)",
+  "title": "Marry Your Like: Assortative Mating and Income Inequality",
+  "authors": "Jeremy Greenwood, Nezih Guner, Georgi Kocharkov, Cezar Santos",
+  "journal": "American Economic Review: Papers & Proceedings 104(5): 348-353",
+  "year": 2014,
+  "nber_working_paper": "NBER Working Paper 19829",
+  "survey": "U.S. Census / American Community Survey (ACS) micro-data, married couples, years 1960, 1970, 1980, 1990, 2000, 2005",
+  "statistic": "positive assortative mating on EDUCATION (five levels: <HS, HS, some college, college, post-college). Two summary measures: Kendall's tau rank correlation between a husband's and wife's education; and delta_t, the relative sum of the contingency-table diagonals (observed diagonal mass / independence-expected diagonal mass).",
+  "provenance": {
+    "source": "Greenwood, Jeremy, Nezih Guner, Georgi Kocharkov, and Cezar Santos. 2014. 'Marry Your Like: Assortative Mating and Income Inequality.' American Economic Review: Papers & Proceedings 104(5): 348-353.",
+    "source_url": "https://www.nber.org/system/files/working_papers/w19829/w19829.pdf",
+    "nber_landing": "https://www.nber.org/papers/w19829",
+    "figure": "Figure 1 ('The Rise in Positive Assortative Mating, 1960-2005'): Kendall's tau (right panel) and delta_t, relative sum of diagonals (right panel, second axis).",
+    "fetch_method": "HTTPS GET of the NBER working-paper PDF on 2026-07-10; text extracted with pdftotext. The tau and delta_t series are published as a FIGURE, not a value table, so the endpoint values are read from the figure axes (a figure-read range, recorded honestly as such), not transcribed from a numeric table.",
+    "fetched_utc": "2026-07-10T00:00:00+00:00",
+    "source_file_sha256": "e134e53a9a17bcb0571bb58245eb61f8b707a5734694f65def6fe037873d37cb",
+    "source_file_n_bytes": 246004,
+    "verbatim_quote": "Kendall's [tau] rank correlation is computed between a husband's and wife's education for each year. The changes in Kendall's [tau] over time are illustrated in Figure 1 ... Kendall's [tau] is clearly higher in 2005 relative to 1960.",
+    "note": "EDUCATIONAL assortative mating, a proxy for the earnings-capacity sorting the gate-2c axis measures directly; the bridge therefore carries an education-vs-earnings concept delta on top of the rank-construct delta. The paper also reports the married-couple income Gini rising from 0.34 (1960) to 0.43 (2005), and that imposing random matching in 2005 would drop the Gini to 0.34."
+  },
+  "figures": {
+    "education_kendall_tau": {
+      "scale_read_from_figure_1": [0.33, 0.40],
+      "direction_1960_to_2005": "rose (clearly higher in 2005 than 1960)",
+      "is_figure_read": true
+    },
+    "education_relative_sum_of_diagonals_delta": {
+      "scale_read_from_figure_1": [1.6, 2.0],
+      "direction_1960_to_2005": "rose",
+      "definition": "observed diagonal contingency mass divided by the independence-expected diagonal mass; delta_t > 1 means positive sorting",
+      "is_figure_read": true
+    },
+    "married_couple_income_gini": {
+      "1960": 0.34,
+      "2005": 0.43,
+      "random_matching_counterfactual_2005": 0.34
+    }
+  },
+  "concept_note": "delta_t (relative sum of contingency diagonals) is directly comparable to the same statistic computed on the gate-2c own-tercile x spouse-tercile earnings contingency, modulo (a) 5x5 education levels vs 3x3 earnings terciles and (b) education vs earnings-capacity. Reported for DIRECTION and order of magnitude only; no gate-2c value is calibrated to it."
+}
