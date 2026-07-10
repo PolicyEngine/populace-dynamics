@@ -848,12 +848,13 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 Twenty-nine registered runs across two gates — thirteen at gate 1,
 sixteen at gate 2 — twenty-seven published failures against two passes
-under a rule that refused to rescue its own trigger, three gates
+under a rule that refused to rescue its own trigger, four gates
 locked through their own adversarial rounds with four ratified
 amendments among them — two at gate 1, and at gate 2 an estimator
 aligned to its operating characteristic and then a tranche structure
-made explicit, the third gate on household composition locked as-is
-without a candidate ladder yet — four registered forensics rounds and
+made explicit, the household-composition and marriage-by-earnings
+tranches both locked as-is without candidate ladders yet — four
+registered forensics rounds and
 a reform-delta diagnostic feeding the next registration, a
 cross-anchor cost-ordering synthesis and a same-frame revenue
 pseudo-projection that between them isolated the compression the
@@ -1290,13 +1291,14 @@ test cases for the representative-frame transport, the milestone whose
 whole job is to make the frame's distribution representative enough
 that both orderings come out right.
 
-# A household gate and the projection roadmap {#sec-projection}
+# Two more gates and the projection roadmap {#sec-projection}
 
 Alongside the surface work, an external architecture review reset the
-engineering standard for deployment, a third stage gate locked on
-household composition, a disability module landed, and the program
-published the capability path from here to a full projection. None of
-it moved a locked threshold.
+engineering standard for deployment, a third and a fourth stage gate
+locked — on household composition and on the marriage-by-earnings
+joint — a disability module landed, and the program published the
+capability path from here to a full projection. None of it moved a
+locked threshold.
 
 ## Hardening the ledger for deployment
 
@@ -1373,6 +1375,106 @@ not claim is a pass: no candidate has run against gate 2b, and its
 ladder is future work. The gate is built; the model has not yet
 cleared it.
 
+## The marriage-by-earnings gate
+
+The gate-2 pass certified the marital-transition tranche and named
+the marriage-by-earnings joint — the surface spousal and survivor
+benefit *levels* key on — as a separate later tranche; it too now
+carries its own locked gate. Gate 2c — the own-by-spouse
+assortative-mating contingency, the earnings-conditional
+first-marriage and remarriage hazards, the around-event earnings
+dynamics, and the couple's shared-earnings distribution, all on a
+per-year indexed-earnings axis over the selected universe of PSID
+couples with a computable earnings history for both partners (7,994
+directed couples over 14,952 earnings-supply persons) — locked on
+2026-07-10 through the same ceremony, and once again the ceremony is
+the point, because the draft floor did not survive its adversarial
+round. The referee returned *amend before lock* on eight findings,
+three of them blockers, and earned the standing the household referee
+had, by reproducing the floor twice: a full rerun bit-identical to
+the committed artifact, and a fully independent recompute from its
+own fixed-width PSID parser, AIME chain, and splitter that matched
+all forty-nine reference moments, all two hundred forty-five per-seed
+cell values, and all five holdout hashes to nine decimals.
+
+The three blockers were the same three classes the earlier tranches
+had surfaced, each caught before the lock. The first was the floor:
+the draft measured its noise between two person-disjoint halves, but
+a couple surface is not person-disjoint — under the person split half
+the couples straddled the two sides (50.4 percent of mirrored pairs
+on one seed), so the floor priced person-level noise where the
+tranche gates couples, and the disclosed faithful-candidate operating
+characteristic of 0.95/0.977 was 0.83/0.80 at the couple-level noise
+a faithful model actually faces. The second was the estimand: the
+artifact described its earnings window as 1993–2022 while the
+committed panel spans 1968–2022 — a twenty-five-year misstatement of
+its own observation surface, with 69.0 percent of the earnings-supply
+persons carrying a pre-1993 positive year, and a candidate faithfully
+implementing the *described* window failing five of thirteen gated
+cells on the description alone; the standing rule that a tranche
+describe exactly its scored surface forbids it. The third was
+construct validity, and it is the assortative-mating sibling of the
+compression fingerprints the reform-scoring surface had already
+turned up: the career-summed earnings proxy the draft gated
+correlated only 0.12 across spouses, but that number is the
+observation process, not earnings sorting — cross-sex tercile pooling
+and the anti-correlated observed-year counts of single-earner-era
+couples together halve it, and the proxy's 0.977 split-half
+reliability proves the weak signal is what the career sum measures,
+not sampling noise. The within-couple rank on per-year indexed
+earnings is 0.49, literature-scale; gated on the proxy the joint
+would have certified the observation mechanics and inverted the
+tranche's purpose, failing a candidate with true earnings sorting and
+passing one that merely reproduced PSID's observation cadence.
+
+The eight required fixes rebuilt the floor couple-disjoint by
+connected component of the couple graph (13,275 components, none
+larger than four persons, zero couples straddling), restated the true
+1968–2022 estimand everywhere, re-specified the earnings axis onto
+per-year indexed earnings, pinned the candidate's directed
+both-orientation couple emission (a single-orientation emission was
+measured non-conformant, off by up to 4.9 times), and detrended the
+around-event windows against a placebo drift deflator of 1.2019 —
+roughly three-quarters of each raw window's magnitude was generic
+nominal life-cycle drift any window on this panel shows, so a
+real-terms candidate is no longer failed by construction. Re-priced
+on the rebuilt floor, twenty-seven cells gate against twenty-two
+report-only, and the faithful-candidate operating characteristic
+recomputes to 0.9641 per seed and 0.988 at four of five. The review's
+precondition for the flip, as at the household gate, was an external
+anchor bundled before it rather than after: a concept-bridged
+assortative-mating anchor built from the CPS spouses'-earnings
+correlation of @schwartz2010spouses and the educational
+assortative-mating series of @greenwood2014assortative, reported and
+never gated. Its per-year rank of 0.49 sits above Schwartz's 0.23
+dual-earner annual-earnings correlation and its earnings-contingency
+diagonal delta of 1.37 below Greenwood's 1.6-to-2.0 educational
+delta — both directions the named concept deltas predict — and it
+moves no floor value. Verification returned *lock as-is*, the
+maintainer ratified by merge — the ceremony branch re-homed across
+three pull requests as its merge reference settled, the earlier two
+closed unmerged on the same floor — and the flip that inserted the
+thresholds passed its own flip-fidelity referee, who recomputed every
+tolerance from the frozen floor, re-fetched the ceremony comments,
+re-derived the anchor against the archived Schwartz and Greenwood
+sources, and confirmed the new bindings bite across all eight
+verification sections. What the lock does not claim, again, is a
+pass: no candidate has run against gate 2c, and its ladder is future
+work.
+
+With that, all three tranches of the family gate are locked: the
+marital-transition surface passed at the sixteenth candidate, and
+household composition and the marriage-by-earnings joint locked but
+not yet cleared, their candidate ladders the open threads. Across the
+three the adversarial round kept returning the same three failure
+classes — a floor or estimator that priced the wrong noise, an
+estimand that misdescribed its own surface, and a construct whose
+signal was the measurement rather than the thing measured — and the
+ceremony quantified and fixed each before the threshold locked, none
+after. That is the design working rather than failing, and it is why
+a locked gate here is worth what it claims: the hard test comes
+before adoption, in public, against a referee who recomputes.
+
 ## Disability and the capability roadmap
 
 The disability module added the last major transition process in
@@ -1401,8 +1503,8 @@ or anchor-validated today — earnings, marital and fertility dynamics,
 mortality, claiming, and the statutory formula with its auxiliary
 benefits — is the first milestone; the same-frame pseudo-projection
 and the disability module are two more; ahead lie the household and
-assortative-mating tranches, the household gate now locked above but
-not yet passed, the transport of the certified generators from their
+assortative-mating tranches — both gates now locked above but not yet
+passed — the transport of the certified generators from their
 PSID estimation basis onto the representative population — the
 scientific crux and the funded build — a year-by-year projection
 engine, full revenue and trust-fund accounting, and per-year execution
