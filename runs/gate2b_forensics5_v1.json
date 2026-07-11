@@ -1,0 +1,3615 @@
+{
+  "schema_version": "gate2b_forensics5.v1",
+  "run": "gate2b_forensics5_v1",
+  "gate": "gate_2b",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4948430423",
+  "registration_pointer": "4948430423",
+  "registration_title": "Gate-2b forensics 5 registration (diagnostic, not gated): the revealed supply deficit and the convergence test (Q14 older-parent adult-child supply; Q15 the single-lever convergence proof; Q16 fragile spouse cell)",
+  "grading_pointer": "4948429354",
+  "forensics4_grading_pointer": "4948183531",
+  "candidate_under_diagnosis": "gate-2b candidate 7 (PR #145, registration 4948186843; artifact runs/gate2b_hazard_v7.json; FAIL 0/5). Candidate 7 cleared the measured child mechanisms (25-34/35-44|male 5/5) and revealed the older-parent adult-child supply deficit beneath: 65-74|male 0/5, 55-64|male 2/5, plus the carried fragile spouse cell and the hh_size.5+ core deficit. Forensics 5 measures the revealed deficit and tests the convergence hypothesis before candidate 8.",
+  "candidate7_artifact": "runs/gate2b_hazard_v7.json",
+  "forensics3_artifact": "runs/gate2b_forensics3_v1.json",
+  "forensics4_artifact": "runs/gate2b_forensics4_v1.json",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published per-seed scores read from runs/gate2b_hazard_v7.json; the holdout (side A) is NEVER re-simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(hh.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout (read from the committed candidate-7 artifact only), side B = train complement (this diagnostic fits AND simulates side B)",
+    "fit_simulate_machinery": "populace_dynamics.models.household_composition_sim_v7 (candidate 7, merged #145), reused byte-for-byte on the train side via instrumented_draw_v7 (same 0xB2B / 0xC2 / 0xC3 / 0xC4 / 0xC5 / 0xC6 / 0xC7 draw streams and train-fitted tables)",
+    "reused_machinery": "Q14 uses the SAME faithful custodial_prob_v6 the committed candidate fits (the forensics-2/3 custody basis) for the linked-father anchors and does NOT relitigate custody probabilities; the completed-family-size supply variable is the coresident-own-child count forensics-3/4 measured the 3+-child deficit on; the Q15 lever mirrors the forensics-3 Q10 honest-joint counterfactual method exactly.",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "n_draws": 20,
+    "draw_rng_rule": "numpy.random.default_rng(5200 + k) for k in 0..19 (the locked gate_2b protocol)",
+    "instrumentation_fidelity": {
+      "draw_seed": 5200,
+      "n_cells_compared": 93,
+      "max_abs_rate_deviation_vs_committed_simulate_draw_v7": 0.0,
+      "bit_identical": true,
+      "child_channel_additivity_residual": 0,
+      "linked_marital_split_additivity_residual": 0,
+      "analytic_stock_out_of_range_or_nonzero_no_exposure": 0
+    },
+    "no_holdout_tuning_surface": "every fitted table and every reference decomposition is estimated on side B only; no parameter is estimated from side A -- no holdout-informed tuning surface is created"
+  },
+  "data": {
+    "holdout_basis": [
+      "MX23REL"
+    ],
+    "paternal_link_basis": [
+      "cah85_23"
+    ],
+    "n_person_waves": 520693,
+    "n_persons": 46941,
+    "floor_run": "runs/gate2b_floors_v1.json",
+    "floor_run_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821"
+  },
+  "reconciliations": {
+    "instrumentation_bit_identity_max_rate_deviation": 0.0,
+    "child_channel_additivity_residual": 0,
+    "linked_marital_split_additivity_residual": 0,
+    "q14_cell_miss_reconciliation_max_abs_remainder": 1.1102230246251565e-16,
+    "q15_reference_core_sanity_max_abs_dev": 2.7755575615628914e-17,
+    "float64_machine_epsilon": 2.220446049250313e-16,
+    "all_identity_reconciliations_at_machine_epsilon": true,
+    "reconciliation_bar_note": "instrumentation bit-identity is EXACT (0.0) and the integer channel-additivity residuals are EXACTLY 0; the Q14 four-channel Oaxaca-Blinder reconciliation of the cell miss sits at machine epsilon (a few ULP of float64 summation), i.e. machine zero."
+  },
+  "question_14_older_parent_adult_child_supply": {
+    "question": "older-parent adult-child supply: decompose the 55-64|male and 65-74|male coresident_child misses (and the maternal 45-54/65-74|female wobble) into channels reconciling exactly -- (a) FERTILITY-ORIGIN (completed family size by parent cohort x sex, sim vs train, especially 3+-child families); (b) EXIT-ORIGIN (children present but aged out too fast at older parent ages); (c) LINK-COVERAGE (joinable-enumerated children in train outside the sim's draw basis); (d) the v7 persistence/enumeration interaction at older bands.",
+    "method": "Train-side (side B). The older-parent coresidence rate is an exact partition over the parent's COMPLETED FAMILY SIZE S (the parent's maximum coresident own-child count across their waves -- the same coresident-own-child basis forensics-3/4 measured the 3+-child deficit on): cell rate = sum_S D[S] K[S] (law of total probability, exact). The cell miss telescopes (Oaxaca-Blinder) into an ENDOWMENT term sum_S (D_sim - D_train) K_sim -- the FERTILITY-ORIGIN channel, the completed-family-size shortfall, computed per draw and averaged -- and a COEFFICIENT term sum_S D_train (K_sim - K_train) -- the coresidence-given-size shift. The coefficient term is attributed to LINK-COVERAGE (observed coresidence with joinable-enumerated children vs all linked-father coresidence) and the v7 PERSISTENCE/ENUMERATION INTERACTION (analytic independent-per-wave occupancy vs observed episode among joinable, at the cell) from the faithful custodial_prob_v6 linked anchors (zero for the maternal female cells), with EXIT-ORIGIN the remaining coresidence-timing residual. All four channels sum to the cell miss to machine epsilon. Custody probabilities are NOT re-estimated.",
+    "registered_cells": [
+      "coresident_child.55-64|male",
+      "coresident_child.65-74|male",
+      "coresident_child.45-54|female",
+      "coresident_child.65-74|female"
+    ],
+    "per_cell": {
+      "coresident_child.55-64|male": {
+        "sim_full_rate_train": 0.21276471501555844,
+        "reference_full_rate_train": 0.26235571697941784,
+        "cell_miss_sim_minus_reference": -0.049591001963859405,
+        "signed_logratio_train": -0.20951435049454356,
+        "channels": {
+          "fertility_origin": -0.04193820528673788,
+          "exit_origin": 0.004193941216252843,
+          "link_coverage": -0.019485906828141875,
+          "v7_persistence_enumeration_interaction": 0.007639168934767604
+        },
+        "dominant_channel": "fertility_origin",
+        "channel_reconstruction_sum": -0.04959100196385931,
+        "reconciliation_remainder": -9.71445146547012e-17,
+        "oaxaca_two_term": {
+          "endowment_fertility_origin": -0.04193820528673788,
+          "coefficient_kernel_shift": -0.007652796677121429
+        },
+        "completed_family_size": {
+          "sim_distribution": {
+            "0": 0.2553590506077459,
+            "1": 0.20342914435020748,
+            "2": 0.32204336889841345,
+            "3": 0.15189993884554767,
+            "4+": 0.06726849729808557
+          },
+          "train_distribution": {
+            "0": 0.15660698943545356,
+            "1": 0.14223783017881558,
+            "2": 0.3634122041339022,
+            "3": 0.2187390924228662,
+            "4+": 0.1190038838289625
+          },
+          "sim_3plus_share": 0.21916843614363324,
+          "train_3plus_share": 0.3377429762518287,
+          "three_plus_deficit_sim_minus_train": -0.11857454010819546
+        },
+        "sim_kernel_coresidence_given_size": {
+          "0": 0.0,
+          "1": 0.2285970296665357,
+          "2": 0.2643943487116764,
+          "3": 0.3472415627468795,
+          "4+": 0.42318745373457994
+        },
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.2700488909214394,
+          "seed_mean_r_candidate": 0.21841164237825672,
+          "seed_mean_score": 0.21183211625156928,
+          "tolerance": 0.196,
+          "n_seeds_pass": 2,
+          "failing_seeds": [
+            1,
+            3,
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.14947483436454964,
+            "1": 0.2170291023046879,
+            "2": 0.16527387766349738,
+            "3": 0.26426084068641825,
+            "4": 0.2631219262386933
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": false,
+            "2": true,
+            "3": false,
+            "4": false
+          }
+        }
+      },
+      "coresident_child.65-74|male": {
+        "sim_full_rate_train": 0.07140204821338021,
+        "reference_full_rate_train": 0.13360604475638782,
+        "cell_miss_sim_minus_reference": -0.06220399654300761,
+        "signed_logratio_train": -0.6265689498655588,
+        "channels": {
+          "fertility_origin": -0.014323500798351796,
+          "exit_origin": -0.0214915129920722,
+          "link_coverage": -0.01607121509679623,
+          "v7_persistence_enumeration_interaction": -0.010317767655787374
+        },
+        "dominant_channel": "exit_origin",
+        "channel_reconstruction_sum": -0.0622039965430076,
+        "reconciliation_remainder": -6.938893903907228e-18,
+        "oaxaca_two_term": {
+          "endowment_fertility_origin": -0.014323500798351796,
+          "coefficient_kernel_shift": -0.047880495744655804
+        },
+        "completed_family_size": {
+          "sim_distribution": {
+            "0": 0.259293388999673,
+            "1": 0.18272418814045016,
+            "2": 0.29684162044345414,
+            "3": 0.15803814804316568,
+            "4+": 0.10310265437325701
+          },
+          "train_distribution": {
+            "0": 0.13669174987698288,
+            "1": 0.1365087425751306,
+            "2": 0.33825603162747847,
+            "3": 0.22505211640557726,
+            "4+": 0.16349135951483074
+          },
+          "sim_3plus_share": 0.2611408024164227,
+          "train_3plus_share": 0.388543475920408,
+          "three_plus_deficit_sim_minus_train": -0.12740267350398532
+        },
+        "sim_kernel_coresidence_given_size": {
+          "0": 0.0,
+          "1": 0.08843030942602935,
+          "2": 0.08520129845794937,
+          "3": 0.1075130681337622,
+          "4+": 0.126415621195056
+        },
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.13413197601431207,
+          "seed_mean_r_candidate": 0.07199512835051997,
+          "seed_mean_score": 0.6217446388170369,
+          "tolerance": 0.367,
+          "n_seeds_pass": 0,
+          "failing_seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.6225766654954998,
+            "1": 0.6037461068754899,
+            "2": 0.5447960757342836,
+            "3": 0.6877643452016284,
+            "4": 0.6498400007782827
+          },
+          "per_seed_pass": {
+            "0": false,
+            "1": false,
+            "2": false,
+            "3": false,
+            "4": false
+          }
+        }
+      },
+      "coresident_child.45-54|female": {
+        "sim_full_rate_train": 0.5940664211217614,
+        "reference_full_rate_train": 0.5599086970819066,
+        "cell_miss_sim_minus_reference": 0.03415772403985484,
+        "signed_logratio_train": 0.05921740367014072,
+        "channels": {
+          "fertility_origin": -0.04435912454933515,
+          "exit_origin": 0.07851684858918988,
+          "link_coverage": 0.0,
+          "v7_persistence_enumeration_interaction": 0.0
+        },
+        "dominant_channel": "exit_origin",
+        "channel_reconstruction_sum": 0.03415772403985473,
+        "reconciliation_remainder": 1.1102230246251565e-16,
+        "oaxaca_two_term": {
+          "endowment_fertility_origin": -0.04435912454933515,
+          "coefficient_kernel_shift": 0.07851684858918988
+        },
+        "completed_family_size": {
+          "sim_distribution": {
+            "0": 0.19900925901437347,
+            "1": 0.19138154612123184,
+            "2": 0.33636490623023346,
+            "3": 0.17664063475354524,
+            "4+": 0.09660365388061613
+          },
+          "train_distribution": {
+            "0": 0.145568785688278,
+            "1": 0.1656248288181536,
+            "2": 0.35732277157030345,
+            "3": 0.22079587551595212,
+            "4+": 0.11068773840731287
+          },
+          "sim_3plus_share": 0.2732442886341614,
+          "train_3plus_share": 0.331483613923265,
+          "three_plus_deficit_sim_minus_train": -0.05823932528910358
+        },
+        "sim_kernel_coresidence_given_size": {
+          "0": 0.0,
+          "1": 0.6836305601644016,
+          "2": 0.7164551777488934,
+          "3": 0.7890922434389699,
+          "4+": 0.857683540585559
+        },
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.5466365798485813,
+          "seed_mean_r_candidate": 0.5927054199045971,
+          "seed_mean_score": 0.08079922590931814,
+          "tolerance": 0.086,
+          "n_seeds_pass": 3,
+          "failing_seeds": [
+            0,
+            2
+          ],
+          "per_seed_score": {
+            "0": 0.10627136345863324,
+            "1": 0.0576785764932432,
+            "2": 0.10701998287070931,
+            "3": 0.057118615457223236,
+            "4": 0.0759075912667817
+          },
+          "per_seed_pass": {
+            "0": false,
+            "1": true,
+            "2": false,
+            "3": true,
+            "4": true
+          }
+        }
+      },
+      "coresident_child.65-74|female": {
+        "sim_full_rate_train": 0.0923472916547439,
+        "reference_full_rate_train": 0.12168231018694767,
+        "cell_miss_sim_minus_reference": -0.02933501853220377,
+        "signed_logratio_train": -0.2758572542783156,
+        "channels": {
+          "fertility_origin": -0.012971483031400286,
+          "exit_origin": -0.016363535500803484,
+          "link_coverage": 0.0,
+          "v7_persistence_enumeration_interaction": 0.0
+        },
+        "dominant_channel": "exit_origin",
+        "channel_reconstruction_sum": -0.02933501853220377,
+        "reconciliation_remainder": 0.0,
+        "oaxaca_two_term": {
+          "endowment_fertility_origin": -0.012971483031400286,
+          "coefficient_kernel_shift": -0.016363535500803484
+        },
+        "completed_family_size": {
+          "sim_distribution": {
+            "0": 0.22736517811543483,
+            "1": 0.16370775972578952,
+            "2": 0.2668322967646296,
+            "3": 0.1691417491679471,
+            "4+": 0.1729530162261989
+          },
+          "train_distribution": {
+            "0": 0.12010137305972872,
+            "1": 0.15507073498668245,
+            "2": 0.31869950280450443,
+            "3": 0.21216641182966897,
+            "4+": 0.19396197731941542
+          },
+          "sim_3plus_share": 0.342094765394146,
+          "train_3plus_share": 0.4061283891490844,
+          "three_plus_deficit_sim_minus_train": -0.06403362375493837
+        },
+        "sim_kernel_coresidence_given_size": {
+          "0": 0.0,
+          "1": 0.09535085539151375,
+          "2": 0.0970284811354565,
+          "3": 0.12153488257065807,
+          "4+": 0.17467515308209175
+        },
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.12440378109530184,
+          "seed_mean_r_candidate": 0.0920853811904698,
+          "seed_mean_score": 0.29964063668545016,
+          "tolerance": 0.358,
+          "n_seeds_pass": 4,
+          "failing_seeds": [
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.29113742030657136,
+            "1": 0.27476491831776134,
+            "2": 0.19504837703490271,
+            "3": 0.3397410825140661,
+            "4": 0.39751138525394925
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": false
+          }
+        }
+      }
+    },
+    "reconciliation_max_abs_remainder": 1.1102230246251565e-16,
+    "finding": "The older-parent coresident_child deficit is rooted in the COMPLETED-FAMILY-SIZE shortfall forensics-3/4 named -- the sim under-produces 3+-coresident-child families at every older cohort (55-64|male -0.1186, 65-74|male -0.1274, 45-54|female -0.0582, 65-74|female -0.0640) -- but the diagnostic beats the registration's 'fertility-origin dominant at 65-74|male' prior: fertility-origin is DOMINANT at 55-64|male (fertility -0.0419, exit +0.0042, link-coverage -0.0195, v7-interaction +0.0076; cell miss -0.0496, dominant fertility_origin) but NOT at 65-74|male (fertility -0.0143, exit -0.0215, link-coverage -0.0161, v7-interaction -0.0103; cell miss -0.0622, dominant exit_origin), where the fertility endowment is ATTENUATED by the near-zero adult-child coresidence kernel at the oldest band (children the sim did produce have aged out) so exit-origin and link-coverage co-dominate. The maternal cells: 45-54|female OVER-produces (+0.0342) -- a fertility deficit (-0.0444) more than offset by a positive coresidence-given-size shift (+0.0785), the sim retaining middle-aged mothers' children too long -- while 65-74|female under-produces (-0.0293, fertility -0.0130 + exit -0.0164). Every cell reconciles to the train-side miss to machine epsilon. The completed-family-size deficit is the shared root the parent side confirms: the cohorts whose 3+-coresident-child families the sim under-produces ARE today's older parents, but its coresidence footprint at 65-74 is bottlenecked by adult-child retention, not birth counts alone."
+  },
+  "question_15_single_lever_convergence": {
+    "question": "the convergence test (the c8 feasibility proof, mirroring f3-Q10): if the train completed-fertility 3+-child distribution replaces the sim's large-family core deficit, does that single lever simultaneously move (i) hh_size.5+ into tolerance on the failing seeds, (ii) the older-male adult-child supply channels from Q14a, and (iii) leave hh_size.3/.4 and the cleared child cells in tolerance? Applied analytically to the sim's own distributions per seed, exactly as f3-Q10 proved the bridge feasibility.",
+    "method": "Train-side (side B). The lever replaces the sim's completed-family-size distribution D_sim[S] with the train D_train[S] (the '3+-child completed-fertility'), holding the sim's own conditional kernels: the counterfactual hh_size cell = sum_S D_train[S] H_sim(class|S), and the counterfactual coresident_child cell = sum_S D_train[S] K_sim(coresident|S) = sim_full - fertility_origin (the Q14 endowment closed). Each counterfactual is scored against the train reference per seed and cross-referenced to the committed candidate-7 holdout failing seeds. A sanity convolution of the kernel with the reference completed-size distribution reproduces the reference hh_size to machine epsilon, exactly as f3-Q10's reference-core sanity.",
+    "lever": "train completed-fertility (3+-child) distribution replaces the sim's, per seed, holding the sim's coresidence/household kernels",
+    "hh_size_cells": {
+      "hh_size.3": {
+        "cell": "hh_size.3",
+        "tolerance": 0.072,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.17920063440129863,
+            "counterfactual_lever": 0.17350439782443014,
+            "reference_train": 0.18012506278902857,
+            "sim_score": 0.0051453621851064255,
+            "counterfactual_score": 0.03744845614858176,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.17983357218887114,
+            "counterfactual_lever": 0.1739502386408159,
+            "reference_train": 0.181816853260391,
+            "sim_score": 0.01096805541493842,
+            "counterfactual_score": 0.04423060615899131,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.18140146255202302,
+            "counterfactual_lever": 0.17559528528967996,
+            "reference_train": 0.18210054659754332,
+            "sim_score": 0.003846388134418473,
+            "counterfactual_score": 0.03637715667004999,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.18118282651671816,
+            "counterfactual_lever": 0.17508326050722836,
+            "reference_train": 0.18435936804148903,
+            "sim_score": 0.017380327276461827,
+            "counterfactual_score": 0.05162530489015726,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.1788041304859122,
+            "counterfactual_lever": 0.17323495674390718,
+            "reference_train": 0.1782504791744526,
+            "sim_score": 0.003101216117705591,
+            "counterfactual_score": 0.028540942967421812,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          }
+        ],
+        "seed_mean_sim": 0.18008452522896462,
+        "seed_mean_counterfactual": 0.1742736278012123,
+        "seed_mean_reference": 0.1813304619725809,
+        "counterfactual_clears_holdout_failing_seeds": null,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.17858891736409158,
+          "seed_mean_r_candidate": 0.17990755234045333,
+          "seed_mean_score": 0.010268334632245201,
+          "tolerance": 0.072,
+          "n_seeds_pass": 5,
+          "failing_seeds": [],
+          "per_seed_score": {
+            "0": 0.0025367936361822344,
+            "1": 0.005472218911260149,
+            "2": 0.009052595122552867,
+            "3": 0.027153102665733765,
+            "4": 0.007126962825496993
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          }
+        }
+      },
+      "hh_size.4": {
+        "cell": "hh_size.4",
+        "tolerance": 0.073,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.1685995739495278,
+            "counterfactual_lever": 0.1790153491886808,
+            "reference_train": 0.17643618588404092,
+            "sim_score": 0.04543273935754956,
+            "counterfactual_score": 0.01451229388953823,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.16560208017533598,
+            "counterfactual_lever": 0.1767922164881271,
+            "reference_train": 0.1742377460012387,
+            "sim_score": 0.05083291961057424,
+            "counterfactual_score": 0.014554401917915063,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.16909361861045258,
+            "counterfactual_lever": 0.1793331651871888,
+            "reference_train": 0.1766730273254209,
+            "sim_score": 0.04384820313793289,
+            "counterfactual_score": 0.014944612916592253,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.16656474279172706,
+            "counterfactual_lever": 0.1773814873982095,
+            "reference_train": 0.17417577650329524,
+            "sim_score": 0.04468091964946043,
+            "counterfactual_score": 0.01823771020529846,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.16518711888072382,
+            "counterfactual_lever": 0.17512124129752157,
+            "reference_train": 0.1738390208181082,
+            "sim_score": 0.05105081810085459,
+            "counterfactual_score": 0.0073488381869387335,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          }
+        ],
+        "seed_mean_sim": 0.16700942688155346,
+        "seed_mean_counterfactual": 0.17752869191194556,
+        "seed_mean_reference": 0.1750723513064208,
+        "counterfactual_clears_holdout_failing_seeds": null,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.17407204308187774,
+          "seed_mean_r_candidate": 0.16657528316266643,
+          "seed_mean_score": 0.04403552536867202,
+          "tolerance": 0.073,
+          "n_seeds_pass": 5,
+          "failing_seeds": [],
+          "per_seed_score": {
+            "0": 0.02338706261850716,
+            "1": 0.055498354442302916,
+            "2": 0.02940140254389747,
+            "3": 0.06093056846081637,
+            "4": 0.0509602387778362
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          }
+        }
+      },
+      "hh_size.5+": {
+        "cell": "hh_size.5+",
+        "tolerance": 0.094,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.12770233713308854,
+            "counterfactual_lever": 0.14483623359571823,
+            "reference_train": 0.13859974717727927,
+            "sim_score": 0.08188819801839259,
+            "counterfactual_score": 0.04401341802705108,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.12908206220770474,
+            "counterfactual_lever": 0.14677947309996658,
+            "reference_train": 0.14184063151578835,
+            "sim_score": 0.09425577081235222,
+            "counterfactual_score": 0.03422716331711185,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.12866827158405802,
+            "counterfactual_lever": 0.14586144944474874,
+            "reference_train": 0.1414534873759086,
+            "sim_score": 0.09473339775147123,
+            "counterfactual_score": 0.030686242817697,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.12416690347632393,
+            "counterfactual_lever": 0.14115322863763874,
+            "reference_train": 0.13748792685304267,
+            "sim_score": 0.10190945220486657,
+            "counterfactual_score": 0.026309919696920144,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.12654240237378186,
+            "counterfactual_lever": 0.14289497222256625,
+            "reference_train": 0.13726299165570963,
+            "sim_score": 0.08132128414974049,
+            "counterfactual_score": 0.040211167647821754,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": true
+          }
+        ],
+        "seed_mean_sim": 0.12723239535499142,
+        "seed_mean_counterfactual": 0.14430507140012772,
+        "seed_mean_reference": 0.1393289569155457,
+        "counterfactual_clears_holdout_failing_seeds": true,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.13863925072346167,
+          "seed_mean_r_candidate": 0.12626585552941033,
+          "seed_mean_score": 0.09343987971931308,
+          "tolerance": 0.094,
+          "n_seeds_pass": 3,
+          "failing_seeds": [
+            3,
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.09243964548913697,
+            "1": 0.08042516376088131,
+            "2": 0.06720528400652441,
+            "3": 0.12401371396027706,
+            "4": 0.10311559137974562
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": false,
+            "4": false
+          }
+        }
+      }
+    },
+    "older_male_supply_cells": {
+      "coresident_child.55-64|male": {
+        "cell": "coresident_child.55-64|male",
+        "tolerance": 0.196,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.2096269142929116,
+            "counterfactual_lever": 0.2544132349318196,
+            "reference_train": 0.2720687415815825,
+            "sim_score": 0.2607254086796076,
+            "counterfactual_score": 0.06709490655311157,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.221424274766165,
+            "counterfactual_lever": 0.2676795645644796,
+            "reference_train": 0.26729228939800564,
+            "sim_score": 0.18826212009329366,
+            "counterfactual_score": 0.0014478340542843466,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.22343020833809452,
+            "counterfactual_lever": 0.26382817228296823,
+            "reference_train": 0.2698836641377247,
+            "sim_score": 0.18889189423720465,
+            "counterfactual_score": 0.022692963902893756,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.20586181505063408,
+            "counterfactual_lever": 0.24642138619724124,
+            "reference_train": 0.2600108190831476,
+            "sim_score": 0.23351809903100587,
+            "counterfactual_score": 0.05368021948344894,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.20348036262998725,
+            "counterfactual_lever": 0.24117224353497324,
+            "reference_train": 0.2425230706966286,
+            "sim_score": 0.17552734065195985,
+            "counterfactual_score": 0.0055854610692461434,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": true
+          }
+        ],
+        "seed_mean_sim": 0.21276471501555844,
+        "seed_mean_counterfactual": 0.2547029203022964,
+        "seed_mean_reference": 0.26235571697941784,
+        "counterfactual_clears_holdout_failing_seeds": true,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.2700488909214394,
+          "seed_mean_r_candidate": 0.21841164237825672,
+          "seed_mean_score": 0.21183211625156928,
+          "tolerance": 0.196,
+          "n_seeds_pass": 2,
+          "failing_seeds": [
+            1,
+            3,
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.14947483436454964,
+            "1": 0.2170291023046879,
+            "2": 0.16527387766349738,
+            "3": 0.26426084068641825,
+            "4": 0.2631219262386933
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": false,
+            "2": true,
+            "3": false,
+            "4": false
+          }
+        }
+      },
+      "coresident_child.65-74|male": {
+        "cell": "coresident_child.65-74|male",
+        "tolerance": 0.367,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.06877505436408235,
+            "counterfactual_lever": 0.08274770340909307,
+            "reference_train": 0.12415260918206436,
+            "sim_score": 0.5906704308279773,
+            "counterfactual_score": 0.4057152675935446,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": false,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.07023398249897077,
+            "counterfactual_lever": 0.08550403357124126,
+            "reference_train": 0.13750370843225906,
+            "sim_score": 0.6718186120751718,
+            "counterfactual_score": 0.4750873360575837,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": false,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.07755072510059371,
+            "counterfactual_lever": 0.09400187390767709,
+            "reference_train": 0.1446800037553377,
+            "sim_score": 0.6235921933568567,
+            "counterfactual_score": 0.4312097157807055,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": false,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.06485847362665943,
+            "counterfactual_lever": 0.07756007591868473,
+            "reference_train": 0.13241914416056055,
+            "sim_score": 0.7137646591597477,
+            "counterfactual_score": 0.5349194171959101,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": false,
+            "holdout_seed_fails": true
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.07559200547659481,
+            "counterfactual_lever": 0.08881405825196392,
+            "reference_train": 0.12927475825171744,
+            "sim_score": 0.536589518319624,
+            "counterfactual_score": 0.3753950971332594,
+            "sim_within_tolerance": false,
+            "counterfactual_within_tolerance": false,
+            "holdout_seed_fails": true
+          }
+        ],
+        "seed_mean_sim": 0.07140204821338021,
+        "seed_mean_counterfactual": 0.08572554901173202,
+        "seed_mean_reference": 0.13360604475638782,
+        "counterfactual_clears_holdout_failing_seeds": false,
+        "counterfactual_within_tolerance_all_seeds": false,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.13413197601431207,
+          "seed_mean_r_candidate": 0.07199512835051997,
+          "seed_mean_score": 0.6217446388170369,
+          "tolerance": 0.367,
+          "n_seeds_pass": 0,
+          "failing_seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "per_seed_score": {
+            "0": 0.6225766654954998,
+            "1": 0.6037461068754899,
+            "2": 0.5447960757342836,
+            "3": 0.6877643452016284,
+            "4": 0.6498400007782827
+          },
+          "per_seed_pass": {
+            "0": false,
+            "1": false,
+            "2": false,
+            "3": false,
+            "4": false
+          }
+        }
+      }
+    },
+    "cleared_child_cells": {
+      "coresident_child.25-34|male": {
+        "cell": "coresident_child.25-34|male",
+        "tolerance": 0.106,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.39094313430741945,
+            "counterfactual_lever": 0.40975039914721884,
+            "reference_train": 0.38540001653280714,
+            "sim_score": 0.014280313976478106,
+            "counterfactual_score": 0.06126639286919242,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.3769842100745755,
+            "counterfactual_lever": 0.4003936520651219,
+            "reference_train": 0.38071879887494986,
+            "sim_score": 0.009857738450568471,
+            "counterfactual_score": 0.05038715140203131,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.3957482478031399,
+            "counterfactual_lever": 0.4198524390277897,
+            "reference_train": 0.39533739939631024,
+            "sim_score": 0.0010386952290750717,
+            "counterfactual_score": 0.0601637379089272,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.3798165442953504,
+            "counterfactual_lever": 0.4021987397960981,
+            "reference_train": 0.38080441835065393,
+            "sim_score": 0.002597547686090595,
+            "counterfactual_score": 0.054660438395420854,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.3867817259277169,
+            "counterfactual_lever": 0.40866473708514583,
+            "reference_train": 0.3850412392629711,
+            "sim_score": 0.004510074702304123,
+            "counterfactual_score": 0.059544662645402174,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          }
+        ],
+        "seed_mean_sim": 0.38605477248164044,
+        "seed_mean_counterfactual": 0.40817199342427485,
+        "seed_mean_reference": 0.3854603744835385,
+        "counterfactual_clears_holdout_failing_seeds": null,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.3853951671087253,
+          "seed_mean_r_candidate": 0.3901841296333206,
+          "seed_mean_score": 0.01232078793975998,
+          "tolerance": 0.106,
+          "n_seeds_pass": 5,
+          "failing_seeds": [],
+          "per_seed_score": {
+            "0": 0.01243420553499507,
+            "1": 0.01013695067454019,
+            "2": 0.008335916484399004,
+            "3": 0.016336914519942413,
+            "4": 0.014359952484923215
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          }
+        }
+      },
+      "coresident_child.35-44|male": {
+        "cell": "coresident_child.35-44|male",
+        "tolerance": 0.071,
+        "per_seed": [
+          {
+            "seed": 0,
+            "sim_train": 0.6603315213741567,
+            "counterfactual_lever": 0.7011202788789022,
+            "reference_train": 0.659463814682677,
+            "sim_score": 0.0013149111726573743,
+            "counterfactual_score": 0.0612523513218459,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 1,
+            "sim_train": 0.6529085800837842,
+            "counterfactual_lever": 0.6952266249368106,
+            "reference_train": 0.6601882010922546,
+            "sim_score": 0.011087827938275202,
+            "counterfactual_score": 0.05171292391622917,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 2,
+            "sim_train": 0.6481827783451884,
+            "counterfactual_lever": 0.6918393869959496,
+            "reference_train": 0.6562152102552118,
+            "sim_score": 0.012316077629322067,
+            "counterfactual_score": 0.05286502940536753,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 3,
+            "sim_train": 0.6566344675805161,
+            "counterfactual_lever": 0.6981125783629265,
+            "reference_train": 0.6593078347131237,
+            "sim_score": 0.00406305170932758,
+            "counterfactual_score": 0.05718982738022407,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          },
+          {
+            "seed": 4,
+            "sim_train": 0.6543400572586278,
+            "counterfactual_lever": 0.6925866992873027,
+            "reference_train": 0.6562316130159411,
+            "sim_score": 0.0028866137025105047,
+            "counterfactual_score": 0.05391963249983638,
+            "sim_within_tolerance": true,
+            "counterfactual_within_tolerance": true,
+            "holdout_seed_fails": false
+          }
+        ],
+        "seed_mean_sim": 0.6544794809284546,
+        "seed_mean_counterfactual": 0.6957771136923783,
+        "seed_mean_reference": 0.6582813347518417,
+        "counterfactual_clears_holdout_failing_seeds": null,
+        "counterfactual_within_tolerance_all_seeds": true,
+        "holdout_committed_candidate7": {
+          "seed_mean_rate_a": 0.6460525925189948,
+          "seed_mean_r_candidate": 0.6486584839458214,
+          "seed_mean_score": 0.008413981009552282,
+          "tolerance": 0.071,
+          "n_seeds_pass": 5,
+          "failing_seeds": [],
+          "per_seed_score": {
+            "0": 0.008655024780439304,
+            "1": 0.005304555396143182,
+            "2": 0.005751085645508631,
+            "3": 0.017582996447648738,
+            "4": 0.0047762427780215465
+          },
+          "per_seed_pass": {
+            "0": true,
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          }
+        }
+      }
+    },
+    "reference_core_sanity_max_abs_dev": 2.7755575615628914e-17,
+    "convergence_verdict": {
+      "hh_size_5plus_proves": true,
+      "older_male_cells_prove": {
+        "coresident_child.55-64|male": true,
+        "coresident_child.65-74|male": false
+      },
+      "older_male_all_prove": false,
+      "hh_size_3_4_trade_holds": true,
+      "cleared_child_cells_hold": true,
+      "single_lever_proves_full_convergence": false
+    },
+    "finding": "The single fertility lever DOES NOT fully prove the convergence hypothesis -- the diagnostic qualifies the registration's optimistic prior. Applying the train completed-fertility distribution to the sim's OWN core (the f3-Q10 method, holding the sim's coresidence kernel) moves hh_size.5+ into tolerance on its holdout-failing seeds (counterfactual clears failing seeds: True; seed-mean sim 0.1272 -> counterfactual 0.1443 vs reference 0.1393), leaves hh_size.3/.4 in tolerance (trade holds: True) and the cleared child cells in tolerance (cleared holds: True). But the older-MALE supply channels split: the lever clears 55-64|male (True), 65-74|male (False) -- fertility-origin is sufficient at 55-64|male but NOT at 65-74|male, where closing only the completed-family-size gap (counterfactual 0.0857 vs reference 0.1336, tolerance 0.367) leaves the cell out because the oldest-band deficit is majority exit-origin + link-coverage (Q14), not fertility. Convergence is REAL for hh_size.5+ and 55-64|male -- the fertility-core lift is a necessary and, there, sufficient c8 lever -- but 65-74|male needs a SECOND mechanism (adult-child retention / enumerated-link coverage at the oldest band). The reference-core sanity convolution reproduces the reference hh_size to 2.8e-17 (the joint is honest)."
+  },
+  "question_16_fragile_spouse_cell": {
+    "question": "fragile spouse cell: measure what a cohabitation-overlay lift at 25-34|female sized to the measured -0.045 shortfall does to the cell's split-seed exceedances (2/5) and gate-seed margins, analytically on train; confirm no other spouse cell moves out.",
+    "method": "Train-side (side B). From 20 instrumented candidate-7 draws the 25-34|female spouse rate is split into legal / cohabitation-overlay / legal-residual components; the lift adds the forensics-3 Q9 measured -0.045 cohabitation-overlay shortfall to the currently-non-spouse mass (Bernoulli superposition: new_full = old_full + 0.045 * (1 - old_full), the conservative reading), and the lifted rate is scored against the train reference per seed. Collateral is confirmed by the age-specificity of the override: every other female spouse cell is unchanged by the 25-34-only analytic lift.",
+    "registered_cell": "coresident_spouse.25-34|female",
+    "overlay_shortfall_applied": 0.045,
+    "per_seed": [
+      {
+        "seed": 0,
+        "sim_full": 0.5917430459899381,
+        "sim_cohab_overlay": 0.08038978870870209,
+        "lifted_full": 0.6101146089203909,
+        "reference_rate_b": 0.6302048109681181,
+        "sim_score": 0.06297236660410746,
+        "lifted_score": 0.03239804033234477,
+        "sim_within_tolerance": true,
+        "lifted_within_tolerance": true,
+        "holdout_seed_fails": false
+      },
+      {
+        "seed": 1,
+        "sim_full": 0.5818253176894621,
+        "sim_cohab_overlay": 0.09063693846436342,
+        "lifted_full": 0.6006431783934363,
+        "reference_rate_b": 0.6119063541873795,
+        "sim_score": 0.05040899351754089,
+        "lifted_score": 0.018578209708404275,
+        "sim_within_tolerance": true,
+        "lifted_within_tolerance": true,
+        "holdout_seed_fails": true
+      },
+      {
+        "seed": 2,
+        "sim_full": 0.5823571851600728,
+        "sim_cohab_overlay": 0.07899441841487587,
+        "lifted_full": 0.6011511118278695,
+        "reference_rate_b": 0.6180977148810307,
+        "sim_score": 0.059562579964584104,
+        "lifted_score": 0.027800222732325443,
+        "sim_within_tolerance": true,
+        "lifted_within_tolerance": true,
+        "holdout_seed_fails": false
+      },
+      {
+        "seed": 3,
+        "sim_full": 0.584869012807353,
+        "sim_cohab_overlay": 0.08125471668020526,
+        "lifted_full": 0.6035499072310222,
+        "reference_rate_b": 0.6205372002121678,
+        "sim_score": 0.059197642412127355,
+        "lifted_score": 0.02775682139985128,
+        "sim_within_tolerance": true,
+        "lifted_within_tolerance": true,
+        "holdout_seed_fails": true
+      },
+      {
+        "seed": 4,
+        "sim_full": 0.5969924162765866,
+        "sim_cohab_overlay": 0.08716755580263903,
+        "lifted_full": 0.6151277575441402,
+        "reference_rate_b": 0.625151861028996,
+        "sim_score": 0.046090187610883765,
+        "lifted_score": 0.016164615791961982,
+        "sim_within_tolerance": true,
+        "lifted_within_tolerance": true,
+        "holdout_seed_fails": false
+      }
+    ],
+    "seed_mean_sim_full": 0.5875573955846826,
+    "seed_mean_lifted_full": 0.6061173127833718,
+    "n_split_seeds_over_tolerance_sim": 0,
+    "n_split_seeds_over_tolerance_lifted": 0,
+    "lift_clears_holdout_failing_seeds": true,
+    "collateral_cells": {
+      "coresident_spouse.15-24|female": {
+        "sim_full_unchanged_by_lift": 0.1659407621192362,
+        "reference_rate_b": 0.16016853633894984,
+        "tolerance": 0.158,
+        "within_tolerance": true
+      },
+      "coresident_spouse.35-44|female": {
+        "sim_full_unchanged_by_lift": 0.7155230043632,
+        "reference_rate_b": 0.7123812723038079,
+        "tolerance": 0.063,
+        "within_tolerance": true
+      },
+      "coresident_spouse.45-54|female": {
+        "sim_full_unchanged_by_lift": 0.7327957115718905,
+        "reference_rate_b": 0.6990442553044492,
+        "tolerance": 0.077,
+        "within_tolerance": true
+      },
+      "coresident_spouse.55-64|female": {
+        "sim_full_unchanged_by_lift": 0.6880448050406232,
+        "reference_rate_b": 0.6804236069796327,
+        "tolerance": 0.095,
+        "within_tolerance": true
+      },
+      "coresident_spouse.65-74|female": {
+        "sim_full_unchanged_by_lift": 0.5728537825062905,
+        "reference_rate_b": 0.589036369019383,
+        "tolerance": 0.139,
+        "within_tolerance": true
+      },
+      "coresident_spouse.75+|female": {
+        "sim_full_unchanged_by_lift": 0.31757072769045896,
+        "reference_rate_b": 0.3116546152948264,
+        "tolerance": 0.298,
+        "within_tolerance": true
+      }
+    },
+    "no_collateral_spouse_cell_moves_out": true,
+    "holdout_committed_candidate7": {
+      "seed_mean_rate_a": 0.6234187902638284,
+      "seed_mean_r_candidate": 0.5858076807984952,
+      "seed_mean_score": 0.06221595843126224,
+      "tolerance": 0.074,
+      "n_seeds_pass": 3,
+      "failing_seeds": [
+        1,
+        3
+      ],
+      "per_seed_score": {
+        "0": 0.035665394262174584,
+        "1": 0.08363672134060221,
+        "2": 0.06926267370750504,
+        "3": 0.07579188973079339,
+        "4": 0.046723113115236
+      },
+      "per_seed_pass": {
+        "0": true,
+        "1": false,
+        "2": true,
+        "3": false,
+        "4": true
+      }
+    },
+    "finding": "A cohabitation-overlay lift at 25-34|female sized to the forensics-3 Q9 measured -0.045 overlay shortfall CLEARS the fragile cell without collateral. The cell carries 3/5 on the committed holdout (its measured 2/5 split-seed fragility, seeds [1, 3]); the forensics train side already clears all 5 with a small margin (0/5 exceed), and the lift shrinks the underlying deficit that manifests as the holdout fragility -- adding the overlay to the currently-non-spouse mass lifts the seed-mean full spouse rate 0.5876 -> 0.6061 (reference 0.6212), closing the train deficit +0.0336 -> +0.0151 and keeping the lifted rate within tolerance on ALL seeds including the holdout-failing ones (lift clears holdout-failing seeds: True; 0/5 lifted exceed). No other female spouse cell moves out (collateral-clean: True) -- the override is age-25-34-specific, so the neighbouring bands are untouched by the analytic lift (a full re-simulation would bleed only the small cohab-persistence tail into 35-44|female, which already clears with margin). The lift targets the OVERLAY (forensics-4 Q12: the -0.045 cohabitation overlay gap, not the legal core), the component candidate 6's inert delta 3 failed to move."
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 23518,
+      "linked_episode_persistence_rho": 0.8628938496112823,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15187778651462677,
+        "coresident_child.15-24|male": 0.05324632565915583,
+        "coresident_child.25-34|female": 0.5596206464749537,
+        "coresident_child.25-34|male": 0.3854000165328071,
+        "coresident_child.35-44|female": 0.7724541770843841,
+        "coresident_child.35-44|male": 0.659463814682677,
+        "coresident_child.45-54|female": 0.56307791104075,
+        "coresident_child.45-54|male": 0.5512308968958842,
+        "coresident_child.55-64|female": 0.2463618787040306,
+        "coresident_child.55-64|male": 0.2720687415815825,
+        "coresident_child.65-74|female": 0.12100231443522518,
+        "coresident_child.65-74|male": 0.12415260918206437,
+        "coresident_grandchild.45-54|female": 0.0454136162193122,
+        "coresident_grandchild.55+|female": 0.06376679347908513,
+        "coresident_parent.15-24|female": 0.689547329335129,
+        "coresident_parent.15-24|male": 0.751151594243581,
+        "coresident_parent.25-34|female": 0.10506091088023778,
+        "coresident_parent.25-34|male": 0.14076560285449183,
+        "coresident_spouse.15-24|female": 0.16555913090397337,
+        "coresident_spouse.15-24|male": 0.09845903923669415,
+        "coresident_spouse.25-34|female": 0.6302048109681181,
+        "coresident_spouse.25-34|male": 0.5641952503016872,
+        "coresident_spouse.35-44|female": 0.7187742356861337,
+        "coresident_spouse.35-44|male": 0.7493226373047212,
+        "coresident_spouse.45-54|female": 0.7096986251299884,
+        "coresident_spouse.45-54|male": 0.7775004860502241,
+        "coresident_spouse.55-64|female": 0.6878292636812716,
+        "coresident_spouse.55-64|male": 0.7835366468334353,
+        "coresident_spouse.65-74|female": 0.5817895109214029,
+        "coresident_spouse.65-74|male": 0.8058262044978859,
+        "coresident_spouse.75+|female": 0.30395134014286884,
+        "coresident_spouse.75+|male": 0.7269604862251138,
+        "hh_size.1": 0.18109137757262359,
+        "hh_size.2": 0.32374762657702755,
+        "hh_size.3": 0.18012506278902857,
+        "hh_size.4": 0.17643618588404095,
+        "hh_size.5+": 0.13859974717727927,
+        "multigen.15-24|female": 0.08570548306435763,
+        "multigen.25-34|female": 0.04244011920809863,
+        "multigen.45-54|female": 0.05143406757398725,
+        "multigen_entry": 0.013835737280875091,
+        "multigen_exit": 0.3169335789082228,
+        "parental_home_exit.15-24|female": 0.1876492241264485,
+        "parental_home_exit.15-24|male": 0.1449942436857061,
+        "parental_home_exit.25-34|female": 0.2660575147721647,
+        "parental_home_exit.25-34|male": 0.25542981702635636
+      },
+      "q14_train_dk": {
+        "coresident_child.55-64|male": {
+          "d_train": {
+            "0": 0.1569867170004985,
+            "1": 0.14183180284218103,
+            "2": 0.3631866650099493,
+            "3": 0.20798251869281198,
+            "4+": 0.13001229645455925
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.28001374934543555,
+            "2": 0.2941061956719595,
+            "3": 0.3608148642874535,
+            "4+": 0.38838829439334743
+          },
+          "ref_full": 0.2720687415815825
+        },
+        "coresident_child.65-74|male": {
+          "d_train": {
+            "0": 0.14456514127056425,
+            "1": 0.13311771914848614,
+            "2": 0.32760229459253254,
+            "3": 0.21757465877825452,
+            "4+": 0.17714018621016267
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.2001987731455351,
+            "2": 0.11883670243565655,
+            "3": 0.15654953983944433,
+            "4+": 0.13836620891509713
+          },
+          "ref_full": 0.12415260918206436
+        },
+        "coresident_child.45-54|female": {
+          "d_train": {
+            "0": 0.14053143850813532,
+            "1": 0.1661986898372023,
+            "2": 0.3548172411389893,
+            "3": 0.2334755015928517,
+            "4+": 0.10497712892282139
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.5353225118967094,
+            "2": 0.628285562185736,
+            "3": 0.7109737936333322,
+            "4+": 0.8114767367630031
+          },
+          "ref_full": 0.56307791104075
+        },
+        "coresident_child.65-74|female": {
+          "d_train": {
+            "0": 0.12270671129235647,
+            "1": 0.15331160758072387,
+            "2": 0.3164289490806991,
+            "3": 0.20784498909364707,
+            "4+": 0.19970774295257343
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.2208223842818285,
+            "2": 0.09476056390097848,
+            "3": 0.10057318871719088,
+            "4+": 0.1815606155954683
+          },
+          "ref_full": 0.12100231443522518
+        },
+        "coresident_child.25-34|male": {
+          "d_train": {
+            "0": 0.366700486287013,
+            "1": 0.17437068721800517,
+            "2": 0.23456572947412424,
+            "3": 0.13891922443994592,
+            "4+": 0.08544387258091181
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.4167902458814965,
+            "2": 0.6064728158415964,
+            "3": 0.7231036854681583,
+            "4+": 0.8194066021220673
+          },
+          "ref_full": 0.38540001653280714
+        },
+        "coresident_child.35-44|male": {
+          "d_train": {
+            "0": 0.19303363059320708,
+            "1": 0.15758179496194175,
+            "2": 0.33714754256746055,
+            "3": 0.19632819150398936,
+            "4+": 0.11590884037340136
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.6497502059359193,
+            "2": 0.825582120857691,
+            "3": 0.8947292621317503,
+            "4+": 0.889245802714701
+          },
+          "ref_full": 0.659463814682677
+        }
+      },
+      "q14_linked_reference": {
+        "coresident_child.55-64|male": {
+          "reference_full_rate": 0.2720687415815825,
+          "reference_linked_any_contribution": 0.25162749487828767,
+          "reference_unlinked_any_contribution": 0.020441246703294818,
+          "reference_a_refexp_joinable_contribution": 0.2319617945758617,
+          "reference_s_joinable_restricted_contribution": 0.2287080941021523,
+          "cell_weight_total": 111198860.079
+        },
+        "coresident_child.65-74|male": {
+          "reference_full_rate": 0.12415260918206435,
+          "reference_linked_any_contribution": 0.10908635530320777,
+          "reference_unlinked_any_contribution": 0.015066253878856583,
+          "reference_a_refexp_joinable_contribution": 0.08582318192147016,
+          "reference_s_joinable_restricted_contribution": 0.08995953542432644,
+          "cell_weight_total": 74293298.52
+        }
+      },
+      "q14_sim": {
+        "coresident_child.55-64|male": {
+          "sim_full": 0.2096269142929116,
+          "endowment_fertility_origin": -0.044786320638907993,
+          "coefficient_kernel_shift": -0.01765550664976293,
+          "d_sim": {
+            "0": 0.2637466132675642,
+            "1": 0.20710249355199237,
+            "2": 0.31532289903232363,
+            "3": 0.1416257570047172,
+            "4+": 0.07220223714340258
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.21848738486058542,
+            "2": 0.27415935750807574,
+            "3": 0.3446225263307129,
+            "4+": 0.40133351154085783
+          }
+        },
+        "coresident_child.65-74|male": {
+          "sim_full": 0.06877505436408235,
+          "endowment_fertility_origin": -0.013972649045010716,
+          "coefficient_kernel_shift": -0.041404905772971276,
+          "d_sim": {
+            "0": 0.2643284636098562,
+            "1": 0.18198221431722209,
+            "2": 0.2986527974064436,
+            "3": 0.15089969201975878,
+            "4+": 0.10413683264671933
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.09127518117468167,
+            "2": 0.07590920747092648,
+            "3": 0.11409429287009631,
+            "4+": 0.11801558153223668
+          }
+        },
+        "coresident_child.45-54|female": {
+          "sim_full": 0.60454903912495,
+          "endowment_fertility_origin": -0.03965978756323357,
+          "coefficient_kernel_shift": 0.0811309156474335,
+          "d_sim": {
+            "0": 0.18819076522758876,
+            "1": 0.18976399778154607,
+            "2": 0.33767401073913006,
+            "3": 0.18232787430117653,
+            "4+": 0.10204335195055865
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.678685145426508,
+            "2": 0.7177209643766094,
+            "3": 0.7962851384018151,
+            "4+": 0.8653256290338336
+          }
+        },
+        "coresident_child.65-74|female": {
+          "sim_full": 0.0879388592133021,
+          "endowment_fertility_origin": -0.010752777515710197,
+          "coefficient_kernel_shift": -0.022310677706212863,
+          "d_sim": {
+            "0": 0.21973769092365453,
+            "1": 0.1679514378420898,
+            "2": 0.2556056414028371,
+            "3": 0.17896828975475076,
+            "4+": 0.17773694007666768
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.08999833835254108,
+            "2": 0.08757381001293464,
+            "3": 0.11896383022859694,
+            "4+": 0.1625221018020882
+          }
+        },
+        "coresident_child.25-34|male": {
+          "sim_full": 0.39094313430741945,
+          "endowment_fertility_origin": -0.018807264839799394,
+          "coefficient_kernel_shift": 0.02435038261441177,
+          "d_sim": {
+            "0": 0.3574162976807732,
+            "1": 0.24170111350194062,
+            "2": 0.2506452372084626,
+            "3": 0.10220346012325739,
+            "4+": 0.04803389148556616
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.461797256047091,
+            "2": 0.6401142229768468,
+            "3": 0.7568624457024168,
+            "4+": 0.8653036010377283
+          }
+        },
+        "coresident_child.35-44|male": {
+          "sim_full": 0.6603315213741567,
+          "endowment_fertility_origin": -0.040788757504745386,
+          "coefficient_kernel_shift": 0.041656464196225186,
+          "d_sim": {
+            "0": 0.2146393202708811,
+            "1": 0.23994866089501637,
+            "2": 0.3349757820274392,
+            "3": 0.1439778745538032,
+            "4+": 0.0664583622528602
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.705466678211772,
+            "2": 0.8700599522641743,
+            "3": 0.9429534549779163,
+            "4+": 0.9618304505577193
+          }
+        }
+      },
+      "q15_reference_hh": {
+        "3": 0.18012506278902857,
+        "4": 0.17643618588404092,
+        "5+": 0.13859974717727927
+      },
+      "q15_d_train_all": {
+        "0": 0.2500652342333754,
+        "1": 0.15373325633076634,
+        "2": 0.2949298315930249,
+        "3": 0.18489017521062007,
+        "4+": 0.11638150263221325
+      },
+      "q15_h_train": {
+        "3": {
+          "0": 0.1381726469977242,
+          "1": 0.32731918056997605,
+          "2": 0.1812516084658492,
+          "3": 0.15330012914164218,
+          "4+": 0.11559268064499412
+        },
+        "4": {
+          "0": 0.12774146577238488,
+          "1": 0.06178595261475094,
+          "2": 0.31041175784710845,
+          "3": 0.17116878390243287,
+          "4+": 0.10136333054590904
+        },
+        "5+": {
+          "0": 0.11651139955760204,
+          "1": 0.0674204114211934,
+          "2": 0.04591854579442988,
+          "3": 0.2591596713267223,
+          "4+": 0.3234252050069192
+        }
+      },
+      "q15_hh_sim": {
+        "3": {
+          "sim": 0.17920063440129863,
+          "counterfactual_lever": 0.17350439782443014,
+          "h_sim": {
+            "0": 0.1634771385794987,
+            "1": 0.26328940686971497,
+            "2": 0.18600394645727908,
+            "3": 0.1345840877671622,
+            "4+": 0.10660390651047531
+          }
+        },
+        "4": {
+          "sim": 0.1685995739495278,
+          "counterfactual_lever": 0.1790153491886808,
+          "h_sim": {
+            "0": 0.07202374174651664,
+            "1": 0.10171461656377134,
+            "2": 0.305948966493127,
+            "3": 0.2140161766106959,
+            "4+": 0.1337397284819503
+          }
+        },
+        "5+": {
+          "sim": 0.12770233713308854,
+          "counterfactual_lever": 0.14483623359571823,
+          "h_sim": {
+            "0": 0.050657896212104495,
+            "1": 0.08063547107232913,
+            "2": 0.08807376472570226,
+            "3": 0.2803493923362679,
+            "4+": 0.3605613568593029
+          }
+        }
+      },
+      "q15_d_sim_all": {
+        "0": 0.30011701583867134,
+        "1": 0.18797843368909484,
+        "2": 0.27738877814776786,
+        "3": 0.14510392334928562,
+        "4+": 0.08941184897518031
+      },
+      "q16_female": {
+        "15-24": {
+          "legal": 0.08557178005148472,
+          "cohab": 0.08110460718723059,
+          "lr": 0.0005683407655374939,
+          "full": 0.1672447280042528
+        },
+        "25-34": {
+          "legal": 0.5112603279849449,
+          "cohab": 0.08038978870870209,
+          "lr": 9.292929629106833e-05,
+          "full": 0.5917430459899381
+        },
+        "35-44": {
+          "legal": 0.6945413475646592,
+          "cohab": 0.024423593678487426,
+          "lr": 4.876630604070121e-07,
+          "full": 0.7189654289062071
+        },
+        "45-54": {
+          "legal": 0.7205000578451488,
+          "cohab": 0.016620905930248245,
+          "lr": 0.0,
+          "full": 0.7371209637753973
+        },
+        "55-64": {
+          "legal": 0.6778992864632986,
+          "cohab": 0.011962242029678435,
+          "lr": 4.791254430316175e-08,
+          "full": 0.6898615764055213
+        },
+        "65-74": {
+          "legal": 0.5462958715230946,
+          "cohab": 0.012256075260017273,
+          "lr": 0.018590276943728817,
+          "full": 0.5771422237268408
+        },
+        "75+": {
+          "legal": 0.30181052775083617,
+          "cohab": 0.012572110774069393,
+          "lr": 0.010635179895196335,
+          "full": 0.32501781842010186
+        }
+      },
+      "fertility_train_size_dist_all": {
+        "0": 0.2500652342333754,
+        "1": 0.15373325633076634,
+        "2": 0.2949298315930249,
+        "3": 0.18489017521062007,
+        "4+": 0.11638150263221325
+      },
+      "fertility_sim_size_dist_all": {
+        "0": 0.30011701583867134,
+        "1": 0.18797843368909484,
+        "2": 0.27738877814776786,
+        "3": 0.14510392334928562,
+        "4+": 0.08941184897518031
+      },
+      "fertility_train_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.1569867170004985,
+          "1": 0.14183180284218103,
+          "2": 0.3631866650099493,
+          "3": 0.20798251869281198,
+          "4+": 0.13001229645455925
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.14456514127056425,
+          "1": 0.13311771914848614,
+          "2": 0.32760229459253254,
+          "3": 0.21757465877825452,
+          "4+": 0.17714018621016267
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.14053143850813532,
+          "1": 0.1661986898372023,
+          "2": 0.3548172411389893,
+          "3": 0.2334755015928517,
+          "4+": 0.10497712892282139
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.12270671129235647,
+          "1": 0.15331160758072387,
+          "2": 0.3164289490806991,
+          "3": 0.20784498909364707,
+          "4+": 0.19970774295257343
+        }
+      },
+      "fertility_sim_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.2637466132675642,
+          "1": 0.20710249355199237,
+          "2": 0.31532289903232363,
+          "3": 0.1416257570047172,
+          "4+": 0.07220223714340258
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.2643284636098562,
+          "1": 0.18198221431722209,
+          "2": 0.2986527974064436,
+          "3": 0.15089969201975878,
+          "4+": 0.10413683264671933
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.18819076522758876,
+          "1": 0.18976399778154607,
+          "2": 0.33767401073913006,
+          "3": 0.18232787430117653,
+          "4+": 0.10204335195055865
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.21973769092365453,
+          "1": 0.1679514378420898,
+          "2": 0.2556056414028371,
+          "3": 0.17896828975475076,
+          "4+": 0.17773694007666768
+        }
+      },
+      "elapsed_seconds": 83.4
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 23452,
+      "linked_episode_persistence_rho": 0.8851508796215057,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.1511628357083355,
+        "coresident_child.15-24|male": 0.05313385908695844,
+        "coresident_child.25-34|female": 0.5658848285984781,
+        "coresident_child.25-34|male": 0.38071879887494997,
+        "coresident_child.35-44|female": 0.7703680252474665,
+        "coresident_child.35-44|male": 0.6601882010922548,
+        "coresident_child.45-54|female": 0.5587043935796281,
+        "coresident_child.45-54|male": 0.5620573248768549,
+        "coresident_child.55-64|female": 0.2470516802176979,
+        "coresident_child.55-64|male": 0.2672922893980057,
+        "coresident_child.65-74|female": 0.12507603311715762,
+        "coresident_child.65-74|male": 0.13750370843225906,
+        "coresident_grandchild.45-54|female": 0.045887862222390656,
+        "coresident_grandchild.55+|female": 0.06656198993320385,
+        "coresident_parent.15-24|female": 0.6924432670263201,
+        "coresident_parent.15-24|male": 0.7516556916834256,
+        "coresident_parent.25-34|female": 0.09613456539781164,
+        "coresident_parent.25-34|male": 0.15520797682402326,
+        "coresident_spouse.15-24|female": 0.16223896668283538,
+        "coresident_spouse.15-24|male": 0.09798371538984368,
+        "coresident_spouse.25-34|female": 0.6119063541873795,
+        "coresident_spouse.25-34|male": 0.5545169230946048,
+        "coresident_spouse.35-44|female": 0.708032897651364,
+        "coresident_spouse.35-44|male": 0.7376943941639124,
+        "coresident_spouse.45-54|female": 0.6982299188725865,
+        "coresident_spouse.45-54|male": 0.7701871087041647,
+        "coresident_spouse.55-64|female": 0.6780678243626834,
+        "coresident_spouse.55-64|male": 0.7939623211012564,
+        "coresident_spouse.65-74|female": 0.5912816449354025,
+        "coresident_spouse.65-74|male": 0.8226882487747267,
+        "coresident_spouse.75+|female": 0.3342485537481171,
+        "coresident_spouse.75+|male": 0.7406852675800523,
+        "hh_size.1": 0.1801181158930735,
+        "hh_size.2": 0.32198665332950854,
+        "hh_size.3": 0.181816853260391,
+        "hh_size.4": 0.17423774600123873,
+        "hh_size.5+": 0.14184063151578838,
+        "multigen.15-24|female": 0.08875404827378874,
+        "multigen.25-34|female": 0.040163713626370806,
+        "multigen.45-54|female": 0.048883291722554775,
+        "multigen_entry": 0.013369624313180674,
+        "multigen_exit": 0.2989168856468003,
+        "parental_home_exit.15-24|female": 0.19189950937983008,
+        "parental_home_exit.15-24|male": 0.145461350422045,
+        "parental_home_exit.25-34|female": 0.24120139990892592,
+        "parental_home_exit.25-34|male": 0.25391060277341354
+      },
+      "q14_train_dk": {
+        "coresident_child.55-64|male": {
+          "d_train": {
+            "0": 0.14781341254873387,
+            "1": 0.14196096124753133,
+            "2": 0.37055236911310035,
+            "3": 0.22001437566900583,
+            "4+": 0.11965888142162855
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.2725580491136485,
+            "2": 0.27910960448356914,
+            "3": 0.340213825170102,
+            "4+": 0.4205540669429412
+          },
+          "ref_full": 0.26729228939800564
+        },
+        "coresident_child.65-74|male": {
+          "d_train": {
+            "0": 0.12950315087839173,
+            "1": 0.1414332579469178,
+            "2": 0.3428877695865225,
+            "3": 0.22392116704121282,
+            "4+": 0.16225465454695517
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.1929680546799107,
+            "2": 0.1349844780510906,
+            "3": 0.17320978690213437,
+            "4+": 0.15495237172440826
+          },
+          "ref_full": 0.13750370843225906
+        },
+        "coresident_child.45-54|female": {
+          "d_train": {
+            "0": 0.15382817888753286,
+            "1": 0.16278871572010306,
+            "2": 0.3581853849567147,
+            "3": 0.2120365611700419,
+            "4+": 0.11316115926560766
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.5335688746438948,
+            "2": 0.6389602971321389,
+            "3": 0.7156197856005369,
+            "4+": 0.8062978841499532
+          },
+          "ref_full": 0.5587043935796281
+        },
+        "coresident_child.65-74|female": {
+          "d_train": {
+            "0": 0.12178896912951309,
+            "1": 0.15522039649215172,
+            "2": 0.31231218933609356,
+            "3": 0.2078201467471052,
+            "4+": 0.2028582982951364
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.24393013099707256,
+            "2": 0.10265315426312294,
+            "3": 0.10545467110262871,
+            "4+": 0.1638467105997542
+          },
+          "ref_full": 0.12507603311715762
+        },
+        "coresident_child.25-34|male": {
+          "d_train": {
+            "0": 0.3659902803493899,
+            "1": 0.1688828419464591,
+            "2": 0.2434565130601809,
+            "3": 0.1345676661306137,
+            "4+": 0.08710269851335625
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.3926376736709559,
+            "2": 0.6070347943162264,
+            "3": 0.7331985629978655,
+            "4+": 0.7802013035951669
+          },
+          "ref_full": 0.38071879887494986
+        },
+        "coresident_child.35-44|male": {
+          "d_train": {
+            "0": 0.19979953992389785,
+            "1": 0.15598725375505582,
+            "2": 0.32170020078880046,
+            "3": 0.19995104692968294,
+            "4+": 0.12256195860256282
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.6546022261401506,
+            "2": 0.851980686655244,
+            "3": 0.8809218858639618,
+            "4+": 0.8800037748867158
+          },
+          "ref_full": 0.6601882010922546
+        }
+      },
+      "q14_linked_reference": {
+        "coresident_child.55-64|male": {
+          "reference_full_rate": 0.2672922893980057,
+          "reference_linked_any_contribution": 0.2505673051981797,
+          "reference_unlinked_any_contribution": 0.016724984199825987,
+          "reference_a_refexp_joinable_contribution": 0.24229539860820537,
+          "reference_s_joinable_restricted_contribution": 0.23192735572671516,
+          "cell_weight_total": 110466210.606
+        },
+        "coresident_child.65-74|male": {
+          "reference_full_rate": 0.13750370843225904,
+          "reference_linked_any_contribution": 0.12164110624720294,
+          "reference_unlinked_any_contribution": 0.01586260218505612,
+          "reference_a_refexp_joinable_contribution": 0.09205913853949312,
+          "reference_s_joinable_restricted_contribution": 0.10563621284660045,
+          "cell_weight_total": 75537024.255
+        }
+      },
+      "q14_sim": {
+        "coresident_child.55-64|male": {
+          "sim_full": 0.221424274766165,
+          "endowment_fertility_origin": -0.0462552897983146,
+          "coefficient_kernel_shift": 0.0003872751664739522,
+          "d_sim": {
+            "0": 0.25365460744181684,
+            "1": 0.19805725990171383,
+            "2": 0.3194255806456844,
+            "3": 0.1588689149105001,
+            "4+": 0.06999363710028485
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.22721432520909843,
+            "2": 0.27236986679232283,
+            "3": 0.35673166892015123,
+            "4+": 0.4680856535628493
+          }
+        },
+        "coresident_child.65-74|male": {
+          "sim_full": 0.07023398249897077,
+          "endowment_fertility_origin": -0.015270051072270484,
+          "coefficient_kernel_shift": -0.051999674861017794,
+          "d_sim": {
+            "0": 0.262984064051677,
+            "1": 0.18385259819102204,
+            "2": 0.28963081612924213,
+            "3": 0.15808351429411233,
+            "4+": 0.10544900733394665
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.08493793650224346,
+            "2": 0.08649611284676405,
+            "3": 0.10124517891867502,
+            "4+": 0.13042206225041972
+          }
+        },
+        "coresident_child.45-54|female": {
+          "sim_full": 0.5868763695258038,
+          "endowment_fertility_origin": -0.046830496768350896,
+          "coefficient_kernel_shift": 0.07500247271452654,
+          "d_sim": {
+            "0": 0.21025942834712202,
+            "1": 0.19217791841295614,
+            "2": 0.32856499941046374,
+            "3": 0.17884619145866168,
+            "4+": 0.09015146237079652
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.6850731515253323,
+            "2": 0.7288228319640938,
+            "3": 0.779531769908269,
+            "4+": 0.8469493062687554
+          }
+        },
+        "coresident_child.65-74|female": {
+          "sim_full": 0.09456294820568563,
+          "endowment_fertility_origin": -0.014084400119284112,
+          "coefficient_kernel_shift": -0.01642868479218788,
+          "d_sim": {
+            "0": 0.23552414222580703,
+            "1": 0.16304714917324376,
+            "2": 0.2605775797866683,
+            "3": 0.1655012545953781,
+            "4+": 0.17534987421890294
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.10441100503253002,
+            "2": 0.10146056317505228,
+            "3": 0.12546237534164648,
+            "4+": 0.17095505160950503
+          }
+        },
+        "coresident_child.25-34|male": {
+          "sim_full": 0.3769842100745755,
+          "endowment_fertility_origin": -0.023409441990546384,
+          "coefficient_kernel_shift": 0.019674853190172027,
+          "d_sim": {
+            "0": 0.35982379993306385,
+            "1": 0.24606845737219857,
+            "2": 0.2469231214334986,
+            "3": 0.10054639825559952,
+            "4+": 0.04663822300563926
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.43601695585930644,
+            "2": 0.630544277181136,
+            "3": 0.7442623567071455,
+            "4+": 0.8391715903959943
+          }
+        },
+        "coresident_child.35-44|male": {
+          "sim_full": 0.6529085800837842,
+          "endowment_fertility_origin": -0.04231804485302649,
+          "coefficient_kernel_shift": 0.03503842384455606,
+          "d_sim": {
+            "0": 0.2215362139480097,
+            "1": 0.24069950589162198,
+            "2": 0.320416873256588,
+            "3": 0.14827680807147736,
+            "4+": 0.0690705988323028
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.693634850848981,
+            "2": 0.876212345255631,
+            "3": 0.9355362947228862,
+            "4+": 0.9635067994800425
+          }
+        }
+      },
+      "q15_reference_hh": {
+        "3": 0.181816853260391,
+        "4": 0.1742377460012387,
+        "5+": 0.14184063151578835
+      },
+      "q15_d_train_all": {
+        "0": 0.25317821438681365,
+        "1": 0.15578626469592546,
+        "2": 0.2938834825575609,
+        "3": 0.1793896620820415,
+        "4+": 0.11776237627765859
+      },
+      "q15_h_train": {
+        "3": {
+          "0": 0.13879824597597806,
+          "1": 0.33138558528302775,
+          "2": 0.18304661149318766,
+          "3": 0.15515135911471792,
+          "4+": 0.11399152737939738
+        },
+        "4": {
+          "0": 0.1293465982741417,
+          "1": 0.05880297125078278,
+          "2": 0.30674193093297814,
+          "3": 0.1673851998403146,
+          "4+": 0.10322268459017468
+        },
+        "5+": {
+          "0": 0.12659535152856716,
+          "1": 0.061448328732054046,
+          "2": 0.04562547746588062,
+          "3": 0.2578748898840735,
+          "4+": 0.3443203048040158
+        }
+      },
+      "q15_hh_sim": {
+        "3": {
+          "sim": 0.17983357218887114,
+          "counterfactual_lever": 0.1739502386408159,
+          "h_sim": {
+            "0": 0.16453758313617722,
+            "1": 0.26223716504149636,
+            "2": 0.18666304084601062,
+            "3": 0.13422480958956334,
+            "4+": 0.10618188412929722
+          }
+        },
+        "4": {
+          "sim": 0.16560208017533598,
+          "counterfactual_lever": 0.1767922164881271,
+          "h_sim": {
+            "0": 0.0713967312374056,
+            "1": 0.10256829892858085,
+            "2": 0.3051800286560029,
+            "3": 0.21154696005607027,
+            "4+": 0.12823008981322453
+          }
+        },
+        "5+": {
+          "sim": 0.12908206220770474,
+          "counterfactual_lever": 0.14677947309996658,
+          "h_sim": {
+            "0": 0.05189850174828066,
+            "1": 0.08530736917876255,
+            "2": 0.09179797832930078,
+            "3": 0.2823949887296804,
+            "4+": 0.3627095247878075
+          }
+        }
+      },
+      "q15_d_sim_all": {
+        "0": 0.30777561926232694,
+        "1": 0.19173011083505606,
+        "2": 0.2704387993945309,
+        "3": 0.14336246955883175,
+        "4+": 0.08669300094925436
+      },
+      "q16_female": {
+        "15-24": {
+          "legal": 0.07987345088103215,
+          "cohab": 0.08355855161849234,
+          "lr": 0.006096455296283221,
+          "full": 0.16952845779580766
+        },
+        "25-34": {
+          "legal": 0.48862755214867637,
+          "cohab": 0.09063693846436342,
+          "lr": 0.0025608270764223766,
+          "full": 0.5818253176894621
+        },
+        "35-44": {
+          "legal": 0.6824036736738,
+          "cohab": 0.02812108209831341,
+          "lr": 0.0004738930415775426,
+          "full": 0.710998648813691
+        },
+        "45-54": {
+          "legal": 0.718334216344264,
+          "cohab": 0.015504165362579217,
+          "lr": 9.914608472102514e-06,
+          "full": 0.7338482963153153
+        },
+        "55-64": {
+          "legal": 0.6802054245518074,
+          "cohab": 0.011492792048763401,
+          "lr": 5.068206823509271e-06,
+          "full": 0.6917032848073943
+        },
+        "65-74": {
+          "legal": 0.5632671206019569,
+          "cohab": 0.00793741372157764,
+          "lr": 0.008548506962835836,
+          "full": 0.5797530412863704
+        },
+        "75+": {
+          "legal": 0.3094792258967894,
+          "cohab": 0.008245979399918425,
+          "lr": 0.0074868513008717,
+          "full": 0.3252120565975795
+        }
+      },
+      "fertility_train_size_dist_all": {
+        "0": 0.25317821438681365,
+        "1": 0.15578626469592546,
+        "2": 0.2938834825575609,
+        "3": 0.1793896620820415,
+        "4+": 0.11776237627765859
+      },
+      "fertility_sim_size_dist_all": {
+        "0": 0.30777561926232694,
+        "1": 0.19173011083505606,
+        "2": 0.2704387993945309,
+        "3": 0.14336246955883175,
+        "4+": 0.08669300094925436
+      },
+      "fertility_train_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.14781341254873387,
+          "1": 0.14196096124753133,
+          "2": 0.37055236911310035,
+          "3": 0.22001437566900583,
+          "4+": 0.11965888142162855
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.12950315087839173,
+          "1": 0.1414332579469178,
+          "2": 0.3428877695865225,
+          "3": 0.22392116704121282,
+          "4+": 0.16225465454695517
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.15382817888753286,
+          "1": 0.16278871572010306,
+          "2": 0.3581853849567147,
+          "3": 0.2120365611700419,
+          "4+": 0.11316115926560766
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.12178896912951309,
+          "1": 0.15522039649215172,
+          "2": 0.31231218933609356,
+          "3": 0.2078201467471052,
+          "4+": 0.2028582982951364
+        }
+      },
+      "fertility_sim_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.25365460744181684,
+          "1": 0.19805725990171383,
+          "2": 0.3194255806456844,
+          "3": 0.1588689149105001,
+          "4+": 0.06999363710028485
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.262984064051677,
+          "1": 0.18385259819102204,
+          "2": 0.28963081612924213,
+          "3": 0.15808351429411233,
+          "4+": 0.10544900733394665
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.21025942834712202,
+          "1": 0.19217791841295614,
+          "2": 0.32856499941046374,
+          "3": 0.17884619145866168,
+          "4+": 0.09015146237079652
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.23552414222580703,
+          "1": 0.16304714917324376,
+          "2": 0.2605775797866683,
+          "3": 0.1655012545953781,
+          "4+": 0.17534987421890294
+        }
+      },
+      "elapsed_seconds": 83.9
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 23478,
+      "linked_episode_persistence_rho": 0.880211740732193,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.1398631945623175,
+        "coresident_child.15-24|male": 0.05329938904639872,
+        "coresident_child.25-34|female": 0.5588269749725004,
+        "coresident_child.25-34|male": 0.39533739939631035,
+        "coresident_child.35-44|female": 0.7635054721590988,
+        "coresident_child.35-44|male": 0.6562152102552118,
+        "coresident_child.45-54|female": 0.5649615517683009,
+        "coresident_child.45-54|male": 0.5547808211604051,
+        "coresident_child.55-64|female": 0.2530616849259454,
+        "coresident_child.55-64|male": 0.26988366413772463,
+        "coresident_child.65-74|female": 0.12985968722740585,
+        "coresident_child.65-74|male": 0.14468000375533768,
+        "coresident_grandchild.45-54|female": 0.046340791444503336,
+        "coresident_grandchild.55+|female": 0.06727656813294278,
+        "coresident_parent.15-24|female": 0.705920415022049,
+        "coresident_parent.15-24|male": 0.7592943811884588,
+        "coresident_parent.25-34|female": 0.10170251980052127,
+        "coresident_parent.25-34|male": 0.15318451520736184,
+        "coresident_spouse.15-24|female": 0.1491810152377456,
+        "coresident_spouse.15-24|male": 0.0979093931399612,
+        "coresident_spouse.25-34|female": 0.6180977148810307,
+        "coresident_spouse.25-34|male": 0.5657444901381089,
+        "coresident_spouse.35-44|female": 0.7124677791505141,
+        "coresident_spouse.35-44|male": 0.747688202627402,
+        "coresident_spouse.45-54|female": 0.6973801296718622,
+        "coresident_spouse.45-54|male": 0.7691554292053668,
+        "coresident_spouse.55-64|female": 0.6719144237901487,
+        "coresident_spouse.55-64|male": 0.781054200058777,
+        "coresident_spouse.65-74|female": 0.5928656339047959,
+        "coresident_spouse.65-74|male": 0.8076564991192985,
+        "coresident_spouse.75+|female": 0.32394165004252284,
+        "coresident_spouse.75+|male": 0.7027436723227495,
+        "hh_size.1": 0.17552259230171532,
+        "hh_size.2": 0.3242503463994118,
+        "hh_size.3": 0.18210054659754332,
+        "hh_size.4": 0.17667302732542084,
+        "hh_size.5+": 0.1414534873759086,
+        "multigen.15-24|female": 0.09372809294130136,
+        "multigen.25-34|female": 0.04012405516628253,
+        "multigen.45-54|female": 0.05008242413936031,
+        "multigen_entry": 0.013762387361552426,
+        "multigen_exit": 0.3037480251423434,
+        "parental_home_exit.15-24|female": 0.18413084350873263,
+        "parental_home_exit.15-24|male": 0.1392638070216247,
+        "parental_home_exit.25-34|female": 0.24649975961896578,
+        "parental_home_exit.25-34|male": 0.2454649012012588
+      },
+      "q14_train_dk": {
+        "coresident_child.55-64|male": {
+          "d_train": {
+            "0": 0.16718119157904568,
+            "1": 0.1465587833273833,
+            "2": 0.3515708913666429,
+            "3": 0.20914177482223748,
+            "4+": 0.12554735890469076
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.2718149780390997,
+            "2": 0.3146702629260894,
+            "3": 0.3433611922595293,
+            "4+": 0.3791933028599738
+          },
+          "ref_full": 0.2698836641377247
+        },
+        "coresident_child.65-74|male": {
+          "d_train": {
+            "0": 0.14116696991932298,
+            "1": 0.14470872678766827,
+            "2": 0.33027268905134793,
+            "3": 0.22657916044978038,
+            "4+": 0.1572724537918804
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.21431568069107362,
+            "2": 0.11874215330692053,
+            "3": 0.20490794673933477,
+            "4+": 0.1781716567535098
+          },
+          "ref_full": 0.1446800037553377
+        },
+        "coresident_child.45-54|female": {
+          "d_train": {
+            "0": 0.14861953689112062,
+            "1": 0.1605214838341081,
+            "2": 0.3556653280396714,
+            "3": 0.21925666184919593,
+            "4+": 0.11593698938590397
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.5237433026560645,
+            "2": 0.6373399881559976,
+            "3": 0.7411834947826569,
+            "4+": 0.7909498540493655
+          },
+          "ref_full": 0.5649615517683009
+        },
+        "coresident_child.65-74|female": {
+          "d_train": {
+            "0": 0.1232585156574761,
+            "1": 0.15923738703899679,
+            "2": 0.31712109863106586,
+            "3": 0.20514697398622952,
+            "4+": 0.19523602468623175
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.21657791369390314,
+            "2": 0.11497909901179593,
+            "3": 0.10406784647822212,
+            "4+": 0.19238705678572748
+          },
+          "ref_full": 0.12985968722740585
+        },
+        "coresident_child.25-34|male": {
+          "d_train": {
+            "0": 0.3590454135251568,
+            "1": 0.16843635107981594,
+            "2": 0.2459724937313019,
+            "3": 0.1377887313686276,
+            "4+": 0.0887570102950977
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.37843705668997857,
+            "2": 0.6406599770559105,
+            "3": 0.7469127105087133,
+            "4+": 0.8009953828245603
+          },
+          "ref_full": 0.39533739939631024
+        },
+        "coresident_child.35-44|male": {
+          "d_train": {
+            "0": 0.2000258304800883,
+            "1": 0.16329707628667117,
+            "2": 0.3218585514391081,
+            "3": 0.1940159749832776,
+            "4+": 0.12080256681085494
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.62692548871217,
+            "2": 0.8440280379185067,
+            "3": 0.89084095573439,
+            "4+": 0.905155374966841
+          },
+          "ref_full": 0.6562152102552118
+        }
+      },
+      "q14_linked_reference": {
+        "coresident_child.55-64|male": {
+          "reference_full_rate": 0.2698836641377247,
+          "reference_linked_any_contribution": 0.2501533169949047,
+          "reference_unlinked_any_contribution": 0.019730347142819987,
+          "reference_a_refexp_joinable_contribution": 0.23957314986385497,
+          "reference_s_joinable_restricted_contribution": 0.2326452716227026,
+          "cell_weight_total": 107824396.83399999
+        },
+        "coresident_child.65-74|male": {
+          "reference_full_rate": 0.14468000375533768,
+          "reference_linked_any_contribution": 0.12501993867743258,
+          "reference_unlinked_any_contribution": 0.019660065077905117,
+          "reference_a_refexp_joinable_contribution": 0.09613031196924533,
+          "reference_s_joinable_restricted_contribution": 0.10677429013085889,
+          "cell_weight_total": 72337696.664
+        }
+      },
+      "q14_sim": {
+        "coresident_child.55-64|male": {
+          "sim_full": 0.22343020833809452,
+          "endowment_fertility_origin": -0.040397963944873716,
+          "coefficient_kernel_shift": -0.006055491854756438,
+          "d_sim": {
+            "0": 0.25861162103442625,
+            "1": 0.2120147798475002,
+            "2": 0.31299721744381787,
+            "3": 0.14818046832664372,
+            "4+": 0.06819591334761206
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.25040672300888994,
+            "2": 0.28117989686378825,
+            "3": 0.3633754565474462,
+            "4+": 0.41639436459605683
+          }
+        },
+        "coresident_child.65-74|male": {
+          "sim_full": 0.07755072510059371,
+          "endowment_fertility_origin": -0.016451148807083364,
+          "coefficient_kernel_shift": -0.05067812984766061,
+          "d_sim": {
+            "0": 0.2676374267855967,
+            "1": 0.18646624059586328,
+            "2": 0.28588107552699726,
+            "3": 0.16015049318767455,
+            "4+": 0.09986476390386828
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.09122787318984399,
+            "2": 0.09324304527211011,
+            "3": 0.12874182244368454,
+            "4+": 0.13247430612977712
+          }
+        },
+        "coresident_child.45-54|female": {
+          "sim_full": 0.5976223626397855,
+          "endowment_fertility_origin": -0.04425772398239291,
+          "coefficient_kernel_shift": 0.07691853485387766,
+          "d_sim": {
+            "0": 0.1998683277150734,
+            "1": 0.19117922976833102,
+            "2": 0.337243630646639,
+            "3": 0.17842564373658448,
+            "4+": 0.09328316813337215
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.6860632208508641,
+            "2": 0.7232176911567164,
+            "3": 0.7956457608628933,
+            "4+": 0.8632112152185085
+          }
+        },
+        "coresident_child.65-74|female": {
+          "sim_full": 0.09785901224157999,
+          "endowment_fertility_origin": -0.013617258859354489,
+          "coefficient_kernel_shift": -0.018383416126471368,
+          "d_sim": {
+            "0": 0.22803368627684528,
+            "1": 0.1644328153449052,
+            "2": 0.27193136273284224,
+            "3": 0.16058064865864602,
+            "4+": 0.17502148698676126
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.096875840946183,
+            "2": 0.10979741046971529,
+            "3": 0.12624827307692751,
+            "4+": 0.1809680808166414
+          }
+        },
+        "coresident_child.25-34|male": {
+          "sim_full": 0.3957482478031399,
+          "endowment_fertility_origin": -0.024104191224649803,
+          "coefficient_kernel_shift": 0.024515039631479475,
+          "d_sim": {
+            "0": 0.35571779534653086,
+            "1": 0.2376865372608651,
+            "2": 0.25308367375905927,
+            "3": 0.10218430274813492,
+            "4+": 0.05132769088540967
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.4425330141891818,
+            "2": 0.6632485414968068,
+            "3": 0.7702038320003904,
+            "4+": 0.856805406247488
+          }
+        },
+        "coresident_child.35-44|male": {
+          "sim_full": 0.6481827783451884,
+          "endowment_fertility_origin": -0.04365660865076116,
+          "coefficient_kernel_shift": 0.03562417674073783,
+          "d_sim": {
+            "0": 0.22485994136548526,
+            "1": 0.24092646505384682,
+            "2": 0.32162122259326104,
+            "3": 0.1443576588320517,
+            "4+": 0.06823471215535523
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.692289115115656,
+            "2": 0.8715487444478592,
+            "3": 0.9379237336209633,
+            "4+": 0.962752676435987
+          }
+        }
+      },
+      "q15_reference_hh": {
+        "3": 0.18210054659754332,
+        "4": 0.1766730273254209,
+        "5+": 0.1414534873759086
+      },
+      "q15_d_train_all": {
+        "0": 0.25747983176010714,
+        "1": 0.15638002551969957,
+        "2": 0.2916618704576511,
+        "3": 0.17777146588399867,
+        "4+": 0.11670680637854362
+      },
+      "q15_h_train": {
+        "3": {
+          "0": 0.13773672151985217,
+          "1": 0.3300359855903712,
+          "2": 0.18224950834775677,
+          "3": 0.15689090167071096,
+          "4+": 0.11977985885828371
+        },
+        "4": {
+          "0": 0.1317397557899245,
+          "1": 0.05580419567851025,
+          "2": 0.3138868300254751,
+          "3": 0.17040887817859843,
+          "4+": 0.104393051027156
+        },
+        "5+": {
+          "0": 0.12625163653961066,
+          "1": 0.05826549888780472,
+          "2": 0.048080766573804494,
+          "3": 0.26203324646417475,
+          "4+": 0.33613563431582166
+        }
+      },
+      "q15_hh_sim": {
+        "3": {
+          "sim": 0.18140146255202302,
+          "counterfactual_lever": 0.17559528528967996,
+          "h_sim": {
+            "0": 0.16588414416443334,
+            "1": 0.26427269375777784,
+            "2": 0.18775648919388352,
+            "3": 0.13613898236883765,
+            "4+": 0.10790679881334335
+          }
+        },
+        "4": {
+          "sim": 0.16909361861045258,
+          "counterfactual_lever": 0.1793331651871888,
+          "h_sim": {
+            "0": 0.07313851539637121,
+            "1": 0.10438917194796693,
+            "2": 0.30783336731934735,
+            "3": 0.21783788807121143,
+            "4+": 0.13425502137887918
+          }
+        },
+        "5+": {
+          "sim": 0.12866827158405802,
+          "counterfactual_lever": 0.14586144944474874,
+          "h_sim": {
+            "0": 0.052595319688053796,
+            "1": 0.086428284248421,
+            "2": 0.0931524552585597,
+            "3": 0.2805315120600095,
+            "4+": 0.3578543695579113
+          }
+        }
+      },
+      "q15_d_sim_all": {
+        "0": 0.3078544673101591,
+        "1": 0.19035889611420947,
+        "2": 0.2747519145789451,
+        "3": 0.13959912382493248,
+        "4+": 0.08743559817175368
+      },
+      "q16_female": {
+        "15-24": {
+          "legal": 0.08026847783010707,
+          "cohab": 0.07515095872093597,
+          "lr": 0.0,
+          "full": 0.15541943655104307
+        },
+        "25-34": {
+          "legal": 0.503362766745197,
+          "cohab": 0.07899441841487587,
+          "lr": 0.0,
+          "full": 0.5823571851600728
+        },
+        "35-44": {
+          "legal": 0.6883264192229572,
+          "cohab": 0.026224245408549222,
+          "lr": 0.0,
+          "full": 0.7145506646315065
+        },
+        "45-54": {
+          "legal": 0.7158346591212429,
+          "cohab": 0.01686993029687408,
+          "lr": 0.0,
+          "full": 0.732704589418117
+        },
+        "55-64": {
+          "legal": 0.6744947147385474,
+          "cohab": 0.013317149445700355,
+          "lr": 3.336512587968654e-08,
+          "full": 0.6878118975493737
+        },
+        "65-74": {
+          "legal": 0.548539549347929,
+          "cohab": 0.01137629563020127,
+          "lr": 0.01917628077952083,
+          "full": 0.5790921257576513
+        },
+        "75+": {
+          "legal": 0.2998697866677712,
+          "cohab": 0.010142087236091205,
+          "lr": 0.017236441545260904,
+          "full": 0.3272483154491232
+        }
+      },
+      "fertility_train_size_dist_all": {
+        "0": 0.25747983176010714,
+        "1": 0.15638002551969957,
+        "2": 0.2916618704576511,
+        "3": 0.17777146588399867,
+        "4+": 0.11670680637854362
+      },
+      "fertility_sim_size_dist_all": {
+        "0": 0.3078544673101591,
+        "1": 0.19035889611420947,
+        "2": 0.2747519145789451,
+        "3": 0.13959912382493248,
+        "4+": 0.08743559817175368
+      },
+      "fertility_train_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.16718119157904568,
+          "1": 0.1465587833273833,
+          "2": 0.3515708913666429,
+          "3": 0.20914177482223748,
+          "4+": 0.12554735890469076
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.14116696991932298,
+          "1": 0.14470872678766827,
+          "2": 0.33027268905134793,
+          "3": 0.22657916044978038,
+          "4+": 0.1572724537918804
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.14861953689112062,
+          "1": 0.1605214838341081,
+          "2": 0.3556653280396714,
+          "3": 0.21925666184919593,
+          "4+": 0.11593698938590397
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.1232585156574761,
+          "1": 0.15923738703899679,
+          "2": 0.31712109863106586,
+          "3": 0.20514697398622952,
+          "4+": 0.19523602468623175
+        }
+      },
+      "fertility_sim_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.25861162103442625,
+          "1": 0.2120147798475002,
+          "2": 0.31299721744381787,
+          "3": 0.14818046832664372,
+          "4+": 0.06819591334761206
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.2676374267855967,
+          "1": 0.18646624059586328,
+          "2": 0.28588107552699726,
+          "3": 0.16015049318767455,
+          "4+": 0.09986476390386828
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.1998683277150734,
+          "1": 0.19117922976833102,
+          "2": 0.337243630646639,
+          "3": 0.17842564373658448,
+          "4+": 0.09328316813337215
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.22803368627684528,
+          "1": 0.1644328153449052,
+          "2": 0.27193136273284224,
+          "3": 0.16058064865864602,
+          "4+": 0.17502148698676126
+        }
+      },
+      "elapsed_seconds": 84.1
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 23484,
+      "linked_episode_persistence_rho": 0.8612495958805084,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15265688108532682,
+        "coresident_child.15-24|male": 0.04909956888809355,
+        "coresident_child.25-34|female": 0.5579857331371875,
+        "coresident_child.25-34|male": 0.380804418350654,
+        "coresident_child.35-44|female": 0.7710613778109919,
+        "coresident_child.35-44|male": 0.6593078347131237,
+        "coresident_child.45-54|female": 0.5562101685241292,
+        "coresident_child.45-54|male": 0.5410891047621881,
+        "coresident_child.55-64|female": 0.24516558060560092,
+        "coresident_child.55-64|male": 0.2600108190831476,
+        "coresident_child.65-74|female": 0.12508634581897585,
+        "coresident_child.65-74|male": 0.13241914416056058,
+        "coresident_grandchild.45-54|female": 0.04609343249499775,
+        "coresident_grandchild.55+|female": 0.06152256513958865,
+        "coresident_parent.15-24|female": 0.6971339666572091,
+        "coresident_parent.15-24|male": 0.7707377238227826,
+        "coresident_parent.25-34|female": 0.1005539563102775,
+        "coresident_parent.25-34|male": 0.15293404290751422,
+        "coresident_spouse.15-24|female": 0.15962218484880378,
+        "coresident_spouse.15-24|male": 0.09748305660984581,
+        "coresident_spouse.25-34|female": 0.6205372002121678,
+        "coresident_spouse.25-34|male": 0.5631157675697752,
+        "coresident_spouse.35-44|female": 0.7190922059251045,
+        "coresident_spouse.35-44|male": 0.7478724696880955,
+        "coresident_spouse.45-54|female": 0.6968605442387006,
+        "coresident_spouse.45-54|male": 0.7617622262526913,
+        "coresident_spouse.55-64|female": 0.6840049252804771,
+        "coresident_spouse.55-64|male": 0.7731703720451946,
+        "coresident_spouse.65-74|female": 0.5832129378683362,
+        "coresident_spouse.65-74|male": 0.816818669410028,
+        "coresident_spouse.75+|female": 0.28521476377920796,
+        "coresident_spouse.75+|male": 0.7247182698693979,
+        "hh_size.1": 0.18048968966315232,
+        "hh_size.2": 0.3234872389390206,
+        "hh_size.3": 0.18435936804148906,
+        "hh_size.4": 0.17417577650329527,
+        "hh_size.5+": 0.1374879268530427,
+        "multigen.15-24|female": 0.09527881617541563,
+        "multigen.25-34|female": 0.0402781346618892,
+        "multigen.45-54|female": 0.0468301948180048,
+        "multigen_entry": 0.013768686115784542,
+        "multigen_exit": 0.30617958832383296,
+        "parental_home_exit.15-24|female": 0.195414494482521,
+        "parental_home_exit.15-24|male": 0.14291487390966534,
+        "parental_home_exit.25-34|female": 0.25799668980324186,
+        "parental_home_exit.25-34|male": 0.25819035512182903
+      },
+      "q14_train_dk": {
+        "coresident_child.55-64|male": {
+          "d_train": {
+            "0": 0.1509856427539418,
+            "1": 0.14114727715359188,
+            "2": 0.36413353902045925,
+            "3": 0.2425611389115653,
+            "4+": 0.1011724021604417
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.31493313629335323,
+            "2": 0.25681780232732154,
+            "3": 0.34496100874277746,
+            "4+": 0.3792413067688039
+          },
+          "ref_full": 0.2600108190831476
+        },
+        "coresident_child.65-74|male": {
+          "d_train": {
+            "0": 0.13731540194665226,
+            "1": 0.13651885617621323,
+            "2": 0.3451912664136088,
+            "3": 0.23263508406271896,
+            "4+": 0.14833939140080662
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.26024352582631327,
+            "2": 0.11119826543952839,
+            "3": 0.16004687386879368,
+            "4+": 0.14341307093202849
+          },
+          "ref_full": 0.13241914416056055
+        },
+        "coresident_child.45-54|female": {
+          "d_train": {
+            "0": 0.14154318364944862,
+            "1": 0.164188864776467,
+            "2": 0.37116627579852574,
+            "3": 0.21494988114179878,
+            "4+": 0.10815179463375989
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.5273409194732472,
+            "2": 0.617680198988191,
+            "3": 0.7202864656015302,
+            "4+": 0.7909171792596654
+          },
+          "ref_full": 0.5562101685241292
+        },
+        "coresident_child.65-74|female": {
+          "d_train": {
+            "0": 0.12030024305111099,
+            "1": 0.142792846412044,
+            "2": 0.3292332513123494,
+            "3": 0.22491665896725968,
+            "4+": 0.1827570002572359
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.20559650618788408,
+            "2": 0.1228511878370777,
+            "3": 0.10955907665990836,
+            "4+": 0.16765583788221344
+          },
+          "ref_full": 0.12508634581897587
+        },
+        "coresident_child.25-34|male": {
+          "d_train": {
+            "0": 0.3648166956536088,
+            "1": 0.17379562963818737,
+            "2": 0.24673189268143025,
+            "3": 0.13467453763793594,
+            "4+": 0.07998124438883754
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.4095890911941883,
+            "2": 0.6017061435110664,
+            "3": 0.7286756090908499,
+            "4+": 0.7880032183337952
+          },
+          "ref_full": 0.38080441835065393
+        },
+        "coresident_child.35-44|male": {
+          "d_train": {
+            "0": 0.1969949795539508,
+            "1": 0.15820128193418903,
+            "2": 0.3392241408155438,
+            "3": 0.19496079875857503,
+            "4+": 0.11061879893774136
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.6660709735550666,
+            "2": 0.8551088953144005,
+            "3": 0.8592351764102487,
+            "4+": 0.8709531935943341
+          },
+          "ref_full": 0.6593078347131237
+        }
+      },
+      "q14_linked_reference": {
+        "coresident_child.55-64|male": {
+          "reference_full_rate": 0.2600108190831476,
+          "reference_linked_any_contribution": 0.24000223861828815,
+          "reference_unlinked_any_contribution": 0.020008580464859448,
+          "reference_a_refexp_joinable_contribution": 0.22264503196443802,
+          "reference_s_joinable_restricted_contribution": 0.21991107771808927,
+          "cell_weight_total": 111608808.577
+        },
+        "coresident_child.65-74|male": {
+          "reference_full_rate": 0.13241914416056055,
+          "reference_linked_any_contribution": 0.11054025324650028,
+          "reference_unlinked_any_contribution": 0.021878890914060246,
+          "reference_a_refexp_joinable_contribution": 0.08199322291707252,
+          "reference_s_joinable_restricted_contribution": 0.09533285163231259,
+          "cell_weight_total": 74444268.24000001
+        }
+      },
+      "q14_sim": {
+        "coresident_child.55-64|male": {
+          "sim_full": 0.20586181505063408,
+          "endowment_fertility_origin": -0.040559571146607146,
+          "coefficient_kernel_shift": -0.01358943288590635,
+          "d_sim": {
+            "0": 0.24749953565172705,
+            "1": 0.20318787066976465,
+            "2": 0.3294485765644784,
+            "3": 0.1616167298381786,
+            "4+": 0.058247287275851156
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.21832835249254354,
+            "2": 0.25191576590252696,
+            "3": 0.3299294858754802,
+            "4+": 0.43337789311710545
+          }
+        },
+        "coresident_child.65-74|male": {
+          "sim_full": 0.06485847362665943,
+          "endowment_fertility_origin": -0.012701602292025296,
+          "coefficient_kernel_shift": -0.05485906824187583,
+          "d_sim": {
+            "0": 0.2558507235049423,
+            "1": 0.18429793597901312,
+            "2": 0.3068041062660058,
+            "3": 0.1585522181371636,
+            "4+": 0.09449501611287514
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.08199622857150793,
+            "2": 0.07418906748484844,
+            "3": 0.09743568292169195,
+            "4+": 0.1219478384411451
+          }
+        },
+        "coresident_child.45-54|female": {
+          "sim_full": 0.5845764958622769,
+          "endowment_fertility_origin": -0.048335858321123366,
+          "coefficient_kernel_shift": 0.07670218565927099,
+          "d_sim": {
+            "0": 0.20040493637498433,
+            "1": 0.1887873609884494,
+            "2": 0.34755632843326,
+            "3": 0.16778073627785378,
+            "4+": 0.09547063792545249
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.66800283854286,
+            "2": 0.7033107619541936,
+            "3": 0.7899732877244475,
+            "4+": 0.854205205038965
+          }
+        },
+        "coresident_child.65-74|female": {
+          "sim_full": 0.08132370710607022,
+          "endowment_fertility_origin": -0.012910630447491795,
+          "coefficient_kernel_shift": -0.030852008265413854,
+          "d_sim": {
+            "0": 0.23374371216023299,
+            "1": 0.15656598135677877,
+            "2": 0.2772226031229077,
+            "3": 0.171164966399107,
+            "4+": 0.1613027369609735
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.08638906782172653,
+            "2": 0.08165749059282096,
+            "3": 0.10989124948551501,
+            "4+": 0.16578222892621225
+          }
+        },
+        "coresident_child.25-34|male": {
+          "sim_full": 0.3798165442953504,
+          "endowment_fertility_origin": -0.02238219550074772,
+          "coefficient_kernel_shift": 0.021394321445444137,
+          "d_sim": {
+            "0": 0.35845438078947295,
+            "1": 0.25329332772556234,
+            "2": 0.24549038429064832,
+            "3": 0.09908883072000221,
+            "4+": 0.04367307647431406
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.44989030531312596,
+            "2": 0.6302375242603285,
+            "3": 0.7499980103952757,
+            "4+": 0.8440033529478674
+          }
+        },
+        "coresident_child.35-44|male": {
+          "sim_full": 0.6566344675805161,
+          "endowment_fertility_origin": -0.04147811078241043,
+          "coefficient_kernel_shift": 0.03880474364980287,
+          "d_sim": {
+            "0": 0.2179015142208391,
+            "1": 0.2513291958504898,
+            "2": 0.32385872294219026,
+            "3": 0.14635535910916528,
+            "4+": 0.060555207877315644
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.7017840260519528,
+            "2": 0.8834482897718721,
+            "3": 0.930138401243274,
+            "4+": 0.9588056831554267
+          }
+        }
+      },
+      "q15_reference_hh": {
+        "3": 0.18435936804148903,
+        "4": 0.17417577650329524,
+        "5+": 0.13748792685304267
+      },
+      "q15_d_train_all": {
+        "0": 0.24970663887749595,
+        "1": 0.15425528782576264,
+        "2": 0.30214673695714883,
+        "3": 0.18152251247095794,
+        "4+": 0.1123688238686345
+      },
+      "q15_h_train": {
+        "3": {
+          "0": 0.13864122382611802,
+          "1": 0.34523310197318197,
+          "2": 0.18842728585045238,
+          "3": 0.15226775509890708,
+          "4+": 0.10601683866342813
+        },
+        "4": {
+          "0": 0.12633234732974413,
+          "1": 0.059768360033951036,
+          "2": 0.30388573382171574,
+          "3": 0.16359836058955818,
+          "4+": 0.10585940431012565
+        },
+        "5+": {
+          "0": 0.1242694557641866,
+          "1": 0.06221717760561287,
+          "2": 0.04213213716749648,
+          "3": 0.2494953072893516,
+          "4+": 0.345652699454357
+        }
+      },
+      "q15_hh_sim": {
+        "3": {
+          "sim": 0.18118282651671816,
+          "counterfactual_lever": 0.17508326050722836,
+          "h_sim": {
+            "0": 0.16290185581903274,
+            "1": 0.2665862066805923,
+            "2": 0.18775953169752277,
+            "3": 0.13566362378499858,
+            "4+": 0.10613550534643104
+          }
+        },
+        "4": {
+          "sim": 0.16656474279172706,
+          "counterfactual_lever": 0.1773814873982095,
+          "h_sim": {
+            "0": 0.07067577045673581,
+            "1": 0.10233593576512437,
+            "2": 0.29926911526791977,
+            "3": 0.21223340390857753,
+            "4+": 0.1334808998316464
+          }
+        },
+        "5+": {
+          "sim": 0.12416690347632393,
+          "counterfactual_lever": 0.14115322863763874,
+          "h_sim": {
+            "0": 0.049389851045817966,
+            "1": 0.08042963139524859,
+            "2": 0.08911174591684819,
+            "3": 0.26951644772528116,
+            "4+": 0.3610025592906957
+          }
+        }
+      },
+      "q15_d_sim_all": {
+        "0": 0.2991173733668751,
+        "1": 0.19257367798235586,
+        "2": 0.2817483048809368,
+        "3": 0.1418536026648578,
+        "4+": 0.08470704110497443
+      },
+      "q16_female": {
+        "15-24": {
+          "legal": 0.07993336217787009,
+          "cohab": 0.08391841058073687,
+          "lr": 0.0048051062494517596,
+          "full": 0.16865687900805867
+        },
+        "25-34": {
+          "legal": 0.5026760359355545,
+          "cohab": 0.08125471668020526,
+          "lr": 0.0009382601915931939,
+          "full": 0.584869012807353
+        },
+        "35-44": {
+          "legal": 0.6856111266620238,
+          "cohab": 0.025570873171801012,
+          "lr": 1.187104146325235e-05,
+          "full": 0.7111938708752882
+        },
+        "45-54": {
+          "legal": 0.7130674919706225,
+          "cohab": 0.01671074428989466,
+          "lr": 0.0,
+          "full": 0.7297782362605173
+        },
+        "55-64": {
+          "legal": 0.6727186874514359,
+          "cohab": 0.01404378708528379,
+          "lr": 0.0,
+          "full": 0.6867624745367197
+        },
+        "65-74": {
+          "legal": 0.5453296635801663,
+          "cohab": 0.012367243892170992,
+          "lr": 0.0,
+          "full": 0.5576969074723374
+        },
+        "75+": {
+          "legal": 0.28299268972962466,
+          "cohab": 0.010352815228798957,
+          "lr": 0.0,
+          "full": 0.2933455049584236
+        }
+      },
+      "fertility_train_size_dist_all": {
+        "0": 0.24970663887749595,
+        "1": 0.15425528782576264,
+        "2": 0.30214673695714883,
+        "3": 0.18152251247095794,
+        "4+": 0.1123688238686345
+      },
+      "fertility_sim_size_dist_all": {
+        "0": 0.2991173733668751,
+        "1": 0.19257367798235586,
+        "2": 0.2817483048809368,
+        "3": 0.1418536026648578,
+        "4+": 0.08470704110497443
+      },
+      "fertility_train_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.1509856427539418,
+          "1": 0.14114727715359188,
+          "2": 0.36413353902045925,
+          "3": 0.2425611389115653,
+          "4+": 0.1011724021604417
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.13731540194665226,
+          "1": 0.13651885617621323,
+          "2": 0.3451912664136088,
+          "3": 0.23263508406271896,
+          "4+": 0.14833939140080662
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.14154318364944862,
+          "1": 0.164188864776467,
+          "2": 0.37116627579852574,
+          "3": 0.21494988114179878,
+          "4+": 0.10815179463375989
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.12030024305111099,
+          "1": 0.142792846412044,
+          "2": 0.3292332513123494,
+          "3": 0.22491665896725968,
+          "4+": 0.1827570002572359
+        }
+      },
+      "fertility_sim_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.24749953565172705,
+          "1": 0.20318787066976465,
+          "2": 0.3294485765644784,
+          "3": 0.1616167298381786,
+          "4+": 0.058247287275851156
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.2558507235049423,
+          "1": 0.18429793597901312,
+          "2": 0.3068041062660058,
+          "3": 0.1585522181371636,
+          "4+": 0.09449501611287514
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.20040493637498433,
+          "1": 0.1887873609884494,
+          "2": 0.34755632843326,
+          "3": 0.16778073627785378,
+          "4+": 0.09547063792545249
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.23374371216023299,
+          "1": 0.15656598135677877,
+          "2": 0.2772226031229077,
+          "3": 0.171164966399107,
+          "4+": 0.1613027369609735
+        }
+      },
+      "elapsed_seconds": 85.5
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 23569,
+      "linked_episode_persistence_rho": 0.8749271333217621,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15034145398698687,
+        "coresident_child.15-24|male": 0.05484611979139655,
+        "coresident_child.25-34|female": 0.5625528300994921,
+        "coresident_child.25-34|male": 0.3850412392629711,
+        "coresident_child.35-44|female": 0.7636038560534274,
+        "coresident_child.35-44|male": 0.6562316130159411,
+        "coresident_child.45-54|female": 0.5565894604967248,
+        "coresident_child.45-54|male": 0.5440802083638135,
+        "coresident_child.55-64|female": 0.23801968638666507,
+        "coresident_child.55-64|male": 0.24252307069662854,
+        "coresident_child.65-74|female": 0.10738717033597385,
+        "coresident_child.65-74|male": 0.12927475825171747,
+        "coresident_grandchild.45-54|female": 0.041950270886163356,
+        "coresident_grandchild.55+|female": 0.05694084187949786,
+        "coresident_parent.15-24|female": 0.6898043413369168,
+        "coresident_parent.15-24|male": 0.7544383110964245,
+        "coresident_parent.25-34|female": 0.09869633976968453,
+        "coresident_parent.25-34|male": 0.15734074093356426,
+        "coresident_spouse.15-24|female": 0.16424138402139107,
+        "coresident_spouse.15-24|male": 0.10251208134315432,
+        "coresident_spouse.25-34|female": 0.625151861028996,
+        "coresident_spouse.25-34|male": 0.5590870181787914,
+        "coresident_spouse.35-44|female": 0.7035392431059231,
+        "coresident_spouse.35-44|male": 0.7459487513792726,
+        "coresident_spouse.45-54|female": 0.693052058609109,
+        "coresident_spouse.45-54|male": 0.7611393069917511,
+        "coresident_spouse.55-64|female": 0.6803015977835829,
+        "coresident_spouse.55-64|male": 0.7651594749549719,
+        "coresident_spouse.65-74|female": 0.5960321174669782,
+        "coresident_spouse.65-74|male": 0.8106792136628171,
+        "coresident_spouse.75+|female": 0.3109167687614151,
+        "coresident_spouse.75+|male": 0.7166142112250509,
+        "hh_size.1": 0.18203749869203584,
+        "hh_size.2": 0.3286100096596938,
+        "hh_size.3": 0.1782504791744526,
+        "hh_size.4": 0.1738390208181082,
+        "hh_size.5+": 0.13726299165570963,
+        "multigen.15-24|female": 0.08627374622279266,
+        "multigen.25-34|female": 0.04380050458209941,
+        "multigen.45-54|female": 0.048225266980696284,
+        "multigen_entry": 0.013165458846356946,
+        "multigen_exit": 0.31162588723868534,
+        "parental_home_exit.15-24|female": 0.1890915910646025,
+        "parental_home_exit.15-24|male": 0.14129998962559595,
+        "parental_home_exit.25-34|female": 0.2740600502058679,
+        "parental_home_exit.25-34|male": 0.23327589192616993
+      },
+      "q14_train_dk": {
+        "coresident_child.55-64|male": {
+          "d_train": {
+            "0": 0.16006798329504804,
+            "1": 0.13969032632339032,
+            "2": 0.367617556159359,
+            "3": 0.21399565401871062,
+            "4+": 0.11862848020349219
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.24711561684165242,
+            "2": 0.24025026304140945,
+            "3": 0.35321468559651237,
+            "4+": 0.3717217589368488
+          },
+          "ref_full": 0.2425230706966286
+        },
+        "coresident_child.65-74|male": {
+          "d_train": {
+            "0": 0.13090808536998313,
+            "1": 0.12676515281636747,
+            "2": 0.3453261384933808,
+            "3": 0.22455051169591977,
+            "4+": 0.17245011162434873
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.17432952600567986,
+            "2": 0.1057555968563686,
+            "3": 0.17983675970818,
+            "4+": 0.1755478187944976
+          },
+          "ref_full": 0.12927475825171744
+        },
+        "coresident_child.45-54|female": {
+          "d_train": {
+            "0": 0.1433215905051526,
+            "1": 0.17442638992288761,
+            "2": 0.346779627917616,
+            "3": 0.22426077182587237,
+            "4+": 0.11121161982847147
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.5308139587284183,
+            "2": 0.6215786111280899,
+            "3": 0.7103223292372068,
+            "4+": 0.8016542228601813
+          },
+          "ref_full": 0.5565894604967249
+        },
+        "coresident_child.65-74|female": {
+          "d_train": {
+            "0": 0.11245242616818694,
+            "1": 0.16479143740949578,
+            "2": 0.3184020256623142,
+            "3": 0.2151032903541034,
+            "4+": 0.18925082040589966
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.19687480630338663,
+            "2": 0.09672558438746806,
+            "3": 0.08081954092092303,
+            "4+": 0.1414087229782431
+          },
+          "ref_full": 0.10738717033597384
+        },
+        "coresident_child.25-34|male": {
+          "d_train": {
+            "0": 0.366655747144067,
+            "1": 0.17431171893362415,
+            "2": 0.23748380725716048,
+            "3": 0.13893517425287777,
+            "4+": 0.08261355241227071
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.38521538782055204,
+            "2": 0.6363217348302357,
+            "3": 0.7358189775187545,
+            "4+": 0.7813056681314274
+          },
+          "ref_full": 0.3850412392629711
+        },
+        "coresident_child.35-44|male": {
+          "d_train": {
+            "0": 0.20624224423403814,
+            "1": 0.16543258626787652,
+            "2": 0.3282975947776675,
+            "3": 0.18566962555726024,
+            "4+": 0.11435794916315753
+          },
+          "k_train": {
+            "0": 0.0,
+            "1": 0.6404132409625057,
+            "2": 0.8605477616796692,
+            "3": 0.9005254509791961,
+            "4+": 0.8794352415414813
+          },
+          "ref_full": 0.6562316130159411
+        }
+      },
+      "q14_linked_reference": {
+        "coresident_child.55-64|male": {
+          "reference_full_rate": 0.2425230706966286,
+          "reference_linked_any_contribution": 0.22063151867865044,
+          "reference_unlinked_any_contribution": 0.021891552017978152,
+          "reference_a_refexp_joinable_contribution": 0.21727280988907924,
+          "reference_s_joinable_restricted_contribution": 0.20236054105794196,
+          "cell_weight_total": 113462663.35799998
+        },
+        "coresident_child.65-74|male": {
+          "reference_full_rate": 0.12927475825171744,
+          "reference_linked_any_contribution": 0.11565611210944857,
+          "reference_unlinked_any_contribution": 0.013618646142268875,
+          "reference_a_refexp_joinable_contribution": 0.09399299647359298,
+          "reference_s_joinable_restricted_contribution": 0.10388480006571262,
+          "cell_weight_total": 76471047.71800001
+        }
+      },
+      "q14_sim": {
+        "coresident_child.55-64|male": {
+          "sim_full": 0.20348036262998725,
+          "endowment_fertility_origin": -0.037691880904985986,
+          "coefficient_kernel_shift": -0.001350827161655382,
+          "d_sim": {
+            "0": 0.25328287564319496,
+            "1": 0.19678331778006636,
+            "2": 0.33302257080576303,
+            "3": 0.1492078241476987,
+            "4+": 0.06770341162327716
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.22854836276156112,
+            "2": 0.24234685649166826,
+            "3": 0.34154867606060696,
+            "4+": 0.3967458458560302
+          }
+        },
+        "coresident_child.65-74|male": {
+          "sim_full": 0.07559200547659481,
+          "endowment_fertility_origin": -0.01322205277536911,
+          "coefficient_kernel_shift": -0.04046069999975352,
+          "d_sim": {
+            "0": 0.24566626704629294,
+            "1": 0.17702195161913026,
+            "2": 0.30323930688858197,
+            "3": 0.1625048225771191,
+            "4+": 0.1115676518688756
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.09271432769186976,
+            "2": 0.0961690592150978,
+            "3": 0.09604836351466314,
+            "4+": 0.12921831762170144
+          }
+        },
+        "coresident_child.45-54|female": {
+          "sim_full": 0.5967078384559906,
+          "endowment_fertility_origin": -0.042711756111575024,
+          "coefficient_kernel_shift": 0.08283013407084072,
+          "d_sim": {
+            "0": 0.19632283740709888,
+            "1": 0.19499922365487657,
+            "2": 0.33078556192167413,
+            "3": 0.1758227279934496,
+            "4+": 0.10206964902290086
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.7003284444764434,
+            "2": 0.7092036392928541,
+            "3": 0.784025260297424,
+            "4+": 0.8587263473677329
+          }
+        },
+        "coresident_child.65-74|female": {
+          "sim_full": 0.10005193150708154,
+          "endowment_fertility_origin": -0.01349234821516084,
+          "coefficient_kernel_shift": 0.0061571093862685545,
+          "d_sim": {
+            "0": 0.21978665899063424,
+            "1": 0.16654141491193014,
+            "2": 0.26882429677789293,
+            "3": 0.16949358643185355,
+            "4+": 0.17535404288768908
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.09908002480458804,
+            "2": 0.10465313142675932,
+            "3": 0.12710868472060446,
+            "4+": 0.19314830225601173
+          }
+        },
+        "coresident_child.25-34|male": {
+          "sim_full": 0.3867817259277169,
+          "endowment_fertility_origin": -0.021883011157428887,
+          "coefficient_kernel_shift": 0.02362349782217462,
+          "d_sim": {
+            "0": 0.3610068500613004,
+            "1": 0.24650080152868012,
+            "2": 0.24479558377344274,
+            "3": 0.1036911115619071,
+            "4+": 0.04400565307466971
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.4483189146801707,
+            "2": 0.6549634237559889,
+            "3": 0.7657041926571655,
+            "4+": 0.8302638188678217
+          }
+        },
+        "coresident_child.35-44|male": {
+          "sim_full": 0.6543400572586278,
+          "endowment_fertility_origin": -0.03824664202867486,
+          "coefficient_kernel_shift": 0.03635508627136151,
+          "d_sim": {
+            "0": 0.22543070043417993,
+            "1": 0.24685318396016598,
+            "2": 0.32272967746073716,
+            "3": 0.1431534121716561,
+            "4+": 0.06183302597326077
+          },
+          "k_sim": {
+            "0": 0.0,
+            "1": 0.7013824418117062,
+            "2": 0.8924539164435584,
+            "3": 0.9325557545810652,
+            "4+": 0.965542288934491
+          }
+        }
+      },
+      "q15_reference_hh": {
+        "3": 0.1782504791744526,
+        "4": 0.1738390208181082,
+        "5+": 0.13726299165570963
+      },
+      "q15_d_train_all": {
+        "0": 0.2520826263071442,
+        "1": 0.15744762095288187,
+        "2": 0.29432485703746203,
+        "3": 0.18199758937231475,
+        "4+": 0.11414730633019723
+      },
+      "q15_h_train": {
+        "3": {
+          "0": 0.13570779485715675,
+          "1": 0.3247779405387905,
+          "2": 0.17975009937152456,
+          "3": 0.1446604804834773,
+          "4+": 0.1197803713012896
+        },
+        "4": {
+          "0": 0.1268138623908838,
+          "1": 0.060108634855220104,
+          "2": 0.30686957050794483,
+          "3": 0.16633215521135725,
+          "4+": 0.10351618803105042
+        },
+        "5+": {
+          "0": 0.12611830155678563,
+          "1": 0.05921854426732767,
+          "2": 0.04246505014558063,
+          "3": 0.2537097785988328,
+          "4+": 0.32829379289893545
+        }
+      },
+      "q15_hh_sim": {
+        "3": {
+          "sim": 0.1788041304859122,
+          "counterfactual_lever": 0.17323495674390718,
+          "h_sim": {
+            "0": 0.16230608483655362,
+            "1": 0.26320560585380226,
+            "2": 0.18321156958962687,
+            "3": 0.1350594009038587,
+            "4+": 0.10841352401335196
+          }
+        },
+        "4": {
+          "sim": 0.16518711888072382,
+          "counterfactual_lever": 0.17512124129752157,
+          "h_sim": {
+            "0": 0.07128415709766855,
+            "1": 0.10192086649114643,
+            "2": 0.302028322546589,
+            "3": 0.20746471576209596,
+            "4+": 0.12660854880494463
+          }
+        },
+        "5+": {
+          "sim": 0.12654240237378186,
+          "counterfactual_lever": 0.14289497222256625,
+          "h_sim": {
+            "0": 0.05044971278812058,
+            "1": 0.08397253941922134,
+            "2": 0.09065275388417027,
+            "3": 0.2721446139753701,
+            "4+": 0.3569525935243295
+          }
+        }
+      },
+      "q15_d_sim_all": {
+        "0": 0.3013379398464113,
+        "1": 0.19175977711884767,
+        "2": 0.27690297754638393,
+        "3": 0.14113065648813156,
+        "4+": 0.08886864900022566
+      },
+      "q16_female": {
+        "15-24": {
+          "legal": 0.08037576286534373,
+          "cohab": 0.08503630703819555,
+          "lr": 0.0034422393334795397,
+          "full": 0.1688543092370188
+        },
+        "25-34": {
+          "legal": 0.5093757802152519,
+          "cohab": 0.08716755580263903,
+          "lr": 0.00044908025869568795,
+          "full": 0.5969924162765866
+        },
+        "35-44": {
+          "legal": 0.6954993855146154,
+          "cohab": 0.02640083186788404,
+          "lr": 6.191206808175681e-06,
+          "full": 0.7219064085893077
+        },
+        "45-54": {
+          "legal": 0.7120236697198337,
+          "cohab": 0.018502802370271635,
+          "lr": 0.0,
+          "full": 0.7305264720901053
+        },
+        "55-64": {
+          "legal": 0.6707942264631371,
+          "cohab": 0.013290565440969382,
+          "lr": 0.0,
+          "full": 0.6840847919041064
+        },
+        "65-74": {
+          "legal": 0.5535639310292751,
+          "cohab": 0.012953433752399842,
+          "lr": 0.004067249506577626,
+          "full": 0.5705846142882526
+        },
+        "75+": {
+          "legal": 0.3021136320618919,
+          "cohab": 0.012641510068240564,
+          "lr": 0.00227480089693417,
+          "full": 0.3170299430270666
+        }
+      },
+      "fertility_train_size_dist_all": {
+        "0": 0.2520826263071442,
+        "1": 0.15744762095288187,
+        "2": 0.29432485703746203,
+        "3": 0.18199758937231475,
+        "4+": 0.11414730633019723
+      },
+      "fertility_sim_size_dist_all": {
+        "0": 0.3013379398464113,
+        "1": 0.19175977711884767,
+        "2": 0.27690297754638393,
+        "3": 0.14113065648813156,
+        "4+": 0.08886864900022566
+      },
+      "fertility_train_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.16006798329504804,
+          "1": 0.13969032632339032,
+          "2": 0.367617556159359,
+          "3": 0.21399565401871062,
+          "4+": 0.11862848020349219
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.13090808536998313,
+          "1": 0.12676515281636747,
+          "2": 0.3453261384933808,
+          "3": 0.22455051169591977,
+          "4+": 0.17245011162434873
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.1433215905051526,
+          "1": 0.17442638992288761,
+          "2": 0.346779627917616,
+          "3": 0.22426077182587237,
+          "4+": 0.11121161982847147
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.11245242616818694,
+          "1": 0.16479143740949578,
+          "2": 0.3184020256623142,
+          "3": 0.2151032903541034,
+          "4+": 0.18925082040589966
+        }
+      },
+      "fertility_sim_size_dist_cell": {
+        "coresident_child.55-64|male": {
+          "0": 0.25328287564319496,
+          "1": 0.19678331778006636,
+          "2": 0.33302257080576303,
+          "3": 0.1492078241476987,
+          "4+": 0.06770341162327716
+        },
+        "coresident_child.65-74|male": {
+          "0": 0.24566626704629294,
+          "1": 0.17702195161913026,
+          "2": 0.30323930688858197,
+          "3": 0.1625048225771191,
+          "4+": 0.1115676518688756
+        },
+        "coresident_child.45-54|female": {
+          "0": 0.19632283740709888,
+          "1": 0.19499922365487657,
+          "2": 0.33078556192167413,
+          "3": 0.1758227279934496,
+          "4+": 0.10206964902290086
+        },
+        "coresident_child.65-74|female": {
+          "0": 0.21978665899063424,
+          "1": 0.16654141491193014,
+          "2": 0.26882429677789293,
+          "3": 0.16949358643185355,
+          "4+": 0.17535404288768908
+        }
+      },
+      "elapsed_seconds": 83.2
+    }
+  ],
+  "candidate_8_implications": "C8 design implications (LABELED implications, NOT decisions -- the orchestrator registers c8). Q14: the older-parent adult-child supply deficit is rooted in the completed-family-size (3+-coresident-child) shortfall forensics-3/4 named, seen from the parent side (sim under-produces 3+ families by -0.12 to -0.14 at the older male cohorts). But the deficit's coresidence footprint is NOT uniformly fertility: fertility-origin dominates at 55-64|male (younger adult children still coreside) while at 65-74|male the fertility endowment is attenuated by a near-zero adult-child coresidence kernel, and exit-origin + link-coverage co-dominate. Q15: the single fertility-core lift PROVES convergence for hh_size.5+ and 55-64|male (a necessary and there sufficient c8 lever, leaving hh_size.3/.4 and the cleared child cells in tolerance) but is INSUFFICIENT at 65-74|male -- c8 needs the fertility-core lift PLUS a second mechanism for the oldest band (adult-child retention at 65-74, or enumerated-link coverage of the coresident children outside the joinable draw basis). Q16: the cohabitation-overlay lift at 25-34|female clears the fragile spouse cell without collateral -- so the two-lever c8 (fertility-core + cohab-overlay) the registration anticipated is CORROBORATED for the spouse cell and the hh_size / 55-64|male supply, but the 65-74|male blocker (candidate 7's 0/5 cell) is NOT closed by fertility alone and remains the surviving surface. If c8 carries the fertility-core lift, the cohab-overlay lift, and an oldest-band adult-child retention mechanism, all three measured blockers are addressed; on two levers alone, 65-74|male still blocks.",
+  "revision_pins": {
+    "populace_dynamics_head_sha": "b088fb5b0a45bdb2bd9bcebb0ff7c7fb31f99191",
+    "merge_base_origin_master": "b088fb5b0a45bdb2bd9bcebb0ff7c7fb31f99191",
+    "candidate7_artifact": "runs/gate2b_hazard_v7.json",
+    "candidate7_artifact_sha256": "28d3dd82fcacadb654690eae423e4fa53c83d1176c9036e64b8e2fa01c854ac5",
+    "candidate7_runner": "scripts/run_gate2b_candidate7.py",
+    "candidate7_runner_sha256": "56903eaa38a1cfb326bc5f73881b4a76cb95bd685811245149cf4ce0dc8ea57f",
+    "forensics3_artifact_sha256": "704d564d23be94dd084dfe411d819bdf04eab3bcf48468c5819d11e190cba6b2",
+    "forensics4_artifact_sha256": "862477ecf9f770793d65d24a0c56ab3a96cf8f78a845ae7721e41bd27dca3a8e",
+    "gate2b_floor_run": "runs/gate2b_floors_v1.json",
+    "gate2b_floor_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821",
+    "family_transitions_spec_sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1",
+    "sklearn_version": "1.9.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "schema_version": "gate2b_forensics5.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 83.4,
+    "1": 83.9,
+    "2": 84.1,
+    "3": 85.5,
+    "4": 83.2
+  },
+  "total_per_seed_compute_seconds": 420.1,
+  "elapsed_seconds": 34.5
+}
