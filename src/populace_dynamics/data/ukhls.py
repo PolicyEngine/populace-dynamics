@@ -173,7 +173,7 @@ def load_wave(
     df = pd.read_stata(
         path, convert_categoricals=False, columns=["pidp"] + prefixed
     )
-    df = df.rename(columns=dict(zip(prefixed, columns)))
+    df = df.rename(columns=dict(zip(prefixed, columns, strict=True)))
     df["wave"] = wave_num
     df["year"] = WAVE_YEAR_START[wave_num]
     return df
@@ -231,7 +231,7 @@ def _age_band(age: float) -> str | None:
         return None
     if a < AGE_BAND_EDGES[0] or a >= AGE_BAND_EDGES[-1]:
         return None
-    for lo, hi in zip(AGE_BAND_EDGES, AGE_BAND_EDGES[1:]):
+    for lo, hi in zip(AGE_BAND_EDGES, AGE_BAND_EDGES[1:], strict=False):
         if lo <= a < hi:
             return f"{lo}-{hi - 1}"
     return None
@@ -408,6 +408,7 @@ def load_employment_transitions(
             zip(
                 group["state_to"].astype(str),
                 group["probability"].astype(float),
+                strict=True,
             )
         )
     return nested
@@ -432,6 +433,7 @@ def load_income_decile_transitions(
             zip(
                 group["decile_to"].astype(int),
                 group["probability"].astype(float),
+                strict=True,
             )
         )
     return nested

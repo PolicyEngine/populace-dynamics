@@ -192,7 +192,8 @@ def get_mortality_rates(
     out: dict[str, dict[int, float]] = {MALE: {}, FEMALE: {}}
     for sex, group in sub.groupby("sex"):
         out[str(sex)] = {
-            int(a): float(q) for a, q in zip(group["age"], group["qx"])
+            int(a): float(q)
+            for a, q in zip(group["age"], group["qx"], strict=True)
         }
     return out
 

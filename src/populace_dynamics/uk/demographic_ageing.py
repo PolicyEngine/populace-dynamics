@@ -30,7 +30,7 @@ or sex-specific ``Mapping[str, Mapping[int, float]]`` keyed by
 
 from __future__ import annotations
 
-from typing import Mapping, Union
+from collections.abc import Mapping
 
 import numpy as np
 import pandas as pd
@@ -52,7 +52,7 @@ __all__ = [
 # Type aliases — either age-only or sex-specific age-indexed rates.
 AgeOnlyRates = Mapping[int, float]
 SexSpecificRates = Mapping[str, Mapping[int, float]]
-MortalityRates = Union[AgeOnlyRates, SexSpecificRates]
+MortalityRates = AgeOnlyRates | SexSpecificRates
 
 
 AGE_COLUMN = "age"
@@ -166,7 +166,7 @@ def _apply_mortality(
         rates = np.array(
             [
                 float(mortality_rates.get(str(s), {}).get(int(a), 0.0))
-                for a, s in zip(ages, sexes)
+                for a, s in zip(ages, sexes, strict=True)
             ],
             dtype=float,
         )
@@ -207,7 +207,7 @@ def _apply_fertility(
                 )
                 else 0.0
             )
-            for a, s in zip(ages, sexes)
+            for a, s in zip(ages, sexes, strict=True)
         ],
         dtype=float,
     )

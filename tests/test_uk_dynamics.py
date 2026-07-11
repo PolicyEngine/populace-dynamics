@@ -484,6 +484,7 @@ def test_income_decile_transitions_with_committed_tables():
 
 
 def test_ons_mortality_shape_and_sanity():
+    pytest.importorskip("openpyxl")
     rates = ons_rates.get_mortality_rates(2023)
     for sex in ("MALE", "FEMALE"):
         assert set(range(0, 101)) <= set(rates[sex])
@@ -495,6 +496,7 @@ def test_ons_mortality_shape_and_sanity():
 
 
 def test_ons_mortality_unisex_average():
+    pytest.importorskip("openpyxl")
     rates = ons_rates.get_mortality_rates(2023)
     uni = ons_rates.get_mortality_rates_unisex(2023)
     expected = 0.5 * rates["MALE"][50] + 0.5 * rates["FEMALE"][50]
@@ -502,6 +504,7 @@ def test_ons_mortality_unisex_average():
 
 
 def test_ons_fertility_shape_and_sanity():
+    pytest.importorskip("openpyxl")
     rates = ons_rates.get_fertility_rates(2024)
     assert set(rates) <= set(range(15, 50))
     assert 44 in rates  # "40 and over" capped to 40-44
@@ -511,6 +514,7 @@ def test_ons_fertility_shape_and_sanity():
 
 
 def test_ons_fertility_year_fallback():
+    pytest.importorskip("openpyxl")
     latest = ons_rates.get_fertility_rates(None)
     future = ons_rates.get_fertility_rates(2050)
     assert future == latest
@@ -522,6 +526,7 @@ def test_ons_fertility_year_fallback():
 
 
 def test_advance_year_end_to_end():
+    pytest.importorskip("openpyxl")
     ds = make_dataset(n_couples=100, n_singles=100, n_children=50)
     out = advance_year(
         ds,

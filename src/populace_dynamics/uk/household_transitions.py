@@ -48,7 +48,7 @@ marriages, and family-unit migration.
 
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 import numpy as np
 import pandas as pd
@@ -194,7 +194,9 @@ def _draw_want_to_marry(
         [
             float(rates.get(str(sex), {}).get(int(age), 0.0))
             for age, sex in zip(
-                singles[AGE_COLUMN].astype(int), singles[SEX_COLUMN]
+                singles[AGE_COLUMN].astype(int),
+                singles[SEX_COLUMN],
+                strict=True,
             )
         ],
         dtype=float,
@@ -1089,7 +1091,7 @@ _UKHLS_AGE_EDGES = [16, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 121]
 def _ukhls_age_band_label(age: int) -> str | None:
     if age < _UKHLS_AGE_EDGES[0] or age >= _UKHLS_AGE_EDGES[-1]:
         return None
-    for lo, hi in zip(_UKHLS_AGE_EDGES, _UKHLS_AGE_EDGES[1:]):
+    for lo, hi in zip(_UKHLS_AGE_EDGES, _UKHLS_AGE_EDGES[1:], strict=False):
         if lo <= age < hi:
             return f"{lo}-{hi - 1}"
     return None

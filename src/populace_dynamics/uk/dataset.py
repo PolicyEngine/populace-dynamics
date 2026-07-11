@@ -70,7 +70,7 @@ class UKPanelDataset:
             if key not in getattr(self, table).columns:
                 raise ValueError(f"{table} table missing column {key!r}")
 
-    def copy(self) -> "UKPanelDataset":
+    def copy(self) -> UKPanelDataset:
         return UKPanelDataset(
             person=self.person.copy(),
             benunit=self.benunit.copy(),
@@ -101,7 +101,7 @@ class UKPanelDataset:
             )
 
     @classmethod
-    def from_policyengine(cls, ds) -> "UKPanelDataset":
+    def from_policyengine(cls, ds) -> UKPanelDataset:
         """Adapt a ``policyengine_uk.data.UKSingleYearDataset``."""
         return cls(
             person=ds.person.copy(),
