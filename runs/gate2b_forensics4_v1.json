@@ -1,0 +1,2167 @@
+{
+  "schema_version": "gate2b_forensics4.v1",
+  "run": "gate2b_forensics4_v1",
+  "gate": "gate_2b",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4947226688",
+  "registration_pointer": "4947226688",
+  "registration_title": "Gate-2b forensics 4 registration (diagnostic, not gated): linked-father supply, and two attribution checks (Q11 existence-vs-spell-length; Q12 spouse 25-34|female movement attribution; Q13 hh_size.5+ marginal seed)",
+  "grading_pointer": "4947225286",
+  "candidate_under_diagnosis": "gate-2b candidate 6 (PR #143, registration 4946285556; artifact runs/gate2b_hazard_v6.json; FAIL 0/5, one mechanism wide). Forensics 4 measures the surviving linked-father child SUPPLY blocker at coresident_child.{25-34|male, 35-44|male}, plus the attribution of the spouse 25-34|female movement and the hh_size.5+ marginal seed.",
+  "candidate6_artifact": "runs/gate2b_hazard_v6.json",
+  "forensics1_artifact": "runs/gate2b_forensics1_v1.json",
+  "forensics2_artifact": "runs/gate2b_forensics2_v1.json",
+  "forensics3_artifact": "runs/gate2b_forensics3_v1.json",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published per-seed scores read from runs/gate2b_hazard_v6.json; the holdout (side A) is NEVER re-simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(hh.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout (read from the committed candidate-6 artifact only), side B = train complement (this diagnostic fits AND simulates side B)",
+    "fit_simulate_machinery": "populace_dynamics.models.household_composition_sim_v6 (candidate 6, merged #143), reused byte-for-byte on the train side via instrumented_draw_v6 (same 0xB2B / 0xC2 / 0xC3 / 0xC4 / 0xC5 / 0xC6 draw streams and train-fitted tables)",
+    "reused_machinery": "Q11 uses the SAME faithful custodial_prob_v6 the committed candidate fits (the forensics-2/3 custody basis) and does NOT relitigate custody probabilities -- supply and spells only; the forensics-1/2 reference splitters (spouse_concept_codes / q5_custodial_selection) are NOT re-invoked because forensics-4's questions are spell / existence / attribution, not custody-basis or legal-overlay estimation. The candidate-6 fit/simulate machinery is reused byte-for-byte via instrumented_draw_v6.",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "n_draws": 20,
+    "draw_rng_rule": "numpy.random.default_rng(5200 + k) for k in 0..19 (the locked gate_2b protocol)",
+    "instrumentation_fidelity": {
+      "draw_seed": 5200,
+      "n_cells_compared": 93,
+      "max_abs_rate_deviation_vs_committed_simulate_draw_v6": 0.0,
+      "bit_identical": true,
+      "child_channel_additivity_residual": 0,
+      "linked_marital_split_additivity_residual": 0,
+      "analytic_stock_out_of_range_or_nonzero_no_exposure": 0
+    },
+    "no_holdout_tuning_surface": "every fitted table and every reference decomposition is estimated on side B only; no parameter is estimated from side A -- no holdout-informed tuning surface is created"
+  },
+  "data": {
+    "holdout_basis": [
+      "MX23REL"
+    ],
+    "paternal_link_basis": [
+      "cah85_23"
+    ],
+    "n_person_waves": 520693,
+    "n_persons": 46941,
+    "floor_run": "runs/gate2b_floors_v1.json",
+    "floor_run_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821"
+  },
+  "reconciliations": {
+    "instrumentation_bit_identity_max_rate_deviation": 0.0,
+    "child_channel_additivity_residual": 0,
+    "linked_marital_split_additivity_residual": 0,
+    "q11_cell_miss_reconciliation_max_abs_remainder": 1.1102230246251565e-16,
+    "float64_machine_epsilon": 2.220446049250313e-16,
+    "all_identity_reconciliations_at_machine_epsilon": true,
+    "reconciliation_bar_note": "instrumentation bit-identity is EXACT (0.0) and the integer channel-additivity residuals are EXACTLY 0; the Q11 six-channel telescoping reconciliation of the cell miss sits at machine epsilon (a few ULP of float64 summation over the six channels), i.e. machine zero."
+  },
+  "q11_alignment_decision": {
+    "issue": "the sim's linked channel draws coresidence over model.father_links (father_link_births), which does NOT require an enumerated child; an initial reference build used father_link_births_with_child (enumerated only), which would have decomposed a VARIANT, not the committed mechanism",
+    "measured_gap": "25.8% of the committed linked exposure rows (9500 of 36887) are non-joinable; 17% of linked fathers (2516 of 14835) are linked in the sim but would be unlinked under the enumerated-only basis",
+    "resolution": "q11_reference uses model.father_links for the linked/unlinked partition, the exposed-count existence, and the analytic occupancy (matching simulate_draw_v6 exactly); father_links_child provides child ids only for the observable reference coresidence and episodes; the non-joinable biological children the sim coresides but the roster cannot enumerate are surfaced as their own channel (unenumerated_nonjoinable_supply)"
+  },
+  "question_11_linked_father_child_supply": {
+    "question": "linked-father child supply at 25-44: decompose the male coresident_child overshoot at 25-34 and 35-44 into (a) EXISTENCE (linked children per father, sim-vs-train), (b) SPELL LENGTH (father-child coresidence episode durations, sim-vs-train, child ages 0-17), (c) reconcile the two channels to the cell misses exactly; custody probabilities are measured faithful per forensics-2/3 and are NOT relitigated (supply and spells only).",
+    "method": "Train-side (side B). ALIGNMENT: the decomposition uses the COMMITTED linked exposure basis -- model.father_links (father_link_births), the exact object simulate_draw_v6 draws coresidence over -- for the linked/unlinked partition and the exposed-count EXISTENCE, so the father-wave grid, weights, and exposed-linked-child counts are identical sim-vs-train (existence is a structural zero). The linked-channel miss telescopes exactly into: a Monte-Carlo gap (realized minus the analytic 1-prod(1-p_c) occupancy expectation); a marital-state joint term (analytic occupancy under simulated vs observed father marital, same faithful custodial_prob_v6); an UNENUMERATED non-joinable supply term (the incremental analytic occupancy of biological children with no enumerated record -- the sim coresides them, the roster never observes them); a SPELL term (analytic independent-per-wave occupancy vs observed correlated coresidence among the enumerated linked children); a SUPPLY residual (observed coresidence with children outside the linked set); and the shadow (unlinked) channel -- all summing to the cell miss to machine epsilon. Episode lengths are maximal runs of coresident waves on the shared grid, child ages 0-17, enumerated children both sides. Custody probabilities are NOT re-estimated.",
+    "registered_cells": [
+      "coresident_child.25-34|male",
+      "coresident_child.35-44|male"
+    ],
+    "per_cell": {
+      "coresident_child.25-34|male": {
+        "sim_male_full_rate_train": 0.4420141290294019,
+        "reference_male_full_rate_train": 0.3854603744835385,
+        "cell_miss_sim_minus_reference": 0.05655375454586342,
+        "signed_logratio_train": 0.13690344990249345,
+        "channels": {
+          "existence_identical_exposure": 0.0,
+          "spell_length": 0.017719428524371472,
+          "marital_state_joint": -0.011845377837707949,
+          "unenumerated_nonjoinable_supply": 0.03498948885709918,
+          "supply_residual_nonlinked_coresidence": -0.0163801596019319,
+          "shadow_unlinked_channel": 0.03222405124970057,
+          "monte_carlo_finite_draw_gap": -0.000153676645667844
+        },
+        "channel_reconstruction_sum": 0.05655375454586353,
+        "reconciliation_remainder": -1.1102230246251565e-16,
+        "anchors": {
+          "sim_linked_contribution": 0.3949583243981157,
+          "sim_shadow_contribution": 0.04705580463128633,
+          "sim_analytic_linked_occupancy_all": 0.3951120010437835,
+          "reference_linked_any_contribution": 0.3706286211019527,
+          "reference_linked_restricted_contribution": 0.3542484615000208,
+          "reference_a_refexp_all_analytic_occupancy": 0.40695737888149147,
+          "reference_a_refexp_joinable_analytic_occupancy": 0.3719678900243923,
+          "reference_unlinked_any_contribution": 0.014831753381585757
+        },
+        "existence_distributions": {
+          "sim_exposed_linked_count": {
+            "0": 0.25176176944434353,
+            "1": 0.31350547352474567,
+            "2": 0.2745867574739952,
+            "3+": 0.16014599955691558
+          },
+          "reference_exposed_linked_count": {
+            "0": 0.251076499533841,
+            "1": 0.3136377317578335,
+            "2": 0.27530786221416076,
+            "3+": 0.15997790649416477
+          },
+          "sim_coresident_linked_count": {
+            "0": 0.37118825262366595,
+            "1": 0.34282975039323454,
+            "2": 0.19997091812905524,
+            "3+": 0.08601107885404422
+          },
+          "reference_coresident_linked_count": {
+            "0": 0.4375559070369155,
+            "1": 0.254510483163195,
+            "2": 0.21506990030604595,
+            "3+": 0.0928637094938436
+          },
+          "mean_exposed_linked_children_sim_eq_reference": 1.4138440216624892,
+          "mean_coresident_linked_children_reference": 0.9904255350914267
+        },
+        "holdout_committed_candidate6": {
+          "seed_mean_rate_a": 0.3853951671087253,
+          "seed_mean_r_candidate": 0.4444103827982179,
+          "seed_mean_score": 0.14246541388161632,
+          "tolerance": 0.106,
+          "n_seeds_pass": 0,
+          "per_seed_score": {
+            "0": 0.14136185093799397,
+            "1": 0.1428468687839668,
+            "2": 0.14096836637991086,
+            "3": 0.14440127628185975,
+            "4": 0.1427487070243503
+          }
+        }
+      },
+      "coresident_child.35-44|male": {
+        "sim_male_full_rate_train": 0.7367091359930578,
+        "reference_male_full_rate_train": 0.6582813347518417,
+        "cell_miss_sim_minus_reference": 0.07842780124121607,
+        "signed_logratio_train": 0.11256075449071946,
+        "channels": {
+          "existence_identical_exposure": 0.0,
+          "spell_length": 0.02173010888602933,
+          "marital_state_joint": -0.015779821993384346,
+          "unenumerated_nonjoinable_supply": 0.03623973512141054,
+          "supply_residual_nonlinked_coresidence": -0.024208831125754116,
+          "shadow_unlinked_channel": 0.06019162128620176,
+          "monte_carlo_finite_draw_gap": 0.00025498906671295174
+        },
+        "channel_reconstruction_sum": 0.07842780124121612,
+        "reconciliation_remainder": -5.551115123125783e-17,
+        "anchors": {
+          "sim_linked_contribution": 0.6469441158797172,
+          "sim_shadow_contribution": 0.08976502011334052,
+          "sim_analytic_linked_occupancy_all": 0.6466891268130043,
+          "reference_linked_any_contribution": 0.6287079359247029,
+          "reference_linked_restricted_contribution": 0.6044991047989487,
+          "reference_a_refexp_all_analytic_occupancy": 0.6624689488063886,
+          "reference_a_refexp_joinable_analytic_occupancy": 0.6262292136849781,
+          "reference_unlinked_any_contribution": 0.029573398827138758
+        },
+        "existence_distributions": {
+          "sim_exposed_linked_count": {
+            "0": 0.029865969630981808,
+            "1": 0.23663380979681414,
+            "2": 0.3997774517774046,
+            "3+": 0.3337227687947994
+          },
+          "reference_exposed_linked_count": {
+            "0": 0.029900596125672068,
+            "1": 0.23649679054680667,
+            "2": 0.399921079087152,
+            "3+": 0.3336815342403693
+          },
+          "sim_coresident_linked_count": {
+            "0": 0.16417472155480148,
+            "1": 0.33118163944528156,
+            "2": 0.31766716340659784,
+            "3+": 0.18697647559331917
+          },
+          "reference_coresident_linked_count": {
+            "0": 0.22024597004269642,
+            "1": 0.2334021503105379,
+            "2": 0.34357652149347545,
+            "3+": 0.20277535815329023
+          },
+          "mean_exposed_linked_children_sim_eq_reference": 2.2159948045112627,
+          "mean_coresident_linked_children_reference": 1.6095726269674213
+        },
+        "holdout_committed_candidate6": {
+          "seed_mean_rate_a": 0.6460525925189948,
+          "seed_mean_r_candidate": 0.7309739463559856,
+          "seed_mean_score": 0.12349097988710436,
+          "tolerance": 0.071,
+          "n_seeds_pass": 0,
+          "per_seed_score": {
+            "0": 0.12704646287859217,
+            "1": 0.11866023862454589,
+            "2": 0.11939819217112126,
+            "3": 0.12910612378372363,
+            "4": 0.12324388197753887
+          }
+        }
+      }
+    },
+    "episode_length_distributions": {
+      "sim": {
+        "distribution": {
+          "1": 0.33105222029452774,
+          "2": 0.19802213133212945,
+          "3": 0.12346577044639853,
+          "4+": 0.3474598779269443
+        },
+        "mean_episode_length": 3.5719564031481204,
+        "mean_n_episodes": 15297.580000000002
+      },
+      "reference": {
+        "distribution": {
+          "1": 0.16511432459574574,
+          "2": 0.12709525146308784,
+          "3": 0.1053879326121632,
+          "4+": 0.6024024913290031
+        },
+        "mean_episode_length": 5.933465218218694,
+        "mean_n_episodes": 10094.2
+      },
+      "note": "Population-level over all linked father-child pairs at child ages 0-17 on the shared side-B wave grid; a spell spans father ages, so it is not cell-restricted."
+    },
+    "dominant_linked_channel_per_cell": {
+      "coresident_child.25-34|male": {
+        "dominant_linked_channel": "unenumerated_nonjoinable_supply",
+        "linked_channel_total": 0.024329703296162963,
+        "shadow_channel": 0.03222405124970057,
+        "spell_is_largest_linked_channel": false
+      },
+      "coresident_child.35-44|male": {
+        "dominant_linked_channel": "unenumerated_nonjoinable_supply",
+        "linked_channel_total": 0.018236179955014364,
+        "shadow_channel": 0.06019162128620176,
+        "spell_is_largest_linked_channel": false
+      }
+    },
+    "reconciliation_max_abs_remainder": 1.1102230246251565e-16,
+    "finding": "EXISTENCE is a structural NON-cause, and the diagnostic is decomposed against the COMMITTED mechanism: the sim's linked channel draws coresidence over model.father_links (the father_link_births basis, which does NOT require an enumerated child -- 25.8% of its exposure rows are non-joinable), and the simulated panel re-labels states on the same father-wave grid, so the number of exposed linked children per father-wave is IDENTICAL sim-vs-train (existence channel = 0.0 exactly; mean exposed linked children per father-wave 2.216). The overshoot is an OCCUPANCY-structure effect and telescopes into six exactly-reconciling channels (existence + spell + marital-joint + unenumerated-nonjoinable-supply + non-linked-supply + shadow, plus a Monte-Carlo gap). At 35-44|male (train miss +0.0784): spell +0.0217, marital-joint -0.0158, unenumerated-nonjoinable +0.0362, non-linked-supply -0.0242, shadow +0.0602, MC +0.0003. The dominant LINKED sub-channel is unenumerated_nonjoinable_supply (linked-channel total +0.0182); the shadow (unlinked imputed-paternal) channel +0.0602 is a separate cell-level piece. At 25-34|male (train miss +0.0566): spell +0.0177, marital-joint -0.0118, unenumerated-nonjoinable +0.0350, non-linked-supply -0.0164, shadow +0.0322, MC -0.0002; dominant linked sub-channel unenumerated_nonjoinable_supply. TWO occupancy mechanisms carry the linked overshoot. (1) The UNENUMERATED non-joinable supply: the sim applies custody probabilities to biological children who never appear in the household roster (left the sample / non-custodial), coresiding children the reference cannot observe -- a supply artifact of drawing over father_link_births rather than only enumerated links. (2) The SPELL signature: the faithful per-wave custody probability applied as an INDEPENDENT per-wave occupancy reshapes the coresidence spells vs the observed contiguous episodes (sim mean episode 3.57 waves vs reference 5.93; sim single-wave share 0.331 vs reference 0.165; sim 4+ share 0.347 vs reference 0.602). The marital-state joint (simulated vs observed father marital at the coresident wave) is the remaining named residual. Custody probabilities were held faithful throughout (custodial_prob_v6, not re-estimated); every channel reconciles to the train-side cell miss to machine epsilon."
+  },
+  "question_12_spouse_25_34_female_movement": {
+    "question": "spouse 25-34|female movement attribution: the cell stopped capping seeds in c6 while the registered delta (delta 3) was inert; attribute the movement by component replay (delta 1's basis revert via household composition? delta 4's bridge? draw-path shifts from RNG stream changes? delta 3 itself?) and determine whether the clearing is STABLE (present across all draws/seeds with margin) or fragile luck.",
+    "method": "Train-side (side B). Per female band the spouse rate is split into legal core / cohabitation overlay / legal-residual overlay (the forensics-3 Q9 components) from 20 instrumented candidate-6 draws, AND from a delta-3-OFF replay (dataclasses.replace of the fitted model with empty female cohab overrides -- every other table and RNG stream untouched) so delta 3's apply-time effect is isolated exactly. Delta 1 / delta 4 / RNG-stream hypotheses are ruled out structurally (the spouse state and its 0xB2B/0xC2/0xC4 draws are byte-identical to candidate 5) and empirically (the committed c6 holdout r_candidate equals the carried candidate-5 value). Stable-vs-fragile reads the per-seed / per-draw dispersion and the committed holdout margin.",
+    "registered_cell": "coresident_spouse.25-34|female",
+    "per_female_band_component_replay": {
+      "15-24": {
+        "c6_full": 0.1659407621192362,
+        "c6_legal": 0.08120456676116757,
+        "c6_cohab_overlay": 0.08175376702911825,
+        "c6_legal_residual_overlay": 0.0029824283289504026,
+        "delta3_off_full": 0.16594076498179755,
+        "delta3_off_cohab_overlay": 0.0817537698916796,
+        "delta3_effect_full": -2.8625613546218176e-09,
+        "delta3_effect_cohab_overlay": -2.8625613407440298e-09
+      },
+      "25-34": {
+        "c6_full": 0.5875573955846826,
+        "c6_legal": 0.5030604926059249,
+        "c6_cohab_overlay": 0.08368868361415713,
+        "c6_legal_residual_overlay": 0.0008082193646004654,
+        "delta3_off_full": 0.5875573903636021,
+        "delta3_off_cohab_overlay": 0.08368867839307673,
+        "delta3_effect_full": 5.221080456863092e-09,
+        "delta3_effect_cohab_overlay": 5.221080401351941e-09
+      },
+      "35-44": {
+        "c6_full": 0.7155230043632,
+        "c6_legal": 0.689276390527611,
+        "c6_cohab_overlay": 0.02614812524500702,
+        "c6_legal_residual_overlay": 9.848859058187553e-05,
+        "delta3_off_full": 0.7157388275329669,
+        "delta3_off_cohab_overlay": 0.026363948414773956,
+        "delta3_effect_full": -0.0002158231697668711,
+        "delta3_effect_cohab_overlay": -0.00021582316976693702
+      },
+      "45-54": {
+        "c6_full": 0.7327957115718905,
+        "c6_legal": 0.7159520190002224,
+        "c6_cohab_overlay": 0.016841709649973564,
+        "c6_legal_residual_overlay": 1.982921694420503e-06,
+        "delta3_off_full": 0.732809847571936,
+        "delta3_off_cohab_overlay": 0.01685584565001917,
+        "delta3_effect_full": -1.4136000045517072e-05,
+        "delta3_effect_cohab_overlay": -1.4136000045607278e-05
+      },
+      "55-64": {
+        "c6_full": 0.6880448050406232,
+        "c6_legal": 0.6752224679336452,
+        "c6_cohab_overlay": 0.012821307210079073,
+        "c6_legal_residual_overlay": 1.029896898738424e-06,
+        "delta3_off_full": 0.6880727262215836,
+        "delta3_off_cohab_overlay": 0.012849228391039557,
+        "delta3_effect_full": -2.792118096039964e-05,
+        "delta3_effect_cohab_overlay": -2.792118096048464e-05
+      },
+      "65-74": {
+        "c6_full": 0.5728537825062905,
+        "c6_legal": 0.5513992272164844,
+        "c6_cohab_overlay": 0.011378092451273403,
+        "c6_legal_residual_overlay": 0.010076462838532623,
+        "delta3_off_full": 0.5728080533923828,
+        "delta3_off_cohab_overlay": 0.011332506414696257,
+        "delta3_effect_full": 4.572911390765544e-05,
+        "delta3_effect_cohab_overlay": 4.5586036577146063e-05
+      },
+      "75+": {
+        "c6_full": 0.31757072769045896,
+        "c6_legal": 0.2992531724213827,
+        "c6_cohab_overlay": 0.010790900541423709,
+        "c6_legal_residual_overlay": 0.007526654727652622,
+        "delta3_off_full": 0.3175416231367099,
+        "delta3_off_cohab_overlay": 0.010757228117545817,
+        "delta3_effect_full": 2.9104553749048634e-05,
+        "delta3_effect_cohab_overlay": 3.3672423877891336e-05
+      }
+    },
+    "delta3_target_effect_full": 5.221080456863092e-09,
+    "delta3_inert_at_target": true,
+    "per_seed_target": [
+      {
+        "seed": 0,
+        "sim_full_mean": 0.5917430459899381,
+        "per_draw_sd": 0.006625880082219111,
+        "reference_rate_b": 0.6302048109681181,
+        "signed_logratio": -0.06297236660410746,
+        "score": 0.06297236660410746
+      },
+      {
+        "seed": 1,
+        "sim_full_mean": 0.5818253176894621,
+        "per_draw_sd": 0.009706757790696338,
+        "reference_rate_b": 0.6119063541873795,
+        "signed_logratio": -0.05040899351754089,
+        "score": 0.05040899351754089
+      },
+      {
+        "seed": 2,
+        "sim_full_mean": 0.5823571851600728,
+        "per_draw_sd": 0.008146327468588023,
+        "reference_rate_b": 0.6180977148810307,
+        "signed_logratio": -0.059562579964584104,
+        "score": 0.059562579964584104
+      },
+      {
+        "seed": 3,
+        "sim_full_mean": 0.584869012807353,
+        "per_draw_sd": 0.0059134969176657635,
+        "reference_rate_b": 0.6205372002121678,
+        "signed_logratio": -0.059197642412127355,
+        "score": 0.059197642412127355
+      },
+      {
+        "seed": 4,
+        "sim_full_mean": 0.5969924162765866,
+        "per_draw_sd": 0.007157211446584478,
+        "reference_rate_b": 0.625151861028996,
+        "signed_logratio": -0.046090187610883765,
+        "score": 0.046090187610883765
+      }
+    ],
+    "holdout_committed_candidate6": {
+      "seed_mean_rate_a": 0.6234187902638284,
+      "seed_mean_r_candidate": 0.5858076807984952,
+      "seed_mean_score": 0.06221595843126224,
+      "tolerance": 0.074,
+      "n_seeds_pass": 3,
+      "per_seed_score": {
+        "0": 0.035665394262174584,
+        "1": 0.08363672134060221,
+        "2": 0.06926267370750504,
+        "3": 0.07579188973079339,
+        "4": 0.046723113115236
+      }
+    },
+    "holdout_n_seeds_over_tolerance": 2,
+    "holdout_seed_mean_margin_under_tolerance": 0.011784041568737753,
+    "stability_verdict": "fragile_marginal_inherited_not_c6_interaction",
+    "finding": "The spouse 25-34|female movement is NOT a candidate-6 interaction and NOT luck the next candidate could lose by re-drawing -- it is an INHERITANCE from the carried candidate-4/5 machinery, and the registered delta 3 is confirmed INERT at the target. Component replay: disabling delta 3 (the female 25-44 cohabitation override) moves the 25-34|female full spouse rate by +5.22e-09 (cohab-overlay component +5.22e-09) -- numerically INERT (below any material threshold), because the fitted female single-year cohabitation hazards at 25-34 coincide with candidate 4's existing age-refined estimator at the same target (delta 3's only NEW structure is at 35-44|female, where disabling it moves the rate by -2.16e-04). Delta 1 (the 0-4 custodial revert) and delta 4 (the count-conditional bridge) cannot touch the spouse state at all -- coresident_spouse = legal | cohab | legal-residual, none of which depends on child counts, hh_size, or the custodial draw, and every spouse-relevant RNG stream (0xB2B legal, 0xC2 cohab, 0xC4 legal-residual) is consumed before and independently of the 0xC6 maternal-leave and delta-4 count draws; the c6 seed-mean holdout r_candidate 0.5858 is the carried candidate-5 value, so no delta moved it. STABLE vs FRAGILE: the clearing is FRAGILE-marginal. The holdout seed-mean score 0.0622 clears the tolerance 0.074 by only +0.0118, and 2 of 5 split seeds individually exceed tolerance; the per-draw dispersion within a seed is small, so the failure surface is the SPLIT seed, not the draw -- the cell rides the tolerance line and the next candidate should carry it with discipline rather than bank it as solved. The under-produced component is the cohabitation OVERLAY (forensics-3 Q9: overlay gap -0.045), which delta 3 was designed to lift but did not."
+  },
+  "question_13_hh_size_5plus_marginal_seed": {
+    "question": "hh_size.5+ marginal seed: per-draw dispersion vs tolerance on the failing seed; noise (per-draw spread straddles the line) vs structure (systematic tilt); if structure, name the component.",
+    "method": "The committed candidate-6 holdout per-draw rates for hh_size.5+ on the marginal split seed are read directly (no re-simulation of side A); each per-draw signed ln(r/rate_a) is compared to the tolerance to test straddle-vs-tilt, and the seed-mean distance past the line is expressed in standard errors of the 20-draw mean. Train side (side B) corroborates with the per-seed per-draw dispersion and the sim-vs-reference core-5+ / 3+-own-child structure (the forensics-3 Q10 upstream signal).",
+    "registered_cell": "hh_size.5+",
+    "marginal_seed": 3,
+    "holdout_marginal_seed_dispersion": {
+      "rate_a": 0.1404621505412556,
+      "seed_mean_signed_logratio": -0.10480897854117818,
+      "per_draw_signed_logratio_min": -0.12500789987671151,
+      "per_draw_signed_logratio_max": -0.0824624146099909,
+      "per_draw_signed_logratio_sd": 0.011253703739831172,
+      "standard_error_of_mean_ln": 0.002516404656090611,
+      "tolerance": 0.094,
+      "n_draws_over_tolerance": 16,
+      "n_draws_over_tolerance_under_side": 16,
+      "n_draws_over_tolerance_over_side": 0,
+      "margin_past_tolerance_line": 0.010808978541178182,
+      "standard_errors_past_line": 4.295405556104237,
+      "per_draw_spread_straddles_zero": false,
+      "all_draws_same_sign": true
+    },
+    "verdict_structure_not_noise": true,
+    "component": "upstream_core_large_family_fertility_deficit",
+    "train_side_corroboration": {
+      "per_seed": [
+        {
+          "seed": 0,
+          "sim_hh5plus_mean": 0.13007051377166773,
+          "reference_hh5plus": 0.13859974717727927,
+          "per_draw_rate_sd": 0.001433087329711995,
+          "per_draw_ln_sd": 0.010993474975581731,
+          "seed_signed_logratio": -0.06351354560568792,
+          "seed_score": 0.06351354560568792,
+          "n_draws_over_tol": 0,
+          "sim_core5plus": 0.06731511104307011,
+          "reference_core5plus": 0.07720870684198279,
+          "core5plus_deficit_sim_minus_ref": -0.009893595798912677,
+          "reference_child3plus_share": 0.08106065378881652
+        },
+        {
+          "seed": 1,
+          "sim_hh5plus_mean": 0.1313695540287713,
+          "reference_hh5plus": 0.14184063151578838,
+          "per_draw_rate_sd": 0.0016005870929473199,
+          "per_draw_ln_sd": 0.012219960681520136,
+          "seed_signed_logratio": -0.07668973936359576,
+          "seed_score": 0.07668973936359576,
+          "n_draws_over_tol": 2,
+          "sim_core5plus": 0.06683378632784051,
+          "reference_core5plus": 0.07818215876313157,
+          "core5plus_deficit_sim_minus_ref": -0.011348372435291063,
+          "reference_child3plus_share": 0.0823680347960669
+        },
+        {
+          "seed": 2,
+          "sim_hh5plus_mean": 0.1312875480341129,
+          "reference_hh5plus": 0.1414534873759086,
+          "per_draw_rate_sd": 0.0011151457327956485,
+          "per_draw_ln_sd": 0.00849254978193524,
+          "seed_signed_logratio": -0.07458101110314148,
+          "seed_score": 0.07458101110314148,
+          "n_draws_over_tol": 0,
+          "sim_core5plus": 0.0656800848931578,
+          "reference_core5plus": 0.07731763321328468,
+          "core5plus_deficit_sim_minus_ref": -0.011637548320126881,
+          "reference_child3plus_share": 0.07994808741719885
+        },
+        {
+          "seed": 3,
+          "sim_hh5plus_mean": 0.12682672388946986,
+          "reference_hh5plus": 0.1374879268530427,
+          "per_draw_rate_sd": 0.0016056138152494455,
+          "per_draw_ln_sd": 0.01267312895854442,
+          "seed_signed_logratio": -0.08071433252316808,
+          "seed_score": 0.08071433252316808,
+          "n_draws_over_tol": 3,
+          "sim_core5plus": 0.06466856181783169,
+          "reference_core5plus": 0.07570443582878222,
+          "core5plus_deficit_sim_minus_ref": -0.011035874010950533,
+          "reference_child3plus_share": 0.07912886955759733
+        },
+        {
+          "seed": 4,
+          "sim_hh5plus_mean": 0.12915175026125308,
+          "reference_hh5plus": 0.13726299165570963,
+          "per_draw_rate_sd": 0.0014220566487717985,
+          "per_draw_ln_sd": 0.010983822210583517,
+          "seed_signed_logratio": -0.060910661173775554,
+          "seed_score": 0.060910661173775554,
+          "n_draws_over_tol": 0,
+          "sim_core5plus": 0.06577610004171335,
+          "reference_core5plus": 0.07552608227241657,
+          "core5plus_deficit_sim_minus_ref": -0.009749982230703225,
+          "reference_child3plus_share": 0.07929131830809547
+        }
+      ],
+      "mean_core5plus_deficit_sim_minus_reference": -0.010733074559196875
+    },
+    "holdout_committed_candidate6": {
+      "seed_mean_rate_a": 0.13863925072346167,
+      "seed_mean_r_candidate": 0.12896388843571222,
+      "seed_mean_score": 0.07230400390177685,
+      "tolerance": 0.094,
+      "n_seeds_pass": 4,
+      "per_seed_score": {
+        "0": 0.07067821331173613,
+        "1": 0.05866651446851744,
+        "2": 0.04752268396590849,
+        "3": 0.10480897854117818,
+        "4": 0.07984362922154398
+      }
+    },
+    "finding": "The hh_size.5+ marginal seed (split seed 3) is STRUCTURE, not noise -- contradicting the pre-registered 'noise' expectation, which is the diagnostic earning its keep. On the committed holdout, seed 3's 20 per-draw rates all sit BELOW the reference (every per-draw signed ln in [-0.1250, -0.0825], seed-mean ln -0.1048); the per-draw spread does NOT straddle zero, and 16 of 20 draws individually exceed the tolerance 0.094 on the UNDER side (0 on the over side). The seed-mean under-production sits +0.0108 past the tolerance line, ~4.3 standard errors of the 20-draw mean -- far beyond a finite-draw straddle, so the cell fails at its CENTER, not by draw luck. The component is the upstream CORE large-family deficit named and carried in forensics-3 Q10: the sim core-5+ under-produces the reference by -0.0107 on average (seed 3: -0.0110), traced to the 3+-own-child fertility / composition deficit, and because the delta-4 bridge only ADDS non-core members it cannot lift core mass up. The honest joint absorbs this on the four low-reference split seeds (0/1/2/4 clear) but not on split seed 3, whose holdout carries the highest reference hh_size.5+ (0.1405); there the carried core-5+ deficit tilts the cell systematically under tolerance. The lever for the next candidate is the upstream large-family core (fertility / 3+-child composition), not the bridge."
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 23518,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15187778651462677,
+        "coresident_child.15-24|male": 0.05324632565915583,
+        "coresident_child.25-34|female": 0.5596206464749537,
+        "coresident_child.25-34|male": 0.3854000165328071,
+        "coresident_child.35-44|female": 0.7724541770843841,
+        "coresident_child.35-44|male": 0.659463814682677,
+        "coresident_child.45-54|female": 0.56307791104075,
+        "coresident_child.45-54|male": 0.5512308968958842,
+        "coresident_child.55-64|female": 0.2463618787040306,
+        "coresident_child.55-64|male": 0.2720687415815825,
+        "coresident_child.65-74|female": 0.12100231443522518,
+        "coresident_child.65-74|male": 0.12415260918206437,
+        "coresident_grandchild.45-54|female": 0.0454136162193122,
+        "coresident_grandchild.55+|female": 0.06376679347908513,
+        "coresident_parent.15-24|female": 0.689547329335129,
+        "coresident_parent.15-24|male": 0.751151594243581,
+        "coresident_parent.25-34|female": 0.10506091088023778,
+        "coresident_parent.25-34|male": 0.14076560285449183,
+        "coresident_spouse.15-24|female": 0.16555913090397337,
+        "coresident_spouse.15-24|male": 0.09845903923669415,
+        "coresident_spouse.25-34|female": 0.6302048109681181,
+        "coresident_spouse.25-34|male": 0.5641952503016872,
+        "coresident_spouse.35-44|female": 0.7187742356861337,
+        "coresident_spouse.35-44|male": 0.7493226373047212,
+        "coresident_spouse.45-54|female": 0.7096986251299884,
+        "coresident_spouse.45-54|male": 0.7775004860502241,
+        "coresident_spouse.55-64|female": 0.6878292636812716,
+        "coresident_spouse.55-64|male": 0.7835366468334353,
+        "coresident_spouse.65-74|female": 0.5817895109214029,
+        "coresident_spouse.65-74|male": 0.8058262044978859,
+        "coresident_spouse.75+|female": 0.30395134014286884,
+        "coresident_spouse.75+|male": 0.7269604862251138,
+        "hh_size.1": 0.18109137757262359,
+        "hh_size.2": 0.32374762657702755,
+        "hh_size.3": 0.18012506278902857,
+        "hh_size.4": 0.17643618588404095,
+        "hh_size.5+": 0.13859974717727927,
+        "multigen.15-24|female": 0.08570548306435763,
+        "multigen.25-34|female": 0.04244011920809863,
+        "multigen.45-54|female": 0.05143406757398725,
+        "multigen_entry": 0.013835737280875091,
+        "multigen_exit": 0.3169335789082228,
+        "parental_home_exit.15-24|female": 0.1876492241264485,
+        "parental_home_exit.15-24|male": 0.1449942436857061,
+        "parental_home_exit.25-34|female": 0.2660575147721647,
+        "parental_home_exit.25-34|male": 0.25542981702635636
+      },
+      "q11_reference": {
+        "per_cell": {
+          "coresident_child.25-34|male": {
+            "reference_full_male_rate": 0.38540001653280714,
+            "reference_linked_any_contribution": 0.36972639965321225,
+            "reference_unlinked_any_contribution": 0.015673616879594836,
+            "reference_linked_restricted_contribution": 0.35575670966770395,
+            "reference_a_refexp_all_contribution": 0.41036598421814685,
+            "reference_a_refexp_joinable_contribution": 0.37479958876109465,
+            "n_linked_father_waves_cell": 18243,
+            "cell_weight_total": 135030148.769,
+            "linked_father_wave_weight_total": 84681428.941,
+            "reference_exposed_count_distribution": {
+              "0": 0.2437118525878797,
+              "1": 0.32457041949716814,
+              "2": 0.26800853675736275,
+              "3+": 0.1637091911575895
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.43272235680541743,
+              "1": 0.25443942770512207,
+              "2": 0.2117499289188099,
+              "3+": 0.10108828657065069
+            },
+            "mean_exposed_linked_children_per_father_wave": 1.4326785476131731,
+            "mean_coresident_linked_children_per_father_wave": 1.0134503841662093
+          },
+          "coresident_child.35-44|male": {
+            "reference_full_male_rate": 0.6594638146826771,
+            "reference_linked_any_contribution": 0.6300294348560804,
+            "reference_unlinked_any_contribution": 0.029434379826596576,
+            "reference_linked_restricted_contribution": 0.6065347983328213,
+            "reference_a_refexp_all_contribution": 0.665727726317768,
+            "reference_a_refexp_joinable_contribution": 0.630694622054885,
+            "n_linked_father_waves_cell": 16619,
+            "cell_weight_total": 139404662.241,
+            "linked_father_wave_weight_total": 108935100.70199999,
+            "reference_exposed_count_distribution": {
+              "0": 0.03103579220299861,
+              "1": 0.2330237757290103,
+              "2": 0.4028522969107083,
+              "3+": 0.33308813515728297
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.22381511419075936,
+              "1": 0.22957304176376325,
+              "2": 0.3390472177286187,
+              "3+": 0.20756462631685868
+            },
+            "mean_exposed_linked_children_per_father_wave": 2.217826030545583,
+            "mean_coresident_linked_children_per_father_wave": 1.612288074304552
+          }
+        },
+        "reference_episode_length_distribution": {
+          "1": 0.1654825340438129,
+          "2": 0.1269982238010657,
+          "3": 0.10469705940398658,
+          "4+": 0.6028221827511347
+        },
+        "reference_mean_episode_length": 5.9516479179001385,
+        "reference_n_episodes": 10134,
+        "n_linked_fathers_train": 14835,
+        "linked_exposure_basis": "model.father_links (father_link_births)",
+        "n_linked_exposure_rows_train": 36887,
+        "n_joinable_exposure_keys_train": 26985
+      },
+      "q11_sim": {
+        "coresident_child.25-34|male": {
+          "linked_contrib": 0.3982546739376466,
+          "shadow_contrib": 0.049046670894066634,
+          "male_full": 0.4473013448317132,
+          "a_sim_linked": 0.3987833147085859
+        },
+        "coresident_child.35-44|male": {
+          "linked_contrib": 0.6530173017558253,
+          "shadow_contrib": 0.08838968017725322,
+          "male_full": 0.7414069819330786,
+          "a_sim_linked": 0.6532754501220838
+        }
+      },
+      "q11_sim_existence": {
+        "coresident_child.25-34|male": {
+          "exposed_count_distribution": {
+            "0": 0.24425814460998416,
+            "1": 0.32452785396176687,
+            "2": 0.2674945956390206,
+            "3+": 0.1637194057892283
+          },
+          "coresident_count_distribution": {
+            "0": 0.3634337367246906,
+            "1": 0.34893903530922227,
+            "2": 0.197310556458185,
+            "3+": 0.0903166715079021
+          }
+        },
+        "coresident_child.35-44|male": {
+          "exposed_count_distribution": {
+            "0": 0.030944205114112406,
+            "1": 0.2329853995220886,
+            "2": 0.40323005223722425,
+            "3+": 0.33284034312657484
+          },
+          "coresident_count_distribution": {
+            "0": 0.1631384015381941,
+            "1": 0.3299124509816723,
+            "2": 0.31900928041408794,
+            "3+": 0.18793986706604565
+          }
+        }
+      },
+      "q11_sim_episodes": {
+        "distribution": {
+          "1": 0.32806517345856656,
+          "2": 0.19929934578611225,
+          "3": 0.12430462856016926,
+          "4+": 0.3483308521951519
+        },
+        "mean_episode_length": 3.5680149778684807,
+        "mean_n_episodes": 15382.85
+      },
+      "q12_c6_female": {
+        "15-24": {
+          "legal": 0.08557178005148472,
+          "cohab": 0.08110460718723059,
+          "lr": 0.0005683407655374939,
+          "full": 0.1672447280042528
+        },
+        "25-34": {
+          "legal": 0.5112603279849449,
+          "cohab": 0.08038978870870209,
+          "lr": 9.292929629106833e-05,
+          "full": 0.5917430459899381
+        },
+        "35-44": {
+          "legal": 0.6945413475646592,
+          "cohab": 0.024423593678487426,
+          "lr": 4.876630604070121e-07,
+          "full": 0.7189654289062071
+        },
+        "45-54": {
+          "legal": 0.7205000578451488,
+          "cohab": 0.016620905930248245,
+          "lr": 0.0,
+          "full": 0.7371209637753973
+        },
+        "55-64": {
+          "legal": 0.6778992864632986,
+          "cohab": 0.011962242029678435,
+          "lr": 4.791254430316175e-08,
+          "full": 0.6898615764055213
+        },
+        "65-74": {
+          "legal": 0.5462958715230946,
+          "cohab": 0.012256075260017273,
+          "lr": 0.018590276943728817,
+          "full": 0.5771422237268408
+        },
+        "75+": {
+          "legal": 0.30181052775083617,
+          "cohab": 0.012572110774069393,
+          "lr": 0.010635179895196335,
+          "full": 0.32501781842010186
+        }
+      },
+      "q12_no_delta3_female": {
+        "15-24": {
+          "legal": 0.08557178005148472,
+          "cohab": 0.08110460718723059,
+          "lr": 0.0005683407655374939,
+          "full": 0.1672447280042528
+        },
+        "25-34": {
+          "legal": 0.5112603279849449,
+          "cohab": 0.0803897876157041,
+          "lr": 9.292929629106833e-05,
+          "full": 0.5917430448969402
+        },
+        "35-44": {
+          "legal": 0.6945413475646592,
+          "cohab": 0.02471612178915185,
+          "lr": 4.876630604070121e-07,
+          "full": 0.7192579570168716
+        },
+        "45-54": {
+          "legal": 0.7205000578451488,
+          "cohab": 0.01633970512607297,
+          "lr": 0.0,
+          "full": 0.7368397629712219
+        },
+        "55-64": {
+          "legal": 0.6778992864632986,
+          "cohab": 0.011846896869159674,
+          "lr": 4.791254430316175e-08,
+          "full": 0.6897462312450025
+        },
+        "65-74": {
+          "legal": 0.5462958715230946,
+          "cohab": 0.012079127069411343,
+          "lr": 0.018590276943728817,
+          "full": 0.5769652755362348
+        },
+        "75+": {
+          "legal": 0.30181052775083617,
+          "cohab": 0.012549271423425323,
+          "lr": 0.010658019245840401,
+          "full": 0.32501781842010186
+        }
+      },
+      "q12_target_full_per_draw": [
+        0.5973531086580238,
+        0.5859658537853655,
+        0.5910496175388603,
+        0.5942148372494863,
+        0.5738069008842263,
+        0.5978407043876557,
+        0.5997697380589477,
+        0.5911741484738384,
+        0.5881246170414145,
+        0.5904531498118802,
+        0.6013442004888111,
+        0.5995610555392205,
+        0.5907089596608948,
+        0.593354309259427,
+        0.5884196884281111,
+        0.5896613170472986,
+        0.5924797445311148,
+        0.5880483038669089,
+        0.5812848678146765,
+        0.6002457972725999
+      ],
+      "q13_hh5plus_per_draw": [
+        0.1289741704815286,
+        0.13013657850227658,
+        0.1281753021049957,
+        0.12782354948764119,
+        0.13282408334997037,
+        0.12986618273160827,
+        0.13091999658799927,
+        0.12991053413684076,
+        0.13259903182111046,
+        0.12932032606863503,
+        0.13248511436907498,
+        0.13007693539677562,
+        0.1290752601282084,
+        0.13136203980495276,
+        0.1287230268681478,
+        0.1284582487622793,
+        0.12871421494815236,
+        0.13094212438782404,
+        0.13044942647959756,
+        0.13057412901573548
+      ],
+      "q13_sim_core_distribution": {
+        "1": 0.19957648954905077,
+        "2": 0.36968003213020845,
+        "3": 0.2401799402855919,
+        "4": 0.12324842699207876,
+        "5": 0.04636760575815233,
+        "6": 0.014899805340626817,
+        "7": 0.0043746402054655985,
+        "8": 0.0011748252764682506
+      },
+      "q13_sim_core5plus": 0.06731511104307011,
+      "q13_sim_child_count_distribution": {
+        "0": 0.6042209085199772,
+        "1": 0.194083788764688,
+        "2": 0.13167003364986057,
+        "3": 0.05002194483322817,
+        "4+": 0.02000332423224587
+      },
+      "q13_reference_core5plus": 0.07720870684198279,
+      "q13_reference_hh5plus": 0.13859974717727927,
+      "q13_reference_child3plus_share": 0.08106065378881652,
+      "elapsed_seconds": 200.6
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 23452,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.1511628357083355,
+        "coresident_child.15-24|male": 0.05313385908695844,
+        "coresident_child.25-34|female": 0.5658848285984781,
+        "coresident_child.25-34|male": 0.38071879887494997,
+        "coresident_child.35-44|female": 0.7703680252474665,
+        "coresident_child.35-44|male": 0.6601882010922548,
+        "coresident_child.45-54|female": 0.5587043935796281,
+        "coresident_child.45-54|male": 0.5620573248768549,
+        "coresident_child.55-64|female": 0.2470516802176979,
+        "coresident_child.55-64|male": 0.2672922893980057,
+        "coresident_child.65-74|female": 0.12507603311715762,
+        "coresident_child.65-74|male": 0.13750370843225906,
+        "coresident_grandchild.45-54|female": 0.045887862222390656,
+        "coresident_grandchild.55+|female": 0.06656198993320385,
+        "coresident_parent.15-24|female": 0.6924432670263201,
+        "coresident_parent.15-24|male": 0.7516556916834256,
+        "coresident_parent.25-34|female": 0.09613456539781164,
+        "coresident_parent.25-34|male": 0.15520797682402326,
+        "coresident_spouse.15-24|female": 0.16223896668283538,
+        "coresident_spouse.15-24|male": 0.09798371538984368,
+        "coresident_spouse.25-34|female": 0.6119063541873795,
+        "coresident_spouse.25-34|male": 0.5545169230946048,
+        "coresident_spouse.35-44|female": 0.708032897651364,
+        "coresident_spouse.35-44|male": 0.7376943941639124,
+        "coresident_spouse.45-54|female": 0.6982299188725865,
+        "coresident_spouse.45-54|male": 0.7701871087041647,
+        "coresident_spouse.55-64|female": 0.6780678243626834,
+        "coresident_spouse.55-64|male": 0.7939623211012564,
+        "coresident_spouse.65-74|female": 0.5912816449354025,
+        "coresident_spouse.65-74|male": 0.8226882487747267,
+        "coresident_spouse.75+|female": 0.3342485537481171,
+        "coresident_spouse.75+|male": 0.7406852675800523,
+        "hh_size.1": 0.1801181158930735,
+        "hh_size.2": 0.32198665332950854,
+        "hh_size.3": 0.181816853260391,
+        "hh_size.4": 0.17423774600123873,
+        "hh_size.5+": 0.14184063151578838,
+        "multigen.15-24|female": 0.08875404827378874,
+        "multigen.25-34|female": 0.040163713626370806,
+        "multigen.45-54|female": 0.048883291722554775,
+        "multigen_entry": 0.013369624313180674,
+        "multigen_exit": 0.2989168856468003,
+        "parental_home_exit.15-24|female": 0.19189950937983008,
+        "parental_home_exit.15-24|male": 0.145461350422045,
+        "parental_home_exit.25-34|female": 0.24120139990892592,
+        "parental_home_exit.25-34|male": 0.25391060277341354
+      },
+      "q11_reference": {
+        "per_cell": {
+          "coresident_child.25-34|male": {
+            "reference_full_male_rate": 0.3807187988749499,
+            "reference_linked_any_contribution": 0.36507070467214164,
+            "reference_unlinked_any_contribution": 0.015648094202808247,
+            "reference_linked_restricted_contribution": 0.35051978721968136,
+            "reference_a_refexp_all_contribution": 0.39813538424878536,
+            "reference_a_refexp_joinable_contribution": 0.36573114585556576,
+            "n_linked_father_waves_cell": 18576,
+            "cell_weight_total": 138659004.53300002,
+            "linked_father_wave_weight_total": 87222349.36,
+            "reference_exposed_count_distribution": {
+              "0": 0.2607175162427888,
+              "1": 0.30031373915287535,
+              "2": 0.2830833957027456,
+              "3+": 0.15588534890159028
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.4427721206591448,
+              "1": 0.25208645931157936,
+              "2": 0.2167161465576006,
+              "3+": 0.08842527347167527
+            },
+            "mean_exposed_linked_children_per_father_wave": 1.401534899162684,
+            "mean_coresident_linked_children_per_father_wave": 0.9787443710975042
+          },
+          "coresident_child.35-44|male": {
+            "reference_full_male_rate": 0.6601882010922545,
+            "reference_linked_any_contribution": 0.6327258195886779,
+            "reference_unlinked_any_contribution": 0.027462381503576657,
+            "reference_linked_restricted_contribution": 0.6084552259255487,
+            "reference_a_refexp_all_contribution": 0.6678338241830397,
+            "reference_a_refexp_joinable_contribution": 0.6332826846322994,
+            "n_linked_father_waves_cell": 16591,
+            "cell_weight_total": 139332527.17000002,
+            "linked_father_wave_weight_total": 108538913.117,
+            "reference_exposed_count_distribution": {
+              "0": 0.027009163477064932,
+              "1": 0.23092063162621024,
+              "2": 0.3989948335977679,
+              "3+": 0.343075371298957
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.2189197232276169,
+              "1": 0.2308753131882534,
+              "2": 0.3410326339835298,
+              "3+": 0.2091723296005999
+            },
+            "mean_exposed_linked_children_per_father_wave": 2.2443633217831236,
+            "mean_coresident_linked_children_per_father_wave": 1.632917730537329
+          }
+        },
+        "reference_episode_length_distribution": {
+          "1": 0.15866098841239973,
+          "2": 0.13201941170644746,
+          "3": 0.10300089135386749,
+          "4+": 0.6063187085272853
+        },
+        "reference_mean_episode_length": 5.996434584530059,
+        "reference_n_episodes": 10097,
+        "n_linked_fathers_train": 14835,
+        "linked_exposure_basis": "model.father_links (father_link_births)",
+        "n_linked_exposure_rows_train": 36887,
+        "n_joinable_exposure_keys_train": 26985
+      },
+      "q11_sim": {
+        "coresident_child.25-34|male": {
+          "linked_contrib": 0.3855028155396746,
+          "shadow_contrib": 0.04572079055523014,
+          "male_full": 0.4312236060949046,
+          "a_sim_linked": 0.3863379967757887
+        },
+        "coresident_child.35-44|male": {
+          "linked_contrib": 0.6506189148506925,
+          "shadow_contrib": 0.08677308132507044,
+          "male_full": 0.7373919961757627,
+          "a_sim_linked": 0.6501810690180541
+        }
+      },
+      "q11_sim_existence": {
+        "coresident_child.25-34|male": {
+          "exposed_count_distribution": {
+            "0": 0.26154771590120696,
+            "1": 0.3002095137137094,
+            "2": 0.2819878727528646,
+            "3+": 0.1562548976322192
+          },
+          "coresident_count_distribution": {
+            "0": 0.3851203458693302,
+            "1": 0.33441556634064573,
+            "2": 0.19889264788412503,
+            "3+": 0.08157143990589902
+          }
+        },
+        "coresident_child.35-44|male": {
+          "exposed_count_distribution": {
+            "0": 0.026924436185234952,
+            "1": 0.23099021819979276,
+            "2": 0.3987205843777837,
+            "3+": 0.34336476123718834
+          },
+          "coresident_count_distribution": {
+            "0": 0.16319428454381402,
+            "1": 0.33012800933561437,
+            "2": 0.31299494176121234,
+            "3+": 0.1936827643593592
+          }
+        }
+      },
+      "q11_sim_episodes": {
+        "distribution": {
+          "1": 0.33443066021739354,
+          "2": 0.19964916393111437,
+          "3": 0.12206566929454603,
+          "4+": 0.34385450655694616
+        },
+        "mean_episode_length": 3.569068035149221,
+        "mean_n_episodes": 15266.0
+      },
+      "q12_c6_female": {
+        "15-24": {
+          "legal": 0.07987345088103215,
+          "cohab": 0.08355855161849234,
+          "lr": 0.006096455296283221,
+          "full": 0.16952845779580766
+        },
+        "25-34": {
+          "legal": 0.48862755214867637,
+          "cohab": 0.09063693846436342,
+          "lr": 0.0025608270764223766,
+          "full": 0.5818253176894621
+        },
+        "35-44": {
+          "legal": 0.6824036736738,
+          "cohab": 0.02812108209831341,
+          "lr": 0.0004738930415775426,
+          "full": 0.710998648813691
+        },
+        "45-54": {
+          "legal": 0.718334216344264,
+          "cohab": 0.015504165362579217,
+          "lr": 9.914608472102514e-06,
+          "full": 0.7338482963153153
+        },
+        "55-64": {
+          "legal": 0.6802054245518074,
+          "cohab": 0.011492792048763401,
+          "lr": 5.068206823509271e-06,
+          "full": 0.6917032848073943
+        },
+        "65-74": {
+          "legal": 0.5632671206019569,
+          "cohab": 0.00793741372157764,
+          "lr": 0.008548506962835836,
+          "full": 0.5797530412863704
+        },
+        "75+": {
+          "legal": 0.3094792258967894,
+          "cohab": 0.008245979399918425,
+          "lr": 0.0074868513008717,
+          "full": 0.3252120565975795
+        }
+      },
+      "q12_no_delta3_female": {
+        "15-24": {
+          "legal": 0.07987345088103215,
+          "cohab": 0.08355855161849234,
+          "lr": 0.006096455296283221,
+          "full": 0.16952845779580766
+        },
+        "25-34": {
+          "legal": 0.48862755214867637,
+          "cohab": 0.09063693846436342,
+          "lr": 0.0025608270764223766,
+          "full": 0.5818253176894621
+        },
+        "35-44": {
+          "legal": 0.6824036736738,
+          "cohab": 0.028249017571308627,
+          "lr": 0.0004738930415775426,
+          "full": 0.7111265842866862
+        },
+        "45-54": {
+          "legal": 0.718334216344264,
+          "cohab": 0.01582730749698603,
+          "lr": 9.914608472102514e-06,
+          "full": 0.7341714384497221
+        },
+        "55-64": {
+          "legal": 0.6802054245518074,
+          "cohab": 0.011680822662192208,
+          "lr": 5.068206823509271e-06,
+          "full": 0.691891315420823
+        },
+        "65-74": {
+          "legal": 0.5632671206019569,
+          "cohab": 0.007904204944685987,
+          "lr": 0.008547791576183583,
+          "full": 0.5797191171228265
+        },
+        "75+": {
+          "legal": 0.3094792258967894,
+          "cohab": 0.008245979399918425,
+          "lr": 0.0074868513008717,
+          "full": 0.3252120565975795
+        }
+      },
+      "q12_target_full_per_draw": [
+        0.5621853134925031,
+        0.5750982380747653,
+        0.5763164180149631,
+        0.5739191555513823,
+        0.5847126406538401,
+        0.5718637621890968,
+        0.5985687581079622,
+        0.5752593750705673,
+        0.5899162917672416,
+        0.5816494366505282,
+        0.5683284259754522,
+        0.5781205419552904,
+        0.5962083297737534,
+        0.597466785136859,
+        0.5905558691283315,
+        0.5758425238859423,
+        0.5860788402295498,
+        0.5806092366611232,
+        0.5909952857556895,
+        0.5828111257144004
+      ],
+      "q13_hh5plus_per_draw": [
+        0.13018692327183365,
+        0.13344683870731583,
+        0.1298738486991051,
+        0.1321804598716007,
+        0.13139843463864717,
+        0.1280180490437034,
+        0.13140603707344706,
+        0.12942037245997118,
+        0.1325088152045312,
+        0.13105654154927043,
+        0.13315095823565762,
+        0.13143234912168264,
+        0.13383171000625446,
+        0.13236346858680134,
+        0.1301118924815053,
+        0.13248356441067627,
+        0.1283733154102949,
+        0.13194333541885245,
+        0.13092539809906653,
+        0.13327876828520802
+      ],
+      "q13_sim_core_distribution": {
+        "1": 0.19871103934800047,
+        "2": 0.37301345575205164,
+        "3": 0.24136926611248097,
+        "4": 0.12007245245962653,
+        "5": 0.04624727674949355,
+        "6": 0.014703339518869601,
+        "7": 0.004204719837017557,
+        "8": 0.0011927496355248549
+      },
+      "q13_sim_core5plus": 0.06683378632784051,
+      "q13_sim_child_count_distribution": {
+        "0": 0.6072220068167937,
+        "1": 0.19617550945238665,
+        "2": 0.12857303482864474,
+        "3": 0.048684988466799535,
+        "4+": 0.01934446043537547
+      },
+      "q13_reference_core5plus": 0.07818215876313157,
+      "q13_reference_hh5plus": 0.14184063151578838,
+      "q13_reference_child3plus_share": 0.0823680347960669,
+      "elapsed_seconds": 198.7
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 23478,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.1398631945623175,
+        "coresident_child.15-24|male": 0.05329938904639872,
+        "coresident_child.25-34|female": 0.5588269749725004,
+        "coresident_child.25-34|male": 0.39533739939631035,
+        "coresident_child.35-44|female": 0.7635054721590988,
+        "coresident_child.35-44|male": 0.6562152102552118,
+        "coresident_child.45-54|female": 0.5649615517683009,
+        "coresident_child.45-54|male": 0.5547808211604051,
+        "coresident_child.55-64|female": 0.2530616849259454,
+        "coresident_child.55-64|male": 0.26988366413772463,
+        "coresident_child.65-74|female": 0.12985968722740585,
+        "coresident_child.65-74|male": 0.14468000375533768,
+        "coresident_grandchild.45-54|female": 0.046340791444503336,
+        "coresident_grandchild.55+|female": 0.06727656813294278,
+        "coresident_parent.15-24|female": 0.705920415022049,
+        "coresident_parent.15-24|male": 0.7592943811884588,
+        "coresident_parent.25-34|female": 0.10170251980052127,
+        "coresident_parent.25-34|male": 0.15318451520736184,
+        "coresident_spouse.15-24|female": 0.1491810152377456,
+        "coresident_spouse.15-24|male": 0.0979093931399612,
+        "coresident_spouse.25-34|female": 0.6180977148810307,
+        "coresident_spouse.25-34|male": 0.5657444901381089,
+        "coresident_spouse.35-44|female": 0.7124677791505141,
+        "coresident_spouse.35-44|male": 0.747688202627402,
+        "coresident_spouse.45-54|female": 0.6973801296718622,
+        "coresident_spouse.45-54|male": 0.7691554292053668,
+        "coresident_spouse.55-64|female": 0.6719144237901487,
+        "coresident_spouse.55-64|male": 0.781054200058777,
+        "coresident_spouse.65-74|female": 0.5928656339047959,
+        "coresident_spouse.65-74|male": 0.8076564991192985,
+        "coresident_spouse.75+|female": 0.32394165004252284,
+        "coresident_spouse.75+|male": 0.7027436723227495,
+        "hh_size.1": 0.17552259230171532,
+        "hh_size.2": 0.3242503463994118,
+        "hh_size.3": 0.18210054659754332,
+        "hh_size.4": 0.17667302732542084,
+        "hh_size.5+": 0.1414534873759086,
+        "multigen.15-24|female": 0.09372809294130136,
+        "multigen.25-34|female": 0.04012405516628253,
+        "multigen.45-54|female": 0.05008242413936031,
+        "multigen_entry": 0.013762387361552426,
+        "multigen_exit": 0.3037480251423434,
+        "parental_home_exit.15-24|female": 0.18413084350873263,
+        "parental_home_exit.15-24|male": 0.1392638070216247,
+        "parental_home_exit.25-34|female": 0.24649975961896578,
+        "parental_home_exit.25-34|male": 0.2454649012012588
+      },
+      "q11_reference": {
+        "per_cell": {
+          "coresident_child.25-34|male": {
+            "reference_full_male_rate": 0.39533739939631024,
+            "reference_linked_any_contribution": 0.38033273598002254,
+            "reference_unlinked_any_contribution": 0.015004663416287686,
+            "reference_linked_restricted_contribution": 0.362945918444709,
+            "reference_a_refexp_all_contribution": 0.41797423160163566,
+            "reference_a_refexp_joinable_contribution": 0.3821993820521503,
+            "n_linked_father_waves_cell": 18583,
+            "cell_weight_total": 139039873.34600002,
+            "linked_father_wave_weight_total": 88414268.939,
+            "reference_exposed_count_distribution": {
+              "0": 0.2413880354959975,
+              "1": 0.3084323146619509,
+              "2": 0.28543759003890756,
+              "3+": 0.16474205980314405
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.42923291525696167,
+              "1": 0.2517825603054948,
+              "2": 0.2263930506942265,
+              "3+": 0.09259147374331715
+            },
+            "mean_exposed_linked_children_per_father_wave": 1.4469169717306822,
+            "mean_coresident_linked_children_per_father_wave": 1.0099786415766068
+          },
+          "coresident_child.35-44|male": {
+            "reference_full_male_rate": 0.6562152102552119,
+            "reference_linked_any_contribution": 0.626244633475396,
+            "reference_unlinked_any_contribution": 0.029970576779815773,
+            "reference_linked_restricted_contribution": 0.6014117909965614,
+            "reference_a_refexp_all_contribution": 0.6570856176587847,
+            "reference_a_refexp_joinable_contribution": 0.6214969135397386,
+            "n_linked_father_waves_cell": 16553,
+            "cell_weight_total": 140086865.89,
+            "linked_father_wave_weight_total": 107825804.887,
+            "reference_exposed_count_distribution": {
+              "0": 0.03160547660712034,
+              "1": 0.2325914249959259,
+              "2": 0.39481011155551815,
+              "3+": 0.34099298684143564
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.21864814273083558,
+              "1": 0.228670643820742,
+              "2": 0.3466191918638397,
+              "3+": 0.20606202158458273
+            },
+            "mean_exposed_linked_children_per_father_wave": 2.237781086168281,
+            "mean_coresident_linked_children_per_father_wave": 1.6286329665151635
+          }
+        },
+        "reference_episode_length_distribution": {
+          "1": 0.17056626032245378,
+          "2": 0.1274085725521038,
+          "3": 0.10794337396775462,
+          "4+": 0.5940817931576877
+        },
+        "reference_mean_episode_length": 5.854502556036178,
+        "reference_n_episodes": 10172,
+        "n_linked_fathers_train": 14835,
+        "linked_exposure_basis": "model.father_links (father_link_births)",
+        "n_linked_exposure_rows_train": 36887,
+        "n_joinable_exposure_keys_train": 26985
+      },
+      "q11_sim": {
+        "coresident_child.25-34|male": {
+          "linked_contrib": 0.4072726594628266,
+          "shadow_contrib": 0.04761125426464181,
+          "male_full": 0.45488391372746834,
+          "a_sim_linked": 0.40634992883665627
+        },
+        "coresident_child.35-44|male": {
+          "linked_contrib": 0.6415212552286477,
+          "shadow_contrib": 0.09036347887203063,
+          "male_full": 0.731884734100678,
+          "a_sim_linked": 0.6404422104148271
+        }
+      },
+      "q11_sim_existence": {
+        "coresident_child.25-34|male": {
+          "exposed_count_distribution": {
+            "0": 0.2418535248430899,
+            "1": 0.30809834149861426,
+            "2": 0.2851521404468339,
+            "3+": 0.164895993211462
+          },
+          "coresident_count_distribution": {
+            "0": 0.35828972435210815,
+            "1": 0.34535871852742794,
+            "2": 0.208072836596098,
+            "3+": 0.0882787205243658
+          }
+        },
+        "coresident_child.35-44|male": {
+          "exposed_count_distribution": {
+            "0": 0.03163879861690476,
+            "1": 0.23274004140671214,
+            "2": 0.3946482365552851,
+            "3+": 0.3409729234210982
+          },
+          "coresident_count_distribution": {
+            "0": 0.16565935468469598,
+            "1": 0.3280403879224561,
+            "2": 0.3158419542719373,
+            "3+": 0.19045830312091078
+          }
+        }
+      },
+      "q11_sim_episodes": {
+        "distribution": {
+          "1": 0.33321750776571496,
+          "2": 0.19745891526850629,
+          "3": 0.12606962153894202,
+          "4+": 0.3432539554268368
+        },
+        "mean_episode_length": 3.5282905320090534,
+        "mean_n_episodes": 15431.45
+      },
+      "q12_c6_female": {
+        "15-24": {
+          "legal": 0.08026847783010707,
+          "cohab": 0.07515095872093597,
+          "lr": 0.0,
+          "full": 0.15541943655104307
+        },
+        "25-34": {
+          "legal": 0.503362766745197,
+          "cohab": 0.07899441841487587,
+          "lr": 0.0,
+          "full": 0.5823571851600728
+        },
+        "35-44": {
+          "legal": 0.6883264192229572,
+          "cohab": 0.026224245408549222,
+          "lr": 0.0,
+          "full": 0.7145506646315065
+        },
+        "45-54": {
+          "legal": 0.7158346591212429,
+          "cohab": 0.01686993029687408,
+          "lr": 0.0,
+          "full": 0.732704589418117
+        },
+        "55-64": {
+          "legal": 0.6744947147385474,
+          "cohab": 0.013317149445700355,
+          "lr": 3.336512587968654e-08,
+          "full": 0.6878118975493737
+        },
+        "65-74": {
+          "legal": 0.548539549347929,
+          "cohab": 0.01137629563020127,
+          "lr": 0.01917628077952083,
+          "full": 0.5790921257576513
+        },
+        "75+": {
+          "legal": 0.2998697866677712,
+          "cohab": 0.010142087236091205,
+          "lr": 0.017236441545260904,
+          "full": 0.3272483154491232
+        }
+      },
+      "q12_no_delta3_female": {
+        "15-24": {
+          "legal": 0.08026847783010707,
+          "cohab": 0.07515095872093597,
+          "lr": 0.0,
+          "full": 0.15541943655104307
+        },
+        "25-34": {
+          "legal": 0.503362766745197,
+          "cohab": 0.07899441593894987,
+          "lr": 0.0,
+          "full": 0.5823571826841467
+        },
+        "35-44": {
+          "legal": 0.6883264192229572,
+          "cohab": 0.026151828959736688,
+          "lr": 0.0,
+          "full": 0.7144782481826939
+        },
+        "45-54": {
+          "legal": 0.7158346591212429,
+          "cohab": 0.0164654009893872,
+          "lr": 0.0,
+          "full": 0.73230006011063
+        },
+        "55-64": {
+          "legal": 0.6744947147385474,
+          "cohab": 0.01309944672694209,
+          "lr": 3.336512587968654e-08,
+          "full": 0.6875941948306153
+        },
+        "65-74": {
+          "legal": 0.548539549347929,
+          "cohab": 0.011313270597476667,
+          "lr": 0.01917628077952083,
+          "full": 0.5790291007249266
+        },
+        "75+": {
+          "legal": 0.2998697866677712,
+          "cohab": 0.010147152003113002,
+          "lr": 0.017236441545260904,
+          "full": 0.32725338021614503
+        }
+      },
+      "q12_target_full_per_draw": [
+        0.5846440716893351,
+        0.5800648499871687,
+        0.5722189972919521,
+        0.5827167581818574,
+        0.587583121243921,
+        0.5705988123992771,
+        0.5829442899556652,
+        0.587392661451873,
+        0.5993477505583051,
+        0.5741272818516833,
+        0.5715170582597661,
+        0.5912205884595019,
+        0.5913203970417872,
+        0.595436331036736,
+        0.5758269078568898,
+        0.5840074915109024,
+        0.5694487767839577,
+        0.5810057653605858,
+        0.5813819036402881,
+        0.5843398886400033
+      ],
+      "q13_hh5plus_per_draw": [
+        0.13237344802249243,
+        0.1330317373155879,
+        0.13008932616022167,
+        0.12954461233255213,
+        0.1319700099221824,
+        0.1319601755996223,
+        0.13223764470667018,
+        0.13046078765219435,
+        0.13027352410307744,
+        0.1333858268851401,
+        0.130278193858524,
+        0.13248087176977513,
+        0.13062850717246613,
+        0.1319802155824967,
+        0.13059434620060129,
+        0.13085137377663553,
+        0.1310245705905268,
+        0.1293179361967051,
+        0.13152336838143092,
+        0.13174448445335615
+      ],
+      "q13_sim_core_distribution": {
+        "1": 0.1963722395637817,
+        "2": 0.3706704554242698,
+        "3": 0.24524476443197668,
+        "4": 0.122032455686814,
+        "5": 0.04503949749004847,
+        "6": 0.014769183824003936,
+        "7": 0.004230411933841563,
+        "8": 0.001230281222424362
+      },
+      "q13_sim_core5plus": 0.0656800848931578,
+      "q13_sim_child_count_distribution": {
+        "0": 0.6026922140841092,
+        "1": 0.1988661302460133,
+        "2": 0.13132904503183357,
+        "3": 0.047899261207095936,
+        "4+": 0.01921334943094784
+      },
+      "q13_reference_core5plus": 0.07731763321328468,
+      "q13_reference_hh5plus": 0.1414534873759086,
+      "q13_reference_child3plus_share": 0.07994808741719885,
+      "elapsed_seconds": 189.5
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 23484,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15265688108532682,
+        "coresident_child.15-24|male": 0.04909956888809355,
+        "coresident_child.25-34|female": 0.5579857331371875,
+        "coresident_child.25-34|male": 0.380804418350654,
+        "coresident_child.35-44|female": 0.7710613778109919,
+        "coresident_child.35-44|male": 0.6593078347131237,
+        "coresident_child.45-54|female": 0.5562101685241292,
+        "coresident_child.45-54|male": 0.5410891047621881,
+        "coresident_child.55-64|female": 0.24516558060560092,
+        "coresident_child.55-64|male": 0.2600108190831476,
+        "coresident_child.65-74|female": 0.12508634581897585,
+        "coresident_child.65-74|male": 0.13241914416056058,
+        "coresident_grandchild.45-54|female": 0.04609343249499775,
+        "coresident_grandchild.55+|female": 0.06152256513958865,
+        "coresident_parent.15-24|female": 0.6971339666572091,
+        "coresident_parent.15-24|male": 0.7707377238227826,
+        "coresident_parent.25-34|female": 0.1005539563102775,
+        "coresident_parent.25-34|male": 0.15293404290751422,
+        "coresident_spouse.15-24|female": 0.15962218484880378,
+        "coresident_spouse.15-24|male": 0.09748305660984581,
+        "coresident_spouse.25-34|female": 0.6205372002121678,
+        "coresident_spouse.25-34|male": 0.5631157675697752,
+        "coresident_spouse.35-44|female": 0.7190922059251045,
+        "coresident_spouse.35-44|male": 0.7478724696880955,
+        "coresident_spouse.45-54|female": 0.6968605442387006,
+        "coresident_spouse.45-54|male": 0.7617622262526913,
+        "coresident_spouse.55-64|female": 0.6840049252804771,
+        "coresident_spouse.55-64|male": 0.7731703720451946,
+        "coresident_spouse.65-74|female": 0.5832129378683362,
+        "coresident_spouse.65-74|male": 0.816818669410028,
+        "coresident_spouse.75+|female": 0.28521476377920796,
+        "coresident_spouse.75+|male": 0.7247182698693979,
+        "hh_size.1": 0.18048968966315232,
+        "hh_size.2": 0.3234872389390206,
+        "hh_size.3": 0.18435936804148906,
+        "hh_size.4": 0.17417577650329527,
+        "hh_size.5+": 0.1374879268530427,
+        "multigen.15-24|female": 0.09527881617541563,
+        "multigen.25-34|female": 0.0402781346618892,
+        "multigen.45-54|female": 0.0468301948180048,
+        "multigen_entry": 0.013768686115784542,
+        "multigen_exit": 0.30617958832383296,
+        "parental_home_exit.15-24|female": 0.195414494482521,
+        "parental_home_exit.15-24|male": 0.14291487390966534,
+        "parental_home_exit.25-34|female": 0.25799668980324186,
+        "parental_home_exit.25-34|male": 0.25819035512182903
+      },
+      "q11_reference": {
+        "per_cell": {
+          "coresident_child.25-34|male": {
+            "reference_full_male_rate": 0.38080441835065393,
+            "reference_linked_any_contribution": 0.3664195060071566,
+            "reference_unlinked_any_contribution": 0.014384912343497312,
+            "reference_linked_restricted_contribution": 0.34663871855377393,
+            "reference_a_refexp_all_contribution": 0.40011254036777777,
+            "reference_a_refexp_joinable_contribution": 0.36322500036619426,
+            "n_linked_father_waves_cell": 18471,
+            "cell_weight_total": 133485910.87300001,
+            "linked_father_wave_weight_total": 84099014.433,
+            "reference_exposed_count_distribution": {
+              "0": 0.26163786131560124,
+              "1": 0.31485156214398985,
+              "2": 0.2665847961138853,
+              "3+": 0.1569257804265236
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.4497987235407677,
+              "1": 0.25616427962022087,
+              "2": 0.20523058379893921,
+              "3+": 0.08880641304007231
+            },
+            "mean_exposed_linked_children_per_father_wave": 1.382898407943344,
+            "mean_coresident_linked_children_per_father_wave": 0.9583192383806994
+          },
+          "coresident_child.35-44|male": {
+            "reference_full_male_rate": 0.6593078347131236,
+            "reference_linked_any_contribution": 0.6282194183041513,
+            "reference_unlinked_any_contribution": 0.031088416408972305,
+            "reference_linked_restricted_contribution": 0.6021369260016626,
+            "reference_a_refexp_all_contribution": 0.6621362125204688,
+            "reference_a_refexp_joinable_contribution": 0.6233328811452015,
+            "n_linked_father_waves_cell": 16586,
+            "cell_weight_total": 137258150.62,
+            "linked_father_wave_weight_total": 106543199.19899999,
+            "reference_exposed_count_distribution": {
+              "0": 0.03004009295818142,
+              "1": 0.24210329247596035,
+              "2": 0.40002654917837344,
+              "3+": 0.32783006538748494
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.22427520945160695,
+              "1": 0.24101231677902363,
+              "2": 0.3431252579596195,
+              "3+": 0.19158721580975008
+            },
+            "mean_exposed_linked_children_per_father_wave": 2.1912367237062584,
+            "mean_coresident_linked_children_per_father_wave": 1.5705125699057338
+          }
+        },
+        "reference_episode_length_distribution": {
+          "1": 0.1689870863599677,
+          "2": 0.12439467312348668,
+          "3": 0.10633575464083939,
+          "4+": 0.6002824858757062
+        },
+        "reference_mean_episode_length": 5.931598062953995,
+        "reference_n_episodes": 9912,
+        "n_linked_fathers_train": 14835,
+        "linked_exposure_basis": "model.father_links (father_link_births)",
+        "n_linked_exposure_rows_train": 36887,
+        "n_joinable_exposure_keys_train": 26985
+      },
+      "q11_sim": {
+        "coresident_child.25-34|male": {
+          "linked_contrib": 0.38971864904187725,
+          "shadow_contrib": 0.04599932042934414,
+          "male_full": 0.43571796947122143,
+          "a_sim_linked": 0.3896445816694084
+        },
+        "coresident_child.35-44|male": {
+          "linked_contrib": 0.6476261029995072,
+          "shadow_contrib": 0.09144172776302266,
+          "male_full": 0.7390678307625298,
+          "a_sim_linked": 0.6469616690839151
+        }
+      },
+      "q11_sim_existence": {
+        "coresident_child.25-34|male": {
+          "exposed_count_distribution": {
+            "0": 0.26274474292235006,
+            "1": 0.31505790419839036,
+            "2": 0.2651463265976952,
+            "3+": 0.15705102628156423
+          },
+          "coresident_count_distribution": {
+            "0": 0.3788032032014062,
+            "1": 0.3407687815189397,
+            "2": 0.1965297326429324,
+            "3+": 0.08389828263672161
+          }
+        },
+        "coresident_child.35-44|male": {
+          "exposed_count_distribution": {
+            "0": 0.029968722399711628,
+            "1": 0.2423668160441311,
+            "2": 0.39983586224600143,
+            "3+": 0.3278285993101557
+          },
+          "coresident_count_distribution": {
+            "0": 0.16379228350838834,
+            "1": 0.33382619458042856,
+            "2": 0.32120450538019146,
+            "3+": 0.1811770165309916
+          }
+        }
+      },
+      "q11_sim_episodes": {
+        "distribution": {
+          "1": 0.32745253194400814,
+          "2": 0.19570329661172053,
+          "3": 0.12342449605507999,
+          "4+": 0.35341967538919133
+        },
+        "mean_episode_length": 3.6350366423525395,
+        "mean_n_episodes": 14926.8
+      },
+      "q12_c6_female": {
+        "15-24": {
+          "legal": 0.07993336217787009,
+          "cohab": 0.08391841058073687,
+          "lr": 0.0048051062494517596,
+          "full": 0.16865687900805867
+        },
+        "25-34": {
+          "legal": 0.5026760359355545,
+          "cohab": 0.08125471668020526,
+          "lr": 0.0009382601915931939,
+          "full": 0.584869012807353
+        },
+        "35-44": {
+          "legal": 0.6856111266620238,
+          "cohab": 0.025570873171801012,
+          "lr": 1.187104146325235e-05,
+          "full": 0.7111938708752882
+        },
+        "45-54": {
+          "legal": 0.7130674919706225,
+          "cohab": 0.01671074428989466,
+          "lr": 0.0,
+          "full": 0.7297782362605173
+        },
+        "55-64": {
+          "legal": 0.6727186874514359,
+          "cohab": 0.01404378708528379,
+          "lr": 0.0,
+          "full": 0.6867624745367197
+        },
+        "65-74": {
+          "legal": 0.5453296635801663,
+          "cohab": 0.012367243892170992,
+          "lr": 0.0,
+          "full": 0.5576969074723374
+        },
+        "75+": {
+          "legal": 0.28299268972962466,
+          "cohab": 0.010352815228798957,
+          "lr": 0.0,
+          "full": 0.2933455049584236
+        }
+      },
+      "q12_no_delta3_female": {
+        "15-24": {
+          "legal": 0.07993336217787009,
+          "cohab": 0.08391842489354358,
+          "lr": 0.0048051062494517596,
+          "full": 0.1686568933208654
+        },
+        "25-34": {
+          "legal": 0.5026760359355545,
+          "cohab": 0.08125469377872335,
+          "lr": 0.0009382601915931939,
+          "full": 0.5848689899058711
+        },
+        "35-44": {
+          "legal": 0.6856111266620238,
+          "cohab": 0.025677983121299965,
+          "lr": 1.187104146325235e-05,
+          "full": 0.7113009808247871
+        },
+        "45-54": {
+          "legal": 0.7130674919706225,
+          "cohab": 0.0175849204124953,
+          "lr": 0.0,
+          "full": 0.730652412383118
+        },
+        "55-64": {
+          "legal": 0.6727186874514359,
+          "cohab": 0.014141147035808724,
+          "lr": 0.0,
+          "full": 0.6868598344872445
+        },
+        "65-74": {
+          "legal": 0.5453296635801663,
+          "cohab": 0.012421543035234168,
+          "lr": 0.0,
+          "full": 0.5577512066154005
+        },
+        "75+": {
+          "legal": 0.28299268972962466,
+          "cohab": 0.010302083248638351,
+          "lr": 0.0,
+          "full": 0.293294772978263
+        }
+      },
+      "q12_target_full_per_draw": [
+        0.590546015118458,
+        0.5937791379861256,
+        0.5793417779786918,
+        0.5942518676800269,
+        0.5918513459883825,
+        0.580225347736586,
+        0.5849181244438719,
+        0.5871159821565476,
+        0.5838442003955825,
+        0.5919177343077869,
+        0.587095559127759,
+        0.5830989598152748,
+        0.5860386332453421,
+        0.5787453829156718,
+        0.5819928236165907,
+        0.5761521900658916,
+        0.5843719216891031,
+        0.5809611967621685,
+        0.5894911868039031,
+        0.5716408683132967
+      ],
+      "q13_hh5plus_per_draw": [
+        0.12613872195614712,
+        0.1270291265485215,
+        0.1247245006930197,
+        0.1299690494968862,
+        0.12779508225272587,
+        0.1281320134568233,
+        0.1261975623004498,
+        0.12784268324169518,
+        0.12782714211662255,
+        0.1274181289577095,
+        0.1268044373290322,
+        0.12709985028521878,
+        0.12354128582501955,
+        0.12907980621684803,
+        0.1258661367666741,
+        0.12622263540428522,
+        0.12408209408763718,
+        0.12619915740467158,
+        0.12897905063477805,
+        0.12558601281463186
+      ],
+      "q13_sim_core_distribution": {
+        "1": 0.2028821966019862,
+        "2": 0.3715413123866447,
+        "3": 0.23996924000498532,
+        "4": 0.12093868918855208,
+        "5": 0.0442958926896755,
+        "6": 0.014523613701285899,
+        "7": 0.004149008937138767,
+        "8": 0.001220604519185053
+      },
+      "q13_sim_core5plus": 0.06466856181783169,
+      "q13_sim_child_count_distribution": {
+        "0": 0.6076525232364626,
+        "1": 0.19516928586098733,
+        "2": 0.13024281147842437,
+        "3": 0.04751039215423351,
+        "4+": 0.019424987269892134
+      },
+      "q13_reference_core5plus": 0.07570443582878222,
+      "q13_reference_hh5plus": 0.1374879268530427,
+      "q13_reference_child3plus_share": 0.07912886955759733,
+      "elapsed_seconds": 193.7
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 23569,
+      "rate_b": {
+        "coresident_child.15-24|female": 0.15034145398698687,
+        "coresident_child.15-24|male": 0.05484611979139655,
+        "coresident_child.25-34|female": 0.5625528300994921,
+        "coresident_child.25-34|male": 0.3850412392629711,
+        "coresident_child.35-44|female": 0.7636038560534274,
+        "coresident_child.35-44|male": 0.6562316130159411,
+        "coresident_child.45-54|female": 0.5565894604967248,
+        "coresident_child.45-54|male": 0.5440802083638135,
+        "coresident_child.55-64|female": 0.23801968638666507,
+        "coresident_child.55-64|male": 0.24252307069662854,
+        "coresident_child.65-74|female": 0.10738717033597385,
+        "coresident_child.65-74|male": 0.12927475825171747,
+        "coresident_grandchild.45-54|female": 0.041950270886163356,
+        "coresident_grandchild.55+|female": 0.05694084187949786,
+        "coresident_parent.15-24|female": 0.6898043413369168,
+        "coresident_parent.15-24|male": 0.7544383110964245,
+        "coresident_parent.25-34|female": 0.09869633976968453,
+        "coresident_parent.25-34|male": 0.15734074093356426,
+        "coresident_spouse.15-24|female": 0.16424138402139107,
+        "coresident_spouse.15-24|male": 0.10251208134315432,
+        "coresident_spouse.25-34|female": 0.625151861028996,
+        "coresident_spouse.25-34|male": 0.5590870181787914,
+        "coresident_spouse.35-44|female": 0.7035392431059231,
+        "coresident_spouse.35-44|male": 0.7459487513792726,
+        "coresident_spouse.45-54|female": 0.693052058609109,
+        "coresident_spouse.45-54|male": 0.7611393069917511,
+        "coresident_spouse.55-64|female": 0.6803015977835829,
+        "coresident_spouse.55-64|male": 0.7651594749549719,
+        "coresident_spouse.65-74|female": 0.5960321174669782,
+        "coresident_spouse.65-74|male": 0.8106792136628171,
+        "coresident_spouse.75+|female": 0.3109167687614151,
+        "coresident_spouse.75+|male": 0.7166142112250509,
+        "hh_size.1": 0.18203749869203584,
+        "hh_size.2": 0.3286100096596938,
+        "hh_size.3": 0.1782504791744526,
+        "hh_size.4": 0.1738390208181082,
+        "hh_size.5+": 0.13726299165570963,
+        "multigen.15-24|female": 0.08627374622279266,
+        "multigen.25-34|female": 0.04380050458209941,
+        "multigen.45-54|female": 0.048225266980696284,
+        "multigen_entry": 0.013165458846356946,
+        "multigen_exit": 0.31162588723868534,
+        "parental_home_exit.15-24|female": 0.1890915910646025,
+        "parental_home_exit.15-24|male": 0.14129998962559595,
+        "parental_home_exit.25-34|female": 0.2740600502058679,
+        "parental_home_exit.25-34|male": 0.23327589192616993
+      },
+      "q11_reference": {
+        "per_cell": {
+          "coresident_child.25-34|male": {
+            "reference_full_male_rate": 0.38504123926297124,
+            "reference_linked_any_contribution": 0.3715937591972304,
+            "reference_unlinked_any_contribution": 0.013447480065740702,
+            "reference_linked_restricted_contribution": 0.3553811736142358,
+            "reference_a_refexp_all_contribution": 0.40819875397111177,
+            "reference_a_refexp_joinable_contribution": 0.37388433308695623,
+            "n_linked_father_waves_cell": 18652,
+            "cell_weight_total": 140383637.28899997,
+            "linked_father_wave_weight_total": 88028235.97299999,
+            "reference_exposed_count_distribution": {
+              "0": 0.24792723202693775,
+              "1": 0.32002062333318326,
+              "2": 0.2734249924579027,
+              "3+": 0.1586271521819764
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.43325341892228586,
+              "1": 0.25807968887355814,
+              "2": 0.21525979156065353,
+              "3+": 0.09340710064350254
+            },
+            "mean_exposed_linked_children_per_father_wave": 1.4051912818625627,
+            "mean_coresident_linked_children_per_father_wave": 0.9916350402361142
+          },
+          "coresident_child.35-44|male": {
+            "reference_full_male_rate": 0.656231613015941,
+            "reference_linked_any_contribution": 0.6263203733992087,
+            "reference_unlinked_any_contribution": 0.02991123961673247,
+            "reference_linked_restricted_contribution": 0.6039567827381498,
+            "reference_a_refexp_all_contribution": 0.6595613633518822,
+            "reference_a_refexp_joinable_contribution": 0.6223389670527659,
+            "n_linked_father_waves_cell": 16633,
+            "cell_weight_total": 141730880.342,
+            "linked_father_wave_weight_total": 109123194.826,
+            "reference_exposed_count_distribution": {
+              "0": 0.02981245538299504,
+              "1": 0.24384482790692663,
+              "2": 0.40292160419339224,
+              "3+": 0.32342111251668604
+            },
+            "reference_coresident_linked_count_distribution": {
+              "0": 0.21557166061266322,
+              "1": 0.23687943600090722,
+              "2": 0.3480583059317695,
+              "3+": 0.19949059745466
+            },
+            "mean_exposed_linked_children_per_father_wave": 2.1887668603530663,
+            "mean_coresident_linked_children_per_father_wave": 1.6035117935743273
+          }
+        },
+        "reference_episode_length_distribution": {
+          "1": 0.16187475384009453,
+          "2": 0.12465537613233557,
+          "3": 0.10496258369436787,
+          "4+": 0.6085072863332021
+        },
+        "reference_mean_episode_length": 5.933142969673099,
+        "reference_n_episodes": 10156,
+        "n_linked_fathers_train": 14835,
+        "linked_exposure_basis": "model.father_links (father_link_births)",
+        "n_linked_exposure_rows_train": 36887,
+        "n_joinable_exposure_keys_train": 26985
+      },
+      "q11_sim": {
+        "coresident_child.25-34|male": {
+          "linked_contrib": 0.3940428240085533,
+          "shadow_contrib": 0.04690098701314895,
+          "male_full": 0.4409438110217022,
+          "a_sim_linked": 0.3944441832284783
+        },
+        "coresident_child.35-44|male": {
+          "linked_contrib": 0.641937004563914,
+          "shadow_contrib": 0.09185713242932564,
+          "male_full": 0.7337941369932395,
+          "a_sim_linked": 0.6425852354261419
+        }
+      },
+      "q11_sim_existence": {
+        "coresident_child.25-34|male": {
+          "exposed_count_distribution": {
+            "0": 0.24840471894508673,
+            "1": 0.31963375425124757,
+            "2": 0.2731528519335615,
+            "3+": 0.15880867487010425
+          },
+          "coresident_count_distribution": {
+            "0": 0.37029425297079477,
+            "1": 0.3446666502699369,
+            "2": 0.19904881706393573,
+            "3+": 0.08599027969533256
+          }
+        },
+        "coresident_child.35-44|male": {
+          "exposed_count_distribution": {
+            "0": 0.029853685838945303,
+            "1": 0.24408657381134619,
+            "2": 0.4024525234707285,
+            "3+": 0.32360721687897986
+          },
+          "coresident_count_distribution": {
+            "0": 0.1650892834989149,
+            "1": 0.33400115440623634,
+            "2": 0.31928513520556007,
+            "3+": 0.18162442688928868
+          }
+        }
+      },
+      "q11_sim_episodes": {
+        "distribution": {
+          "1": 0.33209522808695546,
+          "2": 0.19799993506319385,
+          "3": 0.12146443678325536,
+          "4+": 0.3484404000665953
+        },
+        "mean_episode_length": 3.5593718283613063,
+        "mean_n_episodes": 15480.8
+      },
+      "q12_c6_female": {
+        "15-24": {
+          "legal": 0.08037576286534373,
+          "cohab": 0.08503630703819555,
+          "lr": 0.0034422393334795397,
+          "full": 0.1688543092370188
+        },
+        "25-34": {
+          "legal": 0.5093757802152519,
+          "cohab": 0.08716755580263903,
+          "lr": 0.00044908025869568795,
+          "full": 0.5969924162765866
+        },
+        "35-44": {
+          "legal": 0.6954993855146154,
+          "cohab": 0.02640083186788404,
+          "lr": 6.191206808175681e-06,
+          "full": 0.7219064085893077
+        },
+        "45-54": {
+          "legal": 0.7120236697198337,
+          "cohab": 0.018502802370271635,
+          "lr": 0.0,
+          "full": 0.7305264720901053
+        },
+        "55-64": {
+          "legal": 0.6707942264631371,
+          "cohab": 0.013290565440969382,
+          "lr": 0.0,
+          "full": 0.6840847919041064
+        },
+        "65-74": {
+          "legal": 0.5535639310292751,
+          "cohab": 0.012953433752399842,
+          "lr": 0.004067249506577626,
+          "full": 0.5705846142882526
+        },
+        "75+": {
+          "legal": 0.3021136320618919,
+          "cohab": 0.012641510068240564,
+          "lr": 0.00227480089693417,
+          "full": 0.3170299430270666
+        }
+      },
+      "q12_no_delta3_female": {
+        "15-24": {
+          "legal": 0.08037576286534373,
+          "cohab": 0.08503630703819555,
+          "lr": 0.0034422393334795397,
+          "full": 0.1688543092370188
+        },
+        "25-34": {
+          "legal": 0.5093757802152519,
+          "cohab": 0.08716755616764295,
+          "lr": 0.00044908025869568795,
+          "full": 0.5969924166415906
+        },
+        "35-44": {
+          "legal": 0.6954993855146154,
+          "cohab": 0.027024790632372675,
+          "lr": 6.191206808175681e-06,
+          "full": 0.7225303673537962
+        },
+        "45-54": {
+          "legal": 0.7120236697198337,
+          "cohab": 0.018061894225154352,
+          "lr": 0.0,
+          "full": 0.7300855639449881
+        },
+        "55-64": {
+          "legal": 0.6707942264631371,
+          "cohab": 0.013477828661095087,
+          "lr": 0.0,
+          "full": 0.6842720551242323
+        },
+        "65-74": {
+          "legal": 0.5535639310292751,
+          "cohab": 0.012944386426673116,
+          "lr": 0.004067249506577626,
+          "full": 0.5705755669625259
+        },
+        "75+": {
+          "legal": 0.3021136320618919,
+          "cohab": 0.012541654512633985,
+          "lr": 0.00227480089693417,
+          "full": 0.31693008747146
+        }
+      },
+      "q12_target_full_per_draw": [
+        0.5924820850295256,
+        0.6061269008185095,
+        0.600925677335916,
+        0.5998205475759754,
+        0.5915900707239402,
+        0.5927137448215114,
+        0.6106377400323892,
+        0.5966026978826383,
+        0.5912225379630696,
+        0.5994183391734027,
+        0.5881785208278117,
+        0.5969301876776879,
+        0.5892515342147767,
+        0.6031074036021199,
+        0.6063147840050627,
+        0.5927497378426313,
+        0.5854997595006237,
+        0.6023243410588178,
+        0.606562987183236,
+        0.5873887282620873
+      ],
+      "q13_hh5plus_per_draw": [
+        0.12880013537979507,
+        0.1302707261548926,
+        0.12830055519541242,
+        0.12794906460053487,
+        0.13075680959540648,
+        0.12936504445081945,
+        0.1293382511755606,
+        0.12781593186834925,
+        0.13015689529687016,
+        0.13274493679455265,
+        0.12891917402406075,
+        0.13022355394012006,
+        0.12725265855135037,
+        0.1301966496288791,
+        0.1265153650042972,
+        0.1308236558157342,
+        0.1290688627331842,
+        0.1281339286368391,
+        0.12806033137467582,
+        0.1283424750037278
+      ],
+      "q13_sim_core_distribution": {
+        "1": 0.20043390194877048,
+        "2": 0.37213936320835705,
+        "3": 0.24113145377605752,
+        "4": 0.12051918102510165,
+        "5": 0.04485688180816717,
+        "6": 0.014941022420733039,
+        "7": 0.0043177654481186024,
+        "8": 0.0011939316052666151
+      },
+      "q13_sim_core5plus": 0.06577610004171335,
+      "q13_sim_child_count_distribution": {
+        "0": 0.6052191142760582,
+        "1": 0.19848352985370285,
+        "2": 0.1296636240923154,
+        "3": 0.04705372374971624,
+        "4+": 0.019580008028207186
+      },
+      "q13_reference_core5plus": 0.07552608227241657,
+      "q13_reference_hh5plus": 0.13726299165570963,
+      "q13_reference_child3plus_share": 0.07929131830809547,
+      "elapsed_seconds": 278.2
+    }
+  ],
+  "candidate_7_implications": "Implications for candidate 7 (labeled implications, NOT decisions -- the orchestrator registers c7). Q11: the 35-44|male and 25-34|male overshoot is linked-father / paternal SUPPLY expressed as OCCUPANCY structure, NOT a linked-child EXISTENCE (count) miss (the exposed count is identical data) and NOT a custody-probability miss (held faithful). Two occupancy levers are surfaced, both exactly measured. (1) UNENUMERATED non-joinable supply: the sim draws coresidence over model.father_links (father_link_births), applying custody probabilities to biological children with no enumerated household record (25.8% of the linked exposure) whom the reference never observes coresident -- the c7 lever is to restrict the paternal-linked draw to enumerated children (or condition non-custodial coresidence on enumeration), which the committed mechanism does not. (2) SPELL persistence: draw father-child coresidence as bounded correlated EPISODES (entry once, persist, exit) instead of independent per-wave occupancy, reshaping the father-wave stock without touching the faithful per-wave marginal. The marital-state joint (simulated vs observed father marital at the coresident wave) and the shadow (unlinked imputed-paternal) channel are the named residuals. Q12: do NOT bank the spouse 25-34|female cell -- it is inherited c4/c5 machinery riding the tolerance line (delta 3 was inert at the target), fragile to the split seed; carry it with discipline and, if lifted, lift the cohabitation OVERLAY at 25-34 (the -0.045 overlay gap), not the legal core. Q13: hh_size.5+ is one systematic mechanism (the upstream core-5+ / 3+-own-child fertility deficit), not draw noise; the bridge cannot fix it because it only adds non-core members -- the c7 lever is the large-family core (fertility / 3+-child composition), the same upstream signal forensics-3 Q10 named and c6 carried.",
+  "revision_pins": {
+    "populace_dynamics_head_sha": "8fdd1a4bd9bc7d055979886812970d28d0725755",
+    "merge_base_origin_master": "8fdd1a4bd9bc7d055979886812970d28d0725755",
+    "candidate6_artifact": "runs/gate2b_hazard_v6.json",
+    "candidate6_artifact_sha256": "d74784681019d5573a714237da143d427ed442aecd886da0b659d36f18b09471",
+    "candidate6_runner": "scripts/run_gate2b_candidate6.py",
+    "candidate6_runner_sha256": "8513da0f5415f5e8f47ece94656d587b7b0652ae657a9d3628cd0edb957ffb1d",
+    "forensics1_artifact_sha256": "49cd0660e730c5355b3f87743164a8912c052bc07288a397a7fcb8b07ab5d8c9",
+    "forensics2_artifact_sha256": "d3c65238a95b9a4493cfc57a8234f93ede6a202cf2fd96a193158873ee055e7d",
+    "forensics3_artifact_sha256": "704d564d23be94dd084dfe411d819bdf04eab3bcf48468c5819d11e190cba6b2",
+    "gate2b_floor_run": "runs/gate2b_floors_v1.json",
+    "gate2b_floor_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821",
+    "family_transitions_spec_sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1",
+    "sklearn_version": "1.8.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "schema_version": "gate2b_forensics4.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 200.6,
+    "1": 198.7,
+    "2": 189.5,
+    "3": 193.7,
+    "4": 278.2
+  },
+  "total_per_seed_compute_seconds": 1060.7,
+  "elapsed_seconds": 1109.5
+}
