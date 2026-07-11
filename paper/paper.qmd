@@ -846,21 +846,22 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 ## What failure buys
 
-Twenty-nine registered runs across two gates — thirteen at gate 1,
-sixteen at gate 2 — twenty-seven published failures against two passes
-under a rule that refused to rescue its own trigger, four gates
-locked through their own adversarial rounds with four ratified
-amendments among them — two at gate 1, and at gate 2 an estimator
-aligned to its operating characteristic and then a tranche structure
-made explicit, the household-composition and marriage-by-earnings
-tranches both locked as-is without candidate ladders yet — four
-registered forensics rounds and
+Thirty-eight registered runs across three gates — thirteen at gate 1,
+sixteen at gate 2, nine at gate 2b — thirty-five published failures
+against three passes under a rule that refused to rescue its own
+trigger, four gates locked through their own adversarial rounds with
+four ratified amendments among them — two at gate 1, and at gate 2 an
+estimator aligned to its operating characteristic and then a tranche
+structure made explicit, the household-composition tranche then
+passing at its ninth candidate and the marriage-by-earnings tranche
+locked as-is with its ladder not yet begun — nine registered
+forensics rounds and
 a reform-delta diagnostic feeding the next registration, a
 cross-anchor cost-ordering synthesis and a same-frame revenue
 pseudo-projection that between them isolated the compression the
 representative-frame transport must remove, six external-anchor
 replications reported at the same standing as any gated run, and
-twenty-five forecasts registered and all twenty-five graded is the
+thirty-nine forecasts registered and all thirty-nine graded is the
 protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
@@ -881,7 +882,7 @@ opened and locked on the family-transition layer, which its sixteenth
 registered candidate passed on the marital-transition and fertility
 tranche, and the reform-scoring surface, tested against external
 anchors on real microdata. Neither program is closed — the gate's
-household-composition tranche and forward projection remain — and both
+marriage-by-earnings tranche and forward projection remain — and both
 are on the public record with the discipline the earnings-history gate
 established.
 
@@ -1196,9 +1197,10 @@ retirement-age and cost-of-living reductions, earnings sharing, and
 caregiver credits — each reproducing its DYNASIM incidence pattern
 within the noise floor or a named delta. The generated-population
 demographic track reached its own gate at the sixteenth candidate, on
-the marital-transition and fertility tranche, and the tranches it does
-not yet score — household composition and the marriage-by-earnings
-joint — stay named and unscored rather than assumed. The paper reports
+the marital-transition and fertility tranche, has since passed the
+household-composition tranche at its ninth, and leaves only the
+marriage-by-earnings joint named and unscored rather than assumed.
+The paper reports
 all of it because the protocol scores all of it, and a reader who
 wants to know which claims are load-bearing today can read it off the
 record rather than the prose.
@@ -1291,14 +1293,15 @@ test cases for the representative-frame transport, the milestone whose
 whole job is to make the frame's distribution representative enough
 that both orderings come out right.
 
-# Two more gates and the projection roadmap {#sec-projection}
+# A gate passed, a gate locked, and the projection roadmap {#sec-projection}
 
 Alongside the surface work, an external architecture review reset the
 engineering standard for deployment, a third and a fourth stage gate
 locked — on household composition and on the marriage-by-earnings
-joint — a disability module landed, and the program published the
-capability path from here to a full projection. None of it moved a
-locked threshold.
+joint — the household-composition gate then passed at its ninth
+registered candidate, a disability module landed, and the program
+published the capability path from here to a full projection. None of
+it moved a locked threshold.
 
 ## Hardening the ledger for deployment
 
@@ -1370,10 +1373,291 @@ faithful-candidate operating characteristic recomputing to 0.9397 per
 seed and 0.9678 at four of five — passed its own flip-fidelity
 referee, who recomputed every number, re-fetched the ceremony
 comments, and mutated the new bindings to confirm they bite, clearing
-all eight verification sections before the merge. What the lock does
-not claim is a pass: no candidate has run against gate 2b, and its
-ladder is future work. The gate is built; the model has not yet
-cleared it.
+all eight verification sections before the merge. What the lock
+claimed was the threshold, not a pass: at ratification no candidate
+had run against gate 2b. The gate was built first; the model has
+since cleared it — nine registered candidates and five forensics
+rounds later — and the ladder that follows is the record of what the
+clearing cost.
+
+## The gate-2b candidate ladder
+
+Nine candidates have run against the locked household-composition
+gate — its 46 gated cells, its five locked person-split seeds, and
+the twenty-draw mean-over-draws estimator gate 2a ratified and gate
+2b adopted at lock — each registered on the campaign registry
+([issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42))
+with a pre-registered forecast before its single scored run and
+graded after. Interleaved with them ran five registered forensics
+rounds — diagnostic, never gated, published whatever they found, each
+cited by the candidate it licensed — the same throughline that
+carried the gate-2a ladder through its four. The ladder narrows the
+distinct failing cells 21 → 16 → 14 → 9 → 8 → 7 → 6 → 4 → 1 — seven
+candidates at zero seeds, the eighth clearing one, the ninth clearing
+four — and the record of what each step cost is, again, the evidence
+the gate exists to produce.
+
+The base composition — candidate 1, a structural generator built from
+the certified gate-2a marital core, with spouse presence from the
+candidate-16 machinery, a logistic parental-home exit hazard,
+multigenerational entry and exit hazards, coresident children from
+the certified maternal fertility kernel, household size composed from
+the simulated states, and the grandchild family composed-only — fails
+all five seeds across twenty-one distinct cells. What cleared from
+the start is as instructive as what failed: the multigenerational
+stocks held because observed initial states were applied from the
+first candidate — the gate-2a lesson applied, not rediscovered. The
+two dominant gaps were both concepts rather than rates. The certified
+machinery generates legal marriage, but the gate-2b reference's
+spouse concept counts cohabiting partners — PSID MX8 codes 20 and
+22 — the exact partner-inclusion concept the gate's Census anchor
+bridge had quantified at lock, now expressing as a candidate failure:
+a measurement-concept residual of the same species as gate 2a's
+undatable marriages. And the maternal fertility kernel
+under-attributes paternal coresident children.
+
+Candidate 2 supplied both — a cohabiting-partner overlay of code-22
+entry and exit hazards unioned onto the legal-marriage state, and
+paternal child attribution from birth-history father links — and
+narrowed the failure to sixteen cells. The overlay delivered the
+missing partner concept and brought the young spouse cells near
+clear; the father links overshot, attributing non-coresident and
+non-custodial children, which flipped the child residual to
+over-production and named custody conditioning as the next fix.
+Candidate 3 added the conditioning — a father-linked child counts
+only when the training data places the child in the father's family
+unit that wave — alongside a household bridge of train-fitted
+non-family household members, added to the household-size composition
+only and feeding no coresidence cell, and skipped-generation
+coresidence: fourteen cells. Its structural reveal was that candidate
+2's near-clear had not held — the byte-carried spouse family fails
+three to four cells on every seed and is the binding constraint — and
+that the bridge's minimal-count reading protected the tail of the
+size distribution while leaving its middle, size 3, off.
+
+The first forensics round decomposed the four residual mechanisms.
+The spouse problem is pure allocation — 0.00 percent of reference
+spouse mass sits outside codes 20 and 22, so there is no unsupplied
+concept mass, unlike gate 2a's undatable marriages — the generator
+over-produces young cohabitation and under-produces legal-spouse
+stock at 25–34 and 65-plus. The male child overshoot is roughly 88
+percent linked-custodial: the gate, not the shadow kernel. The size-3
+over-fill and the 2+→2 tail cap are two distinct mechanisms where the
+registration had guessed one. And the grandchild remainder is a
+skipped-generation level shortfall. Candidate 4 shipped that
+quartet — age-refined cohabitation, an additive legal-spouse residual
+top-up, a custodial-gate refinement with a tail spread, and a
+skipped-generation level rebuild — and reached nine cells. The spouse
+family cleared in both directions, the ladder's flagship fix, its
+family score moving 0.74 to 0.97; and the run's most valuable finding
+was an honest negative: the remaining child overshoot lives in
+observable-subset selection — linked children observed with their
+fathers are disproportionately coresident — which no refit of that
+same subset can remove.
+
+The second round took the three concept-class residuals and earned
+the diagnostic its keep by returning two of its three registered
+guesses wrong. The custodial gate is faithful exactly where the
+overshoot had been hypothesized — for young married fathers the
+child-record rate reverses, higher rather than lower. The unreachable
+grandchild mass is a three-generation decoupling: the reference joint
+of multigenerational membership and a coresident own child is five
+times the independence product the simulation's separate components
+collapse to, so the fix class is state coupling, not hazard levels.
+And the over-produced size-3 route is three adults, its 0.088 core
+gap splitting exactly into bridge-reach mass, 0.051, plus
+composition, 0.037 — fertility and the marital joint exonerated.
+Candidate 5 answered with a multigenerational–adult-child coupling —
+a train-fitted joint replacing the independence product — a
+not-married custodial correction, and bridge reach for size-3 cores:
+eight cells. The coupling cleared grandchild 55-plus female outright,
+zero seeds to five with the family score moving 0.50 to 1.00. But the
+not-married correction missed, the overshoot being married-dominated;
+the child-record basis, higher at ages 0–4, tipped the 15–24 male
+cell from five seeds to none; and the two household-size mechanisms
+traded off under the current bridge.
+
+The third round worked the five-cell endgame. The 0–4 discrepancy is
+a join-denominator artifact — the observable basis is right at ages
+0–4, the child-record basis right at school ages — and the three
+failing child cells carry three different mechanisms. The 25–34
+female miss is a cohabitation-overlay shortfall, minus 0.045, not a
+legal-core one — a registration miscitation owned on the record. And
+question 10 proved the decisive positive: a train count-conditional
+bridge clears all three household-size cells simultaneously on the
+simulation's own core distribution. Candidate 6 pulled the four
+measured levers — the 0–4 basis revert, adult-child exit timing on
+both parent sides, a female cohabitation lift at 25–34, and the
+count-conditional bridge — and reached seven cells: hh_size.3 and
+hh_size.4 clear on all five seeds, hh_size.5+ on four, and the
+failure surface narrows to one mechanism wide. One lever proved
+inert — the female-cohabitation refit coincided with the existing
+estimator — and though the cell moved, the attribution was deferred
+to forensics rather than banked.
+
+The fourth round sized linked-father supply and ran two attribution
+checks, and its central number reframed the child overshoot: the
+dominant linked driver is unenumerated non-joinable supply, plus
+0.035 and plus 0.036 — the committed mechanism had been applying
+custody probabilities to biological children with no enumerated
+household record, coresidence the reference roster can never observe,
+25.8 percent of linked exposure. The spell channel is real but
+secondary and opposite in sign — the simulation fragments episodes,
+mean 3.57 waves against the reference's 5.93, it does not lengthen
+them — and the lane caught mid-run that a naive enumerated-only
+reference would have falsely confirmed the registration. The round
+also priced what it did not fix: the fragile spouse cell is inherited
+machinery riding the tolerance line at two of five split seeds,
+carried rather than banked, and the hh_size.5+ seed miss is the
+three-plus-child fertility deficit — structure, not noise. Candidate
+7 answered with enumeration conditioning — the paternal
+linked-coresidence draw restricted to enumerated children — and
+episode persistence, a correlated entry–persist–exit process with
+sibling-synchronized frailty — per-child independent chains provably
+remove zero occupancy — fitted to the training episode-length
+distribution while preserving the per-wave marginal. Both child male
+cells cleared on all five seeds and the failure narrowed to six. But
+the conditioning exposed a joinable adult-child supply deficit at
+55–64 and 65–74 male that the unenumerated inflation had been
+masking — 65–74 male now fails all five seeds — a compensating-errors
+reveal of the same species as gate 2a's pooled-band findings: fixing
+a concept artifact uncovers the real deficit beneath it. The priced
+risks — the fragile spouse cell, the structural hh_size.5+ seed —
+materialized as priced.
+
+The fifth round decomposed the revealed deficit and ran the
+convergence test. Fertility dominates at 55–64 male; at 65–74 male
+the near-zero adult-child kernel attenuates the fertility endowment,
+so exit and link coverage co-dominate; and 45–54 female is over
+rather than under, exit over-retention at plus 0.079 — the same
+hazard family needing band-specific corrections in both directions.
+Question 15 proved a completed-fertility lift clears hh_size.5+ and
+55–64 male but not 65–74 male; question 16 proved the cohabitation
+lift clears the fragility without collateral. Candidate 8 shipped the
+two proven levers — the fertility-core lift, the cohabitation lift at
+25–34 female — and a band-signed adult-child retention refit at
+parent ages 45-plus, lifting 65–74 male retention up while bringing
+45–54 female over-retention down with the same train-fitted
+structure. It cleared the ladder's first seed, at four distinct
+failing cells: 65–74 male moved from zero seeds to five and both band
+signs held. But the global fertility lift overshot four
+previously-cleared middle-cohort child cells — a registration scope
+error, priced below, that only the holdout could catch. Candidate 9
+registered one delta — the same lift, confined to exactly the deficit
+cohorts the fifth round had measured — and passed, four seeds of five
+with a single failing cell.
+
+| candidate | distinct failing cells | seeds passing | headline lesson |
+|---|---|---|---|
+| 1 — structural composition from the certified 2a core | 21 | 0 / 5 | legal-marriage machinery is not the 2b partner concept; the maternal kernel under-attributes paternal children |
+| 2 — + cohabitation overlay, paternal father-link attribution | 16 | 0 / 5 | the overlay supplies the partner concept; father links overshoot — custody needs conditioning |
+| 3 — + custodial conditioning, household bridge, skipped-generation | 14 | 0 / 5 | the byte-carried spouse family is the binding constraint; the bridge leaves the size-3 middle off |
+| 4 — + the forensics-1 quartet | 9 | 0 / 5 | spouse clears both directions; the child overshoot is observable-subset selection, unfixable by refit |
+| 5 — + multigen–adult-child coupling, not-married correction, bridge reach | 8 | 0 / 5 | the joint clears grandchild 55+\|female 0/5→5/5; the not-married correction misses the married-dominated overshoot |
+| 6 — + the four measured levers | 7 | 0 / 5 | hh_size clears; the failure surface is one mechanism wide; the female-cohab refit proves inert |
+| 7 — + enumeration conditioning, episode persistence | 6 | 0 / 5 | both child cells clear, but conditioning reveals the masked 65-74\|male supply deficit — a compensating-errors reveal |
+| 8 — + two proven levers, band-signed retention refit | 4 | 1 / 5 | first seed cleared; a global fertility lift overshoots on a train-side-proven scope that does not transport |
+| 9 — + cohort-scoped fertility lift | 1 | 4 / 5 | **PASS** — scoping the lift to the measured deficit cohorts clears the ladder; the sole miss is the registered hh_size.5+ residual |
+
+: The gate-2b candidate ladder, from the committed run artifacts
+(`runs/gate2b_hazard_v1.json` through `v9.json`). "Distinct failing
+cells" counts gated cells missing on at least one of the five locked
+seeds, the same convention as @tbl-ladder; the gate requires at least
+four of five seeds with every one of the 46 gated cells inside its
+locked tolerance, which candidate 9 is the first to meet. All nine
+candidates are scored under the mean-over-draws estimator gate 2b
+adopted at lock. {#tbl-ladder-2b}
+
+What the ladder certifies must be stated as carefully as what it
+found, because a ladder is an audited iterative search, not nine
+independent experiments. The candidates are one-shot — each
+specification frozen and its forecast registered before the single
+scored run — but the forensics questions between them are selected by
+the holdout failure patterns the previous run exposed, and that
+selection is a leak channel no per-candidate operating characteristic
+prices. The effective search is nine one-shot candidates and five
+forensics rounds against the same five holdout halves, roughly 2,070
+scored cell-by-seed exposures. The locked operating characteristic —
+0.9678 at four of five, 0.9397 per seed, the figures the lock
+ceremony recomputed — prices a single pre-registered attempt's
+false-negative risk on the draw-noise-free floor basis; it is not a
+null false-pass rate, and no locked quantity supplies a family-wise
+number for an adaptively constructed ladder, so none is quoted. The
+certified claim is therefore the precise one: the generator matches
+the held-out household and relationship-composition moments after an
+audited nine-candidate, five-forensics search, under the program's
+domains-of-validity doctrine — not on a first attempt out of sample.
+The registrations and gradings on issue #42 are the audit trail.
+
+Two standing rules were adopted mid-ladder, at candidate 8, out of a
+process audit rather than a failure: pass-run verification — a pass
+does not enter the record tally until an independent adversarial
+round has reproduced it bit-exactly, mutated its bindings, and
+scrutinized its deltas, the treatment gate 1's run 13 received — and
+the ladder-search disclosure above. The timing is the point: the
+program tightened its own governance before a pass existed to
+flatter, and that is the discipline working.
+
+One registration error is worth naming rather than absorbing.
+Candidate 8 over-read a train-side proof as holdout-transportable:
+the fifth forensics round had verified that the completed-fertility
+lift held every already-cleared cell, but that verification was
+computed on the training half, and on the holdout the reference rate
+sits below the train rate for the already-adequate middle cohorts —
+so the same faithful lift overshot four previously-cleared child
+cells. The error lived in the registration's scope claim, not in the
+levers or the diagnostic; it was graded against the registrant and
+published as-run under the no-holdout-tuning rule, and candidate 9
+then confined the lift to exactly the deficit cohorts forensics 5 had
+measured. That is the audited search visible in one candidate: a
+scope claim only the holdout could falsify, falsified in public,
+fixed by the next registration.
+
+## The first gate-2b pass
+
+Candidate 9's delta is one clause of scope. The completed-fertility
+lift candidate 8 had applied globally is confined to exactly the four
+deficit cohorts the fifth forensics round measured — 55–64 and 65–74
+for men, 45–54 and 65–74 for women — and the non-deficit middle
+cohorts revert byte-identically to candidate 7. The candidate fitted
+zero new quantities; its one new degree of freedom is a discrete
+four-cohort scope taken from a train-side forensics measurement.
+
+The write-gate implementation made the reversion checkable at bit
+precision. The eight reverted child cells are bit-identical to
+candidate 7 — a difference of 0.0 across all twenty draws and five
+seeds — and the thirty-three carried deficit-and-cleared cells
+bit-identical to candidate 8, so forty-one of the forty-six gated
+cells reproduce bits already published in the candidate-7 and
+candidate-8 artifacts, and the only genuinely new holdout numbers in
+the run are the five hh_size aggregates. The delta is auditable at
+the bit, not the narrative, level.
+
+The gate passed four of five, per-seed passing-cell counts 46, 46,
+46, 45, 46. The sole miss is hh_size.5+ on seed 3, score 0.1042
+against a 0.094 tolerance — the registered modal residual, and the
+one cell the pre-run analytic check had flagged in advance, its
+train-side prediction of 0.1291 landing beside the realized holdout
+seed-mean of 0.1286.
+
+Under the standing pass-run rule the pass was independently verified
+before entering the record: a referee re-executed all five seeds from
+the committed specification and reproduced the run's 20-by-46-by-5
+rate cube bit-for-bit — 4,600 of 4,600 values — independently
+rescored all 230 cell-by-seed verdicts from the locked contract, ran
+a clean leak hunt confirming every fitted quantity is train-half
+only, and caught all three mutations injected to prove the checks
+bite. It is a model delta under a locked gate — thresholds, protocol,
+and the ratified estimator all fixed before the run was registered —
+not an amendment rescuing its own trigger; candidates 1 through 8
+stand as committed failures. It certifies the household and
+relationship-composition tranche the locked cells score — coresidence
+of spouses (legal and cohabiting), children, parents, and
+grandchildren, multigenerational households, and household size — on
+the observed frame, and no more: the marriage-by-earnings joint —
+gate 2c — remains the locked-but-unpassed tranche, and the sole
+failing cell anywhere in the passing run is the registered hh_size.5+
+deep-tail residual.
 
 ## The marriage-by-earnings gate
 
@@ -1463,9 +1747,10 @@ pass: no candidate has run against gate 2c, and its ladder is future
 work.
 
 With that, all three tranches of the family gate are locked: the
-marital-transition surface passed at the sixteenth candidate, and
-household composition and the marriage-by-earnings joint locked but
-not yet cleared, their candidate ladders the open threads. Across the
+marital-transition surface passed at the sixteenth candidate,
+household composition at its ninth, and the marriage-by-earnings
+joint alone locked but not yet cleared, its candidate ladder the open
+thread. Across the
 three the adversarial round kept returning the same three failure
 classes — a floor or estimator that priced the wrong noise, an
 estimand that misdescribed its own surface, and a construct whose
@@ -1500,14 +1785,15 @@ These modules sit on a published roadmap of eight capability
 milestones that carries the program from replicating DYNASIM's
 incidence patterns to a projection in its class. The layer certified
 or anchor-validated today — earnings, marital and fertility dynamics,
-mortality, claiming, and the statutory formula with its auxiliary
-benefits — is the first milestone; the same-frame pseudo-projection
-and the disability module are two more; ahead lie the household and
-assortative-mating tranches — both gates now locked above but not yet
-passed — the transport of the certified generators from their
-PSID estimation basis onto the representative population — the
-scientific crux and the funded build — a year-by-year projection
-engine, full revenue and trust-fund accounting, and per-year execution
+household and relationship composition, mortality, claiming, and the
+statutory formula with its auxiliary benefits — is the first
+milestone; the same-frame pseudo-projection and the disability module
+are two more; ahead lie the assortative-mating tranche — its gate now
+locked above but not yet passed — the transport of the certified
+generators from their PSID estimation basis onto the representative
+population — the scientific crux and the funded build — a
+year-by-year projection engine, full revenue and trust-fund
+accounting, and per-year execution
 of the statutory rules on the projected panel. The architectural bet
 under all of it is a single object: one person-period panel — the
 cross-sectional population extended through time, with future births
