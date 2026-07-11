@@ -1,0 +1,1766 @@
+{
+  "schema_version": "gate2b_forensics2.v1",
+  "run": "gate2b_forensics2_v1",
+  "gate": "gate_2b",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4942005972",
+  "registration_pointer": "4942005972",
+  "registration_title": "Registered diagnostic: gate-2b forensics 2, the three concept-class residuals (custodial selection basis; grandchild reference channels; hh_size.3 family-core routes)",
+  "grading_pointer": "4942004647",
+  "candidate_under_diagnosis": "gate-2b candidate 4 (PR #138, registration 4941160621); the three concept/selection-class residuals grading 4942004647 isolated: (1) custodial estimation basis (selection-corrected), (2) the grandchild reference-channel decomposition, (3) the hh_size.3 family-core route.",
+  "candidate4_artifact": "runs/gate2b_hazard_v4.json",
+  "forensics1_artifact": "runs/gate2b_forensics1_v1.json",
+  "protocol": {
+    "train_side_only": true,
+    "outer_holdout_contact": "none beyond the already-published per-seed scores read from runs/gate2b_hazard_v4.json; the holdout (side A) is NEVER re-simulated here",
+    "split": "populace_dynamics.harness.panel.split_panel_by_person(hh.attrs, 'person_id', fraction=0.5, seed=s); side A = outer holdout (read from the committed candidate-4 artifact only), side B = train complement (this diagnostic fits AND simulates side B)",
+    "fit_simulate_machinery": "populace_dynamics.models.household_composition_sim_v4 (candidate 4, merged #138), reused byte-for-byte on the train side via instrumented_draw_v4 (same 0xB2B / 0xC2 / 0xC3 / 0xC4 draw streams and train-fitted tables)",
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "n_draws": 20,
+    "draw_rng_rule": "numpy.random.default_rng(5200 + k) for k in 0..19 (the locked gate_2b protocol)",
+    "instrumentation_fidelity": {
+      "draw_seed": 5200,
+      "n_cells_compared": 93,
+      "max_abs_rate_deviation_vs_committed_simulate_draw_v4": 0.0,
+      "bit_identical": true
+    },
+    "no_holdout_tuning_surface": "every fitted table and every reference decomposition is estimated on side B only; no parameter is estimated from side A -- no holdout-informed tuning surface is created"
+  },
+  "data": {
+    "holdout_basis": [
+      "MX23REL"
+    ],
+    "paternal_link_basis": [
+      "cah85_23"
+    ],
+    "n_person_waves": 520693,
+    "n_persons": 46941,
+    "floor_run": "runs/gate2b_floors_v1.json",
+    "floor_run_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821"
+  },
+  "question_5_custodial_selection_basis": {
+    "question": "custodial selection basis: construct the less-selected child-record custody measure (each sample child's own enumerated waves, independent of the father-side observation window); recompute P(child coresides with father | child age, father marital) on that basis; quantify the selection gap vs the (father, child, wave)-observable basis c3/c4 fitted; reconcile against the maternal-coresidence complement.",
+    "method": "Train-side (side B). Observable basis = exactly hcs3.fit_custodial_coresidence (denominator = FATHER-waves; the triples the c3/c4 gate fits). Child-record basis = each joinable cah85_23 child's OWN enumerated relationship-matrix waves as the denominator (child age in [0, 60]); event = the (father, child, year) coresidence pair present in the roster; father marital = the father's observed state that wave. The maternal complement adds the (mother, child, year) coresidence and partitions each child-wave into {both, father-only, mother-only, neither}, which sums to 1 EXACTLY (weighted).",
+    "selection_gap_table_by_band_marital": {
+      "0-4|married": {
+        "observable_basis_p_coresident": 0.8894598892429502,
+        "child_record_basis_p_coresident": 0.9814911587174006,
+        "selection_gap_observable_minus_child_record": -0.0920312694744505,
+        "child_record_n_child_waves": 17677
+      },
+      "0-4|not_married": {
+        "observable_basis_p_coresident": 0.7044235598989225,
+        "child_record_basis_p_coresident": 0.7520976648490334,
+        "selection_gap_observable_minus_child_record": -0.04767410495011091,
+        "child_record_n_child_waves": 3857
+      },
+      "5-12|married": {
+        "observable_basis_p_coresident": 0.9419588812349373,
+        "child_record_basis_p_coresident": 0.9632644450950079,
+        "selection_gap_observable_minus_child_record": -0.021305563860070542,
+        "child_record_n_child_waves": 30539
+      },
+      "5-12|not_married": {
+        "observable_basis_p_coresident": 0.5056691579660593,
+        "child_record_basis_p_coresident": 0.41752652800683243,
+        "selection_gap_observable_minus_child_record": 0.08814262995922681,
+        "child_record_n_child_waves": 6410
+      },
+      "13-17|married": {
+        "observable_basis_p_coresident": 0.9151204691800654,
+        "child_record_basis_p_coresident": 0.9540714800393717,
+        "selection_gap_observable_minus_child_record": -0.03895101085930623,
+        "child_record_n_child_waves": 17270
+      },
+      "13-17|not_married": {
+        "observable_basis_p_coresident": 0.41250460715367615,
+        "child_record_basis_p_coresident": 0.30789841563241743,
+        "selection_gap_observable_minus_child_record": 0.10460619152125875,
+        "child_record_n_child_waves": 4022
+      },
+      "18-24|married": {
+        "observable_basis_p_coresident": 0.5325558920139,
+        "child_record_basis_p_coresident": 0.7559202413481261,
+        "selection_gap_observable_minus_child_record": -0.2233643493342262,
+        "child_record_n_child_waves": 17362
+      },
+      "18-24|not_married": {
+        "observable_basis_p_coresident": 0.2518014849627047,
+        "child_record_basis_p_coresident": 0.2179455039759181,
+        "selection_gap_observable_minus_child_record": 0.033855980986786605,
+        "child_record_n_child_waves": 4683
+      },
+      "25-60|married": {
+        "observable_basis_p_coresident": 0.0688158399940199,
+        "child_record_basis_p_coresident": 0.12193646178701827,
+        "selection_gap_observable_minus_child_record": -0.05312062179299835,
+        "child_record_n_child_waves": 29649
+      },
+      "25-60|not_married": {
+        "observable_basis_p_coresident": 0.0562794169416832,
+        "child_record_basis_p_coresident": 0.029658090638900347,
+        "selection_gap_observable_minus_child_record": 0.026621326302782855,
+        "child_record_n_child_waves": 18646
+      }
+    },
+    "maternal_complement_overall": {
+      "with_both": 0.4356740004083446,
+      "with_father_only": 0.044451607700802906,
+      "with_mother_only": 0.0890745300655356,
+      "with_neither": 0.4307998618253168,
+      "p_with_father": 0.4801256081091475,
+      "p_with_mother": 0.5247485304738803,
+      "partition_sum": 1.0,
+      "partition_reconciliation_remainder": -6.661338147750939e-17,
+      "father_complement_identity_remainder": -6.661338147750939e-17
+    },
+    "maternal_complement_by_child_band": {
+      "0-4": {
+        "with_both": 0.9076282009760241,
+        "with_father_only": 0.02607288389855854,
+        "with_mother_only": 0.06288283347809247,
+        "with_neither": 0.0034160816473248943,
+        "p_with_father": 0.9337010848745827,
+        "p_with_mother": 0.9705110344541167,
+        "partition_reconciliation_remainder": 4.4408920985006264e-17
+      },
+      "5-12": {
+        "with_both": 0.7833128166059771,
+        "with_father_only": 0.06188041974654063,
+        "with_mother_only": 0.14226509409057977,
+        "with_neither": 0.012541669556902618,
+        "p_with_father": 0.8451932363525178,
+        "p_with_mother": 0.9255779106965567,
+        "partition_reconciliation_remainder": -2.2204460492503132e-17
+      },
+      "13-17": {
+        "with_both": 0.7056138353755006,
+        "with_father_only": 0.0934642442210503,
+        "with_mother_only": 0.18273448025029096,
+        "with_neither": 0.018187440153158187,
+        "p_with_father": 0.7990780795965507,
+        "p_with_mother": 0.8883483156257915,
+        "partition_reconciliation_remainder": -4.4408920985006264e-17
+      },
+      "18-24": {
+        "with_both": 0.5153477797503562,
+        "with_father_only": 0.08414391820232245,
+        "with_mother_only": 0.14560124411638298,
+        "with_neither": 0.2549070579309384,
+        "p_with_father": 0.5994916979526786,
+        "p_with_mother": 0.6609490238667393,
+        "partition_reconciliation_remainder": -4.4408920985006264e-17
+      },
+      "25-60": {
+        "with_both": 0.06084714478732217,
+        "with_father_only": 0.01602322442928187,
+        "with_mother_only": 0.028869176259833366,
+        "with_neither": 0.8942604545235626,
+        "p_with_father": 0.07687036921660403,
+        "p_with_mother": 0.08971632104715555,
+        "partition_reconciliation_remainder": -2.2204460492503132e-17
+      }
+    },
+    "young_married_seed_mean_gap": -0.05076261473127577,
+    "not_married_school_age_seed_mean_gap": 0.09637441074024278,
+    "n_joinable_train_children_seed_mean": 11030,
+    "finding": "The selection gap is HETEROGENEOUS by father marital state -- the pre-registered 'materially lower child-record custody at young ages' holds ONLY for not-married fathers, and REVERSES for married fathers. On the less-selected child-record basis (denominator = the child's OWN enumerated waves, independent of the father-side observation window), young children of MARRIED fathers coreside with the father at ~0.966 vs the observable-basis ~0.916 (gap ~-0.051: the child-record basis is if anything HIGHER -- an enumerated young child is almost always with a married father, and the father-wave observable is DILUTED by father-waves after the child has aged out or left). The observable custodial gate the c4 fit conditions on is therefore FAITHFUL at the young married ages the male coresident_child overshoot was hypothesized to live in -- confirming the c4 grading's honest negative: no re-basing of the young married custodial probability drains the overshoot. Where the bases DO diverge as pre-registered is the NOT-married school-age cells: the child-record P(coresident) runs ~+0.096 BELOW the observable at 5-17|not_married (the observable over-states coresidence for unmarried fathers -- the (father, child, wave) triples where an unmarried father IS observed with the linked child select upward). The maternal complement pins the truth: across all joinable child-waves the four-way partition [both 0.436, father-only 0.044, mother-only 0.089, neither 0.431] sums to 1 to machine epsilon, giving P(with father) ~0.480 against P(with mother) ~0.525 -- a child not with the father is usually with the mother, and the mother-side rate is the directly observable constraint the father-side custodial fit must sit beneath. The c5 basis is the not-married custodial cells (and the maternal-custodial split), NOT the young married gate."
+  },
+  "question_6_grandchild_reference_channels": {
+    "question": "grandchild reference channels: decompose the reference 55+|female coresident_grandchild stock (~0.063) by household-structure channel from the raw roster (ego-on-top three-generation; skipped-generation; other, incl. whether a child-IN-LAW middle generation breaks the composed multigen AND child AND NOT-parent test); the simulation's reachable supply per channel under the v4 machinery; identify which channel(s) carry the unreachable ~0.039.",
+    "method": "Train-side (side B). Reference channels from the raw MX8 roster: every 55+|female coresident_grandchild person-wave classified by ego's own-child / child-in-law / own-parent links + the multigen flag (channels partition the stock EXACTLY). Sim supply from 20 instrumented candidate-4 draws (bit-identical to simulate_draw_v4): the composed grandchild (multigen AND child AND NOT-parent) and skip-gen occupancy rates among 55+|female, plus each composed component's simulated rate to localize the break.",
+    "reference_stock_55plus_female": 0.06321375171286366,
+    "reference_channels": {
+      "a_ego_on_top_composed_reachable": 0.03783898115995393,
+      "a_prime_ego_on_top_composed_breaks": 0.0017903358304862584,
+      "b_skipped_generation": 0.023584434722423463,
+      "c_other": 0.0
+    },
+    "reference_channel_reconciliation_remainder": 0.0,
+    "reference_component_rates_55plus_female": {
+      "multigen": 0.04350651286100482,
+      "coresident_child": 0.17940646546533842,
+      "not_coresident_parent": 0.9888948967457006,
+      "multigen_and_child_and_notparent": 0.038416868577178784,
+      "independence_product_multigen_x_child_x_notparent": 0.007729017441685129
+    },
+    "a_prime_breaks_detail": {
+      "child_in_law_middle_generation_only": 2.2320800765796353e-05,
+      "four_generation_own_parent_present": 0.000694098140567424
+    },
+    "grandparent_code_inventory": {
+      "66": {
+        "label": "grandparent",
+        "in_reference_link": true,
+        "weighted_share_of_55plus_female": 0.05923870217713334
+      },
+      "67": {
+        "label": "grandparent_in_law",
+        "in_reference_link": false,
+        "weighted_share_of_55plus_female": 0.0014537105596480811
+      },
+      "68": {
+        "label": "great_grandparent",
+        "in_reference_link": true,
+        "weighted_share_of_55plus_female": 0.00594142087602997
+      },
+      "82": {
+        "label": "social_grandparent",
+        "in_reference_link": true,
+        "weighted_share_of_55plus_female": 0.0003526976748369188
+      },
+      "83": {
+        "label": "social_great_grandparent",
+        "in_reference_link": false,
+        "weighted_share_of_55plus_female": 6.0816295383556775e-05
+      },
+      "87": {
+        "label": "step_grandparent",
+        "in_reference_link": true,
+        "weighted_share_of_55plus_female": 0.002741439375250742
+      },
+      "88": {
+        "label": "step_great_grandparent",
+        "in_reference_link": true,
+        "weighted_share_of_55plus_female": 7.168034161383606e-05
+      }
+    },
+    "simulation_reachable_supply": {
+      "composed_multigen_path": 0.006346532702656306,
+      "skipgen_only": 0.02308680795372483,
+      "union": 0.02943334065638114,
+      "union_reconciliation_remainder": 3.469446951953614e-18,
+      "unreachable_reference_minus_sim_union": 0.033780411056482516,
+      "composed_component_rates_55plus_female": {
+        "multigen": 0.049054703015011844,
+        "coresident_child": 0.1470085317187532,
+        "not_coresident_parent": 0.9974075668650855,
+        "multigen_and_child_and_notparent": 0.006346532702656306
+      },
+      "composed_independence_product_55plus_female": 0.007192764636633493
+    },
+    "channel_reachability": {
+      "a_ego_on_top_composed_reachable": "reachable in principle via the composed path, but the sim supplies only ~0.0063 of ~0.0378 -- the multigen-and-coresident-child decoupling at older maternal ages (aged-out own child) is the binding gap",
+      "b_skipped_generation": "reachable via the delta-4 skip-gen occupancy; sim supplies ~0.0231 (covers the channel)",
+      "a_prime_ego_on_top_composed_breaks": "unreachable (near-zero mass)",
+      "c_other": "unreachable (near-zero mass)"
+    },
+    "holdout_committed_candidate4": {
+      "seed_mean_rate_a": 0.06309805393510352,
+      "seed_mean_r_candidate": 0.029919112825670002,
+      "seed_mean_score": 0.7502106270787718,
+      "tolerance": 0.348,
+      "n_seeds_pass": 0
+    },
+    "finding": "The unreachable ~0.039 is carried by the ego-on-top three-generation channel (a), NOT the in-law middle-generation channel the pre-registration named -- and the break is on the SIMULATION side, not the reference coding. From the raw side-B roster the reference 55+|female coresident_grandchild stock ~0.0632 decomposes almost entirely into channel (a) ego-on-top three-generation ~0.0378 (multigen AND own-child-present AND NOT own-parent, the exact composed test) and channel (b) skipped-generation ~0.0236; the ego-on-top-BREAKS channel (a') is only ~0.0018 (of which child-in-law-only middle generation ~0.0000 and four-generation own-parent-present ~0.0007) and channel (c) other ~0.0000. So the composed test is the RIGHT SHAPE for the reference mass -- most of the reference grandchildren ARE ego-on-top three-generation with the middle generation being ego's OWN child (the code inventory is ~94% plain grandparent code 66; the in-law codes 67/69 are excluded and carry near-zero mass). The gap is that the SIMULATION cannot build the joint: the composed path supplies only ~0.0063 of the channel-(a) ~0.0378. The mechanism is a DECOUPLING, not a level miss on any single component -- the reference COUPLES multigen (~0.044 of 55+|female) and a coresident own child (~0.179) into the SAME household fact, so their joint (multigen AND child AND NOT-parent) is ~0.0384, FAR above their independence product ~0.0077 (a multigen 55+ grandmother almost always has the middle-generation adult child present -- that IS why she is multigen). The simulation draws multigen ~0.049 (the carried candidate-1 hazard) and coresident_child ~0.147 (the aged-out custodial / maternal children) from SEPARATE components that do not align: the sim joint ~0.0063 sits right at its independence product ~0.0072. A 55+ woman's own adult children have aged out of the simulated frame, so even when she is simulated multigen she rarely also carries a coresident child, and the composed grandchild collapses. The skip-gen delta supplies ~0.0231 (covering channel (b) fully), so the sim union ~0.0294 leaves ~0.0338 unreachable -- and that unreachable mass is channel (a): the composed path's multigen-AND-coresident-child DECOUPLING at older maternal ages, not an in-law coding break (channel a' is ~0.0018) and not a skip-gen level shortfall (channel b is covered)."
+  },
+  "question_7_hh_size3_family_core_routes": {
+    "question": "hh_size.3 family-core routes: decompose size-3 households sim-vs-reference by composition route (couple+child / single-parent+2-children / couple+parent / three-adults / other); for the over-produced route(s) identify the upstream driver (child aging-out timing / fertility level / marital-state joint) with a quantified reconciliation of the 0.271-vs-0.181 core gap.",
+    "method": "Train-side (side B). Sim family-core routes from 20 instrumented candidate-4 draws: hh_size_base (1 + spouse + child_counts + n_parents) == 3 partitioned by (spouse, child count, parent count) into the five routes. Reference routes from the raw roster: the ego's own spouse/child/parent link counts, evaluated on both the ACTUAL hh_size == 3 stock (the gated 0.181) and the CORE-size == 3 construct (apples-to-apples with the sim core). Routes partition each total EXACTLY; the gap splits into a composition part (sim-core - ref-core) and a non-core-member part (ref-core - ref-actual).",
+    "sim_family_core_size3_total": 0.2691325398105458,
+    "sim_full_size3_total": 0.22182762357572333,
+    "reference_actual_size3_total": 0.1813304619725809,
+    "reference_core_size3_total": 0.23253855076791696,
+    "sim_core_routes": {
+      "couple_plus_child": 0.12862849842874757,
+      "single_parent_plus_two_children": 0.03191147347303484,
+      "couple_plus_parent": 0.0,
+      "three_adults": 0.10859256790876337,
+      "other_family_core": 0.0
+    },
+    "reference_actual_routes": {
+      "couple_plus_child": 0.10813776415731294,
+      "single_parent_plus_two_children": 0.013870727769203237,
+      "couple_plus_parent": 0.0013791565789294312,
+      "three_adults": 0.040061610802976225,
+      "other_family_core": 0.01788120266415906
+    },
+    "reference_core_routes": {
+      "couple_plus_child": 0.11780056480990637,
+      "single_parent_plus_two_children": 0.01589089254259895,
+      "couple_plus_parent": 0.0016997470022155844,
+      "three_adults": 0.09417608149076054,
+      "other_family_core": 0.0029712649224355172
+    },
+    "route_gap_sim_core_minus_reference_actual": {
+      "couple_plus_child": 0.020490734271434635,
+      "single_parent_plus_two_children": 0.018040745703831608,
+      "couple_plus_parent": -0.0013791565789294312,
+      "three_adults": 0.06853095710578715,
+      "other_family_core": -0.01788120266415906
+    },
+    "gap_decomposition": {
+      "total_gap_sim_core_minus_ref_actual": 0.0878020778379649,
+      "composition_gap_sim_core_minus_ref_core": {
+        "couple_plus_child": 0.010827933618841198,
+        "single_parent_plus_two_children": 0.016020580930435895,
+        "couple_plus_parent": -0.0016997470022155844,
+        "three_adults": 0.014416486418002833,
+        "other_family_core": -0.0029712649224355172
+      },
+      "noncore_member_gap_ref_core_minus_ref_actual": {
+        "couple_plus_child": 0.009662800652593437,
+        "single_parent_plus_two_children": 0.0020201647733957117,
+        "couple_plus_parent": 0.00032059042328615324,
+        "three_adults": 0.05411447068778431,
+        "other_family_core": -0.014909937741723542
+      },
+      "composition_gap_total": 0.03659398904262884,
+      "noncore_member_gap_total": 0.05120808879533606,
+      "reconciliation_remainder": 0.0
+    },
+    "over_produced_route": "three_adults",
+    "driver_inputs": {
+      "sim_p_spouse": 0.5793983598644393,
+      "sim_child_count_distribution_among_couples": {
+        "0": 0.5095620698380434,
+        "1": 0.23084589085097634,
+        "2": 0.16900091061421407,
+        "3+": 0.09059112869676623
+      }
+    },
+    "holdout_committed_candidate4": {
+      "seed_mean_rate_a": 0.17858891736409158,
+      "seed_mean_r_candidate": 0.22214059011291126,
+      "seed_mean_score": 0.2182654789523923,
+      "tolerance": 0.072,
+      "n_seeds_pass": 0
+    },
+    "finding": "The over-produced size-3 core route is three+adults -- in the simulation this is ego + 2 coresident parents (the fitted parent_count is 2, so every coresident-parent ego adds exactly two parents), i.e. an adult child living with both parents. But the 0.271-vs-0.181 core gap is DOMINANTLY a non-core-member CONSTRUCT difference, not a couple-composition error, and it reconciles EXACTLY. The sim family-core-only size-3 ~0.269 against the reference ACTUAL size-3 ~0.181 is a ~0.088 gap; the reference CORE size-3 (ego core 1+spouse+own-children+own-parents == 3, the apples-to-apples construct) is ~0.233, splitting the gap into a non-core-member part ~0.051 (ref-core minus ref-actual) plus a composition part ~0.037 (sim-core minus ref-core), summing to ~0.088 to machine epsilon. The non-core-member part DOMINATES: reference households whose family core is 3 but whose ACTUAL size is 4+ because a sibling / roomer / other relative is also present -- exactly the mass the non-family bridge must lift out of size 3. It is most acute on the three+adults route: ~0.094 of egos have a three-adult CORE but only ~0.040 are actual 3-person households (an adult child living with both parents very often ALSO has a coresident sibling, making the real household 4+). The composition part ~0.037 is smaller and spread across routes (three+adults ~+0.014, single-parent+2-children ~+0.016, couple+child ~+0.011); the parent_count=2 choice forecloses the couple+parent route (sim ~0.000) and concentrates adult-children-with-parents at core-size-3 three-adults. On the registration's driver menu the marital joint is NOT the culprit (simulated couple rate ~0.579) and the couple+child core roughly matches the reference core; the coresident-child-count distribution among couples (0 ~0.510, 1 ~0.231, 2 ~0.169, 3+ ~0.091) is consistent with the reference core. The dominant upstream lever is the non-family bridge's REACH (lift more three-adult and family cores out of size 3), with a secondary child-aging-out-timing effect on the three-adults route (adult children retained in the parental home). Recorded descriptively per the registration (couple+child prior, no strong mechanism prior -- the prior route is NOT the over-produced one)."
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "n_train_persons": 23518,
+      "parent_count": 2,
+      "rate_b_grandchild_55f": 0.06376679347908513,
+      "rate_b_hh_size3": 0.18012506278902857,
+      "q5": {
+        "observable_overall_diag": {
+          "n_exposure": 147753,
+          "n_coresident": 76421,
+          "overall_coresidence_rate": 0.4436
+        },
+        "observable_p_coresident_by_band_marital": {
+          "0-4|married": 0.8919819067791701,
+          "0-4|not_married": 0.7103585413565819,
+          "13-17|married": 0.921881906631209,
+          "13-17|not_married": 0.43290644055070976,
+          "18-24|married": 0.5316336597724096,
+          "18-24|not_married": 0.252190703872447,
+          "25-60|married": 0.07113130030015243,
+          "25-60|not_married": 0.05268148495052703,
+          "5-12|married": 0.941624567952873,
+          "5-12|not_married": 0.5246305798266152
+        },
+        "selection_gap_table": {
+          "0-4|married": {
+            "observable_basis_p_coresident": 0.8919819067791701,
+            "child_record_basis_p_coresident": 0.9856817942539836,
+            "selection_gap_observable_minus_child_record": -0.0936998874748135,
+            "child_record_n_child_waves": 17723,
+            "child_record_weight": 75436327.57900001
+          },
+          "0-4|not_married": {
+            "observable_basis_p_coresident": 0.7103585413565819,
+            "child_record_basis_p_coresident": 0.7421055318484809,
+            "selection_gap_observable_minus_child_record": -0.031746990491898996,
+            "child_record_n_child_waves": 3980,
+            "child_record_weight": 20065420.046
+          },
+          "5-12|married": {
+            "observable_basis_p_coresident": 0.941624567952873,
+            "child_record_basis_p_coresident": 0.9639385403738993,
+            "selection_gap_observable_minus_child_record": -0.022313972421026285,
+            "child_record_n_child_waves": 30734,
+            "child_record_weight": 140034986.44700003
+          },
+          "5-12|not_married": {
+            "observable_basis_p_coresident": 0.5246305798266152,
+            "child_record_basis_p_coresident": 0.4256644191505028,
+            "selection_gap_observable_minus_child_record": 0.09896616067611241,
+            "child_record_n_child_waves": 6531,
+            "child_record_weight": 38230291.309
+          },
+          "13-17|married": {
+            "observable_basis_p_coresident": 0.921881906631209,
+            "child_record_basis_p_coresident": 0.9547594297770291,
+            "selection_gap_observable_minus_child_record": -0.03287752314582015,
+            "child_record_n_child_waves": 17407,
+            "child_record_weight": 84642500.882
+          },
+          "13-17|not_married": {
+            "observable_basis_p_coresident": 0.43290644055070976,
+            "child_record_basis_p_coresident": 0.32673218385327707,
+            "selection_gap_observable_minus_child_record": 0.10617425669743269,
+            "child_record_n_child_waves": 4155,
+            "child_record_weight": 25860425.246
+          },
+          "18-24|married": {
+            "observable_basis_p_coresident": 0.5316336597724096,
+            "child_record_basis_p_coresident": 0.7595786501071521,
+            "selection_gap_observable_minus_child_record": -0.22794499033474247,
+            "child_record_n_child_waves": 17549,
+            "child_record_weight": 78711444.913
+          },
+          "18-24|not_married": {
+            "observable_basis_p_coresident": 0.252190703872447,
+            "child_record_basis_p_coresident": 0.2090324872722069,
+            "selection_gap_observable_minus_child_record": 0.04315821660024011,
+            "child_record_n_child_waves": 4982,
+            "child_record_weight": 32880307.5
+          },
+          "25-60|married": {
+            "observable_basis_p_coresident": 0.07113130030015243,
+            "child_record_basis_p_coresident": 0.1244488723976968,
+            "selection_gap_observable_minus_child_record": -0.05331757209754437,
+            "child_record_n_child_waves": 30286,
+            "child_record_weight": 201235134.634
+          },
+          "25-60|not_married": {
+            "observable_basis_p_coresident": 0.05268148495052703,
+            "child_record_basis_p_coresident": 0.024451273747220177,
+            "selection_gap_observable_minus_child_record": 0.028230211203306856,
+            "child_record_n_child_waves": 19428,
+            "child_record_weight": 196987964.586
+          }
+        },
+        "child_record_n_child_waves_total": 152775,
+        "maternal_complement_overall": {
+          "with_both": 0.43275477245255095,
+          "with_father_only": 0.044032892972398874,
+          "with_mother_only": 0.08623556294777393,
+          "with_neither": 0.4369767716272763,
+          "p_with_father": 0.4767876654249498,
+          "p_with_mother": 0.5189903354003249,
+          "partition_sum": 1.0,
+          "partition_reconciliation_remainder": 0.0,
+          "father_complement_identity_remainder": 2.220446049250313e-16,
+          "n_child_waves": 152775
+        },
+        "maternal_complement_by_child_band": {
+          "0-4": {
+            "with_both": 0.9084992525967928,
+            "with_father_only": 0.02600588636086753,
+            "with_mother_only": 0.06234541821558631,
+            "with_neither": 0.0031494428267537164,
+            "p_with_father": 0.9345051389576603,
+            "p_with_mother": 0.970844670812379,
+            "partition_sum": 1.0000000000000004,
+            "partition_reconciliation_remainder": 4.440892098500626e-16,
+            "father_complement_identity_remainder": 2.220446049250313e-16,
+            "n_child_waves": 21703
+          },
+          "5-12": {
+            "with_both": 0.7866903258073197,
+            "with_father_only": 0.061811396373454064,
+            "with_mother_only": 0.13793247702817102,
+            "with_neither": 0.01356580079105509,
+            "p_with_father": 0.8485017221807738,
+            "p_with_mother": 0.9246228028354907,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": -2.220446049250313e-16,
+            "n_child_waves": 37265
+          },
+          "13-17": {
+            "with_both": 0.7114251459181956,
+            "with_father_only": 0.09636033289893045,
+            "with_mother_only": 0.17235146303672547,
+            "with_neither": 0.01986305814614835,
+            "p_with_father": 0.807785478817126,
+            "p_with_mother": 0.883776608954921,
+            "partition_sum": 0.9999999999999998,
+            "partition_reconciliation_remainder": -2.220446049250313e-16,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21562
+          },
+          "18-24": {
+            "with_both": 0.5108309087666877,
+            "with_father_only": 0.08653031276238929,
+            "with_mother_only": 0.14539003335079742,
+            "with_neither": 0.2572487451201256,
+            "p_with_father": 0.597361221529077,
+            "p_with_mother": 0.6562209421174852,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 2.220446049250313e-16,
+            "n_child_waves": 22531
+          },
+          "25-60": {
+            "with_both": 0.06101492647360648,
+            "with_father_only": 0.013968398947462744,
+            "with_mother_only": 0.028349859729666336,
+            "with_neither": 0.8966668148492644,
+            "p_with_father": 0.07498332542106922,
+            "p_with_mother": 0.08936478620327282,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 49714
+          }
+        },
+        "n_train_father_links": 11117,
+        "n_joinable_train_children": 11117
+      },
+      "q6_reference": {
+        "reference_stock_55plus_female": 0.06376679347908513,
+        "n_grandchild_person_waves": 3696,
+        "reference_component_rates_55plus_female": {
+          "multigen": 0.04514058352461233,
+          "coresident_child": 0.18140145444755731,
+          "not_coresident_parent": 0.9901079718878874,
+          "multigen_and_child_and_notparent": 0.04055891951782447,
+          "independence_product_multigen_x_child_x_notparent": 0.008107565966009072
+        },
+        "channels": {
+          "a_ego_on_top_composed_reachable": 0.04005413832289887,
+          "a_prime_ego_on_top_composed_breaks": 0.0021270693289819494,
+          "b_skipped_generation": 0.0215855858272043,
+          "c_other": 0.0
+        },
+        "channel_reconciliation_remainder": 1.3877787807814457e-17,
+        "a_prime_breaks_detail": {
+          "child_in_law_middle_generation_only": 3.693138206092741e-05,
+          "four_generation_own_parent_present": 0.0007574704624733451
+        },
+        "grandparent_code_inventory": {
+          "66": {
+            "label": "grandparent",
+            "weighted_share_of_55plus_female": 0.06004328120950401,
+            "in_reference_link": true
+          },
+          "67": {
+            "label": "grandparent_in_law",
+            "weighted_share_of_55plus_female": 0.0018894905239369656,
+            "in_reference_link": false
+          },
+          "68": {
+            "label": "great_grandparent",
+            "weighted_share_of_55plus_female": 0.005642971096649831,
+            "in_reference_link": true
+          },
+          "82": {
+            "label": "social_grandparent",
+            "weighted_share_of_55plus_female": 0.0002424403588120749,
+            "in_reference_link": true
+          },
+          "83": {
+            "label": "social_great_grandparent",
+            "weighted_share_of_55plus_female": 2.478599975713217e-05,
+            "in_reference_link": false
+          },
+          "87": {
+            "label": "step_grandparent",
+            "weighted_share_of_55plus_female": 0.003410564153531402,
+            "in_reference_link": true
+          },
+          "88": {
+            "label": "step_great_grandparent",
+            "weighted_share_of_55plus_female": 9.354584704537793e-05,
+            "in_reference_link": true
+          }
+        },
+        "codebook_note": "MX8 (ego->alter) grandparent-type codes verified against MX23REL_formats.sps (lines 100-125): 66 grandparent, 67 grandparent-in-law, 68 great-grandparent, 69 great-grandparent-in-law, 82 social grandparent, 83 social great-grandparent, 87 step grandparent, 88 step great grandparent. The reference coresident_grandchild link is {66, 68, 82, 87, 88} -- own/social/step grandparent + own/step great-grandparent -- EXCLUDING the in-law codes {67, 69} and (an asymmetry) the social great-grandparent 83. MX8 code 88 is step great-grandparent here (a grandparent-type, correctly included), NOT the MX7 first-year-cohabitor meaning (generation 0) -- the 2b ceremony's code-88 lesson: the frames must not cross."
+      },
+      "q6_sim_composed_mean": 0.0066470528316544845,
+      "q6_sim_skiponly_mean": 0.021593086209604435,
+      "q6_sim_union_mean": 0.028240139041258928,
+      "q6_sim_component_rates": {
+        "multigen": 0.04978053112654311,
+        "coresident_child": 0.1412194880124357,
+        "not_coresident_parent": 0.9975885017842943,
+        "multigen_and_child_and_notparent": 0.0066470528316544845
+      },
+      "q7_reference": {
+        "reference_actual_size3_total": 0.18012506278902857,
+        "reference_actual_size3_routes": {
+          "couple_plus_child": 0.10865106505210272,
+          "single_parent_plus_two_children": 0.012896547012872378,
+          "couple_plus_parent": 0.001340819283550968,
+          "three_adults": 0.039417406732082994,
+          "other_family_core": 0.017819224708419498
+        },
+        "reference_actual_reconciliation_remainder": 0.0,
+        "reference_core_size3_total": 0.22989453288921363,
+        "reference_core_size3_routes": {
+          "couple_plus_child": 0.11897064552856224,
+          "single_parent_plus_two_children": 0.014929115183448066,
+          "couple_plus_parent": 0.0015578436655839113,
+          "three_adults": 0.09143556037213031,
+          "other_family_core": 0.0030013681394890934
+        },
+        "reference_core_reconciliation_remainder": 2.7755575615628914e-17
+      },
+      "q7_sim_core_size3_total_mean": 0.26741943441101,
+      "q7_sim_full_size3_total_mean": 0.22061866718647352,
+      "q7_sim_core_routes_mean": {
+        "couple_plus_child": 0.12744237435578842,
+        "single_parent_plus_two_children": 0.031887501265562154,
+        "couple_plus_parent": 0.0,
+        "three_adults": 0.10808955878965947,
+        "other_family_core": 0.0
+      },
+      "q7_sim_p_spouse_mean": 0.5810901325028742,
+      "q7_sim_child_dist_among_couples_mean": {
+        "0": 0.508394882353367,
+        "1": 0.2274946954887765,
+        "2": 0.17113436917675312,
+        "3+": 0.09297605298110342
+      },
+      "elapsed_seconds": 91.3
+    },
+    {
+      "seed": 1,
+      "n_train_persons": 23452,
+      "parent_count": 2,
+      "rate_b_grandchild_55f": 0.06656198993320385,
+      "rate_b_hh_size3": 0.181816853260391,
+      "q5": {
+        "observable_overall_diag": {
+          "n_exposure": 147329,
+          "n_coresident": 76496,
+          "overall_coresidence_rate": 0.44202
+        },
+        "observable_p_coresident_by_band_marital": {
+          "0-4|married": 0.8866037490346209,
+          "0-4|not_married": 0.6971209333024374,
+          "13-17|married": 0.9112011975279561,
+          "13-17|not_married": 0.37651703158544025,
+          "18-24|married": 0.5439463568073425,
+          "18-24|not_married": 0.2598067640493295,
+          "25-60|married": 0.06972803843217208,
+          "25-60|not_married": 0.057411370435337866,
+          "5-12|married": 0.9414657191842599,
+          "5-12|not_married": 0.4738071755772838
+        },
+        "selection_gap_table": {
+          "0-4|married": {
+            "observable_basis_p_coresident": 0.8866037490346209,
+            "child_record_basis_p_coresident": 0.9793325893086355,
+            "selection_gap_observable_minus_child_record": -0.09272884027401462,
+            "child_record_n_child_waves": 18063,
+            "child_record_weight": 78775963.826
+          },
+          "0-4|not_married": {
+            "observable_basis_p_coresident": 0.6971209333024374,
+            "child_record_basis_p_coresident": 0.7508673760912344,
+            "selection_gap_observable_minus_child_record": -0.05374644278879703,
+            "child_record_n_child_waves": 3726,
+            "child_record_weight": 19381116.127
+          },
+          "5-12|married": {
+            "observable_basis_p_coresident": 0.9414657191842599,
+            "child_record_basis_p_coresident": 0.9646807684615661,
+            "selection_gap_observable_minus_child_record": -0.02321504927730622,
+            "child_record_n_child_waves": 31117,
+            "child_record_weight": 143811019.31599998
+          },
+          "5-12|not_married": {
+            "observable_basis_p_coresident": 0.4738071755772838,
+            "child_record_basis_p_coresident": 0.3894959401890831,
+            "selection_gap_observable_minus_child_record": 0.08431123538820068,
+            "child_record_n_child_waves": 6206,
+            "child_record_weight": 37248980.703
+          },
+          "13-17|married": {
+            "observable_basis_p_coresident": 0.9112011975279561,
+            "child_record_basis_p_coresident": 0.9545741712034884,
+            "selection_gap_observable_minus_child_record": -0.04337297367553228,
+            "child_record_n_child_waves": 17551,
+            "child_record_weight": 85137277.744
+          },
+          "13-17|not_married": {
+            "observable_basis_p_coresident": 0.37651703158544025,
+            "child_record_basis_p_coresident": 0.29277400032879575,
+            "selection_gap_observable_minus_child_record": 0.0837430312566445,
+            "child_record_n_child_waves": 3862,
+            "child_record_weight": 24680164.781999998
+          },
+          "18-24|married": {
+            "observable_basis_p_coresident": 0.5439463568073425,
+            "child_record_basis_p_coresident": 0.7652556231239896,
+            "selection_gap_observable_minus_child_record": -0.22130926631664716,
+            "child_record_n_child_waves": 17652,
+            "child_record_weight": 82665354.899
+          },
+          "18-24|not_married": {
+            "observable_basis_p_coresident": 0.2598067640493295,
+            "child_record_basis_p_coresident": 0.23105509841576735,
+            "selection_gap_observable_minus_child_record": 0.028751665633562157,
+            "child_record_n_child_waves": 4449,
+            "child_record_weight": 30850626.798
+          },
+          "25-60|married": {
+            "observable_basis_p_coresident": 0.06972803843217208,
+            "child_record_basis_p_coresident": 0.12226006613552942,
+            "selection_gap_observable_minus_child_record": -0.05253202770335734,
+            "child_record_n_child_waves": 29993,
+            "child_record_weight": 204349335.40199998
+          },
+          "25-60|not_married": {
+            "observable_basis_p_coresident": 0.057411370435337866,
+            "child_record_basis_p_coresident": 0.030456171604899877,
+            "selection_gap_observable_minus_child_record": 0.02695519883043799,
+            "child_record_n_child_waves": 18184,
+            "child_record_weight": 183992200.914
+          }
+        },
+        "child_record_n_child_waves_total": 150803,
+        "maternal_complement_overall": {
+          "with_both": 0.4413318742599601,
+          "with_father_only": 0.04628266103528051,
+          "with_mother_only": 0.0865345199377703,
+          "with_neither": 0.42585094476698904,
+          "p_with_father": 0.4876145352952406,
+          "p_with_mother": 0.5278663941977304,
+          "partition_sum": 1.0,
+          "partition_reconciliation_remainder": 0.0,
+          "father_complement_identity_remainder": -1.1102230246251565e-16,
+          "n_child_waves": 150803
+        },
+        "maternal_complement_by_child_band": {
+          "0-4": {
+            "with_both": 0.9075309657607372,
+            "with_father_only": 0.02669116559146304,
+            "with_mother_only": 0.06214790812767608,
+            "with_neither": 0.003629960520123542,
+            "p_with_father": 0.9342221313522002,
+            "p_with_mother": 0.9696788738884133,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21789
+          },
+          "5-12": {
+            "with_both": 0.7835676832989739,
+            "with_father_only": 0.06278187690714207,
+            "with_mother_only": 0.14078089955443038,
+            "with_neither": 0.012869540239453654,
+            "p_with_father": 0.846349560206116,
+            "p_with_mother": 0.9243485828534043,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 37323
+          },
+          "13-17": {
+            "with_both": 0.714419059380527,
+            "with_father_only": 0.09142339039286033,
+            "with_mother_only": 0.17516757310611783,
+            "with_neither": 0.018989977120494866,
+            "p_with_father": 0.8058424497733873,
+            "p_with_mother": 0.8895866324866448,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21413
+          },
+          "18-24": {
+            "with_both": 0.5294565254029634,
+            "with_father_only": 0.09061759308444454,
+            "with_mother_only": 0.13154221658283582,
+            "with_neither": 0.24838366492975633,
+            "p_with_father": 0.6200741184874079,
+            "p_with_mother": 0.6609987419857992,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 22101
+          },
+          "25-60": {
+            "with_both": 0.06094699183489029,
+            "with_father_only": 0.017817339161396634,
+            "with_mother_only": 0.02918634340411404,
+            "with_neither": 0.8920493255995992,
+            "p_with_father": 0.07876433099628692,
+            "p_with_mother": 0.09013333523900433,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 48177
+          }
+        },
+        "n_train_father_links": 11065,
+        "n_joinable_train_children": 11065
+      },
+      "q6_reference": {
+        "reference_stock_55plus_female": 0.06656198993320385,
+        "n_grandchild_person_waves": 3525,
+        "reference_component_rates_55plus_female": {
+          "multigen": 0.0453585873272495,
+          "coresident_child": 0.17778992637395502,
+          "not_coresident_parent": 0.9886886928179891,
+          "multigen_and_child_and_notparent": 0.040076880803486335,
+          "independence_product_multigen_x_child_x_notparent": 0.0079730821279464
+        },
+        "channels": {
+          "a_ego_on_top_composed_reachable": 0.03949300704132841,
+          "a_prime_ego_on_top_composed_breaks": 0.0016950509326423766,
+          "b_skipped_generation": 0.025373931959233063,
+          "c_other": 0.0
+        },
+        "channel_reconciliation_remainder": 0.0,
+        "a_prime_breaks_detail": {
+          "child_in_law_middle_generation_only": 0.0,
+          "four_generation_own_parent_present": 0.0007510080219678712
+        },
+        "grandparent_code_inventory": {
+          "66": {
+            "label": "grandparent",
+            "weighted_share_of_55plus_female": 0.06227061391354311,
+            "in_reference_link": true
+          },
+          "67": {
+            "label": "grandparent_in_law",
+            "weighted_share_of_55plus_female": 0.0018407152682385793,
+            "in_reference_link": false
+          },
+          "68": {
+            "label": "great_grandparent",
+            "weighted_share_of_55plus_female": 0.007266148544571393,
+            "in_reference_link": true
+          },
+          "82": {
+            "label": "social_grandparent",
+            "weighted_share_of_55plus_female": 0.0001391425390834629,
+            "in_reference_link": true
+          },
+          "87": {
+            "label": "step_grandparent",
+            "weighted_share_of_55plus_female": 0.0021880745381184833,
+            "in_reference_link": true
+          },
+          "88": {
+            "label": "step_great_grandparent",
+            "weighted_share_of_55plus_female": 7.701740009294986e-05,
+            "in_reference_link": true
+          }
+        },
+        "codebook_note": "MX8 (ego->alter) grandparent-type codes verified against MX23REL_formats.sps (lines 100-125): 66 grandparent, 67 grandparent-in-law, 68 great-grandparent, 69 great-grandparent-in-law, 82 social grandparent, 83 social great-grandparent, 87 step grandparent, 88 step great grandparent. The reference coresident_grandchild link is {66, 68, 82, 87, 88} -- own/social/step grandparent + own/step great-grandparent -- EXCLUDING the in-law codes {67, 69} and (an asymmetry) the social great-grandparent 83. MX8 code 88 is step great-grandparent here (a grandparent-type, correctly included), NOT the MX7 first-year-cohabitor meaning (generation 0) -- the 2b ceremony's code-88 lesson: the frames must not cross."
+      },
+      "q6_sim_composed_mean": 0.006320855101791917,
+      "q6_sim_skiponly_mean": 0.024768135683637865,
+      "q6_sim_union_mean": 0.03108899078542978,
+      "q6_sim_component_rates": {
+        "multigen": 0.048636873123144596,
+        "coresident_child": 0.15022614182093005,
+        "not_coresident_parent": 0.9972918061698305,
+        "multigen_and_child_and_notparent": 0.006320855101791917
+      },
+      "q7_reference": {
+        "reference_actual_size3_total": 0.181816853260391,
+        "reference_actual_size3_routes": {
+          "couple_plus_child": 0.10801089802806785,
+          "single_parent_plus_two_children": 0.013541036601617665,
+          "couple_plus_parent": 0.0013423594015178283,
+          "three_adults": 0.04075600001685236,
+          "other_family_core": 0.01816655921233527
+        },
+        "reference_actual_reconciliation_remainder": 2.7755575615628914e-17,
+        "reference_core_size3_total": 0.2340720947906848,
+        "reference_core_size3_routes": {
+          "couple_plus_child": 0.11796081929582695,
+          "single_parent_plus_two_children": 0.015464909343446284,
+          "couple_plus_parent": 0.0015840639562508772,
+          "three_adults": 0.09542704105153843,
+          "other_family_core": 0.003635261143622266
+        },
+        "reference_core_reconciliation_remainder": 0.0
+      },
+      "q7_sim_core_size3_total_mean": 0.26939354560811013,
+      "q7_sim_full_size3_total_mean": 0.2225154967350674,
+      "q7_sim_core_routes_mean": {
+        "couple_plus_child": 0.12826054200403592,
+        "single_parent_plus_two_children": 0.031228754342421405,
+        "couple_plus_parent": 0.0,
+        "three_adults": 0.10990424926165283,
+        "other_family_core": 0.0
+      },
+      "q7_sim_p_spouse_mean": 0.5798450528917227,
+      "q7_sim_child_dist_among_couples_mean": {
+        "0": 0.5099616743738606,
+        "1": 0.23031194894182078,
+        "2": 0.16777823557227714,
+        "3+": 0.09194814111204161
+      },
+      "elapsed_seconds": 84.7
+    },
+    {
+      "seed": 2,
+      "n_train_persons": 23478,
+      "parent_count": 2,
+      "rate_b_grandchild_55f": 0.06727656813294278,
+      "rate_b_hh_size3": 0.18210054659754332,
+      "q5": {
+        "observable_overall_diag": {
+          "n_exposure": 144929,
+          "n_coresident": 74994,
+          "overall_coresidence_rate": 0.44933
+        },
+        "observable_p_coresident_by_band_marital": {
+          "0-4|married": 0.8886182855048802,
+          "0-4|not_married": 0.7151184867172179,
+          "13-17|married": 0.9093804566290614,
+          "13-17|not_married": 0.4319799634424047,
+          "18-24|married": 0.5384215798950457,
+          "18-24|not_married": 0.282430642673295,
+          "25-60|married": 0.07315926242968827,
+          "25-60|not_married": 0.06593193642752593,
+          "5-12|married": 0.9380324286747534,
+          "5-12|not_married": 0.5158260466720923
+        },
+        "selection_gap_table": {
+          "0-4|married": {
+            "observable_basis_p_coresident": 0.8886182855048802,
+            "child_record_basis_p_coresident": 0.9821319564488081,
+            "selection_gap_observable_minus_child_record": -0.09351367094392793,
+            "child_record_n_child_waves": 17665,
+            "child_record_weight": 77421525.028
+          },
+          "0-4|not_married": {
+            "observable_basis_p_coresident": 0.7151184867172179,
+            "child_record_basis_p_coresident": 0.7648644927562421,
+            "selection_gap_observable_minus_child_record": -0.04974600603902424,
+            "child_record_n_child_waves": 3864,
+            "child_record_weight": 20899295.612999998
+          },
+          "5-12|married": {
+            "observable_basis_p_coresident": 0.9380324286747534,
+            "child_record_basis_p_coresident": 0.9611417966353771,
+            "selection_gap_observable_minus_child_record": -0.023109367960623683,
+            "child_record_n_child_waves": 30163,
+            "child_record_weight": 141214498.558
+          },
+          "5-12|not_married": {
+            "observable_basis_p_coresident": 0.5158260466720923,
+            "child_record_basis_p_coresident": 0.42191604118980097,
+            "selection_gap_observable_minus_child_record": 0.09391000548229134,
+            "child_record_n_child_waves": 6397,
+            "child_record_weight": 40560977.245
+          },
+          "13-17|married": {
+            "observable_basis_p_coresident": 0.9093804566290614,
+            "child_record_basis_p_coresident": 0.9522098855975061,
+            "selection_gap_observable_minus_child_record": -0.04282942896844466,
+            "child_record_n_child_waves": 16906,
+            "child_record_weight": 81468638.016
+          },
+          "13-17|not_married": {
+            "observable_basis_p_coresident": 0.4319799634424047,
+            "child_record_basis_p_coresident": 0.3011999915480633,
+            "selection_gap_observable_minus_child_record": 0.13077997189434137,
+            "child_record_n_child_waves": 4072,
+            "child_record_weight": 28692973.926
+          },
+          "18-24|married": {
+            "observable_basis_p_coresident": 0.5384215798950457,
+            "child_record_basis_p_coresident": 0.7614245331813739,
+            "selection_gap_observable_minus_child_record": -0.22300295328632824,
+            "child_record_n_child_waves": 16994,
+            "child_record_weight": 78328266.90100001
+          },
+          "18-24|not_married": {
+            "observable_basis_p_coresident": 0.282430642673295,
+            "child_record_basis_p_coresident": 0.22865795307686068,
+            "selection_gap_observable_minus_child_record": 0.0537726895964343,
+            "child_record_n_child_waves": 4658,
+            "child_record_weight": 35052689.894
+          },
+          "25-60|married": {
+            "observable_basis_p_coresident": 0.07315926242968827,
+            "child_record_basis_p_coresident": 0.1312322611975308,
+            "selection_gap_observable_minus_child_record": -0.05807299876784251,
+            "child_record_n_child_waves": 28324,
+            "child_record_weight": 190684850.323
+          },
+          "25-60|not_married": {
+            "observable_basis_p_coresident": 0.06593193642752593,
+            "child_record_basis_p_coresident": 0.03490445919813272,
+            "selection_gap_observable_minus_child_record": 0.03102747722939321,
+            "child_record_n_child_waves": 18042,
+            "child_record_weight": 186955600.915
+          }
+        },
+        "child_record_n_child_waves_total": 147085,
+        "maternal_complement_overall": {
+          "with_both": 0.441367723696884,
+          "with_father_only": 0.046885039493375746,
+          "with_mother_only": 0.09370135647633779,
+          "with_neither": 0.4180458803334024,
+          "p_with_father": 0.48825276319025973,
+          "p_with_mother": 0.5350690801732217,
+          "partition_sum": 0.9999999999999999,
+          "partition_reconciliation_remainder": -1.1102230246251565e-16,
+          "father_complement_identity_remainder": -2.220446049250313e-16,
+          "n_child_waves": 147085
+        },
+        "maternal_complement_by_child_band": {
+          "0-4": {
+            "with_both": 0.9068770574095274,
+            "with_father_only": 0.029072036435058464,
+            "with_mother_only": 0.060546680704957286,
+            "with_neither": 0.003504225450456897,
+            "p_with_father": 0.9359490938445859,
+            "p_with_mother": 0.9674237381144847,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 21529
+          },
+          "5-12": {
+            "with_both": 0.7770026628403357,
+            "with_father_only": 0.06381749249591867,
+            "with_mother_only": 0.14656185048236475,
+            "with_neither": 0.012617994181380909,
+            "p_with_father": 0.8408201553362544,
+            "p_with_mother": 0.9235645133227004,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 36560
+          },
+          "13-17": {
+            "with_both": 0.6839251592166938,
+            "with_father_only": 0.09872103185750239,
+            "with_mother_only": 0.20015730411251717,
+            "with_neither": 0.017196504813286474,
+            "p_with_father": 0.7826461910741962,
+            "p_with_mother": 0.884082463329211,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 20978
+          },
+          "18-24": {
+            "with_both": 0.5139995354808119,
+            "with_father_only": 0.08271566514433912,
+            "with_mother_only": 0.15200861232950932,
+            "with_neither": 0.2512761870453397,
+            "p_with_father": 0.596715200625151,
+            "p_with_mother": 0.6660081478103212,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 21652
+          },
+          "25-60": {
+            "with_both": 0.06605029570383611,
+            "with_father_only": 0.017493689387201007,
+            "with_mother_only": 0.028329022322499273,
+            "with_neither": 0.8881269925864637,
+            "p_with_father": 0.08354398509103711,
+            "p_with_mother": 0.09437931802633538,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 46366
+          }
+        },
+        "n_train_father_links": 11064,
+        "n_joinable_train_children": 11064
+      },
+      "q6_reference": {
+        "reference_stock_55plus_female": 0.06727656813294278,
+        "n_grandchild_person_waves": 3585,
+        "reference_component_rates_55plus_female": {
+          "multigen": 0.04488688320076955,
+          "coresident_child": 0.18608994193820158,
+          "not_coresident_parent": 0.9876541051366853,
+          "multigen_and_child_and_notparent": 0.038941439921931664,
+          "independence_product_multigen_x_child_x_notparent": 0.00824987225983003
+        },
+        "channels": {
+          "a_ego_on_top_composed_reachable": 0.03847525106595278,
+          "a_prime_ego_on_top_composed_breaks": 0.0021735562644746172,
+          "b_skipped_generation": 0.026627760802515398,
+          "c_other": 0.0
+        },
+        "channel_reconciliation_remainder": -1.3877787807814457e-17,
+        "a_prime_breaks_detail": {
+          "child_in_law_middle_generation_only": 3.746101694301879e-05,
+          "four_generation_own_parent_present": 0.0008437609293315008
+        },
+        "grandparent_code_inventory": {
+          "66": {
+            "label": "grandparent",
+            "weighted_share_of_55plus_female": 0.062427794765639734,
+            "in_reference_link": true
+          },
+          "67": {
+            "label": "grandparent_in_law",
+            "weighted_share_of_55plus_female": 0.0016918550486841619,
+            "in_reference_link": false
+          },
+          "68": {
+            "label": "great_grandparent",
+            "weighted_share_of_55plus_female": 0.006381918192476097,
+            "in_reference_link": true
+          },
+          "82": {
+            "label": "social_grandparent",
+            "weighted_share_of_55plus_female": 0.0002366397756583555,
+            "in_reference_link": true
+          },
+          "83": {
+            "label": "social_great_grandparent",
+            "weighted_share_of_55plus_female": 8.444185345801628e-05,
+            "in_reference_link": false
+          },
+          "87": {
+            "label": "step_grandparent",
+            "weighted_share_of_55plus_female": 0.003248100977160895,
+            "in_reference_link": true
+          },
+          "88": {
+            "label": "step_great_grandparent",
+            "weighted_share_of_55plus_female": 8.454381037434733e-05,
+            "in_reference_link": true
+          }
+        },
+        "codebook_note": "MX8 (ego->alter) grandparent-type codes verified against MX23REL_formats.sps (lines 100-125): 66 grandparent, 67 grandparent-in-law, 68 great-grandparent, 69 great-grandparent-in-law, 82 social grandparent, 83 social great-grandparent, 87 step grandparent, 88 step great grandparent. The reference coresident_grandchild link is {66, 68, 82, 87, 88} -- own/social/step grandparent + own/step great-grandparent -- EXCLUDING the in-law codes {67, 69} and (an asymmetry) the social great-grandparent 83. MX8 code 88 is step great-grandparent here (a grandparent-type, correctly included), NOT the MX7 first-year-cohabitor meaning (generation 0) -- the 2b ceremony's code-88 lesson: the frames must not cross."
+      },
+      "q6_sim_composed_mean": 0.007020090284620098,
+      "q6_sim_skiponly_mean": 0.026228132923651764,
+      "q6_sim_union_mean": 0.03324822320827187,
+      "q6_sim_component_rates": {
+        "multigen": 0.05092966325870781,
+        "coresident_child": 0.15537826538693517,
+        "not_coresident_parent": 0.9973502980544134,
+        "multigen_and_child_and_notparent": 0.007020090284620098
+      },
+      "q7_reference": {
+        "reference_actual_size3_total": 0.18210054659754332,
+        "reference_actual_size3_routes": {
+          "couple_plus_child": 0.10839644087983179,
+          "single_parent_plus_two_children": 0.01424309521992508,
+          "couple_plus_parent": 0.0013387031544114013,
+          "three_adults": 0.039285323528619506,
+          "other_family_core": 0.018836983814755532
+        },
+        "reference_actual_reconciliation_remainder": 2.7755575615628914e-17,
+        "reference_core_size3_total": 0.2349827108009306,
+        "reference_core_size3_routes": {
+          "couple_plus_child": 0.1175455878833391,
+          "single_parent_plus_two_children": 0.016173037064691663,
+          "couple_plus_parent": 0.0016505575908898004,
+          "three_adults": 0.09669192727676067,
+          "other_family_core": 0.002921600985249374
+        },
+        "reference_core_reconciliation_remainder": 0.0
+      },
+      "q7_sim_core_size3_total_mean": 0.27349595159471607,
+      "q7_sim_full_size3_total_mean": 0.2236058777529578,
+      "q7_sim_core_routes_mean": {
+        "couple_plus_child": 0.12960479322570007,
+        "single_parent_plus_two_children": 0.0329183998499525,
+        "couple_plus_parent": 0.0,
+        "three_adults": 0.11097275851906348,
+        "other_family_core": 0.0
+      },
+      "q7_sim_p_spouse_mean": 0.5783650438635524,
+      "q7_sim_child_dist_among_couples_mean": {
+        "0": 0.5067316997014032,
+        "1": 0.23337046079137735,
+        "2": 0.16990444003953148,
+        "3+": 0.08999339946768786
+      },
+      "elapsed_seconds": 88.9
+    },
+    {
+      "seed": 3,
+      "n_train_persons": 23484,
+      "parent_count": 2,
+      "rate_b_grandchild_55f": 0.06152256513958865,
+      "rate_b_hh_size3": 0.18435936804148906,
+      "q5": {
+        "observable_overall_diag": {
+          "n_exposure": 142856,
+          "n_coresident": 74061,
+          "overall_coresidence_rate": 0.42894
+        },
+        "observable_p_coresident_by_band_marital": {
+          "0-4|married": 0.8852294554181226,
+          "0-4|not_married": 0.7043912737832535,
+          "13-17|married": 0.9199571276603623,
+          "13-17|not_married": 0.39417799261467706,
+          "18-24|married": 0.5247799202218825,
+          "18-24|not_married": 0.21790539962683295,
+          "25-60|married": 0.06320923578708766,
+          "25-60|not_married": 0.048323335163416345,
+          "5-12|married": 0.9407664358378713,
+          "5-12|not_married": 0.4995036336364293
+        },
+        "selection_gap_table": {
+          "0-4|married": {
+            "observable_basis_p_coresident": 0.8852294554181226,
+            "child_record_basis_p_coresident": 0.9796370744677761,
+            "selection_gap_observable_minus_child_record": -0.09440761904965356,
+            "child_record_n_child_waves": 17347,
+            "child_record_weight": 73143460.14
+          },
+          "0-4|not_married": {
+            "observable_basis_p_coresident": 0.7043912737832535,
+            "child_record_basis_p_coresident": 0.7500668831200743,
+            "selection_gap_observable_minus_child_record": -0.0456756093368208,
+            "child_record_n_child_waves": 3821,
+            "child_record_weight": 19866881.188
+          },
+          "5-12|married": {
+            "observable_basis_p_coresident": 0.9407664358378713,
+            "child_record_basis_p_coresident": 0.9638288314233947,
+            "selection_gap_observable_minus_child_record": -0.023062395585523365,
+            "child_record_n_child_waves": 29883,
+            "child_record_weight": 134147025.461
+          },
+          "5-12|not_married": {
+            "observable_basis_p_coresident": 0.4995036336364293,
+            "child_record_basis_p_coresident": 0.431022936064026,
+            "selection_gap_observable_minus_child_record": 0.06848069757240333,
+            "child_record_n_child_waves": 6322,
+            "child_record_weight": 38531129.927
+          },
+          "13-17|married": {
+            "observable_basis_p_coresident": 0.9199571276603623,
+            "child_record_basis_p_coresident": 0.9578417008825602,
+            "selection_gap_observable_minus_child_record": -0.03788457322219785,
+            "child_record_n_child_waves": 16886,
+            "child_record_weight": 80506543.60000001
+          },
+          "13-17|not_married": {
+            "observable_basis_p_coresident": 0.39417799261467706,
+            "child_record_basis_p_coresident": 0.3012015212592343,
+            "selection_gap_observable_minus_child_record": 0.09297647135544279,
+            "child_record_n_child_waves": 3964,
+            "child_record_weight": 24326141.111
+          },
+          "18-24|married": {
+            "observable_basis_p_coresident": 0.5247799202218825,
+            "child_record_basis_p_coresident": 0.7457904673001122,
+            "selection_gap_observable_minus_child_record": -0.22101054707822976,
+            "child_record_n_child_waves": 16787,
+            "child_record_weight": 76454449.566
+          },
+          "18-24|not_married": {
+            "observable_basis_p_coresident": 0.21790539962683295,
+            "child_record_basis_p_coresident": 0.19406965948124982,
+            "selection_gap_observable_minus_child_record": 0.023835740145583123,
+            "child_record_n_child_waves": 4675,
+            "child_record_weight": 29613300.458
+          },
+          "25-60|married": {
+            "observable_basis_p_coresident": 0.06320923578708766,
+            "child_record_basis_p_coresident": 0.11172787191838723,
+            "selection_gap_observable_minus_child_record": -0.04851863613129957,
+            "child_record_n_child_waves": 28709,
+            "child_record_weight": 198290493.389
+          },
+          "25-60|not_married": {
+            "observable_basis_p_coresident": 0.048323335163416345,
+            "child_record_basis_p_coresident": 0.025641576022806305,
+            "selection_gap_observable_minus_child_record": 0.02268175914061004,
+            "child_record_n_child_waves": 18674,
+            "child_record_weight": 190731986.312
+          }
+        },
+        "child_record_n_child_waves_total": 147068,
+        "maternal_complement_overall": {
+          "with_both": 0.42925086302698223,
+          "with_father_only": 0.04060083139526527,
+          "with_mother_only": 0.08714316882053467,
+          "with_neither": 0.4430051367572177,
+          "p_with_father": 0.4698516944222475,
+          "p_with_mother": 0.5163940318475169,
+          "partition_sum": 0.9999999999999998,
+          "partition_reconciliation_remainder": -2.220446049250313e-16,
+          "father_complement_identity_remainder": -2.220446049250313e-16,
+          "n_child_waves": 147068
+        },
+        "maternal_complement_by_child_band": {
+          "0-4": {
+            "with_both": 0.9078090518691747,
+            "with_father_only": 0.02279214496723732,
+            "with_mother_only": 0.06539907095436952,
+            "with_neither": 0.003999732209218412,
+            "p_with_father": 0.9306011968364121,
+            "p_with_mother": 0.9732081228235442,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21168
+          },
+          "5-12": {
+            "with_both": 0.7844432441360982,
+            "with_father_only": 0.06049612420591074,
+            "with_mother_only": 0.14115441767507933,
+            "with_neither": 0.013906213982911671,
+            "p_with_father": 0.844939368342009,
+            "p_with_mother": 0.9255976618111775,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 36205
+          },
+          "13-17": {
+            "with_both": 0.715689983117712,
+            "with_father_only": 0.08978013906585013,
+            "with_mother_only": 0.17522836590173188,
+            "with_neither": 0.019301511914706155,
+            "p_with_father": 0.8054701221835622,
+            "p_with_mother": 0.8909183490194439,
+            "partition_sum": 1.0000000000000002,
+            "partition_reconciliation_remainder": 2.220446049250313e-16,
+            "father_complement_identity_remainder": 2.220446049250313e-16,
+            "n_child_waves": 20850
+          },
+          "18-24": {
+            "with_both": 0.5168821803573171,
+            "with_father_only": 0.07487207850834084,
+            "with_mother_only": 0.14022620279618045,
+            "with_neither": 0.2680195383381615,
+            "p_with_father": 0.591754258865658,
+            "p_with_mother": 0.6571083831534976,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21462
+          },
+          "25-60": {
+            "with_both": 0.05609025697376406,
+            "with_father_only": 0.013430773265379937,
+            "with_mother_only": 0.03015740659258834,
+            "with_neither": 0.9003215631682677,
+            "p_with_father": 0.069521030239144,
+            "p_with_mother": 0.0862476635663524,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 47383
+          }
+        },
+        "n_train_father_links": 10794,
+        "n_joinable_train_children": 10794
+      },
+      "q6_reference": {
+        "reference_stock_55plus_female": 0.06152256513958865,
+        "n_grandchild_person_waves": 3409,
+        "reference_component_rates_55plus_female": {
+          "multigen": 0.04246367779930319,
+          "coresident_child": 0.18457257316026965,
+          "not_coresident_parent": 0.9905411146398013,
+          "multigen_and_child_and_notparent": 0.0381697196992134,
+          "independence_product_multigen_x_child_x_notparent": 0.007763495030977726
+        },
+        "channels": {
+          "a_ego_on_top_composed_reachable": 0.037391670345061495,
+          "a_prime_ego_on_top_composed_breaks": 0.0012921590587093527,
+          "b_skipped_generation": 0.022838735735817798,
+          "c_other": 0.0
+        },
+        "channel_reconciliation_remainder": 0.0,
+        "a_prime_breaks_detail": {
+          "child_in_law_middle_generation_only": 3.6204693272205425e-05,
+          "four_generation_own_parent_present": 0.00017849339474463585
+        },
+        "grandparent_code_inventory": {
+          "66": {
+            "label": "grandparent",
+            "weighted_share_of_55plus_female": 0.05806791249455433,
+            "in_reference_link": true
+          },
+          "67": {
+            "label": "grandparent_in_law",
+            "weighted_share_of_55plus_female": 0.001060695776152244,
+            "in_reference_link": false
+          },
+          "68": {
+            "label": "great_grandparent",
+            "weighted_share_of_55plus_female": 0.00517199930400869,
+            "in_reference_link": true
+          },
+          "82": {
+            "label": "social_grandparent",
+            "weighted_share_of_55plus_female": 0.0004752112683555059,
+            "in_reference_link": true
+          },
+          "83": {
+            "label": "social_great_grandparent",
+            "weighted_share_of_55plus_female": 2.4972724532495588e-05,
+            "in_reference_link": false
+          },
+          "87": {
+            "label": "step_grandparent",
+            "weighted_share_of_55plus_female": 0.0024657852112729395,
+            "in_reference_link": true
+          },
+          "88": {
+            "label": "step_great_grandparent",
+            "weighted_share_of_55plus_female": 6.16589374338032e-08,
+            "in_reference_link": true
+          }
+        },
+        "codebook_note": "MX8 (ego->alter) grandparent-type codes verified against MX23REL_formats.sps (lines 100-125): 66 grandparent, 67 grandparent-in-law, 68 great-grandparent, 69 great-grandparent-in-law, 82 social grandparent, 83 social great-grandparent, 87 step grandparent, 88 step great grandparent. The reference coresident_grandchild link is {66, 68, 82, 87, 88} -- own/social/step grandparent + own/step great-grandparent -- EXCLUDING the in-law codes {67, 69} and (an asymmetry) the social great-grandparent 83. MX8 code 88 is step great-grandparent here (a grandparent-type, correctly included), NOT the MX7 first-year-cohabitor meaning (generation 0) -- the 2b ceremony's code-88 lesson: the frames must not cross."
+      },
+      "q6_sim_composed_mean": 0.005498123308507713,
+      "q6_sim_skiponly_mean": 0.023094983056823778,
+      "q6_sim_union_mean": 0.028593106365331487,
+      "q6_sim_component_rates": {
+        "multigen": 0.048623970072292265,
+        "coresident_child": 0.13812058493764273,
+        "not_coresident_parent": 0.9973375984918667,
+        "multigen_and_child_and_notparent": 0.005498123308507713
+      },
+      "q7_reference": {
+        "reference_actual_size3_total": 0.18435936804148906,
+        "reference_actual_size3_routes": {
+          "couple_plus_child": 0.11004055578127556,
+          "single_parent_plus_two_children": 0.014748458399588684,
+          "couple_plus_parent": 0.0013237078625816204,
+          "three_adults": 0.04088786964184665,
+          "other_family_core": 0.01735877635619652
+        },
+        "reference_actual_reconciliation_remainder": 2.7755575615628914e-17,
+        "reference_core_size3_total": 0.23453529895000905,
+        "reference_core_size3_routes": {
+          "couple_plus_child": 0.11997817756263929,
+          "single_parent_plus_two_children": 0.016734975507964548,
+          "couple_plus_parent": 0.0017035881325725725,
+          "three_adults": 0.0934153443735808,
+          "other_family_core": 0.0027032133732518377
+        },
+        "reference_core_reconciliation_remainder": 0.0
+      },
+      "q7_sim_core_size3_total_mean": 0.26740208595434106,
+      "q7_sim_full_size3_total_mean": 0.22086737980357712,
+      "q7_sim_core_routes_mean": {
+        "couple_plus_child": 0.1286357561116523,
+        "single_parent_plus_two_children": 0.03211569743246694,
+        "couple_plus_parent": 0.0,
+        "three_adults": 0.10665063241022184,
+        "other_family_core": 0.0
+      },
+      "q7_sim_p_spouse_mean": 0.5782211355260204,
+      "q7_sim_child_dist_among_couples_mean": {
+        "0": 0.5126071377939125,
+        "1": 0.2309303612105039,
+        "2": 0.16806102101483944,
+        "3+": 0.08840147998074402
+      },
+      "elapsed_seconds": 85.8
+    },
+    {
+      "seed": 4,
+      "n_train_persons": 23569,
+      "parent_count": 2,
+      "rate_b_grandchild_55f": 0.05694084187949786,
+      "rate_b_hh_size3": 0.1782504791744526,
+      "q5": {
+        "observable_overall_diag": {
+          "n_exposure": 150399,
+          "n_coresident": 76682,
+          "overall_coresidence_rate": 0.43175
+        },
+        "observable_p_coresident_by_band_marital": {
+          "0-4|married": 0.8948660494779564,
+          "0-4|not_married": 0.6951285643351218,
+          "13-17|married": 0.9131816574517386,
+          "13-17|not_married": 0.42694160757514893,
+          "18-24|married": 0.5239979433728195,
+          "18-24|not_married": 0.24667391459161922,
+          "25-60|married": 0.06685136302099912,
+          "25-60|not_married": 0.05704895773160885,
+          "5-12|married": 0.947905254524929,
+          "5-12|not_married": 0.5145783541178758
+        },
+        "selection_gap_table": {
+          "0-4|married": {
+            "observable_basis_p_coresident": 0.8948660494779564,
+            "child_record_basis_p_coresident": 0.9806723791077994,
+            "selection_gap_observable_minus_child_record": -0.08580632962984291,
+            "child_record_n_child_waves": 17588,
+            "child_record_weight": 77230629.384
+          },
+          "0-4|not_married": {
+            "observable_basis_p_coresident": 0.6951285643351218,
+            "child_record_basis_p_coresident": 0.7525840404291353,
+            "selection_gap_observable_minus_child_record": -0.05745547609401347,
+            "child_record_n_child_waves": 3894,
+            "child_record_weight": 20283947.441
+          },
+          "5-12|married": {
+            "observable_basis_p_coresident": 0.947905254524929,
+            "child_record_basis_p_coresident": 0.9627322885808022,
+            "selection_gap_observable_minus_child_record": -0.014827034055873156,
+            "child_record_n_child_waves": 30798,
+            "child_record_weight": 143239552.597
+          },
+          "5-12|not_married": {
+            "observable_basis_p_coresident": 0.5145783541178758,
+            "child_record_basis_p_coresident": 0.41953330344074946,
+            "selection_gap_observable_minus_child_record": 0.09504505067712632,
+            "child_record_n_child_waves": 6596,
+            "child_record_weight": 39483666.024
+          },
+          "13-17|married": {
+            "observable_basis_p_coresident": 0.9131816574517386,
+            "child_record_basis_p_coresident": 0.9509722127362749,
+            "selection_gap_observable_minus_child_record": -0.03779055528453623,
+            "child_record_n_child_waves": 17602,
+            "child_record_weight": 81743519.638
+          },
+          "13-17|not_married": {
+            "observable_basis_p_coresident": 0.42694160757514893,
+            "child_record_basis_p_coresident": 0.31758438117271653,
+            "selection_gap_observable_minus_child_record": 0.1093572264024324,
+            "child_record_n_child_waves": 4059,
+            "child_record_weight": 27014110.928
+          },
+          "18-24|married": {
+            "observable_basis_p_coresident": 0.5239979433728195,
+            "child_record_basis_p_coresident": 0.7475519330280027,
+            "selection_gap_observable_minus_child_record": -0.22355398965518325,
+            "child_record_n_child_waves": 17831,
+            "child_record_weight": 75852120.009
+          },
+          "18-24|not_married": {
+            "observable_basis_p_coresident": 0.24667391459161922,
+            "child_record_basis_p_coresident": 0.2269123216335059,
+            "selection_gap_observable_minus_child_record": 0.019761592958113333,
+            "child_record_n_child_waves": 4653,
+            "child_record_weight": 32450507.403
+          },
+          "25-60|married": {
+            "observable_basis_p_coresident": 0.06685136302099912,
+            "child_record_basis_p_coresident": 0.12001323728594704,
+            "selection_gap_observable_minus_child_record": -0.05316187426494792,
+            "child_record_n_child_waves": 30936,
+            "child_record_weight": 202359046.31199998
+          },
+          "25-60|not_married": {
+            "observable_basis_p_coresident": 0.05704895773160885,
+            "child_record_basis_p_coresident": 0.032836972621442674,
+            "selection_gap_observable_minus_child_record": 0.024211985110166173,
+            "child_record_n_child_waves": 18903,
+            "child_record_weight": 192272651.952
+          }
+        },
+        "child_record_n_child_waves_total": 152860,
+        "maternal_complement_overall": {
+          "with_both": 0.4336647686053457,
+          "with_father_only": 0.04445661360769415,
+          "with_mother_only": 0.09175804214526137,
+          "with_neither": 0.43012057564169875,
+          "p_with_father": 0.47812138221303985,
+          "p_with_mother": 0.525422810750607,
+          "partition_sum": 1.0,
+          "partition_reconciliation_remainder": 0.0,
+          "father_complement_identity_remainder": 0.0,
+          "n_child_waves": 152860
+        },
+        "maternal_complement_by_child_band": {
+          "0-4": {
+            "with_both": 0.9074246772438885,
+            "with_father_only": 0.025803186138166373,
+            "with_mother_only": 0.06397508938787316,
+            "with_neither": 0.0027970472300719025,
+            "p_with_father": 0.9332278633820549,
+            "p_with_mother": 0.9713997666317618,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 21482
+          },
+          "5-12": {
+            "with_both": 0.7848601669471574,
+            "with_father_only": 0.060495208750277564,
+            "with_mother_only": 0.14489582571285328,
+            "with_neither": 0.00974879858971177,
+            "p_with_father": 0.845355375697435,
+            "p_with_mother": 0.9297559926600107,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 37394
+          },
+          "13-17": {
+            "with_both": 0.7026098292443742,
+            "with_father_only": 0.0910363268901082,
+            "with_mother_only": 0.19076769509436242,
+            "with_neither": 0.015586148771155089,
+            "p_with_father": 0.7936461561344824,
+            "p_with_mother": 0.8933775243387366,
+            "partition_sum": 0.9999999999999999,
+            "partition_reconciliation_remainder": -1.1102230246251565e-16,
+            "father_complement_identity_remainder": -1.1102230246251565e-16,
+            "n_child_waves": 21661
+          },
+          "18-24": {
+            "with_both": 0.505569748744001,
+            "with_father_only": 0.08598394151209847,
+            "with_mother_only": 0.15883915552259192,
+            "with_neither": 0.24960715422130852,
+            "p_with_father": 0.5915536902560994,
+            "p_with_mother": 0.6644089042665928,
+            "partition_sum": 0.9999999999999998,
+            "partition_reconciliation_remainder": -2.220446049250313e-16,
+            "father_complement_identity_remainder": -2.220446049250313e-16,
+            "n_child_waves": 22484
+          },
+          "25-60": {
+            "with_both": 0.06013325295051393,
+            "with_father_only": 0.01740592138496902,
+            "with_mother_only": 0.02832324925029885,
+            "with_neither": 0.8941375764142183,
+            "p_with_father": 0.07753917433548295,
+            "p_with_mother": 0.08845650220081278,
+            "partition_sum": 1.0,
+            "partition_reconciliation_remainder": 0.0,
+            "father_complement_identity_remainder": 0.0,
+            "n_child_waves": 49839
+          }
+        },
+        "n_train_father_links": 11111,
+        "n_joinable_train_children": 11111
+      },
+      "q6_reference": {
+        "reference_stock_55plus_female": 0.05694084187949786,
+        "n_grandchild_person_waves": 3372,
+        "reference_component_rates_55plus_female": {
+          "multigen": 0.03968283245308954,
+          "coresident_child": 0.16717843140670854,
+          "not_coresident_parent": 0.9874825992461399,
+          "multigen_and_child_and_notparent": 0.03433738294343805,
+          "independence_product_multigen_x_child_x_notparent": 0.006551071823662421
+        },
+        "channels": {
+          "a_ego_on_top_composed_reachable": 0.03378083902452812,
+          "a_prime_ego_on_top_composed_breaks": 0.001663843567622997,
+          "b_skipped_generation": 0.021496159287346748,
+          "c_other": 0.0
+        },
+        "channel_reconciliation_remainder": -6.938893903907228e-18,
+        "a_prime_breaks_detail": {
+          "child_in_law_middle_generation_only": 1.0069115528301306e-06,
+          "four_generation_own_parent_present": 0.0009397578943197673
+        },
+        "grandparent_code_inventory": {
+          "66": {
+            "label": "grandparent",
+            "weighted_share_of_55plus_female": 0.05338390850242554,
+            "in_reference_link": true
+          },
+          "67": {
+            "label": "grandparent_in_law",
+            "weighted_share_of_55plus_female": 0.0007857961812284545,
+            "in_reference_link": false
+          },
+          "68": {
+            "label": "great_grandparent",
+            "weighted_share_of_55plus_female": 0.005244067242443842,
+            "in_reference_link": true
+          },
+          "82": {
+            "label": "social_grandparent",
+            "weighted_share_of_55plus_female": 0.0006700544322751946,
+            "in_reference_link": true
+          },
+          "83": {
+            "label": "social_great_grandparent",
+            "weighted_share_of_55plus_female": 0.00010906460378658308,
+            "in_reference_link": false
+          },
+          "87": {
+            "label": "step_grandparent",
+            "weighted_share_of_55plus_female": 0.00239467199616999,
+            "in_reference_link": true
+          },
+          "88": {
+            "label": "step_great_grandparent",
+            "weighted_share_of_55plus_female": 0.00010323299161907131,
+            "in_reference_link": true
+          }
+        },
+        "codebook_note": "MX8 (ego->alter) grandparent-type codes verified against MX23REL_formats.sps (lines 100-125): 66 grandparent, 67 grandparent-in-law, 68 great-grandparent, 69 great-grandparent-in-law, 82 social grandparent, 83 social great-grandparent, 87 step grandparent, 88 step great grandparent. The reference coresident_grandchild link is {66, 68, 82, 87, 88} -- own/social/step grandparent + own/step great-grandparent -- EXCLUDING the in-law codes {67, 69} and (an asymmetry) the social great-grandparent 83. MX8 code 88 is step great-grandparent here (a grandparent-type, correctly included), NOT the MX7 first-year-cohabitor meaning (generation 0) -- the 2b ceremony's code-88 lesson: the frames must not cross."
+      },
+      "q6_sim_composed_mean": 0.00624654198670732,
+      "q6_sim_skiponly_mean": 0.019749701894906307,
+      "q6_sim_union_mean": 0.025996243881613628,
+      "q6_sim_component_rates": {
+        "multigen": 0.04730247749437143,
+        "coresident_child": 0.15009817843582227,
+        "not_coresident_parent": 0.9974696298250224,
+        "multigen_and_child_and_notparent": 0.00624654198670732
+      },
+      "q7_reference": {
+        "reference_actual_size3_total": 0.1782504791744526,
+        "reference_actual_size3_routes": {
+          "couple_plus_child": 0.10558986104528681,
+          "single_parent_plus_two_children": 0.013924501612012375,
+          "couple_plus_parent": 0.0015501931925853388,
+          "three_adults": 0.0399614540954796,
+          "other_family_core": 0.01722446922908848
+        },
+        "reference_actual_reconciliation_remainder": 0.0,
+        "reference_core_size3_total": 0.22920811640874666,
+        "reference_core_size3_routes": {
+          "couple_plus_child": 0.11454759377916425,
+          "single_parent_plus_two_children": 0.01615242561344418,
+          "couple_plus_parent": 0.002002681665780761,
+          "three_adults": 0.09391053437979247,
+          "other_family_core": 0.0025948809705650124
+        },
+        "reference_core_reconciliation_remainder": 0.0
+      },
+      "q7_sim_core_size3_total_mean": 0.2679516814845517,
+      "q7_sim_full_size3_total_mean": 0.2215306964005407,
+      "q7_sim_core_routes_mean": {
+        "couple_plus_child": 0.1291990264465612,
+        "single_parent_plus_two_children": 0.03140701447477122,
+        "couple_plus_parent": 0.0,
+        "three_adults": 0.10734564056321927,
+        "other_family_core": 0.0
+      },
+      "q7_sim_p_spouse_mean": 0.5794704345380269,
+      "q7_sim_child_dist_among_couples_mean": {
+        "0": 0.5101149549676735,
+        "1": 0.23212198782240306,
+        "2": 0.16812648726766916,
+        "3+": 0.08963656994225426
+      },
+      "elapsed_seconds": 89.4
+    }
+  ],
+  "candidate_5_implications": "Implications for candidate 5 (labeled implications, NOT decisions -- the orchestrator registers c5). Q5: the male coresident_child overshoot is NOT drainable by re-basing the young-MARRIED custodial probability -- both bases agree it is ~0.95-0.99 faithful there; the c5 lever is the NOT-married custodial cells (the observable over-states coresidence for unmarried fathers by ~10 points against the child-record basis) and the maternal-custodial split the complement makes observable (P(mother) is the ceiling P(father) must sit beneath). Q6: the grandchild 55+|female residual is a DECOUPLING in the composed path, not the in-law channel or the skip-gen level -- most reference mass is ego-on-top three-generation with ego's own child as the middle generation, and the reference couples multigen and coresident-child into one household fact, but the sim draws them from separate components (carried multigen hazard vs aged-out custodial/maternal children) so their joint collapses to the independence product; a c5 fix must COUPLE the simulated multigen state to a retained coresident adult child at older maternal ages (a coresident-child life-cycle extension) OR relax the composed grandchild's own-child requirement, not raise the skip-gen hazard further. Q7: the hh_size.3 core overshoot is dominantly the non-core-member construct (reference size-3 excludes households whose core is 3 but carry a sibling/roomer, which the non-family bridge must lift to size 4+); the over-produced route is three-adults (ego + two coresident parents, forced by parent_count=2), so c5 is a bridge-REACH fix plus a look at the parent_count=2 assumption and adult-child retention, not a fertility or marital-joint change. Each maps to a concept/selection lever rather than a hazard re-fit.",
+  "revision_pins": {
+    "populace_dynamics_head_sha": "edaf25cd99e4b38d1d14b231305c94ba751a33b1",
+    "merge_base_origin_master": "edaf25cd99e4b38d1d14b231305c94ba751a33b1",
+    "candidate4_artifact": "runs/gate2b_hazard_v4.json",
+    "candidate4_artifact_sha256": "43b658012bac2bc07b95337f75ca22dd3ba1880e735308d53bf9e2fc85eb1d00",
+    "candidate4_runner": "scripts/run_gate2b_candidate4.py",
+    "candidate4_runner_sha256": "4f1e112cf0befe6c24c2d97af45d6fb340e97c81e0b6d162d2b5490380884158",
+    "forensics1_artifact": "runs/gate2b_forensics1_v1.json",
+    "forensics1_artifact_sha256": "49cd0660e730c5355b3f87743164a8912c052bc07288a397a7fcb8b07ab5d8c9",
+    "gate2b_floor_run": "runs/gate2b_floors_v1.json",
+    "gate2b_floor_sha256": "b7c9a11282ebbc45af94f76fb460d5b6900afb1e06b3c86f4a4494e7a85d9821",
+    "family_transitions_spec_sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1",
+    "sklearn_version": "1.8.0",
+    "numpy_version": "2.5.1",
+    "pandas_version": "3.0.3",
+    "schema_version": "gate2b_forensics2.v1"
+  },
+  "per_seed_compute_seconds": {
+    "0": 91.3,
+    "1": 84.7,
+    "2": 88.9,
+    "3": 85.8,
+    "4": 89.4
+  },
+  "total_per_seed_compute_seconds": 440.1,
+  "elapsed_seconds": 477.5
+}
