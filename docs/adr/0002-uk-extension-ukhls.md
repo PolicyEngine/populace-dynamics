@@ -28,22 +28,29 @@ anything, to bring across.
    repository's harness**, with UKHLS (UKDS SN 6614) playing the role
    PSID plays for the US: the label panel from which transition
    structure is estimated and against which candidates are scored.
-2. **Salvage estimation-side data machinery only.** This ADR's
-   accompanying change re-hosts the UKHLS reader and the wave-pairing,
-   cell-suppressed transition estimator
-   (`src/populace_dynamics/data/ukhls.py`) plus the two committed
+2. **Salvage the data machinery.** The UKHLS reader and the
+   wave-pairing, cell-suppressed transition estimator
+   (`src/populace_dynamics/data/ukhls.py`), the two committed
    aggregate tables (`data/external/ukhls_*_transitions.csv`, with a
-   provenance note). These are inputs and references — analogous to
-   the NCHS/Census external references — not scored model output.
-3. **Do not port the transition-application machinery.**
-   `advance_year`, household-composition transitions, demographic
-   ageing, and calibration smoothness plumbing from #346 are
-   model-candidate territory. If UK gates are ratified, any such
-   generator goes through candidate registration (issue #42) and a
-   one-shot pre-registered run, like every US candidate. The known
-   review blockers (entity orphaning on mortality; unweighted
-   migration donors) must be fixed in whatever candidate eventually
-   re-implements those steps.
+   provenance note), and the ONS mortality/fertility loaders with
+   their pinned public workbooks
+   (`src/populace_dynamics/uk/ons_rates.py`,
+   `data/external/ons_*.xlsx`). These are inputs and references —
+   analogous to the NCHS/Census external references — not scored
+   model output.
+3. **Port the transition-application machinery with the review
+   blockers fixed, as unscored model machinery.** The dynamics layer
+   lives in `src/populace_dynamics/uk/` on a light three-table
+   `UKPanelDataset` contract (no policyengine-uk dependency):
+   `demographic_ageing`, `household_transitions`, and the
+   `advance_year` composer. Both blockers from #346's second-pass
+   review are fixed: every person-removal path (mortality,
+   emigration) prunes benunits/households left with no surviving
+   members via a shared `prune_orphaned_entities` helper, and
+   immigration donors are drawn proportionally to household weight.
+   This code carries **no gate certification**: any scored UK use
+   goes through candidate registration (issue #42) and a one-shot
+   pre-registered run under UK gates, like every US candidate.
 4. **No change to `gates.yaml`.** The existing contract is US/PSID
    scoped and locked. UK evaluation gates, if the program proceeds,
    require their own pre-registration: UK-specific noise floors,
