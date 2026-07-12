@@ -33,9 +33,18 @@ pytest --collect-only -q -m oracle_policyengine | tail -1
 
 | Tier | Tests at HEAD |
 |---|---:|
-| `unit` | 178 |
-| `artifact` | 574 |
+| `unit` | 187 |
+| `artifact` | 623 |
 | `integration_psid` | 780 |
 | `reproduction_legacy` | 520 |
 | `oracle_policyengine` | 139 |
-| **Total** | **2,191** |
+| **Total** | **2,249** |
+
+The gate-W1 transport floors (`tests/test_gate_w1_floors.py`,
+`tests/test_gate_w1_derivations.py`) are `artifact` tier — they read the
+committed `runs/gate_w1_floors_v1.json` and never load the certified frame at
+collection; the certified-frame reproduction pin inside the floors module
+skips unless `huggingface_hub` + `tables` are importable and the pinned h5 is
+already in the local Hugging Face cache. The family-A moment unit tests
+(`tests/data/test_deployment_frame.py`) run on synthetic frames only, so they
+are `unit` tier.
