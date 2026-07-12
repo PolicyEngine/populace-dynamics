@@ -3264,6 +3264,7 @@ gates:
         k2_flow_oc_gate_4_of_5: 0.2901
         k3_flow_oc_gate_4_of_5: 0.9717
         precedent_oc_band: { gate_2a: 0.9685, gate_2b: 0.9678, gate_2c: 0.9641 }
+          # note: the 2c entry 0.9641 is 2c's p_seed (its p_gate is 0.988); mixed-level band inherited verbatim from the ratified floor (referee non-blocking note)
         uniform_k_sensitivity: { "2": 21, "3": 12, "4": 2 }
         alt_option_i_uniform_k3_oc: 0.9008
         oc_vs_precedent: >-
@@ -3303,11 +3304,16 @@ gates:
           candidate simulates exactly those persons, fixing the output scale
           the floor and tolerances are measured at.
         weight_definition: >-
-          mirrors tranche 2a / 2b / 2c weight_definition. Every gated statistic
-          is weighted by the person-constant most-recent positive PSID wave
-          weight; there is NO unweighted gated statistic; the unweighted rate
-          is reported alongside. The weighting is load-bearing, so it is pinned
-          here, not inherited implicitly.
+          DIFFERS from the tranche 2a / 2b / 2c person-constant convention,
+          matching the ratified M4 statistic exactly: every gated internal
+          statistic is weighted by the START-WAVE (wave-w) cross-sectional
+          PSID weight of each transition pair, as the frozen floor artifact's
+          own foundation states and its committed numbers reproduce (start-wave
+          weights reproduce every frozen tolerance; person-constant weights do
+          not). There is NO unweighted gated statistic; the unweighted rate is
+          reported alongside. The weighting is load-bearing, so it is pinned
+          here, not inherited implicitly (flip-fidelity referee finding 1,
+          PR #159).
       internal_surface:
         # The 8 GATED internal reproduction cells, in two homogeneous-k views
         # so the MIXED k is explicit. Every tolerance == round(floor mean + k *
