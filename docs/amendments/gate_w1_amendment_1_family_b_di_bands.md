@@ -141,7 +141,7 @@ population: all adults vs insured workers; severity threshold; recovery churn
 25–50%/interval vs ≈1%/yr; conversion denominator; biennial timing censoring;
 period pooling 1982–2023 vs a single-era column) — most of which persist against
 *any* external DI anchor, not just the stock. Delta #5 (the **conversion
-denominator**) is the one the retained conversion cells sit on (§4a).
+denominator**) is the one the formerly retained conversion cells sit on (§4a).
 
 **Gate-design determination.** The forensics records
 `is_gate_design_finding: true` and `insured_denominator_available: false`:
@@ -226,7 +226,11 @@ to the bands:
   every cohort built from permitted `(age, sex)` columns yields the same deployed
   value in expectation. The referee round recomputed on the sha-verified pinned
   frame: the prevalence read is 5.79/6.55; the honest M4 forward-chain gives
-  5.23/5.78; the strongest honest denominator lever (all conversions count, only
+  5.23/5.78 (round 1's cited honest-forward-chain figure, bound to no test
+  and step-convention-dependent -- a frame-weighted re-derivation on the
+  sha-matched pinned frame gives 4.85/5.51; the conclusion is
+  convention-invariant, as no honest construction comes within 4.9pp of the
+  12.21/12.59 floor); the strongest honest denominator lever (all conversions count, only
   insured non-DI persons generate awards, f = 0.85) reaches **6.74/7.62** — all
   far below the required pass-window floor of **≥12.21/12.59** (anchor 14.1/14.5 −
   tolerance 1.89/1.91). Even an indefensible f = 0.5 reaches only 10.9/12.3 —

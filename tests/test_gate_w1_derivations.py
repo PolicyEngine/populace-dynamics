@@ -838,36 +838,63 @@ def test_gate_w1_family_a_prime_is_report_only():
     )
 
 
-def test_gate_w1_family_b_partition_10_15_and_tolerances_bind():
-    """Family B gates EXACTLY 10 cells (2 disability_conversion M4-simulated
-    margins + 8 DI age-composition bands) and 15 report-only (14 circular
-    claim-age + 1 benefit level); each gated tolerance_pp == the frozen anchor
-    value; Delta is pinned {claim/conversion 2, DI 1}."""
+def test_gate_w1_family_b_partition_0_25_after_amendment1():
+    """Amendment 1 (2026-07-12-w1-family-b-di-bands) demoted ALL 10 family-B
+    cells to report-only: family B gates NOTHING (0 gated), report-only grew
+    15 -> 25, and every anchor value + tolerance is RETAINED verbatim under
+    retained_anchors (zero threshold movement -- byte-equal to the FROZEN floor
+    the lock cited, which still lists the 10 as gate_eligible). Machine reasons
+    are per-cell: 8 DI bands concept_bridge_undefined_di_stock; 2 conversion
+    cells that plus conversion_level_match_never_certified. This is the
+    locked-hot re-binding of the 10/15 surface to the amended 0/25 partition,
+    exactly as the gate-2 amendment flips updated theirs."""
     fb = _gate_w1()["family_b"]
     art_fb = _artifact()["family_b"]
-    gated = fb["gated_cells"]
-    assert set(gated) == set(art_fb["gate_partition"]["gate_eligible"])
-    assert set(fb["report_only"]) == set(
-        art_fb["gate_partition"]["report_only"]
-    )
-    assert len(gated) == 10
-    assert len(fb["report_only"]) == 15
-    conv = [c for c in gated if "disability_conversion" in c]
-    di = [c for c in gated if c.startswith("di_prevalence.")]
+    # family B gates NOTHING after the flip.
+    assert fb["gated_cells"] == {}
+    assert len(fb["gated_cells"]) == 0
+    # report-only grew from 15 to 25 (the 15 originals + the 10 demoted).
+    report_only = fb["report_only"]
+    assert len(report_only) == 25
+    # the frozen floor STILL lists the 10 as gate_eligible -- the amendment
+    # demotes them in the CONTRACT, not the floor (frozen, untouched).
+    frozen_gated = set(art_fb["gate_partition"]["gate_eligible"])
+    assert len(frozen_gated) == 10
+    # the demoted set is exactly those 10, keyed in report_reasons.
+    reasons = fb["report_reasons"]
+    assert set(reasons) == frozen_gated
+    conv = [c for c in reasons if "disability_conversion" in c]
+    di = [c for c in reasons if c.startswith("di_prevalence.")]
     assert len(conv) == 2
     assert len(di) == 8
+    # all 10 demoted cells are now IN report_only (partition set-equality).
+    assert frozen_gated <= set(report_only)
+    # per-cell machine reasons (fix A): 8 bands one reason; 2 conversion two.
+    for cell in di:
+        assert reasons[cell] == ["concept_bridge_undefined_di_stock"], cell
+    for cell in conv:
+        assert reasons[cell] == [
+            "concept_bridge_undefined_di_stock",
+            "conversion_level_match_never_certified",
+        ], cell
+
+    # anchors + tolerances RETAINED byte-equal to the frozen floor (zero
+    # threshold movement -- nothing deleted, published report-only).
+    retained = fb["retained_anchors"]
+    assert set(retained) == frozen_gated
 
     def frozen(cell):
         if cell.startswith("claim_age."):
             return art_fb["claim_age"][cell]
         return art_fb["di_prevalence"][cell]
 
-    for cell, row in gated.items():
+    for cell, row in retained.items():
         src = frozen(cell)
         assert row["tolerance_pp"] == src["tolerance_pp"], cell
         assert row["anchor_pp"] == src["anchor_pp"], cell
         expected_delta = 2 if cell.startswith("claim_age.") else 1
         assert row["reference_period_delta_years"] == expected_delta, cell
+    # knobs unchanged (anchors stay in-contract, report-only).
     assert fb["knobs"]["anchor_frame_year"] == 2024
     assert fb["knobs"]["claim_age_delta_years"] == 2
     assert fb["knobs"]["di_delta_years"] == 1
@@ -957,18 +984,27 @@ def test_gate_w1_frame_pin_matches_the_certified_bundle_sha():
 
 
 def test_gate_w1_covers_and_certification_scope():
-    """The covers text names the transport surface and the 65 gated cells
-    (description-claims-exactly), and certification_scope certifies transport,
-    not the dynamics (which stay gate-1/2a/2b/2c/M4-certified)."""
+    """Post-amendment-1: the covers text names the 55 gated surface
+    (description-claims-exactly), with family B's inner figures now CONTRACT
+    text (flip-note N1: 0 gated / 25 report-only, string-bound here), and
+    certification_scope certifies 55 cells / no SSA family-B margin, still not
+    the dynamics (which stay gate-1/2a/2b/2c/M4-certified)."""
     b = _gate_w1_block()
     covers = b["covers"]
     assert "TRANSPORT" in covers
     assert "53 gated" in covers
-    assert "65 gated" in covers
+    # the roll-up flipped 65 -> 55; the pre-flip roll-up is gone.
+    assert "55 gated / 77 report-only" in covers
+    assert "65 gated" not in covers
+    # flip-note N1: section 7.5's inner family-B figures are now contract text.
+    assert "0 gated (family B gates nothing)" in covers
+    assert "25 report-only" in covers
     assert "Does NOT re-certify the dynamics" in covers
     csc = _gate_w1()["certification_scope"]
     assert csc["tranche"] == "w1_representative_frame_transport"
-    assert "65 gated cells" in csc["certifies"]
+    assert "55 gated cells" in csc["certifies"]
+    assert "65 gated cells" not in csc["certifies"]
+    assert "family B certifies NO" in csc["certifies"]
     dns = " ".join(csc["does_not_support"])
     assert "DYNAMICS" in dns
     assert "transport, not re-estimation" in dns
@@ -1003,6 +1039,44 @@ def test_gate_w1_history_entry_records_the_lock():
     assert "PR #154" in entry["ratified"]
     assert "no_self_rescue" in entry["ratified"]
     assert "ZERO threshold movement" in entry["content"]
+
+
+def test_gate_w1_amendment1_flip_history_and_ceremony_record():
+    """gate_w1.history records amendment 1 (2026-07-12-w1-family-b-di-bands)
+    with the full ceremony (round-1 AMEND 4951701300 / fixes 9bc4e32 + comment
+    4951835634 / verification RATIFY AS-IS 4951903239 / ratifying merge PR #164
+    bb2e0de), the ZERO-threshold-movement all-10-demoted content, and the four
+    flip-time notes N1-N4 as implemented -- the amendment ceremony record."""
+    hist = _gate_w1_block()["history"]
+    ids = [e["id"] for e in hist]
+    assert "2026-07-12-w1-gate-lock" in ids  # the lock entry survives
+    entry = next(
+        e for e in hist if e["id"] == "2026-07-12-w1-family-b-di-bands"
+    )
+    assert entry["flipped_live"] == "this pull request"
+    rr = entry["referee_round"]
+    assert "4951701300" in rr["review"]  # round-1 AMEND THE AMENDMENT
+    assert "9bc4e32" in rr["fixes"] and "4951835634" in rr["fixes"]
+    assert "4951903239" in rr["verification"]  # verification RATIFY AS-IS
+    assert "PR #164" in entry["ratified"]
+    assert "bb2e0de" in entry["ratified"]  # ratifying merge commit
+    content = entry["content"]
+    assert "ZERO THRESHOLD MOVEMENT" in content
+    assert "ALL 10 family-B gated cells" in content
+    assert "concept_bridge_undefined_di_stock" in content
+    assert "conversion_level_match_never_certified" in content
+    assert "65 -> 55 gated, 67 -> 77 report-only" in content
+    assert "0.9481" in content
+    # the four flip-time notes N1-N4 are recorded as implemented.
+    notes = entry["flip_notes_implemented"]
+    assert set(notes) == {
+        "note_1_section7_5_inner_figures_bound",
+        "note_2_historical_descriptor_fixed",
+        "note_3_env_only_test_restated",
+        "note_4_5p23_5p78_attribution",
+    }
+    for key, text in notes.items():
+        assert text.strip(), key
 
 
 def test_gate_w1_flip_leaves_locked_siblings_byte_identical():

@@ -3709,11 +3709,12 @@ gates:
       A -- CPS-observable cross-sectional joints (earnings x age x sex, marital
       composition, household composition), FLOOR-priced, 53 gated / 52 report-only;
       family B -- SSA administrative margins of the deployed + simulated benefits,
-      ANCHOR-priced, 10 gated (2 disability-conversion M4-simulated margins
-      + 8 DI age-composition bands) / 15 report-only (14 circular claim-age
-      + 1 benefit level); family C -- the two committed ordinal compression
+      ANCHOR-priced, 0 gated (family B gates nothing) / 25 report-only (2
+      disability-conversion M4-simulated margins + 8 DI age-composition bands,
+      both demoted by amendment 1; 14 circular claim-age + 1 benefit level);
+      family C -- the two committed ordinal compression
       fingerprints that must REVERSE to the anchor orderings, BINARY, 2 gated.
-      65 gated / 67 report-only + the report-only A' published-value family.
+      55 gated / 77 report-only + the report-only A' published-value family.
       Per the standing description_claims_exactly_the_scored_surface rule the
       surface claimed is EXACTLY these cells. Does NOT re-certify the dynamics
       (gate-1 earnings, gate-2a/2b/2c demographic / household / marriage x earnings,
@@ -4358,12 +4359,47 @@ gates:
             so a candidate cannot recover DI status through a proxy the direct
             rule does not literally name (verification flip-note 2).
           pass_rule: >-
-            CONJUNCTION over the gate-eligible family-B cells: the run passes
-            family B iff every gated cell's |deployed_pp - anchor_pp| <= its
-            reference-period tolerance_pp. Report-only cells (the 14 circular
-            claim-age cells, benefit levels) publish on their own rules and
-            never gate.
-        gated_cells:
+            CONJUNCTION over the gate-eligible family-B cells. AFTER amendment 1
+            (2026-07-12-w1-family-b-di-bands) family B has NO gate-eligible cells
+            -- all 10 are demoted to report-only -- so this conjunction is over
+            the EMPTY set and family B contributes NOTHING to the gate: the
+            family-B factor drops out of the gate conjunction (the gate is family
+            A AND family C). Were a cell re-gated by a future concept-bridge
+            amendment, a run would pass family B iff every gated cell's
+            |deployed_pp - anchor_pp| <= its reference-period tolerance_pp. ALL
+            report-only cells (the 10 demoted DI / conversion cells, the 14
+            circular claim-age cells, benefit levels) publish on their own rules
+            and never gate.
+        gated_cells: {}
+        # amendment 1 (2026-07-12-w1-family-b-di-bands, ratified by merge of PR
+        # #164, squash bb2e0de): ALL 10 family-B cells are DEMOTED to report-only;
+        # family B gates NOTHING. The 10 anchor values + tolerances are RETAINED
+        # verbatim under retained_anchors (zero threshold movement, nothing
+        # deleted); machine reasons are in report_reasons. See gate_w1.history and
+        # docs/amendments/gate_w1_amendment_1_family_b_di_bands.md.
+        demoted_disclosure_note: >-
+          all 10 family-B cells publish report-only (published-not-certified),
+          pending a future concept-bridge amendment: the 8 DI age-composition
+          bands score an M4 work-disability point-prevalence against the SSA
+          disabled-worker beneficiary STOCK (DI ASR Table 19), and the 2
+          disability-conversion cells score the same undefined stock at the FRA
+          boundary (6.B5.1) which the M4 evidence base pre-ruled "never a level
+          match", across a concept bridge the gate never defined -- so no
+          contract-consistent candidate can clear any of the 10.
+        report_reasons:
+          claim_age.disability_conversion|female: [concept_bridge_undefined_di_stock,
+            conversion_level_match_never_certified]
+          claim_age.disability_conversion|male: [concept_bridge_undefined_di_stock,
+            conversion_level_match_never_certified]
+          di_prevalence.under30: [concept_bridge_undefined_di_stock]
+          di_prevalence.30-34: [concept_bridge_undefined_di_stock]
+          di_prevalence.35-39: [concept_bridge_undefined_di_stock]
+          di_prevalence.40-44: [concept_bridge_undefined_di_stock]
+          di_prevalence.45-49: [concept_bridge_undefined_di_stock]
+          di_prevalence.50-54: [concept_bridge_undefined_di_stock]
+          di_prevalence.55-59: [concept_bridge_undefined_di_stock]
+          di_prevalence.60-fra: [concept_bridge_undefined_di_stock]
+        retained_anchors:
           claim_age.disability_conversion|female:
             tolerance_pp: 1.89
             anchor_pp: 14.1
@@ -4468,10 +4504,16 @@ gates:
           claim_age.age63|female, claim_age.age63|male, claim_age.age64|female,
           claim_age.age64|male, claim_age.age65|female, claim_age.age65|male,
           claim_age.age66|female, claim_age.age66|male, claim_age.age67_69|female,
-          claim_age.age67_69|male, claim_age.age70plus|female, claim_age.age70plus|male]
+          claim_age.age67_69|male, claim_age.age70plus|female, claim_age.age70plus|male,
+          claim_age.disability_conversion|female, claim_age.disability_conversion|male,
+          di_prevalence.under30, di_prevalence.30-34, di_prevalence.35-39,
+          di_prevalence.40-44, di_prevalence.45-49, di_prevalence.50-54,
+          di_prevalence.55-59, di_prevalence.60-fra]
         gated_composition: >-
-          2 disability_conversion (M4-simulated margin) + 8 DI age-composition
-          bands
+          none -- all 10 cells (2 disability_conversion M4-simulated margins + 8
+          DI age-composition bands) demoted to report-only by amendment 1
+          (concept_bridge_undefined_di_stock; the conversion cells also
+          conversion_level_match_never_certified)
         sources: {claim_age: data/external/ssa_claim_ages_2023supplement.json
             (6.B5.1), di_prevalence: data/external/di_asr_2023/tables.json (Table
             19), benefit_level: dynasim-refs/ssa_supplement_2023_6b.txt (6.B4/6.B3)}
@@ -4715,22 +4757,23 @@ gates:
         tranche: w1_representative_frame_transport
         certifies: >-
           the TRANSPORT of the already-fit PSID generators onto the certified
-          populace frame -- the 65 gated cells (53 CPS-observable family-A joints
-          + 10 SSA family-B admin margins + 2 family-C compression-fingerprint
-          reversals). A PASS certifies that stochastic regeneration through
-          the deployed generators reproduces the CPS-observable cross-section
-          within the frame's own sampling floor, lands the deployed + simulated
-          DI margins on the SSA anchors, and reverses BOTH compression fingerprints
-          to the anchor orderings.
+          populace frame -- the 55 gated cells (53 CPS-observable family-A joints
+          + 2 family-C compression-fingerprint reversals); family B certifies NO
+          SSA margin after amendment 1 (all 10 SSA family-B admin margins are
+          report-only, pending a concept-bridge amendment). A PASS certifies that
+          stochastic regeneration through the deployed generators reproduces the
+          CPS-observable cross-section within the frame's own sampling floor, and
+          reverses BOTH compression fingerprints to the anchor orderings.
         supports:
         - >-
           the cross-sectional microsim, the local-area cuts, and the 75-year
           projection all reading ONE PSID-estimated panel deployed on the CPS
           frame -- the transport is the unlock (#113).
         - >-
-          the deployed + simulated DI composition (conversion share + DI age
-          bands) a payable benefit baseline rides on, on the representative
-          frame.
+          the deployed + simulated DI margins (conversion share AND DI
+          age-composition bands) are REPORT-ONLY pending the concept-bridge
+          amendment; see amendment 1. A payable benefit baseline that rides on a
+          DI margin must await that amendment.
         does_not_support:
         - >-
           the DYNAMICS -- earnings, marital, household, marriage x earnings,
@@ -4820,3 +4863,93 @@ gates:
         vs the ratified floor: the flip READS the frozen artifact and rewrites
         nothing. The four verification flip-time notes are implemented (ceremony_record.flip_notes_implemented).
         Bindings go LOCKED-HOT.
+    - id: 2026-07-12-w1-family-b-di-bands
+      proposed: '2026-07-12'
+      referee_round:
+        review: >-
+          PR #164 comment 4951701300 (verdict AMEND THE AMENDMENT -- extend the
+          demotion to all 10 family-B cells; bind the flip text; text-precision
+          corrections).
+        fixes: >-
+          9bc4e32 (comment 4951835634 -- all 10 demoted; the section-7 flip text
+          and section-8 history bound by tests; section-2 / 4b / 5 / PR-body
+          precision corrections).
+        verification: >-
+          PR #164 comment 4951903239 (verdict RATIFY AS-IS; every load-bearing
+          number recomputed from the committed artifacts, the referee's four
+          named mutations plus two more reproduced, family-A OC byte-identical;
+          four flip-time notes N1-N4, none blocking).
+      ratified: >-
+        2026-07-12 by merge of PR #164 (merge commit bb2e0de) under the
+        maintainer's standing campaign directive of 2026-07-07, exercised only
+        after the full ceremony (proposal d11cd4f -> round-1 AMEND 4951701300 ->
+        fixes 9bc4e32 / 4951835634 -> verification RATIFY AS-IS 4951903239). This
+        flip records the completed ceremony and applies section 7; no_self_rescue
+        applies.
+      flipped_live: this pull request
+      flip_notes_implemented:
+        note_1_section7_5_inner_figures_bound: >-
+          section 7.5's inner family-B figures (0 gated / 25 report-only) are now
+          gate_w1.covers CONTRACT text and are string-bound in
+          tests/test_gate_w1_derivations.py alongside the 55 / 77 roll-up.
+        note_2_historical_descriptor_fixed: >-
+          section 2's "the retained conversion cells" (a pre-fixes-draft
+          descriptor) is corrected to "the formerly retained conversion cells" in
+          the permanent amendment record.
+        note_3_env_only_test_restated: >-
+          the always-runnable figure restates (does not omit) the environment-only
+          test_contract_identity sidecar split (editable-install-vs-worktree); it
+          is untouched by this PR and green in CI, the authoritative signal.
+        note_4_5p23_5p78_attribution: >-
+          section 4a's "5.23/5.78" is round 1's cited honest-forward-chain figure,
+          bound to no test and step-convention-dependent (a frame-weighted
+          re-derivation gives 4.85/5.51); the conclusion is convention-invariant
+          because no honest construction comes within 4.9pp of the 12.21/12.59
+          floor. The digit-exact figures on this margin (5.79/6.55, 6.74/7.62,
+          12.21/12.59, 8.30/8.07, 0.267/0.322) all recompute exactly.
+      content: >-
+        STRUCTURAL amendment, ZERO THRESHOLD MOVEMENT. ALL 10 family-B gated cells
+        are DEMOTED from gated to report-only: the 8 DI age-composition prevalence
+        bands (di_prevalence.under30 .. .60-fra) AND the 2 disability-conversion
+        M4-simulated margins (claim_age.disability_conversion|{female,male}). The 8
+        bands and the 2 conversion cells carry machine reason
+        concept_bridge_undefined_di_stock (their common undefined-DI-stock
+        numerator); the 2 conversion cells additionally carry
+        conversion_level_match_never_certified. Family B now gates NOTHING (fully
+        report-only); it certifies no SSA margin. All 10 SSA anchors publish
+        report-only (values + tolerances retained, not deleted). Motivated by W1
+        forensics 1 Q4 (runs/gate_w1_forensics1_v1.json, registration 4951218279,
+        grading 4951430002) for the 8 bands and by the adversarial round (PR #164
+        comment 4951701300) for the 2 conversion cells: the gate scored an M4
+        WORK-DISABILITY point-prevalence against the SSA DISABLED-WORKER BENEFICIARY
+        STOCK (DI ASR Table 19, bands) and against the SSA 6.B5.1 conversion flow
+        (conversion cells) across a concept bridge it never defined -- a
+        duration-accumulated insured-beneficiary stock needs a DI-entry hazard, a
+        duration-to-conversion survival model, and the Supplement 4.C2 insured
+        denominator, none defined by the gate and the third not archived. For the
+        bands the concept delta dominates in aggregate (share 0.595, per-band range
+        0.023-0.891; +21.3pp duration-accumulation vs +2.6pp M4 hazard shape at
+        60-FRA); all 8 bands fail by 2.9x-21.9x their tolerances (passes:false, gaps
+        2.8-23.9pp vs tolerances 0.31-2.14pp). For the conversion cells the
+        numerator is the same undefined stock (point-prevalence 5.79/6.55 constant
+        on 60-66); the M4 evidence base (runs/m4_disability_v1.json
+        conversion_validation) pre-ruled the concept "never a level match" (ratio
+        0.267/0.322); every honest stock-to-flow reduction caps at 6.74/7.62 vs the
+        required pass-window floor >=12.21/12.59 (anchor 14.1/14.5 - tol 1.89/1.91).
+        So no contract-consistent candidate can clear any of the 10 cells.
+        PROSPECTIVE ONLY (no_self_rescue): no committed run's verdict changes;
+        candidate 1 (runs/gate_w1_candidate1_v1.json, PR #162) stands FAIL -- it
+        fails family A (0/5 seeds) AND family C independently of the amendment (and
+        all 10 family-B cells, dev 8.30/8.07 vs tol 1.89/1.91 on the conversion
+        pair), so the demotion rescues nothing. Family A UNCHANGED (53 cells,
+        faithful OC p_seed 0.922 / p_gate 0.9481, byte-identical -- none of the 10
+        family-B cells is in the family-A OC machinery); family C UNCHANGED; ZERO
+        family-A/C threshold movement. Certification scope narrows: family B
+        certifies NOTHING; all 10 cells are report-only, published-not-certified,
+        pending a future concept-bridge amendment that FIRST archives Supplement
+        4.C2 and the incidence/duration inputs. The gate_w1 faithful-candidate OC
+        returns from a structural 0 (10/10 family-B cells unclearable -> unpassable)
+        to 0.9481 x I(family C) on the residual 55-cell gated surface (65 -> 55
+        gated, 67 -> 77 report-only). Evidence chain: candidate 1 (PR #162, run
+        gate_w1_candidate1_v1), W1 forensics 1 (PR #163,
+        runs/gate_w1_forensics1_v1.json), M4 disability (runs/m4_disability_v1.json).
