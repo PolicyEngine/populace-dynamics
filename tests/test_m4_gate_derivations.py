@@ -65,15 +65,28 @@ def test_schema_and_reported_anchor():
     assert "referee" in note.lower()
 
 
-def test_no_gate_mutated_and_gates_yaml_has_no_gate_m4():
-    """The evidence changes no gate and gates.yaml carries NO gate_m4 block --
-    the stub is only PROPOSED in the note (gates.yaml UNTOUCHED)."""
+def test_no_gate_mutated_and_gates_yaml_gate_m4_is_locked():
+    """Post-lock guard (2026-07-12 flip): the frozen evidence is still a floor
+    (no gate result, no reform) and its draft_thresholds_note still carries the
+    PROPOSED stub; the ratifying flip inserted gate_m4 into gates.yaml as
+    LOCKED, citing THIS floor. Before the flip this build wrote no gates.yaml
+    block -- the frozen artifact still records that
+    (test_schema_and_reported_anchor's gates_yaml_untouched)."""
     art = _artifact()
     assert "gate_result" not in art
     assert "reform" not in art
-    assert "gate_m4:" not in GATES_YAML.read_text()
-    # the proposal text names the stub, so a reader can find it.
+    # the frozen note still names the PROPOSED stub (evidence unchanged).
     assert "gate_m4" in art["draft_thresholds_note"]
+    # the ratifying flip inserted gate_m4 as a LOCKED top-level gate that
+    # cites this floor (the "append a gate_m4 block" mutation is now the
+    # ratified state, not a mutation).
+    yaml = pytest.importorskip("yaml")
+    spec = yaml.safe_load(GATES_YAML.read_text())
+    gate_m4 = spec["gates"]["gate_m4"]
+    assert gate_m4["locked"] is True
+    assert gate_m4["status"] == "locked"
+    assert gate_m4["id"] == "m4_disability"
+    assert gate_m4["thresholds"]["floor_run"] == "runs/m4_gate_floors_v1.json"
 
 
 def test_reference_moments_bound_to_the_m4_foundation():

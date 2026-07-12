@@ -3436,3 +3436,527 @@ def test_gate2c_flip_leaves_locked_2a_and_2b_byte_identical():
     # amendment_history all pre-exist); a bogus added/removed key fails loudly.
     assert set(cur_g2) - set(master) == set()
     assert set(master) - set(cur_g2) == set()
+
+
+# --------------------------------------------------------------------------
+# gate_m4 (the M4 DI disability gate) LOCKED-HOT bindings. gate_m4 is ADDED
+# fresh as a locked top-level gate (unlike gate_2b/2c, which pre-existed as
+# unlocked stubs). Every internal tolerance is machine-bound to the ratified,
+# FROZEN 100-seed PERSON-DISJOINT half-split floor runs/m4_gate_floors_v1.json:
+# tolerance == round(floor mean + k * floor sd, 3) under the pre-registered
+# MIXED k (FLOW k=3 / prevalence STOCK k=4), capped at T_max = ln(1.5). Each
+# anchor cell gates on the candidate's own per-seed invariant with margin >=
+# MARGIN_K=3 x the committed real half-split sd. These bindings are LOCKED-HOT
+# (the 2a lesson) and run everywhere (committed files only). They touch NO
+# locked sibling block, and a D1-style SUBSET master-compare proves the flip
+# leaves gate_1 / gate_2 (2a + gate_2b + gate_2c) / gate_3 byte-identical to
+# origin/master, gate_m4 the sole new key.
+# --------------------------------------------------------------------------
+M4_FLOOR_RUN = "runs/m4_gate_floors_v1.json"
+M4_FLOOR_KEY = "noise_floor_seeds_0_99"
+M4_ANCHOR_DIR = "data/external/di_asr_2023"
+
+
+def _gate_m4_block() -> dict:
+    gates = yaml.safe_load((ROOT / "gates.yaml").read_text())
+    return gates["gates"]["gate_m4"]
+
+
+def _gate_m4() -> dict:
+    """gate_m4.thresholds. Post-lock the bindings run unconditionally."""
+    return _gate_m4_block()["thresholds"]
+
+
+def _m4_floor() -> dict:
+    return json.loads((ROOT / M4_FLOOR_RUN).read_text())
+
+
+def _m4_internal_derive(cell: str, k: float, rounding: int) -> float:
+    stats = _m4_floor()["internal_noise_floor"][M4_FLOOR_KEY][cell]
+    return round(stats["mean"] + k * stats["sd"], rounding)
+
+
+def _m4_internal_tolerances() -> dict:
+    tolerances: dict = {}
+    for view in _gate_m4()["internal_surface"]["views"].values():
+        tolerances.update(view["tolerances"])
+    return tolerances
+
+
+def _master_gates_mapping() -> dict | None:
+    """origin/master gates mapping, self-fetching the ref if needed."""
+    for attempt in range(2):
+        try:
+            text = subprocess.run(
+                ["git", "show", "origin/master:gates.yaml"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+            return yaml.safe_load(text)["gates"]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            if attempt == 0:
+                subprocess.run(
+                    ["git", "fetch", "origin", "master"],
+                    cwd=ROOT,
+                    capture_output=True,
+                )
+                continue
+            return None
+    return None
+
+
+def test_gate_m4_locked_added_as_anchor_based_top_level_gate():
+    """gate_m4 is locked, kind anchor_based, and a NEW top-level gate (it did
+    not pre-exist as an unlocked stub the way gate_2b/2c did)."""
+    b = _gate_m4_block()
+    assert b["locked"] is True
+    assert b["status"] == "locked"
+    assert b["kind"] == "anchor_based"
+    assert b["id"] == "m4_disability"
+    assert b["holdout_basis"] == [
+        "ind2023er_employment_status",
+        "di_asr_2023",
+    ]
+    g = _gate_m4()
+    assert g["locked"] is True
+    assert g["status"] == "locked"
+    assert g["tranche_id"] == "m4_disability"
+    assert g["kind"] == "anchor_based"
+
+
+def test_gate_m4_locked_with_ceremony_record():
+    """The full lock ceremony is recorded in-contract: the FOUR ceremony
+    comment ids, the ratifying squash merge 0fa4a29 (PR 153), the
+    delegated-authority note, and no_self_rescue."""
+    record = json.dumps(_gate_m4()["ceremony_record"])
+    for token in (
+        "4950447491",  # round-1 adversarial referee AMEND BEFORE LOCK
+        "4950571161",  # fixes A-F
+        "4950648191",  # verification AMEND metadata-only
+        "4950660426",  # body amendment executed
+        "PR 153",  # ratifying PR
+        "0fa4a29",  # ratifying squash merge commit
+        "no_self_rescue",
+    ):
+        assert token in record, token
+    assert "delegated" in record.lower()
+    assert "metadata-only" in record.lower()
+
+
+def test_gate_m4_floor_run_is_the_ratified_frozen_anchor():
+    """The floor the locked thresholds cite is the ratified, frozen artifact
+    that reads no gate."""
+    g = _gate_m4()
+    assert g["floor_run"] == M4_FLOOR_RUN
+    floor = _m4_floor()
+    assert floor["schema_version"] == "m4_gate_floors.v1"
+    assert floor["holdout_basis"] == [
+        "ind2023er_employment_status (PSID self-report)",
+        "di_asr_2023 (in-repo SSA DI ASR tables, sha-pinned)",
+    ]
+
+
+def test_gate_m4_internal_tolerances_bind_to_floor():
+    """Every locked internal tolerance == round(100-seed floor mean + k*sd,
+    rounding) on the frozen floor, keyed on the floor cell itself."""
+    g = _gate_m4()
+    surface = g["internal_surface"]
+    for view_name, view in surface["views"].items():
+        rules = view["derivations"]["rules"]
+        tolerances = view["tolerances"]
+        assert set(rules) == set(tolerances), view_name
+        assert view["derivations"]["floor_run"] == M4_FLOOR_RUN
+        assert view["derivations"]["floor_key"] == M4_FLOOR_KEY
+        for cell, rule in rules.items():
+            assert rule["key"] == cell, f"{view_name}.{cell}"
+            derived = _m4_internal_derive(
+                cell, rule["k"], rule.get("rounding", 3)
+            )
+            assert derived == pytest.approx(tolerances[cell]), (
+                f"{view_name}.{cell}: derived {derived} != tolerance "
+                f"{tolerances[cell]}"
+            )
+
+
+def test_gate_m4_mixed_k_flow3_stock4():
+    """The pre-registered MIXED k: FLOW hazards @k=3, prevalence STOCK @k=4;
+    each cell's quantity_type matches its k, and the two views are homogeneous
+    in k."""
+    views = _gate_m4()["internal_surface"]["views"]
+    flow = views["internal_flow_hazards"]
+    stock = views["internal_prevalence_stock"]
+    assert flow["quantity_type"] == "flow"
+    assert stock["quantity_type"] == "stock"
+    for rule in flow["derivations"]["rules"].values():
+        assert rule["k"] == 3
+        assert rule["quantity_type"] == "flow"
+    for rule in stock["derivations"]["rules"].values():
+        assert rule["k"] == 4
+        assert rule["quantity_type"] == "stock"
+    # exactly 6 flow + 2 stock = 8 internal gated cells.
+    assert len(flow["tolerances"]) == 6
+    assert len(stock["tolerances"]) == 2
+    assert set(stock["tolerances"]) == {
+        "prevalence.50-59|female",
+        "prevalence.50-59|male",
+    }
+
+
+def test_gate_m4_power_cap_binds_every_gated_internal_cell():
+    """Every gated internal tolerance <= T_max = ln(1.5); the floor partitioned
+    exactly on that cap (+ >=20 events); M4 declares NO aggregates."""
+    g = _gate_m4()
+    assert g["power_cap"]["t_max"] == "ln(1.5)"
+    assert g["power_cap"]["aggregations"] == {}
+    floor = _m4_floor()
+    t_max = floor["internal_noise_floor"]["t_max"]
+    assert t_max == pytest.approx(math.log(1.5))
+    for cell, tol in _m4_internal_tolerances().items():
+        assert tol <= t_max, f"{cell} tolerance {tol} exceeds T_max"
+
+
+def test_gate_m4_partition_matches_committed_floor_12_24():
+    """gated / report_only == the floor's derived partition (events + power
+    cap; no aggregates), not hand-picked; counts 12 (8 internal + 4 anchor) /
+    24 report-only; disjoint; internal|report a real cover of the 32 reference
+    moments; anchor cells separate from the reference moments."""
+    g = _gate_m4()
+    floor = _m4_floor()
+    partition = floor["gate_partition"]
+    gated_internal = set(_m4_internal_tolerances())
+    gated_anchor = set(g["anchor_surface"]["cells"])
+    report_only = set(g["report_only"])
+    assert gated_internal == set(partition["internal_gate_eligible"])
+    assert gated_anchor == set(partition["anchor_gate_eligible"])
+    assert report_only == set(partition["report_only"])
+    assert len(gated_internal) == 8
+    assert len(gated_anchor) == 4
+    assert len(report_only) == 24
+    assert gated_internal.isdisjoint(report_only)
+    reference = set(floor["reference_moments"])
+    assert gated_internal | report_only == reference
+    assert len(reference) == 32
+    # the anchor cells are bounded invariants, not |ln| reference moments.
+    assert gated_anchor.isdisjoint(reference)
+    per_seed = floor["internal_noise_floor"][M4_FLOOR_KEY]
+    for cell in gated_internal:
+        assert cell in per_seed, cell
+
+
+def test_gate_m4_report_only_reasons_all_tolerance_above_t_max():
+    """All 24 report-only cells carry the floor's OWN machine reason
+    tolerance_above_t_max (power); NO below_20_events demotions; and the two
+    conversion cells demote on power, not the withdrawn family reason."""
+    g = _gate_m4()
+    floor = _m4_floor()
+    cs = floor["internal_noise_floor"]["cell_stability"]
+    reasons: dict = {}
+    for cell in g["report_only"]:
+        reason = cs[cell]["report_reason"]
+        reasons[reason] = reasons.get(reason, 0) + 1
+    assert reasons == {"tolerance_above_t_max": 24}
+    for conv in (
+        "conversion.retired_from_disabled|female",
+        "conversion.retired_from_disabled|male",
+    ):
+        assert conv in g["report_only"]
+        assert cs[conv]["report_reason"] == "tolerance_above_t_max"
+        assert cs[conv]["tolerance"] > math.log(1.5)
+    # the withdrawn category-error reason appears NOWHERE in the artifact.
+    assert "level_bridged_via_anchor_shape" not in json.dumps(floor)
+
+
+def test_gate_m4_protocol_is_the_ratified_k20_2a_estimator():
+    """The scoring protocol is tranche 2a's ratified mean-over-K=20 estimator
+    (amendment 1, 5200+k), adopted from the START; the conventions match the
+    locked gate_2 (2a) protocol; the fresh-run schema is [20, 8, 5]; the OC
+    matches the floor."""
+    g = _gate_m4()
+    proto = g["protocol"]
+    assert proto["gate_seeds"] == [0, 1, 2, 3, 4]
+    assert proto["candidate_draws"] == 20
+    assert proto["draw_stream_base"] == 5200
+    assert "5200 + k" in proto["candidate_draw_stream"]
+    assert "K=20" in proto["estimator"]
+    assert "NOT the mean of the per-draw" in proto["estimator"]
+    # estimator-convention equality with the locked 2a protocol.
+    g2a = _gate_2()
+    a_candidate = g2a["protocol"]["candidate"]
+    assert "5200 + k" in a_candidate
+    assert "5200 + k" in proto["candidate_draw_stream"]
+    # fresh-run schema: per-draw INTERNAL rates [20, 8, 5], invalidation.
+    schema = proto["fresh_run_artifact_schema"]
+    assert schema["per_draw_per_cell_rates"]["shape"] == [20, 8, 5]
+    assert schema["undefined_draw_rule"]["pre_specified"] is True
+    assert schema["per_draw_dispersion_disclosure"]["report_only"] is True
+    # the OC recorded in the contract matches the artifact's recomputation.
+    oc = proto["faithful_candidate_oc"]
+    art_oc = _m4_floor()["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == pytest.approx(art_oc["p_seed_pass"])
+    assert oc["p_gate_pass_4_of_5"] == pytest.approx(
+        art_oc["p_gate_pass_4_of_5"]
+    )
+    assert oc["n_gated_internal_cells"] == art_oc["n_gated_internal_cells"]
+    assert oc["n_gated_internal_cells"] == 8
+
+
+def test_gate_m4_oc_recomputes_from_tolerances_and_sigmas():
+    """The faithful-candidate OC (p_seed 0.9408 / p_gate 0.9689) recomputes
+    from the 8 locked internal tolerances and the floor sigmas on the
+    draw-noise-free half-normal basis, independent of the stored value."""
+    g = _gate_m4()
+    floor = _m4_floor()["internal_noise_floor"][M4_FLOOR_KEY]
+    tolerances = _m4_internal_tolerances()
+    assert len(tolerances) == 8
+    p_seed = 1.0
+    for cell, tol in tolerances.items():
+        sigma = floor[cell]["realized_sigma"]
+        p_seed *= 2.0 * _normal_cdf(tol / sigma) - 1.0
+    p_gate = p_seed**5 + 5 * p_seed**4 * (1.0 - p_seed)
+    assert round(p_seed, 4) == 0.9408
+    assert round(p_gate, 4) == 0.9689
+    oc = g["protocol"]["faithful_candidate_oc"]
+    assert oc["p_seed_pass"] == round(p_seed, 4)
+    assert oc["p_gate_pass_4_of_5"] == round(p_gate, 4)
+
+
+def test_gate_m4_k_selection_rule_and_k2_oc_committed():
+    """The k-selection rule is committed and machine-checkable: flow k=3 /
+    stock k=4, the k=2 flow OC 0.2901 (unusable), the k=3 flow OC 0.9717, the
+    uniform-k sensitivity 21/12/2, and option-(i) uniform-k3 0.9008 -- all
+    bound to the floor's k_selection."""
+    ks = _gate_m4()["k_selection"]
+    aks = _m4_floor()["k_selection"]
+    assert ks["chosen_flow_k"] == aks["chosen_flow_k"] == 3
+    assert ks["chosen_stock_k"] == aks["chosen_stock_k"] == 4
+    assert ks["k2_flow_oc_gate_4_of_5"] == aks["k2_flow_oc_gate_4_of_5"]
+    assert ks["k2_flow_oc_gate_4_of_5"] == 0.2901
+    assert ks["k3_flow_oc_gate_4_of_5"] == aks["k3_flow_oc_gate_4_of_5"]
+    assert ks["k3_flow_oc_gate_4_of_5"] == 0.9717
+    assert ks["alt_option_i_uniform_k3_oc"] == 0.9008
+    assert ks["uniform_k_sensitivity"] == {"2": 21, "3": 12, "4": 2}
+    assert (
+        ks["uniform_k_sensitivity"]["3"]
+        == aks["alt_option_i_uniform_k3_full_surface"]["n_cells"]
+    )
+
+
+def test_gate_m4_anchor_cells_margin_rule_and_recompute():
+    """The 4 anchor cells gate on the candidate's own per-seed invariant with
+    margin >= MARGIN_K=3 x the committed real half-split sd; every committed
+    margin (6.099/5.298/4.797/12.806) recomputes from the frozen floor's
+    anchor_checks, and each real-data margin clears 3 sigma by a wide gap."""
+    g = _gate_m4()
+    surface = g["anchor_surface"]
+    assert surface["margin_k"] == 3
+    floor = _m4_floor()
+    ac = floor["anchor_checks"]
+    seen = set()
+    for cell, cfg in surface["cells"].items():
+        a = ac[cell]
+        if "prevalence_ageshape" in cell:
+            gap = a["psid_min_adjacent_gap"]
+            sd = a["half_split_floor"]["min_gap"]["sd"]
+            assert cfg["margin_basis"] == "half_split_floor.min_gap.sd"
+        else:
+            gap = a["psid_dominance_margin"]
+            sd = a["half_split_floor"]["share"]["sd"]
+            assert cfg["margin_basis"] == "half_split_floor.share.sd"
+        assert cfg["real_half_split_sd"] == pytest.approx(sd)
+        margin = round(gap / sd, 3)
+        assert margin == cfg["margin_sigma_units"], cell
+        assert margin >= 3.0
+        assert a["margin_sigma_units"] == cfg["margin_sigma_units"]
+        seen.add(cell)
+    assert seen == {
+        "prevalence_ageshape.comonotone|female",
+        "prevalence_ageshape.comonotone|male",
+        "conversion_exit.retirement_dominant|female",
+        "conversion_exit.retirement_dominant|male",
+    }
+
+
+def test_gate_m4_epsilon_tilt_degenerate_fails_the_pinned_margin():
+    """The pinned MARGIN reading (finding 3): an epsilon-tilt candidate
+    (+0.001/band) passes the bare ordinal but FAILS the margin -- margin_sigma
+    0.0917 (f) / 0.0912 (m) = tilt / committed sd, << MARGIN_K=3."""
+    et = _gate_m4()["degenerate_candidates"]["epsilon_tilt_prevalence"]
+    floor_ac = _m4_floor()["anchor_checks"]
+    sds = {
+        "female": floor_ac["prevalence_ageshape.comonotone|female"][
+            "half_split_floor"
+        ]["min_gap"]["sd"],
+        "male": floor_ac["prevalence_ageshape.comonotone|male"][
+            "half_split_floor"
+        ]["min_gap"]["sd"],
+    }
+    for sex in ("female", "male"):
+        row = et[sex]
+        assert row["real_half_split_sd"] == pytest.approx(sds[sex])
+        recomputed = round(
+            row["min_adjacent_gap"] / row["real_half_split_sd"], 4
+        )
+        assert recomputed == row["margin_sigma_units"], sex
+        assert row["margin_sigma_units"] < 3
+        assert row["passes_bare_ordinal"] is True
+        assert row["passes_pinned_margin"] is False
+
+
+def test_gate_m4_anchor_gate_rule_separates_candidate_from_evidence_time():
+    """flip-note 3: each anchor gate_rule separates the candidate-voiced
+    condition (the candidate's own margin, the ONLY thing it must satisfy)
+    from the evidence-time cell conditions (holds on all 100 real halves; the
+    >=20-exit floor gated the CELL, not the candidate). The sparse-exit
+    all-retire candidate is pinned as caught INTERNALLY."""
+    cells = _gate_m4()["anchor_surface"]["cells"]
+    for cfg in cells.values():
+        rule = cfg["gate_rule"]
+        cand = rule["candidate_condition"]
+        assert "ONLY" in cand
+        assert "MARGIN_K=3" in cand or "3 sigma" in cand
+        assert "4 of 5" in cand
+        evid = rule["evidence_time_conditions"]
+        assert "flip-note 3" in evid
+        # the evidence-time conditions are floor properties, kept separate
+        # from the candidate condition and not re-run on the candidate.
+        assert "floor" in evid.lower()
+        assert "candidate" in evid.lower()
+    # the sparse-exit construction is foreclosed: caught internally.
+    conv = cells["conversion_exit.retirement_dominant|female"]["gate_rule"]
+    assert "recovery.60-66" in conv["evidence_time_conditions"]
+    assert "INTERNALLY" in conv["evidence_time_conditions"]
+
+
+def test_gate_m4_flip_notes_all_five_implemented():
+    """The five verification-round flip-time notes are enumerated as
+    implemented in the ceremony_record."""
+    notes = _gate_m4()["ceremony_record"]["flip_notes_implemented"]
+    assert set(notes) == {
+        "note_1_tier_rerefresh",
+        "note_2_oc_at_or_above_precedent",
+        "note_3_anchor_gate_rule_prose_separated",
+        "note_4_sigma_units_presentation",
+        "note_5_bootstrap_optional_not_committed",
+    }
+    for key, text in notes.items():
+        assert text.strip(), key
+
+
+def test_gate_m4_oc_at_or_above_precedent_not_within():
+    """flip-note 2: the OC-band wording is 'at or above precedent', not
+    'within' -- 0.9689 sits above the 2a/2b/2c band top (0.9685); the band is
+    a floor."""
+    g = _gate_m4()
+    oc_note = g["protocol"]["faithful_candidate_oc"]["oc_vs_precedent"]
+    ks_note = g["k_selection"]["oc_vs_precedent"]
+    for note in (oc_note, ks_note):
+        assert "AT OR ABOVE" in note.upper()
+        # the corrective note names the band top it sits above, not "within".
+        assert "0.9685" in note or "band" in note.lower()
+    band = g["k_selection"]["precedent_oc_band"]
+    assert max(band.values()) == 0.9685
+    p_gate = g["protocol"]["faithful_candidate_oc"]["p_gate_pass_4_of_5"]
+    assert p_gate > 0.9685
+    assert round(p_gate - 0.9685, 4) == 0.0004
+
+
+def test_gate_m4_anchor_pins_di_asr_2023_match_disk():
+    """The in-repo SSA DI ASR 2023 anchor is sha-pinned and REPORTED not gated;
+    every pinned sha256 matches the file on disk; the anchor moves no floor
+    value (no calibration)."""
+    report = _gate_m4()["external_anchor_report"]
+    assert report["reported_anchor_not_gated"] is True
+    assert report["anchor_dir"] == M4_ANCHOR_DIR
+    assert report["calibration"].startswith("none")
+    pins = report["anchor_pins"]
+    assert set(pins) == {
+        f"{M4_ANCHOR_DIR}/tables.json",
+        f"{M4_ANCHOR_DIR}/provenance.md",
+    }
+    for rel, meta in pins.items():
+        payload = (ROOT / rel).read_bytes()
+        assert hashlib.sha256(payload).hexdigest() == meta["sha256"], rel
+    # the tables sha matches the frozen floor's own anchor pin.
+    floor = _m4_floor()
+    assert (
+        pins[f"{M4_ANCHOR_DIR}/tables.json"]["sha256"]
+        == floor["anchor_tables"]["sha256"]
+    )
+
+
+def test_gate_m4_covers_names_the_scored_surface():
+    """The covers text names the disability surface and the 12 gate-eligible
+    cells (description-claims-exactly), and declares no SSA DI level is
+    gated."""
+    covers = _gate_m4_block()["covers"]
+    assert "DISABILITY module" in covers
+    assert "anchor-based" in covers.lower() or "ANCHOR-BASED" in covers
+    assert "8 internal" in covers
+    assert "4 anchor" in covers
+    assert "no SSA DI LEVEL is gated" in covers
+
+
+def test_gate_m4_certification_scope():
+    """gate_m4 certifies the 12 gated disability cells and supports the
+    disabled composition a payable DI baseline rides on; it does NOT support
+    SSA DI benefit LEVELS (statutory-formula oracle, outside M4)."""
+    csc = _gate_m4()["certification_scope"]
+    assert csc["tranche"] == "m4_disability"
+    assert "12 gated cells" in csc["certifies"]
+    supports = " ".join(csc["supports"])
+    assert "payable DI baseline" in supports or "disabled composition" in (
+        supports
+    )
+    dns = " ".join(csc["does_not_support"])
+    assert "LEVELS" in dns
+    assert "oracle" in dns
+
+
+def test_gate_m4_history_entry_records_the_lock():
+    """gate_m4.history carries the 2026-07-12-m4-gate-lock entry with the four
+    ceremony comment ids, the ratifying merge (PR 153 / 0fa4a29),
+    no_self_rescue, and ZERO threshold movement."""
+    hist = _gate_m4_block()["history"]
+    entry = next(e for e in hist if e["id"] == "2026-07-12-m4-gate-lock")
+    assert entry["flipped_live"] == "this pull request"
+    rr = entry["referee_round"]
+    assert "4950447491" in rr["review"]
+    assert "4950571161" in rr["fixes"]
+    assert "4950648191" in rr["verification"]
+    assert "4950660426" in rr["verification"]
+    assert "0fa4a29" in entry["ratified"]
+    assert "PR 153" in entry["ratified"]
+    assert "no_self_rescue" in entry["ratified"]
+    assert "ZERO threshold movement" in entry["content"]
+
+
+def test_gate_m4_flip_leaves_locked_siblings_byte_identical():
+    """D1 SUBSET master-compare (the form that held at #122 / #130, no
+    red-master window): the flip ADDS gate_m4 and changes nothing else, so
+    gate_1 / gate_2 (2a + gate_2b + gate_2c) / gate_3 stay deep-equal to
+    origin/master and gate_m4 is the SOLE new key. These asserts hold in every
+    state (before and after the flip merges), so they are unconditional."""
+    master = _master_gates_mapping()
+    if master is None:
+        pytest.skip("origin/master gates.yaml unreachable")
+    current = yaml.safe_load((ROOT / "gates.yaml").read_text())["gates"]
+    added = set(current) - set(master)
+    removed = set(master) - set(current)
+    # gate_m4 may already be on master once the flip merges; in that state the
+    # set difference is empty. Before merge it is exactly {gate_m4}. A sibling
+    # locked-gate flip (gate_w1, ratified the same day) may add its own sole
+    # key on a coordinated both-blocks branch -- the tolerant form the W1
+    # flip-fidelity referee verified (PR #160 comment); any OTHER addition
+    # still fails.
+    assert added in (set(), {"gate_m4"}, {"gate_w1"}), added
+    assert removed == set()
+    for key in master:
+        if key in ("gate_m4", "gate_w1"):
+            continue
+        assert current[key] == master[key], f"{key} changed vs master!"
+    # gate_2's locked tranche-2a thresholds + gate_2b + gate_2c untouched.
+    assert current["gate_2"]["thresholds"]["locked"] is True
+    assert current["gate_2"]["gate_2b"]["locked"] is True
+    assert current["gate_2"]["gate_2c"]["locked"] is True
