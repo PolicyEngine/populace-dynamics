@@ -3945,11 +3945,15 @@ def test_gate_m4_flip_leaves_locked_siblings_byte_identical():
     added = set(current) - set(master)
     removed = set(master) - set(current)
     # gate_m4 may already be on master once the flip merges; in that state the
-    # set difference is empty. Before merge it is exactly {gate_m4}.
-    assert added in (set(), {"gate_m4"}), added
+    # set difference is empty. Before merge it is exactly {gate_m4}. A sibling
+    # locked-gate flip (gate_w1, ratified the same day) may add its own sole
+    # key on a coordinated both-blocks branch -- the tolerant form the W1
+    # flip-fidelity referee verified (PR #160 comment); any OTHER addition
+    # still fails.
+    assert added in (set(), {"gate_m4"}, {"gate_w1"}), added
     assert removed == set()
     for key in master:
-        if key == "gate_m4":
+        if key in ("gate_m4", "gate_w1"):
             continue
         assert current[key] == master[key], f"{key} changed vs master!"
     # gate_2's locked tranche-2a thresholds + gate_2b + gate_2c untouched.
