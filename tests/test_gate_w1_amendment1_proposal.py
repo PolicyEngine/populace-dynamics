@@ -422,29 +422,34 @@ def test_family_a_oc_recomputes_and_is_invariant_to_demotion():
 # --------------------------------------------------------------------------
 # Partition consequence: family B 10 -> 0 gated; overall 65 -> 55 gated
 # --------------------------------------------------------------------------
-def test_family_b_partition_now_and_after_option_a():
+def test_family_b_partition_after_the_flip_realizes_option_a():
+    """POST-RATIFICATION (this flip PR realized option a): family B now gates
+    NOTHING and report-only is 25. The ledger's gated_now / report_only_now
+    (10 / 15) describe the PRE-amendment surface the flip demoted; the flipped
+    gates.yaml matches the ledger's after-values."""
     led = _ledger()["family_b_partition"]
     fb = _gate_w1()["thresholds"]["family_b"]
     gated = list(fb["gated_cells"])
     report_only = list(fb["report_only"])
-    conv = [c for c in gated if "disability_conversion" in c]
-    di = [c for c in gated if c.startswith("di_prevalence.")]
 
-    # CURRENT locked surface (the proposal has NOT flipped it).
-    assert len(gated) == led["gated_now"] == 10
+    # the flip demoted all 10: family B gates nothing.
+    assert gated == []
+    assert led["gated_after_option_a"] == 0
+    # the 10 demoted cells the ledger recorded as gated_now are now keyed in
+    # report_reasons (the parallel machine-reason mapping the flip added).
+    demoted = set(fb["report_reasons"])
+    conv = [c for c in demoted if "disability_conversion" in c]
+    di = [c for c in demoted if c.startswith("di_prevalence.")]
+    assert len(demoted) == led["gated_now"] == 10
     assert len(conv) == led["conversion"] == 2
     assert len(di) == led["di_bands"] == 8
     assert set(c.split(".", 1)[1] for c in di) == set(DI_BANDS)
     assert set(conv) == set(CONVERSION_CELLS)
-    assert len(report_only) == led["report_only_now"] == 15
-
-    # AFTER option (a): ALL 10 cells move to report-only; family B gates nothing.
-    assert led["gated_after_option_a"] == 0
-    assert (
-        led["report_only_after_option_a"]
-        == len(report_only) + len(di) + len(conv)
-        == 25
-    )
+    # report-only grew 15 -> 25 and now contains the 10 demoted cells.
+    assert len(report_only) == led["report_only_after_option_a"] == 25
+    assert demoted <= set(report_only)
+    assert led["report_only_now"] == 15
+    assert led["report_only_now"] + len(demoted) == 25
 
 
 def test_overall_partition_65_to_55_gated():
@@ -481,11 +486,13 @@ def test_section7_flip_list_binds_all_ten_family_b_cells():
     parsed = {f"di_prevalence.{b}" for b in bands} | {
         f"claim_age.disability_conversion|{s}" for s in convs
     }
-    gated = set(_gate_w1()["thresholds"]["family_b"]["gated_cells"])
-    assert len(gated) == 10
+    fb = _gate_w1()["thresholds"]["family_b"]
+    demoted = set(fb["report_reasons"])  # the 10 cells the flip demoted
+    assert fb["gated_cells"] == {}  # post-ratification gated_cells is empty
+    assert len(demoted) == 10
     assert bands == set(DI_BANDS)
     assert convs == {"female", "male"}
-    assert parsed == gated  # section 7 lists exactly the 10 cells to demote
+    assert parsed == demoted  # section 7 named exactly the 10 demoted cells
     assert _ledger()["family_b_partition"]["gated_after_option_a"] == 0
 
 
@@ -584,10 +591,18 @@ def test_no_self_rescue_all_ten_family_b_cells_fail_for_candidate1():
 # --------------------------------------------------------------------------
 # The proposal is a DRAFT: gates.yaml is untouched (no flip)
 # --------------------------------------------------------------------------
-def test_proposal_does_not_flip_gates_yaml():
-    """gate_w1 in the working tree is byte-identical to origin/master: the
-    proposal adds only the doc + this test, it moves no threshold. (The flip is a
-    separate post-ratification PR.)"""
+def test_flip_demotes_all_ten_family_b_cells_vs_master():
+    """Polarity flip (gate-2c floors-PR precedent, #130): the PROPOSAL PR guard
+    asserted gate_w1 was byte-identical to origin/master and family B still
+    gated 10; THIS flip PR inverts it -- family B now gates 0 (all 10 demoted to
+    report-only) while family A and family C stay byte-identical to master (zero
+    threshold movement on the untouched families). Robust to the eventual merge
+    (master's family-B gated set is 10 pre-merge, 0 post-merge)."""
+    c_fb = _gate_w1()["thresholds"]["family_b"]
+    # ABSOLUTE post-flip state: family B gates nothing; 10 demoted with reasons.
+    assert c_fb["gated_cells"] == {}
+    assert len(c_fb["report_reasons"]) == 10
+    assert len(c_fb["retained_anchors"]) == 10
     try:
         master_text = subprocess.run(
             ["git", "show", "origin/master:gates.yaml"],
@@ -600,6 +615,17 @@ def test_proposal_does_not_flip_gates_yaml():
         pytest.skip("origin/master gates.yaml unreachable")
     master = yaml.safe_load(master_text)["gates"]["gate_w1"]
     current = _gate_w1()
-    assert current == master, "the proposal PR must not edit gate_w1"
-    # and family B still gates the full 10 (cells NOT yet demoted).
-    assert len(current["thresholds"]["family_b"]["gated_cells"]) == 10
+    m_fb = master["thresholds"]["family_b"]
+    # pre-merge master gates the full 10 (the surface the flip demotes);
+    # post-merge it is already 0. Either way current is 0.
+    assert len(m_fb["gated_cells"]) in (0, 10)
+    if len(m_fb["gated_cells"]) == 10:
+        assert current != master  # the flip edited gate_w1
+        assert set(m_fb["gated_cells"]) == set(c_fb["report_reasons"])
+    # family A and family C byte-identical to master (zero movement), always.
+    assert (
+        current["thresholds"]["family_a"] == master["thresholds"]["family_a"]
+    )
+    assert (
+        current["thresholds"]["family_c"] == master["thresholds"]["family_c"]
+    )
