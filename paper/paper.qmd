@@ -846,22 +846,33 @@ are marked.](figures/c2st_noise.svg){#fig-noise}
 
 ## What failure buys
 
-Thirty-eight registered runs across three gates — thirteen at gate 1,
-sixteen at gate 2, nine at gate 2b — thirty-five published failures
-against three passes under a rule that refused to rescue its own
-trigger, four gates locked through their own adversarial rounds with
-four ratified amendments among them — two at gate 1, and at gate 2 an
-estimator aligned to its operating characteristic and then a tranche
-structure made explicit, the household-composition tranche then
-passing at its ninth candidate and the marriage-by-earnings tranche
-locked as-is with its ladder not yet begun — nine registered
+Forty-two registered runs across six gates — thirteen at gate 1,
+sixteen at gate 2, nine at gate 2b, two at gate 2c, one at the
+disability gate, one at the transport gate — thirty-seven published
+failures against five passes under a rule that refused to rescue its
+own trigger, six gates locked through their own adversarial rounds
+with five ratified amendments among them — two at gate 1, at gate 2
+an estimator aligned to its operating characteristic and then a
+tranche structure made explicit, and at the transport gate a
+mis-anchored family demoted on committed evidence after the
+lock — the marital-transition tranche passing at its sixteenth
+candidate, the household-composition tranche at its ninth, the
+marriage-by-earnings tranche at its second — the shortest of the
+family ladders — the disability gate at its first, and the
+representative-frame transport gate locked, its first candidate
+failed, then the gate itself amended by its own forensics, the funded
+crux still open — ten registered
 forensics rounds and
 a reform-delta diagnostic feeding the next registration, a
 cross-anchor cost-ordering synthesis and a same-frame revenue
 pseudo-projection that between them isolated the compression the
-representative-frame transport must remove, six external-anchor
+representative-frame transport must remove, a caregiver-credit
+benefit seam run end to end through the production tax calculator,
+six external-anchor
 replications reported at the same standing as any gated run, and
-thirty-nine forecasts registered and all thirty-nine graded is the
+fifty forecasts registered and forty-nine graded — the fiftieth is
+the transport gate's second candidate, registered and not yet run —
+is the
 protocol working as designed. Each failure published with the same prominence as a pass would,
 each narrowed the design space with a finding that transfers beyond
 this project, and none required trusting the authors: the
@@ -1196,10 +1207,12 @@ across the cataloged provision classes — price indexing,
 retirement-age and cost-of-living reductions, earnings sharing, and
 caregiver credits — each reproducing its DYNASIM incidence pattern
 within the noise floor or a named delta. The generated-population
-demographic track reached its own gate at the sixteenth candidate, on
-the marital-transition and fertility tranche, has since passed the
-household-composition tranche at its ninth, and leaves only the
-marriage-by-earnings joint named and unscored rather than assumed.
+demographic track has now passed every tranche of its own gate — the
+marital-transition and fertility surface at the sixteenth candidate,
+household composition at the ninth, the marriage-by-earnings joint at
+the second — leaving no family tranche unscored; the open frontier is
+the representative-frame transport and forward projection
+(@sec-projection), not a demographic tranche.
 The paper reports
 all of it because the protocol scores all of it, and a reader who
 wants to know which claims are load-bearing today can read it off the
@@ -1293,15 +1306,23 @@ test cases for the representative-frame transport, the milestone whose
 whole job is to make the frame's distribution representative enough
 that both orderings come out right.
 
-# A gate passed, a gate locked, and the projection roadmap {#sec-projection}
+# Three gates passed, a gate amended, and the projection roadmap {#sec-projection}
 
 Alongside the surface work, an external architecture review reset the
-engineering standard for deployment, a third and a fourth stage gate
+engineering standard for deployment; a third and a fourth stage gate
 locked — on household composition and on the marriage-by-earnings
-joint — the household-composition gate then passed at its ninth
-registered candidate, a disability module landed, and the program
-published the capability path from here to a full projection. None of
-it moved a locked threshold.
+joint — and both then passed, at the ninth and the second registered
+candidate; a disability gate locked and passed at its first; the
+representative-frame transport gate locked, failed its first
+candidate, and was itself amended on what that failure's forensics
+proved; an interim benefit seam carried a reform end to end through
+the production tax calculator; and the program published the
+capability path from here to a full projection. No candidate moved a
+locked tolerance, and the one contract that changed after locking —
+the transport gate, whose own referee-established contradiction had
+made it structurally unpassable — changed only through the full
+amendment ceremony, with every demoted anchor retained verbatim and
+the failed candidate left failed.
 
 ## Hardening the ledger for deployment
 
@@ -1324,7 +1345,29 @@ rate cube bit-for-bit — 4,600 of 4,600 values equal to the IEEE-754
 bit, signed zeros included — and its gate-2a pass verdict. A referee
 certified the certificate real rather than vacuous by re-deriving the
 cube independently and confirming that every mutation it injected was
-caught.
+caught. The same port has since carried the household-composition
+tranche's passing ninth candidate into the registry under its own
+compatibility certificate, the same bit-for-bit discipline.
+
+Provenance itself then hardened. Every artifact can
+now carry a typed contract identity — the Git state of the locked
+contract plus pinned Python, NumPy, pandas, scikit-learn, SciPy, and
+platform metadata — written as an opt-in, append-only `.env.json`
+sidecar beside the artifact, with every existing call site unchanged;
+the transport gate's forensics round below was the first artifact to
+adopt it. And a typed generic twenty-draw evaluator now re-derives
+what each gate's own bespoke bindings assert — validating the exact
+decimal floor derivations, the registered draw stream, the locked
+floor references, the scoring semantics, and the four-of-five
+conjunction — and reproduces the three committed gate verdicts from
+the committed artifacts and the locked contract alone: the gate-2a
+pass at four of five with its seed-2 completed-fertility miss (0.1816
+against 0.171), the gate-2b pass at four of five with its seed-3
+hh_size.5+ miss (0.1042 against 0.094), and, against the gate-2c
+floor's own rates in candidate shape, a five-of-five compatibility
+result — a shape-compatibility check, not a candidate verdict. No
+committed run artifact, frozen file, or locked block changed: one
+evaluator, three gates.
 
 ## The household-composition gate
 
@@ -1742,15 +1785,144 @@ thresholds passed its own flip-fidelity referee, who recomputed every
 tolerance from the frozen floor, re-fetched the ceremony comments,
 re-derived the anchor against the archived Schwartz and Greenwood
 sources, and confirmed the new bindings bite across all eight
-verification sections. What the lock does not claim, again, is a
-pass: no candidate has run against gate 2c, and its ladder is future
-work.
+verification sections. What the lock claimed, again, was the
+threshold, not a pass: at ratification no candidate had run against
+gate 2c. Two registered candidates have since settled it, and the
+ladder that follows — the shortest of the three family ladders — is
+the record of what the settling cost.
 
-With that, all three tranches of the family gate are locked: the
-marital-transition surface passed at the sixteenth candidate,
-household composition at its ninth, and the marriage-by-earnings
-joint alone locked but not yet cleared, its candidate ladder the open
-thread. Across the
+## The gate-2c candidate ladder
+
+Two candidates have run against the locked marriage-by-earnings
+gate — its twenty-seven gated cells, its five couple-disjoint split
+seeds, and the twenty-draw mean-over-draws estimator — each
+registered on the campaign registry
+([issue #42](https://github.com/PolicyEngine/populace-dynamics/issues/42))
+with a pre-registered forecast before its single scored run and
+graded after.
+
+Candidate 1 composed couple formation from the certified tranche-2a
+marital core and train-fitted joints, and failed, one seed of five
+passing, per-seed gated-cell counts 25, 26, 27, 26, 26 of 27. The registration
+had named its modal failure classes in order — the assortative-mating
+contingency diagonal first, the earnings-conditional first-marriage
+hazard cells second, the around-event cells third — and the run
+resolved the order. The diagonal held completely, thirty-five of
+thirty-five cell-seeds: the correlation structure the tranche exists
+to certify survived composition on the first attempt. Every other
+family cleared every cell on every seed, and the gate bound entirely
+on the second named class: the five misses, all marginal at 1.01 to
+1.34 times tolerance, are three first-marriage-by-earnings cells —
+the bottom-tercile 18–24 female hazard on seeds 0 and 4, the
+top-tercile 25–34 male on seeds 0 and 3, the top-tercile 18–24 female
+on seed 1. The mechanism is structural rather than a mistuning: the
+certified marital core conditions first-marriage timing on age, sex,
+and cohort — not on the earnings axis — so a tercile-conditional
+first-marriage hazard is just the age-and-cohort hazard averaged over
+that tercile's age and cohort mix. The registered forecast priced a
+pass at 0.10 to 0.25; the fail graded as the forecast's modal
+outcome.
+
+Candidate 2 registered one delta: an earnings-conditioned
+first-marriage-timing modifier — train-fitted, multiplicative, by
+tercile within age band and sex, composed onto the certified 2a
+first-marriage hazard, with the earnings-blind core read and never
+re-simulated so the fit consumes no randomness — normalized so the
+certified age-by-sex timing marginal does not move (the per-band sum
+of modifier times certified timing is one, hand-verified to a maximum
+deviation of 2.2e-16), the same marginal-preservation constraint
+class the household tranche's coupling delta used. The gate passed,
+four of five, per-seed gated-cell counts 27, 27, 25, 27, 27. All five
+candidate-1 misses resolved, and the honest asymmetry publishes with
+the pass: the sole failing seed is seed 2 — the one seed candidate 1
+passed — where the delta moved two 18–24 female first-marriage cells
+the earnings-blind core already matched from roughly 0.19 and 0.07 of
+tolerance to 1.036 and 1.065 times it (0.238 against 0.230, 0.287
+against 0.269). Byte-carry makes the delta auditable at the bit
+level, as the household pass was: the twenty-five carried-family
+cells are byte-identical to candidate 1 across 2,500 per-draw
+comparisons (maximum deviation 0.0), the first-marriage family moved
+on all 120 of its cell-seeds by exactly the modifier (the candidate-2
+rate equal to the modifier times the candidate-1 rate to 5.6e-17),
+and nineteen of the twenty-seven gated cells reproduce bits already
+published in the candidate-1 artifact — the genuinely new holdout
+exposure was the eight gated first-marriage cells. The registered
+forecast priced the pass at 0.45 to 0.65 and the run realized it; the
+forecast's modal-residual call — the top-tercile 25–34 male cell —
+did not describe the realized residuals, and that miss is graded and
+disclosed with the rest. An α-invariance check executed rather than
+assumed: at α of 0, 8, and 20 the verdict is identical, four of five
+with the same failing set.
+
+| candidate | distinct failing cells | seeds passing | headline lesson |
+|---|---|---|---|
+| 1 — couple formation composed from the certified 2a marital core | 3 | 1 / 5 | the assortative diagonal holds 35/35 on the first attempt; the gate binds entirely on earnings-conditional first-marriage timing, the registration's second-named class |
+| 2 — + earnings-conditioned first-marriage-timing modifier, timing marginal preserved | 2 | 4 / 5 | **PASS** — one train-fitted delta resolves all five candidate-1 misses; the sole failing seed is the one candidate 1 passed |
+
+: The gate-2c candidate ladder, from the committed run artifacts
+(`runs/gate2c_hazard_v1.json` and `v2.json`). "Distinct failing
+cells" counts gated cells missing on at least one of the five locked
+seeds, the same convention as @tbl-ladder; the gate requires at least
+four of five seeds with every one of the 27 gated cells inside its
+locked tolerance, which candidate 2 is the first to meet. Both
+candidates are scored under the twenty-draw mean-over-draws estimator
+and the couple-disjoint split seeds gate 2c locked with.
+{#tbl-ladder-2c}
+
+## The first gate-2c pass
+
+Under the standing pass-run rule the pass entered the record only
+after an independent adversarial round, and because the round was the
+tranche's first, the referee verified the carried candidate-1
+machinery too rather than assuming it. The re-execution was
+bit-exact — the 2,700-rate twenty-by-twenty-seven-by-five cube
+reproduced bit-for-bit, the only deviations six elapsed-seconds
+fields — all 135 cell-by-seed verdicts rescored from the committed
+cube with no repository code, the byte-carry recomputed at 0.0 across
+all 2,500 comparisons, the α-invariance check executed, a leak trace
+confirming that no candidate-2 addition is holdout-fitted, the
+couple-component split verified with zero couples straddling the two
+halves on any gate seed, and every injected mutation caught.
+
+The search accounting states what two candidates mean. This is the
+shortest ladder of the three tranches — sixteen candidates and four
+forensics rounds at the marital-transition tranche, nine and five at
+the household tranche, two and zero here, roughly 270 gated cell-seed
+scores — and it is short because it inherited everything: the
+certified 2a marital core, the per-year indexed-earnings axis and its
+cut provenance from the gate's own fixes round, the
+marginal-preservation constraint class from the household coupling
+delta, and the ladder method itself. Candidate 2 was designed from
+candidate 1's published holdout decomposition — one adaptive step,
+along a delta axis candidate 1's registration had named as a modal
+failure class before any 2c holdout was seen, with a registered
+forecast pricing the outcome. The certified claim is scoped
+accordingly: the generator matches the held-out marriage-by-earnings
+joint moments after an audited two-candidate iterative search, under
+the domains-of-validity doctrine — not on a first attempt out of
+sample — and no locked quantity supplies a family-wise error number
+for a two-candidate adaptive family, so none is quoted.
+
+The pass is also a milestone: every gate-2 tranche is now passed. All
+four demographic gates — earnings; marital transitions and fertility;
+household and relationship composition; the marriage-by-earnings
+joint — are locked and passed, each behind its own pre-registered
+contract, adversarial lock ceremony, one-shot candidate ladder, and
+independently verified pass run. On the observed frame the certified
+surface now covers the full demographic input surface the cataloged
+provision classes score on: career earnings histories; marriage,
+divorce, remarriage, widowhood, and fertility; household and
+relationship composition, from cohabitation and custody to
+skip-generation households; and who marries whom, by earnings. What
+remained at that milestone — the balance of this section, and the
+program's open frontier — is the disability gate, the
+representative-frame transport, the projection engine with its
+temporal-holdout gate, and full revenue and trust-fund accounting.
+
+With that, all three tranches of the family gate are locked and
+passed: the marital-transition surface at the sixteenth candidate,
+household composition at the ninth, the marriage-by-earnings joint at
+the second. Across the
 three the adversarial round kept returning the same three failure
 classes — a floor or estimator that priced the wrong noise, an
 estimand that misdescribed its own surface, and a construct whose
@@ -1758,41 +1930,319 @@ signal was the measurement rather than the thing measured — and the
 ceremony quantified and fixed each before the threshold locked, none
 after. That is the design working rather than failing, and it is why
 a locked gate here is worth what it claims: the hard test comes
-before adoption, in public, against a referee who recomputes.
+before adoption, in public, against a referee who recomputes. One
+class the pre-lock ceremony did not catch — a gate that locks wrong
+anyway — arrived at the transport gate below, and the same machinery
+caught that too, after the lock.
 
-## Disability and the capability roadmap
+## The disability gate
 
-The disability module added the last major transition process in
-reported-not-calibrated form: DI incidence and recovery hazards from
+The disability module added the last major transition process, first
+in reported-not-calibrated form and now behind its own locked and
+passed gate: DI incidence and recovery hazards from
 PSID self-reported work limitation, and the statutory conversion at
 full retirement age, where a disabled worker's benefit becomes a
 retirement benefit at the same primary amount — a factor of exactly
 one — so that the claiming sampler's excluded conversion mass
-reconstitutes the full administrative entrant mix. Its validation
-follows the anchor pattern: the PSID disabled-to-retired transition,
-read against the archived conversion column of the 2023 SSA
-supplement, runs at 0.267 of the administrative share for women and
-0.322 for men, reported as a ratio far below one and never calibrated
-toward it, because seven named concept deltas separate a self-reported
+reconstitutes the full administrative entrant mix. The gate's first
+design decision is what it refuses to score. The PSID self-reported
+work limitation is not the SSA disability program: seven named
+concept deltas separate a self-reported
 labor-force status from an adjudicated award — definition, insured
 population, severity threshold, recovery churn, conversion
-denominator, biennial timing, and secular period. A wanted-tables list
-names the exact administrative series a future level-anchored
-disability gate will need, pinning the gate before its components as
-the contract requires.
+denominator, biennial timing, and secular period — so no SSA DI level
+is gated anywhere. The estimand is the self-report panel's own
+disability processes, with the administrative record entering as
+concept-bridged anchors gated on shape and direction, never level.
+The module's founding validation kept that pattern: the PSID
+disabled-to-retired transition, read against the archived conversion
+column of the 2023 SSA supplement, runs at 0.267 of the
+administrative share for women and 0.322 for men, reported as a ratio
+far below one and never calibrated toward it.
 
-These modules sit on a published roadmap of eight capability
+The gate is anchor-based in gate 1's external-check style, not
+holdout-only, and its floors ceremony restored teeth rather than
+filing them down: the round-one referee's first finding — a blocker —
+required restoring the pre-registered internal families the draft had
+weakened and adopting a mixed-multiple remedy — flow-hazard
+tolerances
+at the floor mean plus three seed standard deviations and the
+50-to-59 prevalence stock at plus four — eight gated internal cells
+with the occupancy-stock teeth restored. The same round
+adopted the ratified draw stream and fresh-run schema and pinned the
+candidate-side anchor statistic — per gate seed, on the twenty-draw
+mean, with a pinned minimum margin of three standard deviations. The
+lock then added gate_m4 as a new top-level gate: twelve gated cells —
+the eight internal mixed-multiple cells plus four concept-bridged
+anchor margins — against twenty-four report-only, with the in-repo,
+hash-pinned 2023 DI Annual Statistical Report tables as the anchor,
+reported and never gated as levels; the faithful-candidate operating
+characteristic is 0.9408 per seed and 0.9689 at four of five. The
+flip referee's first finding fixed the gate's weight definition to
+the ratified start-wave weight and verified the fix with teeth: the
+50-to-59 male incidence rate recomputed under start-wave weights
+equals the committed reference exactly, 0.02151029, where end-wave
+weights give 0.02015166 — the check discriminates.
+
+The first candidate was the module's own hazard machinery — refit per
+split seed on the training half, simulated forward on the holdout
+support with the ratified twenty-draw estimator and the pinned
+start-wave weights, no free hyperparameter — and it passed five of
+five, the program's first five-of-five pass. All eight internal cells
+hold on every seed, the worst at 0.88 of tolerance (the 50-to-59
+female incidence hazard on seed 4); all four anchor margins hold on
+every seed, minimum margin 4.39 standard deviations against the
+pinned 3.0, the prevalence age-shape margins running 6.5 to 7.5 and
+conversion-exit dominance 4.4 to 13.7; zero undefined draws. The
+registered forecast priced a pass at 0.55 to 0.75, and five of five
+is the faithful model's own modal outcome, probability 0.737.
+
+Verification applied the standing first-pass round — bit-exact
+re-execution (the 800-rate cube at 800 of 800 equal), all sixty cell
+verdicts rescored with no repository code, the candidate's train-side
+copy equal to the frozen floor to 1.39e-16, the weight fix verified
+as above — and its sharpest work was a construction adjudication
+executed rather than argued. The fit re-initializes post-gap episode
+state from the train-fitted stock, and 20.2 percent of holdout
+person-years are episode starts — 14.6 first-wave, 5.65 post-gap — so
+the referee re-scored all five seeds and twenty draws under both
+alternative gap constructions, an ordinary hazard step and
+carry-forward of the previous state. Both still pass five of five
+with the same worst-cell identities, and the committed
+re-initialization scores worse on the gated prevalence stock than
+either alternative (seed-4 male 0.2646 against 0.2426 and 0.2374):
+the construction carries no score advantage and no stock-information
+leak. The leak hunt closed the loop from the other side — the
+simulator reads only person identity, period, age, weight, and sex
+from the holdout, a strictly smaller holdout footprint than the
+verified 2b and 2c candidates, which kept observed initial states;
+here even initial states draw from the train-fitted stock. One
+candidate, zero forensics rounds — the shortest ladder in the
+program — and the certified claim is scoped to match: the disability
+module's hazard machinery reproduces the held-out PSID
+work-limitation moments and holds the concept-bridged anchors after a
+one-candidate registered search, under the domains-of-validity
+doctrine, and never an SSA DI level — the seven concept deltas stay
+report-only.
+
+## The transport gate
+
+The transport of the certified generators from their PSID estimation
+basis onto the representative population is the program's scientific
+crux and its funded build, and it now carries a locked gate —
+gate_w1 — a failed first candidate, a registered forensics round, and
+the program's fifth ratified amendment. The gate certifies deployment
+on the certified populace CPS frame — release us-4.18.8, sha-verified
+at deployment, 166,302 persons representing a weighted 340.0
+million — a
+frame none of the generators was fitted to. The locked surface is 65
+gated against 67 report-only cells in three target families. Family
+A, the CPS-observable joints — 53 gated, 52 report-only — floors on a
+hundred-seed household-disjoint half-split of the certified frame's
+own weighted earnings, age, sex, marital, and household moments, each
+tolerance the floor mean plus four standard deviations rounded to
+three decimals and capped at ln(1.5), with a heavy-tail guard so a
+faithful candidate passes and the identity candidate — copying the
+scored columns, score zero at zero dispersion — declared
+non-conformant rather than victorious; the faithful-candidate
+operating characteristic is 0.922 per seed and 0.9481 at four of
+five. Family B, the SSA administrative anchors — 10 gated, 15
+report-only — carries two simulated disability-conversion margins and
+eight DI age-composition prevalence bands. And family C gates the two
+compression fingerprints @sec-surface committed as before-and-after
+test cases, as binary reversal checks whose required orderings derive
+from the committed Mermin and Smith anchors: progressive price
+indexing must rise past the retirement-age increase, and
+taxable-maximum elimination past the two-point payroll-rate rise. The
+floors went through the full ceremony — a round-one referee returned
+amend on ten findings, eight fixes followed, verification returned
+amend on the body text alone, the body was amended, and ratification
+came by merge — with the
+twenty-draw estimator adopted from the start.
+
+One process violation is owned on the record rather than absorbed:
+the floors merge carried a test-tier manifest recounted in a gate
+virtual environment missing an optional dependency, under-collecting
+ten conditionally-collected unit tests — 189 against the
+continuous-integration count of 199 — and turning the mainline
+tier-policy check red. The repair restored the rule and named it:
+CI collection is authoritative, and the manifest is recounted
+CI-equivalent or not at all.
+
+Candidate 1 was the first full transport deployment — the certified
+generators together, the gate-1 earnings process, the marital
+candidate 16, the household candidate 9, the disability module, and
+the reform ledgers, deployed on the certified frame — and it failed,
+zero seeds of five. Family A passes 28, 28, 32, 26, and 24 of its 53
+cells per seed; family B passes zero of ten; neither family-C
+fingerprint reverses in full. The registered forecast priced a pass
+at 0.05 to 0.20; the zero-of-five fail graded as its modal outcome.
+The reads are the
+run's value. The fingerprints, re-run changing only the frame:
+progressive price indexing does not lift past the retirement-age
+increase — the transported AIME mass above the second bend point is
+not enough — while the elimination-versus-rate-rise swap is realised,
+exactly the predicted mechanism, though the same heavier tail lifts a
+\$150,000-cap variant above both payroll-rate provisions, so the full
+committed ordering does not reproduce cleanly. Both readings are
+robust: the orderings are identical across three independent
+transport constructions — level-anchored, rank-flat, and rank with
+transitory mobility — and the transported frame carries 37.7 percent
+of taxable payroll above the wage base, an upper read (prime-age
+positive earners, no zero or low years) well above the
+administrative 17-to-18-percent share and the PSID frame's 12.7;
+a heavier tail favours reversal, so the price-indexing non-reversal
+is conservative. Family A's modal failures decompose by view: the
+marital share accounts for 45 cell-failures over the five seeds — the
+synthetic-panel deployment starts everyone never-married and the
+hazards do not equilibrate over the window, so younger cohorts
+under-produce married — and earnings participation for 25, because
+the gate-1 process carries no sex covariate and fits ages 25 to 59,
+so 18-to-24 and 62-to-69 extrapolate to the nearest fitted bin. The
+earnings regeneration itself is not degenerate: nineteen earnings
+cells pass, including the p90/p50 and p50/p10 dispersion ratios, with
+a maximum across-draw standard deviation of 0.475 — a real
+regeneration, not an identity map. And family B's zero of ten has a
+shape: the simulated work-disability prevalence gradient transports,
+but it is far flatter than the SSA disabled-worker beneficiary
+stock's older-age concentration — 18.6 percentage points deployed
+against the anchor's 45.4 at the 60-to-full-retirement-age band — so
+the level and the steepness do not.
+
+The registered forensics round — reported, never gated, the first
+artifact to adopt the environment sidecar — measured the five
+initialization, support, and scope mechanisms the candidate isolated,
+with its instrumentation bit-identical to the committed transport
+machinery at 0.0. Extending marital exposure barely helps (a mean
+absolute contribution near 0.028) while the hazard-level residual
+dominates (near 0.095), and initializing from the frame's own marital
+column is the prohibited regenerated-surface identity — so
+entry-state seeding, not observed initialization, is the necessary
+lever. Nearest-bin boundary handling clears zero of six boundary
+cells where a train-fitted boundary extension clears four — the
+62-to-69 bands and the 18-to-24 profile — while 18-to-24
+participation resists: PSID heads and spouses overstate it against a
+CPS all-person frame. Scope and composition telescope, and a large
+composition residual — over-generation of size-one lone-adult
+households — remains, so scope is not the whole miss. The corrected,
+lighter earnings tail moves the price-indexing savings down, 0.0169
+to 0.0137, widening the gap to the retirement-age cut's 0.202 — the
+non-reversal is robust in the conservative direction, and the
+elimination swap holds under both tails. And the fourth question
+returned a finding about the gate rather than the candidate.
+
+That finding established, against the locked contract, that the eight
+family-B DI age-composition bands are unclearable by any
+contract-consistent candidate. The bands score the disability
+module's work-disability point-prevalence against the SSA
+disabled-worker beneficiary stock — a duration-accumulated stock,
+read from the archived DI statistical tables — across a concept
+bridge the gate never defined; the concept delta dominates the miss
+(aggregate share 0.595, per-band 0.023 to 0.891; at the
+60-to-full-retirement-age band, duration accumulation contributes
++21.3 percentage points against +2.6 of simulated shape), the insured
+denominator is not even archived, and all eight bands miss by 2.9 to
+21.9 times tolerance. Family B is a conjunction, so gate_w1 as locked
+had a faithful-candidate operating characteristic of structurally
+zero: a gate no faithful candidate could pass. The response was the
+amendment ceremony, in full — a proposal committed inert with the
+locked block untouched, a round-one referee who returned
+amend-the-amendment, fixes, a verification round that ratified as-is,
+and the flip. The round-one demand is the ceremony's teeth showing:
+the proposal had demoted the eight DI bands, and the referee required
+extending the demotion to all ten family-B cells, because the two
+disability-conversion margins fail the same candidate-independence
+test on committed evidence — the module's conversion validation
+ratio, 0.267 and 0.322, was never a level match. The ratified flip
+demotes all ten to report-only with machine-readable reasons
+committed (`concept_bridge_undefined_di_stock`,
+`conversion_level_match_never_certified`), retains all ten anchor
+values and tolerances verbatim under `family_b.retained_anchors` —
+zero threshold movement, nothing deleted — and moves the roll-ups
+from 65 gated and 67 report-only to 55 and 77. The gate's operating
+characteristic returns from a structural zero to the family-A
+characteristic, 0.9481, on the residual surface, still conjoined with
+the two family-C fingerprints. And the
+no-self-rescue rule holds on committed grounds: candidate 1 stands
+failed independently of the amendment — it fails family A at zero of
+five, both retained conversion cells, and family C — so the demotion
+rescues nothing; the amendment is prospective, and the forensics
+evidence behind it is train- and frame-side.
+
+This is the fourth referee class, and the reason the amendment
+mechanism exists. The three family-tranche ceremonies caught a
+mispriced floor, a misdescribed estimand, and a measurement standing
+in for its construct — each before its lock. A gate can also simply
+be wrong: locked carrying an internal contradiction that makes it
+structurally unpassable, which no pre-lock round caught. The same
+ceremony catches that too, after the lock, on the gate's own
+committed evidence, and the record keeps the two events distinct — an
+amended gate is not a better candidate, and the candidate that
+exposed the contradiction stays failed. The ladder stays open: a
+second candidate is registered on the three levers its forensics
+round proved, its forecast filed and its run not yet made — the
+record's one ungraded registration, and the program's open thread.
+
+## The interim benefit seam
+
+Before the transport gate passes, reform analysis already has a
+delivery path, and a registered diagnostic — reported, not gated —
+ran it end to end. The dynamics layer computed caregiver-credit
+benefit deltas from a committed encoding (the Biden plan); an interim
+cell-mean mapping transported them onto the certified populace
+default file; and the managed PolicyEngine runner consumed them as a
+social-security perturbation, returning full current-year (2026)
+tax-and-benefit incidence with program interactions intact. What the
+run certifies is the seam, not the levels. The seam moved exactly the
+dollars it was handed — the engine's change in social-security
+outlays matches the transport's weighted sum to a relative gap of
+6e-8 — and the interactions are enumerated rather than asserted: a
+gross benefit cost of \$41.35 billion nets to \$36.02 billion (0.871
+of gross) after \$2.48 billion of income-tax clawback from benefit
+taxation and \$2.86 billion of net means-tested savings — SSI
+−\$1.91 billion, SNAP −\$1.13 billion, ACA premium tax credits
++\$0.19 billion, TANF −\$0.01 billion, Medicaid inert at zero.
+Poverty moves where a caregiver credit should: the overall SPM rate
+falls 0.128 points, 13.86 to 13.73 percent, and the 65-plus rate
+0.371, 15.67 to 15.30 — 2.9 times the overall reduction — while 56.2
+percent of the aggregate net-income gain reaches the bottom half of
+the household income distribution. The bottom-quintile share, 20.9
+percent, sits below the caregiver anchor's 52-to-62-percent
+lifetime-earnings band — the dilution the registration anticipated
+for a recipient-only transport read on household income deciles
+rather than lifetime earnings. All four pre-registered expectations
+held: net cost inside the 75-to-92-percent-of-gross band, SNAP
+spending falls, the poverty reduction concentrates at 65-plus, and
+the decile gains concentrate in the bottom half.
+
+The seam also states the program's division of labor. PolicyEngine
+executes: modeled social-security deltas enter the current-year
+Populace file so the existing machinery calculates downstream
+incidence — taxation of benefits, means-tested interactions, marginal
+tax rates — unchanged. Axiom cross-validates the statute: the
+AIME-and-primary-insurance-amount chain is already cross-validated
+against the Axiom engine at 240 of 240 careers exact to the cent, and
+the auxiliary spousal and survivor rules are next to encode and
+cross-validate against this project's frozen oracle.
+
+## The capability roadmap
+
+These gates sit on a published roadmap of eight capability
 milestones that carries the program from replicating DYNASIM's
 incidence patterns to a projection in its class. The layer certified
 or anchor-validated today — earnings, marital and fertility dynamics,
-household and relationship composition, mortality, claiming, and the
+household and relationship composition, the marriage-by-earnings
+joint, mortality, claiming, and the
 statutory formula with its auxiliary benefits — is the first
-milestone; the same-frame pseudo-projection and the disability module
-are two more; ahead lie the assortative-mating tranche — its gate now
-locked above but not yet passed — the transport of the certified
-generators from their PSID estimation basis onto the representative
-population — the scientific crux and the funded build — a
-year-by-year projection engine, full revenue and trust-fund
+milestone; the same-frame pseudo-projection and the disability
+module — now behind its own passed gate — are two more, and the
+interim benefit seam above delivers reform incidence through the
+production calculator while the transport stays open; ahead lie the
+representative-frame transport itself — its gate locked, its first
+candidate failed, its mis-anchored family amended on that failure's
+forensics, and its second candidate registered — a
+year-by-year projection engine with its temporal-holdout gate, full
+revenue and trust-fund
 accounting, and per-year execution
 of the statutory rules on the projected panel. The architectural bet
 under all of it is a single object: one person-period panel — the
