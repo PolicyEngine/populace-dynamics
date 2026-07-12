@@ -33,12 +33,12 @@ pytest --collect-only -q -m oracle_policyengine | tail -1
 
 | Tier | Tests at HEAD |
 |---|---:|
-| `unit` | 188 |
-| `artifact` | 685 |
+| `unit` | 199 |
+| `artifact` | 712 |
 | `integration_psid` | 780 |
 | `reproduction_legacy` | 520 |
-| `oracle_policyengine` | 148 |
-| **Total** | **2,321** |
+| `oracle_policyengine` | 156 |
+| **Total** | **2,367** |
 
 The gate-W1 transport floors (`tests/test_gate_w1_floors.py`,
 `tests/test_gate_w1_derivations.py`) are `artifact` tier — they read the
