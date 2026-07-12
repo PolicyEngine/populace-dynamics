@@ -1,0 +1,304 @@
+{
+  "schema_version": "w2_seam_caregiver.v1",
+  "run": "w2_seam_caregiver_v1",
+  "reported_not_gated": true,
+  "registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4950247511",
+  "registration_pointer": "#42 comment 4950247511",
+  "adr": "docs/adr/0001-populace-axiom-seam-ownership.md",
+  "purpose": "ADR-0001 W2 interim product end to end: dynamics-computed caregiver-credit (Biden) benefit deltas, transported by an interim cell-mean mapping onto the certified populace default file, fed to the managed policyengine runner as a social_security perturbation -> full current-year tax-and-benefit incidence of a Social Security reform, program interactions included. Certifies the SEAM, not the levels. Reads no gate, changes no gate; publishes regardless of outcome.",
+  "what_is_certified": "the SEAM: that dynamics-computed benefit deltas flow through the existing policyengine machinery (taxation of benefits, means-tested program interactions, SPM poverty, decile incidence) and land inside the pre-registered qualitative bands -- NOT the population dollar LEVELS, which every named interim-transport delta below qualifies",
+  "interim_transport_delta_named_on_every_claim": [
+    "cell-mean proportional mapping (ratio of weighted totals sum(w*gain)/sum(w*base_PIA) per age-band x sex x AIME-proxy-decile cell), NOT the W1-certified covariate transport",
+    "the AIME proxy on the populace frame is the recipient's own social_security rank decile (monotone in PIA/AIME; contaminated by claiming-age adjustment and auxiliary benefits)",
+    "the observed anchor is a single 1943-1957 birth cohort (ages 69-83 in the policy year); recipient age bands outside that support draw the (sex, decile) marginal proportion",
+    "recipients only (positive social_security); the extensive margin (new entitlements from the credit) is out of scope",
+    "the certified populace default is the sparse-57k build, which zeroes untargeted engine inputs (100% program take-up, no SSI asset test, inert imputed Medicaid), so the means-tested offsets move in the correct DIRECTION but their magnitudes are interim, not calibrated",
+    "current-year static incidence: no behavioural response, no claiming change, no demographic projection (gate-2/3 territory)"
+  ],
+  "reform_encoding": {
+    "plan": "Biden caregiver credit (2020 primary)",
+    "source": "scripts/replication_caregiver.py PLANS[0], reused verbatim: credit tops up to 1/2 the economy-wide average wage in years with a child younger than 12, capped at 5 benefit-maximising years, AIME/PIA recomputed on the Phase-A career frame",
+    "credit_fraction": 0.5,
+    "child_age_limit_exclusive": 12,
+    "year_cap": 5,
+    "anchor_replication_artifact": "runs/replication_caregiver_v1.json",
+    "anchor_replication_registration": "#42 comment 4911453454"
+  },
+  "step1_observed_frame": {
+    "n_career_frame": 1549,
+    "n_gainers": 843,
+    "weighted_mean_annual_delta_gainers": 3641.6766321804566,
+    "sex_source": "PSID cross-year individual file ind2023er ER32000 (SEX OF INDIVIDUAL), time-invariant, joined on ER30001*1000+ER30002",
+    "weighted_sex_shares": {
+      "male": 0.43908460811060096,
+      "female": 0.5609153918893991
+    },
+    "conventions": "the Phase-A career-selection frame and the full 42 USC 415(a)/(b) AIME/PIA chain transported to a common 2050 cohort, reused byte-for-byte from replication_caregiver; the per-person quantity is the reformed-minus-baseline monthly pre-415(g) PIA gain, annualized x12 for reporting"
+  },
+  "step2_transport": {
+    "cell_definition": "age band x sex x AIME-proxy decile",
+    "age_bands": [
+      "62-74",
+      "75-79",
+      "80+"
+    ],
+    "n_deciles": 10,
+    "cell_statistic": "ratio of weighted totals sum(w*gain)/sum(w*base_PIA) within the cell (scale-free proportional benefit increase), applied to each populace recipient's certified social_security",
+    "aime_proxy_observed": "transported baseline AIME (base_aime)",
+    "aime_proxy_populace": "recipient social_security rank decile",
+    "fallback_chain": "cell -> (sex, decile) -> (decile) -> overall; a full cell needs >= 5 observed persons and a positive weighted baseline",
+    "winsorization_applied": false,
+    "n_cells_defined": 60,
+    "n_cells_full_grid": 60,
+    "n_cells_usable_min_n": 54,
+    "min_cell_n": 5,
+    "fallback_source_counts_recipients": {
+      "cell": 26770,
+      "sex_decile": 951
+    },
+    "overall_proportion": 0.02745589028332717
+  },
+  "step3_policyengine": {
+    "runner": "pe.us.managed_microsimulation() (managed policyengine.py)",
+    "dataset": {
+      "repr": "<policyengine_us.data.dataset_schema.USMultiYearDataset object at 0x14089d810>",
+      "name": "us_multi_year_2024_2035",
+      "note": "certified populace default bundle (pe.us.managed_microsimulation)"
+    },
+    "policy_year": 2026,
+    "pe_us_version": "1.752.2",
+    "seam_mechanism": "social_security is an uprated survey INPUT in pe-us (no upstream formula); the reform sets social_security = baseline + per-person delta via set_input and recomputes all downstream incidence; baseline and reform run in separate processes and the reform asserts row-for-row baseline alignment",
+    "counts": {
+      "n_persons": 166302,
+      "n_households": 57240,
+      "n_recipients": 27721,
+      "pop_total": 345616359.1429456,
+      "pop_65plus": 62147622.192140736
+    }
+  },
+  "fiscal": {
+    "gross_benefit_cost": 41353850792.63306,
+    "income_tax_clawback": 2480159803.9731445,
+    "means_tested_savings": 2855760778.9341125,
+    "net_fiscal_cost": 36017930209.7258,
+    "net_over_gross": 0.8709691968067501,
+    "gross_from_transport_sum": 41353848196.54611,
+    "gross_engine_vs_transport_abs_gap": 2596.086944580078,
+    "memo_state_income_tax_delta": 58446680.29083252,
+    "memo_payroll_tax_delta": 0.0,
+    "memo_household_net_income_delta": 35340036374.13086
+  },
+  "program_offsets": {
+    "program_deltas": {
+      "snap": -1127049196.1538696,
+      "ssi": -1906442628.559082,
+      "medicaid": 12720.599487304688,
+      "aca_ptc": 187312510.2972412,
+      "tanf": -9594185.117889404
+    },
+    "programs_that_moved": [
+      "ssi",
+      "snap",
+      "aca_ptc"
+    ],
+    "moved_threshold_dollars": 100000000.0,
+    "snap_falls": true,
+    "baseline_levels": {
+      "snap": 91710635776.96593,
+      "ssi": 65969508234.142456,
+      "medicaid": 880018860410.5505,
+      "aca_ptc": 287530086050.63165,
+      "tanf": 10041368161.02161
+    },
+    "reform_levels": {
+      "snap": 90583586580.81206,
+      "ssi": 64063065605.583374,
+      "medicaid": 880018873131.15,
+      "aca_ptc": 287717398560.9289,
+      "tanf": 10031773975.90372
+    }
+  },
+  "poverty": {
+    "baseline": {
+      "spm_poverty_rate_overall": 0.13855527430942693,
+      "spm_poverty_rate_65plus": 0.1567428656980612
+    },
+    "reform": {
+      "spm_poverty_rate_overall": 0.1372774845082356,
+      "spm_poverty_rate_65plus": 0.1530321891813079
+    },
+    "reduction_overall_pp": 0.1277789801191337,
+    "reduction_65plus_pp": 0.3710676516753303
+  },
+  "decile_incidence": {
+    "by_decile": [
+      {
+        "decile": 1,
+        "n_households": 3841,
+        "mean_change_per_household": 146.12996717552798,
+        "pct_change_of_net_income": 0.6016138218316558,
+        "share_of_aggregate_gain_pct": 7.890633800292529
+      },
+      {
+        "decile": 2,
+        "n_households": 4344,
+        "mean_change_per_household": 278.4553990778825,
+        "pct_change_of_net_income": 0.6874216203957294,
+        "share_of_aggregate_gain_pct": 12.969457619755435
+      },
+      {
+        "decile": 3,
+        "n_households": 4879,
+        "mean_change_per_household": 310.1786101152876,
+        "pct_change_of_net_income": 0.5826921780768455,
+        "share_of_aggregate_gain_pct": 12.764827679364858
+      },
+      {
+        "decile": 4,
+        "n_households": 4461,
+        "mean_change_per_household": 316.72383657510176,
+        "pct_change_of_net_income": 0.48284669409287595,
+        "share_of_aggregate_gain_pct": 11.555685639783206
+      },
+      {
+        "decile": 5,
+        "n_households": 4784,
+        "mean_change_per_household": 328.3185044493795,
+        "pct_change_of_net_income": 0.4213545265318809,
+        "share_of_aggregate_gain_pct": 10.99193116317952
+      },
+      {
+        "decile": 6,
+        "n_households": 5318,
+        "mean_change_per_household": 294.8640695169655,
+        "pct_change_of_net_income": 0.3133382887949916,
+        "share_of_aggregate_gain_pct": 10.086185847593388
+      },
+      {
+        "decile": 7,
+        "n_households": 5803,
+        "mean_change_per_household": 323.5554934282991,
+        "pct_change_of_net_income": 0.2809382522806296,
+        "share_of_aggregate_gain_pct": 10.629843174487606
+      },
+      {
+        "decile": 8,
+        "n_households": 6404,
+        "mean_change_per_household": 256.4782826807113,
+        "pct_change_of_net_income": 0.17617065313807537,
+        "share_of_aggregate_gain_pct": 8.410367690259289
+      },
+      {
+        "decile": 9,
+        "n_households": 7726,
+        "mean_change_per_household": 258.277849005073,
+        "pct_change_of_net_income": 0.13079285018372033,
+        "share_of_aggregate_gain_pct": 8.385295876693045
+      },
+      {
+        "decile": 10,
+        "n_households": 9502,
+        "mean_change_per_household": 175.45431257540926,
+        "pct_change_of_net_income": 0.038337112121432516,
+        "share_of_aggregate_gain_pct": 5.7826002113338895
+      }
+    ],
+    "out_of_range": {
+      "n_households": 178,
+      "weighted_households": 1316913.456425731,
+      "share_of_aggregate_gain_pct": 0.5331712972572475,
+      "note": "households with household_income_decile outside 1..10 (negative net income; pe-us assigns -1), outside the decile grid"
+    },
+    "bottom_half_share_of_gain_pct": 56.17253590237555,
+    "bottom_quintile_share_of_gain_pct": 20.860091420047965,
+    "pct_change_monotone_decreasing_top_vs_bottom": true,
+    "note": "deciles are baseline household_income_decile (1=poorest); incidence as % of baseline net income is the bottom-loaded shape, the aggregate-gain share is diluted by the recipient-only transport"
+  },
+  "delta_cell_floors_5seed": {
+    "gross_cost_floor": {
+      "mean": 2163797657.4501343,
+      "sd": 832915821.5928519,
+      "max": 3467045007.365509,
+      "as_share_of_gross": 0.05232397350703762,
+      "per_seed": [
+        {
+          "seed": 0,
+          "gross_side_a": 41876775348.425064,
+          "gross_side_b": 40594806396.89839,
+          "gross_abs_gap": 1281968951.5266724
+        },
+        {
+          "seed": 1,
+          "gross_side_a": 42678344806.08479,
+          "gross_side_b": 40440504108.79526,
+          "gross_abs_gap": 2237840697.2895355
+        },
+        {
+          "seed": 2,
+          "gross_side_a": 42177890262.07706,
+          "gross_side_b": 39969679620.69173,
+          "gross_abs_gap": 2208210641.38533
+        },
+        {
+          "seed": 3,
+          "gross_side_a": 41757721777.46135,
+          "gross_side_b": 45224766784.82686,
+          "gross_abs_gap": 3467045007.365509
+        },
+        {
+          "seed": 4,
+          "gross_side_a": 40896281504.45014,
+          "gross_side_b": 42520204494.133766,
+          "gross_abs_gap": 1623922989.6836243
+        }
+      ]
+    },
+    "cell_proportion_floor": {
+      "n_cells": 60,
+      "mean_abs_gap_over_cells": 0.036947513516248226,
+      "max_abs_gap_over_cells": 0.48085343383494816,
+      "note": "per-cell mean |side_a - side_b| proportion across 5 person-disjoint half-splits of the observed frame; the sampling scale of the transported delta cells"
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "note": "the delta cells are where sampling enters; the floor is the person-disjoint half-split |A-B| scale of the observed frame, propagated to the transported gross cost (no re-run of the microsim -- the gross cost is a weighted sum over the same populace recipients)"
+  },
+  "registered_expectations": {
+    "net_cost_75_92pct_of_gross": {
+      "statement": "net fiscal cost lands 75-92% of gross benefit cost (taxation of benefits + means-tested offsets claw back 8-25%)",
+      "net_over_gross": 0.8709691968067501,
+      "held": true
+    },
+    "snap_spending_falls": {
+      "statement": "SNAP spending falls",
+      "snap_delta": -1127049196.1538696,
+      "held": true
+    },
+    "poverty_reduction_concentrates_65plus": {
+      "statement": "the poverty reduction concentrates at 65+",
+      "reduction_overall_pp": 0.1277789801191337,
+      "reduction_65plus_pp": 0.3710676516753303,
+      "held": true
+    },
+    "decile_gains_bottom_half": {
+      "statement": "decile gains concentrate in the bottom half (the anchor's 52-62% bottom-quintile band, diluted by the recipient-only transport)",
+      "bottom_half_share_of_gain_pct": 56.17253590237555,
+      "bottom_quintile_share_of_gain_pct": 20.860091420047965,
+      "held": true
+    },
+    "all_expectations_held": true,
+    "seam_failure_modes": []
+  },
+  "revision_pins": {
+    "populace_dynamics_sha": "8592a9b045d5e7109e8cc2dca3d507abeb47c8e9",
+    "artifact_schema_version": "w2_seam_caregiver.v1",
+    "ss_oracle_pe_us_revision": "bf71be3b",
+    "pe_us_version": "1.752.2"
+  },
+  "elapsed_seconds": 323.1
+}
