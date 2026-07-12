@@ -80,6 +80,15 @@ CLAIM_AGE_ANCHOR = (
     ROOT / "data" / "external" / "ssa_claim_ages_2023supplement.json"
 )
 DI_ANCHOR = ROOT / "data" / "external" / "di_asr_2023" / "tables.json"
+#: Family-C committed anchor artifacts (the required after-orders derive from
+#: these; the anchor itself is machine-checked -- fix F / finding 8a).
+C1_MERMIN_ANCHOR = ROOT / "runs" / "replication_cost_ordering_v1.json"
+C2_SMITH_ANCHOR = ROOT / "runs" / "m2_pseudo_projection_v1.json"
+#: Family-A A' report-only published-value sources (fix D / finding 6).
+CENSUS_HH_SIZE = ROOT / "data" / "external" / "census_household_size_2023.json"
+CENSUS_LIVING_ARR = (
+    ROOT / "data" / "external" / "census_living_arrangements_2023.json"
+)
 
 # --- floor / partition constants (the gate-2a/2b/2c precedent, verbatim) ---
 SEEDS = tuple(range(100))
@@ -108,13 +117,41 @@ AGGREGATIONS: dict[str, list[str]] = {}
 # --- family-B vintage-tolerance rule (machine-derivable) ---
 #: Recent published window used to measure vintage dispersion.
 VINTAGE_WINDOW_YEARS = 10
-#: tolerance_pp = round(K_VINTAGE * detrended_residual_sd + MEASUREMENT_PP, 2).
+#: tolerance_pp = round(K_VINTAGE * detrended_residual_sd
+#:   + |trend| * reference_period_delta_years + MEASUREMENT_PP, 2).
 K_VINTAGE = 2.0
 #: Half the 0.1 pp published rounding unit.
 MEASUREMENT_PP = 0.05
 #: A family-B category gates only if its vintage tolerance is tight enough to
 #: reject a materially wrong margin (the anchor-space analogue of T_max).
 T_MAX_PP = 3.0
+#: The W1 candidate simulates the deployment frame's reference period; each
+#: anchor sits at its OWN published vintage. The REFERENCE-PERIOD RULE (fix A /
+#: findings 2): price -- do not exclude -- the honest anchor-vintage-to-frame
+#: drift a faithful candidate must commit. So the vintage tolerance carries a
+#: |trend| * Delta term, Delta = ANCHOR_FRAME_YEAR - anchor_vintage_year,
+#: pinned per anchor (claim-age / conversion = 2022 award flow -> Delta 2; DI
+#: T19 = December-2023 stock -> Delta 1). Detrended sd alone (the v1 rule)
+#: EXCLUDED exactly the error class it should price (referee finding 2).
+ANCHOR_FRAME_YEAR = 2024
+#: The one family-B margin that is NOT sampled from its own anchor: the
+#: disability-conversion share is an M4-simulated outcome scored against
+#: 6.B5.1, so it (and it alone among the claim-age cells) stays gated. The
+#: claim AGE cells are drawn FROM 6.B5.1 by the v1 claiming module and are
+#: report-only (the circularity -- referee finding 1).
+CONVERSION_CATEGORIES = frozenset({"disability_conversion"})
+#: Family-B candidate deployment-draw stream (DISTINCT from family A's 9100).
+FAMILY_B_DRAW_STREAM_BASE = 9200
+
+# --- heavy-tail-guard boundary-fragility bootstrap (fix G / finding 7) ---
+#: Nonparametric bootstrap over each cell's committed 100 half-split floor
+#: values: resample and recompute round(mean+4*sd,3) vs the floor max, to
+#: DISCLOSE how close each heavy-tail-guard partition decision sits to its
+#: boundary (2b-7c / 2c-8ii carried this; the v1 build did not).
+HEAVY_TAIL_BOOTSTRAP_B = 5000
+HEAVY_TAIL_BOOTSTRAP_SEED = 91000
+#: Only surface flip probabilities at/above this (the boundary cells).
+HEAVY_TAIL_FLIP_MIN = 0.05
 
 
 # --------------------------------------------------------------------------
@@ -381,22 +418,38 @@ def annotate_stability(
         stab["report_reason"] = reasons.get(key)
 
 
+def _holdout_household_ids(persons: Any, seed: int) -> list[int]:
+    side_a, _ = hpanel.split_panel_by_person(
+        persons, SPLIT_COLUMN, fraction=SPLIT_FRACTION, seed=seed
+    )
+    return sorted(int(x) for x in side_a["household_id"].unique())
+
+
+def _sha256_ids(ids: list[int]) -> str:
+    return hashlib.sha256(",".join(str(i) for i in ids).encode()).hexdigest()
+
+
 def holdout_id_commitment(persons: Any) -> dict[str, Any]:
-    """sha256 of each gate seed's holdout (side A) HOUSEHOLD ids."""
+    """sha256 of each gate seed's holdout (side A) HOUSEHOLD ids, plus the
+    committed sorted household-id universe.
+
+    The universe (sorted unique household ids) is committed so the per-seed
+    holdout sha256s recompute AT AN ALWAYS-RUNNABLE TIER from the committed
+    artifact alone (fix H / finding 10ii): the split is deterministic given
+    the universe and the seed, so a corrupted sha256 (mutation A6, previously
+    invisible everywhere) is now caught with no h5. The certified-frame repro
+    test binds the universe itself to the frame (universe == the frame's own
+    sorted household ids), so a corrupted universe is caught data-bound.
+    """
+    universe = sorted(int(x) for x in persons["household_id"].unique())
     per_seed = []
     for seed in GATE_SEEDS:
-        side_a, _ = hpanel.split_panel_by_person(
-            persons, SPLIT_COLUMN, fraction=SPLIT_FRACTION, seed=seed
-        )
-        ids = sorted(int(x) for x in side_a["household_id"].unique())
-        digest = hashlib.sha256(
-            ",".join(str(i) for i in ids).encode()
-        ).hexdigest()
+        ids = _holdout_household_ids(persons, seed)
         per_seed.append(
             {
                 "seed": seed,
                 "n_holdout_households": len(ids),
-                "holdout_household_id_sha256": digest,
+                "holdout_household_id_sha256": _sha256_ids(ids),
             }
         )
     return {
@@ -412,6 +465,17 @@ def holdout_id_commitment(persons: Any) -> dict[str, Any]:
             "person of a household shares its id, so the holdout is a "
             "household-coherent CPS-cluster set; the sha256 is over the "
             "holdout household ids."
+        ),
+        "n_households_universe": len(universe),
+        "household_id_universe_sha256": _sha256_ids(universe),
+        "household_id_universe_csv": ",".join(str(i) for i in universe),
+        "universe_note": (
+            "the sorted unique household-id universe (comma-joined, the exact "
+            "string household_id_universe_sha256 hashes), committed so the "
+            "per-seed holdout sha256s recompute always-runnable (fix H) with "
+            "no h5; the certified-frame repro binds it to the frame's own "
+            "household ids. Stored as one CSV string to keep the diff to a "
+            "single line rather than 57k."
         ),
         "per_seed": per_seed,
     }
@@ -456,6 +520,208 @@ def training_copy_check(
             "cross-section: a generator whose deployed earnings x age x sex, "
             "marital, or household composition departs from the certified "
             "frame's own beyond the CPS sampling floor."
+        ),
+    }
+
+
+def degenerate_candidates_block(copy_check: dict[str, Any]) -> dict[str, Any]:
+    """The degenerate family-A candidates a referee must catch or see disclosed
+    (fix B / finding 3).
+
+    Two are named: the TRAIN-COPY (a real memorisation attack the procedure
+    bars) and the IDENTITY MAP (the default anchored-transport reading, which
+    scores 0 by construction and certifies nothing -- barred by the
+    regenerated-surface conformance rule, disclosed by the zero across-draw
+    dispersion).
+    """
+    return {
+        "note": (
+            "The family-A cells are a FLOOR (they catch transport that "
+            "DISTORTS the deployed cross-section beyond the CPS sampling "
+            "noise), NOT a microscope. Two degenerate candidates are named so "
+            "neither is mistaken for a pass that certifies the generators."
+        ),
+        "train_copy": copy_check,
+        "identity_candidate": {
+            "candidate": (
+                "the identity map: the candidate emits the frame's OWN scored "
+                "columns (age / earnings / A_MARITL / household ids) "
+                "unchanged, adding history around them without RE-GENERATING "
+                "the scored cross-section."
+            ),
+            "score": "0 on every family-A cell, on every seed and every draw",
+            "across_draw_sd": 0.0,
+            "conformance": "NON-CONFORMANT",
+            "caught_by": (
+                "protocol.fresh_run_artifact_schema.regenerated_surface "
+                "(copying a scored column is non-conformant) + "
+                "per_draw_dispersion_disclosure.max_per_draw_abs_ln_per_cell "
+                "== 0 (no regeneration -> zero across-draw dispersion). Unlike "
+                "the train-copy (a real attack the registration + holdout + "
+                "no_self_rescue procedure bars), the identity map is the "
+                "DEFAULT reading of #113's 'deployment on the panel is "
+                "transport', so the protocol must STATE the regenerated "
+                "surface -- which it now does."
+            ),
+            "certifies": (
+                "nothing about the generators (finding 3): a pass under the "
+                "identity map is score-0 by construction. What a CONFORMANT "
+                "pass certifies is that stochastic regeneration through the "
+                "deployed generators does not distort the cross-section beyond "
+                "the CPS sampling floor."
+            ),
+        },
+    }
+
+
+def heavy_tail_boundary_bootstrap(
+    noise_floor: dict[str, Any],
+    tolerances: dict[str, float],
+    gated: set[str],
+    reasons: dict[str, str],
+) -> dict[str, Any]:
+    """Boundary-fragility bootstrap for the heavy-tail-guard partition
+    (fix G / finding 7).
+
+    For each gated cell and each heavy-tail DEMOTE, resample its committed 100
+    half-split floor values (B=HEAVY_TAIL_BOOTSTRAP_B, with replacement),
+    recompute tolerance ``round(mean+4*sd,3)`` and the floor max on each
+    resample, and count ``P(max <= tolerance)``. A demote's re-entry
+    probability and a gated cell's flip-out probability are DISCLOSED (the
+    committed partition is frozen by the lock, so this is disclosure, not a
+    defect -- 2b-7c / 2c-8ii carried it and the v1 build did not).
+    """
+    rng = np.random.default_rng(HEAVY_TAIL_BOOTSTRAP_SEED)
+    demotes = sorted(
+        k for k, r in reasons.items() if r == "floor_max_exceeds_tolerance"
+    )
+    demote_reentry: dict[str, float] = {}
+    gated_flipout: dict[str, float] = {}
+    for key in sorted(gated) + demotes:
+        vals = np.asarray(noise_floor[key]["values"], dtype=np.float64)
+        n = vals.size
+        idx = rng.integers(0, n, size=(HEAVY_TAIL_BOOTSTRAP_B, n))
+        samp = vals[idx]
+        means = samp.mean(axis=1)
+        sds = samp.std(axis=1, ddof=1)
+        maxes = samp.max(axis=1)
+        tols = np.round(means + DRAFT_K * sds, DRAFT_ROUNDING)
+        p_covered = float(np.mean(maxes <= tols))
+        if key in gated:
+            p_flip = round(1.0 - p_covered, 3)
+            if p_flip >= HEAVY_TAIL_FLIP_MIN:
+                gated_flipout[key] = p_flip
+        else:
+            demote_reentry[key] = round(p_covered, 3)
+    return {
+        "method": (
+            "nonparametric bootstrap over each cell's committed 100 half-split "
+            f"floor values (B={HEAVY_TAIL_BOOTSTRAP_B}, "
+            f"numpy default_rng({HEAVY_TAIL_BOOTSTRAP_SEED})): resample 100 "
+            "with replacement, recompute tolerance round(mean+4*sd,3) and the "
+            "floor max, count P(max <= tolerance). For a heavy-tail DEMOTE "
+            "this is P(re-enter gated); for a GATED cell 1 - it is P(flip out "
+            "to report-only)."
+        ),
+        "n_bootstrap": HEAVY_TAIL_BOOTSTRAP_B,
+        "seed": HEAVY_TAIL_BOOTSTRAP_SEED,
+        "demote_reentry_prob": dict(
+            sorted(demote_reentry.items(), key=lambda kv: -kv[1])
+        ),
+        "gated_flipout_prob": dict(
+            sorted(gated_flipout.items(), key=lambda kv: -kv[1])
+        ),
+        "disclosure_note": (
+            "The lock FREEZES the committed 100-seed partition, so these "
+            "probabilities are DISCLOSURE of boundary fragility, not a defect: "
+            "the demotes near max/tol ~ 1.0 would re-enter under a modest "
+            "resample, and a few gated cells sit close enough to flip out."
+        ),
+        "seed_count_dependence": (
+            "The guard binds on an IN-SAMPLE max, so it MECHANICALLY tightens "
+            "with more floor seeds (at ~1,000 seeds it would demote every "
+            "mildly heavy-tailed cell). The rule is well-defined only relative "
+            "to the committed 100-seed convention, which the lock freezes."
+        ),
+    }
+
+
+def family_a_prime_block(
+    ref_weighted: dict[str, Any],
+) -> dict[str, Any]:
+    """Report-only A' -- published CPS/ACS values vs the frame's own, for the
+    covered joints (fix D / finding 6; the 2b fix-F pattern).
+
+    Sourced from committed census files (sha256-pinned); NOT gated -- the
+    concept / vintage / age-band mismatches are disclosed, and the point is to
+    make the transport TARGET's own quality visible, not to grade it.
+    """
+    hh = json.loads(CENSUS_HH_SIZE.read_text())
+    la = json.loads(CENSUS_LIVING_ARR.read_text())
+    pls = hh["derived"]["person_level_share"]
+    hh_rows: dict[str, Any] = {}
+    for cat, pub in (
+        ("1", pls["1"]),
+        ("2", pls["2"]),
+        ("3", pls["3"]),
+        ("4", pls["4"]),
+        ("5plus", pls["5+"]),
+    ):
+        frame = ref_weighted[f"hh_size_share.{cat}"]["rate"]
+        hh_rows[f"hh_size_share.{cat}"] = {
+            "frame_rate": round(frame, 4),
+            "published_share": pub,
+            "abs_diff_pp": round(abs(frame - pub) * 100.0, 2),
+        }
+    spouse_rows: dict[str, Any] = {}
+    band = la["bands"]["25-34"]
+    for sex in ("male", "female"):
+        frame = ref_weighted[f"coresident_spouse.25-34|{sex}"]["rate"]
+        pub = band[sex]["living_with_spouse"] / 100.0
+        spouse_rows[f"coresident_spouse.25-34|{sex}"] = {
+            "frame_rate": round(frame, 4),
+            "published_share": round(pub, 4),
+            "abs_diff_pp": round(abs(frame - pub) * 100.0, 2),
+        }
+    return {
+        "status": "report_only",
+        "purpose": (
+            "2b fix-F pattern (finding 6): make the transport TARGET's own "
+            "quality visible against published values, so a referee sees how "
+            "far the certified frame's covered joints sit from CPS/ACS. NOT "
+            "gated -- concept / vintage / age-band mismatches below."
+        ),
+        "household_size_person_level": hh_rows,
+        "coresident_spouse_aligned_band": spouse_rows,
+        "sources": {
+            "household_size": {
+                "file": "data/external/census_household_size_2023.json",
+                "table": hh["table"],
+                "reference_year": hh["reference_year"],
+                "file_sha256": hh["provenance"]["file_sha256"],
+                "concept": (
+                    "person-level household-size share "
+                    "(k * households_k / total persons), HH-4 derived"
+                ),
+            },
+            "coresident_spouse": {
+                "file": "data/external/census_living_arrangements_2023.json",
+                "table": la["table"],
+                "reference_year": la["reference_year"],
+                "concept": (
+                    "AD-3 'living with spouse' share, 25-34 (the only AD-3 "
+                    "band aligning with an ADULT_BAND exactly)"
+                ),
+            },
+        },
+        "caveats": (
+            "REPORT-ONLY and not band/vintage/concept exact: census reference "
+            "year 2023 vs frame 2024; AD-3 'living with spouse' vs the frame's "
+            "A_MARITL spouse-present; AD-3 bands "
+            "(18-24/25-34/35-64/65-74/75+) align with the family-A ADULT_BANDS "
+            "only at 25-34, so only that band is shown for spouse presence; "
+            "household size is person-level concept-matched. The residual is "
+            "the transport target's own fidelity, disclosed not graded."
         ),
     }
 
@@ -522,8 +788,15 @@ def protocol_block(oc: dict[str, Any], n_gated: int) -> dict[str, Any]:
         ),
         "varies_per_seed": (
             "the 50/50 household-disjoint split (holdout = side A of "
-            "split_panel_by_person(household_id, seed=s)), the candidate's fit "
-            "complement, and its K=20 deployed draws of the holdout."
+            "split_panel_by_person(household_id, seed=s)) and the candidate's "
+            "K=20 REGENERATED deployment draws of the holdout households (see "
+            "regenerated_surface). For a PSID-estimated transport candidate "
+            "nothing REFITS per W1 seed: the generators are already fit on "
+            "their own PSID holdouts (gate-2a/2b/2c/M4), FROZEN before W1, so "
+            "the per-seed variation is the deployment draw ONLY. The gate-2 "
+            "'fit complement' language does not carry -- W1 certifies "
+            "transport of already-fit generators, not re-estimation (referee "
+            "finding 3)."
         ),
         "scored_against": (
             "side A's own weighted rate (rate_a), committed per gate seed in "
@@ -552,6 +825,48 @@ def protocol_block(oc: dict[str, Any], n_gated: int) -> dict[str, Any]:
                 "a fresh W1 candidate one-shot run registered AFTER the "
                 "gate_w1 lock; NEVER this floor build (real-vs-real, no draws)."
             ),
+            "regenerated_surface": {
+                "rule": (
+                    "CONFORMANCE (fix B / finding 3): for every scored "
+                    "family-A cell the candidate must EMIT a GENERATED value "
+                    "-- the column the cell reads is RE-DRAWN by the deployed "
+                    "generators on each of the K=20 deployment draws. COPYING "
+                    "a scored column from the frame is NON-CONFORMANT: it "
+                    "makes the candidate the identity map, which scores 0 and "
+                    "certifies nothing about the generators (the natural "
+                    "anchored-transport reading, so the protocol must state "
+                    "this explicitly)."
+                ),
+                "per_family": {
+                    "earnings_participation|profile|p90p50|p50p10": (
+                        "`earnings` (employment + self-employment before LSR) "
+                        "is RE-GENERATED by the deployed gate-1 "
+                        "earnings-history generator conditioned on the CPS "
+                        "covariates; the participation indicator and the "
+                        "within-cell quantiles are functions of the "
+                        "regenerated earnings, not of the frame's own earnings "
+                        "column."
+                    ),
+                    "marital_share|coresident_spouse": (
+                        "marital status / spouse presence is RE-GENERATED by "
+                        "the deployed gate-2a/2b marital dynamics "
+                        "(terminal-state marital status), not copied from "
+                        "A_MARITL."
+                    ),
+                    "hh_size_share": (
+                        "household size is RE-GENERATED by the deployed "
+                        "gate-2c household-composition dynamics, not copied "
+                        "from the frame's membership."
+                    ),
+                },
+                "identity_candidate_is_non_conformant": True,
+                "audited_by": (
+                    "per_draw_dispersion_disclosure."
+                    "max_per_draw_abs_ln_per_cell == 0 exposes an identity "
+                    "candidate (no regeneration -> zero across-draw "
+                    "dispersion); see degenerate_candidates."
+                ),
+            },
             "per_draw_per_cell_rates": {
                 "required": True,
                 "shape": [CANDIDATE_DRAWS, n_gated, len(GATE_SEEDS)],
@@ -576,10 +891,20 @@ def protocol_block(oc: dict[str, Any], n_gated: int) -> dict[str, Any]:
                 "required": True,
                 "gated": False,
                 "report_only": True,
+                "fields": [
+                    "per_cell_across_draw_sd",
+                    "max_per_draw_abs_ln_per_cell",
+                ],
                 "note": (
-                    "REPORT-ONLY: the sd across the K=20 draws per gated cell "
-                    "per seed, so a referee sees whether a passing mean "
-                    "conceals a wild draw."
+                    "REPORT-ONLY, BOTH fields (the LOCKED gate-2 "
+                    "per_draw_dispersion_disclosure -- the v1 build dropped "
+                    "one, referee finding 9): the sd across the K=20 draws per "
+                    "gated cell per seed AND max_per_draw_abs_ln_per_cell (the "
+                    "worst single-draw |ln| excursion), so a referee sees "
+                    "whether a passing mean conceals a wild draw. "
+                    "max_per_draw_abs_ln_per_cell == 0 EXPOSES an identity "
+                    "candidate (no regeneration -> zero across-draw "
+                    "dispersion), which partially services finding 3."
                 ),
             },
         },
@@ -612,26 +937,58 @@ def _linear_slope(years: list[int], values: list[float]) -> float:
 
 
 def _vintage_tolerance(
-    years: list[int], values: list[float]
+    years: list[int], values: list[float], delta_years: int
 ) -> dict[str, Any]:
+    """Reference-period-aware vintage tolerance (fix A / finding 2).
+
+    ``tolerance_pp = round(K_VINTAGE * detrended_residual_sd + |trend| *
+    delta_years + MEASUREMENT_PP, 2)``. The ``|trend| * delta_years`` term
+    PRICES the honest anchor-vintage-to-frame drift a faithful candidate
+    commits (``delta_years = ANCHOR_FRAME_YEAR - anchor_vintage_year``); the
+    v1 detrended-only rule EXCLUDED it, which is why 7 of 24 v1-gated cells
+    would fail a faithful candidate for being faithful. ``tolerance_gate_
+    eligible`` is the tolerance's own T_max_pp check; final family-B gating
+    also removes the circular claim-age cells (see the anchor builders).
+    """
     resid_sd = _detrended_residual_sd(years, values)
-    tol = round(K_VINTAGE * resid_sd + MEASUREMENT_PP, 2)
+    trend = _linear_slope(years, values)
+    trend_component = abs(trend) * delta_years
+    detrended_tol = round(K_VINTAGE * resid_sd + MEASUREMENT_PP, 2)
+    tol = round(K_VINTAGE * resid_sd + trend_component + MEASUREMENT_PP, 2)
     return {
         "tolerance_pp": tol,
         "detrended_residual_sd_pp": round(resid_sd, 3),
-        "trend_pp_per_year": round(_linear_slope(years, values), 3),
+        "trend_pp_per_year": round(trend, 3),
+        "reference_period_delta_years": int(delta_years),
+        "trend_component_pp": round(trend_component, 3),
+        "detrended_tolerance_pp": detrended_tol,
         "window_years": [years[0], years[-1]],
         "n_vintages": len(years),
-        "gate_eligible": tol <= T_MAX_PP,
+        "tolerance_gate_eligible": tol <= T_MAX_PP,
         "rule": (
-            f"round({K_VINTAGE} * detrended_residual_sd + {MEASUREMENT_PP}, 2)"
-            f"; gated iff <= T_max_pp = {T_MAX_PP}"
+            f"round({K_VINTAGE} * detrended_residual_sd + |trend| * "
+            f"{delta_years} (Delta = frame {ANCHOR_FRAME_YEAR} - vintage "
+            f"{years[-1]}) + {MEASUREMENT_PP}, 2); tolerance-gated iff "
+            f"<= T_max_pp = {T_MAX_PP}. The trend term PRICES the honest "
+            "vintage-to-frame drift (referee finding 2), it is not excluded."
         ),
     }
 
 
 def claim_age_anchor() -> dict[str, Any]:
-    """6.B5.1 claim-age distribution: 2022 anchor + vintage tolerances."""
+    """6.B5.1 claim-age distribution: 2022 anchor + reference-period tolerances.
+
+    CIRCULARITY DE-CIRCULARIZED (fix A / finding 1): the deployed v1 claiming
+    module (``populace_dynamics.claiming.draw_claim_ages``) SAMPLES integer
+    claim ages FROM these very 6.B5.1 category shares (nearest-year rule snaps
+    any year > 2022 to the 2022 anchor vintage itself), so scoring a v1
+    candidate's claim AGES against 6.B5.1 passes by construction. The 14
+    non-conversion claim-age cells are therefore REPORT-ONLY (machine reason
+    ``circular_under_v1_claiming_candidate``). The 2 ``disability_conversion``
+    cells stay GATED: the conversion share is an M4-SIMULATED outcome (an
+    auto-conversion at FRA the deployed M4 disability dynamics produce), NOT
+    read from 6.B5.1 -- the real M4-transport margin.
+    """
     doc = json.loads(CLAIM_AGE_ANCHOR.read_text())
     cats = doc["column_schema"]["collapsed_categories"]
     out: dict[str, Any] = {}
@@ -640,15 +997,28 @@ def claim_age_anchor() -> dict[str, Any]:
         years = sorted(int(y) for y in series)
         window = years[-VINTAGE_WINDOW_YEARS:]
         latest = str(years[-1])
+        delta = ANCHOR_FRAME_YEAR - years[-1]
         for cat in cats:
             key = f"claim_age.{cat}|{sex}"
             anchor_val = series[latest]["categories"][cat]
             vals = [series[str(y)]["categories"][cat] for y in window]
-            tol = _vintage_tolerance(window, vals)
+            tol = _vintage_tolerance(window, vals, delta)
+            circular = cat not in CONVERSION_CATEGORIES
+            gate_eligible = tol["tolerance_gate_eligible"] and not circular
+            if circular:
+                reason = "circular_under_v1_claiming_candidate"
+            elif not tol["tolerance_gate_eligible"]:
+                reason = "vintage_tolerance_above_t_max_pp"
+            else:
+                reason = "gate_eligible"
             out[key] = {
                 "anchor_pp": anchor_val,
                 "anchor_year": years[-1],
                 "units": "percentage points of the claim-age distribution",
+                "circular_under_v1_candidate": circular,
+                "is_conversion_margin": not circular,
+                "gate_eligible": gate_eligible,
+                "report_reason": reason,
                 **tol,
             }
     return out
@@ -695,16 +1065,31 @@ def _parse_di_table19_all_workers() -> dict[int, dict[str, float]]:
 
 
 def di_prevalence_anchor() -> dict[str, Any]:
-    """DI ASR Table 19 age composition: 2023 anchor + vintage tolerances."""
+    """DI ASR Table 19 age composition: 2023 anchor + reference-period
+    tolerances.
+
+    Not circular (no deployed module samples the DI age composition from
+    Table 19): all 8 bands stay GATED where the reference-period tolerance is
+    tight enough. The candidate must derive DI status from the deployed M4
+    dynamics, NOT read the frame's ``social_security_disability`` column (the
+    no-frame-DI-column rule; see the candidate protocol).
+    """
     series = _parse_di_table19_all_workers()
     years = sorted(series)
     window = years[-VINTAGE_WINDOW_YEARS:]
     latest = years[-1]
+    delta = ANCHOR_FRAME_YEAR - latest
     out: dict[str, Any] = {}
     for band in series[latest]:
         key = f"di_prevalence.{band}"
         vals = [series[y][band] for y in window]
-        tol = _vintage_tolerance(window, vals)
+        tol = _vintage_tolerance(window, vals, delta)
+        gate_eligible = tol["tolerance_gate_eligible"]
+        reason = (
+            "gate_eligible"
+            if gate_eligible
+            else ("vintage_tolerance_above_t_max_pp")
+        )
         out[key] = {
             "anchor_pp": series[latest][band],
             "anchor_year": latest,
@@ -712,6 +1097,10 @@ def di_prevalence_anchor() -> dict[str, Any]:
                 "percentage points of the disabled-worker age distribution "
                 "(All disabled workers panel)"
             ),
+            "circular_under_v1_candidate": False,
+            "is_conversion_margin": False,
+            "gate_eligible": gate_eligible,
+            "report_reason": reason,
             **tol,
         }
     return out
@@ -739,11 +1128,93 @@ def benefit_level_anchor() -> dict[str, Any]:
         "note": (
             "Levels are report-only in v1: they depend on the transported AIME "
             "the W1 candidate deploys (not yet built), and only a single 2022 "
-            "vintage is staged, so no machine vintage sd is derivable. Recorded "
-            "with an uprating-band context tolerance a fixes round can gate "
-            "once the AIME transport lands."
+            "vintage is staged, so no machine vintage sd is derivable. NO "
+            "context tolerance is recorded: the v1 build carried an "
+            "underived 6.0% uprating knob (no machine rule, no series) which "
+            "is STRIPPED here (referee finding 10iv -- derive or drop; there "
+            "is no committed benefit-level series to derive from). A fixes "
+            "round gates these once the AIME transport lands and a benefit "
+            "series (or an explicit uprating rule) exists."
         ),
-        "uprating_context_tolerance_pct": 6.0,
+    }
+
+
+def family_b_candidate_protocol() -> dict[str, Any]:
+    """The family-B candidate-computation block (fix A / finding 2).
+
+    Family A had a full protocol; family B had none. This states the
+    simulated object per anchor, the population, the draw/estimator rule, the
+    reference-period rule, the no-frame-DI-column rule, and the pass rule.
+    """
+    return {
+        "applies_to": (
+            "a fresh W1 candidate run scored on the family-B SSA anchors "
+            "AFTER the gate_w1 lock; NEVER this floor build (this build stages "
+            "the anchor values + tolerances, it runs no candidate)."
+        ),
+        "population": (
+            "the FULL certified deployment frame (166,302 persons / 340.0M "
+            "weighted), NOT a per-seed holdout: the anchors are NATIONAL admin "
+            "margins, so the estimand is the whole deployed cross-section; "
+            "per-seed subsampling would only add noise to a point-anchor "
+            "comparison."
+        ),
+        "estimator": (
+            "mean over K=20 pre-registered deployment draws (numpy "
+            f"default_rng({FAMILY_B_DRAW_STREAM_BASE} + k), k=0..19; a stream "
+            "DISTINCT from family A's 9100 and from the split seeds), one "
+            "value per anchor cell; scored ONCE as |deployed_pp - anchor_pp| "
+            "in percentage points (NOT the mean of per-draw abs deviations)."
+        ),
+        "candidate_draws": CANDIDATE_DRAWS,
+        "family_b_draw_stream_base": FAMILY_B_DRAW_STREAM_BASE,
+        "simulated_object": {
+            "claim_age.disability_conversion": (
+                "the share of 2022-entitlement-year retired-worker AWARDS that "
+                "are auto-conversions from DI at FRA (6.B5.1 footnote b), "
+                "SIMULATED by the deployed M4 disability dynamics -- NOT read "
+                "from 6.B5.1. This is the only gated claim-age margin: the "
+                "claim AGES are sampled from 6.B5.1 by the v1 claiming module "
+                "(circular; report-only)."
+            ),
+            "di_prevalence": (
+                "the age composition of the December-2023 DISABLED-WORKER "
+                "STOCK (DI ASR Table 19, All-disabled-workers panel), the "
+                "deployed DI-in-payment population by age band."
+            ),
+        },
+        "reference_period_rule": (
+            f"the candidate simulates the frame's {ANCHOR_FRAME_YEAR} period; "
+            "the anchor sits at its own vintage (2022 for claim-age / "
+            "conversion, December-2023 for DI). The vintage tolerance PRICES "
+            "the honest vintage-to-frame drift (|trend| * Delta term, Delta = "
+            f"{ANCHOR_FRAME_YEAR} - vintage year), so a faithful candidate that "
+            "commits that drift PASSES rather than failing for being faithful "
+            "(referee finding 2). The alternative -- pin the candidate to "
+            "simulate the anchor vintage -- is rejected because the deployment "
+            "frame IS 2024."
+        ),
+        "no_frame_di_column_rule": (
+            "the candidate MUST derive DI status from the deployed M4 dynamics, "
+            "NOT read the frame's own social_security_disability column "
+            "(populated, $147.1B on this frame): a candidate that reads it "
+            "tests populace's calibration, not the transport. The same "
+            "regeneration discipline family A imposes on its scored columns."
+        ),
+        "candidate_conditioning_columns_rule": (
+            "the candidate registration MUST enumerate every frame column its "
+            "generators condition on (beyond family A's source columns) and "
+            "pass assert_columns_populated on each, so a zeroing frame fails "
+            "loudly rather than silently mutating a gated margin (fix C, "
+            "forward-looking)."
+        ),
+        "pass_rule": (
+            "CONJUNCTION over the gate-eligible family-B cells: the run passes "
+            "family B iff every gated cell's |deployed_pp - anchor_pp| <= its "
+            "reference-period tolerance_pp. Report-only cells (the 14 circular "
+            "claim-age cells, benefit levels) publish on their own rules and "
+            "never gate."
+        ),
     }
 
 
@@ -760,22 +1231,41 @@ def family_b_block() -> dict[str, Any]:
         + [k for k, v in di.items() if not v["gate_eligible"]]
         + ["benefit_level.report_only"]
     )
+    n_circular = sum(
+        1 for v in claim.values() if v["circular_under_v1_candidate"]
+    )
     return {
         "pricing": "anchor (point values + named machine-derivable tolerances)",
         "tolerance_rule": (
-            "vintage/measurement: tolerance_pp = round(K_VINTAGE * "
-            "detrended_residual_sd + MEASUREMENT_PP, 2) over the last "
-            f"{VINTAGE_WINDOW_YEARS} published vintages; gated iff <= T_max_pp "
-            f"= {T_MAX_PP}. Detrended so the FRA-transition / DI-ageing TREND "
-            "is disclosed (trend_pp_per_year) and the tolerance prices the "
-            "year-to-year NOISE, not the trend."
+            "reference-period vintage/measurement: tolerance_pp = round("
+            "K_VINTAGE * detrended_residual_sd + |trend| * "
+            "reference_period_delta_years + MEASUREMENT_PP, 2) over the last "
+            f"{VINTAGE_WINDOW_YEARS} published vintages; tolerance-gated iff "
+            f"<= T_max_pp = {T_MAX_PP}. The |trend| * Delta term PRICES the "
+            "honest anchor-vintage-to-frame drift (Delta = frame year - "
+            "vintage year) a faithful candidate commits -- the v1 detrended- "
+            "only rule EXCLUDED it (referee finding 2). The trend is still "
+            "disclosed per cell (trend_pp_per_year, trend_component_pp)."
+        ),
+        "circularity_rule": (
+            "the 14 non-conversion claim-age cells are REPORT-ONLY "
+            "(report_reason circular_under_v1_claiming_candidate): the "
+            "deployed v1 claiming module samples integer claim ages FROM "
+            "6.B5.1, so scoring them against 6.B5.1 passes by construction "
+            "(referee finding 1). GATED family-B content is the 2 "
+            "disability-conversion cells (an M4-simulated margin) + the DI age "
+            "composition. See warts.family_b_claim_age_circularity."
         ),
         "knobs": {
             "vintage_window_years": VINTAGE_WINDOW_YEARS,
             "k_vintage": K_VINTAGE,
             "measurement_pp": MEASUREMENT_PP,
             "t_max_pp": T_MAX_PP,
+            "anchor_frame_year": ANCHOR_FRAME_YEAR,
+            "claim_age_delta_years": ANCHOR_FRAME_YEAR - 2022,
+            "di_delta_years": ANCHOR_FRAME_YEAR - 2023,
         },
+        "candidate_protocol": family_b_candidate_protocol(),
         "claim_age": claim,
         "di_prevalence": di,
         "benefit_level": bene,
@@ -784,6 +1274,11 @@ def family_b_block() -> dict[str, Any]:
             "report_only": report,
             "n_gate_eligible": len(gated),
             "n_report_only": len(report),
+            "n_circular_report_only": n_circular,
+            "gated_composition": (
+                "2 disability_conversion (M4-simulated margin) + "
+                f"{len(gated) - 2} DI age-composition bands"
+            ),
         },
         "sources": {
             "claim_age": "data/external/ssa_claim_ages_2023supplement.json (6.B5.1)",
@@ -792,9 +1287,12 @@ def family_b_block() -> dict[str, Any]:
         },
         "note": (
             "The deployed + simulated benefits must land on these admin "
-            "margins PSID never sees. Point values -> no sampling floor; the "
-            "tolerance is the anchor's own vintage noise. Benefit LEVELS are "
-            "report-only until the transported AIME is deployed."
+            "margins. Point values -> no sampling floor; the tolerance is the "
+            "anchor's own vintage noise PLUS the priced vintage-to-frame "
+            "trend. The claim AGES are report-only (sampled from their own "
+            "anchor); the gated margins are the M4-simulated conversion share "
+            "and the DI age composition. Benefit LEVELS are report-only until "
+            "the transported AIME is deployed."
         ),
     }
 
@@ -802,31 +1300,80 @@ def family_b_block() -> dict[str, Any]:
 # --------------------------------------------------------------------------
 # Family C -- the two ordinal compression fingerprints (binary)
 # --------------------------------------------------------------------------
+def _rank_desc(anchor: dict[str, float], provisions: list[str]) -> list[str]:
+    """Order provisions by their committed anchor value, descending.
+
+    The required representative order is DERIVED from the committed anchor
+    (fix F / finding 8a): a bigger published savings / solvency-delta ranks
+    first, so the ordering is machine-bound to the anchor itself rather than
+    hand-written. Ties would be broken by name, but the committed anchors are
+    strictly separated.
+    """
+    return sorted(provisions, key=lambda p: (-anchor[p], p))
+
+
+def _swap_from_orders(before: list[str], after: list[str]) -> list[str]:
+    """The pair of items whose (single, adjacent) transposition maps
+    before->after -- derived, not asserted."""
+    differ = [i for i in range(len(before)) if before[i] != after[i]]
+    return [before[i] for i in differ]
+
+
 def family_c_block() -> dict[str, Any]:
     """The two pre-committed before/after fingerprint orderings (#113).
 
     Binary: on the certified representative frame both PSID-frame orderings
     must REVERSE to the anchor orderings (nothing else). No floor.
+
+    ALL FOUR order fields are DERIVED from committed artifacts (fix F /
+    finding 8a): the before-orders from m2 F4/F2 ``result_order``; the
+    required after-orders from the committed Mermin payroll-pct and Smith
+    solvency-year deltas, so the required order is bound to the anchor itself
+    (mutating a builder-side hand-written order is no longer possible -- there
+    is none). The reversal-time candidate procedure is pinned below (fix E).
     """
+    mermin = json.loads(C1_MERMIN_ANCHOR.read_text())["anchor_provenance"][
+        "mermin_payroll_pct"
+    ]
+    m2 = json.loads(C2_SMITH_ANCHOR.read_text())
+    smith = m2["forecasts_detail"]["F2"]["smith_year_deltas"]
+    c1_before = m2["results_vs_forecasts"]["F4"]["result_order"]
+    c2_before = m2["results_vs_forecasts"]["F2"]["result_order"]
+
+    c1_provs = [
+        "price_indexing",
+        "progressive_price_indexing",
+        "nra_raised_to_70",
+        "reduced_cola",
+    ]
+    c2_provs = [
+        "elimination",
+        "payroll_plus_2pp",
+        "payroll_plus_1pp",
+        "cap_150k",
+    ]
+    c1_after = _rank_desc(mermin, c1_provs)
+    c2_after = _rank_desc(smith, c2_provs)
+
     c1 = {
         "id": "ppi_nra",
         "name": "PPI<->NRA at the PIA bends",
-        "source_before": "runs/replication_cost_ordering_v1.json T2 / runs/m2_pseudo_projection_v1.json F4",
+        "source_before": (
+            "runs/m2_pseudo_projection_v1.json F4 result_order "
+            "(== runs/replication_cost_ordering_v1.json T2 ordering)"
+        ),
+        "source_after": (
+            "runs/replication_cost_ordering_v1.json "
+            "anchor_provenance.mermin_payroll_pct, ranked descending"
+        ),
         "anchor": "Mermin Table 1 (75-yr payroll savings ordering)",
-        "psid_frame_order": [
-            "price_indexing",
-            "nra_raised_to_70",
-            "progressive_price_indexing",
-            "reduced_cola",
-        ],
-        "required_representative_order": [
-            "price_indexing",
-            "progressive_price_indexing",
-            "nra_raised_to_70",
-            "reduced_cola",
-        ],
-        "swap_pair": ["nra_raised_to_70", "progressive_price_indexing"],
-        "required_reversal": "progressive_price_indexing outranks nra_raised_to_70",
+        "anchor_values": {p: mermin[p] for p in c1_provs},
+        "psid_frame_order": c1_before,
+        "required_representative_order": c1_after,
+        "swap_pair": _swap_from_orders(c1_before, c1_after),
+        "required_reversal": (
+            "progressive_price_indexing outranks nra_raised_to_70"
+        ),
         "kendall_tau_before": round(2.0 / 3.0, 6),
         "kendall_tau_after_required": 1.0,
         "mechanism": (
@@ -838,21 +1385,16 @@ def family_c_block() -> dict[str, Any]:
     c2 = {
         "id": "elimination_plus2pp",
         "name": "elimination<->+2pp at the taxable maximum",
-        "source_before": "runs/m2_pseudo_projection_v1.json F2",
+        "source_before": "runs/m2_pseudo_projection_v1.json F2 result_order",
+        "source_after": (
+            "runs/m2_pseudo_projection_v1.json "
+            "forecasts_detail.F2.smith_year_deltas, ranked descending"
+        ),
         "anchor": "Smith (2015) solvency-year deltas",
-        "psid_frame_order": [
-            "payroll_plus_2pp",
-            "elimination",
-            "payroll_plus_1pp",
-            "cap_150k",
-        ],
-        "required_representative_order": [
-            "elimination",
-            "payroll_plus_2pp",
-            "payroll_plus_1pp",
-            "cap_150k",
-        ],
-        "swap_pair": ["payroll_plus_2pp", "elimination"],
+        "anchor_values": {p: smith[p] for p in c2_provs},
+        "psid_frame_order": c2_before,
+        "required_representative_order": c2_after,
+        "swap_pair": _swap_from_orders(c2_before, c2_after),
         "required_reversal": "elimination outranks payroll_plus_2pp",
         "kendall_tau_before": round(2.0 / 3.0, 6),
         "kendall_tau_after_required": 1.0,
@@ -871,6 +1413,41 @@ def family_c_block() -> dict[str, Any]:
             "anchor), and no OTHER adjacency changes. If transport is real "
             "both reverse; if cosmetic they do not."
         ),
+        "candidate_procedure": {
+            "applies_to": (
+                "a fresh W1 candidate that RUNS the two fingerprints on the "
+                "certified representative frame AFTER the lock; this floor only "
+                "RECORDS the committed anchor orderings (wart "
+                "family_c_records_not_runs_the_reversal)."
+            ),
+            "c1_statistic": (
+                "the outlay-side 75-year cost ordering of {PI, PPI, NRA->70, "
+                "reduced COLA} computed by the committed #115 encodings "
+                "(replication_ppi_mermin price/progressive-price-indexed "
+                "amounts; replication_mermin_rows NRA + COLA factors) on the "
+                "representative frame -- the m2 F4 statistic."
+            ),
+            "c2_statistic": (
+                "the exhaustion-delay ordering of {elimination, +2pp, +1pp, "
+                "cap-$150k} computed by the committed #117 revenue/exhaustion "
+                "ledger (m2 F2 taxable-payroll x wage-base encoding) on the "
+                "representative frame -- the m2 F2 statistic."
+            ),
+            "engine_pins": (
+                "the #115/#117 encodings are pinned to their committed run "
+                "artifacts (m2_pseudo_projection_v1.json, "
+                "replication_cost_ordering_v1.json) and the pe-us revision "
+                "recorded in each; the candidate re-runs them on the "
+                "representative frame, changing ONLY the frame."
+            ),
+            "pass_rule": (
+                "binary per fingerprint: PASS iff the representative-frame "
+                "ordering EQUALS required_representative_order (Kendall tau "
+                "1.0 vs the anchor) with exactly the one committed adjacent "
+                "swap vs psid_frame_order and no other adjacency change; both "
+                "fingerprints must pass."
+            ),
+        },
         "fingerprints": {"c1": c1, "c2": c2},
         "gate_partition": {
             "gate_eligible": [
@@ -949,7 +1526,37 @@ def run(verbose: bool = False) -> dict[str, Any]:
     drafts = draft_thresholds(noise_floor, tolerances, gated)
     oc = faithful_candidate_oc(noise_floor, tolerances, gated)
     copy_check = training_copy_check(per_seed, tolerances, gated)
+    degenerate = degenerate_candidates_block(copy_check)
+    heavy_tail_boundary = heavy_tail_boundary_bootstrap(
+        noise_floor, tolerances, gated, reasons
+    )
+    a_prime = family_a_prime_block(ref_weighted)
     holdout_ids = holdout_id_commitment(persons)
+
+    # age top-code disclosure (fix H / finding 5): the certified frame
+    # top-codes age, so the 65+ marital / coresidence bands pool 65..top.
+    age_arr = persons["age"].to_numpy(dtype=np.float64)
+    age_top_code = int(age_arr.max())
+
+    # DERIVED coverage facts (fix H / finding 10v -- computed, not hardcoded).
+    def _cov(prefix: str) -> tuple[int, int]:
+        cells = [k for k in cell_keys if k.startswith(prefix)]
+        g = sum(1 for k in cells if k in gated)
+        return g, len(cells)
+
+    mar_g, mar_n = _cov("marital_share.")
+    dlow_g, dlow_n = _cov("earnings_p50p10.")
+    dlow_cells = sorted(
+        k for k in cell_keys if k.startswith("earnings_p50p10.") and k in gated
+    )
+    coverage_facts = (
+        "The gate's family-A content is thin in two families (finding 10v): "
+        f"the marital family gates {mar_g} of {mar_n} cells (the rest demoted "
+        "at the power cap -- widowed / divorced / separated are report-only "
+        f"almost everywhere), and lower-tail dispersion gates {dlow_g} of "
+        f"{dlow_n} cells ({', '.join(dlow_cells) or 'none'}). Named here and "
+        "in the PR text, not left to be discovered from the partition."
+    )
 
     reference_moments_out = {
         key: {
@@ -1021,6 +1628,14 @@ def run(verbose: bool = False) -> dict[str, Any]:
             "populated_source_fractions": {
                 k: round(v, 4) for k, v in populated.items()
             },
+            "age_top_code": age_top_code,
+            "age_top_code_note": (
+                f"The certified frame TOP-CODES age at {age_top_code} "
+                "(internal consistency unaffected -- the half-split floor is "
+                "measured on the same top-coded frame -- but the 65+ marital / "
+                f"coresidence bands pool 65..{age_top_code}). Disclosed per "
+                "finding 5."
+            ),
             "claim": (
                 "Family A gates EXACTLY the CPS-observable cross-sectional "
                 "cells the certified L0-sparse-refit file carries with "
@@ -1050,8 +1665,35 @@ def run(verbose: bool = False) -> dict[str, Any]:
                 "Census/CPS margins is populace-certified, NOT re-litigated "
                 "here."
             ),
+            "calibration_coverage": {
+                "note": (
+                    "What family A can and cannot lean on populace's "
+                    "calibration for (finding 6). populace calibrates the "
+                    "certified frame to national admin TOTALS (earnings "
+                    "$9.711T, OASI $1.112T, DI $147.1B), so the family-A "
+                    "MARGINAL totals ride on a certified target. The age x sex "
+                    "x marital and household-size JOINTS family A scores are "
+                    "CPS-ASEC joints as reweighted by the L0 sparse refit "
+                    "(Kish n_eff ~ 14.3k of 166k nominal); they are NOT in "
+                    "populace's calibration loss and ride UNCERTIFIED. Family "
+                    "A certifies transport CONSISTENCY to those joints, not "
+                    "their external truth; the family_a_prime block makes the "
+                    "joints' own quality visible against published CPS/ACS."
+                ),
+                "covered_by_populace_calibration": [
+                    "earnings marginal totals (employment + self-employment)",
+                    "OASI / DI benefit totals",
+                ],
+                "not_calibration_covered_ride_uncertified": [
+                    "marital_share (age x sex x status joint)",
+                    "hh_size_share / coresident_spouse (household joint)",
+                    "within-cell earnings dispersion (p90/p50, p50/p10)",
+                ],
+            },
+            "coverage_facts": coverage_facts,
         },
         "reference_moments": reference_moments_out,
+        "family_a_prime": a_prime,
         "internal_noise_floor": {
             "method": (
                 "half_vs_half -- two household-disjoint halves of the "
@@ -1075,9 +1717,13 @@ def run(verbose: bool = False) -> dict[str, Any]:
             "spouse_present_codes": list(dfm.SPOUSE_PRESENT_CODES),
             "draw_stream_base": DRAW_STREAM_BASE,
             "split_fraction": SPLIT_FRACTION,
+            "required_source_columns": dict(dfm.REQUIRED_SOURCE_COLUMNS),
             "note": (
                 "Load-bearing knobs pinned against the module so a mutation "
-                "is caught WITHOUT the certified-frame reproduction."
+                "is caught WITHOUT the certified-frame reproduction. "
+                "required_source_columns pins the guard's column set AND its "
+                "support floors (fix C / finding 4), so a floor weakened "
+                "against a future zeroed frame is caught always-runnable."
             ),
         },
         "weight_concentration": {
@@ -1122,6 +1768,8 @@ def run(verbose: bool = False) -> dict[str, Any]:
         "noise_floor_per_seed": per_seed_stored,
         "holdout_ids": holdout_ids,
         "training_copy_check": copy_check,
+        "degenerate_candidates": degenerate,
+        "heavy_tail_boundary_bootstrap": heavy_tail_boundary,
         "faithful_candidate_oc": oc,
         "draft_thresholds": {
             "k": DRAFT_K,
@@ -1159,9 +1807,34 @@ def run(verbose: bool = False) -> dict[str, Any]:
                 "the certified pin comes from pe.us.model.release_bundle "
                 "(policyengine 4.18.8), resolved by revision+sha256."
             ),
+            "certified_repro_env_note": (
+                "The certified-frame reproduction pin "
+                "(test_seed0_reproduces_from_the_certified_frame) needs "
+                "huggingface_hub + tables + a cached h5, which the repo's own "
+                ".venv-gate lacks (it is the always-runnable env). So the "
+                "only DATA-BOUND test SKIPS in CI and in .venv-gate even on a "
+                "machine holding the cached h5; run it in the policyengine.py "
+                ".venv (finding 10iii). This full-rebuild attestation was "
+                "produced in that env; the always-runnable holdout-sha, "
+                "required-source-column, and family-C order bindings do NOT "
+                "depend on it."
+            ),
             "build_commit_note": (
-                "gate-w1-floors v1: certified_artifact_sha256 pins the "
-                "deployment frame; no PSID and no populace-fit."
+                "gate-w1-floors: certified_artifact_sha256 pins the "
+                "deployment frame; no PSID and no populace-fit. base_sha PIN "
+                "CONVENTION (finding 10i, the 2b-8(iii) chicken-and-egg): "
+                "base_sha = HEAD at BUILD time, i.e. the PARENT of the commit "
+                "that ships this artifact + the builder edits that produced "
+                "it; the artifact and its generator are committed together in "
+                "the CHILD commit, so base_sha names the frame + the parent "
+                "tree, not a self-reference. In the v1 floors commit the "
+                "parent contained NEITHER the builder nor the deployment_frame "
+                "module (both were net-new); in this fixes-round commit the "
+                "parent (the merge of origin/master) carries the v1 builder "
+                "but not this round's edits -- either way base_sha is the "
+                "parent, and the artifact reproduces from the certified pin + "
+                "the child commit's builder. 2c documented this convention "
+                "here; the v1 build did not."
             ),
             "artifact_schema_version": ARTIFACT_SCHEMA_VERSION,
         },
@@ -1178,9 +1851,11 @@ WARTS = [
             "The certified default is the L0-sparse-refit-57k file, which "
             "zeroes UNTARGETED inputs. Family A builds moments only on columns "
             "verified populated (age, is_female, employment_income_before_lsr, "
-            "A_MARITL, household membership; assert_columns_populated fails "
-            "loudly otherwise). Cells on a zeroed column are OUT of scope by "
-            "construction, not silently gated."
+            "self_employment_income_before_lsr, A_MARITL, household "
+            "membership; assert_columns_populated fails loudly otherwise -- "
+            "BOTH earnings source columns are required, fix C). Cells on a "
+            "zeroed column are OUT of scope by construction, not silently "
+            "gated."
         ),
     },
     {
@@ -1216,11 +1891,53 @@ WARTS = [
         "class": "anchor honesty (vintage non-stationarity)",
         "wart": (
             "The claim-age distribution (FRA transition) and DI age "
-            "composition (workforce ageing) TREND. The vintage tolerance is "
-            "the DETRENDED residual sd (year-to-year noise), and the trend is "
-            "disclosed per category (trend_pp_per_year); categories whose "
-            "detrended tolerance still exceeds T_max_pp demote to report-only. "
-            "No trend is hidden inside a wide tolerance."
+            "composition (workforce ageing) TREND. The reference-period "
+            "tolerance PRICES the honest anchor-vintage-to-frame drift a "
+            "faithful candidate commits: tolerance_pp = round(K_VINTAGE * "
+            "detrended_residual_sd + |trend| * Delta + MEASUREMENT_PP, 2), "
+            "Delta = frame year - vintage year (fix A / finding 2). The v1 "
+            "build used the DETRENDED sd alone, which EXCLUDED exactly the "
+            "error class a faithful 2024-simulating candidate must commit "
+            "(7 of 24 v1-gated cells failed for being faithful). The trend is "
+            "still disclosed per category (trend_pp_per_year, "
+            "trend_component_pp); categories whose tolerance still exceeds "
+            "T_max_pp demote to report-only."
+        ),
+    },
+    {
+        "id": "family_b_claim_age_circularity",
+        "class": "external-validity honesty (calibration lineage)",
+        "wart": (
+            "The 14 non-conversion claim-age cells are REPORT-ONLY, not "
+            "gated (fix A / finding 1). The deployed v1 claiming module "
+            "(populace_dynamics.claiming.draw_claim_ages) SAMPLES integer "
+            "claim ages FROM Table 6.B5.1, and its nearest-year rule snaps any "
+            "year > 2022 to the 2022 anchor vintage itself, so a conformant v1 "
+            "candidate on the 2024 frame draws its claim ages from the exact "
+            "table the cells score against -- the 14 cells carry ~1 effective "
+            "degree of freedom per sex (the conversion share) and cannot fail "
+            "for any transport defect. CALIBRATION LINEAGE, per anchor: the "
+            "claim-age SHARES are CALIBRATED-FROM 6.B5.1 (circular -> "
+            "report-only); the disability_conversion share is M4-SIMULATED and "
+            "scored against 6.B5.1 (a genuine transport margin -> gated); the "
+            "DI age composition is M4-simulated and scored against DI T19, "
+            "with DI status derived from the deployed dynamics NOT the frame's "
+            "social_security_disability column (gated). The 'admin margins "
+            "PSID never sees' framing is true but was materially misleading "
+            "for the claim ages -- PSID never sees them, but the deployed "
+            "claiming module samples from them."
+        ),
+    },
+    {
+        "id": "age_top_code_85",
+        "class": "estimand honesty (frame property)",
+        "wart": (
+            "The certified frame TOP-CODES age at 85 (fix H / finding 5): the "
+            "65+ marital and coresidence bands pool 65..85. Internal "
+            "consistency is unaffected (the half-split floor is measured on "
+            "the same top-coded frame), but the estimand disclosure carries "
+            "it (estimand.age_top_code) so the covered-band definition is "
+            "explicit."
         ),
     },
     {

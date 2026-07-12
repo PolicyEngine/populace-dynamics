@@ -83,11 +83,17 @@ SPOUSE_PRESENT_CODES = (1, 2)
 
 #: The source columns family A reads, with a plausible-support floor. The
 #: sparse-57k default zeroes untargeted inputs; a future file that zeroes one
-#: of these must fail loudly, not silently gate a degenerate moment.
+#: of these must fail loudly, not silently gate a degenerate moment. BOTH
+#: earnings source columns are listed: the gated family-A earnings concept is
+#: employment + self-employment before LSR, so ``self_employment_income_before_
+#: _lsr`` is as load-bearing as employment (fix C / referee finding 4). Its
+#: floor is low (0.03) because self-employment is a thin margin (~6% non-zero
+#: on the sparse frame) but a DROP-to-zero must still fail loudly.
 REQUIRED_SOURCE_COLUMNS: dict[str, float] = {
     "age": 0.90,
     "is_female": 0.40,
     "employment_income_before_lsr": 0.30,
+    "self_employment_income_before_lsr": 0.03,
     "A_MARITL": 0.99,
     "person_household_id": 0.99,
 }
@@ -387,12 +393,13 @@ def load_certified_persons(
     marital_status = maritl.map(MARITAL_MAP)
     coresident_spouse = maritl.isin(SPOUSE_PRESENT_CODES).to_numpy()
 
+    # BOTH earnings source columns are REQUIRED (assert_columns_populated
+    # above raises if either is missing or zeroed): no silent .get(...) zero
+    # default, so a future frame that drops self-employment fails loudly
+    # rather than mutating the gated earnings concept (fix C / finding 4).
     earnings = (
         person["employment_income_before_lsr"].fillna(0.0)
-        + person.get(
-            "self_employment_income_before_lsr",
-            pd.Series(0.0, index=person.index),
-        ).fillna(0.0)
+        + person["self_employment_income_before_lsr"].fillna(0.0)
     ).to_numpy(dtype=np.float64)
 
     persons = pd.DataFrame(

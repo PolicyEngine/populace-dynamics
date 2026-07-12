@@ -101,24 +101,52 @@ def test_marital_map_covers_all_cps_codes():
     assert set(dfm.MARITAL_MAP.values()) == set(dfm.MARITAL_STATUSES)
 
 
-def test_assert_columns_populated_raises_on_a_zeroed_column():
-    n = 200
-    good = pd.DataFrame(
+def _good_source_frame(n: int = 200) -> pd.DataFrame:
+    """A frame carrying every REQUIRED_SOURCE_COLUMN with plausible support."""
+    return pd.DataFrame(
         {
             "age": np.full(n, 40.0),
             "is_female": np.tile([True, False], n // 2),
             "employment_income_before_lsr": np.full(n, 50000.0),
+            # self-employment is thin (~6% on the real frame) but present.
+            "self_employment_income_before_lsr": np.where(
+                np.arange(n) % 10 == 0, 12000.0, 0.0
+            ),
             "A_MARITL": np.full(n, 1),
             "person_household_id": np.arange(n),
         }
     )
+
+
+def test_assert_columns_populated_raises_on_a_zeroed_column():
+    good = _good_source_frame()
     fr = dfm.assert_columns_populated(good)
     assert fr["employment_income_before_lsr"] == pytest.approx(1.0)
+    # self-employment reports its own fraction (fix C / finding 4).
+    assert fr["self_employment_income_before_lsr"] == pytest.approx(0.1)
     # zero out the targeted earnings column -> the sparse-file guard fires.
     bad = good.copy()
     bad["employment_income_before_lsr"] = 0.0
     with pytest.raises(ValueError, match="zero"):
         dfm.assert_columns_populated(bad)
+
+
+def test_both_earnings_source_columns_are_required():
+    """fix C / finding 4: self_employment_income_before_lsr is REQUIRED (no
+    silent .get zero-default) -- a frame missing it fails loudly, and zeroing
+    it below its floor fires the guard."""
+    assert "self_employment_income_before_lsr" in dfm.REQUIRED_SOURCE_COLUMNS
+    # missing self-employment column raises (the .get default is gone).
+    missing = _good_source_frame().drop(
+        columns=["self_employment_income_before_lsr"]
+    )
+    with pytest.raises(ValueError, match="missing column"):
+        dfm.assert_columns_populated(missing)
+    # zeroing it below its 0.03 floor fires the guard.
+    zeroed = _good_source_frame()
+    zeroed["self_employment_income_before_lsr"] = 0.0
+    with pytest.raises(ValueError, match="zero"):
+        dfm.assert_columns_populated(zeroed)
 
 
 def test_household_disjoint_split_keeps_households_intact():

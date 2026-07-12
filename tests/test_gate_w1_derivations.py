@@ -157,7 +157,14 @@ def test_builder_constants_are_pinned():
     assert builder.CANDIDATE_DRAWS == 20
     assert builder.DRAW_STREAM_BASE == 9100
     assert builder.SPLIT_COLUMN == "household_id"
+    assert builder.SPLIT_FRACTION == 0.5  # closes mutation M7
     assert builder.AGGREGATIONS == {}
+    # family-B reference-period + circularity constants (fix A).
+    assert builder.ANCHOR_FRAME_YEAR == 2024
+    assert builder.FAMILY_B_DRAW_STREAM_BASE == 9200
+    assert builder.CONVERSION_CATEGORIES == frozenset(
+        {"disability_conversion"}
+    )
     art = _artifact()
     assert art["internal_noise_floor"]["t_max"] == builder.T_MAX
     assert (
@@ -165,6 +172,9 @@ def test_builder_constants_are_pinned():
         == builder.MIN_EVENTS_FOR_GATE
     )
     assert art["internal_noise_floor"]["split_unit"] == "household"
+    assert (
+        art["internal_noise_floor"]["split_fraction"] == builder.SPLIT_FRACTION
+    )
     assert str(builder.DRAW_STREAM_BASE) in builder.CANDIDATE_DRAW_STREAM
 
 
@@ -182,6 +192,92 @@ def test_load_bearing_module_knobs_are_pinned_against_the_artifact():
     assert list(dfm.PROFILE_REF_BAND) == knobs["profile_ref_band"]
     assert list(dfm.SPOUSE_PRESENT_CODES) == knobs["spouse_present_codes"]
     assert knobs["draw_stream_base"] == builder.DRAW_STREAM_BASE
+
+
+def test_required_source_columns_and_floors_are_pinned():
+    """fix C / finding 4 (closes M14): the guard's column SET and its support
+    FLOORS are pinned against the module, so weakening a floor against a
+    future zeroed frame is caught always-runnable (it was invisible
+    everywhere). Both earnings source columns are present."""
+    from populace_dynamics.data import deployment_frame as dfm
+
+    pinned = _artifact()["knobs"]["required_source_columns"]
+    assert pinned == dict(dfm.REQUIRED_SOURCE_COLUMNS)
+    assert "self_employment_income_before_lsr" in pinned
+    assert "employment_income_before_lsr" in pinned
+    # a weakened floor (M14: 0.30 -> 0.01) would break this pin.
+    assert pinned["employment_income_before_lsr"] == 0.30
+    assert pinned["self_employment_income_before_lsr"] == 0.03
+
+
+def test_heavy_tail_boundary_bootstrap_recomputes():
+    """fix G / finding 7: the boundary-fragility bootstrap re-derives from the
+    committed floor values + the pinned seed (deterministic), so the disclosed
+    P(flip) numbers are bound, not a pasted table."""
+    builder = _builder()
+    art = _artifact()
+    floor = art[FLOOR_KEY]
+    tolerances = {
+        key: round(
+            block["mean"] + builder.DRAFT_K * block["sd"],
+            builder.DRAFT_ROUNDING,
+        )
+        for key, block in floor.items()
+    }
+    gated = set(art["gate_partition"]["gate_eligible"])
+    reasons = {k: v["report_reason"] for k, v in art["cell_stability"].items()}
+    rebuilt = builder.heavy_tail_boundary_bootstrap(
+        floor, tolerances, gated, reasons
+    )
+    committed = art["heavy_tail_boundary_bootstrap"]
+    assert rebuilt["demote_reentry_prob"] == committed["demote_reentry_prob"]
+    assert rebuilt["gated_flipout_prob"] == committed["gated_flipout_prob"]
+    # exactly the 5 heavy-tail demotes get a re-entry probability.
+    demotes = {
+        k
+        for k, v in art["cell_stability"].items()
+        if v["report_reason"] == "floor_max_exceeds_tolerance"
+    }
+    assert set(committed["demote_reentry_prob"]) == demotes
+    assert len(demotes) == 5
+
+
+def test_holdout_sha256_recomputes_always_runnable_from_committed_universe():
+    """fix H / finding 10ii (closes A6): the committed household-id universe +
+    the split rule recompute each gate seed's holdout sha256 with NO h5, so a
+    corrupted committed sha (previously invisible everywhere incl. the
+    certified repro) is caught at an always-runnable tier."""
+    import hashlib
+
+    import pandas as pd
+
+    from populace_dynamics.harness import panel as hpanel
+
+    art = _artifact()
+    hold = art["holdout_ids"]
+    universe_csv = hold["household_id_universe_csv"]
+    universe = [int(x) for x in universe_csv.split(",")]
+    assert len(universe) == hold["n_households_universe"]
+    assert universe == sorted(universe)
+    # the committed universe sha256 is self-consistent (hashes the CSV string).
+    uni_sha = hashlib.sha256(universe_csv.encode()).hexdigest()
+    assert uni_sha == hold["household_id_universe_sha256"]
+    # reconstruct each gate seed's holdout the way the builder does and
+    # recompute the sha256 -- no certified frame needed.
+    frame = pd.DataFrame({"household_id": universe})
+    for entry in hold["per_seed"]:
+        side_a, _ = hpanel.split_panel_by_person(
+            frame,
+            "household_id",
+            fraction=hold["fraction"],
+            seed=entry["seed"],
+        )
+        ids = sorted(int(x) for x in side_a["household_id"].unique())
+        assert len(ids) == entry["n_holdout_households"], entry["seed"]
+        sha = hashlib.sha256(
+            ",".join(str(i) for i in ids).encode()
+        ).hexdigest()
+        assert sha == entry["holdout_household_id_sha256"], entry["seed"]
 
 
 # --------------------------------------------------------------------------
@@ -215,18 +311,41 @@ def test_faithful_oc_is_bound_to_tolerances_and_sigmas():
 def test_family_b_vintage_rule_is_bound_and_perturbs():
     builder = _builder()
     years = list(range(2013, 2023))
-    # a pure trend has ~0 detrended residual sd -> tolerance ~ measurement.
+    # a pure trend, priced at Delta=0, has ~0 detrended sd -> tol ~ measurement.
     trend = [10.0 + 0.5 * (y - 2013) for y in years]
-    tol_trend = builder._vintage_tolerance(years, trend)
-    assert tol_trend["detrended_residual_sd_pp"] == pytest.approx(
-        0.0, abs=1e-9
+    tol0 = builder._vintage_tolerance(years, trend, 0)
+    assert tol0["detrended_residual_sd_pp"] == pytest.approx(0.0, abs=1e-9)
+    assert tol0["tolerance_pp"] == pytest.approx(builder.MEASUREMENT_PP)
+    assert tol0["trend_pp_per_year"] == pytest.approx(0.5)
+    assert tol0["trend_component_pp"] == pytest.approx(0.0)
+    # the REFERENCE-PERIOD term prices the trend drift over Delta years (fix A):
+    # a Delta=2 gap adds |trend|*2 = 1.0 pp to the tolerance.
+    tol2 = builder._vintage_tolerance(years, trend, 2)
+    assert tol2["reference_period_delta_years"] == 2
+    assert tol2["trend_component_pp"] == pytest.approx(1.0)
+    assert tol2["tolerance_pp"] == pytest.approx(
+        round(builder.MEASUREMENT_PP + 1.0, 2)
     )
-    assert tol_trend["tolerance_pp"] == pytest.approx(builder.MEASUREMENT_PP)
-    assert tol_trend["trend_pp_per_year"] == pytest.approx(0.5)
+    assert tol2["tolerance_pp"] > tol0["tolerance_pp"]
     # adding noise raises the residual sd and the tolerance.
     noisy = [v + (1.0 if i % 2 else -1.0) for i, v in enumerate(trend)]
-    tol_noisy = builder._vintage_tolerance(years, noisy)
-    assert tol_noisy["tolerance_pp"] > tol_trend["tolerance_pp"]
+    tol_noisy = builder._vintage_tolerance(years, noisy, 0)
+    assert tol_noisy["tolerance_pp"] > tol0["tolerance_pp"]
+
+
+def test_family_b_delta_years_pinned_to_anchor_vintages():
+    """fix A / finding 2: Delta = ANCHOR_FRAME_YEAR - vintage. Claim-age
+    (2022 award flow) -> 2; DI (December-2023 stock) -> 1 -- pinned via the
+    recorded per-cell deltas so a vintage/frame-year change is caught."""
+    art = _artifact()
+    fb = art["family_b"]
+    for v in fb["claim_age"].values():
+        assert v["reference_period_delta_years"] == 2
+        assert v["anchor_year"] == 2022
+    for v in fb["di_prevalence"].values():
+        assert v["reference_period_delta_years"] == 1
+        assert v["anchor_year"] == 2023
+    assert fb["knobs"]["anchor_frame_year"] == 2024
 
 
 def test_family_b_claim_age_recomputes_from_staged_file():
@@ -255,16 +374,79 @@ def test_family_b_di_prevalence_recomputes_from_staged_file():
 # --------------------------------------------------------------------------
 # Family C: committed orderings bound through the builder
 # --------------------------------------------------------------------------
-def test_family_c_block_recomputes():
+def test_family_c_block_recomputes_all_four_order_fields():
+    """fix F / finding 8a: ALL FOUR order fields (c1/c2 before + after)
+    recompute through the builder, bound to the committed anchor artifacts."""
     builder = _builder()
     art = _artifact()
     rebuilt = builder.family_c_block()
-    assert rebuilt["fingerprints"]["c1"]["required_representative_order"] == (
-        art["family_c"]["fingerprints"]["c1"]["required_representative_order"]
+    for cid in ("c1", "c2"):
+        for field in (
+            "psid_frame_order",
+            "required_representative_order",
+            "swap_pair",
+            "anchor_values",
+        ):
+            assert rebuilt["fingerprints"][cid][field] == (
+                art["family_c"]["fingerprints"][cid][field]
+            ), (cid, field)
+
+
+def test_family_c_required_orders_derive_from_committed_anchors():
+    """fix F / finding 8a: the required after-orders are DERIVED by ranking the
+    committed Mermin payroll-pct / Smith solvency deltas descending -- the
+    anchor itself is machine-checked (closes M10: a hand-swapped builder order
+    no longer exists to swap)."""
+    builder = _builder()
+    art = _artifact()
+    c1 = art["family_c"]["fingerprints"]["c1"]
+    c2 = art["family_c"]["fingerprints"]["c2"]
+    # C1: ranking Mermin payroll-pct desc reproduces the required order.
+    assert (
+        builder._rank_desc(c1["anchor_values"], list(c1["anchor_values"]))
+        == c1["required_representative_order"]
     )
-    assert rebuilt["fingerprints"]["c2"]["psid_frame_order"] == (
-        art["family_c"]["fingerprints"]["c2"]["psid_frame_order"]
+    assert c1["required_representative_order"] == [
+        "price_indexing",
+        "progressive_price_indexing",
+        "nra_raised_to_70",
+        "reduced_cola",
+    ]
+    # C2: ranking Smith deltas desc reproduces the required order.
+    assert (
+        builder._rank_desc(c2["anchor_values"], list(c2["anchor_values"]))
+        == c2["required_representative_order"]
     )
+    assert c2["required_representative_order"] == [
+        "elimination",
+        "payroll_plus_2pp",
+        "payroll_plus_1pp",
+        "cap_150k",
+    ]
+
+
+def test_family_c_order_derivation_perturbs():
+    """Perturbing an anchor value changes the derived order (the ranking is
+    genuinely bound to the anchor, not coincidental)."""
+    builder = _builder()
+    anchor = {"a": 0.68, "b": -0.14, "c": -0.5, "d": -1.12}
+    provs = list(anchor)
+    assert builder._rank_desc(anchor, provs) == ["a", "b", "c", "d"]
+    bumped = dict(anchor, b=-0.9)  # b now ranks below c.
+    assert builder._rank_desc(bumped, provs) == ["a", "c", "b", "d"]
+
+
+def test_family_c_candidate_procedure_is_pinned():
+    """fix E / finding 8b: the reversal-time C-candidate procedure (per-
+    fingerprint statistic, committed encodings, engine pins, pass rule)."""
+    art = _artifact()
+    proc = art["family_c"]["candidate_procedure"]
+    assert "outlay-side" in proc["c1_statistic"]
+    assert "exhaustion-delay" in proc["c2_statistic"]
+    assert "#115" in proc["c1_statistic"] or "F4" in proc["c1_statistic"]
+    assert "#117" in proc["c2_statistic"] or "F2" in proc["c2_statistic"]
+    assert "engine_pins" in proc
+    assert "Kendall tau 1.0" in proc["pass_rule"]
 
 
 # --------------------------------------------------------------------------

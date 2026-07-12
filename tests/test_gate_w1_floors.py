@@ -297,18 +297,114 @@ def test_family_b_anchor_pricing_and_partition():
     assert knobs["vintage_window_years"] == 10
     assert knobs["k_vintage"] == 2.0
     assert knobs["t_max_pp"] == 3.0
+    assert knobs["anchor_frame_year"] == 2024
+    assert knobs["claim_age_delta_years"] == 2
+    assert knobs["di_delta_years"] == 1
     # claim-age: 8 categories x 2 sexes present.
     assert len([k for k in fb["claim_age"]]) == 16
     # DI prevalence: 8 age bands.
     assert len([k for k in fb["di_prevalence"]]) == 8
     part = fb["gate_partition"]
-    assert part["n_gate_eligible"] >= 16
+    # POST-FIX-A partition: 10 gated (2 disability_conversion + 8 DI bands),
+    # 15 report-only (14 circular claim-age + 1 benefit level).
+    assert part["n_gate_eligible"] == 10
+    assert part["n_report_only"] == 15
+    assert part["n_circular_report_only"] == 14
+    gated = set(part["gate_eligible"])
+    assert gated == {
+        "claim_age.disability_conversion|male",
+        "claim_age.disability_conversion|female",
+        *(
+            f"di_prevalence.{b}"
+            for b in (
+                "under30",
+                "30-34",
+                "35-39",
+                "40-44",
+                "45-49",
+                "50-54",
+                "55-59",
+                "60-fra",
+            )
+        ),
+    }
     assert "benefit_level.report_only" in part["report_only"]
 
 
+def test_family_b_claim_age_circularity_is_named_and_gated_content_is_conversion():
+    """fix A / finding 1: the 14 non-conversion claim-age cells are report-only
+    (sampled from their own anchor by the v1 claiming module); the 2
+    disability-conversion cells (the M4-simulated margin) stay gated."""
+    art = _artifact()
+    fb = art["family_b"]
+    for key, cell in fb["claim_age"].items():
+        is_conv = key.endswith(
+            ("disability_conversion|male", "disability_conversion|female")
+        )
+        assert cell["is_conversion_margin"] == is_conv, key
+        assert cell["circular_under_v1_candidate"] == (not is_conv), key
+        if not is_conv:
+            assert cell["gate_eligible"] is False, key
+            assert cell["report_reason"] == (
+                "circular_under_v1_claiming_candidate"
+            ), key
+        else:
+            # a conversion cell gates iff its reference-period tolerance clears.
+            assert cell["gate_eligible"] == (
+                cell["tolerance_gate_eligible"]
+            ), key
+    # the circularity is named in a wart and the design note.
+    assert "family_b_claim_age_circularity" in {w["id"] for w in art["warts"]}
+    assert "circular" in fb["circularity_rule"]
+
+
+def test_family_b_candidate_protocol_is_specified():
+    """fix A / finding 2: family B now has a full candidate protocol -- object,
+    population, estimator, reference-period rule, no-frame-DI-column rule,
+    pass rule."""
+    art = _artifact()
+    proto = art["family_b"]["candidate_protocol"]
+    assert "FULL certified deployment frame" in proto["population"]
+    assert proto["candidate_draws"] == 20
+    assert proto["family_b_draw_stream_base"] == 9200
+    assert "claim_age.disability_conversion" in proto["simulated_object"]
+    assert "December-2023" in proto["simulated_object"]["di_prevalence"]
+    assert "M4 dynamics" in proto["no_frame_di_column_rule"]
+    assert "social_security_disability" in proto["no_frame_di_column_rule"]
+    assert "CONJUNCTION" in proto["pass_rule"]
+    assert str(art["family_b"]["knobs"]["anchor_frame_year"]) in (
+        proto["reference_period_rule"]
+    )
+
+
+def test_family_b_reference_period_prices_the_trend():
+    """fix A / finding 2: the tolerance carries a |trend| * Delta term, so the
+    di_prevalence.60-fra cell that would fail a faithful candidate at 1.90x the
+    detrended tolerance is now PRICED (tolerance covers the trend drift)."""
+    art = _artifact()
+    fb = art["family_b"]
+    cell = fb["di_prevalence"]["di_prevalence.60-fra"]
+    # the trend component is the priced drift over Delta=1 year.
+    assert cell["reference_period_delta_years"] == 1
+    assert cell["trend_component_pp"] == pytest.approx(
+        abs(cell["trend_pp_per_year"]) * 1, abs=1e-6
+    )
+    # tolerance = detrended + trend component (both disclosed).
+    assert cell["tolerance_pp"] == pytest.approx(
+        round(cell["detrended_tolerance_pp"] + cell["trend_component_pp"], 2),
+        abs=0.011,
+    )
+    # the priced tolerance now covers the drift the v1 detrended rule excluded.
+    assert cell["trend_component_pp"] <= cell["tolerance_pp"]
+    assert cell["gate_eligible"] is True
+
+
 def test_family_b_vintage_tolerance_recomputes():
-    """The vintage tolerance is round(k*detrended_residual_sd + meas, 2), a
-    machine rule reconstructible from the recorded residual sd."""
+    """The reference-period tolerance is round(k*detrended_residual_sd +
+    |trend|*Delta + meas, 2), a machine rule reconstructible from the recorded
+    residual sd, trend, and Delta (fix A / finding 2). tolerance_gate_eligible
+    is the tolerance's own T_max_pp check; the FINAL gate_eligible also removes
+    the circular claim-age cells."""
     art = _artifact()
     fb = art["family_b"]
     k = fb["knobs"]["k_vintage"]
@@ -316,9 +412,27 @@ def test_family_b_vintage_tolerance_recomputes():
     tmax = fb["knobs"]["t_max_pp"]
     for group in ("claim_age", "di_prevalence"):
         for key, v in fb[group].items():
-            expect = round(k * v["detrended_residual_sd_pp"] + meas, 2)
-            assert v["tolerance_pp"] == pytest.approx(expect), key
-            assert v["gate_eligible"] == (v["tolerance_pp"] <= tmax), key
+            # trend_component_pp is |trend| * Delta at FULL trend precision;
+            # recompute from the recorded (3dp) trend is exact to the rounding
+            # (<= Delta * 5e-4).
+            trend_comp = (
+                abs(v["trend_pp_per_year"]) * v["reference_period_delta_years"]
+            )
+            expect = round(
+                k * v["detrended_residual_sd_pp"] + trend_comp + meas, 2
+            )
+            assert v["tolerance_pp"] == pytest.approx(expect, abs=0.02), key
+            assert v["trend_component_pp"] == pytest.approx(
+                trend_comp, abs=1.5e-3
+            ), key
+            assert v["tolerance_gate_eligible"] == (
+                v["tolerance_pp"] <= tmax
+            ), key
+            # final gate_eligible = tolerance-eligible AND not circular.
+            assert v["gate_eligible"] == (
+                v["tolerance_gate_eligible"]
+                and not v["circular_under_v1_candidate"]
+            ), key
             assert v["anchor_pp"] >= 0
 
 
@@ -498,12 +612,173 @@ def test_warts_preempt_the_referee_classes():
         "weight_concentration",
         "family_a_is_internal_consistency_not_census_fidelity",
         "family_b_non_stationary_anchors",
+        "family_b_claim_age_circularity",
+        "age_top_code_85",
         "family_b_benefit_levels_report_only",
         "family_c_records_not_runs_the_reversal",
         "di_prevalence_rate_denominator_absent",
         "earnings_concept_before_lsr",
     ):
         assert required in ids, required
+
+
+# --------------------------------------------------------------------------
+# Fixes-round additions: regenerated surface, degenerate identity candidate,
+# A' published-value block, boundary bootstrap, records (always runnable)
+# --------------------------------------------------------------------------
+def test_regenerated_surface_is_pinned_in_the_protocol():
+    """fix B / finding 3: the protocol states, per cell family, which columns
+    the candidate must RE-GENERATE; copying a scored column is non-conformant.
+    """
+    art = _artifact()
+    schema = art["protocol"]["fresh_run_artifact_schema"]
+    surf = schema["regenerated_surface"]
+    assert surf["identity_candidate_is_non_conformant"] is True
+    assert "NON-CONFORMANT" in surf["rule"]
+    assert set(surf["per_family"]) == {
+        "earnings_participation|profile|p90p50|p50p10",
+        "marital_share|coresident_spouse",
+        "hh_size_share",
+    }
+    # the gate-2 "fit complement" language is grounded, not inherited verbatim.
+    assert "fit complement" in art["protocol"]["varies_per_seed"]
+    assert "nothing REFITS per W1 seed" in art["protocol"]["varies_per_seed"]
+
+
+def test_degenerate_identity_candidate_is_disclosed():
+    """fix B / finding 3: the identity candidate (copies the scored columns,
+    scores 0) is named in the degenerate table and caught by the regenerated-
+    surface rule + the zero across-draw dispersion."""
+    art = _artifact()
+    deg = art["degenerate_candidates"]
+    ident = deg["identity_candidate"]
+    assert ident["conformance"] == "NON-CONFORMANT"
+    assert ident["across_draw_sd"] == 0.0
+    assert "max_per_draw_abs_ln_per_cell" in ident["caught_by"]
+    assert "nothing about the generators" in ident["certifies"]
+    # the train-copy is still carried (its disclosure is unchanged).
+    assert deg["train_copy"]["passes_4_of_5"] is True
+
+
+def test_per_draw_dispersion_discloses_both_fields():
+    """fix E / finding 9: the locked gate-2 per_draw_dispersion disclosure has
+    BOTH the across-draw sd and max_per_draw_abs_ln_per_cell (the v1 build
+    dropped the max, which is what exposes an identity candidate)."""
+    art = _artifact()
+    disc = art["protocol"]["fresh_run_artifact_schema"][
+        "per_draw_dispersion_disclosure"
+    ]
+    assert disc["fields"] == [
+        "per_cell_across_draw_sd",
+        "max_per_draw_abs_ln_per_cell",
+    ]
+    assert "max_per_draw_abs_ln_per_cell == 0 EXPOSES" in disc["note"]
+
+
+def test_family_a_prime_published_value_block_is_sourced_and_report_only():
+    """fix D / finding 6: a report-only A' comparison of the frame's covered
+    joints vs published CPS/ACS values, sourced from committed census files
+    (sha256-pinned), NOT gated."""
+    art = _artifact()
+    ap = art["family_a_prime"]
+    assert ap["status"] == "report_only"
+    # household size: all five person-level shares compared to HH-4.
+    hh = ap["household_size_person_level"]
+    assert set(hh) == {
+        f"hh_size_share.{c}" for c in ("1", "2", "3", "4", "5plus")
+    }
+    for row in hh.values():
+        assert "frame_rate" in row and "published_share" in row
+        assert row["abs_diff_pp"] >= 0
+    # coresident spouse: the one aligned AD-3 band (25-34).
+    sp = ap["coresident_spouse_aligned_band"]
+    assert set(sp) == {
+        "coresident_spouse.25-34|male",
+        "coresident_spouse.25-34|female",
+    }
+    # sources carry the committed file + a sha256 for the household file.
+    assert "census_household_size_2023.json" in (
+        ap["sources"]["household_size"]["file"]
+    )
+    assert len(ap["sources"]["household_size"]["file_sha256"]) == 64
+    assert "report_only" in ap["status"]
+    assert "REPORT-ONLY" in ap["caveats"]
+
+
+def test_family_a_prime_household_values_match_census_source():
+    """The A' household-size published shares are the committed HH-4 person-
+    level shares verbatim (no fabricated numbers)."""
+    art = _artifact()
+    src = json.loads(
+        (
+            ROOT / "data" / "external" / "census_household_size_2023.json"
+        ).read_text()
+    )
+    pls = src["derived"]["person_level_share"]
+    rows = art["family_a_prime"]["household_size_person_level"]
+    assert rows["hh_size_share.1"]["published_share"] == pls["1"]
+    assert rows["hh_size_share.5plus"]["published_share"] == pls["5+"]
+
+
+def test_calibration_coverage_statement_present():
+    """fix D / finding 6: the artifact states which family-A families ride on
+    populace calibration and which ride uncertified."""
+    art = _artifact()
+    cov = art["family_a"]["calibration_coverage"]
+    assert cov["covered_by_populace_calibration"]
+    assert cov["not_calibration_covered_ride_uncertified"]
+    assert any(
+        "marital" in x for x in cov["not_calibration_covered_ride_uncertified"]
+    )
+    # the thin-coverage facts sentence is present and derived (13/50, 1/8).
+    facts = art["family_a"]["coverage_facts"]
+    assert "marital family gates 13 of 50" in facts
+    assert "lower-tail dispersion gates 1 of 8" in facts
+
+
+def test_heavy_tail_boundary_bootstrap_is_disclosed():
+    """fix G / finding 7: the boundary-fragility bootstrap and the seed-count-
+    dependence note are carried (2b-7c / 2c-8ii)."""
+    art = _artifact()
+    htb = art["heavy_tail_boundary_bootstrap"]
+    assert htb["n_bootstrap"] == 5000
+    # the 5 heavy-tail demotes each get a re-entry probability, ranked.
+    reentry = htb["demote_reentry_prob"]
+    assert len(reentry) == 5
+    probs = list(reentry.values())
+    assert probs == sorted(probs, reverse=True)
+    assert 0.0 <= min(probs) and max(probs) <= 1.0
+    assert "seed_count_dependence" in htb
+    assert "in-sample max" in htb["seed_count_dependence"].lower()
+
+
+def test_uprating_knob_is_stripped():
+    """fix H / finding 10iv: the underived 6.0% uprating knob is removed (no
+    machine rule, no series)."""
+    art = _artifact()
+    bene = art["family_b"]["benefit_level"]
+    assert "uprating_context_tolerance_pct" not in bene
+    assert "STRIPPED" in bene["note"]
+
+
+def test_age_top_code_disclosed_in_estimand():
+    """fix H / finding 5: the frame's age top-code is disclosed."""
+    art = _artifact()
+    est = art["estimand"]
+    assert est["age_top_code"] == 85
+    assert "TOP-CODES age" in est["age_top_code_note"]
+
+
+def test_build_commit_note_documents_parent_sha_convention():
+    """fix H / finding 10i: the base_sha parent-commit pin convention is
+    documented (the 2b-8(iii) chicken-and-egg)."""
+    art = _artifact()
+    note = art["revision_pins"]["build_commit_note"]
+    assert "base_sha = HEAD at BUILD time" in note
+    assert "PARENT" in note
+    assert "chicken-and-egg" in note
+    # the .venv-gate skip of the only data-bound test is noted.
+    assert "venv-gate" in art["revision_pins"]["certified_repro_env_note"]
 
 
 # --------------------------------------------------------------------------
@@ -553,3 +828,29 @@ def test_seed0_reproduces_from_the_certified_frame():
             assert got_cell["log_ratio_abs"] == pytest.approx(
                 ref_cell["log_ratio_abs"], abs=1e-9
             ), key
+
+
+def test_holdout_universe_and_sha256s_bind_to_the_certified_frame():
+    """fix H / finding 10ii: the committed household-id universe IS the frame's
+    own sorted household ids, and every gate seed's holdout sha256 recomputes
+    from the frame (the v1 repro checked cells only, so a corrupted holdout
+    sha was invisible even here -- mutation A6)."""
+    path = _cached_certified_h5()
+    builder = _import_builder()
+    from populace_dynamics.data import deployment_frame as dfm
+
+    persons, _ = dfm.load_certified_persons(path)
+    art = _artifact()
+    hold = art["holdout_ids"]
+    universe = sorted(int(x) for x in persons["household_id"].unique())
+    # the committed universe (CSV) is the frame's own household-id set.
+    assert ",".join(str(i) for i in universe) == (
+        hold["household_id_universe_csv"]
+    )
+    # every gate seed's holdout sha256 recomputes from the frame.
+    for entry in hold["per_seed"]:
+        ids = builder._holdout_household_ids(persons, entry["seed"])
+        assert len(ids) == entry["n_holdout_households"], entry["seed"]
+        assert (
+            builder._sha256_ids(ids) == entry["holdout_household_id_sha256"]
+        ), entry["seed"]
