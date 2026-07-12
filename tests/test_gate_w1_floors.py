@@ -78,17 +78,27 @@ def test_ceremony_writes_no_gates_yaml():
     assert "NOT yet mirrored" in art["draft_thresholds"]["note"]
 
 
-def test_gates_yaml_has_no_gate_w1_block():
-    """This PR touches no gate: gates.yaml must carry no gate_w1 (the stub is
-    proposed in #151 and inserted only by the ratifying flip). The locked
-    gates 1/2a/2b/2c stay locked and untouched."""
+def test_gates_yaml_gate_w1_block_is_locked_by_the_flip():
+    """Flip-time update: the W1 lock flip (2026-07-12) INSERTS the gate_w1
+    block the #151 stub proposed, so gates.yaml now carries a LOCKED gate_w1
+    as a top-level gate (the floors PR left it absent; this assertion inverts
+    at the flip, exactly as the gate-2c flip inverted its sibling assertion).
+    The frozen floor's own ceremony.gates_yaml_untouched stays True -- that is
+    a statement about the FLOORS step, not the live contract. The locked gates
+    1/2a/2b/2c stay locked and untouched."""
     yaml = pytest.importorskip("yaml")
     spec = yaml.safe_load((ROOT / "gates.yaml").read_text())
     gates = spec["gates"]
-    assert "gate_w1" not in gates
-    assert "gate_w1" not in gates.get("gate_2", {})
-    assert spec["gates"]["gate_2"]["thresholds"]["locked"] is True
-    assert spec["gates"]["gate_2"]["gate_2c"]["locked"] is True
+    gate_w1 = gates["gate_w1"]
+    assert gate_w1["locked"] is True
+    assert gate_w1["status"] == "locked"
+    assert gate_w1["id"] == "w1_representative_frame_transport"
+    assert gate_w1["thresholds"]["floor_run"] == "runs/gate_w1_floors_v1.json"
+    # the FROZEN floor still records that the FLOORS step wrote no gates.yaml.
+    assert _artifact()["ceremony"]["gates_yaml_untouched"] is True
+    # locked siblings untouched by the flip.
+    assert gates["gate_2"]["thresholds"]["locked"] is True
+    assert gates["gate_2"]["gate_2c"]["locked"] is True
 
 
 def test_provenance_pins_present():
