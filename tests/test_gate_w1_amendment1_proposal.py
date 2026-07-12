@@ -1,17 +1,26 @@
-"""Proposal-consistency bindings for gate_w1 amendment 1 (family-B DI bands).
+"""Proposal-consistency bindings for gate_w1 amendment 1 (family-B DI bands +
+conversion margins).
 
 The amendment-1 PROPOSAL is a DRAFT: it argues, from the W1 forensics 1 Q4
-evidence base, that the 8 family-B DI age-composition prevalence bands are
-unclearable by any contract-consistent candidate and must be demoted (option a)
-rather than re-anchored now (option b). This module proves the proposal document
-does not drift from the committed evidence: it parses the machine-readable
-``amendment-consistency-ledger`` block embedded in
-``docs/amendments/gate_w1_amendment_1_family_b_di_bands.md`` and cross-checks
-EVERY load-bearing figure against the frozen artifacts --
+evidence base (the 8 DI age-composition prevalence bands) and the adversarial
+referee round (PR #164 comment 4951701300, the 2 disability-conversion margins),
+that ALL 10 family-B gated cells are unclearable by any contract-consistent
+candidate and must be demoted (option a) rather than re-anchored now (option b).
+This module proves the proposal document does not drift from the committed
+evidence: it parses the machine-readable ``amendment-consistency-ledger`` block
+embedded in ``docs/amendments/gate_w1_amendment_1_family_b_di_bands.md`` and
+cross-checks EVERY load-bearing figure against the frozen artifacts --
 ``runs/gate_w1_forensics1_v1.json`` (Q4), ``runs/gate_w1_floors_v1.json`` (the
 family-A OC machinery + partition), ``runs/gate_w1_candidate1_v1.json`` (the
-committed FAIL the amendment must not rescue), and ``gates.yaml`` (still the
-LOCKED 10-cell surface -- the proposal moves no threshold).
+committed FAIL the amendment must not rescue), ``runs/m4_disability_v1.json``
+(the conversion ``conversion_validation`` evidence), and ``gates.yaml`` (still
+the LOCKED 10-cell surface -- the proposal moves no threshold).
+
+It ALSO binds the OPERATIVE flip text (referee fix B): the section-7 enumerated
+demotion list, the section-7 partition roll-up, and the section-8 history entry
+figures are parsed from the doc and cross-checked against the ledger/artifacts so
+they cannot silently drift, and the machine-reason prose assertion is checked
+OUTSIDE the ledger fence (de-vacuoused).
 
 ALWAYS-RUNNABLE: reads only committed ``runs/*.json`` + the doc + gates.yaml, no
 data load, no h5, no PSID/PE-US checkout. Reproduces the draw-noise-free
@@ -23,6 +32,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import subprocess
 from pathlib import Path
 
@@ -34,6 +44,7 @@ DOC = ROOT / "docs" / "amendments" / "gate_w1_amendment_1_family_b_di_bands.md"
 FORENSICS = ROOT / "runs" / "gate_w1_forensics1_v1.json"
 FLOORS = ROOT / "runs" / "gate_w1_floors_v1.json"
 CANDIDATE1 = ROOT / "runs" / "gate_w1_candidate1_v1.json"
+M4 = ROOT / "runs" / "m4_disability_v1.json"
 GATES = ROOT / "gates.yaml"
 
 FLOOR_KEY = "noise_floor_seeds_0_99"
@@ -46,6 +57,10 @@ DI_BANDS = (
     "50-54",
     "55-59",
     "60-fra",
+)
+CONVERSION_CELLS = (
+    "claim_age.disability_conversion|female",
+    "claim_age.disability_conversion|male",
 )
 
 
@@ -74,6 +89,46 @@ def _ledger() -> dict:
     return json.loads("\n".join(lines[start:end]))
 
 
+def _prose_without_ledger() -> str:
+    """Doc text with the fenced ledger JSON removed.
+
+    Used to de-vacuous prose assertions: a string that lives only inside the
+    ledger block must NOT count as ``in`` the prose.
+    """
+    lines = _doc_text().splitlines()
+    out, in_ledger = [], False
+    for line in lines:
+        if (
+            line.startswith("```json")
+            and "amendment-consistency-ledger" in line
+        ):
+            in_ledger = True
+            continue
+        if in_ledger:
+            if line.strip() == "```":
+                in_ledger = False
+            continue
+        out.append(line)
+    return "\n".join(out)
+
+
+def _section(num: int) -> str:
+    """Return the text of ``## {num}.`` up to the next ``## `` header."""
+    lines = _doc_text().splitlines()
+    start = None
+    for i, line in enumerate(lines):
+        if line.startswith(f"## {num}."):
+            start = i
+            break
+    assert start is not None, f"section {num} not found in the proposal doc"
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        if lines[j].startswith("## "):
+            end = j
+            break
+    return "\n".join(lines[start:end])
+
+
 def _forensics() -> dict:
     return json.loads(FORENSICS.read_text())
 
@@ -86,6 +141,10 @@ def _candidate1() -> dict:
     return json.loads(CANDIDATE1.read_text())
 
 
+def _m4_conversion_validation() -> dict:
+    return json.loads(M4.read_text())["conversion_validation"]
+
+
 def _gate_w1() -> dict:
     return yaml.safe_load(GATES.read_text())["gates"]["gate_w1"]
 
@@ -95,20 +154,34 @@ def _normal_cdf(x: float) -> float:
 
 
 # --------------------------------------------------------------------------
-# The ledger is well formed and names the recommendation + machine reason
+# The ledger is well formed and names the recommendation + machine reasons
 # --------------------------------------------------------------------------
 def test_ledger_parses_and_headline_matches_prose():
     led = _ledger()
     assert led["amendment_id"] == "2026-07-12-w1-family-b-di-bands"
-    assert led["recommendation"] == "option_a_demote"
+    assert led["recommendation"] == "option_a_demote_all_family_b"
     assert led["machine_reason"] == "concept_bridge_undefined_di_stock"
-    # the machine reason + the demote recommendation appear in the prose, so a
-    # ledger/prose divergence is caught.
-    text = _doc_text()
-    assert "concept_bridge_undefined_di_stock" in text
-    assert "RECOMMENDED" in text
-    assert "option (a)" in text
+    assert led["conversion_machine_reasons"] == [
+        "concept_bridge_undefined_di_stock",
+        "conversion_level_match_never_certified",
+    ]
+    # de-vacuoused: the recommendation + demote language appear in the PROSE
+    # (ledger fence stripped), so a ledger/prose divergence is caught.
+    prose = _prose_without_ledger()
+    assert "RECOMMENDED" in prose
+    assert "option (a)" in prose
     assert led["gates_yaml_untouched_by_this_proposal"] is True
+
+
+def test_machine_reasons_named_in_prose_outside_ledger():
+    """Referee fix B (de-vacuous): the ledger block held these strings, so the
+    old ``in text`` assertion could not fail while the ledger held them. Check
+    them in the prose with the ledger fence removed."""
+    prose = _prose_without_ledger()
+    # sanity: the ledger JSON really was stripped.
+    assert '"machine_reason"' not in prose
+    assert "concept_bridge_undefined_di_stock" in prose
+    assert "conversion_level_match_never_certified" in prose
 
 
 # --------------------------------------------------------------------------
@@ -149,6 +222,35 @@ def test_q4_concept_delta_and_bridge_determination_bound():
     assert led["insured_denominator_available"] is False
     assert len(q4["m4_concept_deltas"]) == led["n_concept_deltas"] == 7
     assert q4["worst_band"]["band"] == led["worst_band"] == "60-fra"
+
+
+def test_q4_per_band_concept_share_range_bound():
+    """Referee fix C: 0.595 is the AGGREGATE duration-concept share
+    Sum|dur|/(Sum|dur|+Sum|shape|); per band it spans 0.023 (40-44, nearly all
+    frozen-M4 shape) to 0.891 (60-fra, nearly all duration concept). The doc
+    must state 0.595 as the aggregate with that per-band range."""
+    led = _ledger()["forensics"]
+    pb = _forensics()["q4_di_level_bridge"]["per_band"]
+    shares: dict = {}
+    s_dur = s_shape = 0.0
+    for band in DI_BANDS:
+        dur = abs(pb[band]["duration_concept_flow_to_stock"])
+        shape = abs(pb[band]["m4_shape_component_flow_minus_deployed"])
+        shares[band] = dur / (dur + shape)
+        s_dur += dur
+        s_shape += shape
+    aggregate = s_dur / (s_dur + s_shape)
+    assert round(aggregate, 3) == led["concept_delta_dominant_share_round3"]
+    lo_band = min(shares, key=shares.get)
+    hi_band = max(shares, key=shares.get)
+    assert lo_band == led["concept_share_min_band"] == "40-44"
+    assert hi_band == led["concept_share_max_band"] == "60-fra"
+    assert (
+        round(shares[lo_band], 3) == led["concept_share_min_round3"] == 0.023
+    )
+    assert (
+        round(shares[hi_band], 3) == led["concept_share_max_round3"] == 0.891
+    )
 
 
 def test_q4_all_eight_di_bands_fail_and_miss_ratios_bound():
@@ -197,13 +299,91 @@ def test_supplement_4c2_is_still_wanted_in_the_archive():
 
 
 # --------------------------------------------------------------------------
+# Conversion cells (referee fix A): the committed grounds for demoting them
+# --------------------------------------------------------------------------
+def test_conversion_cells_committed_grounds_bound():
+    """The 2 conversion cells fail the SAME candidate-independence test as the
+    bands, on committed evidence: (i) the M4 evidence base pre-ruled the concept
+    a level mismatch (ratio 0.267/0.322 from raw components, "never a level
+    match"); (ii) the deployed numerator is the point-prevalence 5.79/6.55,
+    constant on 60-66; (iii) the required pass-window floor 12.21/12.59 =
+    anchor(14.1/14.5) - tolerance(1.89/1.91); (iv) c1's committed dev 8.30/8.07
+    exceeds tolerance."""
+    led = _ledger()["conversion_cells"]
+    cv = _m4_conversion_validation()
+    by_sex = cv["by_sex"]
+
+    # (i) ratio from RAW components (matches the referee's 0.267/0.322; the
+    # stored pre-rounded 0.3225 would mislead to 0.323).
+    raw_f = (
+        by_sex["female"]["psid_conversion_analog_pct"]
+        / by_sex["female"]["admin_6b51_conversion_share_pct"]["mean_1998_2022"]
+    )
+    raw_m = (
+        by_sex["male"]["psid_conversion_analog_pct"]
+        / by_sex["male"]["admin_6b51_conversion_share_pct"]["mean_1998_2022"]
+    )
+    assert round(raw_f, 3) == led["ratio_psid_analog_to_admin_female_round3"]
+    assert round(raw_m, 3) == led["ratio_psid_analog_to_admin_male_round3"]
+    assert led["ratio_psid_analog_to_admin_female_round3"] == 0.267
+    assert led["ratio_psid_analog_to_admin_male_round3"] == 0.322
+
+    # "never a level match" -- the frozen adjudication the gate contradicts.
+    assert "never a level match" in cv["interpretation"]
+    assert led["never_a_level_match"] is True
+
+    # (ii) deployed numerator = the point-prevalence, constant on 60-66.
+    assert (
+        by_sex["female"]["psid_disabled_prevalence_60_66_pct"]
+        == led["prevalence_60_66_female_pp"]
+        == 5.79
+    )
+    assert (
+        round(by_sex["male"]["psid_disabled_prevalence_60_66_pct"], 2)
+        == led["prevalence_60_66_male_pp_round2"]
+        == 6.55
+    )
+
+    # (iii)+(iv) anchor / tolerance / window floor / dev from candidate 1.
+    per_cell = _candidate1()["family_b"]["per_cell"]
+    female = per_cell["claim_age.disability_conversion|female"]
+    male = per_cell["claim_age.disability_conversion|male"]
+    assert female["anchor_pp"] == led["anchor_female_pp"] == 14.1
+    assert male["anchor_pp"] == led["anchor_male_pp"] == 14.5
+    assert female["tolerance_pp"] == led["tolerance_female_pp"] == 1.89
+    assert male["tolerance_pp"] == led["tolerance_male_pp"] == 1.91
+    assert (
+        round(female["anchor_pp"] - female["tolerance_pp"], 2)
+        == led["required_window_floor_female_pp_round2"]
+        == 12.21
+    )
+    assert (
+        round(male["anchor_pp"] - male["tolerance_pp"], 2)
+        == led["required_window_floor_male_pp_round2"]
+        == 12.59
+    )
+    assert (
+        round(female["abs_dev_pp"], 2)
+        == led["candidate1_abs_dev_female_pp_round2"]
+        == 8.3
+    )
+    assert (
+        round(male["abs_dev_pp"], 2)
+        == led["candidate1_abs_dev_male_pp_round2"]
+        == 8.07
+    )
+    assert female["pass"] is False and male["pass"] is False
+    assert led["candidate1_conversion_cells_fail"] is True
+
+
+# --------------------------------------------------------------------------
 # OC consequence: family-A OC recomputes to 0.922 / 0.9481 and is INVARIANT
 # --------------------------------------------------------------------------
 def test_family_a_oc_recomputes_and_is_invariant_to_demotion():
     """The doc's OC claim: p_seed 0.922 / p_gate 0.9481 recomputes from the 53
     locked family-A tolerances + the frozen floor sigmas (draw-noise-free
-    half-normal), and NONE of the 8 DI cells is in the family-A OC machinery, so
-    demoting them cannot move it."""
+    half-normal), and NONE of the 10 family-B cells is in the family-A OC
+    machinery, so demoting all of them cannot move it."""
     led = _ledger()["family_a_oc"]
     floors = _floors()
     per = floors["faithful_candidate_oc"]["per_cell"]
@@ -229,16 +409,18 @@ def test_family_a_oc_recomputes_and_is_invariant_to_demotion():
         floors["faithful_candidate_oc"]["p_gate_pass_4_of_5"]
     )
 
-    # INVARIANCE: the 8 DI cells are family-B; they never appear in the
-    # family-A OC per-cell machinery, so demotion leaves the OC byte-identical.
-    di_cells = {f"di_prevalence.{b}" for b in DI_BANDS}
-    assert di_cells.isdisjoint(per)
-    assert di_cells.isdisjoint(gate_eligible)
+    # INVARIANCE: all 10 family-B cells (8 DI bands + 2 conversion) are absent
+    # from the family-A OC per-cell machinery, so demotion leaves it identical.
+    family_b_cells = {f"di_prevalence.{b}" for b in DI_BANDS} | set(
+        CONVERSION_CELLS
+    )
+    assert family_b_cells.isdisjoint(per)
+    assert family_b_cells.isdisjoint(gate_eligible)
     assert led["invariant_under_amendment"] is True
 
 
 # --------------------------------------------------------------------------
-# Partition consequence: family B 10 -> 2 gated; overall 65 -> 57 gated
+# Partition consequence: family B 10 -> 0 gated; overall 65 -> 55 gated
 # --------------------------------------------------------------------------
 def test_family_b_partition_now_and_after_option_a():
     led = _ledger()["family_b_partition"]
@@ -253,23 +435,105 @@ def test_family_b_partition_now_and_after_option_a():
     assert len(conv) == led["conversion"] == 2
     assert len(di) == led["di_bands"] == 8
     assert set(c.split(".", 1)[1] for c in di) == set(DI_BANDS)
+    assert set(conv) == set(CONVERSION_CELLS)
     assert len(report_only) == led["report_only_now"] == 15
 
-    # AFTER option (a): the 8 DI bands move to report-only, conversion stays.
-    assert led["gated_after_option_a"] == len(conv) == 2
+    # AFTER option (a): ALL 10 cells move to report-only; family B gates nothing.
+    assert led["gated_after_option_a"] == 0
     assert (
-        led["report_only_after_option_a"] == len(report_only) + len(di) == 23
+        led["report_only_after_option_a"]
+        == len(report_only) + len(di) + len(conv)
+        == 25
     )
 
 
-def test_overall_partition_65_to_57_gated():
+def test_overall_partition_65_to_55_gated():
     led = _ledger()["overall_partition"]
-    # 53 family-A + 10 family-B + 2 family-C == 65 gated; option (a) -> 57.
+    # 53 family-A + 10 family-B + 2 family-C == 65 gated; option (a) -> 55.
     assert led["gated_now"] == 53 + 10 + 2 == 65
-    assert led["gated_after_option_a"] == 53 + 2 + 2 == 57
-    # 52 family-A + 15 family-B report-only == 67; option (a) -> 75.
+    assert led["gated_after_option_a"] == 53 + 0 + 2 == 55
+    # 52 family-A + 15 family-B report-only == 67; option (a) -> 77.
     assert led["report_only_now"] == 52 + 15 == 67
-    assert led["report_only_after_option_a"] == 52 + 23 == 75
+    assert led["report_only_after_option_a"] == 52 + 25 == 77
+
+
+def test_oc_statement_after_option_a_is_0p9481_times_family_c():
+    """After demoting all 10, family B contributes nothing gated, so the honest
+    overall OC is 0.9481 x I(family C) -- stated in the prose, not only the
+    ledger."""
+    led = _ledger()
+    assert led["oc_statement_after_option_a"] == "0.9481 * I(family_c)"
+    prose = _prose_without_ledger()
+    assert "0.9481 × I(family C)" in prose
+    assert "55-cell" in prose  # the residual gated surface size
+
+
+# --------------------------------------------------------------------------
+# Referee fix B: BIND the operative flip text (section 7) + history (section 8)
+# --------------------------------------------------------------------------
+def test_section7_flip_list_binds_all_ten_family_b_cells():
+    """The section-7 enumerated demotion list must name EXACTLY the 10 locked
+    family-B gated cells. Deleting any key (the referee's '55-59 deleted still
+    passes' mutation) now fails: the parsed set diverges from gates.yaml."""
+    section7 = _section(7)
+    bands = set(re.findall(r"di_prevalence\.([\w-]+)", section7))
+    convs = set(re.findall(r"disability_conversion\|(\w+)", section7))
+    parsed = {f"di_prevalence.{b}" for b in bands} | {
+        f"claim_age.disability_conversion|{s}" for s in convs
+    }
+    gated = set(_gate_w1()["thresholds"]["family_b"]["gated_cells"])
+    assert len(gated) == 10
+    assert bands == set(DI_BANDS)
+    assert convs == {"female", "male"}
+    assert parsed == gated  # section 7 lists exactly the 10 cells to demote
+    assert _ledger()["family_b_partition"]["gated_after_option_a"] == 0
+
+
+def test_section7_rollup_matches_ledger_partition():
+    """The bolded section-7 roll-up '55 gated / 77 report-only' is parsed and
+    cross-checked against the ledger. The referee's '57/75 -> 58/74 still
+    passes' mutation now fails."""
+    led = _ledger()["overall_partition"]
+    section7 = _section(7)
+    rollups = re.findall(r"\*\*(\d+) gated / (\d+) report-only\*\*", section7)
+    assert rollups == [
+        (
+            str(led["gated_after_option_a"]),
+            str(led["report_only_after_option_a"]),
+        )
+    ]
+    assert rollups == [("55", "77")]
+
+
+def test_section8_history_figures_bound():
+    """The section-8 permanent history entry's figures are parsed and bound to
+    the ledger. The referee's 'p_gate 0.9481 -> 0.9482 still passes' mutation
+    now fails."""
+    led = _ledger()
+    # the history entry is a folded YAML scalar, so collapse whitespace runs
+    # (newline + indent) before substring-matching wrapped phrases.
+    section8 = " ".join(_section(8).split())
+    part = led["overall_partition"]
+    conv = led["conversion_cells"]
+    # p_gate carried verbatim, bound to the LABELLED occurrence so a drift of
+    # the reported p_gate to 0.9482 fails even though 0.9481 also appears in the
+    # OC-statement clause.
+    assert f"p_gate {led['family_a_oc']['p_gate']}" in section8
+    # the exact partition transition, built from the ledger.
+    transition = (
+        f"{part['gated_now']} -> {part['gated_after_option_a']} gated, "
+        f"{part['report_only_now']} -> "
+        f"{part['report_only_after_option_a']} report-only"
+    )
+    assert transition in section8
+    assert "65 -> 55 gated, 67 -> 77 report-only" in section8
+    # residual surface size + the conversion grounds in the record.
+    assert f"{part['gated_after_option_a']}-cell" in section8
+    assert (
+        f"{conv['ratio_psid_analog_to_admin_female_round3']}/"
+        f"{conv['ratio_psid_analog_to_admin_male_round3']}"
+    ) in section8
+    assert "0.267/0.322" in section8
 
 
 # --------------------------------------------------------------------------
@@ -291,18 +555,29 @@ def test_no_self_rescue_candidate1_fails_all_three_families():
     assert v["n_seed_pass_family_a"] == 0
 
 
-def test_no_self_rescue_retained_conversion_cells_still_fail_for_candidate1():
-    """Demoting the 8 DI bands cannot flip candidate 1: it ALSO misses the 2
-    RETAINED conversion cells, so the amended surface fails it too."""
+def test_no_self_rescue_all_ten_family_b_cells_fail_for_candidate1():
+    """Demoting all 10 family-B cells rescues nothing: candidate 1 fails every
+    one of them, AND fails family A and family C independently of the
+    (family-B-only) amendment."""
     led = _ledger()["no_self_rescue"]
-    per_cell = _candidate1()["family_b"]["per_cell"]
+    c1 = _candidate1()
+    per_cell = c1["family_b"]["per_cell"]
     conv = [c for c in per_cell if "disability_conversion" in c]
+    di = [c for c in per_cell if c.startswith("di_prevalence.")]
     assert len(conv) == 2
+    assert len(di) == 8
+    for cell in conv + di:
+        assert per_cell[cell]["pass"] is False, cell
+    # the conversion pair in particular exceeds tolerance -- the "retained
+    # cell" the referee overturned.
     for cell in conv:
         row = per_cell[cell]
-        assert row["pass"] is False, cell
         assert row["abs_dev_pp"] > row["tolerance_pp"], cell
-    assert led["retained_conversion_cells_fail_for_candidate1"] is True
+    assert led["all_ten_family_b_cells_fail_for_candidate1"] is True
+    # family A and family C fail independently of the amendment.
+    v = c1["verdict"]
+    assert v["family_a_pass"] is False and v["family_c_pass"] is False
+    assert led["fails_family_a_and_c_independently_of_amendment"] is True
     assert led["candidate1_pr"] == 162
 
 
@@ -326,5 +601,5 @@ def test_proposal_does_not_flip_gates_yaml():
     master = yaml.safe_load(master_text)["gates"]["gate_w1"]
     current = _gate_w1()
     assert current == master, "the proposal PR must not edit gate_w1"
-    # and family B still gates the full 10 (DI bands NOT yet demoted).
+    # and family B still gates the full 10 (cells NOT yet demoted).
     assert len(current["thresholds"]["family_b"]["gated_cells"]) == 10
