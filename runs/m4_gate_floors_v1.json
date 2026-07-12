@@ -56,12 +56,12 @@
   },
   "gate_design": {
     "kind": "anchor_based",
-    "contrast": "gate-1 external checks anchor to admin series; gate-2/2b/2c are holdout-only. M4 is anchor-based: the DI concept deltas forbid a self-report level gate, so the gated surfaces are concept-bridged SHAPE/DOMINANCE vs the SSA tables, with the gate-2 half-split floor reused for hazard REPRODUCTION only.",
+    "contrast": "gate-1 external checks anchor to admin series; gate-2/2b/2c are holdout-only. M4 is anchor-based: the DI concept deltas forbid gating a self-report LEVEL against an SSA level, so the SSA-facing surfaces are concept-bridged SHAPE/DOMINANCE. But the concept deltas do NOT touch an internal candidate-vs-PSID REPRODUCTION cell, so the gate-2 half-split floor gates the flow hazards AND the prevalence.50-59 occupancy STOCK (finding 1: the pre-registered internal families restored).",
     "surfaces": {
-      "a_conversion_exit_vs_t50": "GATED (dominance, per sex)",
-      "b_prevalence_ageshape_vs_t19": "GATED (co-monotone+peak, per sex)",
+      "a_conversion_exit_vs_t50": "GATED (candidate dominance + margin, per sex)",
+      "b_prevalence_ageshape_vs_t19": "GATED (candidate co-monotone rise + margin, per sex)",
       "c_termination_trend_vs_t49": "REPORT-ONLY (period-pooling)",
-      "d_internal_hazard_floor": "GATED at k=3 (6 cells); the rest report-only (tolerance_above_t_max)"
+      "d_internal_reproduction_floor": "GATED, mixed k (8 cells): flow hazards @k=3 + prevalence.50-59 STOCK @k=4; the rest report-only (tolerance_above_t_max)"
     }
   },
   "reference_moments": {
@@ -380,7 +380,7 @@
   },
   "anchor_checks": {
     "prevalence_ageshape.comonotone|female": {
-      "statistic": "disabled-prevalence share strictly rises across 20-29<30-39<40-49<50-59 and peaks at 50-59, co-monotone with the Table 19 age-shape over the bridged bands",
+      "statistic": "disabled-prevalence share strictly RISES across the four bridged working-age bands 20-29<30-39<40-49<50-59, co-monotone with the Table 19 age-shape over those bands. The single binding condition is the strict rise; the '50-59 peak' is the peak WITHIN the bridged window only (Table 19's true peak is 60-FRA, excluded by the relabel delta) and is IMPLIED by the rise, not an independent condition",
       "gated": true,
       "psid_share_by_band": {
         "20-29": 0.05556836848636365,
@@ -401,6 +401,8 @@
       },
       "t19_strictly_rises_bridged": true,
       "rank_agreement_over_bridged_bands": true,
+      "implied_conditions": "peak_is_5059 and rank_agreement_over_bridged_bands add NO bite: the argmax of a strictly rising 4-vector is its last element (=> the 50-59 peak), and PSID-rises + T19-rises already force rank agreement over the bridged bands. They are recorded as corroboration, not independent gate conditions; the one binding candidate condition is the strict rise (with margin).",
+      "anchor_corroboration": "t19_strictly_rises_bridged is a CONSTANT of the frozen, sha-pinned Table 19 -- it corroborates the CHOICE of invariant at evidence time and constrains no candidate. The candidate is bound only by its own simulated rise + margin (see protocol.anchor_statistic).",
       "half_split_floor": {
         "min_gap": {
           "mean": 0.06615612947401278,
@@ -413,19 +415,19 @@
         "peak_is_5059_on_n_halves": 100
       },
       "margin_sigma_units": 6.099,
-      "gate_rule": "strict rise + 50-59 peak + Table-19 rank agreement + holds on all 100 halves + margin >= 3 sigma",
+      "gate_rule": "strict rise (the binding condition) + margin >= 3 sigma + holds on all 100 halves; the 50-59 peak and Table-19 rank agreement are IMPLIED by the rise (corroboration, not independent conditions)",
       "anchor_source": "Table 19 (prevalence by sex x age, 2023)",
-      "concept_bridge": "LEVELS are not bridgeable (self-report captures milder / younger limitation: the 20-29 PSID share is ~5x the Table 19 share; deltas 1-2). The co-monotone RISE and 50-59 peak are level-invariant, so the severity/population deltas do not touch them; the 50-59 share happens to match in level too. The 60-FRA band is REPORT-ONLY (delta 3: PSID disabled relabel to retired near FRA, while the DI stock ages into 60-FRA).",
+      "concept_bridge": "LEVELS are not bridgeable (self-report captures milder / younger limitation: the 20-29 PSID share is ~5x the Table 19 share; deltas 1-3 -- definition, population AND severity). The co-monotone RISE across the bridged bands is level-invariant, so those deltas do not touch it; the 50-59 share happens to match in level too. The 60-FRA band is REPORT-ONLY (delta 4, transience: PSID disabled relabel to retired near FRA, while the DI stock ages into 60-FRA). NB the '50-59 peak' is only the peak WITHIN the bridged window; Table 19's true peak is 60-FRA, whose exclusion is set by the same delta-4 relabel.",
       "report_only_companions": {
-        "prevalence_level.20-29|female": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.30-39|female": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.40-49|female": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.50-59|female": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.60-66|female": "self_report_level_delta (deltas 1-2; only the shape bridges)"
+        "prevalence_level.20-29|female": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.30-39|female": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.40-49|female": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.50-59|female": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.60-66|female": "self_report_level_delta (deltas 1-3; only the shape bridges)"
       }
     },
     "prevalence_ageshape.comonotone|male": {
-      "statistic": "disabled-prevalence share strictly rises across 20-29<30-39<40-49<50-59 and peaks at 50-59, co-monotone with the Table 19 age-shape over the bridged bands",
+      "statistic": "disabled-prevalence share strictly RISES across the four bridged working-age bands 20-29<30-39<40-49<50-59, co-monotone with the Table 19 age-shape over those bands. The single binding condition is the strict rise; the '50-59 peak' is the peak WITHIN the bridged window only (Table 19's true peak is 60-FRA, excluded by the relabel delta) and is IMPLIED by the rise, not an independent condition",
       "gated": true,
       "psid_share_by_band": {
         "20-29": 0.09404753923327235,
@@ -446,6 +448,8 @@
       },
       "t19_strictly_rises_bridged": true,
       "rank_agreement_over_bridged_bands": true,
+      "implied_conditions": "peak_is_5059 and rank_agreement_over_bridged_bands add NO bite: the argmax of a strictly rising 4-vector is its last element (=> the 50-59 peak), and PSID-rises + T19-rises already force rank agreement over the bridged bands. They are recorded as corroboration, not independent gate conditions; the one binding candidate condition is the strict rise (with margin).",
+      "anchor_corroboration": "t19_strictly_rises_bridged is a CONSTANT of the frozen, sha-pinned Table 19 -- it corroborates the CHOICE of invariant at evidence time and constrains no candidate. The candidate is bound only by its own simulated rise + margin (see protocol.anchor_statistic).",
       "half_split_floor": {
         "min_gap": {
           "mean": 0.055093575561878244,
@@ -458,15 +462,15 @@
         "peak_is_5059_on_n_halves": 100
       },
       "margin_sigma_units": 5.298,
-      "gate_rule": "strict rise + 50-59 peak + Table-19 rank agreement + holds on all 100 halves + margin >= 3 sigma",
+      "gate_rule": "strict rise (the binding condition) + margin >= 3 sigma + holds on all 100 halves; the 50-59 peak and Table-19 rank agreement are IMPLIED by the rise (corroboration, not independent conditions)",
       "anchor_source": "Table 19 (prevalence by sex x age, 2023)",
-      "concept_bridge": "LEVELS are not bridgeable (self-report captures milder / younger limitation: the 20-29 PSID share is ~5x the Table 19 share; deltas 1-2). The co-monotone RISE and 50-59 peak are level-invariant, so the severity/population deltas do not touch them; the 50-59 share happens to match in level too. The 60-FRA band is REPORT-ONLY (delta 3: PSID disabled relabel to retired near FRA, while the DI stock ages into 60-FRA).",
+      "concept_bridge": "LEVELS are not bridgeable (self-report captures milder / younger limitation: the 20-29 PSID share is ~5x the Table 19 share; deltas 1-3 -- definition, population AND severity). The co-monotone RISE across the bridged bands is level-invariant, so those deltas do not touch it; the 50-59 share happens to match in level too. The 60-FRA band is REPORT-ONLY (delta 4, transience: PSID disabled relabel to retired near FRA, while the DI stock ages into 60-FRA). NB the '50-59 peak' is only the peak WITHIN the bridged window; Table 19's true peak is 60-FRA, whose exclusion is set by the same delta-4 relabel.",
       "report_only_companions": {
-        "prevalence_level.20-29|male": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.30-39|male": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.40-49|male": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.50-59|male": "self_report_level_delta (deltas 1-2; only the shape bridges)",
-        "prevalence_level.60-66|male": "self_report_level_delta (deltas 1-2; only the shape bridges)"
+        "prevalence_level.20-29|male": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.30-39|male": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.40-49|male": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.50-59|male": "self_report_level_delta (deltas 1-3; only the shape bridges)",
+        "prevalence_level.60-66|male": "self_report_level_delta (deltas 1-3; only the shape bridges)"
       }
     },
     "conversion_exit.retirement_dominant|female": {
@@ -478,6 +482,7 @@
       "psid_n_retired": 182,
       "t50_nondeath_fra_conversion_share": 0.8203186375200905,
       "t50_is_dominant": true,
+      "anchor_corroboration": "t50_is_dominant is a CONSTANT of the frozen, sha-pinned Table 50 and is additionally near-MECHANICAL: FRA conversion is automatic at FRA, and Table 50 pools cessations over ALL ages against the PSID 60-67 window (an age-universe mismatch). It corroborates the choice of the dominance invariant at evidence time; it constrains no candidate. The candidate is bound only by its own simulated retirement share > 0.5 with margin (see protocol.anchor_statistic).",
       "half_split_floor": {
         "share": {
           "mean": 0.7019592359017932,
@@ -490,9 +495,9 @@
         "holds_on_all_halves": true
       },
       "margin_sigma_units": 4.797,
-      "gate_rule": "retirement share > 0.5 + Table-50 also dominant + dominant on all 100 halves + margin >= 3 sigma + >= 20 exits",
+      "gate_rule": "candidate retirement share > 0.5 with margin >= 3 sigma + holds on all 100 halves + >= 20 exits; Table-50 dominance is corroboration, not a candidate condition",
       "anchor_source": "Table 50 (worker terminations by reason, 2023)",
-      "concept_bridge": "The exit-reason DOMINANCE is concept-robust: near FRA, retirement is the majority non-death exit from disability in both the PSID self-report and Table 50 (FRA-conversion 455,267 vs medical-cessation 99,721 worker terminations). Deaths are right-censored in the PSID pairs (no w' observation), so this is the retirement-vs-return-to-work split among the OBSERVABLE exits -- a named censoring delta, matched by excluding death from the Table 50 denominator. LEVELS (6.B5.1 ratio) and the sex-ordering are report-only."
+      "concept_bridge": "The exit-reason DOMINANCE is concept-robust: near FRA, retirement is the majority non-death exit from disability in both the PSID self-report and Table 50 (FRA-conversion 455,267 vs medical-cessation 99,721 worker terminations). Two disclosures the dominance rides on: (i) Table 50's dominance is partly MECHANICAL (FRA conversion is automatic at FRA) and pools cessations over ALL ages against the PSID 60-67 exit window -- an AGE-UNIVERSE mismatch, fair for a dominance bridge but named. (ii) Both DEATH and ATTRITION are right-censored in the PSID pairs (a death or a panel dropout between waves forms no w' pair), so this is the retirement-vs-return-to-work split among the OBSERVABLE exits; death is matched by excluding it from the Table 50 denominator, but attrition has NO Table 50 analog and is disclosed as an additional censoring channel. LEVELS (6.B5.1 ratio, delta 5) and the sex-ordering are report-only."
     },
     "conversion_exit.retirement_dominant|male": {
       "statistic": "weighted share of non-death disability exits at ages 60-67 that go to retired (vs return-to-work)",
@@ -503,6 +508,7 @@
       "psid_n_retired": 231,
       "t50_nondeath_fra_conversion_share": 0.8203186375200905,
       "t50_is_dominant": true,
+      "anchor_corroboration": "t50_is_dominant is a CONSTANT of the frozen, sha-pinned Table 50 and is additionally near-MECHANICAL: FRA conversion is automatic at FRA, and Table 50 pools cessations over ALL ages against the PSID 60-67 window (an age-universe mismatch). It corroborates the choice of the dominance invariant at evidence time; it constrains no candidate. The candidate is bound only by its own simulated retirement share > 0.5 with margin (see protocol.anchor_statistic).",
       "half_split_floor": {
         "share": {
           "mean": 0.8568068088874929,
@@ -515,16 +521,16 @@
         "holds_on_all_halves": true
       },
       "margin_sigma_units": 12.806,
-      "gate_rule": "retirement share > 0.5 + Table-50 also dominant + dominant on all 100 halves + margin >= 3 sigma + >= 20 exits",
+      "gate_rule": "candidate retirement share > 0.5 with margin >= 3 sigma + holds on all 100 halves + >= 20 exits; Table-50 dominance is corroboration, not a candidate condition",
       "anchor_source": "Table 50 (worker terminations by reason, 2023)",
-      "concept_bridge": "The exit-reason DOMINANCE is concept-robust: near FRA, retirement is the majority non-death exit from disability in both the PSID self-report and Table 50 (FRA-conversion 455,267 vs medical-cessation 99,721 worker terminations). Deaths are right-censored in the PSID pairs (no w' observation), so this is the retirement-vs-return-to-work split among the OBSERVABLE exits -- a named censoring delta, matched by excluding death from the Table 50 denominator. LEVELS (6.B5.1 ratio) and the sex-ordering are report-only."
+      "concept_bridge": "The exit-reason DOMINANCE is concept-robust: near FRA, retirement is the majority non-death exit from disability in both the PSID self-report and Table 50 (FRA-conversion 455,267 vs medical-cessation 99,721 worker terminations). Two disclosures the dominance rides on: (i) Table 50's dominance is partly MECHANICAL (FRA conversion is automatic at FRA) and pools cessations over ALL ages against the PSID 60-67 exit window -- an AGE-UNIVERSE mismatch, fair for a dominance bridge but named. (ii) Both DEATH and ATTRITION are right-censored in the PSID pairs (a death or a panel dropout between waves forms no w' pair), so this is the retirement-vs-return-to-work split among the OBSERVABLE exits; death is matched by excluding it from the Table 50 denominator, but attrition has NO Table 50 analog and is disclosed as an additional censoring channel. LEVELS (6.B5.1 ratio, delta 5) and the sex-ordering are report-only."
     }
   },
   "conversion_reports": {
     "gated": false,
     "report_only": true,
     "level_ratio": {
-      "note": "conversion_denominator_delta (delta 4): 6.B5.1 is conversions / retired-worker AWARDS; the PSID analog is disabled->retired / all self-reported retirement entries. Different denominators -> the ~0.27-0.32 ratio is REPORTED, never calibrated.",
+      "note": "conversion_denominator_delta (delta 5): 6.B5.1 is conversions / retired-worker AWARDS; the PSID analog is disabled->retired / all self-reported retirement entries. Different denominators -> the ~0.27-0.32 ratio is REPORTED, never calibrated.",
       "by_sex": {
         "female": {
           "psid_conversion_analog_pct": 3.407,
@@ -558,7 +564,7 @@
       "recent_trend_direction": "rising"
     },
     "report_reason": "no_pooled_year_series",
-    "note": "Table 49's worker termination rate rises 90->107 per 1,000 over 2015-2023 (a secular fall from 196 in 1960 to a 76 trough in 2003, then a rise). The PSID hazards POOL covered waves 1982-2023 (period-pooling delta 6), so there is no year-indexed PSID analog to gate this trend against. Recorded as context, never gated; a windowed year-indexed PSID hazard is future work (see wanted_ssa_tables)."
+    "note": "Table 49's worker termination rate rises 90->107 per 1,000 over 2015-2023 (a secular fall from 196 in 1960 to a 76 trough in 2003, then a rise). The PSID hazards POOL covered waves 1982-2023 (period-pooling delta 7), so there is no year-indexed PSID analog to gate this trend against. Recorded as context, never gated; a windowed year-indexed PSID hazard is future work (see wanted_ssa_tables)."
   },
   "internal_noise_floor": {
     "method": "person-disjoint 50/50 half-split (populace_dynamics.harness.panel.split_panel_by_person, fraction=0.5, seeds 0-99) of the same band x sex reference moments; floor statistic is |ln(r_A / r_B)|",
@@ -4432,7 +4438,7 @@
         "realized_sigma": 0.23069631911928679,
         "tolerance_sigma_units": 2.583,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "conversion.retired_from_disabled|male": {
         "family": "conversion",
@@ -4443,7 +4449,7 @@
         "realized_sigma": 0.22389525004470678,
         "tolerance_sigma_units": 2.729,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "incidence.20-29|female": {
         "family": "incidence",
@@ -4560,110 +4566,110 @@
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 152,
-        "tolerance": 0.698,
+        "tolerance": 0.854,
         "realized_sigma": 0.27741042202385313,
-        "tolerance_sigma_units": 2.516,
+        "tolerance_sigma_units": 3.078,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.20-29|male": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 218,
-        "tolerance": 0.49,
+        "tolerance": 0.596,
         "realized_sigma": 0.20161055770255795,
-        "tolerance_sigma_units": 2.43,
+        "tolerance_sigma_units": 2.956,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.30-39|female": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 275,
-        "tolerance": 0.467,
+        "tolerance": 0.579,
         "realized_sigma": 0.1717371402233024,
-        "tolerance_sigma_units": 2.719,
+        "tolerance_sigma_units": 3.371,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.30-39|male": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 338,
-        "tolerance": 0.43,
+        "tolerance": 0.525,
         "realized_sigma": 0.17173350355177003,
-        "tolerance_sigma_units": 2.504,
+        "tolerance_sigma_units": 3.057,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.40-49|female": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 548,
-        "tolerance": 0.336,
+        "tolerance": 0.41,
         "realized_sigma": 0.13552910773854568,
-        "tolerance_sigma_units": 2.479,
+        "tolerance_sigma_units": 3.025,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.40-49|male": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 468,
-        "tolerance": 0.383,
+        "tolerance": 0.472,
         "realized_sigma": 0.14739152813773834,
-        "tolerance_sigma_units": 2.599,
+        "tolerance_sigma_units": 3.202,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.50-59|female": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 758,
-        "tolerance": 0.301,
+        "tolerance": 0.371,
         "realized_sigma": 0.1150540310644567,
-        "tolerance_sigma_units": 2.616,
-        "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "tolerance_sigma_units": 3.225,
+        "gate_eligible": true,
+        "report_reason": "gate_eligible"
       },
       "prevalence.50-59|male": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 609,
-        "tolerance": 0.315,
+        "tolerance": 0.387,
         "realized_sigma": 0.12391365019829537,
-        "tolerance_sigma_units": 2.542,
-        "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "tolerance_sigma_units": 3.123,
+        "gate_eligible": true,
+        "report_reason": "gate_eligible"
       },
       "prevalence.60-66|female": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 384,
-        "tolerance": 0.39,
+        "tolerance": 0.48,
         "realized_sigma": 0.15026298132618573,
-        "tolerance_sigma_units": 2.595,
+        "tolerance_sigma_units": 3.194,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "prevalence.60-66|male": {
         "family": "prevalence",
         "defined_seeds": 100,
         "n_seeds": 100,
         "min_events_either_half": 340,
-        "tolerance": 0.391,
+        "tolerance": 0.482,
         "realized_sigma": 0.1482351975097505,
-        "tolerance_sigma_units": 2.638,
+        "tolerance_sigma_units": 3.252,
         "gate_eligible": false,
-        "report_reason": "level_bridged_via_anchor_shape"
+        "report_reason": "tolerance_above_t_max"
       },
       "recovery.20-29|female": {
         "family": "recovery",
@@ -4778,7 +4784,7 @@
     },
     "k_sensitivity": {
       "2": {
-        "n_gate_eligible": 12,
+        "n_gate_eligible": 21,
         "cells": [
           "incidence.30-39|female",
           "incidence.30-39|male",
@@ -4786,28 +4792,59 @@
           "incidence.40-49|male",
           "incidence.50-59|female",
           "incidence.50-59|male",
+          "prevalence.20-29|male",
+          "prevalence.30-39|female",
+          "prevalence.30-39|male",
+          "prevalence.40-49|female",
+          "prevalence.40-49|male",
+          "prevalence.50-59|female",
+          "prevalence.50-59|male",
+          "prevalence.60-66|female",
+          "prevalence.60-66|male",
           "recovery.40-49|female",
           "recovery.40-49|male",
           "recovery.50-59|female",
           "recovery.50-59|male",
           "recovery.60-66|female",
           "recovery.60-66|male"
-        ]
+        ],
+        "by_family": {
+          "incidence": 6,
+          "prevalence": 9,
+          "recovery": 6
+        }
       },
       "3": {
-        "n_gate_eligible": 6,
+        "n_gate_eligible": 12,
         "cells": [
           "incidence.40-49|female",
           "incidence.50-59|female",
           "incidence.50-59|male",
+          "prevalence.40-49|female",
+          "prevalence.40-49|male",
+          "prevalence.50-59|female",
+          "prevalence.50-59|male",
+          "prevalence.60-66|female",
+          "prevalence.60-66|male",
           "recovery.50-59|female",
           "recovery.60-66|female",
           "recovery.60-66|male"
-        ]
+        ],
+        "by_family": {
+          "incidence": 3,
+          "prevalence": 6,
+          "recovery": 3
+        }
       },
       "4": {
-        "n_gate_eligible": 0,
-        "cells": []
+        "n_gate_eligible": 2,
+        "cells": [
+          "prevalence.50-59|female",
+          "prevalence.50-59|male"
+        ],
+        "by_family": {
+          "prevalence": 2
+        }
       }
     },
     "per_seed": [
@@ -6228,6 +6265,8 @@
       "incidence.40-49|female",
       "incidence.50-59|female",
       "incidence.50-59|male",
+      "prevalence.50-59|female",
+      "prevalence.50-59|male",
       "recovery.50-59|female",
       "recovery.60-66|female",
       "recovery.60-66|male",
@@ -6252,8 +6291,6 @@
       "prevalence.30-39|male",
       "prevalence.40-49|female",
       "prevalence.40-49|male",
-      "prevalence.50-59|female",
-      "prevalence.50-59|male",
       "prevalence.60-66|female",
       "prevalence.60-66|male",
       "recovery.20-29|female",
@@ -6264,12 +6301,14 @@
       "recovery.40-49|male",
       "recovery.50-59|male"
     ],
-    "n_gate_eligible": 10,
-    "n_report_only": 26,
+    "n_gate_eligible": 12,
+    "n_report_only": 24,
     "internal_gate_eligible": [
       "incidence.40-49|female",
       "incidence.50-59|female",
       "incidence.50-59|male",
+      "prevalence.50-59|female",
+      "prevalence.50-59|male",
       "recovery.50-59|female",
       "recovery.60-66|female",
       "recovery.60-66|male"
@@ -6282,11 +6321,12 @@
     ]
   },
   "draft_thresholds": {
-    "k": 3,
+    "flow_k": 3,
+    "stock_k": 4,
     "rounding": 3,
     "t_max": 0.4054651081081644,
     "margin_k": 3,
-    "statistic": "log_ratio_abs_max (internal); ordinal margin (anchor)",
+    "statistic": "log_ratio_abs_max, mixed k (flow=3, stock=4) (internal); candidate margin >= margin_k sigma (anchor)",
     "cells": {
       "incidence.40-49|female": {
         "log_ratio_abs_max": 0.358,
@@ -6294,7 +6334,8 @@
           "floor_mean": 0.11071526510299451,
           "floor_sd": 0.08228065050510978,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.13769631193279994,
         "tolerance_sigma_units": 2.6
@@ -6305,7 +6346,8 @@
           "floor_mean": 0.10349691924506009,
           "floor_sd": 0.07678432345736391,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.12864092000112376,
         "tolerance_sigma_units": 2.596
@@ -6316,10 +6358,35 @@
           "floor_mean": 0.11723451609344585,
           "floor_sd": 0.07900989169231551,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.14115264474689634,
         "tolerance_sigma_units": 2.508
+      },
+      "prevalence.50-59|female": {
+        "log_ratio_abs_max": 0.371,
+        "derivation": {
+          "floor_mean": 0.0916119201016503,
+          "floor_sd": 0.06995443076248163,
+          "k": 4,
+          "rounding": 3,
+          "quantity_type": "stock"
+        },
+        "realized_sigma": 0.1150540310644567,
+        "tolerance_sigma_units": 3.225
+      },
+      "prevalence.50-59|male": {
+        "log_ratio_abs_max": 0.387,
+        "derivation": {
+          "floor_mean": 0.10163732995817458,
+          "floor_sd": 0.07124042281505165,
+          "k": 4,
+          "rounding": 3,
+          "quantity_type": "stock"
+        },
+        "realized_sigma": 0.12391365019829537,
+        "tolerance_sigma_units": 3.123
       },
       "recovery.50-59|female": {
         "log_ratio_abs_max": 0.4,
@@ -6327,7 +6394,8 @@
           "floor_mean": 0.11877913628523475,
           "floor_sd": 0.09388627120294732,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.15111243766763807,
         "tolerance_sigma_units": 2.647
@@ -6338,7 +6406,8 @@
           "floor_mean": 0.10629751760831395,
           "floor_sd": 0.0752845898353439,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.13003943256450723,
         "tolerance_sigma_units": 2.553
@@ -6349,23 +6418,193 @@
           "floor_mean": 0.1184480743814097,
           "floor_sd": 0.09374206275338334,
           "k": 3,
-          "rounding": 3
+          "rounding": 3,
+          "quantity_type": "flow"
         },
         "realized_sigma": 0.15076353972572626,
         "tolerance_sigma_units": 2.653
       }
     },
-    "note": "DRAFT internal |ln ratio| tolerances = round(mean + 3*sd, 3) capped at ln(1.5); anchor cells gate on the ordinal invariant + 100-half stability + >= margin_k sigma (see anchor_checks)."
+    "note": "DRAFT internal |ln ratio| tolerances = round(mean + k*sd, 3) capped at ln(1.5), with the pre-registered mixed k (FLOW=3, STOCK=4; each cell's k is in cells[*].derivation.k). Anchor cells gate on the candidate's per-seed invariant + margin >= margin_k sigma (see protocol.anchor_statistic, anchor_checks)."
+  },
+  "k_selection": {
+    "rule": "FLOW families (incidence/recovery/conversion) use DRAFT_K=3; the prevalence STOCK uses STOCK_K=4. The flow k is pinned by the faithful-candidate OC against the 2a/2b/2c precedent band: k=2 gates 12 flow cells but collapses the gate OC to ~0.29; k=4 empties the flow surface; k=3 is the only in-range [2,3] choice clearing precedent. The stock k=4 is the sole k at which any prevalence cell (50-59|{f,m}) survives the ln(1.5) cap, giving the occupancy stock its teeth. STATED, pre-registered deviation from the single-k proposed_thresholds_note.",
+    "chosen_flow_k": 3,
+    "chosen_stock_k": 4,
+    "by_k_flow_only": {
+      "2": {
+        "n_flow_cells": 12,
+        "cells": [
+          "incidence.30-39|female",
+          "incidence.30-39|male",
+          "incidence.40-49|female",
+          "incidence.40-49|male",
+          "incidence.50-59|female",
+          "incidence.50-59|male",
+          "recovery.40-49|female",
+          "recovery.40-49|male",
+          "recovery.50-59|female",
+          "recovery.50-59|male",
+          "recovery.60-66|female",
+          "recovery.60-66|male"
+        ],
+        "faithful_oc_seed": 0.5719,
+        "faithful_oc_gate_4_of_5": 0.2901
+      },
+      "3": {
+        "n_flow_cells": 6,
+        "cells": [
+          "incidence.40-49|female",
+          "incidence.50-59|female",
+          "incidence.50-59|male",
+          "recovery.50-59|female",
+          "recovery.60-66|female",
+          "recovery.60-66|male"
+        ],
+        "faithful_oc_seed": 0.9437,
+        "faithful_oc_gate_4_of_5": 0.9717
+      },
+      "4": {
+        "n_flow_cells": 0,
+        "cells": [],
+        "faithful_oc_seed": null,
+        "faithful_oc_gate_4_of_5": null
+      }
+    },
+    "k2_flow_oc_gate_4_of_5": 0.2901,
+    "k3_flow_oc_gate_4_of_5": 0.9717,
+    "precedent_oc_band": {
+      "gate_2a": 0.9685,
+      "gate_2b": 0.9678,
+      "gate_2c": 0.9641
+    },
+    "alt_option_i_uniform_k3_full_surface": {
+      "cells": [
+        "incidence.40-49|female",
+        "incidence.50-59|female",
+        "incidence.50-59|male",
+        "prevalence.40-49|female",
+        "prevalence.40-49|male",
+        "prevalence.50-59|female",
+        "prevalence.50-59|male",
+        "prevalence.60-66|female",
+        "prevalence.60-66|male",
+        "recovery.50-59|female",
+        "recovery.60-66|female",
+        "recovery.60-66|male"
+      ],
+      "n_cells": 12,
+      "faithful_oc_gate_4_of_5": 0.9008,
+      "note": "Referee option (i): restore the pre-registered families under a SINGLE uniform k=3 -> 12 internal cells (6 flow + 6 prevalence), faithful OC below the precedent band. The adopted hybrid gates flow@k=3 + prevalence.50-59@k=4 instead, for an OC within precedent (see faithful_candidate_oc)."
+    }
+  },
+  "degenerate_candidates": {
+    "note": "wart-2 correction (finding 4): every LEVEL catch below is INTERNAL (incidence/recovery hazards + the prevalence.50-59 occupancy stock). The ANCHOR cells are NOT vacuous but their unique catches are exit-composition inversion (no internal cell sees the exit mix) and flat/hump prevalence SHAPE. The epsilon_tilt row is builder-COMPUTED from the committed sd; the other rows record the referee's degenerate analysis as the catch-structure disclosure.",
+    "epsilon_tilt_prevalence": {
+      "candidate": "disabled-prevalence shares tilted +0.001 per band",
+      "by_sex": {
+        "female": {
+          "min_adjacent_gap": 0.001,
+          "real_half_split_sd": 0.01090291052862014,
+          "margin_sigma_units": 0.0917,
+          "margin_k_required": 3,
+          "passes_bare_ordinal": true,
+          "passes_pinned_margin": false
+        },
+        "male": {
+          "min_adjacent_gap": 0.001,
+          "real_half_split_sd": 0.010965466629052454,
+          "margin_sigma_units": 0.0912,
+          "margin_k_required": 3,
+          "passes_bare_ordinal": true,
+          "passes_pinned_margin": false
+        }
+      },
+      "verdict": "PASSES the bare ordinal (strictly rises) but FAILS the pinned anchor rule -- the +0.001/band gap is << MARGIN_K x the real half-split sd, so margin_sigma << 3. This is why the candidate-side anchor statistic is pinned to the MARGIN reading, not the bare ordinal (finding 3)."
+    },
+    "rows": [
+      {
+        "candidate": "verbatim train-copy (side B rates)",
+        "anchor_prevalence_shape": "passes (real halves)",
+        "anchor_conversion_dominance": "passes",
+        "internal_level": "passes ~at the floor (training_copy_check)"
+      },
+      {
+        "candidate": "age-flat hazards (pooled per-sex rates)",
+        "anchor_prevalence_shape": "FAILS -- hump at 40-49, min gap < 0",
+        "anchor_conversion_dominance": "n/a (mix undefined)",
+        "internal_level": "FAILS -- an incidence/recovery cell exceeds its |ln| tolerance (INTERNAL level catch; realized by the scored candidate machinery)"
+      },
+      {
+        "candidate": "age-flat prevalence (equal shares)",
+        "anchor_prevalence_shape": "FAILS -- min adjacent gap = 0",
+        "anchor_conversion_dominance": "n/a",
+        "internal_level": "n/a"
+      },
+      {
+        "candidate": "epsilon-tilt prevalence (+0.001/band)",
+        "anchor_prevalence_shape": "passes bare ordinal / FAILS pinned margin (see epsilon_tilt_prevalence)",
+        "anchor_conversion_dominance": "n/a",
+        "internal_level": "n/a"
+      },
+      {
+        "candidate": "all-retire-at-60 (every exit to retired)",
+        "anchor_prevalence_shape": "n/a",
+        "anchor_conversion_dominance": "passes trivially (share 1.0)",
+        "internal_level": "FAILS -- recovery.60-66 exceeds its |ln| tolerance (INTERNAL level catch)"
+      },
+      {
+        "candidate": "return-to-work-dominant exit mix (share 0.45)",
+        "anchor_prevalence_shape": "n/a",
+        "anchor_conversion_dominance": "FAILS -- retirement not dominant",
+        "internal_level": "NOT caught internally -- no internal cell sees exit composition; the anchor cell's UNIQUE catch"
+      }
+    ]
   },
   "protocol": {
-    "candidate_estimator": "mean-over-K=20-draws (tranche-2a amendment 1, ratified 2026-07-08). Adopted from the START so the single-draw dead zone the 2b/2c round-1 referees flagged never appears.",
+    "candidate_estimator": "mean-over-K=20-draws (tranche-2a amendment 1, ratified 2026-07-08). The candidate cell rate rbar_candidate,s is the MEAN over K=20 pre-registered simulation draws (numpy default_rng(5200 + k), k=0..19; a stream DISTINCT from the split seeds), scored ONCE per cell as |ln(rbar_candidate,s / rate_a,s)| -- NOT the mean of per-draw |ln| scores. Adopted from the START (the 5200+k stream re-used VERBATIM from gate-2a/2b/2c) so the single-draw dead zone the 2b/2c round-1 referees flagged never appears.",
     "candidate_draws": 20,
-    "candidate_draw_stream": "numpy.random.default_rng(4100 + k), k=0..K-1 (distinct from the split seeds 0..99)",
-    "draw_stream_base": 4100,
+    "candidate_draw_stream": "numpy.random.default_rng(5200 + k), k=0..K-1 (a stream DISTINCT from the split seeds 0..99; the ratified tranche-2a amendment-1 stream, re-used VERBATIM as gate-2b and gate-2c adopted it -- NOT the 4100/4200 family)",
+    "draw_stream_base": 5200,
     "internal_statistic": "per gated internal cell, |ln(rbar_candidate,s / r_holdout,s)| <= the committed tolerance, where rbar is the mean over the 20 draws of the cell RATE (not the mean of per-draw scores)",
-    "anchor_statistic": "per gated anchor cell, the ordinal invariant (co-monotone prevalence rise + 50-59 peak vs Table 19; retirement-dominant non-death FRA exit vs Table 50) holds on the candidate's simulated holdout, as it does on the real full sample and all 100 halves",
-    "conjunction": "seed passes iff every gated cell holds; the gate passes iff >= 4 of 5 gate seeds pass",
-    "n_gated_internal_cells": 6,
+    "anchor_statistic": "PINNED candidate-side rule (finding 3): per gated anchor cell, score the candidate's simulated holdout PER GATE SEED on the SAME mean-over-K=20-draws RATE basis as the internal cells (rbar over the 5200+k draws). The invariant must hold WITH the margin: the candidate's per-seed statistic (prevalence min adjacent gap over the bridged bands; retirement-exit dominance margin) must exceed MARGIN_K=3 x the committed real half-split sd of that statistic -- NOT the bare ordinal. Seed passes iff the margin condition holds; gate passes iff >= 4 of 5 gate seeds pass. This is the margin reading, under which an epsilon-tilt candidate (shares rising +0.001/band) FAILS though it passes the bare ordinal (see degenerate_candidates).",
+    "anchor_statistic_pins": {
+      "candidate_panel_split": "scored per gate seed on the candidate's simulated side-A holdout (NOT re-split into 100 halves; the 100-half floor is the REAL-data margin basis, computed once here)",
+      "draws_enter": "via rbar (the K=20 mean rate), the same basis as the internal cells; NOT per-draw-any-fails and NOT a single draw",
+      "margin_basis": "MARGIN_K=3 x the committed real half-split sd (half_split_floor.min_gap.sd for prevalence; half_split_floor.share.sd for conversion-exit) -- the sd is a fixed real-data constant, not recomputed on the candidate",
+      "conjunction": "margin condition per gate seed AND >= 4 of 5 seeds"
+    },
+    "conjunction": "seed passes iff every gated cell holds (internal |ln| tolerance AND anchor margin); the gate passes iff >= 4 of 5 gate seeds pass",
+    "fresh_run_artifact_schema": {
+      "applies_to": "a fresh candidate one-shot run registered AFTER a future gate_m4 lock; NEVER this floor build, which measures the real-vs-real half-vs-half null (no simulation, no draws).",
+      "per_draw_per_cell_rates": {
+        "required": true,
+        "shape": [
+          20,
+          8,
+          5
+        ],
+        "shape_dims": "K_draws x gated_internal_cells x gate_seeds",
+        "rule": "commit every draw's per-cell rate r[k, cell, s] for all K=20 draws (numpy default_rng(5200 + k), k=0..19), all gated internal cells, and all 5 gate seeds -- NOT only the 20-draw means. So rbar_candidate,s = mean over k recomputes cell-by-cell and |ln(rbar / rate_a)| is independently auditable, not taken on trust."
+      },
+      "undefined_draw_rule": {
+        "required": true,
+        "pre_specified": true,
+        "rule": "if any gated cell's rate is UNDEFINED on any draw (empty simulated denominator), the RUN IS INVALIDATED and must be re-registered and re-run. No draw may be dropped, skipped, substituted, or re-rolled; rbar is always the mean over ALL K registered draws.",
+        "rationale": "silently dropping an undefined draw reintroduces the post-hoc draw selection the mean-over-all-K rule forecloses; a smaller outcome-selected set is not the pre-registered mean-of-20."
+      },
+      "per_draw_dispersion_disclosure": {
+        "required": true,
+        "gated": false,
+        "report_only": true,
+        "commit": {
+          "per_cell_per_draw_sd": "the sd across the K=20 draws of each gated cell's rate, per gated cell per gate seed -- the per-draw over-dispersion the 20-draw mean hides.",
+          "max_per_draw_abs_ln_per_cell": "the maximum over the K=20 draws of |ln(r[k, cell, s] / rate_a,s)| per gated cell per gate seed -- the worst single-draw excursion, reported alongside rbar."
+        },
+        "note": "REPORT-ONLY: no dispersion cap gates the run; the disclosure lets a referee see whether a passing 20-draw mean conceals a wild individual draw."
+      }
+    },
+    "n_gated_internal_cells": 8,
     "n_gated_anchor_cells": 4,
     "note": "No candidate is scored HERE: this is the reported floor + anchor basis. The protocol is recorded so the standard exists before any scored use (the pre-registration discipline)."
   },
@@ -6393,13 +6632,13 @@
       "incidence.50-59|female",
       4
     ],
-    "interpretation": "A train-copy passes at ~the noise floor, as any moment gate's copy must; the memorisation defence is procedural (registration + holdout exclusion), NOT the cell set. What the internal cells catch is a candidate that mis-reproduces the PSID incidence / recovery hazard beyond real-vs-real noise."
+    "interpretation": "A train-copy passes at ~the noise floor, as any moment gate's copy must; the memorisation defence is procedural (registration + holdout exclusion), NOT the cell set. What the internal cells catch is a candidate that mis-reproduces the PSID incidence / recovery hazard OR the disabled-prevalence stock (prevalence.50-59|{f,m}) beyond real-vs-real noise."
   },
   "faithful_candidate_oc": {
     "method": "Independence-approx normal OC. Per gated internal cell a faithful candidate's score ~ half-normal(realized_sigma); cell pass = 2*Phi(tolerance/sigma)-1. Seed pass = product over gated cells; gate = P(>=4 of 5) = p^5 + 5 p^4 (1-p). The K=20 estimator shares this draw-noise-free basis.",
-    "n_gated_internal_cells": 6,
-    "p_seed_pass": 0.9437,
-    "p_gate_pass_4_of_5": 0.9717,
+    "n_gated_internal_cells": 8,
+    "p_seed_pass": 0.9408,
+    "p_gate_pass_4_of_5": 0.9689,
     "per_cell": {
       "incidence.40-49|female": {
         "tolerance": 0.358,
@@ -6415,6 +6654,16 @@
         "tolerance": 0.354,
         "realized_sigma": 0.14115264474689634,
         "cell_pass_prob": 0.987856
+      },
+      "prevalence.50-59|female": {
+        "tolerance": 0.371,
+        "realized_sigma": 0.1150540310644567,
+        "cell_pass_prob": 0.998738
+      },
+      "prevalence.50-59|male": {
+        "tolerance": 0.387,
+        "realized_sigma": 0.12391365019829537,
+        "cell_pass_prob": 0.998211
       },
       "recovery.50-59|female": {
         "tolerance": 0.4,
@@ -6509,38 +6758,38 @@
   ],
   "warts": [
     {
-      "wart": "k=4 empties the internal surface",
-      "detail": "At the gate-2c inherited k=4, 0 transition cells gate (all demote, tolerance_above_t_max): the PSID self-report hazards are too noisy at half-panel to pin to within 1.5x. This DRAFT uses k=3 (the top of the [2,3] range m4_disability_v1's proposed_thresholds_note pre-registered), at which 6 well-powered prime-age/older cells gate. k stays a DRAFT for the referee rounds; the k-sensitivity is committed (k_sensitivity)."
+      "wart": "k=4 empties the transition families, not the whole surface",
+      "detail": "Over the pre-registered internal surface (all four families) the uniform-k gate-eligible counts are k=2 -> 21, k=3 -> 12, k=4 -> 2 (k_sensitivity). At the gate-2c inherited k=4 the FLOW families are empty (0 cells) -- the PSID self-report hazards are too noisy at half-panel to pin to within 1.5x -- but the prevalence.50-59|{f,m} STOCK cells STILL gate (2 cells, tol 0.371/0.387 < ln(1.5)). The adopted mixed rule keeps flow k=3 (the m4_disability_v1 [2,3] range) + stock k=4, so the stock keeps its k=4 teeth while the flows keep k=3; the k-selection OC is committed (k_selection)."
     },
     {
-      "wart": "the gate leans on the anchor cells",
-      "detail": "6 internal (holdout) level cells gate vs 4 anchor structural cells; the binding power is mostly the concept-bridged SHAPE/DOMINANCE anchors, not internal levels. That is by design (the concept deltas block most level gates), but a referee should weigh that the DI gate is predominantly an ordinal-anchor gate."
+      "wart": "the level teeth are internal; the anchors are composition/shape teeth",
+      "detail": "8 internal (holdout) cells gate -- the incidence/recovery hazards AND the prevalence.50-59 occupancy STOCK -- vs 4 anchor cells. Correcting round-1 (which had this backwards): every LEVEL defect is caught INTERNALLY, including the disabled-stock level now that prevalence.50-59 gates. The anchor cells are not vacuous, but their UNIQUE catches are exit-COMPOSITION inversion (no internal cell sees the exit mix) and flat/hump prevalence SHAPE -- not levels. See degenerate_candidates."
     },
     {
       "wart": "half-samples overlap across seeds",
-      "detail": "The 100 per-seed side-A statistics are drawn from overlapping halves, so their sd underestimates independent sampling noise (the gate-2/2c floor convention). The primary no-dead-zone evidence for the anchor cells is the non-parametric 'holds on all 100 halves', not the sd."
+      "detail": "The 100 per-seed side-A statistics are drawn from overlapping halves, so their sd underestimates independent sampling noise (the gate-2/2c floor convention). The primary no-dead-zone evidence for the anchor cells is the non-parametric 'holds on all 100 halves', not the sd; at the 50% finite-population correction the across-halves sd tracks full-sample fresh-sampling noise within ~10%."
     },
     {
-      "wart": "death is censored in the conversion-exit statistic",
-      "detail": "A death between waves forms no pair, so the conversion-exit share is retirement vs return-to-work among OBSERVABLE exits; the Table 50 anchor is matched by excluding death from its denominator. The full three-way (death) exit composition is not identified on the biennial PSID grid."
+      "wart": "death and attrition are censored in the conversion-exit statistic",
+      "detail": "A death OR a panel dropout between waves forms no pair, so the conversion-exit share is retirement vs return-to-work among OBSERVABLE exits. Death is matched by excluding it from the Table 50 denominator; ATTRITION operates identically on pair formation but has NO Table 50 analog, so it is disclosed as an additional censoring channel. The full three-way (death) exit composition is not identified on the biennial PSID grid."
     },
     {
       "wart": "single-era anchor vs pooled hazards",
-      "detail": "Tables 19/49/50 are 2023; the PSID hazards pool 1982-2023. DI prevalence/incidence have strong secular trends (delta 6), so the age-SHAPE bridge assumes the shape is more period-stable than the levels -- defensible for the rising limb and the 50-59 peak, disclosed for the rest."
+      "detail": "Tables 19/49/50 are 2023; the PSID hazards pool 1982-2023. DI prevalence/incidence have strong secular trends (delta 7, period pooling), so the age-SHAPE bridge assumes the shape is more period-stable than the levels -- defensible for the rising limb across the bridged bands, disclosed for the rest."
     }
   ],
-  "draft_thresholds_note": "DRAFT M4 DISABILITY GATE EVIDENCE -- CEREMONY STEP 1, NOT RATIFIED (v1). Floors + anchor basis for the DI gate (roadmap #113 M4). It changes no locked value, no model reads it, and it writes NO gates.yaml block: gates.yaml stays UNTOUCHED and the gate_m4 stub-flip (proposal -> referee rounds -> fixes -> verification -> maintainer ratify) inserts thresholds later. The k value (3) is a DRAFT for the ceremony to fix.\n\nDESIGN: ANCHOR-BASED (gate-1 external-check style), not holdout-only (gate-2). The PSID self-report is NOT the SSA DI program (seven named concept_deltas), so no SSA DI LEVEL is gated -- that would reject reality. Gated cells live only on concept-bridgeable surfaces:\n  (a) conversion_exit vs Table 50: retirement is the majority non-death disability exit near FRA (dominance, per sex);\n  (b) prevalence_ageshape vs Table 19: co-monotone rise + 50-59 peak (ordinal, per sex);\n  (d) internal incidence/recovery: |ln(candidate/PSID)| within the 100-seed half-split floor (holdout reproduction).\nReport-only (delta named, never calibrated): (c) the Table 49 termination-rate trend (period-pooling); the 6.B5.1 conversion level and sex-ordering; all prevalence LEVELS and the 60-FRA band; the noisy transition cells above the ln(1.5) cap.\n\nSTATISTIC + INTERNAL FLOOR. Per age band x sex the weighted per-interval PSID transition rate and a candidate's same-band rate; discrepancy scored as |ln(r_candidate / r_PSID)|. The person-disjoint 50/50 half-split |ln ratio| floor (seeds 0-99) gives round(mean + 3*sd, 3) tolerances, power-capped at ln(1.5). At k=4 the internal surface is EMPTY (0 cells); at this DRAFT k=3 it is ['incidence.40-49|female', 'incidence.50-59|female', 'incidence.50-59|male', 'recovery.50-59|female', 'recovery.60-66|female', 'recovery.60-66|male'] (report-only: ['conversion.retired_from_disabled|female', 'conversion.retired_from_disabled|male', 'incidence.20-29|female', 'incidence.20-29|male', 'incidence.30-39|female', 'incidence.30-39|male', 'incidence.40-49|male', 'incidence.60-66|female', 'incidence.60-66|male', 'prevalence.20-29|female', 'prevalence.20-29|male', 'prevalence.30-39|female', 'prevalence.30-39|male', 'prevalence.40-49|female', 'prevalence.40-49|male', 'prevalence.50-59|female', 'prevalence.50-59|male', 'prevalence.60-66|female', 'prevalence.60-66|male', 'recovery.20-29|female', 'recovery.20-29|male', 'recovery.30-39|female', 'recovery.30-39|male', 'recovery.40-49|female', 'recovery.40-49|male', 'recovery.50-59|male']).\n\nANCHOR CELLS (bounded/ordinal -- unit-honest, NOT |ln ratio| gates). Gated: ['conversion_exit.retirement_dominant|female', 'conversion_exit.retirement_dominant|male', 'prevalence_ageshape.comonotone|female', 'prevalence_ageshape.comonotone|male']. Each holds on the full sample AND all 100 person-disjoint halves AND rank/dominance-agrees with the sha-pinned in-repo Table 19 / Table 50, with the margin in >= 3 sigma. A label swap (male<->female shape, or retirement<->work exit) inverts them -- caught in CI with no PSID.\n\nPROPOSED gate_m4 STUB (for gates.yaml -- NOT written here; the flip is a later ceremony step, gates.yaml stays UNTOUCHED):\n  gate_m4:\n    status: unlocked\n    locked: false\n    tranche_id: m4_disability\n    holdout_basis: [ind2023er_employment_status, di_asr_2023]\n    kind: anchor_based   # gate-1 external-check style, not gate-2 holdout-only\n    statistic: >-\n      per internal incidence/recovery cell, |ln(rbar_candidate / r_PSID)| <= round(floor_mean + k*sd, 3) capped at ln(1.5), k DRAFT 3; per anchor cell, the ordinal invariant (co-monotone prevalence rise + 50-59 peak vs Table 19; retirement-dominant non-death FRA exit vs Table 50) holding on the full sample and all 100 halves.\n    candidate_estimator: mean-over-K=20-draws (rng 4100+k)\n    conjunction: all gated cells per seed AND >=4 of 5 gate seeds\n    gated_internal_cells: ['incidence.40-49|female', 'incidence.50-59|female', 'incidence.50-59|male', 'recovery.50-59|female', 'recovery.60-66|female', 'recovery.60-66|male']\n    gated_anchor_cells: ['conversion_exit.retirement_dominant|female', 'conversion_exit.retirement_dominant|male', 'prevalence_ageshape.comonotone|female', 'prevalence_ageshape.comonotone|male']\n    external_anchor: bundled (di_asr_2023, sha-pinned); the DI concept deltas keep every un-bridgeable LEVEL report-only.\n\nRATIFICATION requires the full lock ceremony: this floor -> adversarial referee rounds -> verification -> maintainer ratify by merge, exactly as gate-2c step 1 preceded the gate_2c flip.",
+  "draft_thresholds_note": "DRAFT M4 DISABILITY GATE EVIDENCE -- CEREMONY STEP 1, NOT RATIFIED (v1). Floors + anchor basis for the DI gate (roadmap #113 M4). It changes no locked value, no model reads it, and it writes NO gates.yaml block: gates.yaml stays UNTOUCHED and the gate_m4 stub-flip (proposal -> referee rounds -> fixes -> verification -> maintainer ratify) inserts thresholds later. The mixed k (flow=3, stock=4) is a pre-registered DRAFT for the ceremony to fix.\n\nDESIGN: ANCHOR-BASED (gate-1 external-check style), not holdout-only (gate-2). The PSID self-report is NOT the SSA DI program (seven named concept_deltas), so no SSA DI LEVEL is gated against an SSA level -- that would reject reality. But the concept deltas are PSID-vs-SSA; they do NOT touch an internal candidate-vs-PSID REPRODUCTION cell, so the frozen note's pre-registered internal families (incidence, recovery, prevalence AND conversion) are all internal-gate candidates (finding 1: round-1 wrongly dropped prevalence+conversion). Gated surfaces:\n  (a) conversion_exit vs Table 50: retirement is the majority non-death disability exit near FRA (candidate dominance + margin, per sex);\n  (b) prevalence_ageshape vs Table 19: co-monotone rise across the bridged bands (candidate rise + margin, per sex);\n  (d) internal reproduction: |ln(candidate/PSID)| within the 100-seed half-split floor for the FLOW hazards (incidence/recovery @k=3) AND the prevalence.50-59 occupancy STOCK (@k=4).\nReport-only (delta named, never calibrated): (c) the Table 49 termination-rate trend (period-pooling); the 6.B5.1 conversion level and sex-ordering; the SSA prevalence LEVELS and the 60-FRA band; the flow + prevalence cells above the ln(1.5) cap.\n\nSTATISTIC + INTERNAL FLOOR. Per age band x sex the weighted per-interval PSID rate and a candidate's same-band rate; discrepancy scored as |ln(r_candidate / r_PSID)|. The person-disjoint 50/50 half-split |ln ratio| floor (seeds 0-99) gives round(mean + k*sd, 3) tolerances, power-capped at ln(1.5), with the PRE-REGISTERED MIXED k: FLOW families use k=3 (the m4_disability_v1 [2,3] range); the prevalence STOCK uses the gate-2c k=4 (a STATED deviation). Honest uniform-k sensitivity over the pre-registered surface: k=2 -> 21, k=3 -> 12, k=4 -> 2. At k=4 the flow families empty but prevalence.50-59|{f,m} still gate -- which is why the stock inherits k=4. Adopted internal gated set: ['incidence.40-49|female', 'incidence.50-59|female', 'incidence.50-59|male', 'prevalence.50-59|female', 'prevalence.50-59|male', 'recovery.50-59|female', 'recovery.60-66|female', 'recovery.60-66|male'] (report-only: ['conversion.retired_from_disabled|female', 'conversion.retired_from_disabled|male', 'incidence.20-29|female', 'incidence.20-29|male', 'incidence.30-39|female', 'incidence.30-39|male', 'incidence.40-49|male', 'incidence.60-66|female', 'incidence.60-66|male', 'prevalence.20-29|female', 'prevalence.20-29|male', 'prevalence.30-39|female', 'prevalence.30-39|male', 'prevalence.40-49|female', 'prevalence.40-49|male', 'prevalence.60-66|female', 'prevalence.60-66|male', 'recovery.20-29|female', 'recovery.20-29|male', 'recovery.30-39|female', 'recovery.30-39|male', 'recovery.40-49|female', 'recovery.40-49|male', 'recovery.50-59|male']). The k-selection rule + the k=2 flow OC are committed in k_selection.\n\nANCHOR CELLS (bounded/ordinal -- unit-honest, NOT |ln ratio| gates). Gated: ['conversion_exit.retirement_dominant|female', 'conversion_exit.retirement_dominant|male', 'prevalence_ageshape.comonotone|female', 'prevalence_ageshape.comonotone|male']. The candidate-side rule is PINNED (finding 3): score the candidate's simulated holdout PER GATE SEED on the mean-over-K=20-draws rate basis, and require the invariant to hold WITH margin >= 3 x the real half-split sd -- the MARGIN reading (an epsilon-tilt passes the bare ordinal but FAILS this; see degenerate_candidates). The frozen Table-19-rises / Table-50-dominant booleans are CORROBORATION of the chosen invariant, not candidate constraints. A label swap (male<->female shape, or retirement<->work exit) inverts the invariant -- caught in CI with no PSID.\n\nPROPOSED gate_m4 STUB (for gates.yaml -- NOT written here; the flip is a later ceremony step, gates.yaml stays UNTOUCHED):\n  gate_m4:\n    status: unlocked\n    locked: false\n    tranche_id: m4_disability\n    holdout_basis: [ind2023er_employment_status, di_asr_2023]\n    kind: anchor_based   # gate-1 external-check style, not gate-2 holdout-only\n    statistic: >-\n      per internal cell (incidence/recovery/conversion FLOW at k=3; prevalence STOCK at k=4), |ln(rbar_candidate / r_PSID)| <= round(floor_mean + k*sd, 3) capped at ln(1.5); per anchor cell, the candidate's per-gate-seed simulated invariant (prevalence min gap; retirement-exit dominance) exceeding MARGIN_K=3 x the real half-split sd -- the MARGIN reading, not the bare ordinal.\n    candidate_estimator: mean-over-K=20-draws (rng 5200+k); fresh_run_artifact_schema per protocol\n    conjunction: all gated cells per seed AND >=4 of 5 gate seeds\n    gated_internal_cells: ['incidence.40-49|female', 'incidence.50-59|female', 'incidence.50-59|male', 'prevalence.50-59|female', 'prevalence.50-59|male', 'recovery.50-59|female', 'recovery.60-66|female', 'recovery.60-66|male']\n    gated_anchor_cells: ['conversion_exit.retirement_dominant|female', 'conversion_exit.retirement_dominant|male', 'prevalence_ageshape.comonotone|female', 'prevalence_ageshape.comonotone|male']\n    external_anchor: bundled (di_asr_2023, sha-pinned); the DI concept deltas keep every un-bridgeable SSA LEVEL report-only, but the internal candidate-vs-PSID reproduction cells (incl. the prevalence.50-59 stock) are gated -- the deltas do not touch them.\n\nRATIFICATION requires the full lock ceremony: this floor -> adversarial referee rounds -> verification -> maintainer ratify by merge, exactly as gate-2c step 1 preceded the gate_2c flip.",
   "revision_pins": {
-    "base_sha": "8592a9b045d5e7109e8cc2dca3d507abeb47c8e9",
-    "origin_master_sha": "8592a9b045d5e7109e8cc2dca3d507abeb47c8e9",
+    "base_sha": "0012220368b2a94f1521f137aa9d446db2725dd1",
+    "origin_master_sha": "5b896fc67a0fb8b51ffd33ff955be4e789d01ea5",
     "merge_base_sha": "8592a9b045d5e7109e8cc2dca3d507abeb47c8e9",
     "claim_age_reference_schema": "ssa_claim_ages.v1",
     "anchor_tables_sha256": "1af9ad874cfc7b464a9279ae62e08ba51206a843f84622c92332b63beec9aa36",
     "artifact_schema_version": "m4_gate_floors.v1"
   },
   "build": {
-    "built_utc": "2026-07-12T07:14:48.316704+00:00",
+    "built_utc": "2026-07-12T08:25:55.782921+00:00",
     "built_by": "scripts/build_m4_gate_floors.py"
   },
-  "elapsed_seconds": 39.1
+  "elapsed_seconds": 37.3
 }
