@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+
 from populace_dynamics.models.household_composition.registry import CANDIDATE_9
 
 ROOT = Path(__file__).resolve().parents[1]
