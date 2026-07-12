@@ -1,12 +1,12 @@
 {
   "schema_version": "legacy_manifest.v1",
   "generated_at_commit": "747966cd7426a2a2292ce3dd093a8fe65d9a9351",
-  "contract_revision": "890aa394ff317d4ae133ecbb2adaca860935bcf6",
+  "contract_revision": "cd6411d973c64209a38cc12c7dc33e02d4254d65",
   "entries": [
     {
       "path": "gates.yaml",
-      "sha256": "3990e15af110b5fbd4caa897c004219053fff0aa741a4e15ab8c3b1eb9b1147e",
-      "n_bytes": 168354,
+      "sha256": "8d5c07f416133c52a4b37a84c7c0d3fd39a25144f942e1805ab94d828cab36a0",
+      "n_bytes": 284381,
       "originating_commit": "84a6721b686cef465150212432d8fc517dd53122"
     },
     {

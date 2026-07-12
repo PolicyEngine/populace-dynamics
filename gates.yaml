@@ -2903,3 +2903,1920 @@ gates:
       grade as pseudo-vintage with a published deviation log.
     thresholds:
       locked: false
+  gate_m4:
+    # NEW LOCKED gate (roadmap #113 M4, the DI disability module). Unlike
+    # gate_2b / gate_2c (which pre-existed as amendment-2 UNLOCKED stubs and
+    # were flipped in place), gate_m4 is ADDED FRESH as a locked top-level
+    # gate by the M4 lock ceremony: pre-lock floor #153
+    # (runs/m4_gate_floors_v1.json, the 100-seed person-disjoint half-split
+    # over DI incidence / recovery / prevalence + the DI->retirement
+    # conversion, plus the concept-bridged anchor cells) -> round-1
+    # adversarial referee AMEND BEFORE LOCK (comment 4950447491, findings 1-6
+    # / required fixes A-F) -> fixes (comment 4950571161, fixes commit 05d8292
+    # + master merge 45bbabe for the tier re-refresh; artifact recomputed,
+    # faithful OC 0.9689 / p_seed 0.9408) -> verification AMEND BEFORE LOCK,
+    # metadata-only: the PR body (comment 4950648191; every committed object
+    # verified exact, five flip-time notes) -> body amendment executed
+    # (comment 4950660426) -> ratifying merge of PR #153 (squash 0fa4a29)
+    # under the maintainer's standing campaign directive of 2026-07-07. The
+    # evidence floor runs/m4_gate_floors_v1.json is RATIFIED = FROZEN and is
+    # only READ (round(mean + k*sd, 3) with the pre-registered MIXED k
+    # flow=3 / stock=4, T_max = ln(1.5)), never rewritten. Bindings go
+    # LOCKED-HOT (the 2a lesson): the derivation tests run unconditionally.
+    # gate_1 / gate_2 (tranche 2a + gate_2b + gate_2c) / gate_3 untouched.
+    id: m4_disability
+    status: locked
+    locked: true
+    kind: anchor_based
+    covers: >-
+      the DISABILITY module (roadmap #113 M4): the work-limitation INCIDENCE
+      and RECOVERY hazards, the disabled-occupancy PREVALENCE stock, and the
+      near-FRA disability-EXIT composition (retirement vs return-to-work), on
+      which DI benefit LEVELS and the payable-baseline disabled composition
+      ride. The gate is ANCHOR-BASED (gate-1 external-check style, not
+      gate-2/2b/2c holdout-only): the DI concept deltas forbid gating a PSID
+      self-report LEVEL against an SSA DI level, so the SSA-facing surfaces are
+      concept-bridged SHAPE (prevalence age-shape vs Table 19) and DOMINANCE
+      (exit composition vs Table 50); but the concept deltas do NOT touch an
+      internal candidate-vs-PSID REPRODUCTION cell, so the gate-2 half-split
+      floor gates the flow hazards AND the prevalence.50-59 occupancy STOCK.
+      The scored surface is EXACTLY the 12 gate-eligible cells (8 internal
+      mixed-k + 4 anchor), 24 report-only; no SSA DI LEVEL is gated.
+    holdout_basis: [ind2023er_employment_status, di_asr_2023]
+    data_staged: >-
+      ind2023er (the PSID individual employment-status self-report, the
+      work-limitation panel) is staged on disk; the SSA DI ASR 2023 admin
+      anchor tables (Tables 19 / 35 / 36 / 49 / 50) are bundled IN-REPO at
+      data/external/di_asr_2023/tables.json (staged by #132, sha-pinned). The
+      100-seed PERSON-DISJOINT half-split floor over the 41,345-person /
+      284,932-person-year disability panel is runs/m4_gate_floors_v1.json
+      (RATIFIED, frozen). There is no single staged holdout FILE; the holdout
+      is the person-disjoint side-A half of each split seed.
+    lock_ceremony:
+      exists: true
+      completed: >-
+        2026-07-12. The SAME ceremony gate-2a / 2b / 2c followed -- a
+        pre-registered gate on a 100-seed PERSON-DISJOINT split noise floor, a
+        T_max = ln(1.5) power cap, an adversarial referee round, a
+        verification round, and a ratifying merge (proposal / floor #153 ->
+        referee 4950447491 -> fixes 4950571161 -> verification 4950648191 ->
+        body amendment 4950660426 -> ratify by merge of #153, squash 0fa4a29).
+        The full record is in thresholds.ceremony_record and history entry
+        2026-07-12-m4-gate-lock.
+    thresholds:
+      # DRAFT -> LOCKED. Every internal tolerance below is machine-bound to the
+      # ratified 100-seed PERSON-DISJOINT half-split floor
+      # runs/m4_gate_floors_v1.json by tests/test_gates_derivations.py:
+      # tolerance == round(floor mean + k * floor sd, rounding), with the
+      # PRE-REGISTERED MIXED k (FLOW hazards k=3, prevalence STOCK k=4;
+      # STOCK_K=4 a stated, pre-registered deviation from the single-k floor
+      # note), rounding = 3, AND tolerance <= T_max = ln(1.5) (the power cap).
+      # Each anchor cell gates on the candidate's own per-seed invariant with
+      # margin >= MARGIN_K=3 x the committed real half-split sd. The lock
+      # ceremony ratified this surface; the frozen floor is READ, never
+      # rewritten. 12 cells gate (8 internal + 4 anchor); 24 are report-only;
+      # the partition is the floor's own gate_partition.
+      locked: true
+      status: locked
+      tranche_id: m4_disability
+      kind: anchor_based
+      floor_run: runs/m4_gate_floors_v1.json
+      external_anchor: data/external/di_asr_2023/tables.json
+      ceremony_record:
+        round_1_referee: >-
+          comment 4950447491 -- round-1 adversarial referee AMEND BEFORE LOCK
+          (six findings / required fixes A-F: finding 1 BLOCKER -- the internal
+          surface dropped the pre-registered prevalence + conversion families
+          under the invalid machine reason level_bridged_via_anchor_shape (a
+          category error: the concept deltas are PSID-vs-SSA and never enter a
+          candidate-vs-PSID reproduction cell), so the k=4 "empties the
+          internal surface" narrative was an artifact of the unregistered
+          transition-only restriction; finding 2 -- the K=20 draw stream had
+          drifted to 4100+k; finding 3 -- the anchor candidate-side statistic
+          was under-specified (bare ordinal vs margin); findings 4-6 -- wart-2
+          teeth direction, redundant anchor conditions, delta numbering).
+        fixes: >-
+          comment 4950571161 -- fixes A-F applied on m4-gate-floors (fixes
+          commit 05d8292, plus master merge 45bbabe for the tier re-refresh);
+          the artifact recomputed from the raw inputs (populace.fit never
+          imported). Restored the pre-registered internal families under the
+          inherited power rules and adopted the referee's COMPUTED MIXED-K
+          remedy (flow hazards @k=3 + prevalence.50-59 STOCK @k=4, 8 internal
+          gated cells); corrected the conversion cells' machine reason to
+          tolerance_above_t_max (the true power demotion); adopted 5200+k
+          VERBATIM + the fresh_run_artifact_schema [20, 8, 5]; pinned the
+          candidate-side anchor MARGIN statistic + the epsilon-tilt failure;
+          committed k_selection with the k=2 flow OC 0.2901; fixed the delta
+          numbering. New faithful OC 0.9689 (p_seed 0.9408).
+        verification: >-
+          comment 4950648191 -- verification round AMEND BEFORE LOCK, one
+          amendment, METADATA-ONLY: the PR body (a designated stub-flip
+          source) still described the round-1 gate. Every committed object
+          (artifact, builder, tests) verified EXACT: a full regenerator
+          rebuild reproduced the committed artifact with zero non-volatile
+          diffs (populace.fit never imported), all six fixes faithfully
+          executed, all nine mutations caught, no dead zones. Five flip-time
+          notes recorded (see flip_notes_implemented); none blocking.
+        body_amendment: >-
+          comment 4950660426 -- the verification amendment executed: the PR
+          body was rewritten to the committed state (sourced from the
+          artifact's draft_thresholds -- mixed-k surface, 5200+k streams,
+          pinned >=3 sigma anchor rule, corrected teeth / warts / delta
+          numbering), and the #157 tier conflict resolved by live recount
+          (2,321). No code, artifact, or test change (those were verified
+          exact); the metadata-only amendment cleared the single blocking item.
+        ratified: >-
+          2026-07-12 by merge of PR 153 (squash merge commit 0fa4a29) under the
+          maintainer's standing campaign directive of 2026-07-07 ("build until
+          reasonable for scoring these reforms"), exercised only after the full
+          lock ceremony (round-1 AMEND 4950447491 -> fixes 4950571161 ->
+          verification AMEND-metadata-only 4950648191 -> body amendment
+          4950660426). Locked thresholds change only through a public amendment
+          noted in this file's history (amendment_rules apply, incl.
+          no_self_rescue).
+        delegated_authority: >-
+          The standing campaign directive of 2026-07-07 delegates the
+          ratifying-merge authority for a ceremony that has cleared the
+          adversarial + verification rounds; the pre-lock floor was ratified by
+          the merge of #153 itself, and this flip RECORDS the completed
+          ceremony and ADDS gate_m4 as locked -- it is not a re-ratification
+          and moves no threshold (ZERO threshold movement vs the frozen floor).
+        flip_notes_implemented:
+          note_1_tier_rerefresh: >-
+            the verification flagged the #157-induced tier_counts.json /
+            README-tiers.md conflict (the round-1-predicted mechanical
+            re-refresh recurring). This flip re-refreshes both against
+            master-at-flip by LIVE collection (not a hand edit), and the new
+            locked-hot bindings land in the artifact tier.
+          note_2_oc_at_or_above_precedent: >-
+            the fixes comment and k_selection alt-note said the faithful OC is
+            "within" the 2a/2b/2c precedent band; verification note 2 corrected
+            this -- 0.9689 sits 4e-4 ABOVE the band top (0.9641-0.9685). The
+            band is a FLOOR and round-1 endorsed exactly this OC, so the record
+            says "at or above precedent", not "within" (see faithful_candidate_oc
+            and k_selection.oc_vs_precedent).
+          note_3_anchor_gate_rule_prose_separated: >-
+            verification note 3: the anchor gate_rule is reworded to SEPARATE
+            the candidate-voiced condition (the only thing a candidate must
+            satisfy: its own per-seed simulated invariant with margin >= 3
+            sigma, >=4-of-5 seeds) from the EVIDENCE-TIME cell conditions
+            ("holds on all 100 real half-splits", ">= 20 exits") -- the latter
+            established the cell's gate-eligibility at floor-build time and are
+            NOT re-checked on the candidate (the candidate is never re-split).
+            No candidate-side exit-count floor is imposed; the sparse-exit
+            all-retire candidate that passes this anchor is caught INTERNALLY
+            (recovery.60-66), pinned explicitly in anchor_surface.*.gate_rule.
+          note_4_sigma_units_presentation: >-
+            verification note 4: the committed stock tolerance_sigma_units are
+            3.225 (female) / 3.123 (male); the fixes comment's "3.23 / 3.12"
+            and round-1's "3.22 / 3.12" are 2dp renderings of the same numbers
+            (3.2246 / 3.1231). The record carries the committed 3.225 / 3.123.
+          note_5_bootstrap_optional_not_committed: >-
+            verification note 5: the wart-3 person block-bootstrap is
+            DELIBERATELY not committed -- committing an un-recomputed B=1000
+            number would break the ceremony's every-committed-number-recomputes
+            invariant. Primary half-overlap evidence stays the non-parametric
+            "holds on all 100 halves" plus the finite-population-correction
+            argument; the optional bootstrap is correctly left out.
+      estimand: >-
+        the DISABILITY processes of the PSID work-limitation self-report panel
+        (41,345 persons / 284,932 person-years): the age-band x sex incidence
+        and recovery hazards, the disabled-prevalence occupancy stock, and the
+        near-FRA (ages 60-67) disability-exit composition. Per the standing
+        description_claims_exactly_the_scored_surface rule, the scored surface
+        is EXACTLY these cells -- NOT the SSA DI program. The PSID self-report
+        is not the DI program (seven named concept_deltas: definition,
+        population, severity, transience, conversion denominator, biennial
+        censoring, period pooling), so no SSA DI LEVEL is gated; the SSA-facing
+        surfaces are gated only as concept-bridged SHAPE / DOMINANCE, and the
+        SSA prevalence LEVELS, the 60-FRA band, the 6.B5.1 conversion level and
+        the Table 49 termination trend stay report-only with their delta named.
+      statistic: >-
+        Two families. INTERNAL (candidate-vs-PSID reproduction): per gated cell
+        the absolute log rate ratio |ln(rbar_candidate,s / rate_a,s)| between
+        the candidate's mean-over-K=20-draws rate for seed s's holdout half and
+        that half's own empirical PSID rate, tolerance = round(floor mean + k *
+        floor sd, 3) capped at ln(1.5), with the pre-registered MIXED k (FLOW
+        incidence/recovery @k=3; prevalence STOCK @k=4). ANCHOR (concept-bridged
+        SHAPE / DOMINANCE): per gated anchor cell the candidate's own per-seed
+        simulated invariant (prevalence min adjacent gap over the bridged bands;
+        retirement-exit dominance margin) must exceed MARGIN_K=3 x the committed
+        real half-split sd -- the MARGIN reading, not the bare ordinal. Symmetric
+        and scale-free (internal); unit-honest bounded/ordinal (anchor), never
+        scored as |ln ratio|.
+      protocol:
+        option: >-
+          anchor-based (gate-1 external-check style). The internal cells use
+          the gate-2 per-seed PERSON-DISJOINT half-split, for which the
+          half-vs-half floor is exactly the null; the anchor cells use the
+          candidate's own per-seed simulated invariant vs the concept-bridged
+          admin shape/dominance, gated on the MARGIN (finding 3). The 4-of-5
+          seed conjunction is operative.
+        estimator: >-
+          mean-over-K=20-draws (tranche 2a amendment 1, ratified 2026-07-08,
+          PR 96), re-used VERBATIM and adopted FROM THE START of this M4 build.
+          rbar_candidate,s is the MEAN over K=20 pre-registered simulation
+          draws (numpy default_rng(5200 + k), k=0..19; a stream DISTINCT from
+          the split seeds), scored ONCE per cell as |ln(rbar_candidate,s /
+          rate_a,s)| -- NOT the mean of the per-draw |ln| scores. The
+          superseded single-draw replicate the 2b/2c round-1 referees flagged
+          never enters (finding 2 restored 5200+k from the drifted 4100+k).
+        candidate_draws: 20
+        candidate_draw_stream: numpy.random.default_rng(5200 + k), k=0..K-1
+        draw_stream_base: 5200
+        gate_seeds: [0, 1, 2, 3, 4]
+        floor_seeds: 0-99 (tolerance stability)
+        split: >-
+          PERSON-DISJOINT 50/50 half-split (split_panel_by_person, fraction=0.5,
+          seed=s). Side A (the drawn half) is seed s's HOLDOUT; side B is the
+          train complement. NO person straddles the two halves.
+        internal_statistic: >-
+          per gated internal cell, |ln(rbar_candidate,s / rate_a,s)| <= the
+          committed tolerance, where rbar is the mean over the 20 draws of the
+          cell RATE (not the mean of per-draw scores).
+        anchor_statistic: >-
+          PINNED candidate-side rule (finding 3): per gated anchor cell, score
+          the candidate's simulated holdout PER GATE SEED on the SAME
+          mean-over-K=20-draws RATE basis as the internal cells (rbar over the
+          5200+k draws). The invariant must hold WITH the margin: the
+          candidate's per-seed statistic (prevalence min adjacent gap over the
+          bridged bands; retirement-exit dominance margin) must exceed
+          MARGIN_K=3 x the committed real half-split sd of that statistic --
+          NOT the bare ordinal. Seed passes iff the margin condition holds;
+          gate passes iff >= 4 of 5 gate seeds pass. Under this MARGIN reading
+          an epsilon-tilt candidate (+0.001/band) FAILS though it passes the
+          bare ordinal (see degenerate_candidates).
+        anchor_statistic_pins:
+          candidate_panel_split: >-
+            scored per gate seed on the candidate's simulated side-A holdout
+            (NOT re-split into 100 halves; the 100-half floor is the REAL-data
+            margin basis, computed once at floor-build time).
+          draws_enter: >-
+            via rbar (the K=20 mean rate), the same basis as the internal
+            cells; NOT per-draw-any-fails and NOT a single draw.
+          margin_basis: >-
+            MARGIN_K=3 x the committed real half-split sd (half_split_floor
+            .min_gap.sd for prevalence age-shape; half_split_floor.share.sd for
+            conversion-exit dominance) -- the sd is a fixed real-data constant,
+            not recomputed on the candidate.
+          conjunction: margin condition per gate seed AND >= 4 of 5 seeds
+        conjunction: >-
+          seed passes iff every gated cell holds (internal |ln| tolerance AND
+          anchor margin); the gate passes iff >= 4 of 5 gate seeds pass.
+          Report-only cells and the SSA levels are published, never gated.
+        fresh_run_artifact_schema:
+          applies_to: >-
+            a fresh candidate one-shot run registered AFTER this gate_m4 lock;
+            NEVER this floor build, which measures the real-vs-real half-vs-half
+            null (no simulation, no draws).
+          per_draw_per_cell_rates:
+            required: true
+            shape: [20, 8, 5]
+            shape_dims: K_draws x gated_internal_cells x gate_seeds
+            rule: >-
+              commit every draw's per-cell rate r[k, cell, s] for all K=20
+              draws (default_rng(5200 + k), k=0..19), all 8 gated INTERNAL
+              cells, and all 5 gate seeds -- so rbar_candidate,s recomputes
+              cell-by-cell and |ln(rbar / rate_a)| is independently auditable,
+              not taken on trust.
+          undefined_draw_rule:
+            required: true
+            pre_specified: true
+            rule: >-
+              if any gated cell's rate is UNDEFINED on any draw (empty
+              simulated denominator), the RUN IS INVALIDATED and must be
+              re-registered and re-run. No draw may be dropped, skipped,
+              substituted, or re-rolled; rbar is always the mean over ALL K
+              registered draws.
+          per_draw_dispersion_disclosure:
+            required: true
+            gated: false
+            report_only: true
+            commit:
+              per_cell_per_draw_sd: >-
+                the sd across the K=20 draws of each gated cell's rate, per
+                gated cell per gate seed.
+              max_per_draw_abs_ln_per_cell: >-
+                the maximum over the K=20 draws of |ln(r[k, cell, s] /
+                rate_a,s)| per gated cell per gate seed.
+            note: >-
+              REPORT-ONLY: no dispersion cap gates the run; the disclosure lets
+              a referee see whether a passing 20-draw mean conceals a wild
+              individual draw.
+        faithful_candidate_oc:
+          n_gated_internal_cells: 8
+          p_seed_pass: 0.9408
+          p_gate_pass_4_of_5: 0.9689
+          basis_note: >-
+            Independence-approx normal OC on the DRAW-NOISE-FREE half-normal
+            basis (a faithful candidate's per-internal-cell score ~
+            half-normal(realized_sigma); cell pass = 2*Phi(tolerance/sigma)-1;
+            seed pass = product over the 8 gated internal cells; gate = P(>=4
+            of 5) = p^5 + 5 p^4 (1-p)). The mean-over-K=20-draws estimator
+            SHARES that basis, so the OC is ACHIEVABLE; under a SINGLE-draw
+            estimator it would be UNACHIEVABLE. Bound to the floor's
+            faithful_candidate_oc by tests/test_gates_derivations.py.
+          oc_vs_precedent: >-
+            flip-note 2: 0.9689 is AT OR ABOVE the 2a/2b/2c precedent band
+            (0.9641-0.9685) -- it sits 4e-4 above the band top; the band is a
+            FLOOR the OC must clear, and round-1 endorsed exactly this OC. The
+            anchor cells add no draw-noise term (they gate on a >= 3 sigma
+            margin the faithful candidate clears by 4.8-12.8 sigma), so the
+            internal-cell OC is the binding operating characteristic.
+      power_cap:
+        # Gate an internal cell only if its stabilised tolerance is tight
+        # enough to reject a materially wrong model. Which cells demote is
+        # DERIVED from the floor (cell_stability), never hand-picked.
+        t_max: ln(1.5)
+        rule: >-
+          an internal cell is gate-eligible iff defined on every one of the 100
+          seeds AND >= 20 events on the weaker half of the worst seed AND its
+          stabilised tolerance <= T_max = ln(1.5) at that cell's k (FLOW k=3 /
+          STOCK k=4). M4 declares NO coverage-recovery aggregates, so no cell
+          is superseded by a gating aggregate.
+        aggregations: {}
+        demoted_and_report_only: >-
+          24 internal cells are report-only, ALL by the floor's OWN machine
+          reason tolerance_above_t_max (their stabilised tolerance at their k
+          exceeds ln(1.5)) -- there are NO below_20_events demotions (every
+          cell clears the 20-event floor; the honest reason the sparse cells
+          stay report-only is POWER, not events). The two conversion cells
+          (conversion.retired_from_disabled|{female,male}) are among the 24:
+          their tolerances 0.596 / 0.611 exceed ln(1.5) at any k in [2,4]
+          (finding 1's correction from the invalid family reason to the true
+          power demotion).
+      k_selection:
+        # finding F: the k choice is committed and machine-checkable, not
+        # asserted. FLOW families use DRAFT_K=3; the prevalence STOCK uses
+        # STOCK_K=4 -- a STATED, pre-registered deviation from the single-k
+        # floor note, bound by tests/test_gates_derivations.py.
+        rule: >-
+          FLOW families (incidence / recovery / conversion) use DRAFT_K=3; the
+          prevalence STOCK uses STOCK_K=4. The flow k is pinned by the
+          faithful-candidate OC against the 2a/2b/2c precedent band: k=2 gates
+          12 flow cells but collapses the gate OC to 0.2901 (unusable); k=4
+          empties the flow surface (0 cells); k=3 is the only in-range [2,3]
+          choice clearing precedent (flow OC 0.9717). The stock k=4 is the sole
+          k at which any prevalence cell (50-59|{female,male}) survives the
+          ln(1.5) cap, giving the occupancy stock its teeth.
+        chosen_flow_k: 3
+        chosen_stock_k: 4
+        k2_flow_oc_gate_4_of_5: 0.2901
+        k3_flow_oc_gate_4_of_5: 0.9717
+        precedent_oc_band: { gate_2a: 0.9685, gate_2b: 0.9678, gate_2c: 0.9641 }
+          # note: the 2c entry 0.9641 is 2c's p_seed (its p_gate is 0.988); mixed-level band inherited verbatim from the ratified floor (referee non-blocking note)
+        uniform_k_sensitivity: { "2": 21, "3": 12, "4": 2 }
+        alt_option_i_uniform_k3_oc: 0.9008
+        oc_vs_precedent: >-
+          flip-note 2: the adopted mixed-k faithful OC 0.9689 is AT OR ABOVE
+          the precedent band (4e-4 above the 0.9685 top), not "within" it. The
+          referee's option-(i) uniform k=3 over the full restored surface (12
+          internal cells) scores 0.9008, BELOW the band; the adopted hybrid
+          (flow@k=3 + prevalence.50-59@k=4) is the surface that clears
+          precedent.
+      governance:
+        registration: >-
+          Pre-registered on issue #42, as every gate-1 / gate-2 candidate run.
+          A gate_m4 candidate registers its spec, its fitting exclusions (the
+          seed-s holdout persons), and its simulation seeds BEFORE scoring.
+          Outer runs are one-shot.
+        amendment_rules:
+          inherits: gate_1
+          no_self_rescue: >-
+            Inherited verbatim from gate_1.amendment_rules: no candidate's
+            committed run verdict changes under a rule proposed after that run;
+            a gate rule amendment applies only to runs registered after its
+            ratification.
+          amendments_only_via: >-
+            public proposal + adversarial referee round + verification +
+            maintainer ratification by merge -- the same ceremony gate 1 and
+            tranche 2a / 2b / 2c amendments follow.
+          description_claims_exactly_the_scored_surface: >-
+            Bound by the standing rule promoted into
+            gate_2.governance.amendment_rules (amendment 2): the covers /
+            holdout_basis / estimand claim EXACTLY the scored surface -- the 12
+            gate-eligible cells (8 internal mixed-k + 4 anchor), the PSID
+            work-limitation panel crossed with the sha-pinned di_asr_2023
+            anchor. No SSA DI level or provision class is headlined beyond what
+            the cells gate.
+        candidate_scale: >-
+          PINNED to the seed-s holdout half (~50% of persons, side A); the
+          candidate simulates exactly those persons, fixing the output scale
+          the floor and tolerances are measured at.
+        weight_definition: >-
+          DIFFERS from the tranche 2a / 2b / 2c person-constant convention,
+          matching the ratified M4 statistic exactly: every gated internal
+          statistic is weighted by the START-WAVE (wave-w) cross-sectional
+          PSID weight of each transition pair, as the frozen floor artifact's
+          own foundation states and its committed numbers reproduce (start-wave
+          weights reproduce every frozen tolerance; person-constant weights do
+          not). There is NO unweighted gated statistic; the unweighted rate is
+          reported alongside. The weighting is load-bearing, so it is pinned
+          here, not inherited implicitly (flip-fidelity referee finding 1,
+          PR #159).
+      internal_surface:
+        # The 8 GATED internal reproduction cells, in two homogeneous-k views
+        # so the MIXED k is explicit. Every tolerance == round(floor mean + k *
+        # floor sd, 3) on the frozen floor's noise_floor_seeds_0_99, capped at
+        # ln(1.5); machine-bound in tests/test_gates_derivations.py.
+        floor_run: runs/m4_gate_floors_v1.json
+        floor_key: noise_floor_seeds_0_99
+        views:
+          internal_flow_hazards:
+            quantity_type: flow
+            statistic: >-
+              per age-band x sex weighted per-interval incidence / recovery
+              hazard, |ln(candidate / PSID)|; the dense mid-life bands clear the
+              ln(1.5) cap at k=3, the sparse young / old bands are report-only
+              (power).
+            floor_run: runs/m4_gate_floors_v1.json
+            tolerances:
+              "incidence.40-49|female": 0.358
+              "incidence.50-59|female": 0.334
+              "incidence.50-59|male": 0.354
+              "recovery.50-59|female": 0.4
+              "recovery.60-66|female": 0.332
+              "recovery.60-66|male": 0.4
+            derivations:
+              floor_run: runs/m4_gate_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                "incidence.40-49|female": { key: "incidence.40-49|female", k: 3, rounding: 3, quantity_type: flow }
+                "incidence.50-59|female": { key: "incidence.50-59|female", k: 3, rounding: 3, quantity_type: flow }
+                "incidence.50-59|male": { key: "incidence.50-59|male", k: 3, rounding: 3, quantity_type: flow }
+                "recovery.50-59|female": { key: "recovery.50-59|female", k: 3, rounding: 3, quantity_type: flow }
+                "recovery.60-66|female": { key: "recovery.60-66|female", k: 3, rounding: 3, quantity_type: flow }
+                "recovery.60-66|male": { key: "recovery.60-66|male", k: 3, rounding: 3, quantity_type: flow }
+          internal_prevalence_stock:
+            quantity_type: stock
+            statistic: >-
+              the disabled-prevalence OCCUPANCY STOCK by age-band x sex,
+              |ln(candidate / PSID)|; ONLY prevalence.50-59|{female,male} clear
+              the ln(1.5) cap, and only at STOCK_K=4 (the sole k a prevalence
+              cell survives) -- this is the integrative quantity a
+              payable-baseline disabled composition rides on (finding 1: the
+              stock now has teeth).
+            floor_run: runs/m4_gate_floors_v1.json
+            tolerances:
+              "prevalence.50-59|female": 0.371
+              "prevalence.50-59|male": 0.387
+            derivations:
+              floor_run: runs/m4_gate_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                "prevalence.50-59|female": { key: "prevalence.50-59|female", k: 4, rounding: 3, quantity_type: stock }
+                "prevalence.50-59|male": { key: "prevalence.50-59|male", k: 4, rounding: 3, quantity_type: stock }
+            sigma_units_note: >-
+              flip-note 4: the committed tolerance_sigma_units are 3.225
+              (female) / 3.123 (male) = tolerance / realized_sigma; the fixes
+              comment's "3.23 / 3.12" and round-1's "3.22 / 3.12" are 2dp
+              renderings of the same numbers (3.2246 / 3.1231).
+      anchor_surface:
+        # The 4 GATED anchor cells (concept-bridged SHAPE / DOMINANCE). Unit-
+        # honest bounded/ordinal invariants, NEVER |ln ratio| gates. Each is
+        # gated on the candidate's OWN per-seed invariant with margin >=
+        # MARGIN_K=3 x the committed real half-split sd; the frozen Table 19 /
+        # Table 50 booleans are evidence-time CORROBORATION, not candidate
+        # constraints. All four hold on all 100 real half-splits.
+        anchor_run: runs/m4_gate_floors_v1.json
+        margin_k: 3
+        cells:
+          "prevalence_ageshape.comonotone|female":
+            surface: b_prevalence_ageshape_vs_t19
+            statistic: >-
+              disabled-prevalence share strictly RISES across the four bridged
+              working-age bands 20-29 < 30-39 < 40-49 < 50-59, co-monotone with
+              the Table 19 age-shape over those bands. The single binding
+              candidate condition is the strict rise WITH margin.
+            anchor_source: Table 19 (prevalence by sex x age, 2023)
+            margin_basis: half_split_floor.min_gap.sd
+            real_half_split_sd: 0.01090291052862014
+            psid_min_adjacent_gap: 0.06649378170359731
+            margin_sigma_units: 6.099
+            gate_rule:
+              candidate_condition: >-
+                the candidate's per-gate-seed simulated prevalence min adjacent
+                gap over the bridged bands exceeds MARGIN_K=3 x
+                real_half_split_sd; gate passes iff >= 4 of 5 gate seeds. This
+                is the ONLY thing a candidate must satisfy (the MARGIN reading;
+                an epsilon-tilt +0.001/band FAILS -- see degenerate_candidates).
+              evidence_time_conditions: >-
+                flip-note 3: "strictly rises + holds on all 100 real
+                half-splits + peak_is_5059 on all 100 halves" are properties of
+                the REAL floor established at floor-build time; they set the
+                cell's gate-eligibility and are NOT re-checked on the candidate
+                (the candidate is never re-split into 100 halves).
+              implied_conditions: >-
+                the 50-59 peak and Table-19 rank agreement add NO bite (the
+                argmax of a strictly rising 4-vector is its last element; PSID
+                rises + Table 19 rises force rank agreement over the bridged
+                bands). Recorded as corroboration, not independent conditions.
+            anchor_corroboration: >-
+              t19_strictly_rises_bridged is a CONSTANT of the frozen, sha-pinned
+              Table 19 -- it corroborates the CHOICE of invariant at evidence
+              time and constrains no candidate.
+            concept_bridge: >-
+              LEVELS are not bridgeable (self-report captures milder / younger
+              limitation: the 20-29 PSID share is ~5x the Table 19 share; deltas
+              1-3 -- definition, population AND severity). The co-monotone RISE
+              across the bridged bands is level-invariant, so those deltas do
+              not touch it. The 60-FRA band is REPORT-ONLY (delta 4, transience:
+              PSID disabled relabel to retired near FRA); the "50-59 peak" is
+              only the peak WITHIN the bridged window (Table 19's true peak is
+              60-FRA, excluded by the same delta-4 relabel).
+          "prevalence_ageshape.comonotone|male":
+            surface: b_prevalence_ageshape_vs_t19
+            statistic: >-
+              disabled-prevalence share strictly RISES across the four bridged
+              working-age bands 20-29 < 30-39 < 40-49 < 50-59, co-monotone with
+              the Table 19 age-shape over those bands. The single binding
+              candidate condition is the strict rise WITH margin.
+            anchor_source: Table 19 (prevalence by sex x age, 2023)
+            margin_basis: half_split_floor.min_gap.sd
+            real_half_split_sd: 0.010965466629052454
+            psid_min_adjacent_gap: 0.05809320776279005
+            margin_sigma_units: 5.298
+            gate_rule:
+              candidate_condition: >-
+                the candidate's per-gate-seed simulated prevalence min adjacent
+                gap over the bridged bands exceeds MARGIN_K=3 x
+                real_half_split_sd; gate passes iff >= 4 of 5 gate seeds. This
+                is the ONLY thing a candidate must satisfy (the MARGIN reading).
+              evidence_time_conditions: >-
+                flip-note 3: "strictly rises + holds on all 100 real
+                half-splits + peak_is_5059 on all 100 halves" are properties of
+                the REAL floor, set at floor-build time; NOT re-checked on the
+                candidate.
+              implied_conditions: >-
+                the 50-59 peak and Table-19 rank agreement add NO bite;
+                corroboration, not independent conditions.
+            anchor_corroboration: >-
+              t19_strictly_rises_bridged is a CONSTANT of the frozen, sha-pinned
+              Table 19 -- corroboration of the invariant choice, constraining no
+              candidate.
+            concept_bridge: >-
+              LEVELS are not bridgeable (deltas 1-3 -- definition, population,
+              severity); the co-monotone RISE is level-invariant. The 60-FRA
+              band is REPORT-ONLY (delta 4, transience); the "50-59 peak" is the
+              peak WITHIN the bridged window only.
+          "conversion_exit.retirement_dominant|female":
+            surface: a_conversion_exit_vs_t50
+            statistic: >-
+              weighted share of non-death disability exits at ages 60-67 that go
+              to retired (vs return-to-work); retirement DOMINATES (> 0.5) with
+              margin.
+            anchor_source: Table 50 (worker terminations by reason, 2023)
+            margin_basis: half_split_floor.share.sd
+            real_half_split_sd: 0.043471378797961174
+            psid_dominance_margin: 0.2085378095352508
+            margin_sigma_units: 4.797
+            gate_rule:
+              candidate_condition: >-
+                the candidate's per-gate-seed simulated retirement-exit share
+                exceeds 0.5 by margin >= MARGIN_K=3 x real_half_split_sd (i.e.
+                the dominance margin > 3 sigma); gate passes iff >= 4 of 5 gate
+                seeds. This is the ONLY candidate condition.
+              evidence_time_conditions: >-
+                flip-note 3: "dominant on all 100 real half-splits + >= 20
+                exits" are properties of the REAL floor at floor-build time;
+                the >= 20-exit floor gated the CELL, it is NOT a candidate-side
+                exit-count floor (no candidate-side exit floor is imposed). A
+                sparse-exit all-retire candidate that trivially passes this
+                anchor (share 1.0) is caught INTERNALLY at recovery.60-66, not
+                here (see degenerate_candidates).
+            anchor_corroboration: >-
+              t50_is_dominant is a CONSTANT of the frozen, sha-pinned Table 50
+              and is additionally near-MECHANICAL (FRA conversion is automatic
+              at FRA; Table 50 pools cessations over ALL ages against the PSID
+              60-67 window -- an age-universe mismatch). It corroborates the
+              dominance invariant choice; it constrains no candidate.
+            concept_bridge: >-
+              the exit-reason DOMINANCE is concept-robust: near FRA, retirement
+              is the majority non-death exit in both the PSID self-report and
+              Table 50 (FRA-conversion 455,267 vs medical-cessation 99,721).
+              Two disclosures: (i) Table 50's dominance is partly MECHANICAL and
+              pools cessations over ALL ages against the PSID 60-67 window (an
+              AGE-UNIVERSE mismatch, named); (ii) both DEATH and ATTRITION are
+              right-censored in the PSID pairs -- death is matched by excluding
+              it from the Table 50 denominator, but attrition has NO Table 50
+              analog and is disclosed as an additional censoring channel. LEVELS
+              (6.B5.1 ratio, delta 5) and the sex-ordering are report-only.
+          "conversion_exit.retirement_dominant|male":
+            surface: a_conversion_exit_vs_t50
+            statistic: >-
+              weighted share of non-death disability exits at ages 60-67 that go
+              to retired (vs return-to-work); retirement DOMINATES (> 0.5) with
+              margin.
+            anchor_source: Table 50 (worker terminations by reason, 2023)
+            margin_basis: half_split_floor.share.sd
+            real_half_split_sd: 0.028006631583008267
+            psid_dominance_margin: 0.35865209398842923
+            margin_sigma_units: 12.806
+            gate_rule:
+              candidate_condition: >-
+                the candidate's per-gate-seed simulated retirement-exit share
+                exceeds 0.5 by margin >= MARGIN_K=3 x real_half_split_sd; gate
+                passes iff >= 4 of 5 gate seeds. This is the ONLY candidate
+                condition.
+              evidence_time_conditions: >-
+                flip-note 3: "dominant on all 100 real half-splits + >= 20
+                exits" are REAL-floor properties at floor-build time; the >=
+                20-exit floor gated the CELL, not the candidate. No
+                candidate-side exit-count floor is imposed.
+            anchor_corroboration: >-
+              t50_is_dominant is a CONSTANT of the frozen, sha-pinned Table 50,
+              near-MECHANICAL; corroboration of the invariant choice,
+              constraining no candidate.
+            concept_bridge: >-
+              retirement is the majority non-death exit near FRA in both PSID
+              and Table 50; the same two disclosures apply (mechanical /
+              age-universe dominance; death + attrition censoring). LEVELS
+              (6.B5.1, delta 5) and sex-ordering are report-only.
+      report_only:
+        # The 24 internal report-only cells, ALL by the floor's own machine
+        # reason tolerance_above_t_max (finding 1 corrected the conversion
+        # cells from the invalid family reason to this true power demotion).
+        # Set-bound to the floor's gate_partition.report_only in
+        # tests/test_gates_derivations.py.
+        - "conversion.retired_from_disabled|female"
+        - "conversion.retired_from_disabled|male"
+        - "incidence.20-29|female"
+        - "incidence.20-29|male"
+        - "incidence.30-39|female"
+        - "incidence.30-39|male"
+        - "incidence.40-49|male"
+        - "incidence.60-66|female"
+        - "incidence.60-66|male"
+        - "prevalence.20-29|female"
+        - "prevalence.20-29|male"
+        - "prevalence.30-39|female"
+        - "prevalence.30-39|male"
+        - "prevalence.40-49|female"
+        - "prevalence.40-49|male"
+        - "prevalence.60-66|female"
+        - "prevalence.60-66|male"
+        - "recovery.20-29|female"
+        - "recovery.20-29|male"
+        - "recovery.30-39|female"
+        - "recovery.30-39|male"
+        - "recovery.40-49|female"
+        - "recovery.40-49|male"
+        - "recovery.50-59|male"
+      degenerate_candidates:
+        # wart-2 correction (finding 4): every LEVEL catch is INTERNAL
+        # (incidence / recovery hazards + the prevalence.50-59 occupancy stock).
+        # The anchor cells are NOT vacuous, but their UNIQUE catches are
+        # exit-composition inversion (no internal cell sees the exit mix) and
+        # flat / hump prevalence SHAPE. The epsilon-tilt row is builder-COMPUTED
+        # from the committed sd and pins the MARGIN reading (finding 3).
+        epsilon_tilt_prevalence:
+          candidate: disabled-prevalence shares tilted +0.001 per band
+          female: { min_adjacent_gap: 0.001, real_half_split_sd: 0.01090291052862014, margin_sigma_units: 0.0917, margin_k_required: 3, passes_bare_ordinal: true, passes_pinned_margin: false }
+          male: { min_adjacent_gap: 0.001, real_half_split_sd: 0.010965466629052454, margin_sigma_units: 0.0912, margin_k_required: 3, passes_bare_ordinal: true, passes_pinned_margin: false }
+          verdict: >-
+            PASSES the bare ordinal (strictly rises) but FAILS the pinned anchor
+            rule -- the +0.001/band gap is << MARGIN_K x the real half-split sd,
+            so margin_sigma << 3. This is why the candidate-side anchor
+            statistic is pinned to the MARGIN reading, not the bare ordinal.
+        catch_structure: >-
+          age-flat hazards FAIL internally (an incidence / recovery cell
+          exceeds its |ln| tolerance); age-flat / epsilon-tilt prevalence FAIL
+          the anchor SHAPE margin; all-retire-at-60 passes the conversion
+          anchor trivially (share 1.0) but FAILS internally at recovery.60-66;
+          a return-to-work-dominant exit mix (share 0.45) is caught ONLY by the
+          conversion anchor (no internal cell sees exit composition -- the
+          anchor's unique catch).
+      external_anchor_report:
+        # The SSA DI ASR 2023 admin anchor is bundled IN-REPO (staged by #132),
+        # sha-pinned, REPORTED not gated (only the concept-bridged SHAPE /
+        # DOMINANCE gate; the LEVELS stay report-only). No calibration: the
+        # anchor moves no floor value.
+        anchor_dir: data/external/di_asr_2023
+        reported_anchor_not_gated: true
+        status: bundled_in_repo_pre_flip
+        anchor_pins:
+          "data/external/di_asr_2023/tables.json":
+            sha256: 1af9ad874cfc7b464a9279ae62e08ba51206a843f84622c92332b63beec9aa36
+            n_bytes: 26356
+          "data/external/di_asr_2023/provenance.md":
+            sha256: 62ca6f727512ad22fcd1251b65a53f3bc3281927ce10590e3685c43bd2b7e9cb
+        anchor_tables_used: [19, 49, 50]
+        concept_delta: >-
+          the PSID work-limitation self-report is NOT the SSA DI program (seven
+          named deltas: 1 definition, 2 population, 3 severity, 4 transience, 5
+          conversion denominator, 6 biennial censoring, 7 period pooling), so
+          LEVELS are not level-comparable to the DI ASR tabulations. The gate
+          bridges only the level-invariant SHAPE (Table 19 age-shape rise) and
+          DOMINANCE (Table 50 exit composition); the SSA prevalence LEVELS, the
+          60-FRA band, the 6.B5.1 conversion level and the Table 49 termination
+          trend are REPORT-ONLY with their delta named. Direction validated, no
+          calibration.
+        calibration: none -- the bridge names concept deltas, moves no floor value
+      certification_scope:
+        tranche: m4_disability
+        certifies: >-
+          the DISABILITY processes in generated panels -- the work-limitation
+          incidence / recovery hazards, the disabled-prevalence occupancy
+          stock, and the near-FRA disability-exit composition -- the 12 gated
+          cells (8 internal mixed-k + 4 concept-bridged anchor) on the PSID
+          work-limitation panel x the sha-pinned di_asr_2023 anchor.
+        supports:
+          - >-
+            the disabled composition a payable DI baseline rides on in
+            generated panels (the occupancy stock + the flow hazards that
+            produce it), and the near-FRA disability->retirement conversion
+            that moves the disabled into the retired-worker stock.
+        does_not_support:
+          - >-
+            SSA DI benefit LEVELS or award/termination COUNTS -- those rest on
+            the statutory-formula oracle (#78/#80) and are outside the M4
+            reproduction + concept-bridge surface; the DI concept deltas keep
+            every un-bridgeable SSA LEVEL report-only.
+          - >-
+            the DI eligibility DETERMINATION / adjudication process (not
+            modelled), and the sex-ordering of conversion levels (report-only,
+            93/100-halves demotion).
+    history:
+      - id: 2026-07-12-m4-gate-lock
+        proposed: 2026-07-12
+        flipped_live: this pull request
+        referee_round:
+          floor: >-
+            PR 153 (runs/m4_gate_floors_v1.json), the pre-lock 100-seed
+            PERSON-DISJOINT split noise floor over DI incidence / recovery /
+            prevalence + the DI->retirement conversion, plus the
+            concept-bridged Table 19 / Table 50 anchor cells, ratified by
+            merge (squash commit 0fa4a29).
+          review: >-
+            comment 4950447491 (verdict AMEND BEFORE LOCK; six findings /
+            required fixes A-F -- finding 1 BLOCKER: the internal surface
+            dropped the pre-registered prevalence + conversion families under
+            the invalid level_bridged_via_anchor_shape reason; finding 2: the
+            K=20 stream drifted to 4100+k; finding 3: the anchor candidate
+            statistic under-specified; findings 4-6: wart-2 teeth, redundant
+            conditions, delta numbering)
+          fixes: >-
+            comment 4950571161 (fixes A-F applied, commit 05d8292 + master
+            merge 45bbabe; the pre-registered internal families restored under
+            the COMPUTED MIXED-K remedy flow@k=3 + prevalence.50-59 stock@k=4,
+            8 internal gated cells; 5200+k VERBATIM + fresh_run schema
+            [20,8,5]; pinned anchor MARGIN statistic + epsilon-tilt failure;
+            k_selection committed with k=2 OC 0.2901; delta numbering fixed;
+            re-priced 8 internal + 4 anchor gated / 24 report-only, faithful
+            OC 0.9689 / p_seed 0.9408)
+          verification: >-
+            comment 4950648191 (verdict AMEND BEFORE LOCK, one amendment
+            METADATA-ONLY: the PR body; every committed object -- artifact,
+            builder, tests -- verified EXACT, a full regenerator rebuild
+            reproduced the artifact with zero non-volatile diffs, all six
+            fixes executed, all nine mutations caught, no dead zones; five
+            flip-time notes recorded) + comment 4950660426 (the body
+            amendment executed; tier recount 2,321)
+        ratified: >-
+          2026-07-12 by merge of PR 153 (squash merge commit 0fa4a29) under
+          the maintainer's standing campaign directive of 2026-07-07,
+          exercised only after the full ceremony (round-1 AMEND 4950447491 ->
+          fixes 4950571161 -> verification AMEND-metadata-only 4950648191 ->
+          body amendment 4950660426). This flip records the completed ceremony
+          and ADDS gate_m4 as locked; no_self_rescue applies.
+        content: >-
+          gate_m4 (the M4 DI disability gate) is ADDED as a new LOCKED
+          top-level gate (NOT an in-place unlocked->locked flip; unlike
+          gate_2b/2c it had no pre-existing stub): locked true / status
+          locked, kind anchor_based, the K=20 mean-over-draws protocol
+          (tranche 2a amendment 1, 5200+k), the T_max = ln(1.5) power cap, the
+          8 internal gated cells with tolerances machine-derived as round(floor
+          mean + k*sd, 3) under the pre-registered MIXED k (FLOW=3, STOCK=4)
+          from the FROZEN floor runs/m4_gate_floors_v1.json, the 4
+          concept-bridged anchor cells (>= 3 sigma margin, per sex), the 24
+          report-only cells (all tolerance_above_t_max), the k_selection rule
+          (k=2 flow OC 0.2901 / k=3 flow OC 0.9717 / stock k=4), the
+          governance (weight_definition, the standing description-claims-
+          exactly rule, no_self_rescue), the certification_scope, and the
+          sha-pinned in-repo di_asr_2023 anchor (reported, never a level
+          gate). ZERO threshold movement vs the ratified floor: the flip READS
+          the frozen artifact and rewrites nothing. The five verification
+          flip-time notes are implemented (ceremony_record
+          .flip_notes_implemented). Bindings go LOCKED-HOT.
+  gate_w1:
+    id: w1_representative_frame_transport
+    status: locked
+    locked: true
+    kind: transport
+    covers: >-
+      the TRANSPORT of the PSID-estimated generators onto the certified populace
+      CPS representative frame (roadmap #113 M5, workstream #100 W1): family
+      A -- CPS-observable cross-sectional joints (earnings x age x sex, marital
+      composition, household composition), FLOOR-priced, 53 gated / 52 report-only;
+      family B -- SSA administrative margins of the deployed + simulated benefits,
+      ANCHOR-priced, 10 gated (2 disability-conversion M4-simulated margins
+      + 8 DI age-composition bands) / 15 report-only (14 circular claim-age
+      + 1 benefit level); family C -- the two committed ordinal compression
+      fingerprints that must REVERSE to the anchor orderings, BINARY, 2 gated.
+      65 gated / 67 report-only + the report-only A' published-value family.
+      Per the standing description_claims_exactly_the_scored_surface rule the
+      surface claimed is EXACTLY these cells. Does NOT re-certify the dynamics
+      (gate-1 earnings, gate-2a/2b/2c demographic / household / marriage x earnings,
+      gate_m4 disability -- all certified on their PSID holdouts) nor certify
+      the projection (M6+).
+    deployment_frame:
+      bundle: us-4.18.8
+      dataset: populace_us_2024
+      dataset_uri: hf://policyengine/populace-us/populace_us_2024.h5@populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701
+      artifact_sha256: c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5
+      pe_us_version: 1.752.2
+      policyengine_version: 4.18.8
+      reference_period: '2024'
+      n_persons: 166302
+      n_households: 57240
+    holdout_basis: [populace_us_2024_certified, ssa_supplement_6b, di_asr_2023,
+      mermin_smith_committed_orderings]
+    lock_ceremony:
+      exists: true
+      completed: >-
+        2026-07-12. The SAME ceremony gate-2a / 2b / 2c / M4 followed -- a pre-registered
+        gate on a 100-seed HOUSEHOLD-DISJOINT split noise floor over the CPS-observable
+        joints (family A), named vintage/measurement tolerances on the SSA anchors
+        (family B), and the binary committed fingerprint orderings (family C);
+        an adversarial referee round, a verification round, and a ratifying
+        merge (floor #154 -> referee 4950451145 -> fixes 4950611796 -> verification
+        4950670492 -> body amendment 4950673980 -> ratify by merge of #154,
+        squash d9d0a68; tier manifest repaired by #158). The full record is
+        in thresholds.ceremony_record and history entry 2026-07-12-w1-gate-lock.
+    thresholds:
+      locked: true
+      status: locked
+      tranche_id: w1_representative_frame_transport
+      kind: transport
+      floor_run: runs/gate_w1_floors_v1.json
+      ceremony_record:
+        round_1_referee: >-
+          comment 4950451145 -- round-1 adversarial referee AMEND BEFORE LOCK
+          (ten findings / required fixes A-H): the family-B claim-age circularity
+          (the deployed claiming module samples from 6.B5.1, the anchor it is
+          scored against -- blocker 1); the missing family-B candidate protocol
+          + the detrended-only tolerance excluding the reference-period drift
+          (blocker 2); the unpinned family-A regenerated surface / identity-candidate
+          score-0 (finding 3); the self-employment guard-coverage gap (finding
+          4); the frame-choice scope + age top-code (finding 5); the calibration-coverage
+          disclosure (finding 6); the heavy-tail boundary fragility (finding
+          7); the family-C binding gap (finding 8); the K=20 dispersion-max
+          drift (finding 9); and the record nits (finding 10).
+        fixes: >-
+          comment 4950611796 -- fixes A-H applied (fixes commit f85408e); the
+          artifact rebuilt from the regenerator bit-identically mod elapsed_seconds.
+          Family B de-circularized (14 claim-age cells report-only, 2 conversion
+          + 8 DI gated) + full candidate protocol (K=20 stream 9200, no-frame-DI-column
+          rule) + reference-period tolerance round(2*resid_sd + |trend|*Delta
+          + 0.05, 2), Delta pinned {2, 1}; family-A regenerated surface + identity
+          candidate pinned; the self-employment guard closed; the calibration-coverage
+          statement + report-only A' family; the dispersion max restored; the
+          family-C orders derived from committed anchors + bound; the boundary
+          bootstrap; the records. Family A UNCHANGED: 53 gated / 52 report-only,
+          OC p_seed 0.922 / p_gate 0.9481, training copy 0.8089x. Family B 24/1
+          -> 10/15.
+        verification: >-
+          comment 4950670492 -- verification round AMEND BEFORE LOCK, one amendment
+          TEXT-ONLY (the PR description still carried the retired v1 family-B
+          surface). The evidence base itself -- artifact, builder, module, tests
+          -- verified CLEAN on every fix A through H, no defect: a full rebuild
+          reproduced the committed artifact field-for-field bit-identically
+          except elapsed_seconds + the two sha pins; every tolerance, partition
+          reason, the OC 0.922 / 0.9481, the 53/52 + 10/15 + 2/0 partitions,
+          the family-C orders, the A' rows, and the bootstrap re-derived under
+          independent implementations; every mutation caught. Four flip-time
+          notes recorded (see flip_notes_implemented); none blocking.
+        body_amendment: >-
+          comment 4950673980 -- the verification amendment executed: the PR
+          body was rewritten from the committed artifact (the 10/15 family-B
+          surface, the reference-period-priced tolerance rule, the coverage
+          facts, the falsified wart-4 sentence replaced), so the description
+          claims EXACTLY the scored surface. The single text-only blocking item
+          was cleared; no code, artifact, or test change (those were verified
+          exact).
+        ratified: >-
+          2026-07-12 by merge of PR #154 (squash merge commit d9d0a68) under
+          the maintainer's standing campaign directive of 2026-07-07 ("build
+          until reasonable for scoring these reforms"), exercised only after
+          the full lock ceremony (round-1 AMEND 4950451145 -> fixes 4950611796
+          -> verification AMEND-text-only 4950670492 -> body amendment 4950673980).
+          Locked thresholds change only through a public amendment noted in
+          this file's history (amendment_rules apply, incl. no_self_rescue).
+        tier_manifest_repair: >-
+          PR #158 (squash d13c3a3) repaired a MAINTAINER-SIDE tier-manifest
+          miscount that #154 introduced: #154's manifest was recounted in .venv-gate,
+          which lacks openpyxl and under-collects 10 conditionally-collected
+          unit tests (unit 189 vs the CI-authoritative 199, other tiers identical),
+          and #154 was merged after a timed-out checks poll rather than a fresh
+          green -- a readiness-rule violation caught within minutes by post-hoc
+          verification. Standing correction adopted and applied to THIS flip:
+          tier recounts happen in a CI-equivalent env (or from CI's own collect
+          output), never bare .venv-gate.
+        delegated_authority: >-
+          The standing campaign directive of 2026-07-07 delegates the ratifying-merge
+          authority for a ceremony that has cleared the adversarial + verification
+          rounds; the pre-lock floor was ratified by the merge of #154 itself,
+          and this flip RECORDS the completed ceremony and ADDS gate_w1 as locked
+          -- it is not a re-ratification and moves no threshold (ZERO threshold
+          movement vs the frozen floor).
+        flip_notes_implemented:
+          note_1_gate_w1_stub_from_151: >-
+            the gate_w1 stub comes from design issue #151 (proposed block, floor_run
+            runs/gate_w1_floors_v1.json); the floors PR wrote NO gates.yaml
+            content (verified byte-identical to master), so THIS flip is the
+            first and only gates.yaml edit.
+          note_2_anchor_bundle_conventions: >-
+            the anchor-bundle conventions are carried into the lock: family-B
+            anchors at their own vintages with Delta pinned {claim/conversion
+            2, DI 1} against anchor_frame_year 2024; family-C required orders
+            DERIVE from replication_cost_ordering_v1.json + m2_pseudo_projection_v1.json
+            (treated as locked inputs); A' census files sha-pinned; candidate
+            streams 9100 (A) / 9200 (B) distinct from the split seeds; and the
+            SS-proxy laundering / conditioning-column rule -- the no-DI-column
+            rule names the direct shortcut, the conditioning-column enumeration
+            covers the laundered SS proxies.
+          note_3_manifest_transition: >-
+            the legacy manifest is transitioned via scripts/build_legacy_manifest.py
+            --transition (only contract_revision + the gates.yaml entry change),
+            and tier_counts.json / README-tiers.md are refreshed DELIBERATELY
+            by a CI-equivalent recount for this flip's own added always-runnable
+            bindings (the #158 correction: never bare .venv-gate). The A' marital
+            x age x sex published comparison stays a recommended, non-blocking
+            enrichment.
+          note_4_binding_scope_record: >-
+            the binding scope is recorded (thresholds.frame_pin.binding_scope):
+            the protocol / candidate-procedure prose binds artifact-side always-runnable
+            + builder-side at rebuild; the lock freezes the artifact so the
+            artifact-side binding is operative; provenance sha values inside
+            report-only blocks bind at rebuild (mutation V9).
+      estimand:
+        population: >-
+          US resident persons, reference period 2024
+        n_persons: 166302
+        n_households: 57240
+        age_top_code: 85
+        age_top_code_note: >-
+          The certified frame TOP-CODES age at 85 (internal consistency unaffected
+          -- the half-split floor is measured on the same top-coded frame --
+          but the 65+ marital / coresidence bands pool 65..85). Disclosed per
+          finding 5.
+        claim: >-
+          Family A gates EXACTLY the CPS-observable cross-sectional cells the
+          certified L0-sparse-refit file carries with verified non-zero support;
+          NOT an uncalibrated CPS extract and NOT the PSID estimation sample.
+          Per governance.description_claims_exactly_the_scored_surface.
+      family_a:
+        pricing: >-
+          100-seed household-disjoint half-split noise floor
+        statistic: >-
+          |ln(rate_a/rate_b)| on the file's own weighted moments; tolerance
+          round(mean + 4*sd, 3) capped at T_max = ln(1.5).
+        split_note: >-
+          HOUSEHOLD-disjoint (not merely person-disjoint): CPS is a household-cluster
+          sample and the composition moments are household-level, so the honest
+          null keeps every household on one side (the 2c 'couple/person-disjoint
+          where units correlate' lesson).
+        scope_note: >-
+          Family A is INTERNAL transport consistency to the certified frame
+          -- the deployed cross-section must equal the file's own within its
+          sampling floor. The frame's own fidelity to Census/CPS margins is
+          populace-certified, NOT re-litigated here.
+        floor_run: runs/gate_w1_floors_v1.json
+        floor_key: noise_floor_seeds_0_99
+        views:
+          earnings_participation:
+            statistic: >-
+              weighted share with positive labor earnings (employment + self-employment
+              before LSR), by age band x sex.
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              earnings_participation.18-24|female: 0.211
+              earnings_participation.18-24|male: 0.221
+              earnings_participation.25-34|female: 0.125
+              earnings_participation.25-34|male: 0.1
+              earnings_participation.35-44|female: 0.096
+              earnings_participation.35-44|male: 0.077
+              earnings_participation.45-54|female: 0.131
+              earnings_participation.45-54|male: 0.12
+              earnings_participation.55-61|female: 0.157
+              earnings_participation.55-61|male: 0.152
+              earnings_participation.62-69|female: 0.378
+              earnings_participation.62-69|male: 0.299
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                earnings_participation.18-24|female: {key: earnings_participation.18-24|female,
+                  k: 4, rounding: 3}
+                earnings_participation.18-24|male: {key: earnings_participation.18-24|male,
+                  k: 4, rounding: 3}
+                earnings_participation.25-34|female: {key: earnings_participation.25-34|female,
+                  k: 4, rounding: 3}
+                earnings_participation.25-34|male: {key: earnings_participation.25-34|male,
+                  k: 4, rounding: 3}
+                earnings_participation.35-44|female: {key: earnings_participation.35-44|female,
+                  k: 4, rounding: 3}
+                earnings_participation.35-44|male: {key: earnings_participation.35-44|male,
+                  k: 4, rounding: 3}
+                earnings_participation.45-54|female: {key: earnings_participation.45-54|female,
+                  k: 4, rounding: 3}
+                earnings_participation.45-54|male: {key: earnings_participation.45-54|male,
+                  k: 4, rounding: 3}
+                earnings_participation.55-61|female: {key: earnings_participation.55-61|female,
+                  k: 4, rounding: 3}
+                earnings_participation.55-61|male: {key: earnings_participation.55-61|male,
+                  k: 4, rounding: 3}
+                earnings_participation.62-69|female: {key: earnings_participation.62-69|female,
+                  k: 4, rounding: 3}
+                earnings_participation.62-69|male: {key: earnings_participation.62-69|male,
+                  k: 4, rounding: 3}
+          earnings_profile:
+            statistic: >-
+              weighted median earnings / prime-age (35-44) median -- the age-earnings
+              profile, by age band x sex.
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              earnings_profile.18-24|female: 0.395
+              earnings_profile.18-24|male: 0.331
+              earnings_profile.25-34|female: 0.217
+              earnings_profile.25-34|male: 0.237
+              earnings_profile.35-44|female: 0.184
+              earnings_profile.35-44|male: 0.148
+              earnings_profile.45-54|female: 0.363
+              earnings_profile.45-54|male: 0.286
+              earnings_profile.55-61|male: 0.349
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                earnings_profile.18-24|female: {key: earnings_profile.18-24|female,
+                  k: 4, rounding: 3}
+                earnings_profile.18-24|male: {key: earnings_profile.18-24|male,
+                  k: 4, rounding: 3}
+                earnings_profile.25-34|female: {key: earnings_profile.25-34|female,
+                  k: 4, rounding: 3}
+                earnings_profile.25-34|male: {key: earnings_profile.25-34|male,
+                  k: 4, rounding: 3}
+                earnings_profile.35-44|female: {key: earnings_profile.35-44|female,
+                  k: 4, rounding: 3}
+                earnings_profile.35-44|male: {key: earnings_profile.35-44|male,
+                  k: 4, rounding: 3}
+                earnings_profile.45-54|female: {key: earnings_profile.45-54|female,
+                  k: 4, rounding: 3}
+                earnings_profile.45-54|male: {key: earnings_profile.45-54|male,
+                  k: 4, rounding: 3}
+                earnings_profile.55-61|male: {key: earnings_profile.55-61|male,
+                  k: 4, rounding: 3}
+          earnings_p90p50:
+            statistic: >-
+              within-cell weighted p90/p50 earnings ratio (upper dispersion),
+              by age band x sex.
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              earnings_p90p50.35-44|female: 0.329
+              earnings_p90p50.35-44|male: 0.254
+              earnings_p90p50.45-54|female: 0.353
+              earnings_p90p50.45-54|male: 0.265
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                earnings_p90p50.35-44|female: {key: earnings_p90p50.35-44|female,
+                  k: 4, rounding: 3}
+                earnings_p90p50.35-44|male: {key: earnings_p90p50.35-44|male,
+                  k: 4, rounding: 3}
+                earnings_p90p50.45-54|female: {key: earnings_p90p50.45-54|female,
+                  k: 4, rounding: 3}
+                earnings_p90p50.45-54|male: {key: earnings_p90p50.45-54|male,
+                  k: 4, rounding: 3}
+          earnings_p50p10:
+            statistic: >-
+              within-cell weighted p50/p10 earnings ratio (lower dispersion):
+              only earnings_p50p10.25-34|female clears the cap (coverage 1/8).
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              earnings_p50p10.25-34|female: 0.351
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                earnings_p50p10.25-34|female: {key: earnings_p50p10.25-34|female,
+                  k: 4, rounding: 3}
+          marital_share:
+            statistic: >-
+              weighted share in each marital status, by age band x sex: the
+              married + never-married dense cells clear the cap; widowed / divorced
+              / separated are report-only almost everywhere (coverage 13/50).
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              marital_share.married.25-34|female: 0.194
+              marital_share.married.25-34|male: 0.244
+              marital_share.married.35-44|female: 0.109
+              marital_share.married.35-44|male: 0.127
+              marital_share.married.45-54|female: 0.136
+              marital_share.married.45-54|male: 0.17
+              marital_share.married.55-64|male: 0.106
+              marital_share.married.65+|female: 0.163
+              marital_share.married.65+|male: 0.084
+              marital_share.never_married.25-34|female: 0.203
+              marital_share.never_married.25-34|male: 0.192
+              marital_share.never_married.35-44|female: 0.338
+              marital_share.never_married.35-44|male: 0.326
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                marital_share.married.25-34|female: {key: marital_share.married.25-34|female,
+                  k: 4, rounding: 3}
+                marital_share.married.25-34|male: {key: marital_share.married.25-34|male,
+                  k: 4, rounding: 3}
+                marital_share.married.35-44|female: {key: marital_share.married.35-44|female,
+                  k: 4, rounding: 3}
+                marital_share.married.35-44|male: {key: marital_share.married.35-44|male,
+                  k: 4, rounding: 3}
+                marital_share.married.45-54|female: {key: marital_share.married.45-54|female,
+                  k: 4, rounding: 3}
+                marital_share.married.45-54|male: {key: marital_share.married.45-54|male,
+                  k: 4, rounding: 3}
+                marital_share.married.55-64|male: {key: marital_share.married.55-64|male,
+                  k: 4, rounding: 3}
+                marital_share.married.65+|female: {key: marital_share.married.65+|female,
+                  k: 4, rounding: 3}
+                marital_share.married.65+|male: {key: marital_share.married.65+|male,
+                  k: 4, rounding: 3}
+                marital_share.never_married.25-34|female: {key: marital_share.never_married.25-34|female,
+                  k: 4, rounding: 3}
+                marital_share.never_married.25-34|male: {key: marital_share.never_married.25-34|male,
+                  k: 4, rounding: 3}
+                marital_share.never_married.35-44|female: {key: marital_share.never_married.35-44|female,
+                  k: 4, rounding: 3}
+                marital_share.never_married.35-44|male: {key: marital_share.never_married.35-44|male,
+                  k: 4, rounding: 3}
+          hh_size_share:
+            statistic: >-
+              person-level weighted share by household size (1/2/3/4/5+).
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              hh_size_share.1: 0.191
+              hh_size_share.2: 0.123
+              hh_size_share.3: 0.191
+              hh_size_share.4: 0.174
+              hh_size_share.5plus: 0.184
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                hh_size_share.1: {key: hh_size_share.1, k: 4, rounding: 3}
+                hh_size_share.2: {key: hh_size_share.2, k: 4, rounding: 3}
+                hh_size_share.3: {key: hh_size_share.3, k: 4, rounding: 3}
+                hh_size_share.4: {key: hh_size_share.4, k: 4, rounding: 3}
+                hh_size_share.5plus: {key: hh_size_share.5plus, k: 4, rounding: 3}
+          coresident_spouse:
+            statistic: >-
+              weighted share living with a spouse (A_MARITL spouse-present),
+              by age band x sex.
+            floor_run: runs/gate_w1_floors_v1.json
+            tolerances:
+              coresident_spouse.25-34|female: 0.202
+              coresident_spouse.35-44|female: 0.109
+              coresident_spouse.35-44|male: 0.129
+              coresident_spouse.45-54|female: 0.137
+              coresident_spouse.45-54|male: 0.171
+              coresident_spouse.55-64|female: 0.121
+              coresident_spouse.55-64|male: 0.108
+              coresident_spouse.65+|female: 0.168
+              coresident_spouse.65+|male: 0.094
+            derivations:
+              floor_run: runs/gate_w1_floors_v1.json
+              floor_key: noise_floor_seeds_0_99
+              rules:
+                coresident_spouse.25-34|female: {key: coresident_spouse.25-34|female,
+                  k: 4, rounding: 3}
+                coresident_spouse.35-44|female: {key: coresident_spouse.35-44|female,
+                  k: 4, rounding: 3}
+                coresident_spouse.35-44|male: {key: coresident_spouse.35-44|male,
+                  k: 4, rounding: 3}
+                coresident_spouse.45-54|female: {key: coresident_spouse.45-54|female,
+                  k: 4, rounding: 3}
+                coresident_spouse.45-54|male: {key: coresident_spouse.45-54|male,
+                  k: 4, rounding: 3}
+                coresident_spouse.55-64|female: {key: coresident_spouse.55-64|female,
+                  k: 4, rounding: 3}
+                coresident_spouse.55-64|male: {key: coresident_spouse.55-64|male,
+                  k: 4, rounding: 3}
+                coresident_spouse.65+|female: {key: coresident_spouse.65+|female,
+                  k: 4, rounding: 3}
+                coresident_spouse.65+|male: {key: coresident_spouse.65+|male,
+                  k: 4, rounding: 3}
+        report_only: [coresident_spouse.25-34|male, earnings_p50p10.25-34|male,
+          earnings_p50p10.35-44|female, earnings_p50p10.35-44|male, earnings_p50p10.45-54|female,
+          earnings_p50p10.45-54|male, earnings_p50p10.55-61|female, earnings_p50p10.55-61|male,
+          earnings_p90p50.25-34|female, earnings_p90p50.25-34|male, earnings_p90p50.55-61|female,
+          earnings_p90p50.55-61|male, earnings_profile.55-61|female, earnings_profile.62-69|female,
+          earnings_profile.62-69|male, marital_share.divorced.25-34|female,
+          marital_share.divorced.25-34|male, marital_share.divorced.35-44|female,
+          marital_share.divorced.35-44|male, marital_share.divorced.45-54|female,
+          marital_share.divorced.45-54|male, marital_share.divorced.55-64|female,
+          marital_share.divorced.55-64|male, marital_share.divorced.65+|female,
+          marital_share.divorced.65+|male, marital_share.married.55-64|female,
+          marital_share.never_married.45-54|female, marital_share.never_married.45-54|male,
+          marital_share.never_married.55-64|female, marital_share.never_married.55-64|male,
+          marital_share.never_married.65+|female, marital_share.never_married.65+|male,
+          marital_share.separated.25-34|female, marital_share.separated.25-34|male,
+          marital_share.separated.35-44|female, marital_share.separated.35-44|male,
+          marital_share.separated.45-54|female, marital_share.separated.45-54|male,
+          marital_share.separated.55-64|female, marital_share.separated.55-64|male,
+          marital_share.separated.65+|female, marital_share.separated.65+|male,
+          marital_share.widowed.25-34|female, marital_share.widowed.25-34|male,
+          marital_share.widowed.35-44|female, marital_share.widowed.35-44|male,
+          marital_share.widowed.45-54|female, marital_share.widowed.45-54|male,
+          marital_share.widowed.55-64|female, marital_share.widowed.55-64|male,
+          marital_share.widowed.65+|female, marital_share.widowed.65+|male]
+        power_cap:
+          t_max: ln(1.5)
+          rule: >-
+            a family-A cell is gate-eligible iff defined on every one of the
+            100 floor seeds AND >= 20 events on the weaker half of the worst
+            seed AND stabilised tolerance round(mean + 4*sd, 3) <= T_max = ln(1.5)
+            AND the committed 100-seed floor max <= that tolerance (the W1 heavy-tail
+            guard). Which cells demote is DERIVED from the floor's cell_stability,
+            never hand-picked. W1 declares NO coverage-recovery aggregates.
+          aggregations: {}
+          demoted_and_report_only: >-
+            52 family-A cells are report-only, ALL by the floor's OWN machine
+            reason: 44 tolerance_above_t_max, 5 floor_max_exceeds_tolerance
+            (the W1 heavy-tail guard -- weight-concentrated cells whose 100-seed
+            max exceeds mean+4*sd), 2 below_20_events, 1 undefined_on_some_seed.
+            No coverage-recovery aggregate is added: the sparse marital / dispersion
+            cells stay report-only by POWER, not masking.
+        calibration_coverage:
+          note: >-
+            What family A can and cannot lean on populace's calibration for
+            (finding 6). populace calibrates the certified frame to national
+            admin TOTALS (earnings $9.711T, OASI $1.112T, DI $147.1B), so the
+            family-A MARGINAL totals ride on a certified target. The age x sex
+            x marital and household-size JOINTS family A scores are CPS-ASEC
+            joints as reweighted by the L0 sparse refit (Kish n_eff ~ 14.3k
+            of 166k nominal); they are NOT in populace's calibration loss and
+            ride UNCERTIFIED. Family A certifies transport CONSISTENCY to those
+            joints, not their external truth; the family_a_prime block makes
+            the joints' own quality visible against published CPS/ACS.
+          covered_by_populace_calibration: [earnings marginal totals (employment
+              + self-employment), OASI / DI benefit totals]
+          not_calibration_covered_ride_uncertified: [marital_share (age x sex
+              x status joint), hh_size_share / coresident_spouse (household
+              joint), 'within-cell earnings dispersion (p90/p50, p50/p10)']
+        coverage_facts: >-
+          The gate's family-A content is thin in two families (finding 10v):
+          the marital family gates 13 of 50 cells (the rest demoted at the power
+          cap -- widowed / divorced / separated are report-only almost everywhere),
+          and lower-tail dispersion gates 1 of 8 cells (earnings_p50p10.25-34|female).
+          Named here and in the PR text, not left to be discovered from the
+          partition.
+        regenerated_surface_note: >-
+          the family-A candidate surface is PINNED in protocol.fresh_run_artifact_schema.regenerated_surface:
+          every scored column must be RE-GENERATED by the deployed generators
+          on each of the K=20 draws; copying a scored column is NON-CONFORMANT
+          (referee finding 3 / fix B).
+        degenerate_candidates:
+          train_copy: {max_score_over_tolerance: 0.8089, max_ratio_cell: [marital_share.married.35-44|female,
+              2], passes_4_of_5: true, defence: 'procedural (registration +
+              holdout exclusion + no_self_rescue), NOT the cell set'}
+          identity_candidate:
+            candidate: >-
+              the identity map: the candidate emits the frame's OWN scored columns
+              (age / earnings / A_MARITL / household ids) unchanged, adding
+              history around them without RE-GENERATING the scored cross-section.
+            score: >-
+              0 on every family-A cell, on every seed and every draw
+            across_draw_sd: 0.0
+            conformance: NON-CONFORMANT
+            caught_by: >-
+              protocol.fresh_run_artifact_schema.regenerated_surface (copying
+              a scored column is non-conformant) + per_draw_dispersion_disclosure.max_per_draw_abs_ln_per_cell
+              == 0 (no regeneration -> zero across-draw dispersion). Unlike
+              the train-copy (a real attack the registration + holdout + no_self_rescue
+              procedure bars), the identity map is the DEFAULT reading of #113's
+              'deployment on the panel is transport', so the protocol must STATE
+              the regenerated surface -- which it now does.
+            certifies: >-
+              nothing about the generators (finding 3): a pass under the identity
+              map is score-0 by construction. What a CONFORMANT pass certifies
+              is that stochastic regeneration through the deployed generators
+              does not distort the cross-section beyond the CPS sampling floor.
+        heavy_tail_boundary_bootstrap:
+          method: >-
+            nonparametric bootstrap over each cell's committed 100 half-split
+            floor values (B=5000, numpy default_rng(91000)): resample 100 with
+            replacement, recompute tolerance round(mean+4*sd,3) and the floor
+            max, count P(max <= tolerance). For a heavy-tail DEMOTE this is
+            P(re-enter gated); for a GATED cell 1 - it is P(flip out to report-only).
+          n_bootstrap: 5000
+          seed: 91000
+          demote_reentry_prob: {coresident_spouse.25-34|male: 0.761, marital_share.married.55-64|female: 0.718,
+            earnings_p90p50.55-61|female: 0.552, earnings_p90p50.25-34|female: 0.461,
+            earnings_p90p50.25-34|male: 0.396}
+          gated_flipout_prob: {earnings_profile.45-54|male: 0.198, coresident_spouse.55-64|female: 0.161,
+            hh_size_share.2: 0.151, marital_share.married.25-34|male: 0.139,
+            earnings_participation.18-24|female: 0.124, earnings_profile.55-61|male: 0.121,
+            hh_size_share.4: 0.059}
+          disclosure_note: >-
+            The lock FREEZES the committed 100-seed partition, so these probabilities
+            are DISCLOSURE of boundary fragility, not a defect: the demotes
+            near max/tol ~ 1.0 would re-enter under a modest resample, and a
+            few gated cells sit close enough to flip out.
+          seed_count_dependence: >-
+            The guard binds on an IN-SAMPLE max, so it MECHANICALLY tightens
+            with more floor seeds (at ~1,000 seeds it would demote every mildly
+            heavy-tailed cell). The rule is well-defined only relative to the
+            committed 100-seed convention, which the lock freezes.
+        family_a_prime:
+          status: report_only
+          purpose: >-
+            2b fix-F pattern (finding 6): make the transport TARGET's own quality
+            visible against published values, so a referee sees how far the
+            certified frame's covered joints sit from CPS/ACS. NOT gated --
+            concept / vintage / age-band mismatches below.
+          household_size_person_level:
+            hh_size_share.1: {frame_rate: 0.0815, published_share: 0.1197, abs_diff_pp: 3.82}
+            hh_size_share.2: {frame_rate: 0.2956, published_share: 0.2889, abs_diff_pp: 0.67}
+            hh_size_share.3: {frame_rate: 0.2176, published_share: 0.1864, abs_diff_pp: 3.12}
+            hh_size_share.4: {frame_rate: 0.2123, published_share: 0.2016, abs_diff_pp: 1.07}
+            hh_size_share.5plus: {frame_rate: 0.193, published_share: 0.2034,
+              abs_diff_pp: 1.04}
+          coresident_spouse_aligned_band:
+            coresident_spouse.25-34|male: {frame_rate: 0.3982, published_share: 0.35,
+              abs_diff_pp: 4.82}
+            coresident_spouse.25-34|female: {frame_rate: 0.4749, published_share: 0.427,
+              abs_diff_pp: 4.79}
+          sources:
+            household_size: {file: data/external/census_household_size_2023.json,
+              table: HH-4, reference_year: 2023, file_sha256: 9ac805cd902da55988327a37e73e3ff5d1abd9d7aee014002e26b3e05384d79d,
+              concept: 'person-level household-size share (k * households_k
+                / total persons), HH-4 derived'}
+            coresident_spouse: {file: data/external/census_living_arrangements_2023.json,
+              table: AD-3, reference_year: 2023, concept: 'AD-3 ''living with
+                spouse'' share, 25-34 (the only AD-3 band aligning with an ADULT_BAND
+                exactly)'}
+          caveats: >-
+            REPORT-ONLY and not band/vintage/concept exact: census reference
+            year 2023 vs frame 2024; AD-3 'living with spouse' vs the frame's
+            A_MARITL spouse-present; AD-3 bands (18-24/25-34/35-64/65-74/75+)
+            align with the family-A ADULT_BANDS only at 25-34, so only that
+            band is shown for spouse presence; household size is person-level
+            concept-matched. The residual is the transport target's own fidelity,
+            disclosed not graded.
+        faithful_candidate_oc:
+          n_gated_cells: 53
+          p_seed_pass: 0.922
+          p_gate_pass_4_of_5: 0.9481
+          basis_note: >-
+            DRAW-NOISE-FREE half-normal basis (per-cell score ~ half-normal(realized_sigma);
+            cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the
+            53 gated cells; gate = p^5 + 5 p^4 (1-p)). ACHIEVABLE under the
+            K=20 mean, UNACHIEVABLE under a single draw. Bound to the floor's
+            faithful_candidate_oc by tests/test_gate_w1_derivations.py.
+        weight_concentration: {kish_effective_n_persons: 14327.8, household_weight_max: 433329.4781144226}
+      family_b:
+        pricing: >-
+          anchor (point values + named machine-derivable vintage/measurement
+          tolerances); NO sampling floor.
+        tolerance_rule: >-
+          reference-period vintage/measurement: tolerance_pp = round(K_VINTAGE
+          * detrended_residual_sd + |trend| * reference_period_delta_years +
+          MEASUREMENT_PP, 2) over the last 10 published vintages; tolerance-gated
+          iff <= T_max_pp = 3.0. The |trend| * Delta term PRICES the honest
+          anchor-vintage-to-frame drift (Delta = frame year - vintage year)
+          a faithful candidate commits -- the v1 detrended- only rule EXCLUDED
+          it (referee finding 2). The trend is still disclosed per cell (trend_pp_per_year,
+          trend_component_pp).
+        circularity_rule: >-
+          the 14 non-conversion claim-age cells are REPORT-ONLY (report_reason
+          circular_under_v1_claiming_candidate): the deployed v1 claiming module
+          samples integer claim ages FROM 6.B5.1, so scoring them against 6.B5.1
+          passes by construction (referee finding 1). GATED family-B content
+          is the 2 disability-conversion cells (an M4-simulated margin) + the
+          DI age composition. See warts.family_b_claim_age_circularity.
+        knobs: {vintage_window_years: 10, k_vintage: 2.0, measurement_pp: 0.05,
+          t_max_pp: 3.0, anchor_frame_year: 2024, claim_age_delta_years: 2,
+          di_delta_years: 1}
+        candidate_protocol:
+          applies_to: >-
+            a fresh W1 candidate run scored on the family-B SSA anchors AFTER
+            the gate_w1 lock; NEVER this floor build (this build stages the
+            anchor values + tolerances, it runs no candidate).
+          population: >-
+            the FULL certified deployment frame (166,302 persons / 340.0M weighted),
+            NOT a per-seed holdout: the anchors are NATIONAL admin margins,
+            so the estimand is the whole deployed cross-section; per-seed subsampling
+            would only add noise to a point-anchor comparison.
+          estimator: >-
+            mean over K=20 pre-registered deployment draws (numpy default_rng(9200
+            + k), k=0..19; a stream DISTINCT from family A's 9100 and from the
+            split seeds), one value per anchor cell; scored ONCE as |deployed_pp
+            - anchor_pp| in percentage points (NOT the mean of per-draw abs
+            deviations).
+          candidate_draws: 20
+          family_b_draw_stream_base: 9200
+          simulated_object:
+            claim_age.disability_conversion: >-
+              the share of 2022-entitlement-year retired-worker AWARDS that
+              are auto-conversions from DI at FRA (6.B5.1 footnote b), SIMULATED
+              by the deployed M4 disability dynamics -- NOT read from 6.B5.1.
+              This is the only gated claim-age margin: the claim AGES are sampled
+              from 6.B5.1 by the v1 claiming module (circular; report-only).
+            di_prevalence: >-
+              the age composition of the December-2023 DISABLED-WORKER STOCK
+              (DI ASR Table 19, All-disabled-workers panel), the deployed DI-in-payment
+              population by age band.
+          reference_period_rule: >-
+            the candidate simulates the frame's 2024 period; the anchor sits
+            at its own vintage (2022 for claim-age / conversion, December-2023
+            for DI). The vintage tolerance PRICES the honest vintage-to-frame
+            drift (|trend| * Delta term, Delta = 2024 - vintage year), so a
+            faithful candidate that commits that drift PASSES rather than failing
+            for being faithful (referee finding 2). The alternative -- pin the
+            candidate to simulate the anchor vintage -- is rejected because
+            the deployment frame IS 2024.
+          no_frame_di_column_rule: >-
+            the candidate MUST derive DI status from the deployed M4 dynamics,
+            NOT read the frame's own social_security_disability column (populated,
+            $147.1B on this frame): a candidate that reads it tests populace's
+            calibration, not the transport. The same regeneration discipline
+            family A imposes on its scored columns.
+          candidate_conditioning_columns_rule: >-
+            the candidate registration MUST enumerate every frame column its
+            generators condition on (beyond family A's source columns) and pass
+            assert_columns_populated on each, so a zeroing frame fails loudly
+            rather than silently mutating a gated margin (fix C, forward-looking).
+          ss_proxy_laundering_rule: >-
+            the no_frame_di_column_rule names the DIRECT shortcut (social_security_disability);
+            the candidate_conditioning_columns_rule covers the LAUNDERED ones
+            -- any indirect DI inference via the frame's SS proxy columns (SS_VAL,
+            SS_YN, social_security_retirement / _survivors / _dependents) MUST
+            surface at registration under the populated-support enumeration,
+            so a candidate cannot recover DI status through a proxy the direct
+            rule does not literally name (verification flip-note 2).
+          pass_rule: >-
+            CONJUNCTION over the gate-eligible family-B cells: the run passes
+            family B iff every gated cell's |deployed_pp - anchor_pp| <= its
+            reference-period tolerance_pp. Report-only cells (the 14 circular
+            claim-age cells, benefit levels) publish on their own rules and
+            never gate.
+        gated_cells:
+          claim_age.disability_conversion|female:
+            tolerance_pp: 1.89
+            anchor_pp: 14.1
+            anchor_year: 2022
+            detrended_residual_sd_pp: 0.794
+            trend_pp_per_year: -0.128
+            reference_period_delta_years: 2
+            trend_component_pp: 0.257
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          claim_age.disability_conversion|male:
+            tolerance_pp: 1.91
+            anchor_pp: 14.5
+            anchor_year: 2022
+            detrended_residual_sd_pp: 0.681
+            trend_pp_per_year: -0.248
+            reference_period_delta_years: 2
+            trend_component_pp: 0.497
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.30-34:
+            tolerance_pp: 0.33
+            anchor_pp: 2.0
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.067
+            trend_pp_per_year: -0.141
+            reference_period_delta_years: 1
+            trend_component_pp: 0.141
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.35-39:
+            tolerance_pp: 0.4
+            anchor_pp: 3.5
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.112
+            trend_pp_per_year: -0.128
+            reference_period_delta_years: 1
+            trend_component_pp: 0.128
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.40-44:
+            tolerance_pp: 0.5
+            anchor_pp: 5.8
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.195
+            trend_pp_per_year: -0.064
+            reference_period_delta_years: 1
+            trend_component_pp: 0.064
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.45-49:
+            tolerance_pp: 0.49
+            anchor_pp: 7.8
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.089
+            trend_pp_per_year: -0.259
+            reference_period_delta_years: 1
+            trend_component_pp: 0.259
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.50-54:
+            tolerance_pp: 0.94
+            anchor_pp: 12.7
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.226
+            trend_pp_per_year: -0.443
+            reference_period_delta_years: 1
+            trend_component_pp: 0.443
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.55-59:
+            tolerance_pp: 1.68
+            anchor_pp: 21.4
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.664
+            trend_pp_per_year: -0.303
+            reference_period_delta_years: 1
+            trend_component_pp: 0.303
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.60-fra:
+            tolerance_pp: 2.14
+            anchor_pp: 45.4
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.343
+            trend_pp_per_year: 1.405
+            reference_period_delta_years: 1
+            trend_component_pp: 1.405
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+          di_prevalence.under30:
+            tolerance_pp: 0.31
+            anchor_pp: 1.4
+            anchor_year: 2023
+            detrended_residual_sd_pp: 0.097
+            trend_pp_per_year: -0.068
+            reference_period_delta_years: 1
+            trend_component_pp: 0.068
+            derivation: {rule: 'round(2.0*detrended_residual_sd_pp + abs(trend_pp_per_year)*reference_period_delta_years
+                + 0.05, 2)', k_vintage: 2.0, measurement_pp: 0.05, t_max_pp: 3.0}
+        report_only: [benefit_level.report_only, claim_age.age62|female, claim_age.age62|male,
+          claim_age.age63|female, claim_age.age63|male, claim_age.age64|female,
+          claim_age.age64|male, claim_age.age65|female, claim_age.age65|male,
+          claim_age.age66|female, claim_age.age66|male, claim_age.age67_69|female,
+          claim_age.age67_69|male, claim_age.age70plus|female, claim_age.age70plus|male]
+        gated_composition: >-
+          2 disability_conversion (M4-simulated margin) + 8 DI age-composition
+          bands
+        sources: {claim_age: data/external/ssa_claim_ages_2023supplement.json
+            (6.B5.1), di_prevalence: data/external/di_asr_2023/tables.json (Table
+            19), benefit_level: dynasim-refs/ssa_supplement_2023_6b.txt (6.B4/6.B3)}
+      family_c:
+        pricing: >-
+          binary ordinal (committed anchor orderings; no floor)
+        pre_committed_in: '#113 (M5 row + the two compression fingerprints)'
+        check: >-
+          on the certified representative frame BOTH fingerprints reverse to
+          required_representative_order (Kendall tau -> 1.0 vs the anchor),
+          and no OTHER adjacency changes. If transport is real both reverse;
+          if cosmetic they do not.
+        orderings_derive_from_committed_anchors: >-
+          fix F / finding 8a: the required after-orders are DERIVED by ranking
+          the committed anchor values descending -- C1 the Mermin payroll-pct
+          (runs/replication_cost_ordering_v1.json), C2 the Smith solvency deltas
+          (runs/m2_pseudo_projection_v1.json F2 smith_year_deltas). No hand-written
+          required order remains to swap (closes M10); the anchor itself is
+          machine-checked.
+        candidate_procedure:
+          applies_to: >-
+            a fresh W1 candidate that RUNS the two fingerprints on the certified
+            representative frame AFTER the lock; this floor only RECORDS the
+            committed anchor orderings (wart family_c_records_not_runs_the_reversal).
+          c1_statistic: >-
+            the outlay-side 75-year cost ordering of {PI, PPI, NRA->70, reduced
+            COLA} computed by the committed #115 encodings (replication_ppi_mermin
+            price/progressive-price-indexed amounts; replication_mermin_rows
+            NRA + COLA factors) on the representative frame -- the m2 F4 statistic.
+          c2_statistic: >-
+            the exhaustion-delay ordering of {elimination, +2pp, +1pp, cap-$150k}
+            computed by the committed #117 revenue/exhaustion ledger (m2 F2
+            taxable-payroll x wage-base encoding) on the representative frame
+            -- the m2 F2 statistic.
+          engine_pins: >-
+            the #115/#117 encodings are pinned to their committed run artifacts
+            (m2_pseudo_projection_v1.json, replication_cost_ordering_v1.json)
+            and the pe-us revision recorded in each; the candidate re-runs them
+            on the representative frame, changing ONLY the frame.
+          pass_rule: >-
+            binary per fingerprint: PASS iff the representative-frame ordering
+            EQUALS required_representative_order (Kendall tau 1.0 vs the anchor)
+            with exactly the one committed adjacent swap vs psid_frame_order
+            and no other adjacency change; both fingerprints must pass.
+        fingerprints:
+          c1:
+            id: ppi_nra
+            name: PPI<->NRA at the PIA bends
+            anchor: Mermin Table 1 (75-yr payroll savings ordering)
+            anchor_values: {price_indexing: 0.68, progressive_price_indexing: -0.14,
+              nra_raised_to_70: -0.5, reduced_cola: -1.12}
+            psid_frame_order: [price_indexing, nra_raised_to_70, progressive_price_indexing,
+              reduced_cola]
+            required_representative_order: [price_indexing, progressive_price_indexing,
+              nra_raised_to_70, reduced_cola]
+            swap_pair: [nra_raised_to_70, progressive_price_indexing]
+            required_reversal: >-
+              progressive_price_indexing outranks nra_raised_to_70
+            source_before: >-
+              runs/m2_pseudo_projection_v1.json F4 result_order (== runs/replication_cost_ordering_v1.json
+              T2 ordering)
+            source_after: >-
+              runs/replication_cost_ordering_v1.json anchor_provenance.mermin_payroll_pct,
+              ranked descending
+            kendall_tau_before: 0.666667
+            kendall_tau_after_required: 1.0
+            mechanism: >-
+              a representative frame carries more AIME above the second PIA
+              bend, where progressive price indexing bites, so PPI's savings
+              exceed NRA->70's -- reversing the compressed-career order.
+          c2:
+            id: elimination_plus2pp
+            name: elimination<->+2pp at the taxable maximum
+            anchor: Smith (2015) solvency-year deltas
+            anchor_values: {elimination: 21, payroll_plus_2pp: 18, payroll_plus_1pp: 5,
+              cap_150k: 1}
+            psid_frame_order: [payroll_plus_2pp, elimination, payroll_plus_1pp,
+              cap_150k]
+            required_representative_order: [elimination, payroll_plus_2pp, payroll_plus_1pp,
+              cap_150k]
+            swap_pair: [payroll_plus_2pp, elimination]
+            required_reversal: >-
+              elimination outranks payroll_plus_2pp
+            source_before: >-
+              runs/m2_pseudo_projection_v1.json F2 result_order
+            source_after: >-
+              runs/m2_pseudo_projection_v1.json forecasts_detail.F2.smith_year_deltas,
+              ranked descending
+            kendall_tau_before: 0.666667
+            kendall_tau_after_required: 1.0
+            mechanism: >-
+              a representative frame carries >16.1% of payroll above the wage
+              base (the break-even), so taxable-max elimination's revenue gain
+              exceeds +2pp's -- reversing the compressed-tail order.
+        gate_partition: {gate_eligible: [fingerprint.ppi_nra, fingerprint.elimination_plus2pp],
+          n_gate_eligible: 2, n_report_only: 0}
+      protocol:
+        option: >-
+          a -- the gate-1 / tranche-2a/2b/2c mirror: per-seed HOUSEHOLD-DISJOINT
+          holdout with train-complement fitting, for which the half-vs-half
+          floor is exactly the null. The 4-of-5 seed conjunction is operative.
+        estimator: >-
+          mean-over-K=20-draws (tranche 2a amendment 1, ratified 2026-07-08
+          PR 96), adopted FROM THE START of this W1 build. rbar_candidate,s
+          is the MEAN over K=20 pre-registered deployment draws (numpy default_rng(9100
+          + k), k=0..19; a stream DISTINCT from the split seeds), scored ONCE
+          per cell as |ln(rbar / rate_a)| -- NOT the mean of the per-draw |ln|
+          scores.
+        candidate_draws: 20
+        candidate_draw_stream: numpy.random.default_rng(9100 + k), k=0..K-1
+        draw_stream_base: 9100
+        statistic: >-
+          |ln(rbar_candidate,s / rate_a,s)| per cell: rbar the K=20-draw mean
+          of the deployed cell rate on seed s's holdout households, rate_a the
+          holdout half's own weighted rate. Symmetric, scale-free -- the gate-2a/2b/2c
+          statistic.
+        varies_per_seed: >-
+          the 50/50 household-disjoint split (holdout = side A of split_panel_by_person(household_id,
+          seed=s)) and the candidate's K=20 REGENERATED deployment draws of
+          the holdout households (see regenerated_surface). For a PSID-estimated
+          transport candidate nothing REFITS per W1 seed: the generators are
+          already fit on their own PSID holdouts (gate-2a/2b/2c/M4), FROZEN
+          before W1, so the per-seed variation is the deployment draw ONLY.
+          The gate-2 'fit complement' language does not carry -- W1 certifies
+          transport of already-fit generators, not re-estimation (referee finding
+          3).
+        scored_against: >-
+          side A's own weighted rate (rate_a), committed per gate seed in noise_floor_per_seed.
+          The half-vs-half floor |ln(rate_A/rate_B)| is exactly the null a faithful
+          transport realises.
+        pass_rule: >-
+          Seed-level conjunction. Seed s passes iff every gate-eligible family-A
+          cell's |ln(rbar/rate_a)| <= its derived tolerance at seed s; the gate
+          passes iff >=4 of 5 gate seeds pass. Report-only family-A cells, all
+          family-B anchors, and the family-C fingerprints are published on their
+          own rules.
+        fresh_run_artifact_schema:
+          applies_to: >-
+            a fresh W1 candidate one-shot run registered AFTER the gate_w1 lock;
+            NEVER this floor build (real-vs-real, no draws).
+          regenerated_surface:
+            rule: >-
+              CONFORMANCE (fix B / finding 3): for every scored family-A cell
+              the candidate must EMIT a GENERATED value -- the column the cell
+              reads is RE-DRAWN by the deployed generators on each of the K=20
+              deployment draws. COPYING a scored column from the frame is NON-CONFORMANT:
+              it makes the candidate the identity map, which scores 0 and certifies
+              nothing about the generators (the natural anchored-transport reading,
+              so the protocol must state this explicitly).
+            per_family:
+              earnings_participation|profile|p90p50|p50p10: >-
+                `earnings` (employment + self-employment before LSR) is RE-GENERATED
+                by the deployed gate-1 earnings-history generator conditioned
+                on the CPS covariates; the participation indicator and the within-cell
+                quantiles are functions of the regenerated earnings, not of
+                the frame's own earnings column.
+              marital_share|coresident_spouse: >-
+                marital status / spouse presence is RE-GENERATED by the deployed
+                gate-2a/2b marital dynamics (terminal-state marital status),
+                not copied from A_MARITL.
+              hh_size_share: >-
+                household size is RE-GENERATED by the deployed gate-2c household-composition
+                dynamics, not copied from the frame's membership.
+            identity_candidate_is_non_conformant: true
+            audited_by: >-
+              per_draw_dispersion_disclosure.max_per_draw_abs_ln_per_cell ==
+              0 exposes an identity candidate (no regeneration -> zero across-draw
+              dispersion); see degenerate_candidates.
+          per_draw_per_cell_rates:
+            required: true
+            shape: [20, 53, 5]
+            shape_dims: K_draws x gated_cells x gate_seeds
+            rule: >-
+              commit every draw's per-cell deployed rate r[k, cell, s] for all
+              K=20 draws, all 53 gated cells, all 5 gate seeds, so rbar and
+              |ln(rbar/rate_a)| recompute cell-by-cell.
+          undefined_draw_rule:
+            required: true
+            pre_specified: true
+            rule: >-
+              if any gated cell's deployed rate is UNDEFINED on any draw, the
+              RUN IS INVALIDATED and must be re-registered; no draw is dropped,
+              skipped, or re-rolled.
+          per_draw_dispersion_disclosure:
+            required: true
+            gated: false
+            report_only: true
+            fields: [per_cell_across_draw_sd, max_per_draw_abs_ln_per_cell]
+            note: >-
+              REPORT-ONLY, BOTH fields (the LOCKED gate-2 per_draw_dispersion_disclosure
+              -- the v1 build dropped one, referee finding 9): the sd across
+              the K=20 draws per gated cell per seed AND max_per_draw_abs_ln_per_cell
+              (the worst single-draw |ln| excursion), so a referee sees whether
+              a passing mean conceals a wild draw. max_per_draw_abs_ln_per_cell
+              == 0 EXPOSES an identity candidate (no regeneration -> zero across-draw
+              dispersion), which partially services finding 3.
+        faithful_candidate_oc:
+          n_gated_cells: 53
+          p_seed_pass: 0.922
+          p_gate_pass_4_of_5: 0.9481
+          basis_note: >-
+            DRAW-NOISE-FREE half-normal basis; ACHIEVABLE under the K=20 mean,
+            UNACHIEVABLE under a single draw. Bound to faithful_candidate_oc
+            by tests/test_gate_w1_derivations.py.
+      governance:
+        registration: >-
+          Pre-registered on issue #42, as every gate-1 / gate-2 / M4 candidate
+          run. A gate_w1 candidate registers its spec, its frozen (already-fit)
+          generators, and its deployment seeds BEFORE scoring. Outer runs are
+          one-shot.
+        amendment_rules:
+          inherits: gate_1
+          no_self_rescue: >-
+            Inherited verbatim from gate_1.amendment_rules: no candidate's committed
+            run verdict changes under a rule proposed after that run; a gate
+            rule amendment applies only to runs registered after its ratification.
+          amendments_only_via: >-
+            public proposal + adversarial referee round + verification + maintainer
+            ratification by merge -- the same ceremony gate 1 / 2a / 2b / 2c
+            / M4 follow.
+          description_claims_exactly_the_scored_surface: >-
+            Bound by the standing rule promoted into gate_2.governance.amendment_rules
+            (amendment 2): the covers / holdout_basis / estimand claim EXACTLY
+            the scored surface -- the 53 family-A + 10 family-B + 2 family-C
+            gated cells on the sha-pinned certified frame x the staged SSA anchors
+            x the committed orderings. No margin is headlined beyond what the
+            cells gate; the 14 circular claim-age cells and the benefit levels
+            are report-only with their reason named.
+        candidate_scale: >-
+          family A is PINNED to the seed-s holdout half (~50% of households,
+          side A) of the certified frame; family B and family C run on the FULL
+          certified frame (national anchors / reform orderings). The candidate
+          deploys already-fit generators; nothing REFITS per W1 seed.
+        weight_definition: >-
+          family-A statistics are weighted by the certified frame's own household
+          weight (the L0-sparse-refit weight); there is NO unweighted gated
+          statistic, the unweighted rate is reported alongside. The weight concentration
+          (Kish n_eff ~ 14.3k of 166k) is the source of the heavy-tailed floor
+          the W1 guard demotes on; it is pinned here, not inherited implicitly.
+      certification_scope:
+        tranche: w1_representative_frame_transport
+        certifies: >-
+          the TRANSPORT of the already-fit PSID generators onto the certified
+          populace frame -- the 65 gated cells (53 CPS-observable family-A joints
+          + 10 SSA family-B admin margins + 2 family-C compression-fingerprint
+          reversals). A PASS certifies that stochastic regeneration through
+          the deployed generators reproduces the CPS-observable cross-section
+          within the frame's own sampling floor, lands the deployed + simulated
+          DI margins on the SSA anchors, and reverses BOTH compression fingerprints
+          to the anchor orderings.
+        supports:
+        - >-
+          the cross-sectional microsim, the local-area cuts, and the 75-year
+          projection all reading ONE PSID-estimated panel deployed on the CPS
+          frame -- the transport is the unlock (#113).
+        - >-
+          the deployed + simulated DI composition (conversion share + DI age
+          bands) a payable benefit baseline rides on, on the representative
+          frame.
+        does_not_support:
+        - >-
+          the DYNAMICS -- earnings, marital, household, marriage x earnings,
+          disability dynamics stay gate-1 / 2a / 2b / 2c / M4-certified on their
+          PSID holdouts; W1 certifies transport, not re-estimation.
+        - >-
+          the projection (M6), revenue / trust-fund accounting (M7), integrated
+          scoring (M8); behavioral response (v1 transport is mechanical); and
+          benefit LEVELS, which await the transported AIME (family-B benefit
+          levels are report-only).
+      frame_pin:
+        certified_artifact_sha256: c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5
+        certified_revision: populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701
+        pe_us_version: 1.752.2
+        build_env: >-
+          policyengine.py .venv (pandas 2.3.2 / pytables 3.11.1 / huggingface_hub
+          0.34.4) with populace_dynamics on PYTHONPATH; the certified pin comes
+          from pe.us.model.release_bundle (policyengine 4.18.8), resolved by
+          revision+sha256.
+        certified_repro_env_note: >-
+          The certified-frame reproduction pin (test_seed0_reproduces_from_the_certified_frame)
+          needs huggingface_hub + tables + a cached h5, which the repo's own
+          .venv-gate lacks (it is the always-runnable env). So the only DATA-BOUND
+          test SKIPS in CI and in .venv-gate even on a machine holding the cached
+          h5; run it in the policyengine.py .venv (finding 10iii). This full-rebuild
+          attestation was produced in that env; the always-runnable holdout-sha,
+          required-source-column, and family-C order bindings do NOT depend
+          on it.
+        binding_scope: >-
+          verification flip-note 4 (binding-scope record): the protocol / candidate-procedure
+          PROSE (family-B protocol, family-C candidate procedure) binds artifact-side
+          at the always-runnable tier and builder-side at rebuild only; the
+          lock FREEZES the artifact, so the artifact-side binding is the operative
+          one. Provenance sha VALUES inside report-only blocks (the A' census
+          file shas) bind at rebuild only (mutation V9).
+    history:
+    - id: 2026-07-12-w1-gate-lock
+      proposed: '2026-07-12'
+      flipped_live: this pull request
+      referee_round:
+        floor: >-
+          PR #154 (runs/gate_w1_floors_v1.json), the pre-lock 100-seed HOUSEHOLD-DISJOINT
+          split noise floor over the CPS-observable joints + the anchor-priced
+          SSA margins + the committed compression-fingerprint orderings, ratified
+          by merge (squash commit d9d0a68).
+        review: >-
+          comment 4950451145 (verdict AMEND BEFORE LOCK; ten findings / required
+          fixes A-H -- family-B claim-age circularity, missing candidate protocol
+          + detrended-only tolerance, unpinned family-A regenerated surface,
+          self-employment guard gap, frame scope, calibration coverage, heavy-tail
+          fragility, family-C binding gap, dispersion-max drift, record nits).
+        fixes: >-
+          comment 4950611796 (fixes A-H applied, commit f85408e; family B de-circularized
+          to 10/15 + full candidate protocol + reference-period tolerance Delta
+          {2,1}; family-A regenerated surface + identity candidate; guard closed;
+          A' family; dispersion max; family-C orders derived + bound; family
+          A UNCHANGED 53/52, OC 0.922 / 0.9481).
+        verification: >-
+          comment 4950670492 (verdict AMEND BEFORE LOCK, one amendment TEXT-ONLY;
+          the evidence base verified clean on every fix A-H, a full rebuild
+          bit-identical mod elapsed + sha pins, every tolerance / partition
+          / OC / order re-derived independently, every mutation caught; four
+          flip-time notes) + comment 4950673980 (the body amendment executed).
+      ratified: >-
+        2026-07-12 by merge of PR #154 (squash merge commit d9d0a68) under the
+        maintainer's standing campaign directive of 2026-07-07, exercised only
+        after the full ceremony (round-1 AMEND 4950451145 -> fixes 4950611796
+        -> verification AMEND-text-only 4950670492 -> body amendment 4950673980);
+        tier manifest repaired by PR #158. This flip records the completed ceremony
+        and ADDS gate_w1 as locked; no_self_rescue applies.
+      content: >-
+        gate_w1 (the W1 representative-frame transport gate, M5) is ADDED as
+        a new LOCKED top-level gate (like gate_m4, NOT an in-place unlocked->locked
+        flip): locked true / status locked, kind transport, the K=20 mean-over-draws
+        protocol (tranche 2a amendment 1, stream 9100 family A / 9200 family
+        B), the three families -- 53 family-A cells with tolerances machine-derived
+        as round(floor mean + 4*sd, 3) from the FROZEN floor runs/gate_w1_floors_v1.json
+        capped at ln(1.5), 10 family-B SSA-anchor cells (2 disability-conversion
+        + 8 DI bands) with reference-period vintage tolerances (Delta pinned
+        {2, 1}), and the 2 family-C compression fingerprints whose required
+        orderings DERIVE from the committed Mermin / Smith anchors -- plus 52
+        + 15 report-only cells and the report-only A' published-value family,
+        the regenerated-surface candidate rule + identity-candidate prohibition,
+        the family-B no-frame-DI-column / SS-proxy conditioning rule, the frame
+        pin (bundle sha c2065b64...), the governance (weight_definition, description-claims-exactly,
+        no_self_rescue), and the certification_scope. ZERO threshold movement
+        vs the ratified floor: the flip READS the frozen artifact and rewrites
+        nothing. The four verification flip-time notes are implemented (ceremony_record.flip_notes_implemented).
+        Bindings go LOCKED-HOT.
