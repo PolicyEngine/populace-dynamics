@@ -613,15 +613,17 @@ constructions, adjudicated:
 - **(b2) NAWI-normalized calendar-invariant marginal, re-indexed — PINNED.** Fit a
   single `CellMarginal` per `age_bin` (the certified `fit_cell_marginals` /
   `_plotting_positions` machinery `candidate5b:283-313` verbatim) on the **pooled
-  `≤2014`** positive earnings, each divided by its wave's wage index (NAWI-
-  normalized to a common scale); the only change from the certified object is the
-  key `(age_bin, period) → age_bin` and the normalized input. De-index a drawn rank
-  `u`: normalized level `ĝ = Qhat_pos_agebin.quantile(u)`, then the nominal
-  target-year level is `ĝ × I_proj(target_year)` (§2.7.6.3). This **keeps the
-  certified de-index object and mechanism** (a `CellMarginal` quantile — R2-faithful),
-  is fully `≤2014`-derivable, is **not** a period-specific marginal (calendar-
-  invariant, so §2.7.1-consistent), and has an **exact inverse** for the re-rank
-  (§2.7.6.4). `p0` (the zero share) and the participation gate are unchanged; a
+  `≤2014`** positive earnings (one `CellMarginal` per `age_bin` on the `[25,64]`
+  grid, §2.7.6.5), each divided by its wave's wage index (NAWI-normalized to a
+  common scale). De-index a drawn rank `u`: normalized level `ĝ =
+  Qhat_pos_agebin.quantile(u)`, then the nominal target-year level is
+  `ĝ × I_proj(target_year)` (§2.7.6.3). This **keeps the certified de-index
+  MECHANISM** — it re-fits a **new** `age_bin`, NAWI-normalized object through the
+  **same `CellMarginal` machinery** (`fit_cell_marginals` / `_plotting_positions`,
+  `candidate5b:283-313`), not the certified `(age_bin, period)` object itself (a
+  `CellMarginal` quantile — R2-faithful). It is fully `≤2014`-derivable, is **not** a
+  period-specific marginal (calendar-invariant, so §2.7.1-consistent), and has an
+  inverse for the re-rank (interior-exact, §2.7.6.4). `p0` (the zero share) and the participation gate are unchanged; a
   drawn zero stays a zero (non-participation).
 
 **2.7.6.3 The wage index `I_proj` — `≤2014`-derivable, pinned; the leakage
@@ -633,9 +635,14 @@ trailing decade `y ∈ [2005, 2014]`**, extrapolated to 2016/2018 (equivalently:
 apply the `≤2014` trailing-decade geometric-mean annual wage-growth rate forward
 from `NAWI_2014`). Justified from `≤2014` diagnostics only: a decade window
 averages out biennial sampling noise while reflecting the recent (post-2005)
-wage-growth regime and excluding pre-2005 structural breaks — the same trailing-
-window logic the certified indexing convention uses; the two scored steps consume
-only `I_proj(2016)` and `I_proj(2018)`.
+wage-growth regime and excluding pre-2005 structural breaks; the two scored steps
+consume only `I_proj(2016)` and `I_proj(2018)`. **NAWI publication lag, disclosed:**
+the SSA average-wage index for a year is published ~2 years later, so `NAWI_2013`
+and `NAWI_2014` are *published* after 2014; but the AWI is a **final, unrevised**
+series (SSA does not restate prior AWI values once set), so a `NAWI_y` with
+`y ≤ 2014` is a fixed function of `≤ 2014` wages — leakage-safe. Only its
+publication *date* is post-`T*`, not its *information*; no realized 2016/2018 wage
+outcome enters `I_proj`.
 
 > **Leakage prohibition (pinned).** Using any **realized** post-`T*` NAWI / wage-
 > index value on the **scored** path is PROHIBITED — it would leak realized wage
@@ -663,10 +670,19 @@ from the carried nominal `earnings` level at the next biennial step:
 - **fit-population marginal CDF — PINNED.** Recover `rank_t = rhat_agebin( ℓ /
   I_proj(wave_of_ℓ) )` — normalize the carried nominal level by its wave's
   `I_proj`, then evaluate the **same `age_bin` `CellMarginal`'s inverse rank map
-  `rhat`** used to de-index in §2.7.6.2 (`candidate5b` `CellMarginal`). This is the
-  **exact inverse** of §2.7.6.2 (`Qhat_pos` and `rhat` are inverse plotting-position
-  maps on one grid), so rank → level → rank round-trips exactly; a carried zero maps
-  to the `p0` / zero-anchor (Q0) regime. **Conditioning-consistency (R2):** the
+  `rhat`** used to de-index in §2.7.6.2 (`candidate5b` `CellMarginal.rank`). It is
+  the **inverse** of §2.7.6.2 — both are `np.interp` on the one `(wtil, yval)` grid —
+  **exact on the strictly-monotone interior**. At the corners it is
+  **deterministic but inexact**: `quantile` clamps to `[ymin, ymax]` and `rank` to
+  `[0.001, 0.999]` (`RANK_CLAMP_LO/HI`), and a flat-`yval` tie maps back to the first
+  `wtil` (`candidate5b:250-259`; the certified code tracks this corner mass as
+  `corner_bottom` / `corner_top`). **Consequence for the 2018 re-rank:** `rank(ℓ)`
+  is a pure deterministic function of the carried level, so **chain integrity holds**
+  (the 2018 draw conditions on a well-defined `rank_t`); the inexactness is only a
+  **bounded rank perturbation at the corners** (a tail level clamps into
+  `[0.001, 0.999]`; a tie collapses to one grid rank), never a break in
+  reproducibility. A carried zero maps to the `p0` / zero-anchor (Q0) regime.
+  **Conditioning-consistency (R2):** the
   certified chain's ranks **are** `CellMarginal` CDF positions (it draws `u_prev`
   and de-indexes via `cell.quantile`), so composing as-estimated requires the
   deployed re-rank to reference the **fit-population marginal**, exactly what the
@@ -698,12 +714,31 @@ from the carried nominal `earnings` level at the next biennial step:
   `realized_earn_*` columns at period 0 (deployment); `_merge_period_columns`
   carries them and the rolling generated-lag columns forward. No post-`T*` column
   (including the realized `nawi`) enters the scored de-index.
-- **Age support.** The earnings refit is fit on ages **25–59** (`refit.py:802-806`;
-  gate-1 view `age_range [25,59]`), so the `age_bin` lookup **clips to the nearest
-  fitted bin** (`<25 → 25–29`, `>59 → 55–59`); no extrapolation (there is no
-  `≤2014` earnings fit outside 25–59). The `<25` and `60+` draws are **non-scored**
-  plumbing — the gated earnings-moment surface (§4.5) is the 25–59 range — feeding
-  only the seam / AIME.
+- **Age support — the forward law fits `[25,64]`, extending the transferred gate-1
+  `[25,59]`.** The forward law is a **new** law first-certified by `gate_m6`
+  (§2.7.3), so its fit range is a hyperparameter transferred **where transferable**.
+  Here the gate-1 transfer `[25,59]` (`refit.py:802-806`, `age_range [25,59]`)
+  **conflicts with the pre-registered truth-side surface**: the gated earnings
+  cohorts are `prime = 25–44` and `older = 45–64` (`EARN_COHORTS`,
+  `scripts/build_m6_holdout_floors.py:120`; the panel has **no** age cap), so
+  `earn_*.older` scores ages up to **64**. Clipping `60–64` through the `55–59`
+  marginal would understate the retirement-transition zero-inflation and **kill the
+  `earn_zero_rate.older` signal**. The `[25,59]` fit range is therefore a
+  **non-transferable** hyperparameter: the forward **participation gate**, **donor
+  pools**, **memory ramp**, and the calendar-invariant **NAWI-normalized marginal**
+  (§2.7.6.2) all fit on **`[25,64]` pooled `≤2014`** — the `≤2014` PSID panel
+  contains ages 60–64 and exactly the retirement-transition signal `earn_zero_rate
+  .older` scores, so the extension is fully `≤2014`-derivable. The `age_bin` grid
+  extends from the certified 7 five-year bins to **8**: `{25–29, 30–34, 35–39,
+  40–44, 45–49, 50–54, 55–59, 60–64}`. The lookup **clips to the nearest fitted bin
+  at the new boundary** (`<25 → 25–29`, `>64 → 60–64`); the `<25` and `65+` draws
+  are **non-scored** plumbing (feeding only the seam / AIME). **The principle:** the
+  law must **cover the surface it is scored on**; narrowing the surface — re-scoping
+  or demoting a gated cell — to fit the model's support would be **candidate-informed
+  surface design, prohibited** in that direction (the surface is pre-registered
+  truth-side; §4.9, decision 10). *Verified:* every gated earnings cell's cohort
+  span — `prime 25–44`, `older 45–64` (`EARN_COHORTS`,
+  `build_m6_holdout_floors.py:120`) — lies inside `[25,64]`.
 
 **2.7.6.6 Closes the blocker; the lock dependency.** Every under-determined
 primitive Sol flagged is now pinned — the rank→level map (§2.7.6.2), its exact
@@ -1438,8 +1473,8 @@ lock ceremony.
     "rank_to_level_law": "PINNED (b2): NAWI-normalized calendar-invariant age_bin CellMarginal on pooled <=2014 positive earnings (certified fit_cell_marginals verbatim, key (age_bin,period)->age_bin); de-index rank u -> Qhat_pos_agebin.quantile(u) normalized level -> x I_proj(target_year) -> nominal level. REJECT (a) donor-level bootstrap (departs from certified marginal-quantile de-index candidate7:648-654, R2 violation, no clean inverse); REJECT (b1) carry-2014-period-marginal (§2.7.1-prohibited + biases earn_p10 low)",
     "wage_index_projection": "I_proj(2016),I_proj(2018) = OLS ln(NAWI)~year over trailing decade [2005,2014] extrapolated (== <=2014 trailing-decade geometric-mean wage growth); ss/params.py NAWI series; NEVER realized post-2014 NAWI",
     "leakage_prohibition": "realized post-T* NAWI on the SCORED path PROHIBITED (would leak into gated earn_p10/p50/Dlog-SD/mobility); frame's realized nawi column (steps.py:145-156 aging) admissible only for non-scored seam/taxable_max + report-only alignment; gated path = un-aligned projection (decision 9, §4.8; M2 calibration_disclosure)",
-    "re_ranking_law": "PINNED fit-population CDF: rank_t = rhat_agebin(level / I_proj(wave)) -- the EXACT inverse of rank_to_level (Qhat_pos/rhat inverse plotting-position maps); zero -> p0/Q0 regime. REJECT within-frame percentile (references synthetic projected cohort not the PSID fit population, R2 violation, breaks round-trip). R2: certified ranks ARE CellMarginal CDF positions so deployed re-rank must reference the fit-population marginal",
-    "secondary_gaps_pinned": {"memory_after_2018": "two rolling generated-biennial-level cols gen_earn_w2/gen_earn_w4 + realized-<=2014 start-lags", "generator_to_substream": "engine.rng.seed_from_generator(rng)->int then SeedSequence([seed,code]) codes {1:gate,2:donor,3:reentry} (m6-engine rng.py; candidate10:239)", "frame_schema": "person_id,age,sex,u_w,realized_earn_2014,realized_earn_2012,earnings,gen_earn_w2,gen_earn_w4; engine refit.py materializes u_w+realized_earn_* at period 0; _merge_period_columns carries", "age_support": "clip age_bin to nearest fitted [25,59] (refit.py:802-806; gate-1 age_range [25,59]); <25 & 60+ non-scored plumbing"},
+    "re_ranking_law": "PINNED fit-population CDF: rank_t = rhat_agebin(level / I_proj(wave)) -- the inverse of rank_to_level (Qhat_pos/rhat = np.interp on one grid), INTERIOR-EXACT; corner clamps ([ymin,ymax]/[0.001,0.999]) + flat-yval ties are deterministic-but-inexact (candidate5b:250-259, corner_bottom/top); 2018 re-rank is deterministic so chain integrity holds (inexactness = bounded corner rank perturbation); zero -> p0/Q0 regime. REJECT within-frame percentile (references synthetic projected cohort not the PSID fit population, R2 violation, breaks round-trip). R2: certified ranks ARE CellMarginal CDF positions so deployed re-rank must reference the fit-population marginal",
+    "secondary_gaps_pinned": {"memory_after_2018": "two rolling generated-biennial-level cols gen_earn_w2/gen_earn_w4 + realized-<=2014 start-lags", "generator_to_substream": "engine.rng.seed_from_generator(rng)->int then SeedSequence([seed,code]) codes {1:gate,2:donor,3:reentry} (m6-engine rng.py; candidate10:239)", "frame_schema": "person_id,age,sex,u_w,realized_earn_2014,realized_earn_2012,earnings,gen_earn_w2,gen_earn_w4; engine refit.py materializes u_w+realized_earn_* at period 0; _merge_period_columns carries", "age_support": "forward law fits [25,64] (EXTENDS transferred gate-1 [25,59], refit.py:802-806) because gated cohorts prime 25-44 + older 45-64 (EARN_COHORTS build_m6_holdout_floors.py:120, no panel age cap); [25,59] is a NON-transferable hyperparameter (conflicts pre-registered surface; would kill earn_zero_rate.older); 8 age_bins {25-29..60-64}; participation-gate/donor-pools/memory/marginal all fit [25,64] pooled <=2014; clip <25->25-29, >64->60-64; <25 & 65+ non-scored; principle: law must cover the scored surface, narrowing to fit support = candidate-informed surface design PROHIBITED"},
     "closes_round2_blocker": true,
     "lock_flip_design_commit_finalizes_to_this_amendment_merge": true
   },
