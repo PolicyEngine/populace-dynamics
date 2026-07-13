@@ -389,9 +389,17 @@ def test_family_a_oc_recomputes_and_is_invariant_to_demotion():
     per = floors["faithful_candidate_oc"]["per_cell"]
     gate_eligible = floors["gate_partition"]["gate_eligible"]
 
+    fa = _gate_w1()["thresholds"]["family_a"]
     tolerances: dict = {}
-    for view in _gate_w1()["thresholds"]["family_a"]["views"].values():
+    for view in fa["views"].values():
         tolerances.update(view["tolerances"])
+    # amendment 2 (2026-07-12-w1-family-a-concept-cells) later demoted 6
+    # family-A cells; their tolerances are RETAINED verbatim under
+    # retained_tolerances, so the amendment-1-era 53-cell basis this ledger
+    # binds reconstructs exactly (zero threshold movement).
+    tolerances.update(
+        {c: r["tolerance"] for c, r in fa["retained_tolerances"].items()}
+    )
     assert len(tolerances) == 53 == led["n_gated"]
 
     p_seed = 1.0
@@ -595,9 +603,13 @@ def test_flip_demotes_all_ten_family_b_cells_vs_master():
     """Polarity flip (gate-2c floors-PR precedent, #130): the PROPOSAL PR guard
     asserted gate_w1 was byte-identical to origin/master and family B still
     gated 10; THIS flip PR inverts it -- family B now gates 0 (all 10 demoted to
-    report-only) while family A and family C stay byte-identical to master (zero
-    threshold movement on the untouched families). Robust to the eventual merge
-    (master's family-B gated set is 10 pre-merge, 0 post-merge)."""
+    report-only) with ZERO THRESHOLD MOVEMENT on families A and C. Amendment 2
+    (2026-07-12-w1-family-a-concept-cells) later RESCOPED six family-A cells
+    and the C1 fingerprint to report-only, so byte identity to master no
+    longer holds while that flip PR is open; the invariant that always holds
+    is that no A/C VALUE moved -- every gated or retained tolerance equals
+    master's value for that cell, and the fingerprint anchors/orders are
+    unchanged. Robust to the eventual merge on both amendments."""
     c_fb = _gate_w1()["thresholds"]["family_b"]
     # ABSOLUTE post-flip state: family B gates nothing; 10 demoted with reasons.
     assert c_fb["gated_cells"] == {}
@@ -622,10 +634,39 @@ def test_flip_demotes_all_ten_family_b_cells_vs_master():
     if len(m_fb["gated_cells"]) == 10:
         assert current != master  # the flip edited gate_w1
         assert set(m_fb["gated_cells"]) == set(c_fb["report_reasons"])
-    # family A and family C byte-identical to master (zero movement), always.
-    assert (
-        current["thresholds"]["family_a"] == master["thresholds"]["family_a"]
+
+    # family A / family C: ZERO THRESHOLD MOVEMENT vs master, always — no
+    # gated-or-retained value moves, whichever side of either amendment flip
+    # master sits on.
+    def _view_tols(fa):
+        out = {}
+        for view in fa["views"].values():
+            out.update(view["tolerances"])
+        return out
+
+    m_fa = master["thresholds"]["family_a"]
+    c_fa = current["thresholds"]["family_a"]
+    m_vals = _view_tols(m_fa)
+    m_vals.update(
+        {
+            c: r["tolerance"]
+            for c, r in m_fa.get("retained_tolerances", {}).items()
+        }
     )
-    assert (
-        current["thresholds"]["family_c"] == master["thresholds"]["family_c"]
-    )
+    for cell, tol in _view_tols(c_fa).items():
+        assert m_vals.get(cell) == tol, cell
+    for cell, r in c_fa.get("retained_tolerances", {}).items():
+        assert m_vals.get(cell) == r["tolerance"], cell
+    m_fc = master["thresholds"]["family_c"]
+    c_fc = current["thresholds"]["family_c"]
+    for cid in ("c1", "c2"):
+        for field in (
+            "anchor_values",
+            "required_representative_order",
+            "psid_frame_order",
+            "swap_pair",
+        ):
+            assert (
+                c_fc["fingerprints"][cid][field]
+                == m_fc["fingerprints"][cid][field]
+            ), (cid, field)
