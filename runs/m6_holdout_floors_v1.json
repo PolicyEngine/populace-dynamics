@@ -1,0 +1,6097 @@
+{
+  "schema_version": "m6_holdout_floors.v1",
+  "run": "m6_holdout_floors_v1",
+  "reported_truth_side_only": true,
+  "no_projection_no_candidate": true,
+  "referee_round": "gate_m6 floors ceremony step 1; design PR #170 (1d83a22) VERIFIED comment 4953958949; adjudication issue #42 4953722912",
+  "component": "M6 temporal-holdout gate (gate_m6): the PSID held-out truth (2015-2022) + real-vs-real half-split floor for the proposed family-A dynamics-drift flows and the report-only margins.",
+  "purpose": "Price gate_m6's tolerances against the deployment-scale sampling null of the held-out observables, on the post-demotion surface (shock sec. 4.1, attrition sec. 4.4, mixed-k / power sec. 4.6). Builds NO engine and scores NO candidate; gates.yaml is untouched.",
+  "gates_yaml_untouched": true,
+  "design_pins": {
+    "boundary_T_star": 2014,
+    "seed_wave": 2015,
+    "seed_wave_note": "PSID interviews are biennial ODD years; T*=2014 realizes its seed state at the 2015 interview (reference year 2014).",
+    "gated_flow_event_years": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "shock_flow_event_years": [
+      2020,
+      2021
+    ],
+    "gated_earnings_reference_years": [
+      2016,
+      2018
+    ],
+    "shock_earnings_reference_years": [
+      2020,
+      2022
+    ],
+    "reference_year_2021_unobserved": true,
+    "mixed_k": {
+      "flow": 3,
+      "stock": 4,
+      "margin": 3
+    },
+    "rounding": 3,
+    "t_max": 0.4054651081081644,
+    "t_max_source": "ln(1.5)",
+    "min_events_for_gate": 20,
+    "floor_seeds": [
+      0,
+      99
+    ],
+    "gate_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "conjunction": "4 of 5 seeds",
+    "k20_estimator_note": "the candidate side (not built here) is the K=20-draw mean on numpy.random.default_rng(5200 + k), scored once |ln(rbar/rate_a)| against side-A truth (sec. 4.7)."
+  },
+  "presence_conditioning": {
+    "rule": "Every truth cell is computed on the realized-wave-presence set (PSID sequence 1-20, positive weight), SYMMETRICALLY on both halves and (for the candidate, not built here) both sides (sec. 4.4). demographic_panel / read_disability_status / family_earnings_panel are present-only by construction; marital events + at-risk person-years are conditioned on presence at the biennial interview OPENING the interval that contains the event year.",
+    "per_family": {
+      "mortality": "present at the interval-start interview (slices credited only from an observed wave); conditioning-not-leakage (PSID retention is unmodelled).",
+      "marital": "present at the opening biennial interview of the event's interval; conditioning-not-leakage.",
+      "disability": "reproduction mode -- realized support preserved (read_disability_status present-only); a PASS certifies a TEMPORAL gate_m4 extension, NOT M6 forward disability (sec. 4.4, finding 7).",
+      "earnings": "present with a valid positive-weight earnings observation at the reference-year wave."
+    }
+  },
+  "f6_weight_rule": {
+    "definition": "Every gated rate, every truth cell, and the floor use the person's realized start-of-holdout START-WAVE cross-sectional PSID weight, held FIXED across the window (F6, sec. 4.7). The per-year calibrated panel weight is NOT used (it would put a different weight on the two sides and bias every ratio); it is a report-only alternative.",
+    "start_wave": "the earliest gated interview wave (2015 / 2017 / 2019, >= the 2015 T* seed) at which the person is present."
+  },
+  "household_id_weight_carriage_rule": {
+    "finding": "13 (sec. 9); the ceremony watch-item of comment 4953958949",
+    "household_id": "the PSID family interview number (ER30001-scoped, panels.demographic_panel `interview`) at the person's realized start-of-holdout wave, held FIXED across the window -- consistent with the F6 start-wave anchoring.",
+    "divorce_splitoff_rule": "a within-window divorce / splitoff does NOT reassign household_id; both ex-partners keep their fixed start-wave household (conservative: keeps a correlated ex-couple on ONE side of the split, so the split cannot understate correlation).",
+    "entrant_child_rule": "synthetic births + immigrant cohorts are the family-B closed-panel entrants (sec. 4.8) and are OUT of the family-A floor; children present at the start wave carry that wave's household.",
+    "fallback": "a person with no gated-wave interview number falls back to a singleton household (their own person_id).",
+    "n_singleton_fallback": 0,
+    "split_bias_diagnostic": "runs comparison: person-disjoint vs household-disjoint floor widths on the household-split family-A cells (see split_width_diagnostic); a rule that biased the split would move the ratio far from 1."
+  },
+  "split_units": {
+    "note": "correlation-respecting half split (sec. 4.7): the demographic flows with within-household correlation split HOUSEHOLD-disjoint (couple-disjoint subsumed); disability + earnings split PERSON-disjoint (sec. 4.5).",
+    "household_disjoint_families": [
+      "marital",
+      "marital_stock",
+      "mortality"
+    ],
+    "person_disjoint_families": [
+      "disability",
+      "earnings",
+      "disability_stock"
+    ],
+    "machine": "populace_dynamics.harness.panel.split_panel_by_person",
+    "split_fraction": 0.5
+  },
+  "data": {
+    "n_holdout_persons": 29792,
+    "n_households": 9410,
+    "psid_population": "populace_dynamics.data.panels.demographic_panel + deaths (ER32050) + read_disability_status + family_earnings_panel + marriage.marriage_history",
+    "psid_wave_calendar": "biennial odd-year interviews 1999-2023; even-year income reference years"
+  },
+  "reference_moments": {
+    "death.25-34|female": {
+      "rate": 0.00024699729665714356,
+      "n_events": 7,
+      "n_at_risk": 11232
+    },
+    "death.25-34|male": {
+      "rate": 0.001267568064161445,
+      "n_events": 14,
+      "n_at_risk": 9681
+    },
+    "death.35-44|female": {
+      "rate": 0.001724681725262302,
+      "n_events": 15,
+      "n_at_risk": 9221
+    },
+    "death.35-44|male": {
+      "rate": 0.0004233108185096672,
+      "n_events": 4,
+      "n_at_risk": 8161
+    },
+    "death.45-54|female": {
+      "rate": 0.0010865554076959808,
+      "n_events": 9,
+      "n_at_risk": 6534
+    },
+    "death.45-54|male": {
+      "rate": 0.0029490034203939097,
+      "n_events": 20,
+      "n_at_risk": 5299
+    },
+    "death.55-64|female": {
+      "rate": 0.0022489692742158054,
+      "n_events": 31,
+      "n_at_risk": 7065
+    },
+    "death.55-64|male": {
+      "rate": 0.006345010764341696,
+      "n_events": 35,
+      "n_at_risk": 5751
+    },
+    "death.65-74|female": {
+      "rate": 0.008429497255160522,
+      "n_events": 37,
+      "n_at_risk": 3988
+    },
+    "death.65-74|male": {
+      "rate": 0.01621706352602017,
+      "n_events": 55,
+      "n_at_risk": 3507
+    },
+    "death.75-84|female": {
+      "rate": 0.02521581264956842,
+      "n_events": 42,
+      "n_at_risk": 1424
+    },
+    "death.75-84|male": {
+      "rate": 0.032753438373909774,
+      "n_events": 39,
+      "n_at_risk": 1099
+    },
+    "death.85+|female": {
+      "rate": 0.09463767949632426,
+      "n_events": 68,
+      "n_at_risk": 761
+    },
+    "death.85+|male": {
+      "rate": 0.12242623024668038,
+      "n_events": 44,
+      "n_at_risk": 389
+    },
+    "first_marriage.18-29|female": {
+      "rate": 0.04847477467603063,
+      "n_events": 339,
+      "n_at_risk": 7832
+    },
+    "first_marriage.18-29|male": {
+      "rate": 0.03172723743912814,
+      "n_events": 267,
+      "n_at_risk": 7708
+    },
+    "first_marriage.30-44|female": {
+      "rate": 0.05810006189241623,
+      "n_events": 234,
+      "n_at_risk": 4861
+    },
+    "first_marriage.30-44|male": {
+      "rate": 0.05227882578217819,
+      "n_events": 246,
+      "n_at_risk": 4296
+    },
+    "first_marriage.45-64|female": {
+      "rate": 0.014313611425867418,
+      "n_events": 23,
+      "n_at_risk": 1649
+    },
+    "first_marriage.45-64|male": {
+      "rate": 0.02047589229805886,
+      "n_events": 29,
+      "n_at_risk": 1099
+    },
+    "first_marriage.65+|female": {
+      "rate": 0.005698863948483404,
+      "n_events": 2,
+      "n_at_risk": 373
+    },
+    "first_marriage.65+|male": {
+      "rate": 0.01308860165970183,
+      "n_events": 3,
+      "n_at_risk": 198
+    },
+    "divorce.18-29|female": {
+      "rate": 0.025603692619589204,
+      "n_events": 52,
+      "n_at_risk": 1951
+    },
+    "divorce.18-29|male": {
+      "rate": 0.029119004356236978,
+      "n_events": 31,
+      "n_at_risk": 1300
+    },
+    "divorce.30-44|female": {
+      "rate": 0.018014633152089343,
+      "n_events": 176,
+      "n_at_risk": 8245
+    },
+    "divorce.30-44|male": {
+      "rate": 0.015594892638216189,
+      "n_events": 107,
+      "n_at_risk": 7588
+    },
+    "divorce.45-64|female": {
+      "rate": 0.007383865777060389,
+      "n_events": 75,
+      "n_at_risk": 7747
+    },
+    "divorce.45-64|male": {
+      "rate": 0.0088548648325361,
+      "n_events": 60,
+      "n_at_risk": 7430
+    },
+    "divorce.65+|female": {
+      "rate": 0.0004811762753169285,
+      "n_events": 4,
+      "n_at_risk": 2965
+    },
+    "divorce.65+|male": {
+      "rate": 0.0007697731543464263,
+      "n_events": 6,
+      "n_at_risk": 3768
+    },
+    "widowhood.18-29|female": {
+      "rate": 0.0006191832641839088,
+      "n_events": 2,
+      "n_at_risk": 1951
+    },
+    "widowhood.18-29|male": {
+      "rate": 0.0,
+      "n_events": 0,
+      "n_at_risk": 1300
+    },
+    "widowhood.30-44|female": {
+      "rate": 0.0012432165172713324,
+      "n_events": 11,
+      "n_at_risk": 8245
+    },
+    "widowhood.30-44|male": {
+      "rate": 0.0003464628678401694,
+      "n_events": 7,
+      "n_at_risk": 7588
+    },
+    "widowhood.45-64|female": {
+      "rate": 0.004339764569062189,
+      "n_events": 41,
+      "n_at_risk": 7747
+    },
+    "widowhood.45-64|male": {
+      "rate": 0.0021324104582423464,
+      "n_events": 15,
+      "n_at_risk": 7430
+    },
+    "widowhood.65+|female": {
+      "rate": 0.027308875240885242,
+      "n_events": 70,
+      "n_at_risk": 2965
+    },
+    "widowhood.65+|male": {
+      "rate": 0.01188655385325467,
+      "n_events": 29,
+      "n_at_risk": 3768
+    },
+    "remarriage.18-29|female": {
+      "rate": 0.08209342079949163,
+      "n_events": 24,
+      "n_at_risk": 210
+    },
+    "remarriage.18-29|male": {
+      "rate": 0.10800706890689742,
+      "n_events": 13,
+      "n_at_risk": 113
+    },
+    "remarriage.30-44|female": {
+      "rate": 0.07113115129469623,
+      "n_events": 114,
+      "n_at_risk": 1485
+    },
+    "remarriage.30-44|male": {
+      "rate": 0.08620348296127141,
+      "n_events": 89,
+      "n_at_risk": 887
+    },
+    "remarriage.45-64|female": {
+      "rate": 0.019551092305941917,
+      "n_events": 58,
+      "n_at_risk": 3010
+    },
+    "remarriage.45-64|male": {
+      "rate": 0.025938469808930234,
+      "n_events": 44,
+      "n_at_risk": 1502
+    },
+    "remarriage.65+|female": {
+      "rate": 0.0012779689546136357,
+      "n_events": 3,
+      "n_at_risk": 2359
+    },
+    "remarriage.65+|male": {
+      "rate": 0.00551171761204906,
+      "n_events": 7,
+      "n_at_risk": 823
+    },
+    "incidence.20-29|female": {
+      "rate": 0.005730224601773,
+      "n_events": 20,
+      "n_at_risk": 3188
+    },
+    "incidence.20-29|male": {
+      "rate": 0.010579198317826702,
+      "n_events": 31,
+      "n_at_risk": 2721
+    },
+    "incidence.30-39|female": {
+      "rate": 0.009841610004546593,
+      "n_events": 41,
+      "n_at_risk": 3767
+    },
+    "incidence.30-39|male": {
+      "rate": 0.011899217284429782,
+      "n_events": 35,
+      "n_at_risk": 3174
+    },
+    "incidence.40-49|female": {
+      "rate": 0.021114918150158205,
+      "n_events": 52,
+      "n_at_risk": 2302
+    },
+    "incidence.40-49|male": {
+      "rate": 0.017908480404375968,
+      "n_events": 36,
+      "n_at_risk": 1971
+    },
+    "incidence.50-59|female": {
+      "rate": 0.03205576609581825,
+      "n_events": 106,
+      "n_at_risk": 2413
+    },
+    "incidence.50-59|male": {
+      "rate": 0.02481203452988316,
+      "n_events": 62,
+      "n_at_risk": 1794
+    },
+    "incidence.60-66|female": {
+      "rate": 0.020365591051184018,
+      "n_events": 37,
+      "n_at_risk": 1469
+    },
+    "incidence.60-66|male": {
+      "rate": 0.018826826311237,
+      "n_events": 27,
+      "n_at_risk": 1267
+    },
+    "recovery.20-29|female": {
+      "rate": 0.45816977793001085,
+      "n_events": 24,
+      "n_at_risk": 45
+    },
+    "recovery.20-29|male": {
+      "rate": 0.46090979212994676,
+      "n_events": 20,
+      "n_at_risk": 51
+    },
+    "recovery.30-39|female": {
+      "rate": 0.4519735545071501,
+      "n_events": 39,
+      "n_at_risk": 78
+    },
+    "recovery.30-39|male": {
+      "rate": 0.33803631476023194,
+      "n_events": 31,
+      "n_at_risk": 93
+    },
+    "recovery.40-49|female": {
+      "rate": 0.3030979412079322,
+      "n_events": 46,
+      "n_at_risk": 121
+    },
+    "recovery.40-49|male": {
+      "rate": 0.27156818563724966,
+      "n_events": 27,
+      "n_at_risk": 90
+    },
+    "recovery.50-59|female": {
+      "rate": 0.33828759792497815,
+      "n_events": 81,
+      "n_at_risk": 249
+    },
+    "recovery.50-59|male": {
+      "rate": 0.24809150772408625,
+      "n_events": 53,
+      "n_at_risk": 182
+    },
+    "recovery.60-66|female": {
+      "rate": 0.43475383471327267,
+      "n_events": 45,
+      "n_at_risk": 103
+    },
+    "recovery.60-66|male": {
+      "rate": 0.5204391777999855,
+      "n_events": 52,
+      "n_at_risk": 106
+    },
+    "earn_p10.prime": {
+      "value": 12334.0,
+      "n_obs": 12274,
+      "metric": "log_ratio"
+    },
+    "earn_p50.prime": {
+      "value": 44000.0,
+      "n_obs": 12274,
+      "metric": "log_ratio"
+    },
+    "earn_p90.prime": {
+      "value": 105000.0,
+      "n_obs": 12274,
+      "metric": "log_ratio"
+    },
+    "earn_zero_rate.prime": {
+      "value": 0.13004352130396252,
+      "n_obs": 14092,
+      "metric": "log_ratio"
+    },
+    "earn_dlog_sd.prime": {
+      "value": 0.68376453274918,
+      "n_obs": 20414,
+      "metric": "log_ratio"
+    },
+    "earn_dlog_mean.prime": {
+      "value": 0.1507742157657978,
+      "n_obs": 20414,
+      "metric": "abs_gap_log"
+    },
+    "earn_dlog_skew.prime": {
+      "value": -0.17923674547297974,
+      "n_obs": 20414,
+      "metric": "report_only_shape"
+    },
+    "earn_dlog_kurt.prime": {
+      "value": 14.515912027475512,
+      "n_obs": 20414,
+      "metric": "report_only_shape"
+    },
+    "earn_p10.older": {
+      "value": 12000.0,
+      "n_obs": 6858,
+      "metric": "log_ratio"
+    },
+    "earn_p50.older": {
+      "value": 48000.0,
+      "n_obs": 6858,
+      "metric": "log_ratio"
+    },
+    "earn_p90.older": {
+      "value": 130000.0,
+      "n_obs": 6858,
+      "metric": "log_ratio"
+    },
+    "earn_zero_rate.older": {
+      "value": 0.2334957483576863,
+      "n_obs": 9179,
+      "metric": "log_ratio"
+    },
+    "earn_dlog_sd.older": {
+      "value": 0.6459886606556516,
+      "n_obs": 13839,
+      "metric": "log_ratio"
+    },
+    "earn_dlog_mean.older": {
+      "value": 0.038712571213046845,
+      "n_obs": 13839,
+      "metric": "abs_gap_log"
+    },
+    "earn_dlog_skew.older": {
+      "value": -0.8742020041026765,
+      "n_obs": 13839,
+      "metric": "report_only_shape"
+    },
+    "earn_dlog_kurt.older": {
+      "value": 20.09477435242599,
+      "n_obs": 13839,
+      "metric": "report_only_shape"
+    },
+    "earn_mob_h1_diag": {
+      "value": 0.5933121421876197,
+      "n_obs": 36,
+      "metric": "log_ratio"
+    },
+    "earn_mob_h2_diag": {
+      "value": 0.5158462225352155,
+      "n_obs": 36,
+      "metric": "log_ratio"
+    },
+    "earn_autocorr_lag1": {
+      "value": 0.7611417942958307,
+      "n_obs": 14289,
+      "metric": "abs_gap_corr"
+    },
+    "earn_autocorr_lag2": {
+      "value": 0.6843612645585306,
+      "n_obs": 14289,
+      "metric": "abs_gap_corr"
+    },
+    "earn_autocorr_lag5": {
+      "value": NaN,
+      "n_obs": 14289,
+      "metric": "report_only_horizon"
+    },
+    "prevalence.20-29|female": {
+      "rate": 0.00929506122051281,
+      "n_events": 1699,
+      "n_at_risk": 1699
+    },
+    "prevalence.20-29|male": {
+      "rate": 0.020696278260652356,
+      "n_events": 1544,
+      "n_at_risk": 1544
+    },
+    "prevalence.30-39|female": {
+      "rate": 0.012446406921108693,
+      "n_events": 2300,
+      "n_at_risk": 2300
+    },
+    "prevalence.30-39|male": {
+      "rate": 0.021603812432290093,
+      "n_events": 1940,
+      "n_at_risk": 1940
+    },
+    "prevalence.40-49|female": {
+      "rate": 0.04668649582743274,
+      "n_events": 1487,
+      "n_at_risk": 1487
+    },
+    "prevalence.40-49|male": {
+      "rate": 0.04151947746746295,
+      "n_events": 1355,
+      "n_at_risk": 1355
+    },
+    "prevalence.50-59|female": {
+      "rate": 0.07583190171761457,
+      "n_events": 1307,
+      "n_at_risk": 1307
+    },
+    "prevalence.50-59|male": {
+      "rate": 0.0758907151972145,
+      "n_events": 1010,
+      "n_at_risk": 1010
+    },
+    "prevalence.60-66|female": {
+      "rate": 0.0642810611237187,
+      "n_events": 919,
+      "n_at_risk": 919
+    },
+    "prevalence.60-66|male": {
+      "rate": 0.07652719551955763,
+      "n_events": 772,
+      "n_at_risk": 772
+    },
+    "married_share.18-29|female": {
+      "rate": 0.18660337665088428,
+      "n_events": 2035,
+      "n_at_risk": 2035
+    },
+    "married_share.18-29|male": {
+      "rate": 0.1259155018022147,
+      "n_events": 1846,
+      "n_at_risk": 1846
+    },
+    "married_share.30-44|female": {
+      "rate": 0.5808993258241504,
+      "n_events": 3193,
+      "n_at_risk": 3193
+    },
+    "married_share.30-44|male": {
+      "rate": 0.5378188622563623,
+      "n_events": 2789,
+      "n_at_risk": 2789
+    },
+    "married_share.45-64|female": {
+      "rate": 0.6466724048269772,
+      "n_events": 2561,
+      "n_at_risk": 2561
+    },
+    "married_share.45-64|male": {
+      "rate": 0.7025242216270514,
+      "n_events": 2059,
+      "n_at_risk": 2059
+    },
+    "married_share.65+|female": {
+      "rate": 0.4769217976731023,
+      "n_events": 1282,
+      "n_at_risk": 1282
+    },
+    "married_share.65+|male": {
+      "rate": 0.726505772925032,
+      "n_events": 1106,
+      "n_at_risk": 1106
+    }
+  },
+  "floor": {
+    "method": "100-seed real-vs-real half split (populace_dynamics.harness.panel.split_panel_by_person, fraction 0.5, seeds 0-99) of the presence-conditioned, F6-weighted holdout truth; floor statistic |ln(rate_a/rate_b)| for rate / log_ratio cells, |value_a - value_b| for the typed abs_gap cells. (mean, sd, realized_sigma) per cell derive round(mean + k*sd, 3) capped at the metric's power cap.",
+    "cells": {
+      "death.35-44|female": {
+        "mean": 0.6083013808487788,
+        "sd": 0.5006027737913021,
+        "realized_sigma": 0.7878030890203952,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2
+      },
+      "death.55-64|female": {
+        "mean": 0.40286459322123586,
+        "sd": 0.3318829991002826,
+        "realized_sigma": 0.5219637971766913,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "death.55-64|male": {
+        "mean": 0.34473695652856245,
+        "sd": 0.2537231287043552,
+        "realized_sigma": 0.42804088033282844,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "death.45-54|female": {
+        "mean": 0.7780466829369966,
+        "sd": 0.6439507774740985,
+        "realized_sigma": 1.0099649719860382,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "death.65-74|female": {
+        "mean": 0.3413153934632961,
+        "sd": 0.2742175970826774,
+        "realized_sigma": 0.43782586534466217,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "death.75-84|male": {
+        "mean": 0.33368641529888343,
+        "sd": 0.26966446371585573,
+        "realized_sigma": 0.42902860830739364,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 12
+      },
+      "death.85+|male": {
+        "mean": 0.22066390126064483,
+        "sd": 0.1644929019839257,
+        "realized_sigma": 0.2752280365854122,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 13
+      },
+      "death.25-34|female": {
+        "mean": 1.0908443267214984,
+        "sd": 0.8870629499374163,
+        "realized_sigma": 1.405995029255847,
+        "n_defined_seeds": 95,
+        "min_events_weaker_half": 0
+      },
+      "death.45-54|male": {
+        "mean": 0.5888455405589879,
+        "sd": 0.46637247747692817,
+        "realized_sigma": 0.7511606741464668,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "death.65-74|male": {
+        "mean": 0.21325444354603093,
+        "sd": 0.1830448994681591,
+        "realized_sigma": 0.2810389526621457,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 17
+      },
+      "death.85+|female": {
+        "mean": 0.20126517454938334,
+        "sd": 0.13975911529140805,
+        "realized_sigma": 0.24503118330822882,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 24
+      },
+      "death.35-44|male": {
+        "mean": 1.06761535881847,
+        "sd": 1.0770508092423987,
+        "realized_sigma": 1.516522667181337,
+        "n_defined_seeds": 87,
+        "min_events_weaker_half": 0
+      },
+      "death.75-84|female": {
+        "mean": 0.318072711909529,
+        "sd": 0.23331441816274923,
+        "realized_sigma": 0.3944690961077996,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 13
+      },
+      "death.25-34|male": {
+        "mean": 0.7368722051278622,
+        "sd": 0.7290995483562126,
+        "realized_sigma": 1.0366131381104675,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "widowhood.18-29|female": {
+        "mean": 1.2520311870251786,
+        "sd": 0.10251353488971848,
+        "realized_sigma": 1.2562209670751652,
+        "n_defined_seeds": 49,
+        "min_events_weaker_half": 0
+      },
+      "widowhood.65+|female": {
+        "mean": 0.19677934730295998,
+        "sd": 0.1476664471646914,
+        "realized_sigma": 0.24602335487351917,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 24
+      },
+      "first_marriage.45-64|male": {
+        "mean": 0.4947768263002301,
+        "sd": 0.36942470143226924,
+        "realized_sigma": 0.6174777063765536,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "remarriage.45-64|male": {
+        "mean": 0.3052798073745054,
+        "sd": 0.23310292053614812,
+        "realized_sigma": 0.38409989892357027,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 14
+      },
+      "divorce.18-29|female": {
+        "mean": 0.30831191084750253,
+        "sd": 0.22891371812216904,
+        "realized_sigma": 0.3840022457160299,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 18
+      },
+      "widowhood.65+|male": {
+        "mean": 0.31391739204677876,
+        "sd": 0.21844889542716445,
+        "realized_sigma": 0.38244483124079376,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "widowhood.18-29|male": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.18-29|female": {
+        "mean": 0.45919099901985594,
+        "sd": 0.33132492428482485,
+        "realized_sigma": 0.5662442750555614,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6
+      },
+      "first_marriage.65+|male": {
+        "mean": 0.7615709720772795,
+        "sd": 0.44163268599875916,
+        "realized_sigma": 0.8803577539007713,
+        "n_defined_seeds": 70,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.30-44|female": {
+        "mean": 0.19578710508754202,
+        "sd": 0.13834003395191766,
+        "realized_sigma": 0.23973017230289964,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 43
+      },
+      "remarriage.45-64|female": {
+        "mean": 0.27160944695979095,
+        "sd": 0.2138389799779933,
+        "realized_sigma": 0.34568598617217927,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 18
+      },
+      "remarriage.65+|female": {
+        "mean": 0.9776570520483199,
+        "sd": 0.6902464311165727,
+        "realized_sigma": 1.1967679169701102,
+        "n_defined_seeds": 75,
+        "min_events_weaker_half": 0
+      },
+      "first_marriage.18-29|male": {
+        "mean": 0.11872634779007213,
+        "sd": 0.10482240176138719,
+        "realized_sigma": 0.1583782862976956,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 113
+      },
+      "first_marriage.65+|female": {
+        "mean": 0.34014072339780177,
+        "sd": 0.25624128295745935,
+        "realized_sigma": 0.42585831775986793,
+        "n_defined_seeds": 50,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.18-29|male": {
+        "mean": 0.6174734774220858,
+        "sd": 0.49186044655919886,
+        "realized_sigma": 0.7894302972455122,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2
+      },
+      "remarriage.65+|male": {
+        "mean": 0.9001985387522028,
+        "sd": 0.7529567022354406,
+        "realized_sigma": 1.1735847666925774,
+        "n_defined_seeds": 99,
+        "min_events_weaker_half": 0
+      },
+      "divorce.45-64|male": {
+        "mean": 0.27680431398146826,
+        "sd": 0.22732399276790594,
+        "realized_sigma": 0.35818546303094745,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 23
+      },
+      "widowhood.45-64|female": {
+        "mean": 0.27591406786315825,
+        "sd": 0.18690729924456403,
+        "realized_sigma": 0.3332610258576489,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 14
+      },
+      "first_marriage.30-44|male": {
+        "mean": 0.12980943424936586,
+        "sd": 0.10262105603595861,
+        "realized_sigma": 0.16547377545120495,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 104
+      },
+      "divorce.65+|female": {
+        "mean": 1.2836540995178911,
+        "sd": 1.2370417340575017,
+        "realized_sigma": 1.782705836364788,
+        "n_defined_seeds": 92,
+        "min_events_weaker_half": 0
+      },
+      "divorce.18-29|male": {
+        "mean": 0.37334933511583046,
+        "sd": 0.26080503940450145,
+        "realized_sigma": 0.45542177660956906,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "first_marriage.30-44|female": {
+        "mean": 0.13319349829090418,
+        "sd": 0.117364474816306,
+        "realized_sigma": 0.17752444320677765,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 100
+      },
+      "divorce.45-64|female": {
+        "mean": 0.2386754035213894,
+        "sd": 0.20315114650939506,
+        "realized_sigma": 0.3134267642914047,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 27
+      },
+      "remarriage.30-44|male": {
+        "mean": 0.2354980087314916,
+        "sd": 0.1813171914711377,
+        "realized_sigma": 0.297212442605418,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 31
+      },
+      "widowhood.30-44|male": {
+        "mean": 1.2191451509617919,
+        "sd": 1.1230966723977167,
+        "realized_sigma": 1.657607020576492,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "first_marriage.45-64|female": {
+        "mean": 0.47178515431098655,
+        "sd": 0.3970556167267411,
+        "realized_sigma": 0.6166314901158504,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "divorce.30-44|female": {
+        "mean": 0.1539885328261156,
+        "sd": 0.11169900161828702,
+        "realized_sigma": 0.19023442171295332,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 72
+      },
+      "widowhood.30-44|female": {
+        "mean": 0.7576823636164758,
+        "sd": 0.645633285506957,
+        "realized_sigma": 0.9954521100936786,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2
+      },
+      "divorce.65+|male": {
+        "mean": 0.9959600439158224,
+        "sd": 0.993180932288256,
+        "realized_sigma": 1.4065364457907858,
+        "n_defined_seeds": 97,
+        "min_events_weaker_half": 0
+      },
+      "divorce.30-44|male": {
+        "mean": 0.2199042525660617,
+        "sd": 0.16745401225254106,
+        "realized_sigma": 0.27640319556060206,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 42
+      },
+      "widowhood.45-64|male": {
+        "mean": 0.4734408499083615,
+        "sd": 0.45330167893382994,
+        "realized_sigma": 0.6554606399214072,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2
+      },
+      "first_marriage.18-29|female": {
+        "mean": 0.10667990746937188,
+        "sd": 0.08307374839960044,
+        "realized_sigma": 0.13521039283588324,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 141
+      },
+      "recovery.20-29|male": {
+        "mean": 0.4158418252976083,
+        "sd": 0.30148820157714545,
+        "realized_sigma": 0.5136336820702747,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "recovery.30-39|female": {
+        "mean": 0.2441375980422416,
+        "sd": 0.180025537786474,
+        "realized_sigma": 0.30333539363738005,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 11
+      },
+      "recovery.40-49|male": {
+        "mean": 0.3520142307086932,
+        "sd": 0.2916803323396098,
+        "realized_sigma": 0.4571558103045157,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 7
+      },
+      "incidence.50-59|male": {
+        "mean": 0.338938042460933,
+        "sd": 0.2704394859416064,
+        "realized_sigma": 0.433608708611358,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 19
+      },
+      "recovery.60-66|male": {
+        "mean": 0.19019207179925435,
+        "sd": 0.1454168333184891,
+        "realized_sigma": 0.23941403381520884,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 17
+      },
+      "incidence.20-29|male": {
+        "mean": 0.5225419179964141,
+        "sd": 0.47734853624537626,
+        "realized_sigma": 0.7077511434953493,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "incidence.60-66|male": {
+        "mean": 0.4600457525057179,
+        "sd": 0.38162642127198176,
+        "realized_sigma": 0.5977297213719696,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 7
+      },
+      "recovery.40-49|female": {
+        "mean": 0.3779295188180859,
+        "sd": 0.28000403659123235,
+        "realized_sigma": 0.4703541024605336,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 14
+      },
+      "incidence.60-66|female": {
+        "mean": 0.349618832315161,
+        "sd": 0.276261607554143,
+        "realized_sigma": 0.4455937653489061,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 12
+      },
+      "incidence.40-49|female": {
+        "mean": 0.3650805237694964,
+        "sd": 0.28121065520824523,
+        "realized_sigma": 0.46082884180404815,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 16
+      },
+      "recovery.30-39|male": {
+        "mean": 0.3842754735186928,
+        "sd": 0.29144416713147325,
+        "realized_sigma": 0.48229383378079144,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9
+      },
+      "incidence.40-49|male": {
+        "mean": 0.3674360828992014,
+        "sd": 0.3060279433413612,
+        "realized_sigma": 0.478186550544923,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 10
+      },
+      "recovery.50-59|male": {
+        "mean": 0.3021657555583611,
+        "sd": 0.2299759911776183,
+        "realized_sigma": 0.3797276660322279,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 17
+      },
+      "recovery.60-66|female": {
+        "mean": 0.2566080021893215,
+        "sd": 0.20023656909132875,
+        "realized_sigma": 0.3254878651947892,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 11
+      },
+      "recovery.20-29|female": {
+        "mean": 0.32472392757710417,
+        "sd": 0.24463932521581586,
+        "realized_sigma": 0.4065636833057647,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "incidence.20-29|female": {
+        "mean": 0.6260451436765954,
+        "sd": 0.42965741039272065,
+        "realized_sigma": 0.7593010023873455,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "recovery.50-59|female": {
+        "mean": 0.21245482090820986,
+        "sd": 0.15628305055013944,
+        "realized_sigma": 0.263745033728404,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 29
+      },
+      "incidence.30-39|female": {
+        "mean": 0.369605124946913,
+        "sd": 0.2968642153366557,
+        "realized_sigma": 0.47406361464941754,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 14
+      },
+      "incidence.50-59|female": {
+        "mean": 0.22488582782446648,
+        "sd": 0.1590665525257026,
+        "realized_sigma": 0.2754556292557981,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 39
+      },
+      "incidence.30-39|male": {
+        "mean": 0.4272962504679485,
+        "sd": 0.34121811277771363,
+        "realized_sigma": 0.5468197931234313,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 10
+      },
+      "earn_mob_h2_diag": {
+        "mean": 0.026878238796719352,
+        "sd": 0.019799324924394058,
+        "realized_sigma": 0.03338342385488944,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 36
+      },
+      "earn_autocorr_lag2": {
+        "mean": 0.02673717194589818,
+        "sd": 0.01992676088080211,
+        "realized_sigma": 0.03334594672318046,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 7003
+      },
+      "earn_dlog_skew.prime": {
+        "mean": 0.5813414098562061,
+        "sd": 0.39460608865284774,
+        "realized_sigma": 0.7026178193125339,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9948
+      },
+      "earn_dlog_sd.prime": {
+        "mean": 0.04051921131763504,
+        "sd": 0.03179698131797773,
+        "realized_sigma": 0.051505868663085264,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9948
+      },
+      "earn_mob_h1_diag": {
+        "mean": 0.01752524194494026,
+        "sd": 0.011579402021492363,
+        "realized_sigma": 0.021005157852395085,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 36
+      },
+      "earn_p10.older": {
+        "mean": 0.056580282120161966,
+        "sd": 0.07481076907795364,
+        "realized_sigma": 0.09379754524950014,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3265
+      },
+      "earn_dlog_skew.older": {
+        "mean": 0.7477477416412522,
+        "sd": 0.49197922668442773,
+        "realized_sigma": 0.8950811385671136,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6616
+      },
+      "earn_dlog_kurt.prime": {
+        "mean": 5.199273409976825,
+        "sd": 2.553287713633258,
+        "realized_sigma": 5.792384840485186,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9948
+      },
+      "earn_autocorr_lag5": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 7003
+      },
+      "earn_autocorr_lag1": {
+        "mean": 0.017682723265077832,
+        "sd": 0.01372458125038026,
+        "realized_sigma": 0.022383986074147166,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 7003
+      },
+      "earn_dlog_mean.older": {
+        "mean": 0.014806705840900509,
+        "sd": 0.010774916281693447,
+        "realized_sigma": 0.01831221883706231,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6616
+      },
+      "earn_zero_rate.prime": {
+        "mean": 0.06754794229624672,
+        "sd": 0.05059954867289879,
+        "realized_sigma": 0.08439809733849532,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6865
+      },
+      "earn_p10.prime": {
+        "mean": 0.07289376935456233,
+        "sd": 0.04933191793488574,
+        "realized_sigma": 0.08801783761176159,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5971
+      },
+      "earn_p90.older": {
+        "mean": 0.03888499531823853,
+        "sd": 0.03706458768283883,
+        "realized_sigma": 0.05371988943583447,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3265
+      },
+      "earn_p50.prime": {
+        "mean": 0.02792474463782451,
+        "sd": 0.021227434977549402,
+        "realized_sigma": 0.03507699187236266,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5971
+      },
+      "earn_zero_rate.older": {
+        "mean": 0.05305081909142498,
+        "sd": 0.03679800191791124,
+        "realized_sigma": 0.06456378513858756,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4378
+      },
+      "earn_p90.prime": {
+        "mean": 0.03764666721561082,
+        "sd": 0.03133730015003118,
+        "realized_sigma": 0.048982628891639644,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5971
+      },
+      "earn_dlog_kurt.older": {
+        "mean": 4.148486827058441,
+        "sd": 2.8498967988538295,
+        "realized_sigma": 5.033076069204073,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6616
+      },
+      "earn_dlog_mean.prime": {
+        "mean": 0.014353883557994657,
+        "sd": 0.009472442501732127,
+        "realized_sigma": 0.01719770740956743,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9948
+      },
+      "earn_p50.older": {
+        "mean": 0.039559258660516336,
+        "sd": 0.029116864900428415,
+        "realized_sigma": 0.049119515138073555,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3265
+      },
+      "earn_dlog_sd.older": {
+        "mean": 0.08131757095864071,
+        "sd": 0.06259733605964865,
+        "realized_sigma": 0.10262053317137929,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6616
+      },
+      "prevalence.60-66|female": {
+        "mean": 0.24667825742081473,
+        "sd": 0.17952403020674054,
+        "realized_sigma": 0.30508857747519885,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 425
+      },
+      "prevalence.60-66|male": {
+        "mean": 0.29910003314516376,
+        "sd": 0.2386905331090588,
+        "realized_sigma": 0.3826669575797272,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 353
+      },
+      "prevalence.50-59|female": {
+        "mean": 0.20314207658461214,
+        "sd": 0.16607967625992032,
+        "realized_sigma": 0.26239123869845266,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 609
+      },
+      "prevalence.20-29|male": {
+        "mean": 0.45324821282878547,
+        "sd": 0.3484002553547928,
+        "realized_sigma": 0.5716788262335529,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 711
+      },
+      "prevalence.20-29|female": {
+        "mean": 0.534845660879972,
+        "sd": 0.5057273915131331,
+        "realized_sigma": 0.7360842855874671,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 797
+      },
+      "prevalence.50-59|male": {
+        "mean": 0.2302062735505429,
+        "sd": 0.18429371225274274,
+        "realized_sigma": 0.2948882852164937,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 451
+      },
+      "prevalence.30-39|male": {
+        "mean": 0.3295841853079334,
+        "sd": 0.24975440743113692,
+        "realized_sigma": 0.41352508900473317,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 930
+      },
+      "prevalence.30-39|female": {
+        "mean": 0.4045911654015957,
+        "sd": 0.32538135889870834,
+        "realized_sigma": 0.5191984590113797,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1090
+      },
+      "prevalence.40-49|male": {
+        "mean": 0.2527879103909941,
+        "sd": 0.1899132462187051,
+        "realized_sigma": 0.31617838118563985,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 626
+      },
+      "prevalence.40-49|female": {
+        "mean": 0.34305216093226143,
+        "sd": 0.24325348161791693,
+        "realized_sigma": 0.4205437449773001,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 684
+      },
+      "married_share.18-29|female": {
+        "mean": 0.11206099673285237,
+        "sd": 0.07364548322490728,
+        "realized_sigma": 0.13409445994592933,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 945
+      },
+      "married_share.45-64|female": {
+        "mean": 0.029683269831693622,
+        "sd": 0.022156525902841794,
+        "realized_sigma": 0.03704062834219247,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1218
+      },
+      "married_share.65+|male": {
+        "mean": 0.03631212705423643,
+        "sd": 0.026807986078327007,
+        "realized_sigma": 0.045135780582358204,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 515
+      },
+      "married_share.65+|female": {
+        "mean": 0.06370894351855654,
+        "sd": 0.050479221014955965,
+        "realized_sigma": 0.08128333924321392,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 587
+      },
+      "married_share.18-29|male": {
+        "mean": 0.12412888678232833,
+        "sd": 0.08800995375732659,
+        "realized_sigma": 0.15216350578961715,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 852
+      },
+      "married_share.30-44|female": {
+        "mean": 0.035213341528427346,
+        "sd": 0.026534188074387302,
+        "realized_sigma": 0.04409129798911145,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1510
+      },
+      "married_share.45-64|male": {
+        "mean": 0.030508375432949365,
+        "sd": 0.022006643264635795,
+        "realized_sigma": 0.037617194463898135,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 971
+      },
+      "married_share.30-44|male": {
+        "mean": 0.04355864941629628,
+        "sd": 0.03299474115927432,
+        "realized_sigma": 0.05464438565067155,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1330
+      }
+    }
+  },
+  "metric_caps": {
+    "log_ratio": {
+      "cap": 0.4054651081081644,
+      "source": "ln(1.5)"
+    },
+    "abs_gap_log": {
+      "cap": 0.4054651081081644,
+      "source": "ln(1.5) (change-mean is in log units)"
+    },
+    "abs_gap_corr": {
+      "cap": 0.15,
+      "source": "0.15 = ~2x gate_1 autocorr_log_10yr_tolerance 0.07"
+    }
+  },
+  "cell_meta": {
+    "death.25-34|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.25-34|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.35-44|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.35-44|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.45-54|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.45-54|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.55-64|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.55-64|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.65-74|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.65-74|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.75-84|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.75-84|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.85+|female": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "death.85+|male": {
+      "family": "mortality",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.18-29|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.18-29|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.30-44|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.30-44|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.45-64|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.45-64|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.65+|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "first_marriage.65+|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.18-29|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.18-29|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.30-44|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.30-44|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.45-64|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.45-64|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.65+|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "divorce.65+|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.18-29|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.18-29|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.30-44|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.30-44|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.45-64|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.45-64|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.65+|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "widowhood.65+|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.18-29|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.18-29|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.30-44|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.30-44|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.45-64|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.45-64|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.65+|female": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "remarriage.65+|male": {
+      "family": "marital",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.20-29|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.20-29|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.30-39|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.30-39|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.40-49|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.40-49|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.50-59|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.50-59|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.60-66|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "incidence.60-66|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.20-29|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.20-29|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.30-39|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.30-39|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.40-49|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.40-49|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.50-59|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.50-59|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.60-66|female": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "recovery.60-66|male": {
+      "family": "disability",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_p10.prime": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_p50.prime": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_p90.prime": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_zero_rate.prime": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_sd.prime": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_mean.prime": {
+      "family": "earnings",
+      "metric": "abs_gap_log",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_skew.prime": {
+      "family": "earnings",
+      "metric": "report_only_shape",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_kurt.prime": {
+      "family": "earnings",
+      "metric": "report_only_shape",
+      "quantity_type": "flow"
+    },
+    "earn_p10.older": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_p50.older": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_p90.older": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_zero_rate.older": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_sd.older": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_mean.older": {
+      "family": "earnings",
+      "metric": "abs_gap_log",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_skew.older": {
+      "family": "earnings",
+      "metric": "report_only_shape",
+      "quantity_type": "flow"
+    },
+    "earn_dlog_kurt.older": {
+      "family": "earnings",
+      "metric": "report_only_shape",
+      "quantity_type": "flow"
+    },
+    "earn_mob_h1_diag": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_mob_h2_diag": {
+      "family": "earnings",
+      "metric": "log_ratio",
+      "quantity_type": "flow"
+    },
+    "earn_autocorr_lag1": {
+      "family": "earnings",
+      "metric": "abs_gap_corr",
+      "quantity_type": "flow"
+    },
+    "earn_autocorr_lag2": {
+      "family": "earnings",
+      "metric": "abs_gap_corr",
+      "quantity_type": "flow"
+    },
+    "earn_autocorr_lag5": {
+      "family": "earnings",
+      "metric": "report_only_horizon",
+      "quantity_type": "flow"
+    },
+    "prevalence.20-29|female": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.20-29|male": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.30-39|female": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.30-39|male": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.40-49|female": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.40-49|male": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.50-59|female": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.50-59|male": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.60-66|female": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "prevalence.60-66|male": {
+      "family": "disability_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.18-29|female": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.18-29|male": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.30-44|female": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.30-44|male": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.45-64|female": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.45-64|male": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.65+|female": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    },
+    "married_share.65+|male": {
+      "family": "marital_stock",
+      "metric": "log_ratio",
+      "quantity_type": "stock"
+    }
+  },
+  "partition": {
+    "gated": [
+      "earn_autocorr_lag1",
+      "earn_autocorr_lag2",
+      "earn_dlog_mean.older",
+      "earn_dlog_mean.prime",
+      "earn_dlog_sd.older",
+      "earn_dlog_sd.prime",
+      "earn_mob_h1_diag",
+      "earn_mob_h2_diag",
+      "earn_p10.older",
+      "earn_p10.prime",
+      "earn_p50.older",
+      "earn_p50.prime",
+      "earn_p90.older",
+      "earn_p90.prime",
+      "earn_zero_rate.older",
+      "earn_zero_rate.prime",
+      "first_marriage.18-29|female"
+    ],
+    "report_only": {
+      "death.25-34|female": "undefined_on_some_seed",
+      "death.25-34|male": "below_20_events_weaker_half",
+      "death.35-44|female": "below_20_events_weaker_half",
+      "death.35-44|male": "undefined_on_some_seed",
+      "death.45-54|female": "below_20_events_weaker_half",
+      "death.45-54|male": "below_20_events_weaker_half",
+      "death.55-64|female": "below_20_events_weaker_half",
+      "death.55-64|male": "below_20_events_weaker_half",
+      "death.65-74|female": "below_20_events_weaker_half",
+      "death.65-74|male": "below_20_events_weaker_half",
+      "death.75-84|female": "below_20_events_weaker_half",
+      "death.75-84|male": "below_20_events_weaker_half",
+      "death.85+|female": "attrition_confounded_truth",
+      "death.85+|male": "attrition_confounded_truth",
+      "divorce.18-29|female": "below_20_events_weaker_half",
+      "divorce.18-29|male": "below_20_events_weaker_half",
+      "divorce.30-44|female": "tolerance_above_power_cap",
+      "divorce.30-44|male": "tolerance_above_power_cap",
+      "divorce.45-64|female": "tolerance_above_power_cap",
+      "divorce.45-64|male": "tolerance_above_power_cap",
+      "divorce.65+|female": "undefined_on_some_seed",
+      "divorce.65+|male": "undefined_on_some_seed",
+      "earn_autocorr_lag5": "horizon_exceeds_holdout_span",
+      "earn_dlog_kurt.older": "dimensionless_shape_no_power_cap",
+      "earn_dlog_kurt.prime": "dimensionless_shape_no_power_cap",
+      "earn_dlog_skew.older": "dimensionless_shape_no_power_cap",
+      "earn_dlog_skew.prime": "dimensionless_shape_no_power_cap",
+      "first_marriage.18-29|male": "tolerance_above_power_cap",
+      "first_marriage.30-44|female": "tolerance_above_power_cap",
+      "first_marriage.30-44|male": "tolerance_above_power_cap",
+      "first_marriage.45-64|female": "below_20_events_weaker_half",
+      "first_marriage.45-64|male": "below_20_events_weaker_half",
+      "first_marriage.65+|female": "undefined_on_some_seed",
+      "first_marriage.65+|male": "undefined_on_some_seed",
+      "incidence.20-29|female": "below_20_events_weaker_half",
+      "incidence.20-29|male": "below_20_events_weaker_half",
+      "incidence.30-39|female": "below_20_events_weaker_half",
+      "incidence.30-39|male": "below_20_events_weaker_half",
+      "incidence.40-49|female": "below_20_events_weaker_half",
+      "incidence.40-49|male": "below_20_events_weaker_half",
+      "incidence.50-59|female": "tolerance_above_power_cap",
+      "incidence.50-59|male": "below_20_events_weaker_half",
+      "incidence.60-66|female": "below_20_events_weaker_half",
+      "incidence.60-66|male": "below_20_events_weaker_half",
+      "married_share.18-29|female": "stock_report_only_margin",
+      "married_share.18-29|male": "stock_report_only_margin",
+      "married_share.30-44|female": "stock_report_only_margin",
+      "married_share.30-44|male": "stock_report_only_margin",
+      "married_share.45-64|female": "stock_report_only_margin",
+      "married_share.45-64|male": "stock_report_only_margin",
+      "married_share.65+|female": "stock_report_only_margin",
+      "married_share.65+|male": "stock_report_only_margin",
+      "prevalence.20-29|female": "stock_report_only_margin",
+      "prevalence.20-29|male": "stock_report_only_margin",
+      "prevalence.30-39|female": "stock_report_only_margin",
+      "prevalence.30-39|male": "stock_report_only_margin",
+      "prevalence.40-49|female": "stock_report_only_margin",
+      "prevalence.40-49|male": "stock_report_only_margin",
+      "prevalence.50-59|female": "stock_report_only_margin",
+      "prevalence.50-59|male": "stock_report_only_margin",
+      "prevalence.60-66|female": "stock_report_only_margin",
+      "prevalence.60-66|male": "stock_report_only_margin",
+      "recovery.20-29|female": "below_20_events_weaker_half",
+      "recovery.20-29|male": "below_20_events_weaker_half",
+      "recovery.30-39|female": "below_20_events_weaker_half",
+      "recovery.30-39|male": "below_20_events_weaker_half",
+      "recovery.40-49|female": "below_20_events_weaker_half",
+      "recovery.40-49|male": "below_20_events_weaker_half",
+      "recovery.50-59|female": "tolerance_above_power_cap",
+      "recovery.50-59|male": "below_20_events_weaker_half",
+      "recovery.60-66|female": "below_20_events_weaker_half",
+      "recovery.60-66|male": "below_20_events_weaker_half",
+      "remarriage.18-29|female": "below_20_events_weaker_half",
+      "remarriage.18-29|male": "below_20_events_weaker_half",
+      "remarriage.30-44|female": "tolerance_above_power_cap",
+      "remarriage.30-44|male": "tolerance_above_power_cap",
+      "remarriage.45-64|female": "below_20_events_weaker_half",
+      "remarriage.45-64|male": "below_20_events_weaker_half",
+      "remarriage.65+|female": "undefined_on_some_seed",
+      "remarriage.65+|male": "undefined_on_some_seed",
+      "widowhood.18-29|female": "undefined_on_some_seed",
+      "widowhood.18-29|male": "undefined_on_some_seed",
+      "widowhood.30-44|female": "below_20_events_weaker_half",
+      "widowhood.30-44|male": "below_20_events_weaker_half",
+      "widowhood.45-64|female": "below_20_events_weaker_half",
+      "widowhood.45-64|male": "below_20_events_weaker_half",
+      "widowhood.65+|female": "tolerance_above_power_cap",
+      "widowhood.65+|male": "below_20_events_weaker_half"
+    },
+    "n_gated": 17,
+    "n_report_only": 88,
+    "by_family_gated": {
+      "earnings": [
+        "earn_autocorr_lag1",
+        "earn_autocorr_lag2",
+        "earn_dlog_mean.older",
+        "earn_dlog_mean.prime",
+        "earn_dlog_sd.older",
+        "earn_dlog_sd.prime",
+        "earn_mob_h1_diag",
+        "earn_mob_h2_diag",
+        "earn_p10.older",
+        "earn_p10.prime",
+        "earn_p50.older",
+        "earn_p50.prime",
+        "earn_p90.older",
+        "earn_p90.prime",
+        "earn_zero_rate.older",
+        "earn_zero_rate.prime"
+      ],
+      "marital": [
+        "first_marriage.18-29|female"
+      ]
+    }
+  },
+  "tolerances": {
+    "earn_autocorr_lag1": 0.059,
+    "earn_autocorr_lag2": 0.087,
+    "earn_dlog_mean.older": 0.047,
+    "earn_dlog_mean.prime": 0.043,
+    "earn_dlog_sd.older": 0.269,
+    "earn_dlog_sd.prime": 0.136,
+    "earn_mob_h1_diag": 0.052,
+    "earn_mob_h2_diag": 0.086,
+    "earn_p10.older": 0.281,
+    "earn_p10.prime": 0.221,
+    "earn_p50.older": 0.127,
+    "earn_p50.prime": 0.092,
+    "earn_p90.older": 0.15,
+    "earn_p90.prime": 0.132,
+    "earn_zero_rate.older": 0.163,
+    "earn_zero_rate.prime": 0.219,
+    "first_marriage.18-29|female": 0.356
+  },
+  "tolerances_all_cells": {
+    "death.35-44|female": 2.11,
+    "death.55-64|female": 1.399,
+    "death.55-64|male": 1.106,
+    "death.45-54|female": 2.71,
+    "death.65-74|female": 1.164,
+    "death.75-84|male": 1.143,
+    "death.85+|male": 0.714,
+    "death.25-34|female": 3.752,
+    "death.45-54|male": 1.988,
+    "death.65-74|male": 0.762,
+    "death.85+|female": 0.621,
+    "death.35-44|male": 4.299,
+    "death.75-84|female": 1.018,
+    "death.25-34|male": 2.924,
+    "widowhood.18-29|female": 1.56,
+    "widowhood.65+|female": 0.64,
+    "first_marriage.45-64|male": 1.603,
+    "remarriage.45-64|male": 1.005,
+    "divorce.18-29|female": 0.995,
+    "widowhood.65+|male": 0.969,
+    "widowhood.18-29|male": 0.0,
+    "remarriage.18-29|female": 1.453,
+    "first_marriage.65+|male": 2.086,
+    "remarriage.30-44|female": 0.611,
+    "remarriage.45-64|female": 0.913,
+    "remarriage.65+|female": 3.048,
+    "first_marriage.18-29|male": 0.433,
+    "first_marriage.65+|female": 1.109,
+    "remarriage.18-29|male": 2.093,
+    "remarriage.65+|male": 3.159,
+    "divorce.45-64|male": 0.959,
+    "widowhood.45-64|female": 0.837,
+    "first_marriage.30-44|male": 0.438,
+    "divorce.65+|female": 4.995,
+    "divorce.18-29|male": 1.156,
+    "first_marriage.30-44|female": 0.485,
+    "divorce.45-64|female": 0.848,
+    "remarriage.30-44|male": 0.779,
+    "widowhood.30-44|male": 4.588,
+    "first_marriage.45-64|female": 1.663,
+    "divorce.30-44|female": 0.489,
+    "widowhood.30-44|female": 2.695,
+    "divorce.65+|male": 3.976,
+    "divorce.30-44|male": 0.722,
+    "widowhood.45-64|male": 1.833,
+    "first_marriage.18-29|female": 0.356,
+    "recovery.20-29|male": 1.32,
+    "recovery.30-39|female": 0.784,
+    "recovery.40-49|male": 1.227,
+    "incidence.50-59|male": 1.15,
+    "recovery.60-66|male": 0.626,
+    "incidence.20-29|male": 1.955,
+    "incidence.60-66|male": 1.605,
+    "recovery.40-49|female": 1.218,
+    "incidence.60-66|female": 1.178,
+    "incidence.40-49|female": 1.209,
+    "recovery.30-39|male": 1.259,
+    "incidence.40-49|male": 1.286,
+    "recovery.50-59|male": 0.992,
+    "recovery.60-66|female": 0.857,
+    "recovery.20-29|female": 1.059,
+    "incidence.20-29|female": 1.915,
+    "recovery.50-59|female": 0.681,
+    "incidence.30-39|female": 1.26,
+    "incidence.50-59|female": 0.702,
+    "incidence.30-39|male": 1.451,
+    "earn_mob_h2_diag": 0.086,
+    "earn_autocorr_lag2": 0.087,
+    "earn_dlog_skew.prime": 1.765,
+    "earn_dlog_sd.prime": 0.136,
+    "earn_mob_h1_diag": 0.052,
+    "earn_p10.older": 0.281,
+    "earn_dlog_skew.older": 2.224,
+    "earn_dlog_kurt.prime": 12.859,
+    "earn_autocorr_lag5": 0.0,
+    "earn_autocorr_lag1": 0.059,
+    "earn_dlog_mean.older": 0.047,
+    "earn_zero_rate.prime": 0.219,
+    "earn_p10.prime": 0.221,
+    "earn_p90.older": 0.15,
+    "earn_p50.prime": 0.092,
+    "earn_zero_rate.older": 0.163,
+    "earn_p90.prime": 0.132,
+    "earn_dlog_kurt.older": 12.698,
+    "earn_dlog_mean.prime": 0.043,
+    "earn_p50.older": 0.127,
+    "earn_dlog_sd.older": 0.269,
+    "prevalence.60-66|female": 0.965,
+    "prevalence.60-66|male": 1.254,
+    "prevalence.50-59|female": 0.867,
+    "prevalence.20-29|male": 1.847,
+    "prevalence.20-29|female": 2.558,
+    "prevalence.50-59|male": 0.967,
+    "prevalence.30-39|male": 1.329,
+    "prevalence.30-39|female": 1.706,
+    "prevalence.40-49|male": 1.012,
+    "prevalence.40-49|female": 1.316,
+    "married_share.18-29|female": 0.407,
+    "married_share.45-64|female": 0.118,
+    "married_share.65+|male": 0.144,
+    "married_share.65+|female": 0.266,
+    "married_share.18-29|male": 0.476,
+    "married_share.30-44|female": 0.141,
+    "married_share.45-64|male": 0.119,
+    "married_share.30-44|male": 0.176
+  },
+  "faithful_candidate_oc": {
+    "combined": {
+      "method": "Independence-approx normal OC on the DRAW-NOISE-FREE half-normal basis: a faithful candidate's per-cell score ~ half-normal(realized_sigma); cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the gated family-A cells; gate = P(>=4 of 5) = p^5 + 5 p^4 (1-p). The K=20-draw mean estimator shares this basis (sec. 4.7).",
+      "n_gated_cells": 17,
+      "p_seed_pass": 0.8553,
+      "p_gate_pass_4_of_5": 0.8449,
+      "per_cell": {
+        "earn_autocorr_lag1": {
+          "tolerance": 0.059,
+          "realized_sigma": 0.022383986074147166,
+          "cell_pass_prob": 0.991606
+        },
+        "earn_autocorr_lag2": {
+          "tolerance": 0.087,
+          "realized_sigma": 0.03334594672318046,
+          "cell_pass_prob": 0.99092
+        },
+        "earn_dlog_mean.older": {
+          "tolerance": 0.047,
+          "realized_sigma": 0.01831221883706231,
+          "cell_pass_prob": 0.98973
+        },
+        "earn_dlog_mean.prime": {
+          "tolerance": 0.043,
+          "realized_sigma": 0.01719770740956743,
+          "cell_pass_prob": 0.987592
+        },
+        "earn_dlog_sd.older": {
+          "tolerance": 0.269,
+          "realized_sigma": 0.10262053317137929,
+          "cell_pass_prob": 0.991241
+        },
+        "earn_dlog_sd.prime": {
+          "tolerance": 0.136,
+          "realized_sigma": 0.051505868663085264,
+          "cell_pass_prob": 0.991721
+        },
+        "earn_mob_h1_diag": {
+          "tolerance": 0.052,
+          "realized_sigma": 0.021005157852395085,
+          "cell_pass_prob": 0.986698
+        },
+        "earn_mob_h2_diag": {
+          "tolerance": 0.086,
+          "realized_sigma": 0.03338342385488944,
+          "cell_pass_prob": 0.990009
+        },
+        "earn_p10.older": {
+          "tolerance": 0.281,
+          "realized_sigma": 0.09379754524950014,
+          "cell_pass_prob": 0.997263
+        },
+        "earn_p10.prime": {
+          "tolerance": 0.221,
+          "realized_sigma": 0.08801783761176159,
+          "cell_pass_prob": 0.987956
+        },
+        "earn_p50.older": {
+          "tolerance": 0.127,
+          "realized_sigma": 0.049119515138073555,
+          "cell_pass_prob": 0.990277
+        },
+        "earn_p50.prime": {
+          "tolerance": 0.092,
+          "realized_sigma": 0.03507699187236266,
+          "cell_pass_prob": 0.991279
+        },
+        "earn_p90.older": {
+          "tolerance": 0.15,
+          "realized_sigma": 0.05371988943583447,
+          "cell_pass_prob": 0.994766
+        },
+        "earn_p90.prime": {
+          "tolerance": 0.132,
+          "realized_sigma": 0.048982628891639644,
+          "cell_pass_prob": 0.992958
+        },
+        "earn_zero_rate.older": {
+          "tolerance": 0.163,
+          "realized_sigma": 0.06456378513858756,
+          "cell_pass_prob": 0.988418
+        },
+        "earn_zero_rate.prime": {
+          "tolerance": 0.219,
+          "realized_sigma": 0.08439809733849532,
+          "cell_pass_prob": 0.990537
+        },
+        "first_marriage.18-29|female": {
+          "tolerance": 0.356,
+          "realized_sigma": 0.13521039283588324,
+          "cell_pass_prob": 0.991535
+        }
+      }
+    },
+    "family_a_flows": {
+      "method": "Independence-approx normal OC on the DRAW-NOISE-FREE half-normal basis: a faithful candidate's per-cell score ~ half-normal(realized_sigma); cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the gated family-A cells; gate = P(>=4 of 5) = p^5 + 5 p^4 (1-p). The K=20-draw mean estimator shares this basis (sec. 4.7).",
+      "n_gated_cells": 1,
+      "p_seed_pass": 0.9915,
+      "p_gate_pass_4_of_5": 0.9993,
+      "per_cell": {
+        "first_marriage.18-29|female": {
+          "tolerance": 0.356,
+          "realized_sigma": 0.13521039283588324,
+          "cell_pass_prob": 0.991535
+        }
+      }
+    },
+    "earnings_subfamily": {
+      "method": "Independence-approx normal OC on the DRAW-NOISE-FREE half-normal basis: a faithful candidate's per-cell score ~ half-normal(realized_sigma); cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the gated family-A cells; gate = P(>=4 of 5) = p^5 + 5 p^4 (1-p). The K=20-draw mean estimator shares this basis (sec. 4.7).",
+      "n_gated_cells": 16,
+      "p_seed_pass": 0.8626,
+      "p_gate_pass_4_of_5": 0.858,
+      "per_cell": {
+        "earn_autocorr_lag1": {
+          "tolerance": 0.059,
+          "realized_sigma": 0.022383986074147166,
+          "cell_pass_prob": 0.991606
+        },
+        "earn_autocorr_lag2": {
+          "tolerance": 0.087,
+          "realized_sigma": 0.03334594672318046,
+          "cell_pass_prob": 0.99092
+        },
+        "earn_dlog_mean.older": {
+          "tolerance": 0.047,
+          "realized_sigma": 0.01831221883706231,
+          "cell_pass_prob": 0.98973
+        },
+        "earn_dlog_mean.prime": {
+          "tolerance": 0.043,
+          "realized_sigma": 0.01719770740956743,
+          "cell_pass_prob": 0.987592
+        },
+        "earn_dlog_sd.older": {
+          "tolerance": 0.269,
+          "realized_sigma": 0.10262053317137929,
+          "cell_pass_prob": 0.991241
+        },
+        "earn_dlog_sd.prime": {
+          "tolerance": 0.136,
+          "realized_sigma": 0.051505868663085264,
+          "cell_pass_prob": 0.991721
+        },
+        "earn_mob_h1_diag": {
+          "tolerance": 0.052,
+          "realized_sigma": 0.021005157852395085,
+          "cell_pass_prob": 0.986698
+        },
+        "earn_mob_h2_diag": {
+          "tolerance": 0.086,
+          "realized_sigma": 0.03338342385488944,
+          "cell_pass_prob": 0.990009
+        },
+        "earn_p10.older": {
+          "tolerance": 0.281,
+          "realized_sigma": 0.09379754524950014,
+          "cell_pass_prob": 0.997263
+        },
+        "earn_p10.prime": {
+          "tolerance": 0.221,
+          "realized_sigma": 0.08801783761176159,
+          "cell_pass_prob": 0.987956
+        },
+        "earn_p50.older": {
+          "tolerance": 0.127,
+          "realized_sigma": 0.049119515138073555,
+          "cell_pass_prob": 0.990277
+        },
+        "earn_p50.prime": {
+          "tolerance": 0.092,
+          "realized_sigma": 0.03507699187236266,
+          "cell_pass_prob": 0.991279
+        },
+        "earn_p90.older": {
+          "tolerance": 0.15,
+          "realized_sigma": 0.05371988943583447,
+          "cell_pass_prob": 0.994766
+        },
+        "earn_p90.prime": {
+          "tolerance": 0.132,
+          "realized_sigma": 0.048982628891639644,
+          "cell_pass_prob": 0.992958
+        },
+        "earn_zero_rate.older": {
+          "tolerance": 0.163,
+          "realized_sigma": 0.06456378513858756,
+          "cell_pass_prob": 0.988418
+        },
+        "earn_zero_rate.prime": {
+          "tolerance": 0.219,
+          "realized_sigma": 0.08439809733849532,
+          "cell_pass_prob": 0.990537
+        }
+      }
+    },
+    "p_seed_pass": 0.8553,
+    "p_gate_pass_4_of_5": 0.8449
+  },
+  "oc_before_lock": {
+    "weak_power_p_gate_floor": 0.9,
+    "weak_power_floor_source": "bottom of the lived precedent p_gate band (gate_2a 0.9685 / 2b 0.9678 / 2c 0.988 / m4 0.9689 / w1 0.9481-0.9623), rounded down to 0.90.",
+    "min_gated_flow_cells": 4,
+    "n_gated_cells": 17,
+    "n_gated_flow_cells": 1,
+    "n_gated_earnings_cells": 16,
+    "n_gated_tolerances_at_cap": 0,
+    "p_gate_combined": 0.8449,
+    "p_gate_flows": 0.9993,
+    "p_gate_earnings": 0.858,
+    "clears_lower_bound_not_unpassable": false,
+    "clears_flow_surface_power": false,
+    "clears_not_all_tolerances_capped": true,
+    "clears_weak_power_threshold": false,
+    "ceremony_may_proceed": false,
+    "interpretation": "Both directions (sec. 4.9, sec. 9). Near-unpassable: the combined faithful p_gate < the named floor. Near-vacuous: fewer than the minimum gated FLOW cells (the mortality / marital / disability primary that certifies the dynamics-drift claim per sec. 4.6 -- earnings-moment cells cannot certify the flow claim), OR every gated tolerance pinned at its power cap. If ANY fails the ceremony PAUSES for surface redesign rather than locking a near-vacuous gate.",
+    "pause_finding": "The 8-year biennial holdout at age-band x sex granularity yields ~0.1 half-split log-ratio noise per flow cell, so at the design-pinned k=3 most flow tolerances land just above the ln(1.5) cap and demote on power; the post-demotion FLOW surface supports too few gated cells to certify the dynamics-drift claim. The earnings moments gate cleanly (large N), but cannot stand in for the flows. RECOMMENDATION for the surface redesign the pause triggers: coarsen the sparse marital / mortality strata (e.g. sex-pool the low-frequency transitions or widen the oldest bands), and/or extend the flow event window, then rebuild the floor -- not a threshold widening."
+  },
+  "split_width_diagnostic": {
+    "note": "Per household-split family-A cell, realized_sigma under the HOUSEHOLD-disjoint split (the design unit) over the PERSON-disjoint split. Ratio > 1 is the expected mild inflation from positive within-household correlation (fewer effective independent units); a ratio far from 1 would flag a biasing household-ID rule.",
+    "n_cells": 45,
+    "mean_household_over_person": 1.0034,
+    "median_household_over_person": 0.9902,
+    "min": 0.7964,
+    "max": 1.257,
+    "per_cell": {
+      "death.25-34|female": {
+        "household_sigma": 1.405995,
+        "person_sigma": 1.652329,
+        "household_over_person": 0.8509
+      },
+      "death.25-34|male": {
+        "household_sigma": 1.036613,
+        "person_sigma": 1.16343,
+        "household_over_person": 0.891
+      },
+      "death.35-44|female": {
+        "household_sigma": 0.787803,
+        "person_sigma": 0.752954,
+        "household_over_person": 1.0463
+      },
+      "death.35-44|male": {
+        "household_sigma": 1.516523,
+        "person_sigma": 1.344822,
+        "household_over_person": 1.1277
+      },
+      "death.45-54|female": {
+        "household_sigma": 1.009965,
+        "person_sigma": 0.871699,
+        "household_over_person": 1.1586
+      },
+      "death.45-54|male": {
+        "household_sigma": 0.751161,
+        "person_sigma": 0.690672,
+        "household_over_person": 1.0876
+      },
+      "death.55-64|female": {
+        "household_sigma": 0.521964,
+        "person_sigma": 0.532361,
+        "household_over_person": 0.9805
+      },
+      "death.55-64|male": {
+        "household_sigma": 0.428041,
+        "person_sigma": 0.470544,
+        "household_over_person": 0.9097
+      },
+      "death.65-74|female": {
+        "household_sigma": 0.437826,
+        "person_sigma": 0.48424,
+        "household_over_person": 0.9041
+      },
+      "death.65-74|male": {
+        "household_sigma": 0.281039,
+        "person_sigma": 0.299857,
+        "household_over_person": 0.9372
+      },
+      "death.75-84|female": {
+        "household_sigma": 0.394469,
+        "person_sigma": 0.408986,
+        "household_over_person": 0.9645
+      },
+      "death.75-84|male": {
+        "household_sigma": 0.429029,
+        "person_sigma": 0.341318,
+        "household_over_person": 1.257
+      },
+      "death.85+|female": {
+        "household_sigma": 0.245031,
+        "person_sigma": 0.247446,
+        "household_over_person": 0.9902
+      },
+      "death.85+|male": {
+        "household_sigma": 0.275228,
+        "person_sigma": 0.335537,
+        "household_over_person": 0.8203
+      },
+      "divorce.18-29|female": {
+        "household_sigma": 0.384002,
+        "person_sigma": 0.381283,
+        "household_over_person": 1.0071
+      },
+      "divorce.18-29|male": {
+        "household_sigma": 0.455422,
+        "person_sigma": 0.571884,
+        "household_over_person": 0.7964
+      },
+      "divorce.30-44|female": {
+        "household_sigma": 0.190234,
+        "person_sigma": 0.18787,
+        "household_over_person": 1.0126
+      },
+      "divorce.30-44|male": {
+        "household_sigma": 0.276403,
+        "person_sigma": 0.245656,
+        "household_over_person": 1.1252
+      },
+      "divorce.45-64|female": {
+        "household_sigma": 0.313427,
+        "person_sigma": 0.335872,
+        "household_over_person": 0.9332
+      },
+      "divorce.45-64|male": {
+        "household_sigma": 0.358185,
+        "person_sigma": 0.309461,
+        "household_over_person": 1.1574
+      },
+      "divorce.65+|female": {
+        "household_sigma": 1.782706,
+        "person_sigma": 1.763037,
+        "household_over_person": 1.0112
+      },
+      "divorce.65+|male": {
+        "household_sigma": 1.406536,
+        "person_sigma": 1.317538,
+        "household_over_person": 1.0675
+      },
+      "first_marriage.18-29|female": {
+        "household_sigma": 0.13521,
+        "person_sigma": 0.137793,
+        "household_over_person": 0.9813
+      },
+      "first_marriage.18-29|male": {
+        "household_sigma": 0.158378,
+        "person_sigma": 0.172489,
+        "household_over_person": 0.9182
+      },
+      "first_marriage.30-44|female": {
+        "household_sigma": 0.177524,
+        "person_sigma": 0.187535,
+        "household_over_person": 0.9466
+      },
+      "first_marriage.30-44|male": {
+        "household_sigma": 0.165474,
+        "person_sigma": 0.182338,
+        "household_over_person": 0.9075
+      },
+      "first_marriage.45-64|female": {
+        "household_sigma": 0.616631,
+        "person_sigma": 0.539586,
+        "household_over_person": 1.1428
+      },
+      "first_marriage.45-64|male": {
+        "household_sigma": 0.617478,
+        "person_sigma": 0.563004,
+        "household_over_person": 1.0968
+      },
+      "first_marriage.65+|female": {
+        "household_sigma": 0.425858,
+        "person_sigma": 0.347591,
+        "household_over_person": 1.2252
+      },
+      "first_marriage.65+|male": {
+        "household_sigma": 0.880358,
+        "person_sigma": 0.846807,
+        "household_over_person": 1.0396
+      },
+      "remarriage.18-29|female": {
+        "household_sigma": 0.566244,
+        "person_sigma": 0.509083,
+        "household_over_person": 1.1123
+      },
+      "remarriage.18-29|male": {
+        "household_sigma": 0.78943,
+        "person_sigma": 0.813171,
+        "household_over_person": 0.9708
+      },
+      "remarriage.30-44|female": {
+        "household_sigma": 0.23973,
+        "person_sigma": 0.245174,
+        "household_over_person": 0.9778
+      },
+      "remarriage.30-44|male": {
+        "household_sigma": 0.297212,
+        "person_sigma": 0.267542,
+        "household_over_person": 1.1109
+      },
+      "remarriage.45-64|female": {
+        "household_sigma": 0.345686,
+        "person_sigma": 0.31738,
+        "household_over_person": 1.0892
+      },
+      "remarriage.45-64|male": {
+        "household_sigma": 0.3841,
+        "person_sigma": 0.355889,
+        "household_over_person": 1.0793
+      },
+      "remarriage.65+|female": {
+        "household_sigma": 1.196768,
+        "person_sigma": 1.388347,
+        "household_over_person": 0.862
+      },
+      "remarriage.65+|male": {
+        "household_sigma": 1.173585,
+        "person_sigma": 1.34531,
+        "household_over_person": 0.8724
+      },
+      "widowhood.18-29|female": {
+        "household_sigma": 1.256221,
+        "person_sigma": 1.228051,
+        "household_over_person": 1.0229
+      },
+      "widowhood.18-29|male": {
+        "household_sigma": 0.0,
+        "person_sigma": 0.0,
+        "household_over_person": null
+      },
+      "widowhood.30-44|female": {
+        "household_sigma": 0.995452,
+        "person_sigma": 1.129362,
+        "household_over_person": 0.8814
+      },
+      "widowhood.30-44|male": {
+        "household_sigma": 1.657607,
+        "person_sigma": 1.685547,
+        "household_over_person": 0.9834
+      },
+      "widowhood.45-64|female": {
+        "household_sigma": 0.333261,
+        "person_sigma": 0.401641,
+        "household_over_person": 0.8297
+      },
+      "widowhood.45-64|male": {
+        "household_sigma": 0.655461,
+        "person_sigma": 0.613814,
+        "household_over_person": 1.0678
+      },
+      "widowhood.65+|female": {
+        "household_sigma": 0.246023,
+        "person_sigma": 0.238648,
+        "household_over_person": 1.0309
+      },
+      "widowhood.65+|male": {
+        "household_sigma": 0.382445,
+        "person_sigma": 0.395623,
+        "household_over_person": 0.9667
+      }
+    }
+  },
+  "shock_window_diagnostics": {
+    "machine_reason": "exogenous_shock_outside_model_class",
+    "note": "The 2020-2022 COVID / inflation shock is outside the engine's model class (no macro / epidemic channel) and hit mortality (2020-21 excess deaths) and marital rates (2020 marriage collapse) at least as hard as earnings (sec. 4.1). These cells are a first-class PUBLISHED diagnostic -- how far a mechanical engine misses a pandemic, quantified against held-out truth -- but are PARTITIONED OUT of every gated / report-only-margin set above. Dual axis: earnings reference years [2020, 2022] (2021 unobserved), flow event years [2020, 2021].",
+    "reference": {
+      "death.25-34|female": {
+        "rate": 0.0004354885200678649,
+        "n_events": 3,
+        "n_at_risk": 4042
+      },
+      "death.25-34|male": {
+        "rate": 0.003017584746154227,
+        "n_events": 9,
+        "n_at_risk": 3535
+      },
+      "death.35-44|female": {
+        "rate": 0.0005812933393607004,
+        "n_events": 1,
+        "n_at_risk": 4015
+      },
+      "death.35-44|male": {
+        "rate": 0.0005129531210164211,
+        "n_events": 5,
+        "n_at_risk": 3474
+      },
+      "death.45-54|female": {
+        "rate": 0.0029579595806619725,
+        "n_events": 11,
+        "n_at_risk": 2429
+      },
+      "death.45-54|male": {
+        "rate": 0.006443667121156231,
+        "n_events": 11,
+        "n_at_risk": 2117
+      },
+      "death.55-64|female": {
+        "rate": 0.002648511998262792,
+        "n_events": 17,
+        "n_at_risk": 2695
+      },
+      "death.55-64|male": {
+        "rate": 0.00811366004093838,
+        "n_events": 25,
+        "n_at_risk": 2006
+      },
+      "death.65-74|female": {
+        "rate": 0.013275563928350777,
+        "n_events": 29,
+        "n_at_risk": 1996
+      },
+      "death.65-74|male": {
+        "rate": 0.019155593370055676,
+        "n_events": 28,
+        "n_at_risk": 1719
+      },
+      "death.75-84|female": {
+        "rate": 0.026249580803449673,
+        "n_events": 17,
+        "n_at_risk": 582
+      },
+      "death.75-84|male": {
+        "rate": 0.04929177099494022,
+        "n_events": 20,
+        "n_at_risk": 494
+      },
+      "death.85+|female": {
+        "rate": 0.13364322903628828,
+        "n_events": 31,
+        "n_at_risk": 270
+      },
+      "death.85+|male": {
+        "rate": 0.13086389810706398,
+        "n_events": 18,
+        "n_at_risk": 149
+      },
+      "first_marriage.18-29|female": {
+        "rate": 0.033355673905841904,
+        "n_events": 81,
+        "n_at_risk": 2745
+      },
+      "first_marriage.18-29|male": {
+        "rate": 0.022960200988693558,
+        "n_events": 58,
+        "n_at_risk": 2707
+      },
+      "first_marriage.30-44|female": {
+        "rate": 0.04816074301454799,
+        "n_events": 87,
+        "n_at_risk": 2143
+      },
+      "first_marriage.30-44|male": {
+        "rate": 0.0573205843444793,
+        "n_events": 84,
+        "n_at_risk": 1885
+      },
+      "first_marriage.45-64|female": {
+        "rate": 0.007641607929895981,
+        "n_events": 6,
+        "n_at_risk": 679
+      },
+      "first_marriage.45-64|male": {
+        "rate": 0.01672943066238717,
+        "n_events": 7,
+        "n_at_risk": 395
+      },
+      "first_marriage.65+|female": {
+        "rate": 0.002401034922422729,
+        "n_events": 1,
+        "n_at_risk": 181
+      },
+      "first_marriage.65+|male": {
+        "rate": 0.0,
+        "n_events": 0,
+        "n_at_risk": 108
+      },
+      "divorce.18-29|female": {
+        "rate": 0.009559643501467945,
+        "n_events": 11,
+        "n_at_risk": 546
+      },
+      "divorce.18-29|male": {
+        "rate": 0.01989115286955723,
+        "n_events": 5,
+        "n_at_risk": 376
+      },
+      "divorce.30-44|female": {
+        "rate": 0.0102813367855969,
+        "n_events": 52,
+        "n_at_risk": 3231
+      },
+      "divorce.30-44|male": {
+        "rate": 0.006713709833580391,
+        "n_events": 28,
+        "n_at_risk": 2875
+      },
+      "divorce.45-64|female": {
+        "rate": 0.009241756054482134,
+        "n_events": 30,
+        "n_at_risk": 2852
+      },
+      "divorce.45-64|male": {
+        "rate": 0.0066400140014246664,
+        "n_events": 17,
+        "n_at_risk": 2740
+      },
+      "divorce.65+|female": {
+        "rate": 0.0,
+        "n_events": 0,
+        "n_at_risk": 1390
+      },
+      "divorce.65+|male": {
+        "rate": 0.0013702667701770358,
+        "n_events": 3,
+        "n_at_risk": 1706
+      },
+      "widowhood.18-29|female": {
+        "rate": 0.0032612013598718632,
+        "n_events": 1,
+        "n_at_risk": 546
+      },
+      "widowhood.18-29|male": {
+        "rate": 0.0001788413148044357,
+        "n_events": 2,
+        "n_at_risk": 376
+      },
+      "widowhood.30-44|female": {
+        "rate": 0.0017236665022904274,
+        "n_events": 7,
+        "n_at_risk": 3231
+      },
+      "widowhood.30-44|male": {
+        "rate": 0.00033584622027121863,
+        "n_events": 3,
+        "n_at_risk": 2875
+      },
+      "widowhood.45-64|female": {
+        "rate": 0.0065236802590701625,
+        "n_events": 21,
+        "n_at_risk": 2852
+      },
+      "widowhood.45-64|male": {
+        "rate": 0.0017111951963358816,
+        "n_events": 3,
+        "n_at_risk": 2740
+      },
+      "widowhood.65+|female": {
+        "rate": 0.02460345435588252,
+        "n_events": 30,
+        "n_at_risk": 1390
+      },
+      "widowhood.65+|male": {
+        "rate": 0.01518092619342762,
+        "n_events": 18,
+        "n_at_risk": 1706
+      },
+      "remarriage.18-29|female": {
+        "rate": 0.19139186452770404,
+        "n_events": 9,
+        "n_at_risk": 45
+      },
+      "remarriage.18-29|male": {
+        "rate": 0.2857609156883439,
+        "n_events": 4,
+        "n_at_risk": 21
+      },
+      "remarriage.30-44|female": {
+        "rate": 0.056627718542536544,
+        "n_events": 33,
+        "n_at_risk": 541
+      },
+      "remarriage.30-44|male": {
+        "rate": 0.041970059823934924,
+        "n_events": 17,
+        "n_at_risk": 314
+      },
+      "remarriage.45-64|female": {
+        "rate": 0.008726083907188141,
+        "n_events": 9,
+        "n_at_risk": 1090
+      },
+      "remarriage.45-64|male": {
+        "rate": 0.02347482506952559,
+        "n_events": 16,
+        "n_at_risk": 530
+      },
+      "remarriage.65+|female": {
+        "rate": 0.0020023664414357293,
+        "n_events": 4,
+        "n_at_risk": 977
+      },
+      "remarriage.65+|male": {
+        "rate": 0.009463226482602215,
+        "n_events": 4,
+        "n_at_risk": 385
+      },
+      "incidence.20-29|female": {
+        "rate": 0.003750777118734108,
+        "n_events": 4,
+        "n_at_risk": 1397
+      },
+      "incidence.20-29|male": {
+        "rate": 0.010876134884745392,
+        "n_events": 16,
+        "n_at_risk": 1212
+      },
+      "incidence.30-39|female": {
+        "rate": 0.00792286650577747,
+        "n_events": 21,
+        "n_at_risk": 1970
+      },
+      "incidence.30-39|male": {
+        "rate": 0.011761648455912163,
+        "n_events": 17,
+        "n_at_risk": 1599
+      },
+      "incidence.40-49|female": {
+        "rate": 0.030030147184362987,
+        "n_events": 44,
+        "n_at_risk": 1212
+      },
+      "incidence.40-49|male": {
+        "rate": 0.0184078264105956,
+        "n_events": 23,
+        "n_at_risk": 1101
+      },
+      "incidence.50-59|female": {
+        "rate": 0.03828781664516651,
+        "n_events": 42,
+        "n_at_risk": 1056
+      },
+      "incidence.50-59|male": {
+        "rate": 0.017699403970645938,
+        "n_events": 20,
+        "n_at_risk": 782
+      },
+      "incidence.60-66|female": {
+        "rate": 0.025000031742471215,
+        "n_events": 18,
+        "n_at_risk": 760
+      },
+      "incidence.60-66|male": {
+        "rate": 0.02417384778152301,
+        "n_events": 21,
+        "n_at_risk": 638
+      },
+      "recovery.20-29|female": {
+        "rate": 0.3403917918487301,
+        "n_events": 7,
+        "n_at_risk": 15
+      },
+      "recovery.20-29|male": {
+        "rate": 0.332122341459491,
+        "n_events": 11,
+        "n_at_risk": 29
+      },
+      "recovery.30-39|female": {
+        "rate": 0.6143560979884849,
+        "n_events": 16,
+        "n_at_risk": 30
+      },
+      "recovery.30-39|male": {
+        "rate": 0.18518325089094975,
+        "n_events": 16,
+        "n_at_risk": 39
+      },
+      "recovery.40-49|female": {
+        "rate": 0.24976065485815263,
+        "n_events": 18,
+        "n_at_risk": 61
+      },
+      "recovery.40-49|male": {
+        "rate": 0.35194989154306894,
+        "n_events": 21,
+        "n_at_risk": 50
+      },
+      "recovery.50-59|female": {
+        "rate": 0.24332429044064002,
+        "n_events": 31,
+        "n_at_risk": 108
+      },
+      "recovery.50-59|male": {
+        "rate": 0.2546443723400337,
+        "n_events": 17,
+        "n_at_risk": 67
+      },
+      "recovery.60-66|female": {
+        "rate": 0.4579875337280717,
+        "n_events": 26,
+        "n_at_risk": 62
+      },
+      "recovery.60-66|male": {
+        "rate": 0.38059610285404566,
+        "n_events": 23,
+        "n_at_risk": 53
+      },
+      "earn_p10.prime": {
+        "value": 15000.0,
+        "n_obs": 10395,
+        "metric": "log_ratio"
+      },
+      "earn_p50.prime": {
+        "value": 51250.0,
+        "n_obs": 10395,
+        "metric": "log_ratio"
+      },
+      "earn_p90.prime": {
+        "value": 131921.0,
+        "n_obs": 10395,
+        "metric": "log_ratio"
+      },
+      "earn_zero_rate.prime": {
+        "value": 0.1411111003067744,
+        "n_obs": 12331,
+        "metric": "log_ratio"
+      },
+      "earn_dlog_sd.prime": {
+        "value": 0.7557940027550395,
+        "n_obs": 19294,
+        "metric": "log_ratio"
+      },
+      "earn_dlog_mean.prime": {
+        "value": 0.1275904531658469,
+        "n_obs": 19294,
+        "metric": "abs_gap_log"
+      },
+      "earn_dlog_skew.prime": {
+        "value": 0.1074623282017402,
+        "n_obs": 19294,
+        "metric": "report_only_shape"
+      },
+      "earn_dlog_kurt.prime": {
+        "value": 12.690920193590204,
+        "n_obs": 19294,
+        "metric": "report_only_shape"
+      },
+      "earn_p10.older": {
+        "value": 14800.0,
+        "n_obs": 6220,
+        "metric": "log_ratio"
+      },
+      "earn_p50.older": {
+        "value": 56000.0,
+        "n_obs": 6220,
+        "metric": "log_ratio"
+      },
+      "earn_p90.older": {
+        "value": 155000.0,
+        "n_obs": 6220,
+        "metric": "log_ratio"
+      },
+      "earn_zero_rate.older": {
+        "value": 0.24369807511037764,
+        "n_obs": 8399,
+        "metric": "log_ratio"
+      },
+      "earn_dlog_sd.older": {
+        "value": 0.7677147601032831,
+        "n_obs": 12927,
+        "metric": "log_ratio"
+      },
+      "earn_dlog_mean.older": {
+        "value": 0.03535406394943371,
+        "n_obs": 12927,
+        "metric": "abs_gap_log"
+      },
+      "earn_dlog_skew.older": {
+        "value": -0.8635017779722973,
+        "n_obs": 12927,
+        "metric": "report_only_shape"
+      },
+      "earn_dlog_kurt.older": {
+        "value": 16.448029895751294,
+        "n_obs": 12927,
+        "metric": "report_only_shape"
+      },
+      "earn_mob_h1_diag": {
+        "value": 0.5551494008313641,
+        "n_obs": 36,
+        "metric": "log_ratio"
+      },
+      "earn_mob_h2_diag": {
+        "value": 0.4960086463042385,
+        "n_obs": 36,
+        "metric": "log_ratio"
+      },
+      "earn_autocorr_lag1": {
+        "value": 0.6982072856813153,
+        "n_obs": 12979,
+        "metric": "abs_gap_corr"
+      },
+      "earn_autocorr_lag2": {
+        "value": 0.6357981167737742,
+        "n_obs": 12979,
+        "metric": "abs_gap_corr"
+      },
+      "earn_autocorr_lag5": {
+        "value": NaN,
+        "n_obs": 12979,
+        "metric": "report_only_horizon"
+      }
+    },
+    "floor": {
+      "death.35-44|female": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "death.55-64|female": {
+        "mean": 0.682945380833692,
+        "sd": 0.5896698781438912,
+        "realized_sigma": 0.9022887333843354,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "death.55-64|male": {
+        "mean": 0.5423774647786644,
+        "sd": 0.435007206891178,
+        "realized_sigma": 0.6952730286347915,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "death.45-54|female": {
+        "mean": 1.1578817744139625,
+        "sd": 0.9524758518667351,
+        "realized_sigma": 1.4992999872971684,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "death.65-74|female": {
+        "mean": 0.4174953485377922,
+        "sd": 0.2992269394615223,
+        "realized_sigma": 0.5136527303054098,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "death.75-84|male": {
+        "mean": 0.3859691330510772,
+        "sd": 0.32772635936330524,
+        "realized_sigma": 0.5063365859679967,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "death.85+|male": {
+        "mean": 0.4487527201436599,
+        "sd": 0.3613167294133872,
+        "realized_sigma": 0.5761326086851193,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "death.25-34|female": {
+        "mean": 1.2939342466028618,
+        "sd": 1.223107997185771,
+        "realized_sigma": 1.7805221164904141,
+        "n_defined_seeds": 74,
+        "min_events_weaker_half": 0
+      },
+      "death.45-54|male": {
+        "mean": 0.7357347327806636,
+        "sd": 0.5806526075012918,
+        "realized_sigma": 0.9372635955897806,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "death.65-74|male": {
+        "mean": 0.3456351940121411,
+        "sd": 0.33014645579781887,
+        "realized_sigma": 0.47797528138562934,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "death.85+|female": {
+        "mean": 0.35551273477913253,
+        "sd": 0.2615837029113086,
+        "realized_sigma": 0.4413789054983593,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "death.35-44|male": {
+        "mean": 1.0572445022464927,
+        "sd": 1.0324112283012645,
+        "realized_sigma": 1.4777140731051321,
+        "n_defined_seeds": 94,
+        "min_events_weaker_half": 0
+      },
+      "death.75-84|female": {
+        "mean": 0.4793953474844199,
+        "sd": 0.38450621437681287,
+        "realized_sigma": 0.6145444882871339,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "death.25-34|male": {
+        "mean": 0.9777039487283458,
+        "sd": 0.9219310564523567,
+        "realized_sigma": 1.3438236060623279,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "widowhood.18-29|female": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "widowhood.65+|female": {
+        "mean": 0.3809117513574,
+        "sd": 0.2966105282834896,
+        "realized_sigma": 0.48277486244705464,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 7
+      },
+      "first_marriage.45-64|male": {
+        "mean": 0.9270188104333598,
+        "sd": 0.7547254363598849,
+        "realized_sigma": 1.1953971554198628,
+        "n_defined_seeds": 99,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.45-64|male": {
+        "mean": 0.6122284382032339,
+        "sd": 0.508317502403247,
+        "realized_sigma": 0.79574515002873,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "divorce.18-29|female": {
+        "mean": 0.7222517869440445,
+        "sd": 0.6310391092755046,
+        "realized_sigma": 0.959092279803715,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "widowhood.65+|male": {
+        "mean": 0.4589241450953946,
+        "sd": 0.3893429344900013,
+        "realized_sigma": 0.601829952385908,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "widowhood.18-29|male": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.18-29|female": {
+        "mean": 0.7527611795011027,
+        "sd": 0.6666130080093108,
+        "realized_sigma": 1.0054960446521473,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "first_marriage.65+|male": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.30-44|female": {
+        "mean": 0.35092452474660546,
+        "sd": 0.2750500722819692,
+        "realized_sigma": 0.44587056903427413,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 11
+      },
+      "remarriage.45-64|female": {
+        "mean": 0.905626527718923,
+        "sd": 0.925203210422771,
+        "realized_sigma": 1.2946661300446674,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "remarriage.65+|female": {
+        "mean": 0.9960748733619275,
+        "sd": 0.6681923772149464,
+        "realized_sigma": 1.1994357866560181,
+        "n_defined_seeds": 85,
+        "min_events_weaker_half": 0
+      },
+      "first_marriage.18-29|male": {
+        "mean": 0.2669344382525807,
+        "sd": 0.19037593415035983,
+        "realized_sigma": 0.32786733693499104,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 20
+      },
+      "first_marriage.65+|female": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.18-29|male": {
+        "mean": 1.2626514683932721,
+        "sd": 1.1341091662331653,
+        "realized_sigma": 1.6972013232288536,
+        "n_defined_seeds": 86,
+        "min_events_weaker_half": 0
+      },
+      "remarriage.65+|male": {
+        "mean": 0.7334070865828177,
+        "sd": 0.5111194188515372,
+        "realized_sigma": 0.8939401629734676,
+        "n_defined_seeds": 84,
+        "min_events_weaker_half": 0
+      },
+      "divorce.45-64|male": {
+        "mean": 0.5822013602601167,
+        "sd": 0.3892708072103711,
+        "realized_sigma": 0.7003500447882788,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "widowhood.45-64|female": {
+        "mean": 0.5886134104488276,
+        "sd": 0.5788797204733858,
+        "realized_sigma": 0.8255710010262868,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "first_marriage.30-44|male": {
+        "mean": 0.2532303219713279,
+        "sd": 0.1857816119632821,
+        "realized_sigma": 0.31407069794773584,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 29
+      },
+      "divorce.65+|female": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 0
+      },
+      "divorce.18-29|male": {
+        "mean": 0.8910947297968322,
+        "sd": 0.6620485197690583,
+        "realized_sigma": 1.1101162371572135,
+        "n_defined_seeds": 90,
+        "min_events_weaker_half": 0
+      },
+      "first_marriage.30-44|female": {
+        "mean": 0.20089431385925038,
+        "sd": 0.15562155055139798,
+        "realized_sigma": 0.25411924826152055,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 30
+      },
+      "divorce.45-64|female": {
+        "mean": 0.39030401980859575,
+        "sd": 0.3089873031377861,
+        "realized_sigma": 0.49780556583781865,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "remarriage.30-44|male": {
+        "mean": 0.6095126287844779,
+        "sd": 0.49105250079437573,
+        "realized_sigma": 0.7827120819204052,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "widowhood.30-44|male": {
+        "mean": 0.9916286452748421,
+        "sd": 0.9143158003972198,
+        "realized_sigma": 1.3488145732403796,
+        "n_defined_seeds": 78,
+        "min_events_weaker_half": 0
+      },
+      "first_marriage.45-64|female": {
+        "mean": 1.663566244686753,
+        "sd": 0.6774505787389974,
+        "realized_sigma": 1.7962160051327314,
+        "n_defined_seeds": 95,
+        "min_events_weaker_half": 0
+      },
+      "divorce.30-44|female": {
+        "mean": 0.3179804869784118,
+        "sd": 0.26992332503347904,
+        "realized_sigma": 0.41709734055272646,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 12
+      },
+      "widowhood.30-44|female": {
+        "mean": 1.015522506864903,
+        "sd": 1.15401751412649,
+        "realized_sigma": 1.537219042576516,
+        "n_defined_seeds": 98,
+        "min_events_weaker_half": 0
+      },
+      "divorce.65+|male": {
+        "mean": 0.7114030984550356,
+        "sd": 0.9405548264494039,
+        "realized_sigma": 1.1792954464631387,
+        "n_defined_seeds": 77,
+        "min_events_weaker_half": 0
+      },
+      "divorce.30-44|male": {
+        "mean": 0.42183479061038925,
+        "sd": 0.357434565821597,
+        "realized_sigma": 0.5529051088689492,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6
+      },
+      "widowhood.45-64|male": {
+        "mean": 1.4559526395574565,
+        "sd": 1.4466443394255326,
+        "realized_sigma": 2.0524565606673044,
+        "n_defined_seeds": 81,
+        "min_events_weaker_half": 0
+      },
+      "first_marriage.18-29|female": {
+        "mean": 0.18404247784867642,
+        "sd": 0.14132185863545205,
+        "realized_sigma": 0.2320420250318016,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 29
+      },
+      "recovery.20-29|male": {
+        "mean": 0.7798803462324367,
+        "sd": 0.5602518157935455,
+        "realized_sigma": 0.9602580130046249,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "recovery.30-39|female": {
+        "mean": 0.35564360049238336,
+        "sd": 0.28650234850196354,
+        "realized_sigma": 0.45669023009949156,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2
+      },
+      "recovery.40-49|male": {
+        "mean": 0.48071446735644185,
+        "sd": 0.33927519656253574,
+        "realized_sigma": 0.5883825780292401,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "incidence.50-59|male": {
+        "mean": 0.5605372392545762,
+        "sd": 0.4223449281660711,
+        "realized_sigma": 0.7018384678391074,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "recovery.60-66|male": {
+        "mean": 0.419468865718671,
+        "sd": 0.33541413921694274,
+        "realized_sigma": 0.5370817201264172,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "incidence.20-29|male": {
+        "mean": 0.5821660729629495,
+        "sd": 0.4428696379990981,
+        "realized_sigma": 0.7314717033286758,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "incidence.60-66|male": {
+        "mean": 0.4536770309744253,
+        "sd": 0.37799097041887914,
+        "realized_sigma": 0.5905082744144874,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5
+      },
+      "recovery.40-49|female": {
+        "mean": 0.6956978247311202,
+        "sd": 0.6199582118842383,
+        "realized_sigma": 0.9318495843312452,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 1
+      },
+      "incidence.60-66|female": {
+        "mean": 0.5341956203228913,
+        "sd": 0.36332088375462485,
+        "realized_sigma": 0.6460394920934789,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "incidence.40-49|female": {
+        "mean": 0.36813871501337403,
+        "sd": 0.2893024510885339,
+        "realized_sigma": 0.46821151384553944,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 14
+      },
+      "recovery.30-39|male": {
+        "mean": 1.1279533568784428,
+        "sd": 0.6855216874920534,
+        "realized_sigma": 1.3199313464401474,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 3
+      },
+      "incidence.40-49|male": {
+        "mean": 0.4264423917095289,
+        "sd": 0.3613570609261881,
+        "realized_sigma": 0.5589562048391234,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "recovery.50-59|male": {
+        "mean": 0.42029021975231956,
+        "sd": 0.3467316018181126,
+        "realized_sigma": 0.5448547260681578,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "recovery.60-66|female": {
+        "mean": 0.3651304762913638,
+        "sd": 0.2601905243199914,
+        "realized_sigma": 0.44835184137312317,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6
+      },
+      "recovery.20-29|female": {
+        "mean": 1.326385126839032,
+        "sd": 0.9247912642851324,
+        "realized_sigma": 1.6169528092056022,
+        "n_defined_seeds": 96,
+        "min_events_weaker_half": 0
+      },
+      "incidence.20-29|female": {
+        "mean": 0.7038337584981519,
+        "sd": 0.5833936025711333,
+        "realized_sigma": 0.914182725237444,
+        "n_defined_seeds": 88,
+        "min_events_weaker_half": 0
+      },
+      "recovery.50-59|female": {
+        "mean": 0.44455728987842247,
+        "sd": 0.31373277787146375,
+        "realized_sigma": 0.5441134439572256,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 8
+      },
+      "incidence.30-39|female": {
+        "mean": 0.6685761306303766,
+        "sd": 0.5230883194087288,
+        "realized_sigma": 0.8488907069526292,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "incidence.50-59|female": {
+        "mean": 0.35399508604622254,
+        "sd": 0.2934626928131644,
+        "realized_sigma": 0.4598183043529544,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 15
+      },
+      "incidence.30-39|male": {
+        "mean": 0.5327082842340672,
+        "sd": 0.4269245620334245,
+        "realized_sigma": 0.6826731998248028,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4
+      },
+      "earn_mob_h2_diag": {
+        "mean": 0.026204496909842265,
+        "sd": 0.020395387872672165,
+        "realized_sigma": 0.03320613655297279,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 36
+      },
+      "earn_autocorr_lag2": {
+        "mean": 0.03278809709248378,
+        "sd": 0.023811998922527944,
+        "realized_sigma": 0.040522470354515845,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6342
+      },
+      "earn_dlog_skew.prime": {
+        "mean": 0.5675719442165184,
+        "sd": 0.40886024471171106,
+        "realized_sigma": 0.6995031176252461,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9323
+      },
+      "earn_dlog_sd.prime": {
+        "mean": 0.048361797668425,
+        "sd": 0.03631438131496483,
+        "realized_sigma": 0.060478076722150685,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9323
+      },
+      "earn_mob_h1_diag": {
+        "mean": 0.018618286032233786,
+        "sd": 0.012308587030735754,
+        "realized_sigma": 0.02231909248762745,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 36
+      },
+      "earn_p10.older": {
+        "mean": 0.09030767372236646,
+        "sd": 0.06262131947905183,
+        "realized_sigma": 0.10989497525566343,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2950
+      },
+      "earn_dlog_skew.older": {
+        "mean": 0.6617922049782444,
+        "sd": 0.5281050182033118,
+        "realized_sigma": 0.8466781164182093,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6183
+      },
+      "earn_dlog_kurt.prime": {
+        "mean": 4.968861740839954,
+        "sd": 1.9311972196434297,
+        "realized_sigma": 5.330957672008058,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9323
+      },
+      "earn_autocorr_lag5": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "realized_sigma": 0.0,
+        "n_defined_seeds": 0,
+        "min_events_weaker_half": 6342
+      },
+      "earn_autocorr_lag1": {
+        "mean": 0.01871507237536745,
+        "sd": 0.012707879123456382,
+        "realized_sigma": 0.022621762217643886,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6342
+      },
+      "earn_dlog_mean.older": {
+        "mean": 0.01931474714193706,
+        "sd": 0.014704024216417876,
+        "realized_sigma": 0.024274838522922643,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6183
+      },
+      "earn_zero_rate.prime": {
+        "mean": 0.05493643720060445,
+        "sd": 0.042567839566075,
+        "realized_sigma": 0.06949843953369786,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 5937
+      },
+      "earn_p10.prime": {
+        "mean": 0.0376365914826747,
+        "sd": 0.054160311710642145,
+        "realized_sigma": 0.06595341070049117,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4999
+      },
+      "earn_p90.older": {
+        "mean": 0.052762272963692236,
+        "sd": 0.03070034904935719,
+        "realized_sigma": 0.06104399135089002,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2950
+      },
+      "earn_p50.prime": {
+        "mean": 0.025941765230095965,
+        "sd": 0.013712271818184917,
+        "realized_sigma": 0.029342828453801182,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4999
+      },
+      "earn_zero_rate.older": {
+        "mean": 0.0481151340646118,
+        "sd": 0.0328767388858531,
+        "realized_sigma": 0.05827474655306647,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4025
+      },
+      "earn_p90.prime": {
+        "mean": 0.041566289217045096,
+        "sd": 0.02492211933891409,
+        "realized_sigma": 0.04846512593213924,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 4999
+      },
+      "earn_dlog_kurt.older": {
+        "mean": 4.806353057206374,
+        "sd": 3.180895043349736,
+        "realized_sigma": 5.763603298920215,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6183
+      },
+      "earn_dlog_mean.prime": {
+        "mean": 0.016380229415189056,
+        "sd": 0.011856406970346565,
+        "realized_sigma": 0.02022093721716942,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 9323
+      },
+      "earn_p50.older": {
+        "mean": 0.03351959515499496,
+        "sd": 0.025415823060845635,
+        "realized_sigma": 0.042065749978040023,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 2950
+      },
+      "earn_dlog_sd.older": {
+        "mean": 0.06509387300674355,
+        "sd": 0.05536288674698766,
+        "realized_sigma": 0.08545327104317212,
+        "n_defined_seeds": 100,
+        "min_events_weaker_half": 6183
+      }
+    },
+    "n_cells": 87
+  },
+  "report_reasons": [
+    "attrition_confounded_truth",
+    "below_20_events_weaker_half",
+    "dimensionless_shape_no_power_cap",
+    "horizon_exceeds_holdout_span",
+    "stock_report_only_margin",
+    "tolerance_above_power_cap",
+    "undefined_on_some_seed"
+  ],
+  "families": {
+    "mortality": [
+      "death.25-34|female",
+      "death.25-34|male",
+      "death.35-44|female",
+      "death.35-44|male",
+      "death.45-54|female",
+      "death.45-54|male",
+      "death.55-64|female",
+      "death.55-64|male",
+      "death.65-74|female",
+      "death.65-74|male",
+      "death.75-84|female",
+      "death.75-84|male",
+      "death.85+|female",
+      "death.85+|male"
+    ],
+    "marital": [
+      "divorce.18-29|female",
+      "divorce.18-29|male",
+      "divorce.30-44|female",
+      "divorce.30-44|male",
+      "divorce.45-64|female",
+      "divorce.45-64|male",
+      "divorce.65+|female",
+      "divorce.65+|male",
+      "first_marriage.18-29|female",
+      "first_marriage.18-29|male",
+      "first_marriage.30-44|female",
+      "first_marriage.30-44|male",
+      "first_marriage.45-64|female",
+      "first_marriage.45-64|male",
+      "first_marriage.65+|female",
+      "first_marriage.65+|male",
+      "remarriage.18-29|female",
+      "remarriage.18-29|male",
+      "remarriage.30-44|female",
+      "remarriage.30-44|male",
+      "remarriage.45-64|female",
+      "remarriage.45-64|male",
+      "remarriage.65+|female",
+      "remarriage.65+|male",
+      "widowhood.18-29|female",
+      "widowhood.18-29|male",
+      "widowhood.30-44|female",
+      "widowhood.30-44|male",
+      "widowhood.45-64|female",
+      "widowhood.45-64|male",
+      "widowhood.65+|female",
+      "widowhood.65+|male"
+    ],
+    "disability": [
+      "incidence.20-29|female",
+      "incidence.20-29|male",
+      "incidence.30-39|female",
+      "incidence.30-39|male",
+      "incidence.40-49|female",
+      "incidence.40-49|male",
+      "incidence.50-59|female",
+      "incidence.50-59|male",
+      "incidence.60-66|female",
+      "incidence.60-66|male",
+      "recovery.20-29|female",
+      "recovery.20-29|male",
+      "recovery.30-39|female",
+      "recovery.30-39|male",
+      "recovery.40-49|female",
+      "recovery.40-49|male",
+      "recovery.50-59|female",
+      "recovery.50-59|male",
+      "recovery.60-66|female",
+      "recovery.60-66|male"
+    ],
+    "earnings": [
+      "earn_autocorr_lag1",
+      "earn_autocorr_lag2",
+      "earn_autocorr_lag5",
+      "earn_dlog_kurt.older",
+      "earn_dlog_kurt.prime",
+      "earn_dlog_mean.older",
+      "earn_dlog_mean.prime",
+      "earn_dlog_sd.older",
+      "earn_dlog_sd.prime",
+      "earn_dlog_skew.older",
+      "earn_dlog_skew.prime",
+      "earn_mob_h1_diag",
+      "earn_mob_h2_diag",
+      "earn_p10.older",
+      "earn_p10.prime",
+      "earn_p50.older",
+      "earn_p50.prime",
+      "earn_p90.older",
+      "earn_p90.prime",
+      "earn_zero_rate.older",
+      "earn_zero_rate.prime"
+    ],
+    "disability_stock": [
+      "prevalence.20-29|female",
+      "prevalence.20-29|male",
+      "prevalence.30-39|female",
+      "prevalence.30-39|male",
+      "prevalence.40-49|female",
+      "prevalence.40-49|male",
+      "prevalence.50-59|female",
+      "prevalence.50-59|male",
+      "prevalence.60-66|female",
+      "prevalence.60-66|male"
+    ],
+    "marital_stock": [
+      "married_share.18-29|female",
+      "married_share.18-29|male",
+      "married_share.30-44|female",
+      "married_share.30-44|male",
+      "married_share.45-64|female",
+      "married_share.45-64|male",
+      "married_share.65+|female",
+      "married_share.65+|male"
+    ]
+  },
+  "per_seed": {
+    "mortality": [
+      {
+        "seed": 0,
+        "cells": {
+          "death.35-44|female": {
+            "score": 0.969465,
+            "n_events_a": 9,
+            "n_events_b": 6
+          },
+          "death.55-64|female": {
+            "score": 0.180506,
+            "n_events_a": 16,
+            "n_events_b": 15
+          },
+          "death.55-64|male": {
+            "score": 0.149337,
+            "n_events_a": 20,
+            "n_events_b": 15
+          },
+          "death.45-54|female": {
+            "score": 1.256199,
+            "n_events_a": 2,
+            "n_events_b": 7
+          },
+          "death.65-74|female": {
+            "score": 0.589676,
+            "n_events_a": 19,
+            "n_events_b": 18
+          },
+          "death.75-84|male": {
+            "score": 0.013956,
+            "n_events_a": 18,
+            "n_events_b": 21
+          },
+          "death.85+|male": {
+            "score": 0.129632,
+            "n_events_a": 18,
+            "n_events_b": 26
+          },
+          "death.25-34|female": {
+            "score": 2.032665,
+            "n_events_a": 1,
+            "n_events_b": 6
+          },
+          "death.45-54|male": {
+            "score": 0.733875,
+            "n_events_a": 10,
+            "n_events_b": 10
+          },
+          "death.65-74|male": {
+            "score": 0.039074,
+            "n_events_a": 26,
+            "n_events_b": 29
+          },
+          "death.85+|female": {
+            "score": 0.429157,
+            "n_events_a": 32,
+            "n_events_b": 36
+          },
+          "death.35-44|male": {
+            "score": 3.232056,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "death.75-84|female": {
+            "score": 0.236226,
+            "n_events_a": 20,
+            "n_events_b": 22
+          },
+          "death.25-34|male": {
+            "score": 0.017482,
+            "n_events_a": 7,
+            "n_events_b": 7
+          }
+        }
+      },
+      {
+        "seed": 1,
+        "cells": {
+          "death.35-44|female": {
+            "score": 0.019989,
+            "n_events_a": 8,
+            "n_events_b": 7
+          },
+          "death.55-64|female": {
+            "score": 0.582075,
+            "n_events_a": 18,
+            "n_events_b": 13
+          },
+          "death.55-64|male": {
+            "score": 0.52756,
+            "n_events_a": 15,
+            "n_events_b": 20
+          },
+          "death.45-54|female": {
+            "score": 0.846633,
+            "n_events_a": 5,
+            "n_events_b": 4
+          },
+          "death.65-74|female": {
+            "score": 0.096455,
+            "n_events_a": 19,
+            "n_events_b": 18
+          },
+          "death.75-84|male": {
+            "score": 0.147571,
+            "n_events_a": 22,
+            "n_events_b": 17
+          },
+          "death.85+|male": {
+            "score": 0.016621,
+            "n_events_a": 22,
+            "n_events_b": 22
+          },
+          "death.25-34|female": {
+            "score": 1.172242,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "death.45-54|male": {
+            "score": 0.43248,
+            "n_events_a": 9,
+            "n_events_b": 11
+          },
+          "death.65-74|male": {
+            "score": 0.276594,
+            "n_events_a": 26,
+            "n_events_b": 29
+          },
+          "death.85+|female": {
+            "score": 0.298359,
+            "n_events_a": 37,
+            "n_events_b": 31
+          },
+          "death.35-44|male": {
+            "score": 0.520666,
+            "n_events_a": 1,
+            "n_events_b": 3
+          },
+          "death.75-84|female": {
+            "score": 0.441134,
+            "n_events_a": 23,
+            "n_events_b": 19
+          },
+          "death.25-34|male": {
+            "score": 0.177118,
+            "n_events_a": 6,
+            "n_events_b": 8
+          }
+        }
+      },
+      {
+        "seed": 2,
+        "cells": {
+          "death.35-44|female": {
+            "score": 3.045783,
+            "n_events_a": 12,
+            "n_events_b": 3
+          },
+          "death.55-64|female": {
+            "score": 0.528157,
+            "n_events_a": 18,
+            "n_events_b": 13
+          },
+          "death.55-64|male": {
+            "score": 1.014489,
+            "n_events_a": 24,
+            "n_events_b": 11
+          },
+          "death.45-54|female": {
+            "score": 3.241082,
+            "n_events_a": 8,
+            "n_events_b": 1
+          },
+          "death.65-74|female": {
+            "score": 0.056073,
+            "n_events_a": 19,
+            "n_events_b": 18
+          },
+          "death.75-84|male": {
+            "score": 0.195084,
+            "n_events_a": 24,
+            "n_events_b": 15
+          },
+          "death.85+|male": {
+            "score": 0.538276,
+            "n_events_a": 30,
+            "n_events_b": 14
+          },
+          "death.25-34|female": {
+            "score": 2.003908,
+            "n_events_a": 3,
+            "n_events_b": 4
+          },
+          "death.45-54|male": {
+            "score": 0.249153,
+            "n_events_a": 12,
+            "n_events_b": 8
+          },
+          "death.65-74|male": {
+            "score": 0.227156,
+            "n_events_a": 21,
+            "n_events_b": 34
+          },
+          "death.85+|female": {
+            "score": 0.011228,
+            "n_events_a": 37,
+            "n_events_b": 31
+          },
+          "death.35-44|male": {
+            "score": 0.425705,
+            "n_events_a": 2,
+            "n_events_b": 2
+          },
+          "death.75-84|female": {
+            "score": 0.063419,
+            "n_events_a": 23,
+            "n_events_b": 19
+          },
+          "death.25-34|male": {
+            "score": 0.763213,
+            "n_events_a": 5,
+            "n_events_b": 9
+          }
+        }
+      },
+      {
+        "seed": 3,
+        "cells": {
+          "death.35-44|female": {
+            "score": 0.187232,
+            "n_events_a": 9,
+            "n_events_b": 6
+          },
+          "death.55-64|female": {
+            "score": 0.056732,
+            "n_events_a": 17,
+            "n_events_b": 14
+          },
+          "death.55-64|male": {
+            "score": 0.485047,
+            "n_events_a": 15,
+            "n_events_b": 20
+          },
+          "death.45-54|female": {
+            "score": 0.963688,
+            "n_events_a": 5,
+            "n_events_b": 4
+          },
+          "death.65-74|female": {
+            "score": 0.0678,
+            "n_events_a": 16,
+            "n_events_b": 21
+          },
+          "death.75-84|male": {
+            "score": 0.559529,
+            "n_events_a": 18,
+            "n_events_b": 21
+          },
+          "death.85+|male": {
+            "score": 0.526644,
+            "n_events_a": 26,
+            "n_events_b": 18
+          },
+          "death.25-34|female": {
+            "score": 0.29929,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "death.45-54|male": {
+            "score": 1.078249,
+            "n_events_a": 13,
+            "n_events_b": 7
+          },
+          "death.65-74|male": {
+            "score": 0.026998,
+            "n_events_a": 25,
+            "n_events_b": 30
+          },
+          "death.85+|female": {
+            "score": 0.530802,
+            "n_events_a": 41,
+            "n_events_b": 27
+          },
+          "death.35-44|male": {
+            "score": 0.202026,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "death.75-84|female": {
+            "score": 0.162023,
+            "n_events_a": 19,
+            "n_events_b": 23
+          },
+          "death.25-34|male": {
+            "score": 1.290929,
+            "n_events_a": 6,
+            "n_events_b": 8
+          }
+        }
+      },
+      {
+        "seed": 4,
+        "cells": {
+          "death.35-44|female": {
+            "score": 0.299845,
+            "n_events_a": 9,
+            "n_events_b": 6
+          },
+          "death.55-64|female": {
+            "score": 0.19168,
+            "n_events_a": 11,
+            "n_events_b": 20
+          },
+          "death.55-64|male": {
+            "score": 0.378807,
+            "n_events_a": 13,
+            "n_events_b": 22
+          },
+          "death.45-54|female": {
+            "score": 0.911371,
+            "n_events_a": 5,
+            "n_events_b": 4
+          },
+          "death.65-74|female": {
+            "score": 0.794798,
+            "n_events_a": 21,
+            "n_events_b": 16
+          },
+          "death.75-84|male": {
+            "score": 0.21652,
+            "n_events_a": 17,
+            "n_events_b": 22
+          },
+          "death.85+|male": {
+            "score": 0.21081,
+            "n_events_a": 22,
+            "n_events_b": 22
+          },
+          "death.25-34|female": {
+            "score": 2.120049,
+            "n_events_a": 2,
+            "n_events_b": 5
+          },
+          "death.45-54|male": {
+            "score": 0.311456,
+            "n_events_a": 10,
+            "n_events_b": 10
+          },
+          "death.65-74|male": {
+            "score": 0.522357,
+            "n_events_a": 30,
+            "n_events_b": 25
+          },
+          "death.85+|female": {
+            "score": 0.053782,
+            "n_events_a": 37,
+            "n_events_b": 31
+          },
+          "death.35-44|male": {
+            "score": 3.27077,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "death.75-84|female": {
+            "score": 0.582292,
+            "n_events_a": 16,
+            "n_events_b": 26
+          },
+          "death.25-34|male": {
+            "score": 1.071694,
+            "n_events_a": 11,
+            "n_events_b": 3
+          }
+        }
+      }
+    ],
+    "marital": [
+      {
+        "seed": 0,
+        "cells": {
+          "widowhood.18-29|female": {
+            "score": 1.39028,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "widowhood.65+|female": {
+            "score": 0.189181,
+            "n_events_a": 34,
+            "n_events_b": 36
+          },
+          "first_marriage.45-64|male": {
+            "score": 0.584597,
+            "n_events_a": 16,
+            "n_events_b": 13
+          },
+          "remarriage.45-64|male": {
+            "score": 0.146067,
+            "n_events_a": 23,
+            "n_events_b": 21
+          },
+          "divorce.18-29|female": {
+            "score": 0.381214,
+            "n_events_a": 19,
+            "n_events_b": 33
+          },
+          "widowhood.65+|male": {
+            "score": 0.022354,
+            "n_events_a": 13,
+            "n_events_b": 16
+          },
+          "widowhood.18-29|male": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|female": {
+            "score": 0.546525,
+            "n_events_a": 12,
+            "n_events_b": 12
+          },
+          "first_marriage.65+|male": {
+            "score": 0.772159,
+            "n_events_a": 2,
+            "n_events_b": 1
+          },
+          "remarriage.30-44|female": {
+            "score": 0.247176,
+            "n_events_a": 56,
+            "n_events_b": 58
+          },
+          "remarriage.45-64|female": {
+            "score": 0.499476,
+            "n_events_a": 34,
+            "n_events_b": 24
+          },
+          "remarriage.65+|female": {
+            "score": 0.334884,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "first_marriage.18-29|male": {
+            "score": 0.336065,
+            "n_events_a": 138,
+            "n_events_b": 129
+          },
+          "first_marriage.65+|female": {
+            "score": 1.063074,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "remarriage.18-29|male": {
+            "score": 0.742825,
+            "n_events_a": 6,
+            "n_events_b": 7
+          },
+          "remarriage.65+|male": {
+            "score": 0.721608,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "divorce.45-64|male": {
+            "score": 0.119201,
+            "n_events_a": 27,
+            "n_events_b": 33
+          },
+          "widowhood.45-64|female": {
+            "score": 0.336394,
+            "n_events_a": 22,
+            "n_events_b": 19
+          },
+          "first_marriage.30-44|male": {
+            "score": 0.105063,
+            "n_events_a": 122,
+            "n_events_b": 124
+          },
+          "divorce.65+|female": {
+            "score": 0.075369,
+            "n_events_a": 2,
+            "n_events_b": 2
+          },
+          "divorce.18-29|male": {
+            "score": 0.392633,
+            "n_events_a": 17,
+            "n_events_b": 14
+          },
+          "first_marriage.30-44|female": {
+            "score": 0.03811,
+            "n_events_a": 121,
+            "n_events_b": 113
+          },
+          "divorce.45-64|female": {
+            "score": 0.032672,
+            "n_events_a": 36,
+            "n_events_b": 39
+          },
+          "remarriage.30-44|male": {
+            "score": 0.057872,
+            "n_events_a": 50,
+            "n_events_b": 39
+          },
+          "widowhood.30-44|male": {
+            "score": 3.376586,
+            "n_events_a": 1,
+            "n_events_b": 6
+          },
+          "first_marriage.45-64|female": {
+            "score": 0.21436,
+            "n_events_a": 9,
+            "n_events_b": 14
+          },
+          "divorce.30-44|female": {
+            "score": 0.202326,
+            "n_events_a": 85,
+            "n_events_b": 91
+          },
+          "widowhood.30-44|female": {
+            "score": 0.234307,
+            "n_events_a": 6,
+            "n_events_b": 5
+          },
+          "divorce.65+|male": {
+            "score": 0.086148,
+            "n_events_a": 2,
+            "n_events_b": 4
+          },
+          "divorce.30-44|male": {
+            "score": 0.162785,
+            "n_events_a": 48,
+            "n_events_b": 59
+          },
+          "widowhood.45-64|male": {
+            "score": 0.229838,
+            "n_events_a": 9,
+            "n_events_b": 6
+          },
+          "first_marriage.18-29|female": {
+            "score": 0.055863,
+            "n_events_a": 163,
+            "n_events_b": 176
+          }
+        }
+      },
+      {
+        "seed": 1,
+        "cells": {
+          "widowhood.18-29|female": {
+            "score": 1.137919,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "widowhood.65+|female": {
+            "score": 0.263146,
+            "n_events_a": 34,
+            "n_events_b": 36
+          },
+          "first_marriage.45-64|male": {
+            "score": 0.218765,
+            "n_events_a": 16,
+            "n_events_b": 13
+          },
+          "remarriage.45-64|male": {
+            "score": 0.119341,
+            "n_events_a": 25,
+            "n_events_b": 19
+          },
+          "divorce.18-29|female": {
+            "score": 0.622888,
+            "n_events_a": 22,
+            "n_events_b": 30
+          },
+          "widowhood.65+|male": {
+            "score": 0.100797,
+            "n_events_a": 15,
+            "n_events_b": 14
+          },
+          "widowhood.18-29|male": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|female": {
+            "score": 0.3591,
+            "n_events_a": 8,
+            "n_events_b": 16
+          },
+          "first_marriage.65+|male": {
+            "score": 0.649814,
+            "n_events_a": 2,
+            "n_events_b": 1
+          },
+          "remarriage.30-44|female": {
+            "score": 0.325107,
+            "n_events_a": 53,
+            "n_events_b": 61
+          },
+          "remarriage.45-64|female": {
+            "score": 0.025689,
+            "n_events_a": 32,
+            "n_events_b": 26
+          },
+          "remarriage.65+|female": {
+            "score": null,
+            "n_events_a": 3,
+            "n_events_b": 0
+          },
+          "first_marriage.18-29|male": {
+            "score": 0.026457,
+            "n_events_a": 134,
+            "n_events_b": 133
+          },
+          "first_marriage.65+|female": {
+            "score": null,
+            "n_events_a": 2,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|male": {
+            "score": 0.448756,
+            "n_events_a": 4,
+            "n_events_b": 9
+          },
+          "remarriage.65+|male": {
+            "score": 2.098541,
+            "n_events_a": 6,
+            "n_events_b": 1
+          },
+          "divorce.45-64|male": {
+            "score": 0.149118,
+            "n_events_a": 33,
+            "n_events_b": 27
+          },
+          "widowhood.45-64|female": {
+            "score": 0.051541,
+            "n_events_a": 24,
+            "n_events_b": 17
+          },
+          "first_marriage.30-44|male": {
+            "score": 0.517456,
+            "n_events_a": 111,
+            "n_events_b": 135
+          },
+          "divorce.65+|female": {
+            "score": 0.083725,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "divorce.18-29|male": {
+            "score": 0.15224,
+            "n_events_a": 16,
+            "n_events_b": 15
+          },
+          "first_marriage.30-44|female": {
+            "score": 0.231048,
+            "n_events_a": 115,
+            "n_events_b": 119
+          },
+          "divorce.45-64|female": {
+            "score": 0.148146,
+            "n_events_a": 42,
+            "n_events_b": 33
+          },
+          "remarriage.30-44|male": {
+            "score": 0.268002,
+            "n_events_a": 46,
+            "n_events_b": 43
+          },
+          "widowhood.30-44|male": {
+            "score": 2.102269,
+            "n_events_a": 3,
+            "n_events_b": 4
+          },
+          "first_marriage.45-64|female": {
+            "score": 0.119526,
+            "n_events_a": 15,
+            "n_events_b": 8
+          },
+          "divorce.30-44|female": {
+            "score": 0.052492,
+            "n_events_a": 88,
+            "n_events_b": 88
+          },
+          "widowhood.30-44|female": {
+            "score": 0.688641,
+            "n_events_a": 3,
+            "n_events_b": 8
+          },
+          "divorce.65+|male": {
+            "score": 0.354257,
+            "n_events_a": 4,
+            "n_events_b": 2
+          },
+          "divorce.30-44|male": {
+            "score": 0.034554,
+            "n_events_a": 54,
+            "n_events_b": 53
+          },
+          "widowhood.45-64|male": {
+            "score": 0.014535,
+            "n_events_a": 8,
+            "n_events_b": 7
+          },
+          "first_marriage.18-29|female": {
+            "score": 0.226178,
+            "n_events_a": 173,
+            "n_events_b": 166
+          }
+        }
+      },
+      {
+        "seed": 2,
+        "cells": {
+          "widowhood.18-29|female": {
+            "score": 1.36137,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "widowhood.65+|female": {
+            "score": 0.155419,
+            "n_events_a": 38,
+            "n_events_b": 32
+          },
+          "first_marriage.45-64|male": {
+            "score": 0.603966,
+            "n_events_a": 17,
+            "n_events_b": 12
+          },
+          "remarriage.45-64|male": {
+            "score": 0.310652,
+            "n_events_a": 21,
+            "n_events_b": 23
+          },
+          "divorce.18-29|female": {
+            "score": 1.045582,
+            "n_events_a": 33,
+            "n_events_b": 19
+          },
+          "widowhood.65+|male": {
+            "score": 0.31812,
+            "n_events_a": 11,
+            "n_events_b": 18
+          },
+          "widowhood.18-29|male": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|female": {
+            "score": 0.981693,
+            "n_events_a": 12,
+            "n_events_b": 12
+          },
+          "first_marriage.65+|male": {
+            "score": 1.344249,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "remarriage.30-44|female": {
+            "score": 0.169308,
+            "n_events_a": 51,
+            "n_events_b": 63
+          },
+          "remarriage.45-64|female": {
+            "score": 0.077735,
+            "n_events_a": 33,
+            "n_events_b": 25
+          },
+          "remarriage.65+|female": {
+            "score": 0.287641,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "first_marriage.18-29|male": {
+            "score": 0.10526,
+            "n_events_a": 144,
+            "n_events_b": 123
+          },
+          "first_marriage.65+|female": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 2
+          },
+          "remarriage.18-29|male": {
+            "score": 0.71345,
+            "n_events_a": 9,
+            "n_events_b": 4
+          },
+          "remarriage.65+|male": {
+            "score": 0.251355,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "divorce.45-64|male": {
+            "score": 0.147526,
+            "n_events_a": 35,
+            "n_events_b": 25
+          },
+          "widowhood.45-64|female": {
+            "score": 0.689211,
+            "n_events_a": 23,
+            "n_events_b": 18
+          },
+          "first_marriage.30-44|male": {
+            "score": 0.027628,
+            "n_events_a": 114,
+            "n_events_b": 132
+          },
+          "divorce.65+|female": {
+            "score": 1.687775,
+            "n_events_a": 2,
+            "n_events_b": 2
+          },
+          "divorce.18-29|male": {
+            "score": 0.711134,
+            "n_events_a": 14,
+            "n_events_b": 17
+          },
+          "first_marriage.30-44|female": {
+            "score": 0.037458,
+            "n_events_a": 122,
+            "n_events_b": 112
+          },
+          "divorce.45-64|female": {
+            "score": 0.001406,
+            "n_events_a": 41,
+            "n_events_b": 34
+          },
+          "remarriage.30-44|male": {
+            "score": 0.393618,
+            "n_events_a": 37,
+            "n_events_b": 52
+          },
+          "widowhood.30-44|male": {
+            "score": 2.216123,
+            "n_events_a": 5,
+            "n_events_b": 2
+          },
+          "first_marriage.45-64|female": {
+            "score": 0.419148,
+            "n_events_a": 9,
+            "n_events_b": 14
+          },
+          "divorce.30-44|female": {
+            "score": 0.241107,
+            "n_events_a": 90,
+            "n_events_b": 86
+          },
+          "widowhood.30-44|female": {
+            "score": 0.260938,
+            "n_events_a": 5,
+            "n_events_b": 6
+          },
+          "divorce.65+|male": {
+            "score": 3.934742,
+            "n_events_a": 5,
+            "n_events_b": 1
+          },
+          "divorce.30-44|male": {
+            "score": 0.213579,
+            "n_events_a": 61,
+            "n_events_b": 46
+          },
+          "widowhood.45-64|male": {
+            "score": 0.058124,
+            "n_events_a": 9,
+            "n_events_b": 6
+          },
+          "first_marriage.18-29|female": {
+            "score": 0.130074,
+            "n_events_a": 163,
+            "n_events_b": 176
+          }
+        }
+      },
+      {
+        "seed": 3,
+        "cells": {
+          "widowhood.18-29|female": {
+            "score": 1.271271,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "widowhood.65+|female": {
+            "score": 0.170475,
+            "n_events_a": 34,
+            "n_events_b": 36
+          },
+          "first_marriage.45-64|male": {
+            "score": 0.361787,
+            "n_events_a": 13,
+            "n_events_b": 16
+          },
+          "remarriage.45-64|male": {
+            "score": 0.121014,
+            "n_events_a": 20,
+            "n_events_b": 24
+          },
+          "divorce.18-29|female": {
+            "score": 0.305017,
+            "n_events_a": 31,
+            "n_events_b": 21
+          },
+          "widowhood.65+|male": {
+            "score": 0.539957,
+            "n_events_a": 18,
+            "n_events_b": 11
+          },
+          "widowhood.18-29|male": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|female": {
+            "score": 0.293114,
+            "n_events_a": 15,
+            "n_events_b": 9
+          },
+          "first_marriage.65+|male": {
+            "score": 1.108203,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "remarriage.30-44|female": {
+            "score": 0.075067,
+            "n_events_a": 57,
+            "n_events_b": 57
+          },
+          "remarriage.45-64|female": {
+            "score": 0.273169,
+            "n_events_a": 31,
+            "n_events_b": 27
+          },
+          "remarriage.65+|female": {
+            "score": 0.763315,
+            "n_events_a": 2,
+            "n_events_b": 1
+          },
+          "first_marriage.18-29|male": {
+            "score": 0.061421,
+            "n_events_a": 131,
+            "n_events_b": 136
+          },
+          "first_marriage.65+|female": {
+            "score": 0.301846,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "remarriage.18-29|male": {
+            "score": 0.340893,
+            "n_events_a": 5,
+            "n_events_b": 8
+          },
+          "remarriage.65+|male": {
+            "score": 0.851947,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "divorce.45-64|male": {
+            "score": 0.005874,
+            "n_events_a": 29,
+            "n_events_b": 31
+          },
+          "widowhood.45-64|female": {
+            "score": 0.265933,
+            "n_events_a": 22,
+            "n_events_b": 19
+          },
+          "first_marriage.30-44|male": {
+            "score": 0.081619,
+            "n_events_a": 121,
+            "n_events_b": 125
+          },
+          "divorce.65+|female": {
+            "score": 0.157668,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "divorce.18-29|male": {
+            "score": 1.011784,
+            "n_events_a": 12,
+            "n_events_b": 19
+          },
+          "first_marriage.30-44|female": {
+            "score": 0.335248,
+            "n_events_a": 120,
+            "n_events_b": 114
+          },
+          "divorce.45-64|female": {
+            "score": 0.254528,
+            "n_events_a": 35,
+            "n_events_b": 40
+          },
+          "remarriage.30-44|male": {
+            "score": 0.414957,
+            "n_events_a": 50,
+            "n_events_b": 39
+          },
+          "widowhood.30-44|male": {
+            "score": 1.650391,
+            "n_events_a": 4,
+            "n_events_b": 3
+          },
+          "first_marriage.45-64|female": {
+            "score": 0.727334,
+            "n_events_a": 8,
+            "n_events_b": 15
+          },
+          "divorce.30-44|female": {
+            "score": 0.009238,
+            "n_events_a": 82,
+            "n_events_b": 94
+          },
+          "widowhood.30-44|female": {
+            "score": 0.258576,
+            "n_events_a": 6,
+            "n_events_b": 5
+          },
+          "divorce.65+|male": {
+            "score": 0.048432,
+            "n_events_a": 3,
+            "n_events_b": 3
+          },
+          "divorce.30-44|male": {
+            "score": 0.091029,
+            "n_events_a": 51,
+            "n_events_b": 56
+          },
+          "widowhood.45-64|male": {
+            "score": 1.129098,
+            "n_events_a": 6,
+            "n_events_b": 9
+          },
+          "first_marriage.18-29|female": {
+            "score": 0.013977,
+            "n_events_a": 179,
+            "n_events_b": 160
+          }
+        }
+      },
+      {
+        "seed": 4,
+        "cells": {
+          "widowhood.18-29|female": {
+            "score": 1.105207,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "widowhood.65+|female": {
+            "score": 0.081065,
+            "n_events_a": 34,
+            "n_events_b": 36
+          },
+          "first_marriage.45-64|male": {
+            "score": 0.15427,
+            "n_events_a": 13,
+            "n_events_b": 16
+          },
+          "remarriage.45-64|male": {
+            "score": 0.255556,
+            "n_events_a": 22,
+            "n_events_b": 22
+          },
+          "divorce.18-29|female": {
+            "score": 0.253984,
+            "n_events_a": 32,
+            "n_events_b": 20
+          },
+          "widowhood.65+|male": {
+            "score": 0.330295,
+            "n_events_a": 18,
+            "n_events_b": 11
+          },
+          "widowhood.18-29|male": {
+            "score": null,
+            "n_events_a": 0,
+            "n_events_b": 0
+          },
+          "remarriage.18-29|female": {
+            "score": 0.558535,
+            "n_events_a": 13,
+            "n_events_b": 11
+          },
+          "first_marriage.65+|male": {
+            "score": 0.339797,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "remarriage.30-44|female": {
+            "score": 0.148551,
+            "n_events_a": 63,
+            "n_events_b": 51
+          },
+          "remarriage.45-64|female": {
+            "score": 0.117308,
+            "n_events_a": 34,
+            "n_events_b": 24
+          },
+          "remarriage.65+|female": {
+            "score": 0.301018,
+            "n_events_a": 1,
+            "n_events_b": 2
+          },
+          "first_marriage.18-29|male": {
+            "score": 0.068315,
+            "n_events_a": 133,
+            "n_events_b": 134
+          },
+          "first_marriage.65+|female": {
+            "score": 0.166402,
+            "n_events_a": 1,
+            "n_events_b": 1
+          },
+          "remarriage.18-29|male": {
+            "score": 1.256298,
+            "n_events_a": 10,
+            "n_events_b": 3
+          },
+          "remarriage.65+|male": {
+            "score": 0.75295,
+            "n_events_a": 3,
+            "n_events_b": 4
+          },
+          "divorce.45-64|male": {
+            "score": 0.218036,
+            "n_events_a": 32,
+            "n_events_b": 28
+          },
+          "widowhood.45-64|female": {
+            "score": 0.0384,
+            "n_events_a": 18,
+            "n_events_b": 23
+          },
+          "first_marriage.30-44|male": {
+            "score": 0.007351,
+            "n_events_a": 121,
+            "n_events_b": 125
+          },
+          "divorce.65+|female": {
+            "score": 1.865824,
+            "n_events_a": 3,
+            "n_events_b": 1
+          },
+          "divorce.18-29|male": {
+            "score": 0.325158,
+            "n_events_a": 15,
+            "n_events_b": 16
+          },
+          "first_marriage.30-44|female": {
+            "score": 0.147458,
+            "n_events_a": 123,
+            "n_events_b": 111
+          },
+          "divorce.45-64|female": {
+            "score": 0.258759,
+            "n_events_a": 38,
+            "n_events_b": 37
+          },
+          "remarriage.30-44|male": {
+            "score": 0.037718,
+            "n_events_a": 38,
+            "n_events_b": 51
+          },
+          "widowhood.30-44|male": {
+            "score": 0.17515,
+            "n_events_a": 3,
+            "n_events_b": 4
+          },
+          "first_marriage.45-64|female": {
+            "score": 0.072754,
+            "n_events_a": 13,
+            "n_events_b": 10
+          },
+          "divorce.30-44|female": {
+            "score": 0.12912,
+            "n_events_a": 91,
+            "n_events_b": 85
+          },
+          "widowhood.30-44|female": {
+            "score": 2.330841,
+            "n_events_a": 3,
+            "n_events_b": 8
+          },
+          "divorce.65+|male": {
+            "score": 0.515392,
+            "n_events_a": 4,
+            "n_events_b": 2
+          },
+          "divorce.30-44|male": {
+            "score": 0.204684,
+            "n_events_a": 56,
+            "n_events_b": 51
+          },
+          "widowhood.45-64|male": {
+            "score": 0.991823,
+            "n_events_a": 11,
+            "n_events_b": 4
+          },
+          "first_marriage.18-29|female": {
+            "score": 0.015462,
+            "n_events_a": 166,
+            "n_events_b": 173
+          }
+        }
+      }
+    ],
+    "disability": [
+      {
+        "seed": 0,
+        "cells": {
+          "recovery.20-29|male": {
+            "score": 0.590403,
+            "n_events_a": 11,
+            "n_events_b": 9
+          },
+          "recovery.30-39|female": {
+            "score": 0.088166,
+            "n_events_a": 19,
+            "n_events_b": 20
+          },
+          "recovery.40-49|male": {
+            "score": 1.148823,
+            "n_events_a": 10,
+            "n_events_b": 17
+          },
+          "incidence.50-59|male": {
+            "score": 0.5451,
+            "n_events_a": 37,
+            "n_events_b": 25
+          },
+          "recovery.60-66|male": {
+            "score": 0.340011,
+            "n_events_a": 31,
+            "n_events_b": 21
+          },
+          "incidence.20-29|male": {
+            "score": 0.009367,
+            "n_events_a": 19,
+            "n_events_b": 12
+          },
+          "incidence.60-66|male": {
+            "score": 0.63516,
+            "n_events_a": 16,
+            "n_events_b": 11
+          },
+          "recovery.40-49|female": {
+            "score": 0.78146,
+            "n_events_a": 22,
+            "n_events_b": 24
+          },
+          "incidence.60-66|female": {
+            "score": 0.441861,
+            "n_events_a": 24,
+            "n_events_b": 13
+          },
+          "incidence.40-49|female": {
+            "score": 0.523469,
+            "n_events_a": 26,
+            "n_events_b": 26
+          },
+          "recovery.30-39|male": {
+            "score": 0.153092,
+            "n_events_a": 17,
+            "n_events_b": 14
+          },
+          "incidence.40-49|male": {
+            "score": 0.733727,
+            "n_events_a": 18,
+            "n_events_b": 18
+          },
+          "recovery.50-59|male": {
+            "score": 0.032101,
+            "n_events_a": 29,
+            "n_events_b": 24
+          },
+          "recovery.60-66|female": {
+            "score": 0.211056,
+            "n_events_a": 22,
+            "n_events_b": 23
+          },
+          "recovery.20-29|female": {
+            "score": 0.005556,
+            "n_events_a": 11,
+            "n_events_b": 13
+          },
+          "incidence.20-29|female": {
+            "score": 1.971245,
+            "n_events_a": 13,
+            "n_events_b": 7
+          },
+          "recovery.50-59|female": {
+            "score": 0.36496,
+            "n_events_a": 43,
+            "n_events_b": 38
+          },
+          "incidence.30-39|female": {
+            "score": 0.118169,
+            "n_events_a": 22,
+            "n_events_b": 19
+          },
+          "incidence.50-59|female": {
+            "score": 0.097996,
+            "n_events_a": 46,
+            "n_events_b": 60
+          },
+          "incidence.30-39|male": {
+            "score": 0.260367,
+            "n_events_a": 19,
+            "n_events_b": 16
+          }
+        }
+      },
+      {
+        "seed": 1,
+        "cells": {
+          "recovery.20-29|male": {
+            "score": 0.054159,
+            "n_events_a": 12,
+            "n_events_b": 8
+          },
+          "recovery.30-39|female": {
+            "score": 0.178892,
+            "n_events_a": 16,
+            "n_events_b": 23
+          },
+          "recovery.40-49|male": {
+            "score": 0.067219,
+            "n_events_a": 10,
+            "n_events_b": 17
+          },
+          "incidence.50-59|male": {
+            "score": 0.222197,
+            "n_events_a": 27,
+            "n_events_b": 35
+          },
+          "recovery.60-66|male": {
+            "score": 0.406196,
+            "n_events_a": 19,
+            "n_events_b": 33
+          },
+          "incidence.20-29|male": {
+            "score": 0.318484,
+            "n_events_a": 16,
+            "n_events_b": 15
+          },
+          "incidence.60-66|male": {
+            "score": 0.222693,
+            "n_events_a": 15,
+            "n_events_b": 12
+          },
+          "recovery.40-49|female": {
+            "score": 0.173904,
+            "n_events_a": 16,
+            "n_events_b": 30
+          },
+          "incidence.60-66|female": {
+            "score": 0.188783,
+            "n_events_a": 19,
+            "n_events_b": 18
+          },
+          "incidence.40-49|female": {
+            "score": 0.042575,
+            "n_events_a": 28,
+            "n_events_b": 24
+          },
+          "recovery.30-39|male": {
+            "score": 0.027786,
+            "n_events_a": 19,
+            "n_events_b": 12
+          },
+          "incidence.40-49|male": {
+            "score": 0.318775,
+            "n_events_a": 17,
+            "n_events_b": 19
+          },
+          "recovery.50-59|male": {
+            "score": 0.196969,
+            "n_events_a": 25,
+            "n_events_b": 28
+          },
+          "recovery.60-66|female": {
+            "score": 0.099999,
+            "n_events_a": 19,
+            "n_events_b": 26
+          },
+          "recovery.20-29|female": {
+            "score": 0.01473,
+            "n_events_a": 14,
+            "n_events_b": 10
+          },
+          "incidence.20-29|female": {
+            "score": 0.091007,
+            "n_events_a": 9,
+            "n_events_b": 11
+          },
+          "recovery.50-59|female": {
+            "score": 0.293535,
+            "n_events_a": 38,
+            "n_events_b": 43
+          },
+          "incidence.30-39|female": {
+            "score": 0.307962,
+            "n_events_a": 23,
+            "n_events_b": 18
+          },
+          "incidence.50-59|female": {
+            "score": 0.713207,
+            "n_events_a": 51,
+            "n_events_b": 55
+          },
+          "incidence.30-39|male": {
+            "score": 0.101508,
+            "n_events_a": 15,
+            "n_events_b": 20
+          }
+        }
+      },
+      {
+        "seed": 2,
+        "cells": {
+          "recovery.20-29|male": {
+            "score": 0.674062,
+            "n_events_a": 14,
+            "n_events_b": 6
+          },
+          "recovery.30-39|female": {
+            "score": 0.20906,
+            "n_events_a": 23,
+            "n_events_b": 16
+          },
+          "recovery.40-49|male": {
+            "score": 0.030182,
+            "n_events_a": 13,
+            "n_events_b": 14
+          },
+          "incidence.50-59|male": {
+            "score": 0.331861,
+            "n_events_a": 37,
+            "n_events_b": 25
+          },
+          "recovery.60-66|male": {
+            "score": 0.010839,
+            "n_events_a": 22,
+            "n_events_b": 30
+          },
+          "incidence.20-29|male": {
+            "score": 2.231281,
+            "n_events_a": 18,
+            "n_events_b": 13
+          },
+          "incidence.60-66|male": {
+            "score": 0.793141,
+            "n_events_a": 9,
+            "n_events_b": 18
+          },
+          "recovery.40-49|female": {
+            "score": 0.054762,
+            "n_events_a": 23,
+            "n_events_b": 23
+          },
+          "incidence.60-66|female": {
+            "score": 0.189604,
+            "n_events_a": 17,
+            "n_events_b": 20
+          },
+          "incidence.40-49|female": {
+            "score": 0.036323,
+            "n_events_a": 25,
+            "n_events_b": 27
+          },
+          "recovery.30-39|male": {
+            "score": 0.151439,
+            "n_events_a": 16,
+            "n_events_b": 15
+          },
+          "incidence.40-49|male": {
+            "score": 0.008575,
+            "n_events_a": 18,
+            "n_events_b": 18
+          },
+          "recovery.50-59|male": {
+            "score": 0.460637,
+            "n_events_a": 31,
+            "n_events_b": 22
+          },
+          "recovery.60-66|female": {
+            "score": 0.082634,
+            "n_events_a": 22,
+            "n_events_b": 23
+          },
+          "recovery.20-29|female": {
+            "score": 0.181206,
+            "n_events_a": 11,
+            "n_events_b": 13
+          },
+          "incidence.20-29|female": {
+            "score": 0.670088,
+            "n_events_a": 6,
+            "n_events_b": 14
+          },
+          "recovery.50-59|female": {
+            "score": 0.09313,
+            "n_events_a": 36,
+            "n_events_b": 45
+          },
+          "incidence.30-39|female": {
+            "score": 0.349878,
+            "n_events_a": 20,
+            "n_events_b": 21
+          },
+          "incidence.50-59|female": {
+            "score": 0.177767,
+            "n_events_a": 55,
+            "n_events_b": 51
+          },
+          "incidence.30-39|male": {
+            "score": 0.489055,
+            "n_events_a": 15,
+            "n_events_b": 20
+          }
+        }
+      },
+      {
+        "seed": 3,
+        "cells": {
+          "recovery.20-29|male": {
+            "score": 0.617682,
+            "n_events_a": 8,
+            "n_events_b": 12
+          },
+          "recovery.30-39|female": {
+            "score": 0.031374,
+            "n_events_a": 19,
+            "n_events_b": 20
+          },
+          "recovery.40-49|male": {
+            "score": 0.169116,
+            "n_events_a": 14,
+            "n_events_b": 13
+          },
+          "incidence.50-59|male": {
+            "score": 0.179185,
+            "n_events_a": 27,
+            "n_events_b": 35
+          },
+          "recovery.60-66|male": {
+            "score": 0.096762,
+            "n_events_a": 28,
+            "n_events_b": 24
+          },
+          "incidence.20-29|male": {
+            "score": 0.252807,
+            "n_events_a": 15,
+            "n_events_b": 16
+          },
+          "incidence.60-66|male": {
+            "score": 0.185906,
+            "n_events_a": 13,
+            "n_events_b": 14
+          },
+          "recovery.40-49|female": {
+            "score": 0.155779,
+            "n_events_a": 23,
+            "n_events_b": 23
+          },
+          "incidence.60-66|female": {
+            "score": 0.151854,
+            "n_events_a": 19,
+            "n_events_b": 18
+          },
+          "incidence.40-49|female": {
+            "score": 0.9582,
+            "n_events_a": 27,
+            "n_events_b": 25
+          },
+          "recovery.30-39|male": {
+            "score": 0.0329,
+            "n_events_a": 19,
+            "n_events_b": 12
+          },
+          "incidence.40-49|male": {
+            "score": 1.296917,
+            "n_events_a": 25,
+            "n_events_b": 11
+          },
+          "recovery.50-59|male": {
+            "score": 0.643583,
+            "n_events_a": 23,
+            "n_events_b": 30
+          },
+          "recovery.60-66|female": {
+            "score": 0.573387,
+            "n_events_a": 27,
+            "n_events_b": 18
+          },
+          "recovery.20-29|female": {
+            "score": 0.251958,
+            "n_events_a": 9,
+            "n_events_b": 15
+          },
+          "incidence.20-29|female": {
+            "score": 1.025992,
+            "n_events_a": 9,
+            "n_events_b": 11
+          },
+          "recovery.50-59|female": {
+            "score": 0.09856,
+            "n_events_a": 43,
+            "n_events_b": 38
+          },
+          "incidence.30-39|female": {
+            "score": 0.098361,
+            "n_events_a": 18,
+            "n_events_b": 23
+          },
+          "incidence.50-59|female": {
+            "score": 0.393731,
+            "n_events_a": 50,
+            "n_events_b": 56
+          },
+          "incidence.30-39|male": {
+            "score": 0.216957,
+            "n_events_a": 19,
+            "n_events_b": 16
+          }
+        }
+      },
+      {
+        "seed": 4,
+        "cells": {
+          "recovery.20-29|male": {
+            "score": 0.080129,
+            "n_events_a": 7,
+            "n_events_b": 13
+          },
+          "recovery.30-39|female": {
+            "score": 0.38497,
+            "n_events_a": 19,
+            "n_events_b": 20
+          },
+          "recovery.40-49|male": {
+            "score": 0.154041,
+            "n_events_a": 14,
+            "n_events_b": 13
+          },
+          "incidence.50-59|male": {
+            "score": 0.749983,
+            "n_events_a": 26,
+            "n_events_b": 36
+          },
+          "recovery.60-66|male": {
+            "score": 0.464751,
+            "n_events_a": 24,
+            "n_events_b": 28
+          },
+          "incidence.20-29|male": {
+            "score": 0.233001,
+            "n_events_a": 13,
+            "n_events_b": 18
+          },
+          "incidence.60-66|male": {
+            "score": 0.006361,
+            "n_events_a": 13,
+            "n_events_b": 14
+          },
+          "recovery.40-49|female": {
+            "score": 0.249448,
+            "n_events_a": 23,
+            "n_events_b": 23
+          },
+          "incidence.60-66|female": {
+            "score": 0.151605,
+            "n_events_a": 21,
+            "n_events_b": 16
+          },
+          "incidence.40-49|female": {
+            "score": 0.227442,
+            "n_events_a": 25,
+            "n_events_b": 27
+          },
+          "recovery.30-39|male": {
+            "score": 0.209826,
+            "n_events_a": 12,
+            "n_events_b": 19
+          },
+          "incidence.40-49|male": {
+            "score": 0.84562,
+            "n_events_a": 20,
+            "n_events_b": 16
+          },
+          "recovery.50-59|male": {
+            "score": 0.028459,
+            "n_events_a": 26,
+            "n_events_b": 27
+          },
+          "recovery.60-66|female": {
+            "score": 0.445164,
+            "n_events_a": 22,
+            "n_events_b": 23
+          },
+          "recovery.20-29|female": {
+            "score": 0.152138,
+            "n_events_a": 13,
+            "n_events_b": 11
+          },
+          "incidence.20-29|female": {
+            "score": 0.466546,
+            "n_events_a": 12,
+            "n_events_b": 8
+          },
+          "recovery.50-59|female": {
+            "score": 0.28147,
+            "n_events_a": 41,
+            "n_events_b": 40
+          },
+          "incidence.30-39|female": {
+            "score": 0.40938,
+            "n_events_a": 17,
+            "n_events_b": 24
+          },
+          "incidence.50-59|female": {
+            "score": 0.296834,
+            "n_events_a": 58,
+            "n_events_b": 48
+          },
+          "incidence.30-39|male": {
+            "score": 0.653618,
+            "n_events_a": 12,
+            "n_events_b": 23
+          }
+        }
+      }
+    ],
+    "earnings": [
+      {
+        "seed": 0,
+        "cells": {
+          "earn_mob_h2_diag": {
+            "score": 0.023652,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_autocorr_lag2": {
+            "score": 0.014394,
+            "n_events_a": 7098,
+            "n_events_b": 7191
+          },
+          "earn_dlog_skew.prime": {
+            "score": 0.025645,
+            "n_events_a": 10141,
+            "n_events_b": 10273
+          },
+          "earn_dlog_sd.prime": {
+            "score": 0.005047,
+            "n_events_a": 10141,
+            "n_events_b": 10273
+          },
+          "earn_mob_h1_diag": {
+            "score": 0.003997,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_p10.older": {
+            "score": 0.0,
+            "n_events_a": 3422,
+            "n_events_b": 3436
+          },
+          "earn_dlog_skew.older": {
+            "score": 0.15628,
+            "n_events_a": 6904,
+            "n_events_b": 6935
+          },
+          "earn_dlog_kurt.prime": {
+            "score": 6.270752,
+            "n_events_a": 10141,
+            "n_events_b": 10273
+          },
+          "earn_autocorr_lag5": {
+            "score": null,
+            "n_events_a": 7098,
+            "n_events_b": 7191
+          },
+          "earn_autocorr_lag1": {
+            "score": 0.000287,
+            "n_events_a": 7098,
+            "n_events_b": 7191
+          },
+          "earn_dlog_mean.older": {
+            "score": 0.007337,
+            "n_events_a": 6904,
+            "n_events_b": 6935
+          },
+          "earn_zero_rate.prime": {
+            "score": 0.12566,
+            "n_events_a": 6994,
+            "n_events_b": 7098
+          },
+          "earn_p10.prime": {
+            "score": 0.040166,
+            "n_events_a": 6072,
+            "n_events_b": 6202
+          },
+          "earn_p90.older": {
+            "score": 0.046884,
+            "n_events_a": 3422,
+            "n_events_b": 3436
+          },
+          "earn_p50.prime": {
+            "score": 0.011429,
+            "n_events_a": 6072,
+            "n_events_b": 6202
+          },
+          "earn_zero_rate.older": {
+            "score": 0.03178,
+            "n_events_a": 4582,
+            "n_events_b": 4597
+          },
+          "earn_p90.prime": {
+            "score": 0.009479,
+            "n_events_a": 6072,
+            "n_events_b": 6202
+          },
+          "earn_dlog_kurt.older": {
+            "score": 5.99087,
+            "n_events_a": 6904,
+            "n_events_b": 6935
+          },
+          "earn_dlog_mean.prime": {
+            "score": 0.001686,
+            "n_events_a": 10141,
+            "n_events_b": 10273
+          },
+          "earn_p50.older": {
+            "score": 0.012299,
+            "n_events_a": 3422,
+            "n_events_b": 3436
+          },
+          "earn_dlog_sd.older": {
+            "score": 0.020086,
+            "n_events_a": 6904,
+            "n_events_b": 6935
+          }
+        }
+      },
+      {
+        "seed": 1,
+        "cells": {
+          "earn_mob_h2_diag": {
+            "score": 0.034458,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_autocorr_lag2": {
+            "score": 0.022145,
+            "n_events_a": 7280,
+            "n_events_b": 7009
+          },
+          "earn_dlog_skew.prime": {
+            "score": 0.524436,
+            "n_events_a": 10466,
+            "n_events_b": 9948
+          },
+          "earn_dlog_sd.prime": {
+            "score": 0.061513,
+            "n_events_a": 10466,
+            "n_events_b": 9948
+          },
+          "earn_mob_h1_diag": {
+            "score": 0.015022,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_p10.older": {
+            "score": 0.056668,
+            "n_events_a": 3475,
+            "n_events_b": 3383
+          },
+          "earn_dlog_skew.older": {
+            "score": 0.176787,
+            "n_events_a": 6962,
+            "n_events_b": 6877
+          },
+          "earn_dlog_kurt.prime": {
+            "score": 3.444446,
+            "n_events_a": 10466,
+            "n_events_b": 9948
+          },
+          "earn_autocorr_lag5": {
+            "score": null,
+            "n_events_a": 7280,
+            "n_events_b": 7009
+          },
+          "earn_autocorr_lag1": {
+            "score": 0.010409,
+            "n_events_a": 7280,
+            "n_events_b": 7009
+          },
+          "earn_dlog_mean.older": {
+            "score": 0.004182,
+            "n_events_a": 6962,
+            "n_events_b": 6877
+          },
+          "earn_zero_rate.prime": {
+            "score": 0.076972,
+            "n_events_a": 7216,
+            "n_events_b": 6876
+          },
+          "earn_p10.prime": {
+            "score": 0.040822,
+            "n_events_a": 6298,
+            "n_events_b": 5976
+          },
+          "earn_p90.older": {
+            "score": 0.0,
+            "n_events_a": 3475,
+            "n_events_b": 3383
+          },
+          "earn_p50.prime": {
+            "score": 0.045462,
+            "n_events_a": 6298,
+            "n_events_b": 5976
+          },
+          "earn_zero_rate.older": {
+            "score": 0.021667,
+            "n_events_a": 4612,
+            "n_events_b": 4567
+          },
+          "earn_p90.prime": {
+            "score": 0.009479,
+            "n_events_a": 6298,
+            "n_events_b": 5976
+          },
+          "earn_dlog_kurt.older": {
+            "score": 0.537102,
+            "n_events_a": 6962,
+            "n_events_b": 6877
+          },
+          "earn_dlog_mean.prime": {
+            "score": 0.019113,
+            "n_events_a": 10466,
+            "n_events_b": 9948
+          },
+          "earn_p50.older": {
+            "score": 0.020619,
+            "n_events_a": 3475,
+            "n_events_b": 3383
+          },
+          "earn_dlog_sd.older": {
+            "score": 0.013201,
+            "n_events_a": 6962,
+            "n_events_b": 6877
+          }
+        }
+      },
+      {
+        "seed": 2,
+        "cells": {
+          "earn_mob_h2_diag": {
+            "score": 0.07983,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_autocorr_lag2": {
+            "score": 0.024449,
+            "n_events_a": 7107,
+            "n_events_b": 7182
+          },
+          "earn_dlog_skew.prime": {
+            "score": 0.918209,
+            "n_events_a": 10117,
+            "n_events_b": 10297
+          },
+          "earn_dlog_sd.prime": {
+            "score": 0.075733,
+            "n_events_a": 10117,
+            "n_events_b": 10297
+          },
+          "earn_mob_h1_diag": {
+            "score": 0.025033,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_p10.older": {
+            "score": 0.050218,
+            "n_events_a": 3461,
+            "n_events_b": 3397
+          },
+          "earn_dlog_skew.older": {
+            "score": 0.856208,
+            "n_events_a": 6954,
+            "n_events_b": 6885
+          },
+          "earn_dlog_kurt.prime": {
+            "score": 6.452731,
+            "n_events_a": 10117,
+            "n_events_b": 10297
+          },
+          "earn_autocorr_lag5": {
+            "score": null,
+            "n_events_a": 7107,
+            "n_events_b": 7182
+          },
+          "earn_autocorr_lag1": {
+            "score": 0.031453,
+            "n_events_a": 7107,
+            "n_events_b": 7182
+          },
+          "earn_dlog_mean.older": {
+            "score": 0.010093,
+            "n_events_a": 6954,
+            "n_events_b": 6885
+          },
+          "earn_zero_rate.prime": {
+            "score": 0.048019,
+            "n_events_a": 6978,
+            "n_events_b": 7114
+          },
+          "earn_p10.prime": {
+            "score": 0.039221,
+            "n_events_a": 6068,
+            "n_events_b": 6206
+          },
+          "earn_p90.older": {
+            "score": 0.0,
+            "n_events_a": 3461,
+            "n_events_b": 3397
+          },
+          "earn_p50.prime": {
+            "score": 0.045462,
+            "n_events_a": 6068,
+            "n_events_b": 6206
+          },
+          "earn_zero_rate.older": {
+            "score": 0.002554,
+            "n_events_a": 4633,
+            "n_events_b": 4546
+          },
+          "earn_p90.prime": {
+            "score": 0.0,
+            "n_events_a": 6068,
+            "n_events_b": 6206
+          },
+          "earn_dlog_kurt.older": {
+            "score": 2.09362,
+            "n_events_a": 6954,
+            "n_events_b": 6885
+          },
+          "earn_dlog_mean.prime": {
+            "score": 0.00106,
+            "n_events_a": 10117,
+            "n_events_b": 10297
+          },
+          "earn_p50.older": {
+            "score": 0.06294,
+            "n_events_a": 3461,
+            "n_events_b": 3397
+          },
+          "earn_dlog_sd.older": {
+            "score": 0.007254,
+            "n_events_a": 6954,
+            "n_events_b": 6885
+          }
+        }
+      },
+      {
+        "seed": 3,
+        "cells": {
+          "earn_mob_h2_diag": {
+            "score": 0.081296,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_autocorr_lag2": {
+            "score": 0.022918,
+            "n_events_a": 7086,
+            "n_events_b": 7203
+          },
+          "earn_dlog_skew.prime": {
+            "score": 0.767711,
+            "n_events_a": 10085,
+            "n_events_b": 10329
+          },
+          "earn_dlog_sd.prime": {
+            "score": 0.043262,
+            "n_events_a": 10085,
+            "n_events_b": 10329
+          },
+          "earn_mob_h1_diag": {
+            "score": 0.026373,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_p10.older": {
+            "score": 0.15155,
+            "n_events_a": 3366,
+            "n_events_b": 3492
+          },
+          "earn_dlog_skew.older": {
+            "score": 0.833315,
+            "n_events_a": 6861,
+            "n_events_b": 6978
+          },
+          "earn_dlog_kurt.prime": {
+            "score": 4.443066,
+            "n_events_a": 10085,
+            "n_events_b": 10329
+          },
+          "earn_autocorr_lag5": {
+            "score": null,
+            "n_events_a": 7086,
+            "n_events_b": 7203
+          },
+          "earn_autocorr_lag1": {
+            "score": 0.010112,
+            "n_events_a": 7086,
+            "n_events_b": 7203
+          },
+          "earn_dlog_mean.older": {
+            "score": 0.023774,
+            "n_events_a": 6861,
+            "n_events_b": 6978
+          },
+          "earn_zero_rate.prime": {
+            "score": 0.055024,
+            "n_events_a": 6949,
+            "n_events_b": 7143
+          },
+          "earn_p10.prime": {
+            "score": 0.021019,
+            "n_events_a": 6049,
+            "n_events_b": 6225
+          },
+          "earn_p90.older": {
+            "score": 0.054488,
+            "n_events_a": 3366,
+            "n_events_b": 3492
+          },
+          "earn_p50.prime": {
+            "score": 0.032782,
+            "n_events_a": 6049,
+            "n_events_b": 6225
+          },
+          "earn_zero_rate.older": {
+            "score": 0.090235,
+            "n_events_a": 4542,
+            "n_events_b": 4637
+          },
+          "earn_p90.prime": {
+            "score": 0.009479,
+            "n_events_a": 6049,
+            "n_events_b": 6225
+          },
+          "earn_dlog_kurt.older": {
+            "score": 4.977724,
+            "n_events_a": 6861,
+            "n_events_b": 6978
+          },
+          "earn_dlog_mean.prime": {
+            "score": 0.001354,
+            "n_events_a": 10085,
+            "n_events_b": 10329
+          },
+          "earn_p50.older": {
+            "score": 0.049418,
+            "n_events_a": 3366,
+            "n_events_b": 3492
+          },
+          "earn_dlog_sd.older": {
+            "score": 0.024544,
+            "n_events_a": 6861,
+            "n_events_b": 6978
+          }
+        }
+      },
+      {
+        "seed": 4,
+        "cells": {
+          "earn_mob_h2_diag": {
+            "score": 0.038155,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_autocorr_lag2": {
+            "score": 0.059793,
+            "n_events_a": 7146,
+            "n_events_b": 7143
+          },
+          "earn_dlog_skew.prime": {
+            "score": 0.601949,
+            "n_events_a": 10174,
+            "n_events_b": 10240
+          },
+          "earn_dlog_sd.prime": {
+            "score": 0.004334,
+            "n_events_a": 10174,
+            "n_events_b": 10240
+          },
+          "earn_mob_h1_diag": {
+            "score": 0.023722,
+            "n_events_a": 36,
+            "n_events_b": 36
+          },
+          "earn_p10.older": {
+            "score": 0.02964,
+            "n_events_a": 3474,
+            "n_events_b": 3384
+          },
+          "earn_dlog_skew.older": {
+            "score": 0.799503,
+            "n_events_a": 6994,
+            "n_events_b": 6845
+          },
+          "earn_dlog_kurt.prime": {
+            "score": 8.379775,
+            "n_events_a": 10174,
+            "n_events_b": 10240
+          },
+          "earn_autocorr_lag5": {
+            "score": null,
+            "n_events_a": 7146,
+            "n_events_b": 7143
+          },
+          "earn_autocorr_lag1": {
+            "score": 0.008272,
+            "n_events_a": 7146,
+            "n_events_b": 7143
+          },
+          "earn_dlog_mean.older": {
+            "score": 0.022708,
+            "n_events_a": 6994,
+            "n_events_b": 6845
+          },
+          "earn_zero_rate.prime": {
+            "score": 0.019184,
+            "n_events_a": 7050,
+            "n_events_b": 7042
+          },
+          "earn_p10.prime": {
+            "score": 0.019418,
+            "n_events_a": 6148,
+            "n_events_b": 6126
+          },
+          "earn_p90.older": {
+            "score": 0.031317,
+            "n_events_a": 3474,
+            "n_events_b": 3384
+          },
+          "earn_p50.prime": {
+            "score": 0.045462,
+            "n_events_a": 6148,
+            "n_events_b": 6126
+          },
+          "earn_zero_rate.older": {
+            "score": 0.003023,
+            "n_events_a": 4637,
+            "n_events_b": 4542
+          },
+          "earn_p90.prime": {
+            "score": 0.008148,
+            "n_events_a": 6148,
+            "n_events_b": 6126
+          },
+          "earn_dlog_kurt.older": {
+            "score": 0.941323,
+            "n_events_a": 6994,
+            "n_events_b": 6845
+          },
+          "earn_dlog_mean.prime": {
+            "score": 0.036341,
+            "n_events_a": 10174,
+            "n_events_b": 10240
+          },
+          "earn_p50.older": {
+            "score": 0.010363,
+            "n_events_a": 3474,
+            "n_events_b": 3384
+          },
+          "earn_dlog_sd.older": {
+            "score": 0.061498,
+            "n_events_a": 6994,
+            "n_events_b": 6845
+          }
+        }
+      }
+    ]
+  },
+  "revision_pins": {
+    "artifact_schema_version": "m6_holdout_floors.v1"
+  },
+  "elapsed_seconds": 49.6
+}

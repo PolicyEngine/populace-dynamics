@@ -1,0 +1,445 @@
+# gate_m6 block draft — v3, post-referee marital-ladder completion (lock flip
+# still PENDING).
+#
+# The full `gates.gate_m6` block EXACTLY as the lock flip will add it under the
+# top-level `gates:` key of gates.yaml, carried here as a draft bound to the
+# completed floors artifact (runs/m6_holdout_floors_v3.json) by
+# tests/test_gate_m6_floors.py.
+#
+# Ceremony history:
+#   v1 PAUSED. floors step-1 v1 priced the §4.5 age-band × sex surface and fired
+#   the §9 OC-before-lock PAUSE (near-vacuous flow surface + combined p_gate
+#   0.8449 < 0.90). Evidence: runs/m6_holdout_floors_v1.json, FROZEN
+#   (sha256 16c28d8c…).
+#   v2 CLEARED but with an INCOMPLETE marital ladder enumeration. The
+#   candidate-blind coarsening + earnings-decompounding ladders (design §4.10)
+#   produced v2 (11 gated: 4 flow + 7 earnings, p_gate 0.9067 >= 0.90). Evidence:
+#   runs/m6_holdout_floors_v2.json, FROZEN (sha256 3f273d47…).
+#   v3 COMPLETES the enumeration (referee comment 4958425437 amendment 2 + the
+#   ceremony orchestrator's v3 adjudication). The adversarial referee's
+#   independent pooling sweep found the marital ladder never enumerated the
+#   ASYMMETRIC age-2 rung ([18-64],[65+]) — a "merge the lower bands wide,
+#   isolate the elderly tail" shape the MORTALITY ladder itself already used —
+#   the single rung where `remarriage` clears (remarriage.18-64, tolerance 0.403,
+#   143 weaker-half events). Completing the ladder to enumerate the same rung
+#   shapes, uniformly per transition type as originally pinned, adds a 5th gated
+#   flow cell; the same pinned weakest-first earnings ladder is then forced one
+#   further prune (earn_dlog_mean.older), landing at 11 gated (5 flow + 6
+#   earnings), combined p_gate 0.9087 >= 0.90, 5 gated flow cells. So the
+#   ceremony MAY proceed to the lock flip. This block stays `locked: false` and
+#   edits NO gates.yaml cell — the lock flip lands after the in-flight gate_w1
+#   amendment (PR #174).
+gates:
+  gate_m6:
+    id: m6_temporal_holdout_projection_drift
+    status: draft_cleared_ready_for_lock_flip
+    locked: false
+    kind: temporal_holdout
+    design: docs/design/m6_projection_engine.md
+    design_pr: "175"
+    design_commit: d6abb16b0a034ca08a26e3eb8fc9211967c53259
+    design_commit_note: >-
+      design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
+      pre-amendment revision-1 design) to this PR's design commit carrying the
+      §2.7 forward-earnings amendment -- the backward-vs-forward law distinction
+      and the first-certified-by-gate_m6 framing (covers + not_certified
+      .forward_earnings_law_not_gate1_certified). The concrete hash is set to
+      this PR's design commit; it is finalized to the squash-merge commit at the
+      lock flip.
+    design_verified_comment: "4953958949"
+    adjudication: issue #42 comment 4953722912
+    redesign_adjudication: >-
+      candidate-blind surface-redesign adjudication (the two pinned ladders) —
+      recorded on the public record in design §4.10 and the PR #172 body; cited
+      here so the lock flip carries the adjudication text, not just its result.
+    v3_adjudication: >-
+      v3 adjudication — COMPLETE the pinned ladder's enumeration (the asymmetric
+      age-2 marital rung the mortality ladder already used), referee comment
+      4958425437 amendment 2, adopted by the ceremony orchestrator as fidelity to
+      the adjudicated candidate-blind criteria (not a second design pass);
+      recorded in design §4.10 (the v2->v3 correction).
+    covers: >-
+      the TEMPORAL-HOLDOUT drift of the M6 projection engine: fit <= T*=2014,
+      project + score the held-out PSID window 2015-2022. Family A -- the
+      PSID-projected-vs-PSID-realized dynamics-drift FLOWS (marital + disability,
+      after the §4.10 coarsening) + the decompounded earnings-moment battery,
+      FLOOR-priced. Family B -- external alignment audit + entrants (report-only
+      / margin). Family C -- drift-direction fingerprints (binary, optional).
+      The gated {2016,2018} earnings-moment cells are produced by the design
+      §2.7 FORWARD earnings law -- a DIFFERENT stochastic law than the
+      gate_1-certified BACKWARD biennial chain, which cannot compose forward
+      (Sol PR #173). A gate_m6 PASS is that forward law's FIRST and SOLE
+      certification; gate_1 does NOT cover it and no gate_1 certificate
+      transfers (see not_certified.forward_earnings_law_not_gate1_certified).
+
+    # ---- AMENDMENT 1: the negative surface, at headline prominence ----------
+    # (referee comment 4958425437, amendment 1 — the amendment-2 candor
+    # standard). A PASS of gate_m6 certifies NOTHING about the margins below;
+    # they are named out loud, mortality drift FIRST, at the same prominence as
+    # `covers`. Any PASS statement must say "certifies nothing about mortality
+    # drift" at the same prominence as the headline claim.
+    not_certified:
+      - margin: mortality_drift
+        detail: >-
+          NOTHING about mortality drift is certified. No admissible pooling of
+          the 25-84 surface clears the ln(1.5) cap even fully pooled (best
+          tolerance ~0.472 vs cap 0.4055); the 85+ stratum stays
+          attrition_confounded_truth; 85+-inclusive pools clear on power but are
+          excluded because ~27% of their events come from the confounded 85+
+          stratum, so pooling dilutes the confound rather than curing it. M7
+          seeds mortality report-only-with-anchor (see
+          deliverables.ssa_nchs_life_table_mortality_anchor), never as certified
+          drift.
+      - margin: widowhood
+        detail: >-
+          Clears nothing under any pooling, INCLUDING the completed asymmetric
+          age-2 rung (the referee sweep now records it evaluated there too);
+          best tolerance ~0.474, fully pooled.
+      - margin: shock_window_2020_2022
+        detail: >-
+          The 2020-2022 shock window is exogenous_shock_outside_model_class;
+          published as a diagnostic and partitioned out of every gated set (2021
+          is unobserved in the biennial panel). No gated cell is scored on it.
+      - margin: entrants_open_panel
+        detail: >-
+          The closed-panel holdout (§4.8) certifies the dynamics of the
+          T*-present population only; entrants, births, and open-panel margins
+          are report-only.
+      - margin: autocorrelation_lag5
+        detail: >-
+          A 10-year persistence statistic is not computable inside the 8-year
+          holdout (horizon_exceeds_holdout_span); report-only by measurability,
+          re-derived (not grandfathered) if T* moves.
+      - margin: forward_projection_2100_extrapolation
+        detail: >-
+          gate_m6 certifies temporal-holdout drift over 2015-2022 ONLY. The
+          forward-projection mode (the 2100 extrapolation) is a decision-5
+          successor gate, not certified here.
+      - margin: stock_margins
+        detail: >-
+          End-window marital-state shares and disabled-occupancy prevalence are
+          report-only / margin (the trivially-passable-stock problem, §4.6).
+      - margin: remarriage_above_pooled_working_age
+        detail: >-
+          v3 certifies remarriage ONLY at the pooled working-age band
+          (remarriage.18-64). The 65+ remarriage tail and any finer granularity
+          stay report-only.
+      - margin: spec_selection_in_sample
+        detail: >-
+          The gated surface was selected (coarsening + earnings decompounding)
+          on the same holdout it is priced against; the faithful OC is
+          conditional on that in-sample selection (§4.9 search disclosure).
+      - margin: forward_earnings_law_not_gate1_certified
+        detail: >-
+          The gated {2016,2018} earnings-moment cells ride on the design §2.7
+          FORWARD earnings law, first-certified HERE -- gate_1 does NOT cover it
+          (it certified only the BACKWARD chain) and no gate_1 certificate
+          transfers. This is DISTINCT from spec_selection_in_sample (the surface
+          selection): the forward law additionally carries a STRUCTURAL
+          spec-selection -- it mirrors a full-window-selected certified spec
+          (§2.7.1), so its STRUCTURE is in-sample for selection while
+          out-of-sample for its <=2014-fit parameters (§2.7.3). A PASS statement
+          must say the gated earnings use an M6-first-certified forward law, not
+          the gate_1-certified generator.
+
+    gates_yaml_untouched_by_this_draft: true
+    floor_run: runs/m6_holdout_floors_v3.json
+    floor_run_sha256: e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77
+
+    v1_pause_evidence:
+      run: runs/m6_holdout_floors_v1.json
+      sha256: 16c28d8cd9095e5233ab224c659c8d5b9eb1621099e2524455a3a8ff8e88d318
+      combined_p_gate: 0.8449
+      n_gated_flow_cells: 1
+      frozen: true
+      note: >-
+        v1 is the frozen pause evidence; it is neither mutated nor rewritten. v3
+        reads it only for the pinned earnings pruning order and the earnings
+        floor (identical in v1/v2).
+
+    v2_lineage:
+      run: runs/m6_holdout_floors_v2.json
+      sha256: 3f273d474692917b01055f85830cb982dfbe9e63070581c99975aa799759b9a0
+      combined_p_gate: 0.9067
+      n_gated: 11
+      n_gated_flow_cells: 4
+      frozen: true
+      note: >-
+        v2 cleared the weak-power threshold with an INCOMPLETE marital ladder
+        enumeration (symmetric age-2 rung only). It is frozen as lineage
+        evidence — neither mutated nor rewritten, and read for no v3 choice. The
+        referee's amendment-2 finding and the orchestrator's v3 adjudication are
+        the record of the v2->v3 correction (design §4.10).
+
+    candidate_blind: >-
+      every choice (each pooling rung -- including the completed asymmetric
+      age-2 marital rung -- and each earnings prune) is determined ONLY by
+      truth-side power arithmetic (floor sigmas, weaker-half event counts, v1
+      tolerance/sigma ratios); nothing references an engine, a candidate, or
+      what any model would find easy or hard. The one rung-vocabulary freedom
+      the referee flagged SHRANK the gated surface (it forced a further earnings
+      prune) -- the opposite direction from candidate-favoring.
+
+    fit_holdout:
+      boundary_T_star: 2014
+      seed_wave: 2015
+      no_window_extension_this_round: true
+      gated_flow_event_years: [2015, 2016, 2017, 2018, 2019]
+      gated_earnings_reference_years: [2016, 2018]
+
+    shock_window:
+      machine_reason: exogenous_shock_outside_model_class
+      published_as_diagnostic: true
+      partitioned_out_of_gated_set: true
+      earnings_shock_reference_years: [2020, 2022]
+      flow_shock_event_years: [2020, 2021]
+
+    presence_conditioning:
+      rule: >-
+        every truth cell is computed on the realized-wave-presence set (PSID
+        sequence 1-20, positive weight), SYMMETRICALLY on both floor halves
+        (§4.4); marital events + at-risk person-years are conditioned on
+        presence at the opening biennial interview.
+      disability_scope: reproduction mode; certifies a TEMPORAL gate_m4 extension
+      classification: conditioning_not_leakage
+
+    f6_weight:
+      definition: >-
+        the person's realized start-of-holdout START-WAVE cross-sectional PSID
+        weight, held FIXED across the window (F6, §4.7), on projection, truth,
+        and floor.
+      start_wave: earliest gated interview wave (2015 / 2017 / 2019) at which present
+
+    household_id_weight_carriage_rule:
+      finding: "13 (§9); watch-item of comment 4953958949"
+      household_id: >-
+        the PSID family interview number at the person's realized start-of-
+        holdout wave, held FIXED across the window.
+      split_bias_diagnostic_ref: floor.split_width_diagnostic
+
+    split_units:
+      household_disjoint_families: [marital, marital_stock, mortality]
+      person_disjoint_families: [disability, disability_stock, earnings]
+      machine: populace_dynamics.harness.panel.split_panel_by_person
+      split_fraction: 0.5
+
+    scoring:
+      floor: half_vs_half real-vs-real, presence-conditioned, correlation-respecting split
+      floor_seeds: [0, 99]
+      gate_seeds: [0, 1, 2, 3, 4]
+      conjunction: 4 of 5 seeds
+      tolerance_formula: round(floor_mean + k*sd, 3) capped at the metric power cap
+      mixed_k: { flow: 3, stock: 4, margin: 3 }
+      metric_caps:
+        log_ratio: { cap: 0.4054651081081644, source: ln(1.5) }
+        abs_gap_log: { cap: 0.4054651081081644, source: ln(1.5) (change-mean is in log units) }
+        abs_gap_corr: { cap: 0.15, source: "0.15 = ~2x gate_1 autocorr_log_10yr_tolerance 0.07" }
+
+    # ---- The v3 coarsening ladder (candidate-blind, §4.10) ------------------
+    coarsening_ladder:
+      rule: >-
+        per transition type, pool ADJACENT strata minimally (sex-pool ->
+        age-pool-adjacent); adopt the MINIMAL rung with >= 1 cell clearing
+        tolerance <= ln(1.5) AND >= 20 weaker-half events; mortality 85+ stays
+        attrition_confounded_truth at every rung.
+      # v3 completion (referee amendment 2 + orchestrator adjudication): the
+      # marital ladder now enumerates the asymmetric age-2 rung
+      # (sex_pooled_age2p, [18-64],[65+]) after the symmetric age-2 rung — the
+      # elderly-isolating merge shape the mortality ladder already used. Same
+      # acceptance conditions, same uniform-per-type application, as pinned.
+      marital_ladder_completion:
+        added_rung: { label: sex_pooled_age2p, bands: [[18, 64], [65, 120]], sex_pool: true }
+        ordering_reason: >-
+          both the symmetric age-2 rung ([18-44],[45-120]) and the asymmetric
+          age-2 rung ([18-64],[65+]) partition into 2 bands, but the symmetric
+          split's widest merged group spans 2 raw bands while the elderly-
+          isolating split's spans 3, so the symmetric rung is the less coarse
+          and is explored first under the SAME minimal-rung rule.
+        shape_precedent: >-
+          the mortality ladder's own age3/age2 rungs ([25-54],[55-74],[75-84]
+          and [25-64],[65-84]) are the same "merge-low-wide, isolate-elderly"
+          asymmetric shape.
+        sweep_dispositions:
+          first_marriage: adopts age_x_sex (unchanged); gates first_marriage.18-29|female
+          divorce: adopts sex_pooled_age2 (unchanged); gates divorce.18-44
+          remarriage: adopts sex_pooled_age2p (NEW); gates remarriage.18-64 (clears ONLY here)
+          widowhood: clears NOTHING at any rung incl. the new asymmetric rung (best ~0.474)
+      adopted_rungs:
+        first_marriage: age_x_sex
+        divorce: sex_pooled_age2
+        remarriage: sex_pooled_age2p
+        incidence: sex_pooled_age1
+        recovery: sex_pooled_age1
+        death: none_cleared_any_rung
+        widowhood: none_cleared_any_rung
+
+    # ---- The v3 earnings decompounding ladder (pinned, from v1 floors) ------
+    earnings_decompounding_ladder:
+      rule: >-
+        prune gated earnings cells weakest-power-first (largest v1 tolerance/
+        sigma first), recomputing combined p_gate after each prune, stopping at
+        the FIRST p_gate >= 0.90, never below >= 1 gated cell per concept family
+        -- the LARGEST surface meeting the power floor (maximum falsifiability
+        subject to power). The 5th gated flow cell (remarriage.18-64) lowers
+        combined p_gate at every step, forcing exactly one further prune vs v2
+        (earn_dlog_mean.older, the next non-last-in-concept cell): 0.8944 ->
+        0.9087.
+      pinned_order_head: [earn_p10.older, earn_p90.older, earn_p90.prime]
+      n_pruned: 10
+      n_retained: 6
+      retained:
+        - earn_autocorr_lag2
+        - earn_dlog_mean.prime
+        - earn_dlog_sd.older
+        - earn_mob_h1_diag
+        - earn_p10.prime
+        - earn_zero_rate.older
+      concept_families: [autocorrelation, change_mean, dispersion, log_quantiles, mobility, zero_rate]
+
+    # ---- The v3 GATED registry (string-bindable, per-cell) -----------------
+    # 11 gated cells: 5 FLOW (marital + disability) + 6 earnings. Each tolerance
+    # is round(floor mean + k*sd, 3) capped at the metric cap, bound to
+    # floor.cells[key] in runs/m6_holdout_floors_v3.json by the tests.
+    views:
+      marital_flows:
+        quantity_type: flow
+        family: marital
+        split_unit: household
+        statistic: per (coarsened) age-band x sex marital transition hazard, |ln(rbar/rate_a)| capped ln(1.5)
+        floor_run: runs/m6_holdout_floors_v3.json
+        tolerances:
+          "first_marriage.18-29|female": 0.356
+          "divorce.18-44": 0.379
+          "remarriage.18-64": 0.403
+        derivations:
+          floor_run: runs/m6_holdout_floors_v3.json
+          rules:
+            "first_marriage.18-29|female": { key: "first_marriage.18-29|female", k: 3, rounding: 3, metric: log_ratio }
+            "divorce.18-44": { key: "divorce.18-44", k: 3, rounding: 3, metric: log_ratio }
+            "remarriage.18-64": { key: "remarriage.18-64", k: 3, rounding: 3, metric: log_ratio }
+      disability_flows:
+        quantity_type: flow
+        family: disability
+        split_unit: person
+        statistic: sex-pooled fully-age-pooled disability incidence / recovery hazard, |ln(rbar/rate_a)| capped ln(1.5), reproduction mode
+        floor_run: runs/m6_holdout_floors_v3.json
+        tolerances:
+          "incidence.20-66": 0.404
+          "recovery.20-66": 0.314
+        derivations:
+          floor_run: runs/m6_holdout_floors_v3.json
+          rules:
+            "incidence.20-66": { key: "incidence.20-66", k: 3, rounding: 3, metric: log_ratio }
+            "recovery.20-66": { key: "recovery.20-66", k: 3, rounding: 3, metric: log_ratio }
+      earnings_log_ratio:
+        quantity_type: flow
+        family: earnings
+        split_unit: person
+        statistic: earnings moments on the log-ratio scale (level quantile, zero rate, Delta-log SD, mobility diagonal), |ln(a/b)| capped ln(1.5)
+        floor_run: runs/m6_holdout_floors_v3.json
+        tolerances:
+          "earn_p10.prime": 0.221
+          "earn_zero_rate.older": 0.163
+          "earn_dlog_sd.older": 0.269
+          "earn_mob_h1_diag": 0.052
+        derivations:
+          floor_run: runs/m6_holdout_floors_v3.json
+          rules:
+            "earn_p10.prime": { key: "earn_p10.prime", k: 3, rounding: 3, metric: log_ratio }
+            "earn_zero_rate.older": { key: "earn_zero_rate.older", k: 3, rounding: 3, metric: log_ratio }
+            "earn_dlog_sd.older": { key: "earn_dlog_sd.older", k: 3, rounding: 3, metric: log_ratio }
+            "earn_mob_h1_diag": { key: "earn_mob_h1_diag", k: 3, rounding: 3, metric: log_ratio }
+      earnings_abs_gap:
+        quantity_type: flow
+        family: earnings
+        split_unit: person
+        statistic: signed earnings moments on the absolute-gap scale |a-b| (change-mean log units, autocorr correlation units)
+        floor_run: runs/m6_holdout_floors_v3.json
+        tolerances:
+          "earn_dlog_mean.prime": 0.043
+          "earn_autocorr_lag2": 0.087
+        derivations:
+          floor_run: runs/m6_holdout_floors_v3.json
+          rules:
+            "earn_dlog_mean.prime": { key: "earn_dlog_mean.prime", k: 3, rounding: 3, metric: abs_gap_log }
+            "earn_autocorr_lag2": { key: "earn_autocorr_lag2", k: 3, rounding: 3, metric: abs_gap_corr }
+
+    gated_roll_up:
+      n_gated: 11
+      n_gated_flow_cells: 5
+      n_gated_earnings_cells: 6
+      by_family: { marital: 3, disability: 2, earnings: 6 }
+
+    faithful_candidate_oc:
+      basis_note: >-
+        Independence-approx normal OC on the DRAW-NOISE-FREE half-normal basis
+        (cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product; gate =
+        P(>=4 of 5) = p^5 + 5 p^4 (1-p)); bound to the floor by the tests.
+      combined: { n_gated_cells: 11, p_seed_pass: 0.8934, p_gate_pass_4_of_5: 0.9087 }
+      family_a_flows: { n_gated_cells: 5, p_gate_pass_4_of_5: 0.9822 }
+      earnings_subfamily: { n_gated_cells: 6, p_gate_pass_4_of_5: 0.9626 }
+
+    oc_before_lock:
+      weak_power_p_gate_floor: 0.90
+      min_gated_flow_cells: 4
+      p_gate_combined: 0.9087
+      p_gate_flows: 0.9822
+      n_gated_flow_cells: 5
+      n_gated_tolerances_at_cap: 0
+      clears_lower_bound_not_unpassable: true
+      clears_flow_surface_power: true
+      clears_not_all_tolerances_capped: true
+      clears_weak_power_threshold: true
+      ceremony_may_proceed: true
+      weakest_flow_cell_disclosure: >-
+        incidence.20-66 is the weakest gated flow cell — its tolerance 0.404
+        gates at 99.6% of the ln(1.5) = 0.4055 cap. No gated tolerance sits AT
+        its cap (n_gated_tolerances_at_cap = 0), so the third vacuity guard
+        (not all tolerances capped) is satisfied.
+      outcome: surface clears both directions; ceremony may proceed to the lock flip
+
+    split_width_diagnostic:
+      mean_household_over_person: 1.0399
+      note: >-
+        person- vs household-disjoint floor widths on the adopted coarsened
+        household-split (marital) flow cells (now 3: first_marriage.18-29|female,
+        divorce.18-44, remarriage.18-64); ~1.0 confirms the T*-anchored
+        household-ID rule does not bias the redesigned family-A floor.
+
+    # ---- AMENDMENT 3: the §9-deliverables mirror + the SSA/NCHS anchor ------
+    # (referee comment 4958425437, amendment 3). Mirrors the design §9
+    # floors-ceremony deliverables and adds the NAMED external mortality anchor
+    # required before the lock flip can claim M7-seeding support.
+    deliverables:
+      mirror_of: design §9 (floors-ceremony plan)
+      floor_artifact: runs/m6_holdout_floors_v3.json (v1/v2 frozen as lineage)
+      oc_before_lock_check: satisfied — v3 clears both directions (see oc_before_lock)
+      household_id_weight_carriage_rule: finding 13 (see household_id_weight_carriage_rule)
+      recertification_margin_check: gate_m4-style injected-vs-internal marital-state margin (§2.6)
+      claiming_vintage_freeze: <= T* claiming vintage for report-only benefit levels (finding 11)
+      ssa_nchs_life_table_mortality_anchor:
+        family: B
+        status: report_only
+        gating: >-
+          REPORT-ONLY triangulation. |ln|-gating external mortality LEVELS stays
+          REJECTED (the W1 concept-bridge lesson; referee comment 4958425437
+          ruling — external levels are not a gated observable). This deliverable
+          does not add a gated cell.
+        what: >-
+          external SSA / NCHS published life-table death hazards (age x sex) for
+          the holdout years 2015-2022 and the projection years, triangulated
+          against the engine's projected death hazards, published WITH the
+          candidate run.
+        circularity_disclosure: >-
+          the engine's mortality input is itself NCHS x PSID-band anchored, so
+          agreement validates the ALIGNMENT PATH, not independent drift (the M2
+          calibration_disclosure lesson). Report this explicitly with the anchor.
+        required_before_lock_flip_for: >-
+          M7-seeding support — mortality is the largest not_certified margin;
+          M7 seeds from mortality as report-only-WITH-ANCHOR, never as certified
+          drift. This named deliverable is required before the lock flip can
+          claim any M7-seeding support from the mortality margin.
+
+    data:
+      n_holdout_persons: 29792
+      n_households: 9410
