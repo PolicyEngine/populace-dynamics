@@ -9,9 +9,24 @@
   compression ordering to the **pair-scoped elim↔+2pp adjacent swap**. **4 cells
   demoted** (family A) **+ 1 fingerprint re-scoped** (family C). `hh_size_share.2`
   stays gated (it clears, §3); the C2 fingerprint stays gated (pair-scoped, §4b).
-- **Ceremony stage**: PROPOSAL (draft). This document is the first step of the
-  amendment ceremony (proposal → adversarial referee → fixes → verification →
-  ratify-by-merge → flip). **It moves no threshold and edits no `gates.yaml`
+- **Ceremony stage**: PROPOSAL (draft), **fixes round 1** applied. The adversarial
+  referee round (PR #180 comment [4962052314][ref-round], verdict **AMEND THE
+  AMENDMENT — recommendation survives**) ruled the demote-quad + pair-scope-C2
+  recommendation supported on every recomputed probe (P1 whittling, P2 per-cell
+  truth, P4 OC/bindings, P5 no-self-rescue, P6 hygiene), and returned two
+  grounds-precision findings: **F1** (primary) — §2a/§4b/§8 stated the C2
+  impossibility as a *universal* ("a frame cannot both realise the swap and
+  reproduce Smith's cap rank"), which forensics-3's own f-conditional
+  `order_at_f_deployed_0p22` refutes; this revision **scopes it to the pinned
+  certified frame** (§2a), leads with the two dispositive grounds (the
+  bit-identical deployed-frame cap-rank-2 measurement + the absence of any published
+  representative-frame anchor), keeps the f-conditional window as analysis with the
+  caveat stated, and adds a mutation guard against the universal phrasing. **F2**
+  (minor) — the fertility lever's terminology now reads "support ceiling"/maxed
+  consistently (an inconsistent earlier phrasing corrected). This document is a step
+  of the ceremony (proposal → adversarial
+  referee → fixes → verification → ratify-by-merge → flip). **It moves no threshold
+  and edits no `gates.yaml`
   cell.** The prospective flip happens in a separate ratifying PR, only after the
   ceremony clears. The two elements were **pre-named as amendment-3 risks in the
   ratified amendment-2 series forecast** (§6), which is why the forensics-then-
@@ -60,6 +75,7 @@
 [grade-c3]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4959658059
 [reg2]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4953088871
 [a2-flip]: https://github.com/PolicyEngine/populace-dynamics/pull/174
+[ref-round]: https://github.com/PolicyEngine/populace-dynamics/pull/180#issuecomment-4962052314
 
 ## 1. Summary
 
@@ -81,20 +97,25 @@ are **candidate-independent** and were **pre-named before candidate 3 ran**:
   beyond the permitted seed maximum reaches terminal coresidence only **0.111** —
   capped by the **certified** parental-exit hazard, not the seed — and does **not**
   close the size-1 excess (0.179 vs the frame's 0.083); the fertility window sits at
-  the certified support floor. Three candidates deep, all named levers deployed, no
+  the certified support ceiling. Three candidates deep, all named levers deployed, no
   untried permitted entry-state lever exists. Closing the residual needs a
   **non-entry-state coresidence/household model** — a re-estimation W1 does not
   certify.
 - **(b) The C2 4-element ordering.** Q10 decomposes the 16.7-year-vs-1-year
   `cap_150k` gap: the deployed representative frame's **above-cap payroll share owns
-  0.9925** of it (config + vintage own 0.0075). The **entailment holds**: the same
-  above-wage-base compression correction that certifies the elim↔+2pp swap
-  **mechanically lifts `cap_150k`** to rank 2 (deployed A/B **1.694** PV). The
-  ledger arithmetic is exact — elim>+2pp ⇔ A/B > **0.1613**, but the Smith 4-element
-  order survives only in the narrow window A/B ∈ **(0.1613, 0.184)**, which any
-  swap-realising frame overshoots (deployed ≈ **10×** the window). So the 4-element
-  ordering is **internally inconsistent as a representative-frame transport
-  target**, and no contract-permitted lever restores the adjacency (construction
+  0.9925** of it (config + vintage own 0.0075). On the **pinned certified frame** the
+  same above-wage-base compression that certifies the elim↔+2pp swap puts `cap_150k`
+  at **rank 2** — deployed `A_band/B` **0.373**, measured bit-identically across
+  c1/c2/c3 (deployed A/B **1.694** PV) — so **the pinned transport target violates the
+  full Smith order** while realising the swap, and no published anchor supports the
+  4-element order on a representative frame. This is a **pinned-frame** violation, not
+  a universal one (the a2 candor standard): the order-survival window is f-conditional
+  (0.1613, **0.0806/f**), and at f≈0.22 forensics-3's own `order_at_f_deployed_0p22`
+  shows a frame that realises the swap **and** holds the full order (τ 1.0) — the
+  re-scope drops a target the *pinned* frame cannot hold, not one no frame can. The
+  ledger arithmetic (elim>+2pp ⇔ A/B > **0.1613**; at f≈0.44 the window is (0.1613,
+  0.184) and the deployed A/B 1.694 sits ~**10×** above it) is analysis of the pinned
+  frame, and no contract-permitted lever restores its adjacency (construction
   **enumerates empty**). The **pair-scoped C2** (elim↔+2pp only) is
   **anchor-supported** (Smith 2015 p.3 orders elimination +21yr > +2pp +18yr),
   **realised 3/3** across c1/c2/c3, and certifies exactly the frame-compression
@@ -132,7 +153,7 @@ frame and reproduces the committed cube's C2 exhaustion deltas and `hh_size` cel
 **bit-for-bit** (`q10/q11 instrumentation_bit_identity_max_dev == 0.0`) before any
 counterfactual is measured.
 
-### 2a. Q10 — the `cap_150k` adjacency the certified swap busts
+### 2a. Q10 — the `cap_150k` adjacency the pinned certified frame breaks
 
 The C2 fingerprint scores the ordinal compression ordering of four solvency
 provisions by 75-year exhaustion-delay. Under the Smith (2015) anchor the required
@@ -147,24 +168,33 @@ vintage jointly own **0.0075**). The mechanism is an **entailment**, not a coinc
 `cap_150k` taxes the near-band `[wage_base, $150k-indexed]`; the representative frame
 **de-compresses the tail** (the PV-career-weighted revenue ratio A/B rises from the
 anchor's implicit **0.115** to the deployed **1.694**), and because that near-band is
-~40–50% of the above-base payroll, the **same correction that lifts elimination past
-+2pp** (the certified swap) mechanically lifts `cap_150k` to **rank 2**.
+~40–50% of the above-base payroll, on that deployed frame the **same correction that
+lifts elimination past +2pp** (the certified swap) also lifts `cap_150k` to **rank 2**.
 
-The ledger arithmetic makes the internal inconsistency exact. `elimination` outranks
-`+2pp` iff A/B > **0.1613** (`c2_breakeven_A_over_B`) — this is the swap the
-fingerprint exists to certify. But the full Smith 4-element order (which additionally
-requires `cap_150k` to stay rank-4, below +1pp) survives **only** in the narrow
-window A/B ∈ **(0.1613, 0.184)** (width **0.0228**). Any frame compressed enough to
-realise the swap (A/B just above 0.1613) and still hold the full Smith order must sit
-inside that width-0.023 window; the deployed representative frame's A/B is **1.694** —
-roughly an **order of magnitude (≈10×)** above the window's upper edge. **A frame
-cannot both realise the certified swap and reproduce Smith's `cap_150k` rank**, so the
-full 4-element ordering is **internally inconsistent as a representative-frame
-transport target**: the compression correction the fingerprint certifies is exactly
-what busts the cap rank. The verdict is `entailment_holds: true`,
-`deployed_breaks_adjacency: true`, `deployed_cap_rank: 2`. (On a conservative SSA-anchored true frame the break is
-f-dependent near a boundary ~0.37; the **certified** frame — the actual transport
-target — is unambiguous.)
+**The dispositive ground is frame-pinned and measured, not general.** On the **pinned
+certified frame** — the actual transport target — `cap_150k` ranks **2**, measured
+**bit-identically across c1/c2/c3** (deployed `A_band/B` = **0.373**, `cap_150k`
+exhaustion 16.7 years; `deployed_cap_rank: 2`, `deployed_breaks_adjacency: true`). So
+the pinned frame **violates** Smith's cap-rank-4 while realising the elim↔+2pp swap it
+does realise — the 4-element ordering is internally inconsistent *on the pinned
+transport target* (`anchor_ordering_internally_inconsistent_under_certified_swap`) —
+and **no published anchor** supports the 4-element order on a representative frame.
+Those two grounds carry the re-scope.
+
+**The window is f-conditional — this is NOT a universal impossibility (the a2 candor
+standard).** `elimination` outranks `+2pp` iff A/B > **0.1613** (`c2_breakeven_A_over_B`,
+the swap the fingerprint certifies), and `cap_150k` stays rank-4 (below +1pp) iff
+A/B < **0.0806/f**, so the full Smith order survives in A/B ∈ (0.1613, 0.0806/f). At
+the compressed near-band fraction f≈**0.44** that window is the narrow **(0.1613,
+0.184)** (width 0.0228), and the deployed A/B (**1.694**, holding f at 0.44) sits
+~**10×** above it — the sense in which the *pinned* frame breaks the adjacency. But at
+f≈**0.22** the window **widens to ≈(0.1613, 0.37)**, and forensics-3's own
+`order_at_f_deployed_0p22` = `[elimination, payroll_plus_2pp, payroll_plus_1pp,
+cap_150k]` exhibits a representative frame (A/B≈**0.22**, f≈0.22) that realises the
+swap **and** reproduces the full Smith 4-element order (τ=**1.0**). A swap-consistent
+full-order frame therefore **does** exist at other f; the re-scope drops a target the
+**pinned** frame cannot hold, not one no frame can. The gate is pinned to the certified
+frame, which measures cap at rank 2 unambiguously (`entailment_holds: true`).
 
 No contract-permitted lever restores the Smith adjacency. The construction attempt
 enumerates four levers and each is impermissible or ineffective — the pinned frame
@@ -208,7 +238,7 @@ wave-0 only, so this is the maximal reachable coresidence) reaches terminal
 coresidence only **0.111** and lands size-1 at **0.179**, still far above the frame's
 **0.083**: `closes_size1: false`. The **certified parental-exit hazard**, not the
 seed, caps terminal coresidence — so the roster lever is exhausted at its ceiling, and
-the fertility window is already at the certified support floor. `verdict:
+the fertility window is already at the certified support ceiling. `verdict:
 levers_exhausted`. Closing the residual "needs a non-entry-state coresidence/household
 model (an amendment), not another entry-state lever" — the same shape as amendment 2's
 65+ finding one level up: the miss is a **contract-structural** insufficiency, not a
@@ -238,7 +268,7 @@ amendments 1 and 2 drew: *demote iff the committed forensics establishes that no
 contract-permitted lever reaches the cell at the gate ≥4-of-5 level; retain every
 cell with a live permitted lever, however badly the built candidates miss it.* Q11
 establishes the `hh_size` quad is **lever-exhausted** — the roster ceiling (0.111,
-hazard-capped) does not close size-1, the fertility window is at its support floor,
+hazard-capped) does not close size-1, the fertility window is at its support ceiling,
 and the residual needs a non-entry-state household model — quantified, three
 candidates deep, all named levers deployed. Q10 establishes the `cap_150k` rank is
 **frame-entailed** (the certified swap mechanically lifts it) and its restoration
@@ -302,10 +332,10 @@ impossibility claim (the amendment-2 blocker lesson):
 
 | Cell | Pass record (c1, c2, c3) | Ground |
 |---|---|---|
-| `hh_size_share.1` | 0/5, 0/5, **0/5** | roster ceiling (0.111, hazard-capped) does not close the 0.107 size-1 excess; fertility at support floor |
+| `hh_size_share.1` | 0/5, 0/5, **0/5** | roster ceiling (0.111, hazard-capped) does not close the 0.107 size-1 excess; fertility at support ceiling |
 | `hh_size_share.3` | 0/5, 0/5, **0/5** | coresidence-composition mirror residual (coresidence 0.75); needs non-entry-state model |
 | `hh_size_share.4` | 0/5, 0/5, **1/5** | fertility-window deficit (0.67); **clears on c3 seed 1** — not impossible, but unreachable at ≥4/5 |
-| `hh_size_share.5plus` | 0/5, 0/5, **0/5** | fertility-window deficit (0.78) at the certified support floor |
+| `hh_size_share.5plus` | 0/5, 0/5, **0/5** | fertility-window deficit (0.78) at the certified support ceiling |
 
 Two candor points are stated plainly, **not** blanketed:
 
@@ -360,18 +390,21 @@ candidates, deterministic), and it is exactly the compression correction #113 wa
 built to certify. Demoting it would under-claim the transport — throwing away a real,
 certifiable result to avoid re-scoping. Rejected.
 
-**Option c-c — keep the full 4-element ordering.** **Untenable.** Q10 proves the
-4-element order is **internally inconsistent as a representative-frame transport
-target**: the ledger arithmetic gives elim>+2pp ⇔ A/B > 0.1613 while the full Smith
-order survives only in A/B ∈ (0.1613, 0.184), a window any swap-realising frame
-overshoots (deployed A/B 1.694, ≈10× the window); the above-cap share owns **0.9925**
-of the gap; contract-permitted lever restoration **enumerates empty**; and **no
-published anchor supports the full 4-element ordering on a representative frame**
-(Smith's full order is a 2015-vintage DYNASIM projection on a different frame). Keeping
-it would gate a target the certified frame **cannot** satisfy while realising the swap
-— the same impossibility-vs-headline defect the ceremony exists to cure, and (unlike
-C1, whose re-spec enumerated empty) here a **non-empty, anchor-consistent** re-spec
-exists, so there is no reason to keep the incoherent target.
+**Option c-c — keep the full 4-element ordering.** **Untenable.** On the **pinned
+certified frame** — the transport target — Q10 measures `cap_150k` at **rank 2**
+(deployed `A_band/B` 0.373, cap 16.7yr, bit-identical across c1/c2/c3), so the pinned
+frame **violates** the full Smith order while realising the swap; the above-cap share
+owns **0.9925** of the gap; contract-permitted lever restoration **enumerates empty**;
+and **no published anchor supports the full 4-element ordering on a representative
+frame** (Smith's full order is a 2015-vintage DYNASIM projection on a different frame).
+Keeping it would gate a target the **pinned** certified frame cannot satisfy while
+realising the swap it realises. (The order-survival window is f-conditional — (0.1613,
+**0.0806/f**) — so this is a *pinned-frame* violation, not a universal one: at f≈0.22 a
+frame holds the full order, forensics-3 `order_at_f_deployed_0p22`, τ 1.0. But the gate
+is pinned to the certified frame, and no contract-permitted lever moves it into the
+window.) Unlike C1, whose re-spec enumerated empty, here a **non-empty,
+anchor-consistent** re-spec exists (the pair), so there is no reason to gate an
+ordering the pinned target cannot hold.
 
 **Recommendation (4b): c-a.** Pair-scope C2 to the anchor-supported, thrice-realised
 elim↔+2pp swap; publish the `cap_150k`/+1pp legs report-only.
@@ -542,7 +575,9 @@ moves no locked sibling.
 - id: 2026-07-13-w1-hh-size-and-c2-pair
   proposed: '2026-07-13'
   referee_round:
-    review: '<PR> comment <id> (verdict TBD)'                # filled at ceremony
+    review: 'PR #180 comment 4962052314 (verdict AMEND THE AMENDMENT --
+      recommendation survives; F1 scope C2 impossibility to the pinned frame,
+      F2 fertility terminology)'
     fixes: '<sha>'                                           # filled at ceremony
     verification: '<PR> comment <id> (verdict TBD)'          # filled at ceremony
   ratified: '<date> by merge of PR <n> (merge commit <sha>) under the
@@ -575,12 +610,16 @@ moves no locked sibling.
     1/3/5plus fail 5/5 for c1/c2/c3, size-4 fails 5/5 for c1/c2 but CLEARS c3 seed 1
     (1/5), and size-2 CLEARS c3 5/5 -- so size-2 stays gated and no blanket
     household-size-unreachability claim is made. Q10 (cap_150k): the 16.7y-vs-1y gap is
-    owned 0.9925 by the frame's above-cap payroll share; the entailment HOLDS -- the
-    same compression correction that certifies the elim<->+2pp swap mechanically
-    lifts cap_150k to rank 2 (deployed A/B 1.694 PV), so the 4-element ordering is
-    internally inconsistent as a representative-frame transport target (elim>+2pp <=>
-    A/B>0.1613 vs the Smith-adjacency window A/B in (0.1613, 0.184), overshot ~10x);
-    contract-permitted lever restoration enumerates EMPTY. The pair-scoped C2 is
+    owned 0.9925 by the frame's above-cap payroll share; on the PINNED certified frame
+    the same compression that certifies the elim<->+2pp swap puts cap_150k at rank 2
+    (deployed A_band/B 0.373, bit-identical across c1/c2/c3; deployed A/B 1.694 PV), so
+    the PINNED transport target VIOLATES the full Smith order while realising the swap
+    -- internally inconsistent ON THE PINNED FRAME, NOT a universal claim: the
+    order-survival window is f-conditional (0.1613, 0.0806/f) and at f~0.22 forensics-3's
+    own order_at_f_deployed_0p22 shows a frame that realises the swap AND holds the full
+    order (tau 1.0); the re-scope drops a target the pinned frame cannot hold, not one no
+    frame can. At f~0.44 the window is (0.1613, 0.184) and the deployed A/B 1.694 sits
+    ~10x above it; contract-permitted lever restoration enumerates EMPTY. The pair-scoped C2 is
     anchor-supported (Smith 2015 p.3: elim +21yr > +2pp +18yr), realised 3/3 across
     c1/c2/c3, and certifies exactly the frame-compression mechanism the fingerprint
     exists for; no published anchor supports the full 4-element ordering on a
@@ -652,13 +691,17 @@ family-B margin, pending the bridges.**
   re-estimation W1 does not certify — an evidence-base amendment) or a re-anchored
   household-composition target; both are outside the transport contract and need a
   fresh referee round.
-- **`cap_150k` / the full C2 ordering (option c-c) — a coherent representative-frame
-  target.** Q10 proves the 4-element order is internally inconsistent on a
-  representative frame (the certified swap entails cap rank-2), and no published anchor
-  supports the full ordering on such a frame. Re-gating the `cap_150k` rank requires a
-  **new published anchor** that asserts a representative-frame `cap_150k` ordering a
-  contract-consistent transport can realise — which the evidence base does not contain.
-  The pair-scoped C2 recommended here is the anchor-consistent target that exists today.
+- **`cap_150k` / the full C2 ordering (option c-c) — a pinned-frame-satisfiable
+  target.** Q10 shows the **pinned certified frame** violates the 4-element order (it
+  measures cap at rank 2; the certified swap and cap-rank-2 are co-entailed on that
+  frame), and no published anchor supports the full ordering on a representative frame.
+  (The order is not universally impossible — a frame at f≈0.22 holds it, forensics-3
+  `order_at_f_deployed_0p22` — but the gate is pinned to the certified frame, which
+  does not.) Re-gating the `cap_150k` rank requires either a **frame the certified
+  transport lands in the full-order window** or a **new published anchor** that asserts
+  a representative-frame `cap_150k` ordering a contract-consistent transport can realise
+  on the pinned frame — neither of which the evidence base contains. The pair-scoped C2
+  recommended here is the anchor-consistent target that exists today.
 - **The report-only families carried from amendments 1–2** (C1, the 18-24 pair, the 65+
   quad, family B) keep the bridge prerequisites amendment 2 and amendment 1 named — a
   new PPI-over-NRA binary, a head/spouse young-adult participation anchor or non-head
@@ -671,8 +714,14 @@ family-B margin, pending the bridges.**
 - [x] **Proposal** (this document + this draft PR). No `gates.yaml` edit; no threshold
       moved; the machine-checkable ledger + §7 flip text are string-bound to
       `tests/test_gate_w1_amendment3_proposal.py`.
-- [ ] **Adversarial referee round** (pending).
-- [ ] **Fixes** (pending the referee round).
+- [x] **Adversarial referee round** ([4962052314][ref-round]; verdict AMEND THE
+      AMENDMENT — recommendation survives; **F1** scope the C2 impossibility to the
+      pinned frame, **F2** fertility-lever terminology).
+- [x] **Fixes round 1** (this revision: §2a/§1/§4b-c-c/§8/§10 scope the C2
+      impossibility to the pinned certified frame + the f-conditional caveat with the
+      `order_at_f_deployed_0p22` citation; `cap_150k_impossibility` ledger block +
+      two new bindings + a universal-phrasing mutation guard; F2 fertility-lever
+      terminology now "support ceiling"/maxed consistently).
 - [ ] **Verification round** (pending).
 - [ ] **Ratify by merge** of the flip PR (after the ceremony clears).
 - [ ] **Flip** `gates.yaml` per §7 and append the §8 history entry.
@@ -703,6 +752,24 @@ family-B margin, pending the bridges.**
     "hh_size_share.5plus": "no_permitted_entry_state_lever_reaches_cell"
   },
   "cap_150k_leg_reason": "anchor_ordering_internally_inconsistent_under_certified_swap",
+  "cap_150k_leg_reason_scope": "pinned_certified_frame",
+  "cap_150k_impossibility": {
+    "scope": "pinned_certified_frame_only",
+    "is_universal_claim": false,
+    "dispositive_grounds": ["pinned_frame_measures_cap_rank_2_bit_identical", "no_published_anchor_for_full_4element_on_representative_frame"],
+    "deployed_A_band_over_B_round3": 0.373,
+    "deployed_cap_rank": 2,
+    "window_is_f_conditional": true,
+    "window_upper_formula": "0.0806_over_f",
+    "window_upper_at_f_psid_round3": 0.184,
+    "f_psid_round3": 0.438,
+    "window_upper_at_f_deployed_round3": 0.367,
+    "f_deployed_round2": 0.22,
+    "ssa_true_frame_A_over_B_round2": 0.22,
+    "order_at_f_deployed_holds_full_smith": true,
+    "order_at_f_deployed_realises_swap": true,
+    "swap_consistent_full_order_frame_exists_at_other_f": true
+  },
   "per_cell_pass_record": {
     "hh_size_share.1": {"c1": 0, "c2": 0, "c3": 0},
     "hh_size_share.2": {"c1": 0, "c2": 0, "c3": 5},

@@ -424,11 +424,16 @@ def test_q10_cap150k_arithmetic_bound_to_forensics3():
         == 16.7
     )
     assert gd["smith_cap_150k_years"] == led["q10_smith_cap_150k_years"] == 1
-    # the internal-inconsistency arithmetic is stated in prose.
+    # the arithmetic is stated in prose, and the impossibility is scoped to the
+    # PINNED certified frame (finding 1: not a universal claim).
     s2 = " ".join(_section(2).split())
     assert "0.1613" in s2 and "0.184" in s2 and "1.694" in s2
     assert "0.9925" in s2
     assert "internally inconsistent" in s2
+    assert "pinned" in s2.lower()
+    assert (
+        "on the pinned transport target" in s2 or "on the pinned frame" in s2
+    )
 
 
 def test_q10_reported_not_gated_and_pointers():
@@ -445,6 +450,127 @@ def test_q10_reported_not_gated_and_pointers():
     assert art["protocol"]["train_frame_side_only"] is True
     assert led["train_frame_side_only"] is True
     assert art["protocol"]["publishes_regardless"] is True
+
+
+# --------------------------------------------------------------------------
+# Finding 1 (fixes round): the C2 impossibility is PINNED-FRAME-scoped, not a
+# universal claim -- forensics-3's own f-conditional table refutes the universal
+# --------------------------------------------------------------------------
+def test_q10_impossibility_scoped_to_pinned_frame_not_universal():
+    """The referee's AMEND finding: the width-0.023 window is f-conditional
+    (0.1613, 0.0806/f); at f~=0.22 it widens and forensics-3's own
+    order_at_f_deployed_0p22 exhibits a representative frame that realises the swap
+    AND holds the full 4-element Smith order (tau 1.0). So the impossibility is a
+    property of the PINNED certified frame (which measures cap at rank 2
+    bit-identically), NOT a universal claim about representative frames. Bound to the
+    artifact so the universal phrasing cannot silently return."""
+    imp = _ledger()["cap_150k_impossibility"]
+    q10 = _forensics3()["q10_cap150k_adjacency"]
+    ent = q10["entailment"]
+    tfs = ent["true_frame_sensitivity"]
+    rc = q10["revenue_components"]
+    # the ledger records the pinned scope, not a universal.
+    assert _ledger()["cap_150k_leg_reason_scope"] == "pinned_certified_frame"
+    assert imp["scope"] == "pinned_certified_frame_only"
+    assert imp["is_universal_claim"] is False
+    # dispositive ground 1: the PINNED frame measures cap at rank 2 bit-identically.
+    assert (
+        round(rc["deployed_representative_frame"]["Aband_over_B"], 3)
+        == imp["deployed_A_band_over_B_round3"]
+        == 0.373
+    )
+    assert ent["deployed_cap_rank"] == imp["deployed_cap_rank"] == 2
+    # dispositive ground 2: no published anchor for the full order on a rep frame.
+    key = (
+        "any_published_anchor_supports_full_4_element_on_representative_frame"
+    )
+    assert q10["pair_scoped_respec"][key] is False
+    # the window is f-conditional: const = win_upper(f_psid) * f_psid = 0.0806.
+    f_psid = rc["psid_anchor_frame"]["Aband_over_A"]
+    f_dep = rc["deployed_representative_frame"]["Aband_over_A"]
+    win = ent["smith_adjacency_window_A_over_B_at_f_psid"]
+    const = win[1] * f_psid
+    assert round(const, 4) == 0.0806  # the 0.0806/f numerator (0.01/r)
+    assert round(f_psid, 3) == imp["f_psid_round3"] == 0.438
+    assert round(f_dep, 2) == imp["f_deployed_round2"] == 0.22
+    assert round(win[1], 3) == imp["window_upper_at_f_psid_round3"] == 0.184
+    win_upper_dep = const / f_dep
+    assert (
+        round(win_upper_dep, 3)
+        == imp["window_upper_at_f_deployed_round3"]
+        == 0.367
+    )
+    # THE REFUTATION: the SSA true frame (A/B ~= 0.22) is INSIDE the widened window
+    # (breakeven, win_upper_deployed) AND its order is the full Smith order tau=1.0.
+    ssa = tfs["ssa_true_frame_A_over_B"]
+    assert round(ssa, 2) == imp["ssa_true_frame_A_over_B_round2"] == 0.22
+    assert ent["c2_breakeven_A_over_B"] < ssa < win_upper_dep  # inside window
+    required = _candidate(3)["family_c"]["fingerprints"]["c2"][
+        "required_representative_order"
+    ]
+    assert (
+        tfs["order_at_f_deployed_0p22"]
+        == required
+        == ["elimination", "payroll_plus_2pp", "payroll_plus_1pp", "cap_150k"]
+    )
+    assert imp["order_at_f_deployed_holds_full_smith"] is True
+    # that frame realises the swap too (elim precedes +2pp).
+    o = tfs["order_at_f_deployed_0p22"]
+    assert o.index("elimination") < o.index("payroll_plus_2pp")
+    assert imp["order_at_f_deployed_realises_swap"] is True
+    assert imp["swap_consistent_full_order_frame_exists_at_other_f"] is True
+    # PROSE: sections 2 and 4 scope the claim to the pinned frame; 2a cites the
+    # f-conditional caveat by the artifact field.
+    for sec in ("2", "4"):
+        assert "pinned" in " ".join(_section(sec).split()).lower()
+    s2 = " ".join(_section(2).split())
+    assert "order_at_f_deployed_0p22" in s2
+    assert "f-conditional" in s2 or "0.0806/f" in s2
+    assert "not one no frame can" in s2 or "not a universal" in s2.lower()
+
+
+def test_no_universal_c2_impossibility_phrasing():
+    """Finding 1's mutation guard: the a2 defect class -- a universal impossibility
+    the forensics refutes -- must not return. Each phrasing asserts the claim
+    UNIVERSALLY (over representative frames in general) rather than scoped to the
+    pinned certified frame; the artifact's order_at_f_deployed_0p22 makes each false.
+    Case-insensitive so a capitalised reintroduction is caught."""
+    flat = " ".join(_doc_text().split()).lower()
+    for banned in (
+        "internally inconsistent as a representative-frame transport target",
+        "internally inconsistent on a representative frame",
+        "a frame cannot both realise the certified swap and reproduce",
+        "any swap-realising frame overshoots",
+        "no representative frame can hold",
+        "no frame can realise the swap and",
+        "the incoherent target",
+    ):
+        assert banned not in flat, banned
+    # the artifact truth that makes any such universal false is still bound.
+    tfs = _forensics3()["q10_cap150k_adjacency"]["entailment"][
+        "true_frame_sensitivity"
+    ]
+    o = tfs["order_at_f_deployed_0p22"]
+    assert o == [
+        "elimination",
+        "payroll_plus_2pp",
+        "payroll_plus_1pp",
+        "cap_150k",
+    ]
+    assert o.index("elimination") < o.index("payroll_plus_2pp")
+
+
+def test_fertility_lever_terminology_consistent():
+    """Finding 2 (fixes round): the fertility lever is MAXED (at its ceiling), not
+    at a 'floor' -- 'support floor' reads as the opposite of 'maxed'. Use
+    ceiling/maxed consistently; the lever-exhaustion claim is unaffected."""
+    assert "support floor" not in _doc_text()
+    prose = _prose_without_ledger()
+    assert "maxed" in prose
+    assert "support ceiling" in prose
+    # the substantive exhaustion claim survives (bound elsewhere too).
+    ci = _forensics3()["q11_hhsize_residual"]["candidate_independence"]
+    assert ci["verdict"] == "levers_exhausted"
 
 
 # --------------------------------------------------------------------------
@@ -873,10 +999,14 @@ def test_section_skeleton_and_ceremony_checklist_present():
     assert "## 7. The exact prospective flip" in text
     assert "## 8. `amendment_history` entry draft" in text
     assert "## 9. Certification-scope language after amendment 3" in text
-    # ceremony checklist: proposal done, referee round PENDING (this is the draft).
+    # ceremony checklist: proposal + referee round + fixes round 1 DONE (fixes
+    # revision); verification round still PENDING.
     s11 = _section(11)
     assert "- [x] **Proposal**" in s11
-    assert "- [ ] **Adversarial referee round**" in s11
+    assert "- [x] **Adversarial referee round**" in s11
+    assert "4962052314" in s11  # the referee round is cited
+    assert "- [x] **Fixes round 1**" in s11
+    assert "- [ ] **Verification round**" in s11
     # certification-scope de-vacuous: both machine reasons appear in section 9.
     s9 = _section(9)
     assert REASON_HH in s9 and REASON_CAP in s9
