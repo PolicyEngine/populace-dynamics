@@ -3950,10 +3950,19 @@ def test_gate_m4_flip_leaves_locked_siblings_byte_identical():
     # key on a coordinated both-blocks branch -- the tolerant form the W1
     # flip-fidelity referee verified (PR #160 comment); any OTHER addition
     # still fails.
-    assert added in (set(), {"gate_m4"}, {"gate_w1"}), added
+    # The M6 lock flip (2026-07-13, this file's sibling gate_m6) adds gate_m6
+    # as its own sole new key -- the same added-locked-gate tolerance, extended
+    # for the gate_m6 flip exactly as it was for gate_w1 (empty once merged,
+    # {gate_m6} while its flip PR is open). Any OTHER addition still fails.
+    assert added in (
+        set(),
+        {"gate_m4"},
+        {"gate_w1"},
+        {"gate_m6"},
+    ), added
     assert removed == set()
     for key in master:
-        if key in ("gate_m4", "gate_w1"):
+        if key in ("gate_m4", "gate_w1", "gate_m6"):
             continue
         assert current[key] == master[key], f"{key} changed vs master!"
     # gate_2's locked tranche-2a thresholds + gate_2b + gate_2c untouched.

@@ -1008,10 +1008,13 @@ def test_gates_yaml_flipped_per_section7_and_moves_no_sibling():
     with open(os.path.join(ROOT, "gates.yaml")) as fh:
         live_doc = yaml.safe_load(fh)["gates"]
     master_doc = yaml.safe_load(master_text)["gates"]
-    # the section-7 subset master-compare: no locked sibling moves. (Equal on
-    # gate_w1 too once the flip has merged; different only in gate_w1 while
-    # the flip PR is open.)
-    assert set(live_doc) == set(master_doc)
+    # the section-7 subset master-compare: no locked sibling moves. Stated
+    # master-side so it TOLERATES ADDITIONS -- a later locked-gate flip (the
+    # gate_m6 lock, 2026-07-13) adds gate_m6, absent from master until that PR
+    # merges; that is an addition, not a sibling move. Every gate on master is
+    # still present-and-equal in live (except gate_w1, this flip's own gate);
+    # no master gate is dropped.
+    assert set(master_doc) <= set(live_doc)
     for name in sorted(master_doc):
         if name == "gate_w1":
             continue
