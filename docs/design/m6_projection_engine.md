@@ -579,6 +579,16 @@ Four observable classes on the post-`T*`, post-demotion surface (§4.1 shock, §
 attrition). Cell naming follows the `gate_w1` family-A convention
 (`observable.stratum`).
 
+> **Superseded by §4.10 (v3).** This section describes the *design-time candidate*
+> surface at age-band × sex granularity, and reads as if survival curves and all
+> four marital transitions were gated. They are **not**. The OC-before-lock pause
+> and the candidate-blind coarsening/decompounding ladders (§4.10) demoted this
+> surface to the actually-lockable one: **mortality gates nothing** (see
+> `not_certified`, mortality drift first); the marital surface gates only
+> `first_marriage.18-29|female`, `divorce.18-44`, and `remarriage.18-64` (the
+> completed asymmetric-age-2 rung); **widowhood gates nothing**; earnings is
+> decompounded to 6 cells. Read §4.10 for the binding registry.
+
 - **Survival curves (mortality flow).** Cell = the realized death hazard
   `q(band, sex)` = deaths ÷ start-of-interval exposure among presence-conditioned
   holdout person-years (§4.4), per (age-band × sex) over bands {…, 55-64, 65-74,
@@ -692,6 +702,142 @@ forensics but the **spec-selection-on-full-sample** limitation (§4.2) — a pas
 search whose *structure* was chosen on the full window," and the 2100 production
 projection is report-only extrapolation beyond the validated window (decision 10,
 §7).
+
+### 4.10 Post-pause surface redesign — the power-derivation and the v1→v2→v3 registry
+
+The floors ceremony's step-1 OC-before-lock check (§4.9) **fired the §9 pause**.
+The frozen v1 floor artifact `runs/m6_holdout_floors_v1.json`
+(sha256 `16c28d8cd9095e5233ab224c659c8d5b9eb1621099e2524455a3a8ff8e88d318`, the
+**pause evidence**) priced the §4.5 age-band × sex surface and found it does not
+support a lock in **either** direction: the certifiable **flow** surface was
+near-vacuous (a single gated flow cell, `first_marriage.18-29|female`), because an
+8-year biennial holdout at that granularity yields ~0.1 half-split log-ratio noise
+per flow cell, so at the design-pinned FLOW `k=3` most flow tolerances land just
+over the `ln(1.5)` cap; and the combined faithful `p_gate` was **0.8449 < 0.90**
+(the named weak-power floor), because 16 earnings-moment cells compound under the
+4-of-5 conjunction. The pause is the correct outcome, not a defect: it is the W1
+lesson (identify an unlockable surface **before** locking) applied to the power of
+the surviving surface.
+
+The adjudicated redesign is executed by two **candidate-blind** ladders
+(`scripts/build_m6_holdout_floors_v2.py` → `runs/m6_holdout_floors_v2.json`). They
+are candidate-blind *by construction*: every choice is a function only of
+truth-side power arithmetic — floor sigmas, weaker-half event counts, and v1
+`tolerance/σ` ratios — and never references an engine, a candidate, or what a model
+would find easy or hard.
+
+- **Coarsening ladder (flows).** Per transition type, pool **adjacent** strata
+  minimally in the pinned order *sex-pool → age-pool-adjacent*, climbing until a
+  cell's tolerance `≤ ln(1.5)` **and** `≥ 20` weaker-half events; adopt the
+  **minimal** rung with `≥ 1` clearing cell uniformly for that transition type.
+  Mortality `85+` stays report-only (`attrition_confounded_truth`) at every rung.
+  Outcome (v2): `first_marriage` clears already at age×sex (`.18-29|female`);
+  `divorce` clears sex-pooled at ages `18-44`; disability `incidence`/`recovery`
+  clear only fully pooled (`.20-66`); **mortality, `widowhood`, and — in v2 —
+  `remarriage` cleared nothing at the rungs v2 enumerated.** The v2 gloss "too thin
+  for them even pooled" is corrected at v3 for `remarriage` (see the v2→v3
+  correction below): it was true of the *enumerated rungs*, not of the data.
+- **Earnings decompounding ladder.** Prune gated earnings cells
+  **weakest-power-first** (largest v1 `tolerance/σ` first), recomputing the
+  combined `p_gate` after each prune, stopping at the **first** `p_gate ≥ 0.90`,
+  never below `≥ 1` gated cell per concept family (log-quantiles, dispersion,
+  mobility, zero-rate, autocorrelation, change-mean). This retains the **largest**
+  surface meeting the power floor under the ladder — *maximum falsifiability
+  subject to power*. Outcome: 9 of 16 earnings cells pruned, 7 retained (one per
+  concept family, plus a second `change_mean`).
+
+**As-committed v2 gated registry: 11 cells — 4 flow + 7 earnings** (frozen,
+`runs/m6_holdout_floors_v2.json`, sha256 `3f273d47…`):
+
+| Family | Gated cells | Adopted rung |
+|---|---|---|
+| marital | `first_marriage.18-29\|female`, `divorce.18-44` | age×sex; sex-pooled age `18-44` |
+| disability | `incidence.20-66`, `recovery.20-66` | sex-pooled, fully age-pooled |
+| earnings | `earn_p10.prime`, `earn_zero_rate.older`, `earn_dlog_sd.older`, `earn_mob_h1_diag`, `earn_autocorr_lag2`, `earn_dlog_mean.prime`, `earn_dlog_mean.older` | v1 person-disjoint floor (unchanged), decompounded |
+
+The v2 faithful-candidate OC on this surface is **`p_seed 0.8921` / `p_gate 0.9067`**
+(flows-only `0.9882`, earnings-only `0.9518`), and the certifiable flow surface
+carries **4** gated cells. Every number is arithmetically clean and independently
+reproduced.
+
+#### The v2→v3 correction — completing the marital ladder's rung enumeration
+
+**v2's marital ladder enumeration was incomplete.** The adversarial referee
+(comment `4958425437`, amendment 2) rebuilt both artifacts bit-identically from
+PSID and swept **every** contiguous adjacent-band pooling with the ceremony's own
+machinery. Mortality and widowhood are pooling-invariant (nothing admissible
+clears anywhere — mortality best `~0.462`, widowhood best `~0.474`). **Remarriage
+is not.** It clears at exactly one rung the v2 marital ladder never enumerated: the
+**asymmetric age-2 partition** `[18-64],[65+]` — `remarriage.18-64` at tolerance
+**`0.403`** (`σ 0.1538`, 143 weaker-half events, 100/100 seeds, household-disjoint).
+So the v2 gloss "too thin for remarriage even pooled" was true only of the
+*enumerated* rungs, not of the data. Critically, this is **not a new design
+choice**: the asymmetric "merge the lower bands wide, isolate the elderly tail"
+shape is one the **mortality ladder itself already used** (its
+`[25-54],[55-74],[75-84]` and `[25-64],[65-84]` rungs). Completing the marital
+ladder to enumerate the same rung shapes — uniformly per transition type, as
+originally pinned — is fidelity to the adjudicated candidate-blind criteria, not a
+second design pass. This is the **orchestrator's v3 adjudication** of the referee's
+amendment 2.
+
+The completion is a single machinery change (`scripts/build_m6_holdout_floors_v3.py`,
+`MARITAL_LADDER` gains `sex_pooled_age2p = [18-64],[65+]` after the symmetric
+age-2 rung; ordered by coarseness, since the symmetric split's widest merged group
+spans 2 raw bands while the elderly-isolating split's spans 3). Under the same
+minimal-rung rule it adopts, uniformly: `first_marriage → age×sex` (unchanged),
+`divorce → sex-pooled age 18-44` (unchanged), **`remarriage → sex-pooled age 18-64`
+(new)**, `widowhood → nothing` (now recorded as evaluated at the asymmetric rung
+too), `death → nothing`. The extra 5th gated flow cell lowers the combined
+`p_gate` at every earnings-prune step, so the **same pinned weakest-first earnings
+ladder is forced exactly one further prune** (`earn_dlog_mean.older`, the next
+non-last-in-concept cell: `0.8944 → 0.9087`), retaining 6 earnings cells (still one
+per concept family).
+
+**v3 gated registry: 11 cells — 5 flow + 6 earnings** (`runs/m6_holdout_floors_v3.json`,
+sha256 `e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77`; v1
+`16c28d8c…` and v2 `3f273d47…` stay **frozen** as lineage):
+
+| Family | Gated cells | Adopted rung |
+|---|---|---|
+| marital | `first_marriage.18-29\|female`, `divorce.18-44`, `remarriage.18-64` | age×sex; sex-pooled `18-44`; sex-pooled `18-64` (asymmetric age-2) |
+| disability | `incidence.20-66`, `recovery.20-66` | sex-pooled, fully age-pooled |
+| earnings | `earn_p10.prime`, `earn_zero_rate.older`, `earn_dlog_sd.older`, `earn_mob_h1_diag`, `earn_autocorr_lag2`, `earn_dlog_mean.prime` | v1 person-disjoint floor (unchanged), decompounded |
+
+The v3 faithful-candidate OC is **`p_seed 0.8934` / `p_gate 0.9087`** (flows-only
+`0.9822`, earnings-only `0.9626`); the certifiable flow surface now carries **5**
+gated cells across **three** marital transition types plus both disability flows —
+a strictly larger, more falsifiable flow surface than v2, on the ceremony's own
+maximum-falsifiability-subject-to-power principle. The completion held every
+invariant fixed: `T* = 2014` (**no window extension** this round — that is a
+separate adjudication re-deriving decisions 1–2), lag-5 report-only, FLOW `k = 3`,
+the `ln(1.5)` cap, the 4-of-5 conjunction, and the `0.90` floor. `incidence.20-66`
+is the weakest gated flow cell (`0.404`, 99.6% of the `ln(1.5)` cap); no gated
+tolerance sits at its cap, so the restored third vacuity guard (not all tolerances
+capped) is satisfied.
+
+**What v3 still certifies nothing about** (the `not_certified` declaration, block
+draft, at the same prominence as the PASS claim — referee amendment 1): **mortality
+drift first** (no admissible pooling clears the `25-84` surface even fully pooled,
+best `~0.472`; `85+` is `attrition_confounded_truth`; `85+`-inclusive pools clear on
+power but ~27% of their events are the confounded stratum, so pooling dilutes
+rather than cures), then **widowhood** (best `~0.474`), the **2020–2022 shock
+window**, **entrants / open panel**, **autocorrelation lag-5**, the **2100
+forward-projection extrapolation**, all **stock margins**, and the remarriage `65+`
+tail. Mortality is therefore seeded into M7 **report-only-with-anchor**, never as
+certified drift: the block names the **SSA/NCHS life-table mortality anchor** as a
+required report-only family-B deliverable before the lock flip can claim any
+M7-seeding support (`|ln|`-gating external mortality *levels* stays rejected — the
+W1 concept-bridge lesson; referee ruling in comment `4958425437`). The circularity
+that the engine's mortality input is itself NCHS×PSID-band anchored is disclosed
+with the anchor (the M2 `calibration_disclosure` lesson): agreement validates the
+alignment path, not independent drift.
+
+*Public-record citations at flip time:* the **candidate-blind surface-redesign
+adjudication** (the two pinned ladders) lives in this §4.10 and the PR #172 body;
+the **v3 adjudication** (complete the pinned ladder's enumeration) is referee
+comment `4958425437` amendment 2, adopted by the ceremony orchestrator. Both must
+be cited on the public record when the lock flip lands, so the flip carries the
+adjudication text, not only its result.
 
 ## 5. PolicyEngine integration — the W2 pattern per projection year
 
@@ -833,7 +979,19 @@ The ceremony that seeds from this revised §4 must produce, before locking:
 
 - **the floor artifact** `runs/m6_holdout_floors_v1.json` — presence-conditioned
   (§4.4), start-wave-weighted (§4.7, F6), correlation-respecting half-splits, floor
-  seeds `0–99`, on the post-demotion surface (§4.1 shock, §4.4 attrition).
+  seeds `0–99`, on the post-demotion surface (§4.1 shock, §4.4 attrition). v1 fired
+  the pause; the candidate-blind ladders produced v2, and the completed marital
+  ladder produced the binding **v3** artifact `runs/m6_holdout_floors_v3.json`
+  (§4.10). v1 and v2 stay frozen as lineage.
+- **the SSA/NCHS life-table mortality anchor (referee amendment 3)** — a *named*
+  report-only family-B deliverable: external SSA/NCHS published death hazards
+  (age × sex) for the holdout and projection years, triangulated against the
+  engine's projected hazards and published with the candidate run. Required before
+  the lock flip can claim M7-seeding support, because mortality certifies nothing
+  on the truth side (§4.10 `not_certified`). `|ln|`-gating external *levels* stays
+  rejected (the W1 concept-bridge lesson); the NCHS×PSID-band input circularity is
+  disclosed with the anchor (agreement validates the alignment path, not
+  independent drift — the M2 `calibration_disclosure` lesson).
 - **the re-certification margin check (§2.6)** — candidate-9's household-composition
   output moments under injected-vs-internal marital state agree within a pre-named
   gate_m4-style margin; a floors-ceremony deliverable, not assumed here.
@@ -866,6 +1024,11 @@ lock ceremony.
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
+  "floors_ceremony_outcome": {
+    "step1_v1": "PAUSED (near-vacuous flow surface + p_gate 0.8449 < 0.90); evidence runs/m6_holdout_floors_v1.json sha256 16c28d8c...",
+    "redesign_v2": "candidate-blind coarsening + decompounding ladders (see 4.10); runs/m6_holdout_floors_v2.json; 11 gated (4 flow + 7 earnings), p_gate 0.9067 >= 0.90, ceremony may proceed",
+    "gates_yaml_still_untouched": true
+  },
   "gates_yaml_untouched_by_this_document": true,
   "fit_holdout": {
     "boundary_T_star": 2014,
