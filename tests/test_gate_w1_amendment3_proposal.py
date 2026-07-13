@@ -491,6 +491,17 @@ def test_q10_impossibility_scoped_to_pinned_frame_not_universal():
     win = ent["smith_adjacency_window_A_over_B_at_f_psid"]
     const = win[1] * f_psid
     assert round(const, 4) == 0.0806  # the 0.0806/f numerator (0.01/r)
+    # V2 (fixes round 2): the pinned frame's A/B is the binding constraint, not f.
+    # The pinned frame lands in the order-survival window only for f < const/(A/B) =
+    # 0.0476 (equivalently 0.01/d_bal_elim), far below the measured deployed f 0.22 --
+    # this is the true scoped content the §2a restoration clause now states.
+    ab_dep = rc["deployed_representative_frame"]["A_over_B"]
+    f_needed = const / ab_dep
+    assert (
+        round(f_needed, 4)
+        == imp["pinned_A_over_B_needs_f_below_round4"]
+        == 0.0476
+    )
     assert round(f_psid, 3) == imp["f_psid_round3"] == 0.438
     assert round(f_dep, 2) == imp["f_deployed_round2"] == 0.22
     assert round(win[1], 3) == imp["window_upper_at_f_psid_round3"] == 0.184
@@ -526,25 +537,60 @@ def test_q10_impossibility_scoped_to_pinned_frame_not_universal():
     s2 = " ".join(_section(2).split())
     assert "order_at_f_deployed_0p22" in s2
     assert "f-conditional" in s2 or "0.0806/f" in s2
-    assert "not one no frame can" in s2 or "not a universal" in s2.lower()
+    # V2 (fixes round 2): the caveat's existence sentence AND the not-a-universal
+    # header must BOTH be present -- AND, not OR, so deleting either is caught (the
+    # verifier's M2b soft spot: the OR fallback let the existence sentence be dropped).
+    assert "not one no frame can" in s2
+    assert "not a universal" in s2.lower()
+    # V2: the §2a restoration clause is scoped to the pinned A/B (needs f < 0.0476)
+    # and restores the artifact's (<0.5) gloss + the no-contract-permitted-lever
+    # conjunct -- so it is no longer the bare frame-level universal the verifier
+    # flagged (which the extended BANNED_UNIVERSAL_C2_PHRASINGS guard now also bans).
+    assert "0.0476" in s2
+    assert "(<0.5)" in s2
+    assert "no contract-permitted lever" in s2.lower()
+
+
+# The universal-impossibility phrasings the a2 defect class produces: each asserts
+# the C2/cap impossibility over representative frames IN GENERAL (or over earnings
+# distributions in general) rather than scoped to the pinned certified frame, and
+# forensics-3's own order_at_f_deployed_0p22 makes each false. A true class guard is
+# impossible for a string guard (synonyms bypass it), so the KNOWN slots are
+# enumerated; matched case-insensitively against the flattened doc. Fixes round 2
+# (verification comment 4962578395, V2) extended the list past the round-1 slots to
+# the earnings-distribution / representative-frame synonym class -- the §2a
+# restoration-clause universal + the verifier's M4/M4b mutations.
+BANNED_UNIVERSAL_C2_PHRASINGS = (
+    # round-1 slots (Finding 1)
+    "internally inconsistent as a representative-frame transport target",
+    "internally inconsistent on a representative frame",
+    "a frame cannot both realise the certified swap and reproduce",
+    "any swap-realising frame overshoots",
+    "no representative frame can hold",
+    "no frame can realise the swap and",
+    "the incoherent target",
+    # round-2 additions (V2): the §2a restoration-clause universal (soft spot 1)
+    # and the M4/M4b earnings-distribution / representative-frame synonyms.
+    "no unimodal earnings distribution makes it small enough",
+    "no earnings distribution of any shape",
+    "no representative frame whatsoever",
+    "realise the swap while reproducing smith's cap rank",
+)
 
 
 def test_no_universal_c2_impossibility_phrasing():
-    """Finding 1's mutation guard: the a2 defect class -- a universal impossibility
-    the forensics refutes -- must not return. Each phrasing asserts the claim
-    UNIVERSALLY (over representative frames in general) rather than scoped to the
-    pinned certified frame; the artifact's order_at_f_deployed_0p22 makes each false.
-    Case-insensitive so a capitalised reintroduction is caught."""
+    """Finding 1's mutation guard (extended in fixes round 2): the a2 defect class --
+    a universal impossibility the forensics refutes -- must not return, in any of its
+    known synonym slots. Each banned phrasing asserts the claim UNIVERSALLY (over
+    representative frames, or over earnings distributions, in general) rather than
+    scoped to the pinned certified frame; the artifact's order_at_f_deployed_0p22
+    makes each false. Case-insensitive so a capitalised reintroduction is caught. The
+    verifier's M4 ("no earnings distribution of any shape can realise the swap and
+    hold the full order") and M4b ("no representative frame whatsoever can realise the
+    swap while reproducing Smith's cap rank") synonyms are now enumerated slots.
+    """
     flat = " ".join(_doc_text().split()).lower()
-    for banned in (
-        "internally inconsistent as a representative-frame transport target",
-        "internally inconsistent on a representative frame",
-        "a frame cannot both realise the certified swap and reproduce",
-        "any swap-realising frame overshoots",
-        "no representative frame can hold",
-        "no frame can realise the swap and",
-        "the incoherent target",
-    ):
+    for banned in BANNED_UNIVERSAL_C2_PHRASINGS:
         assert banned not in flat, banned
     # the artifact truth that makes any such universal false is still bound.
     tfs = _forensics3()["q10_cap150k_adjacency"]["entailment"][

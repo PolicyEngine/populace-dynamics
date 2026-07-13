@@ -9,7 +9,7 @@
   compression ordering to the **pair-scoped elim↔+2pp adjacent swap**. **4 cells
   demoted** (family A) **+ 1 fingerprint re-scoped** (family C). `hh_size_share.2`
   stays gated (it clears, §3); the C2 fingerprint stays gated (pair-scoped, §4b).
-- **Ceremony stage**: PROPOSAL (draft), **fixes round 1** applied. The adversarial
+- **Ceremony stage**: PROPOSAL (draft), **fixes round 2** applied. The adversarial
   referee round (PR #180 comment [4962052314][ref-round], verdict **AMEND THE
   AMENDMENT — recommendation survives**) ruled the demote-quad + pair-scope-C2
   recommendation supported on every recomputed probe (P1 whittling, P2 per-cell
@@ -23,8 +23,15 @@
   representative-frame anchor), keeps the f-conditional window as analysis with the
   caveat stated, and adds a mutation guard against the universal phrasing. **F2**
   (minor) — the fertility lever's terminology now reads "support ceiling"/maxed
-  consistently (an inconsistent earlier phrasing corrected). This document is a step
-  of the ceremony (proposal → adversarial
+  consistently (an inconsistent earlier phrasing corrected). The verification round
+  (comment 4962578395, verdict **FURTHER FIXES ×2** — recommendation untouched)
+  returned two further grounds-precision text edits, applied in **fixes round 2**:
+  **V1** the PR-body squash-message Q10 bullet, scoped to the pinned frame (mirrors
+  §8); **V2** the §2a restoration clause, scoped to the pinned A/B — which would need
+  f < 0.0476 to land in-window — with the artifact's "small enough (<0.5)" gloss and
+  the no-contract-permitted-lever conjunct restored, and the universal-phrasing guard
+  extended to the earnings-distribution / representative-frame synonym class. This
+  document is a step of the ceremony (proposal → adversarial
   referee → fixes → verification → ratify-by-merge → flip). **It moves no threshold
   and edits no `gates.yaml`
   cell.** The prospective flip happens in a separate ratifying PR, only after the
@@ -203,8 +210,15 @@ whole tail, cannot carve the near-band hole), the committed #117 `cap_150k` enco
 (raising the threshold collapses the provision to +0, a different provision), and
 back-solving the frame tail (the prohibited identity-in-disguise). Because the
 near-band is the **densest** part of a monotone-thinning tail, f = A_band/A stays
-large (PSID 0.438, deployed 0.220) and no unimodal earnings distribution makes it
-small enough while landing A/B in the window: `restoration_exists: false`.
+large (PSID 0.438, deployed 0.220) — both already satisfy the artifact's
+"small enough (<0.5)" gloss, so f is not the binding constraint. At the deployed f
+(0.220) the order-survival window is already wide, (0.1613, 0.367), yet the
+**pinned** frame overshoots it: the impossibility is a property of its pinned A/B =
+1.694 (a fixed frame, not a free parameter), which would need f < 0.0476 to land
+in-window — far below the measured 0.220. The only lever that could carve a pinned
+A/B that far into the window is back-solving the frame tail (the prohibited
+identity-in-disguise), so no contract-permitted lever restores the pinned frame's
+Smith adjacency: `restoration_exists: false`.
 
 ### 2b. Q11 — the `hh_size` residual: mixed-but-structured, levers exhausted
 
@@ -722,6 +736,14 @@ family-B margin, pending the bridges.**
       `order_at_f_deployed_0p22` citation; `cap_150k_impossibility` ledger block +
       two new bindings + a universal-phrasing mutation guard; F2 fertility-lever
       terminology now "support ceiling"/maxed consistently).
+- [x] **Fixes round 2** (verification comment 4962578395, verdict FURTHER FIXES ×2 —
+      both grounds-precision text edits, recommendation untouched: **V1** the PR-body
+      squash-message Q10 bullet scoped to the pinned frame (mirrors §8); **V2** the
+      §2a restoration clause scoped to the pinned A/B — needs f < 0.0476 —
+      restoring the artifact's "small enough (<0.5)" gloss and the
+      no-contract-permitted-lever conjunct; the universal-phrasing guard extended to
+      the earnings-distribution / representative-frame synonym class, and the
+      caveat-existence binding tightened from OR to AND).
 - [ ] **Verification round** (pending).
 - [ ] **Ratify by merge** of the flip PR (after the ceremony clears).
 - [ ] **Flip** `gates.yaml` per §7 and append the §8 history entry.
@@ -761,6 +783,7 @@ family-B margin, pending the bridges.**
     "deployed_cap_rank": 2,
     "window_is_f_conditional": true,
     "window_upper_formula": "0.0806_over_f",
+    "pinned_A_over_B_needs_f_below_round4": 0.0476,
     "window_upper_at_f_psid_round3": 0.184,
     "f_psid_round3": 0.438,
     "window_upper_at_f_deployed_round3": 0.367,
