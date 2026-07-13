@@ -547,8 +547,10 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     test inverted its sibling assertion). The DRAFT's own
     gates_yaml_untouched_by_this_draft stays True -- that is a statement about
     the DRAFT artifact, not the live contract. VERBATIM fidelity: the live
-    block equals the draft block modulo exactly the three lock-time deltas
-    (locked: true, status: locked, + the added history entry)."""
+    block equals the draft block modulo exactly the lock-time deltas -- locked:
+    true, status: locked, the added history entry, and the design_commit pin
+    FINALIZED per the draft's own design_commit_note (from PR #175's design
+    commit to the #175 squash-merge)."""
     block = _block()
     # a statement about the DRAFT step; stays True post-flip.
     assert block["gates_yaml_untouched_by_this_draft"] is True
@@ -558,17 +560,22 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     assert live["status"] == "locked"
     assert live["id"] == "m6_temporal_holdout_projection_drift"
     assert live["floor_run"] == "runs/m6_holdout_floors_v3.json"
-    # exactly the three lock-time deltas: locked / status / +history.
+    # the lock-time deltas: locked / status / +history / the design_commit pin
+    # finalized to the #175 squash-merge (the draft prescribes this in
+    # design_commit_note). design_pr stays "175" (carried verbatim).
     assert "history" in live and "history" not in block
     assert block["locked"] is False
     assert block["status"] == "draft_cleared_ready_for_lock_flip"
-    live_cmp = {
-        k: v
-        for k, v in live.items()
-        if k not in ("locked", "status", "history")
-    }
+    assert live["design_pr"] == block["design_pr"] == "175"
+    assert block["design_commit"] == "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
+    assert live["design_commit"] == "ce9893b13e74a99f38d04ace2d278fac495012d0"
+    assert "design_commit_note" in live and "design_commit_note" in block
+    _deltas = ("locked", "status", "history", "design_commit")
+    live_cmp = {k: v for k, v in live.items() if k not in _deltas}
     draft_cmp = {
-        k: v for k, v in block.items() if k not in ("locked", "status")
+        k: v
+        for k, v in block.items()
+        if k not in ("locked", "status", "design_commit")
     }
     assert live_cmp == draft_cmp
     text = DESIGN_PATH.read_text(encoding="utf-8")

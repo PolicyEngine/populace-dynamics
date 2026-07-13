@@ -59,8 +59,19 @@ METRIC_CAP = {"log_ratio": LN_1_5, "abs_gap_log": LN_1_5, "abs_gap_corr": 0.15}
 
 ASYMMETRIC_AGE2_RUNG = "sex_pooled_age2p"
 
-# The not_certified margins the locked block MUST name (referee amendment 1);
-# mortality drift is named FIRST.
+# The design pin: PR #175 amended the draft and re-pinned design_commit off the
+# stale 1d83a221 (PR #170) to PR #175's design commit; the flip FINALIZES that
+# pin to the #175 squash-merge, per the draft's design_commit_note.
+DESIGN_PR = "175"
+DESIGN_COMMIT_DRAFT = "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
+DESIGN_COMMIT_FINAL = "ce9893b13e74a99f38d04ace2d278fac495012d0"  # #175 squash
+# PR #175's new not_certified margin: the gated {2016,2018} earnings cells ride
+# the design 2.7 FORWARD earnings law, first-certified by gate_m6 (gate_1 does
+# NOT cover it).
+FORWARD_EARNINGS_MARGIN = "forward_earnings_law_not_gate1_certified"
+
+# The not_certified margins the locked block MUST name (referee amendment 1 +
+# the PR #175 forward-law margin); mortality drift is named FIRST.
 REQUIRED_NOT_CERTIFIED = {
     "mortality_drift",
     "widowhood",
@@ -68,7 +79,9 @@ REQUIRED_NOT_CERTIFIED = {
     "entrants_open_panel",
     "autocorrelation_lag5",
     "forward_projection_2100_extrapolation",
+    FORWARD_EARNINGS_MARGIN,
 }
+N_NOT_CERTIFIED = 10  # the full margin count after the PR #175 amendment
 
 # The ratifying-ceremony public record the history entry MUST carry.
 CEREMONY_COMMENTS = ("4958425437", "4958956779", "4959310892")
@@ -140,7 +153,8 @@ def _history_entry(block: dict[str, Any]) -> dict[str, Any]:
 # Binding checks (raise AssertionError on drift; reused by the mutation test)
 # --------------------------------------------------------------------------
 def check_lock_deltas(block: dict[str, Any]) -> None:
-    """The three lock-time deltas from the draft: locked / status / history."""
+    """The lock-time deltas from the #175-amended draft: locked / status /
+    history / the design_commit pin finalized to the #175 squash-merge."""
     assert block["locked"] is True
     assert block["status"] == "locked"
     assert "history" in block
@@ -148,6 +162,11 @@ def check_lock_deltas(block: dict[str, Any]) -> None:
     assert block["kind"] == "temporal_holdout"
     # the flip READS the frozen floor and rewrites nothing.
     assert block["floor_run"] == "runs/m6_holdout_floors_v3.json"
+    # PR #175: design_pr re-pinned to 175, design_commit FINALIZED to the #175
+    # squash-merge (not the stale 1d83a221 nor PR #175's own design commit).
+    assert block["design_pr"] == DESIGN_PR
+    assert block["design_commit"] == DESIGN_COMMIT_FINAL
+    assert "design_commit_note" in block
 
 
 def check_floor_run_sha(block: dict[str, Any]) -> None:
@@ -238,10 +257,14 @@ def check_not_certified(block: dict[str, Any]) -> None:
     margins = [entry["margin"] for entry in nc]
     assert margins[0] == "mortality_drift"  # named FIRST
     assert REQUIRED_NOT_CERTIFIED <= set(margins)
+    assert len(nc) == N_NOT_CERTIFIED  # the full PR #175-amended margin count
     for entry in nc:
         assert entry["detail"].strip(), entry["margin"]
     mort = next(e for e in nc if e["margin"] == "mortality_drift")
     assert "NOTHING" in mort["detail"]
+    # the PR #175 forward-earnings-law margin: gate_1 does NOT certify it.
+    fwd = next(e for e in nc if e["margin"] == FORWARD_EARNINGS_MARGIN)
+    assert "gate_1" in fwd["detail"] and "forward" in fwd["detail"].lower()
 
 
 def check_year_pins(block: dict[str, Any], v3: dict[str, Any]) -> None:
@@ -366,6 +389,12 @@ def check_history(block: dict[str, Any]) -> None:
     assert "PR #172" in entry["ratified"]
     assert "2026-07-07" in entry["ratified"]
     assert "no_self_rescue" in entry["ratified"]
+    # the design_commit pin finalization is RECORDED in the history entry
+    # (per the draft's design_commit_note): from PR #175's design commit to
+    # the #175 squash-merge.
+    fin = entry["design_commit_finalized"]
+    assert fin["from"] == DESIGN_COMMIT_DRAFT
+    assert fin["to"] == DESIGN_COMMIT_FINAL == block["design_commit"]
     # the ceremony narrative names the load-bearing facts
     content = entry["content"]
     assert "0.8449" in content  # v1 pause
@@ -373,6 +402,7 @@ def check_history(block: dict[str, Any]) -> None:
     assert "0.8934" in content and "0.9087" in content  # v3 OC
     assert "mortality drift FIRST" in content
     assert "ZERO threshold movement" in content
+    assert DESIGN_COMMIT_FINAL in content  # the finalization is narrated
 
 
 # --------------------------------------------------------------------------
@@ -548,3 +578,21 @@ def test_mutations_are_caught():
     m8["gated_roll_up"]["by_family"]["marital"] = 2
     with pytest.raises(AssertionError):
         check_partition_rollups(m8, v3)
+
+    # 9. DESIGN-COMMIT finalization drift: the un-finalized PR #175 design
+    # commit (not the #175 squash-merge) must fail the lock-delta binding.
+    m9 = _deep(_gate())
+    m9["design_commit"] = DESIGN_COMMIT_DRAFT
+    with pytest.raises(AssertionError):
+        check_lock_deltas(m9)
+
+    # 10. not_certified COUNT drift: dropping the PR #175 forward-earnings-law
+    # margin fails the count + required-set binding.
+    m10 = _deep(_gate())
+    m10["not_certified"] = [
+        e
+        for e in m10["not_certified"]
+        if e["margin"] != FORWARD_EARNINGS_MARGIN
+    ]
+    with pytest.raises(AssertionError):
+        check_not_certified(m10)
