@@ -1,0 +1,945 @@
+{
+  "schema_version": "gate_w1_forensics2.v1",
+  "run": "gate_w1_forensics2_v1",
+  "gate": "gate_w1",
+  "reported_not_gated": true,
+  "diagnostic": "W1 forensics 2 -- the five residual mechanisms; measures before candidate 3 designs. Publishes regardless of any verdict.",
+  "registration": {
+    "issue": 42,
+    "comment_id": "4953088871",
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4953088871"
+  },
+  "registration_pointer": "4953088871",
+  "grading_pointer": "4953064479",
+  "candidate2_pointer": "4952253568",
+  "candidate2_artifact": "runs/gate_w1_candidate2_v1.json",
+  "forensics1_pointer": "4951218279",
+  "forensics1_artifact": "runs/gate_w1_forensics1_v1.json",
+  "protocol": {
+    "one_shot": true,
+    "publishes_regardless": true,
+    "train_frame_side_only": true,
+    "k_marital_draws": 8,
+    "k_household_draws": 4,
+    "k_earnings_draws": 8,
+    "instrumentation_bit_identity": "every re-simulation reproduces the committed transport_deployment_v2 machinery bit-for-bit before any counterfactual is measured"
+  },
+  "deployment_frame": {
+    "bundle_id": "us-4.18.8",
+    "country_id": "us",
+    "policyengine_version": "4.18.8",
+    "model_package": "policyengine-us",
+    "model_version": "1.752.2",
+    "data_package": "populace-data",
+    "data_version": "0.1.0",
+    "hf_repo_id": "policyengine/populace-us",
+    "hf_filename": "populace_us_2024.h5",
+    "hf_repo_type": "dataset",
+    "dataset": "populace_us_2024",
+    "revision": "populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701",
+    "artifact_sha256": "c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5",
+    "reference_period": "2024"
+  },
+  "generator_fit_provenance": {
+    "gate1": {
+      "module": "run_gate1_candidate5b.fit_cell_marginals",
+      "panel_rows": 126867,
+      "n_cells": 91,
+      "age_min": 25,
+      "age_max": 59,
+      "period_min": 1998,
+      "period_max": 2022,
+      "fit_seconds": 7.4
+    },
+    "family_transitions": {
+      "candidate_id": "candidate16_registry_v1",
+      "sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1",
+      "n_train_persons": 41409,
+      "fit_seconds": 16.9
+    },
+    "household_composition": {
+      "candidate_id": "gate2b_candidate9_registry_v1",
+      "sha256": "6137d921032c49ccd71c2302418759868689dac731706f1093a21716080800ab",
+      "n_train_persons": 46941,
+      "fit_seconds": 76.8
+    },
+    "gate_m4": {
+      "artifact": "m4_disability_v1.json",
+      "run": "m4_disability_v1",
+      "bands": [
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-66"
+      ],
+      "source": "runs/m4_disability_v1.json reference_moments prevalence"
+    },
+    "q1_initial_state_model": {
+      "source": "PSID first-observed-wave marital_state by entry-age band x sex",
+      "n_cells": 10,
+      "bands": [
+        "25-34",
+        "35-44",
+        "45-54",
+        "55-64",
+        "65+"
+      ],
+      "base_entry_age": 25,
+      "fit_seconds": 7.5
+    },
+    "q2_boundary_marginals": {
+      "source": "run_gate1_baseline.family_earnings_panel, ages 18-24/60-69 x sex, period 2022",
+      "n_cells": 4,
+      "ranges": [
+        "18-24",
+        "60-69"
+      ],
+      "sex_covariate": true,
+      "fit_seconds": 7.5
+    }
+  },
+  "reconciliations": {
+    "float64_machine_epsilon": 2.220446049250313e-16,
+    "identity_bar_64_eps": 1.4210854715202004e-14,
+    "q6_instrumentation_bit_identity_max_dev": 0.0,
+    "q6_decomposition_max_abs_remainder": 0.0,
+    "q7_instrumentation_bit_identity_max_dev": 0.0,
+    "q7_partition_max_abs_deviation_from_one": 1.1102230246251565e-16,
+    "q8_instrumentation_bit_identity_max_dev": 0.0,
+    "all_identity_reconciliations_at_machine_epsilon": true,
+    "reconciliation_bar_note": "instrumentation bit-identity is EXACT (0.0) for every re-simulated component (Q6 marital via regenerate_marital_v2, Q7 hh_size via regenerate_person_frame_v2, Q8 base earnings via regenerate_earnings_v2); the Q6 entry+hazard decomposition telescopes to its target at machine epsilon (a few ULP of float64 summation); the Q7 five hh_size shares partition to 1.0."
+  },
+  "q6_marital_calibration_frame": {
+    "mechanism": "v2 seeds every frame adult's marital ENTRY state at BASE_ENTRY_AGE=25 from the PSID-entry initial-state model (the 25-34 entry band: ~0.58 F / ~0.54 M married), then evolves the certified CANDIDATE_16 hazards to the current age. The entry LEVEL is the PSID first-wave married stock, which OVERSTATES the CPS frame's 25-34 cross-section (0.49 F / 0.42 M) -> a 25-34 OVERSHOOT the short window barely moves; and sits far BELOW the frame's 65+ stock (0.69 F / 0.86 M), which the 40-year hazard window closes only partially, over-accumulating DISSOLUTION along the way -> the 65+ UNDERSHOOT.",
+    "instrumentation_fidelity": {
+      "reproduced": "seed-0 draw-0 holdout marital + coresident cells",
+      "max_abs_rate_deviation_vs_committed_cube": 0.0,
+      "bit_identical": true
+    },
+    "per_band_sex": {
+      "25-34|female": {
+        "entry_seeded_level_L": 0.5806631678186962,
+        "terminal_deployed_D": 0.575831761004931,
+        "frame_A_MARITL_A": 0.4886994512045965,
+        "component_a_entry_level_L_minus_A": 0.09196371661409969,
+        "component_b_hazard_evolution_D_minus_L": -0.004831406813765149,
+        "total_miss_D_minus_A": 0.08713230980033454,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "25-34|male": {
+        "entry_seeded_level_L": 0.5431060534352427,
+        "terminal_deployed_D": 0.5557779228695536,
+        "frame_A_MARITL_A": 0.4189691611507021,
+        "component_a_entry_level_L_minus_A": 0.12413689228454056,
+        "component_b_hazard_evolution_D_minus_L": 0.012671869434310978,
+        "total_miss_D_minus_A": 0.13680876171885153,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "35-44|female": {
+        "entry_seeded_level_L": 0.577426425140037,
+        "terminal_deployed_D": 0.7149787338765645,
+        "frame_A_MARITL_A": 0.7099816906337739,
+        "component_a_entry_level_L_minus_A": -0.13255526549373697,
+        "component_b_hazard_evolution_D_minus_L": 0.13755230873652757,
+        "total_miss_D_minus_A": 0.0049970432427906,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "hazard_evolution"
+      },
+      "35-44|male": {
+        "entry_seeded_level_L": 0.5481186656650536,
+        "terminal_deployed_D": 0.7321279684842426,
+        "frame_A_MARITL_A": 0.6932334535766363,
+        "component_a_entry_level_L_minus_A": -0.14511478791158272,
+        "component_b_hazard_evolution_D_minus_L": 0.18400930281918892,
+        "total_miss_D_minus_A": 0.038894514907606204,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "hazard_evolution"
+      },
+      "45-54|female": {
+        "entry_seeded_level_L": 0.5871086546947801,
+        "terminal_deployed_D": 0.725511906812697,
+        "frame_A_MARITL_A": 0.7226591279700629,
+        "component_a_entry_level_L_minus_A": -0.1355504732752828,
+        "component_b_hazard_evolution_D_minus_L": 0.13840325211791682,
+        "total_miss_D_minus_A": 0.0028527788426340184,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "hazard_evolution"
+      },
+      "45-54|male": {
+        "entry_seeded_level_L": 0.5381292831184867,
+        "terminal_deployed_D": 0.7629533500022969,
+        "frame_A_MARITL_A": 0.7760771919113723,
+        "component_a_entry_level_L_minus_A": -0.23794790879288552,
+        "component_b_hazard_evolution_D_minus_L": 0.22482406688381018,
+        "total_miss_D_minus_A": -0.01312384190907534,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "55-64|female": {
+        "entry_seeded_level_L": 0.5835551295356963,
+        "terminal_deployed_D": 0.6788668374243935,
+        "frame_A_MARITL_A": 0.7094988518640792,
+        "component_a_entry_level_L_minus_A": -0.1259437223283829,
+        "component_b_hazard_evolution_D_minus_L": 0.09531170788869714,
+        "total_miss_D_minus_A": -0.030632014439685773,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "55-64|male": {
+        "entry_seeded_level_L": 0.54451812856811,
+        "terminal_deployed_D": 0.7686621522711004,
+        "frame_A_MARITL_A": 0.8160923072763765,
+        "component_a_entry_level_L_minus_A": -0.2715741787082665,
+        "component_b_hazard_evolution_D_minus_L": 0.22414402370299036,
+        "total_miss_D_minus_A": -0.04743015500527614,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "65+|female": {
+        "entry_seeded_level_L": 0.5805156327989952,
+        "terminal_deployed_D": 0.5727633151208774,
+        "frame_A_MARITL_A": 0.6906084951388176,
+        "component_a_entry_level_L_minus_A": -0.1100928623398224,
+        "component_b_hazard_evolution_D_minus_L": -0.007752317678117793,
+        "total_miss_D_minus_A": -0.1178451800179402,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      },
+      "65+|male": {
+        "entry_seeded_level_L": 0.5366154007444146,
+        "terminal_deployed_D": 0.7069529607168099,
+        "frame_A_MARITL_A": 0.8556930532933265,
+        "component_a_entry_level_L_minus_A": -0.31907765254891185,
+        "component_b_hazard_evolution_D_minus_L": 0.1703375599723953,
+        "total_miss_D_minus_A": -0.14874009257651655,
+        "reconciliation_remainder": 0.0,
+        "dominant_component": "entry_level"
+      }
+    },
+    "reconciliation_max_abs_remainder": 0.0,
+    "composition_65plus": {
+      "female": {
+        "married": {
+          "deployed": 0.5727633151208774,
+          "frame": 0.6906084951388176,
+          "excess_deployed_minus_frame": -0.1178451800179402
+        },
+        "never_married": {
+          "deployed": 0.06807187661905642,
+          "frame": 0.04683215793067179,
+          "excess_deployed_minus_frame": 0.02123971868838463
+        },
+        "divorced": {
+          "deployed": 0.2092268725069511,
+          "frame": 0.08955654564073558,
+          "excess_deployed_minus_frame": 0.11967032686621552
+        },
+        "widowed": {
+          "deployed": 0.149937935753115,
+          "frame": 0.165496951807745,
+          "excess_deployed_minus_frame": -0.015559016054630004
+        }
+      },
+      "male": {
+        "married": {
+          "deployed": 0.7069529607168099,
+          "frame": 0.8556930532933265,
+          "excess_deployed_minus_frame": -0.14874009257651655
+        },
+        "never_married": {
+          "deployed": 0.06279226921887357,
+          "frame": 0.022880940991431318,
+          "excess_deployed_minus_frame": 0.039911328227442255
+        },
+        "divorced": {
+          "deployed": 0.18966434825928027,
+          "frame": 0.06301569455975477,
+          "excess_deployed_minus_frame": 0.1266486536995255
+        },
+        "widowed": {
+          "deployed": 0.040590421805036365,
+          "frame": 0.054325766569237634,
+          "excess_deployed_minus_frame": -0.013735344764201268
+        }
+      }
+    },
+    "dissolution_channel_65plus": {
+      "female": {
+        "dominant_excess_status": "divorced",
+        "divorced_excess": 0.11967032686621552,
+        "widowed_excess": -0.015559016054630004,
+        "widowhood_channel_realized": false
+      },
+      "male": {
+        "dominant_excess_status": "divorced",
+        "divorced_excess": 0.1266486536995255,
+        "widowed_excess": -0.013735344764201268,
+        "widowhood_channel_realized": false
+      }
+    },
+    "top_code_85": {
+      "frac_65plus_at_top_code_85": 0.1052091994552698,
+      "by_age_slice": {
+        "65-74": {
+          "frame_married": 0.7945278899702548,
+          "deployed_married": 0.6511314781059815,
+          "frame_widowed": 0.0598496915060923,
+          "deployed_widowed": 0.07307433542058368,
+          "frame_divorced": 0.0957310019013102,
+          "deployed_divorced": 0.19782751437341783
+        },
+        "75-84": {
+          "frame_married": 0.7561614962872734,
+          "deployed_married": 0.5992836195808814,
+          "frame_widowed": 0.16381927526153153,
+          "deployed_widowed": 0.13285340315668553,
+          "frame_divorced": 0.05078434484571303,
+          "deployed_divorced": 0.21660735222253008
+        },
+        "85_topcode": {
+          "frame_married": 0.6775714162330657,
+          "deployed_married": 0.6498167390035069,
+          "frame_widowed": 0.24371472603790467,
+          "deployed_widowed": 0.08456624270874502,
+          "frame_divorced": 0.05006198531804659,
+          "deployed_divorced": 0.2195966475516615
+        }
+      }
+    },
+    "contract_adjudication": {
+      "question": "May a candidate seed the marital ENTRY state from a CPS-anchored initial-state model, or is that the prohibited identity?",
+      "contract_rule": "gate_w1 regenerated_surface: every scored column must be RE-GENERATED by the deployed generators on each draw; the identity map (emitting the frame's own A_MARITL terminal cross-section) is NON-CONFORMANT (score 0, across_draw_sd 0.0). Forensics-1 Q1 established that seeding the hazard chain's ENTRY state from a band x sex MODEL and regenerating the terminal is contract-permitted; the PSID-entry v2 model is exactly that.",
+      "determination": "A CPS-anchored ENTRY model -- one conditioning the entry state at the entry age on {age band, sex} using CPS AGGREGATE marital rates (an observable that is NOT the person's own scored A_MARITL) and regenerating the terminal via the certified hazards -- is CONTRACT-PERMITTED. It is structurally identical to the PSID-entry model (a band x sex categorical that regenerates per draw, across_draw_sd > 0, never reads the person's own column); only the calibration target differs (CPS young-adult cross-section instead of PSID first-wave). The PROHIBITED versions are (i) seeding the TERMINAL-age A_MARITL cross-section directly (the identity), and (ii) BACK-SOLVING the entry distribution so each band's TERMINAL reproduces its own rate_a (an inverse-map that reads the scored surface -- the identity in disguise; for the youngest band the entry age ~= terminal age, so a CPS-25-34-anchored entry collapses TOWARD that identity and must anchor the entry LEVEL at age 25, not the 25-34 terminal). The measured LIMIT: a CPS-anchored entry recalibrates the ENTRY LEVEL, so it fixes the 25-34 overshoot (an entry-level miss) but CANNOT fix the 65+ undershoot, which is a HAZARD-evolution miss (dissolution over-accumulation over the window) closable only by re-calibrating the certified hazards (PROHIBITED -- they are PSID-certified and locked) or re-anchoring the 65+ frame composition (an amendment). So the CPS-anchored entry is a necessary-but-insufficient contract-permitted lever."
+    },
+    "finding": {
+      "entry_level_dominant_at_25_34": true,
+      "n_25_34_cells": 2,
+      "widowhood_channel_realized_65plus": false,
+      "realized_65plus_channel": "divorce",
+      "summary": "The 25-34 OVERSHOOT is an ENTRY-LEVEL miss exactly as pre-registered: the PSID-entry model seeds ~0.58 F / ~0.54 M married at 25 (component a) while the CPS frame is 0.49 F / 0.42 M, and the short window's hazard evolution (component b) is ~0. The measurement REFINES the 65+ pre-registration: the undershoot's largest MAGNITUDE component is the entry level (the young-adult seed sits far below the 65+ frame), but the pre-registered WIDOWHOOD channel is NOT realized -- the deployed slightly UNDER-widows (deployed widowed <= frame) and fails the frame's steep within-65+ widowhood gradient (frame widowed rises 0.06 -> 0.24 across 65-74 -> the 85 top-code; deployed stays ~flat). The realized dissolution channel is DIVORCE over-accumulation (deployed 65+ divorced ~0.19-0.21 vs frame ~0.05-0.10): the certified pooled divorce-minus-remarriage steady state sits far above the frame's older-cohort divorced share -- a hazard-vs-frame (cohort-vintage) mismatch. The 85 top-code (component c: ~10.5% of 65+) concentrates the oldest, most-widowed frame mass at a single age whose COMPOSITION the flat deployed profile fits worst, though its married-share gap is smallest there (the frame's declining married meets the flat deployed)."
+    }
+  },
+  "q7_coresident_parent_fertility": {
+    "mechanism": "The size-1 overshoot (deployed 0.222 vs frame 0.083) is the young-lone-adult residual: v2 seeds the household roster's coresident_parent flag FALSE (young adults are never attached to a parental home) and truncates fertility at the base-25 marital entry (mothers bear no children before 25). Two contract-permitted levers: (a) a train-fitted coresident_parent initial roster by age x sex (seeded True at wave-0 per the 15-24 stock ~0.69 F / ~0.76 M, evolved by the certified parental-exit hazard); (b) the fuller fertility window (entry-15 marital panel so ft.simulate fires the 15-24 maternal ages the certified machinery supports).",
+    "instrumentation_fidelity": {
+      "reproduced": "seed-0 draw-0 holdout hh_size_share cells",
+      "max_abs_rate_deviation_vs_committed_cube": 0.0,
+      "bit_identical": true
+    },
+    "train_coresident_parent_rate": {
+      "15-24": {
+        "female": 0.6911652087581024,
+        "male": 0.7591885761012466
+      },
+      "25-34": {
+        "female": 0.099569300383658,
+        "male": 0.1548971414358328
+      },
+      "35-44": {
+        "female": 0.04046916629412801,
+        "male": 0.05975103601241657
+      },
+      "45-54": {
+        "female": 0.02642880203569551,
+        "male": 0.04257354611305203
+      },
+      "55-64": {
+        "female": 0.0203737218770768,
+        "male": 0.02452590057083417
+      },
+      "65-74": {
+        "female": 0.00578634524829863,
+        "male": 0.004210202523086695
+      },
+      "75+": {
+        "female": 0.0003271029997083849,
+        "male": 0.0005247595778831536
+      }
+    },
+    "configs": {
+      "baseline": {
+        "shares": {
+          "1": 0.22277568814050114,
+          "2": 0.3696552106955534,
+          "3": 0.15032862035156738,
+          "4": 0.15578975561458905,
+          "5plus": 0.10145072519778905
+        },
+        "minors_per_adult": 0.17852082019465765
+      },
+      "lever_a_coresident_parent": {
+        "shares": {
+          "1": 0.1767120024563163,
+          "2": 0.3648096491395265,
+          "3": 0.17316343431411552,
+          "4": 0.17108707275937476,
+          "5plus": 0.1142278413306669
+        },
+        "minors_per_adult": 0.17852082019465765
+      },
+      "lever_b_fuller_fertility": {
+        "shares": {
+          "1": 0.235562200521324,
+          "2": 0.33973314713377395,
+          "3": 0.14121613429628904,
+          "4": 0.15190649874829232,
+          "5plus": 0.1315820193003206
+        },
+        "minors_per_adult": 0.24875309300285406
+      },
+      "joint": {
+        "shares": {
+          "1": 0.1904776825257352,
+          "2": 0.33709811142153684,
+          "3": 0.16278039256564,
+          "4": 0.16425073728418874,
+          "5plus": 0.1453930762028991
+        },
+        "minors_per_adult": 0.24875309300285406
+      }
+    },
+    "scoring": {
+      "baseline": {
+        "per_cell": {
+          "1": {
+            "share": 0.22277568814050114,
+            "rate_a": 0.08346551060908304,
+            "score": 0.9817318825107495,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "2": {
+            "share": 0.3696552106955534,
+            "rate_a": 0.3002006839844665,
+            "score": 0.2081195105730111,
+            "tolerance": 0.123,
+            "clears": false
+          },
+          "3": {
+            "share": 0.15032862035156738,
+            "rate_a": 0.21380934072805993,
+            "score": 0.35226098659765737,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "4": {
+            "share": 0.15578975561458905,
+            "rate_a": 0.20973362179818003,
+            "score": 0.29733088006545094,
+            "tolerance": 0.174,
+            "clears": false
+          },
+          "5plus": {
+            "share": 0.10145072519778905,
+            "rate_a": 0.1927908428802106,
+            "score": 0.6420326710404876,
+            "tolerance": 0.184,
+            "clears": false
+          }
+        },
+        "n_cells_clear": 0,
+        "sum_of_shares": 1.0
+      },
+      "lever_a_coresident_parent": {
+        "per_cell": {
+          "1": {
+            "share": 0.1767120024563163,
+            "rate_a": 0.08346551060908304,
+            "score": 0.7500878027028767,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "2": {
+            "share": 0.3648096491395265,
+            "rate_a": 0.3002006839844665,
+            "score": 0.19492451071645667,
+            "tolerance": 0.123,
+            "clears": false
+          },
+          "3": {
+            "share": 0.17316343431411552,
+            "rate_a": 0.21380934072805993,
+            "score": 0.21084883116853934,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "4": {
+            "share": 0.17108707275937476,
+            "rate_a": 0.20973362179818003,
+            "score": 0.20366563357483175,
+            "tolerance": 0.174,
+            "clears": false
+          },
+          "5plus": {
+            "share": 0.1142278413306669,
+            "rate_a": 0.1927908428802106,
+            "score": 0.5234108236158442,
+            "tolerance": 0.184,
+            "clears": false
+          }
+        },
+        "n_cells_clear": 0,
+        "sum_of_shares": 1.0
+      },
+      "lever_b_fuller_fertility": {
+        "per_cell": {
+          "1": {
+            "share": 0.235562200521324,
+            "rate_a": 0.08346551060908304,
+            "score": 1.0375414997605297,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "2": {
+            "share": 0.33973314713377395,
+            "rate_a": 0.3002006839844665,
+            "score": 0.12370925044797816,
+            "tolerance": 0.123,
+            "clears": false
+          },
+          "3": {
+            "share": 0.14121613429628904,
+            "rate_a": 0.21380934072805993,
+            "score": 0.41479310264370894,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "4": {
+            "share": 0.15190649874829232,
+            "rate_a": 0.20973362179818003,
+            "score": 0.3225730661474297,
+            "tolerance": 0.174,
+            "clears": false
+          },
+          "5plus": {
+            "share": 0.1315820193003206,
+            "rate_a": 0.1927908428802106,
+            "score": 0.3819755075141504,
+            "tolerance": 0.184,
+            "clears": false
+          }
+        },
+        "n_cells_clear": 0,
+        "sum_of_shares": 0.9999999999999999
+      },
+      "joint": {
+        "per_cell": {
+          "1": {
+            "share": 0.1904776825257352,
+            "rate_a": 0.08346551060908304,
+            "score": 0.8251015356762756,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "2": {
+            "share": 0.33709811142153684,
+            "rate_a": 0.3002006839844665,
+            "score": 0.11592282217033299,
+            "tolerance": 0.123,
+            "clears": true
+          },
+          "3": {
+            "share": 0.16278039256564,
+            "rate_a": 0.21380934072805993,
+            "score": 0.2726826792003826,
+            "tolerance": 0.191,
+            "clears": false
+          },
+          "4": {
+            "share": 0.16425073728418874,
+            "rate_a": 0.20973362179818003,
+            "score": 0.24444411175644884,
+            "tolerance": 0.174,
+            "clears": false
+          },
+          "5plus": {
+            "share": 0.1453930762028991,
+            "rate_a": 0.1927908428802106,
+            "score": 0.28216494061048836,
+            "tolerance": 0.184,
+            "clears": false
+          }
+        },
+        "n_cells_clear": 1,
+        "sum_of_shares": 0.9999999999999999
+      }
+    },
+    "partition_max_abs_deviation_from_one": 1.1102230246251565e-16,
+    "joint_feasibility": {
+      "large_sizes_3_4_5plus_all_clear": false,
+      "joint_cells_cleared": [
+        "2"
+      ],
+      "joint_n_cells_cleared": 1,
+      "cells_closed_toward_frame": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5plus": true
+      },
+      "all_cells_closed_toward_frame": true,
+      "size1_baseline": 0.22277568814050114,
+      "size1_joint": 0.1904776825257352,
+      "size1_materially_improved": true,
+      "size1_residual_vs_frame": 0.10701217191665215,
+      "lever_a_size1": 0.1767120024563163,
+      "minors_per_adult_base25": 0.17852082019465765,
+      "minors_per_adult_fuller15": 0.24875309300285406
+    },
+    "coupling_caveat": "lever (b) and the joint enter the marital panel NEVER-MARRIED at 15 (the certified fertility support), which reverts v2's 25-entry marital SEEDING (Q6's lever) -- so spouse presence shifts with the fertility window; the two are coupled on the single ft.simulate panel. The marital cells are Q6's domain; Q7 scores hh_size only.",
+    "finding": {
+      "pre_registration_proves_3_4_5plus": false,
+      "summary": "The joint feasibility test REFINES the pre-registration. coresident_parent rosters are the clean size-1 lever (0.223 -> 0.177 alone; 25-34 young adults attach to parental homes), and the fuller fertility window lifts minors per adult from the base-25 ~0.18 to ~0.25 (+39%), populating size-5+. JOINTLY the two move EVERY hh_size cell toward the frame and materially improve size-1 (0.223 -> 0.190), but they do NOT PROVE sizes 3/4/5+ as pre-registered: the joint clears only size-2; sizes 3/4/5+ are lifted (0.150/0.156/0.101 -> 0.163/0.164/0.145) yet remain short of tolerance, and size-1 retains a ~0.107 residual above the frame. The honest reading is an f3-Q10-style joint constraint the two levers are NECESSARY but INSUFFICIENT to satisfy under the certified machinery -- and lever (b) is partly self-offsetting here because its 15-entry fertility window reverts the marital seeding (fewer couples -> more lone adults), the coupling caveat. The household-size family is not closable by these two entry-state levers alone."
+    }
+  },
+  "q8_interior_sex_covariate": {
+    "mechanism": "gate-1 fits the interior 25-59 earnings marginals with NO sex covariate (one (age_bin, period) marginal applied to both sexes); v2 byte-carries that. Female participation is thereby OVERSTATED (pooled ~0.86 vs the frame's lower female 0.75-0.77) and the profile spread is mis-split. Extending the Q2 boundary treatment INWARD -- a per-(interior band, sex) fit at the terminal period -- splits the marginals.",
+    "instrumentation_fidelity": {
+      "reproduced": "seed-0 draw-0 interior earnings cells via the base (no-sex-covariate) re-draw (the byte-carry baseline)",
+      "max_abs_rate_deviation_vs_committed_cube": 0.0,
+      "bit_identical": true
+    },
+    "interior_fit_vs_raw": {
+      "25-34|female": {
+        "n_person_years": 1589,
+        "fit_participation_1_minus_p0": 0.8132281081237179
+      },
+      "25-34|male": {
+        "n_person_years": 1249,
+        "fit_participation_1_minus_p0": 0.8957801561117997
+      },
+      "35-44|female": {
+        "n_person_years": 1986,
+        "fit_participation_1_minus_p0": 0.809977799226785
+      },
+      "35-44|male": {
+        "n_person_years": 1620,
+        "fit_participation_1_minus_p0": 0.9077914209632996
+      },
+      "45-54|female": {
+        "n_person_years": 1248,
+        "fit_participation_1_minus_p0": 0.7924852974230846
+      },
+      "45-54|male": {
+        "n_person_years": 1074,
+        "fit_participation_1_minus_p0": 0.8889599363029925
+      },
+      "55-61|female": {
+        "n_person_years": 777,
+        "fit_participation_1_minus_p0": 0.6889928213744971
+      },
+      "55-61|male": {
+        "n_person_years": 563,
+        "fit_participation_1_minus_p0": 0.7877672964156669
+      }
+    },
+    "per_cell": {
+      "earnings_p50p10.25-34|female": {
+        "committed_rbar": 3.0281044171579277,
+        "committed_pass": true,
+        "sexcov_rbar": 3.218013645242368,
+        "rate_a": 3.3831759914526818,
+        "sexcov_score": 0.05005062190111182,
+        "tolerance": 0.351,
+        "sexcov_clears": true
+      },
+      "earnings_p90p50.35-44|female": {
+        "committed_rbar": 2.5569040943643415,
+        "committed_pass": true,
+        "sexcov_rbar": 2.3717661354496222,
+        "rate_a": 2.855605789814161,
+        "sexcov_score": 0.18564912372308362,
+        "tolerance": 0.329,
+        "sexcov_clears": true
+      },
+      "earnings_p90p50.35-44|male": {
+        "committed_rbar": 2.648475566781773,
+        "committed_pass": true,
+        "sexcov_rbar": 2.617666587605605,
+        "rate_a": 2.830253841881737,
+        "sexcov_score": 0.07808309888887835,
+        "tolerance": 0.254,
+        "sexcov_clears": true
+      },
+      "earnings_p90p50.45-54|female": {
+        "committed_rbar": 2.74363694109084,
+        "committed_pass": true,
+        "sexcov_rbar": 2.506516880992117,
+        "rate_a": 2.6527450192500055,
+        "sexcov_score": 0.05670086760504753,
+        "tolerance": 0.353,
+        "sexcov_clears": true
+      },
+      "earnings_p90p50.45-54|male": {
+        "committed_rbar": 2.7503113635616394,
+        "committed_pass": true,
+        "sexcov_rbar": 2.6924267494702523,
+        "rate_a": 3.2637953284985,
+        "sexcov_score": 0.1924478051241928,
+        "tolerance": 0.265,
+        "sexcov_clears": true
+      },
+      "earnings_participation.25-34|female": {
+        "committed_rbar": 0.8554589816178708,
+        "committed_pass": true,
+        "sexcov_rbar": 0.8201681184101044,
+        "rate_a": 0.7855237594010465,
+        "sexcov_score": 0.04315863697017505,
+        "tolerance": 0.125,
+        "sexcov_clears": true
+      },
+      "earnings_participation.25-34|male": {
+        "committed_rbar": 0.8493507894123473,
+        "committed_pass": true,
+        "sexcov_rbar": 0.8894694371310947,
+        "rate_a": 0.9190505362956098,
+        "sexcov_score": 0.03271596446187923,
+        "tolerance": 0.1,
+        "sexcov_clears": true
+      },
+      "earnings_participation.35-44|female": {
+        "committed_rbar": 0.8522474486033262,
+        "committed_pass": false,
+        "sexcov_rbar": 0.8115712494845277,
+        "rate_a": 0.7583187480939404,
+        "sexcov_score": 0.06786837358568813,
+        "tolerance": 0.096,
+        "sexcov_clears": true
+      },
+      "earnings_participation.35-44|male": {
+        "committed_rbar": 0.8612774404313945,
+        "committed_pass": true,
+        "sexcov_rbar": 0.912537401539052,
+        "rate_a": 0.8833584660973249,
+        "sexcov_score": 0.032497990511610945,
+        "tolerance": 0.077,
+        "sexcov_clears": true
+      },
+      "earnings_participation.45-54|female": {
+        "committed_rbar": 0.8418166079821386,
+        "committed_pass": true,
+        "sexcov_rbar": 0.7894943016257958,
+        "rate_a": 0.7390557075203764,
+        "sexcov_score": 0.0660193155615663,
+        "tolerance": 0.131,
+        "sexcov_clears": true
+      },
+      "earnings_participation.45-54|male": {
+        "committed_rbar": 0.8379530541118108,
+        "committed_pass": true,
+        "sexcov_rbar": 0.8901756940159562,
+        "rate_a": 0.8520889409125467,
+        "sexcov_score": 0.043727940126876856,
+        "tolerance": 0.12,
+        "sexcov_clears": true
+      },
+      "earnings_participation.55-61|female": {
+        "committed_rbar": 0.6860608169556036,
+        "committed_pass": true,
+        "sexcov_rbar": 0.6975923621271485,
+        "rate_a": 0.7037631149814446,
+        "sexcov_score": 0.008806891383899635,
+        "tolerance": 0.157,
+        "sexcov_clears": true
+      },
+      "earnings_participation.55-61|male": {
+        "committed_rbar": 0.7119287322631992,
+        "committed_pass": true,
+        "sexcov_rbar": 0.7761608372314728,
+        "rate_a": 0.8019964480063512,
+        "sexcov_score": 0.0327444157564926,
+        "tolerance": 0.152,
+        "sexcov_clears": true
+      },
+      "earnings_profile.25-34|female": {
+        "committed_rbar": 0.8735585622605517,
+        "committed_pass": true,
+        "sexcov_rbar": 0.7705982120972912,
+        "rate_a": 0.768903634421064,
+        "sexcov_score": 0.002201463238837351,
+        "tolerance": 0.217,
+        "sexcov_clears": true
+      },
+      "earnings_profile.25-34|male": {
+        "committed_rbar": 0.8600000827590104,
+        "committed_pass": true,
+        "sexcov_rbar": 0.986300655530561,
+        "rate_a": 0.8984031939025064,
+        "sexcov_score": 0.09334227407714633,
+        "tolerance": 0.237,
+        "sexcov_clears": true
+      },
+      "earnings_profile.35-44|female": {
+        "committed_rbar": 0.9956314029319568,
+        "committed_pass": false,
+        "sexcov_rbar": 0.8718276861209218,
+        "rate_a": 0.7958827093130312,
+        "sexcov_score": 0.09113997184448835,
+        "tolerance": 0.184,
+        "sexcov_clears": true
+      },
+      "earnings_profile.35-44|male": {
+        "committed_rbar": 1.0004644527644098,
+        "committed_pass": false,
+        "sexcov_rbar": 1.1624712117967892,
+        "rate_a": 1.2046554054690393,
+        "sexcov_score": 0.03564546135315891,
+        "tolerance": 0.148,
+        "sexcov_clears": true
+      },
+      "earnings_profile.45-54|female": {
+        "committed_rbar": 1.0470207771125328,
+        "committed_pass": true,
+        "sexcov_rbar": 0.8741482392967925,
+        "rate_a": 0.8739497178118926,
+        "sexcov_score": 0.00022712855986827823,
+        "tolerance": 0.363,
+        "sexcov_clears": true
+      },
+      "earnings_profile.45-54|male": {
+        "committed_rbar": 1.072799159827516,
+        "committed_pass": true,
+        "sexcov_rbar": 1.2616082874657375,
+        "rate_a": 1.1358430399305006,
+        "sexcov_score": 0.10501218397980286,
+        "tolerance": 0.286,
+        "sexcov_clears": true
+      },
+      "earnings_profile.55-61|male": {
+        "committed_rbar": 1.0163779793727554,
+        "committed_pass": true,
+        "sexcov_rbar": 1.0154248010769942,
+        "rate_a": 1.1363636363636365,
+        "sexcov_score": 0.11252632334398627,
+        "tolerance": 0.349,
+        "sexcov_clears": true
+      }
+    },
+    "target_cells": {
+      "earnings_participation.35-44|female": {
+        "committed_rbar": 0.8522474486033262,
+        "committed_pass": false,
+        "sexcov_rbar": 0.8115712494845277,
+        "rate_a": 0.7583187480939404,
+        "sexcov_score": 0.06786837358568813,
+        "tolerance": 0.096,
+        "sexcov_clears": true
+      },
+      "earnings_participation.45-54|female": {
+        "committed_rbar": 0.8418166079821386,
+        "committed_pass": true,
+        "sexcov_rbar": 0.7894943016257958,
+        "rate_a": 0.7390557075203764,
+        "sexcov_score": 0.0660193155615663,
+        "tolerance": 0.131,
+        "sexcov_clears": true
+      },
+      "earnings_profile.35-44|female": {
+        "committed_rbar": 0.9956314029319568,
+        "committed_pass": false,
+        "sexcov_rbar": 0.8718276861209218,
+        "rate_a": 0.7958827093130312,
+        "sexcov_score": 0.09113997184448835,
+        "tolerance": 0.184,
+        "sexcov_clears": true
+      },
+      "earnings_profile.35-44|male": {
+        "committed_rbar": 1.0004644527644098,
+        "committed_pass": false,
+        "sexcov_rbar": 1.1624712117967892,
+        "rate_a": 1.2046554054690393,
+        "sexcov_score": 0.03564546135315891,
+        "tolerance": 0.148,
+        "sexcov_clears": true
+      }
+    },
+    "n_target_cells": 4,
+    "n_target_cells_clear": 4,
+    "collateral_flips": [],
+    "finding": {
+      "clears_at_least_3_of_4": true,
+      "no_collateral": true,
+      "summary": "The interior sex covariate clears 4 of 4 byte-carried F/M cells (no currently-passing interior cell flips to fail). The interior miss is a fit-SUPPORT gap (a missing covariate), not a hazard defect -- the same lesson Q2 drew at the boundary, extended inward. The collateral check the c8-era lesson demands is clean: splitting the interior marginals by sex does not perturb any currently-passing interior earnings cell out of tolerance."
+    }
+  },
+  "q9_concept_cells": {
+    "concept_gap_18_24_participation": {
+      "psid_head_spouse_universe": {
+        "pooled": 0.8648615029730159,
+        "female": 0.814874937312732,
+        "male": 0.9286786697522891
+      },
+      "cps_all_person_frame": {
+        "female": 0.6420580893360366,
+        "male": 0.6526360602936775,
+        "pooled": 0.6438163132108154
+      },
+      "concept_gap_psid_minus_cps": {
+        "pooled": 0.22104518976220044,
+        "female": 0.1728168479766954,
+        "male": 0.2760426094586116
+      },
+      "pooled_gap_pp": 22.104518976220046,
+      "exceeds_15pp_amendment_threshold": true,
+      "mechanism": "the PSID family-earnings panel is a HEAD/SPOUSE universe -- at 18-24 disproportionately the employed, independent young adults -- so its participation is ~0.89 pooled; the CPS all-person frame counts every 18-24 person (students, dependents living with parents) and participates ~0.64. The 18-24 participation miss is a POPULATION-CONCEPT delta, not a fit-support gap: v2's Q2 boundary extension already fits the PSID 18-24 support, and the cell STILL fails by the concept gap.",
+      "disposition_options": {
+        "report_only_with_disclosure": "keep the 18-24 participation cells gated but publish the concept-gap disclosure (the transport target is a head/spouse-fit generator scored against an all-person frame): honest, zero threshold movement, but the cells stay structurally unclearable.",
+        "concept_bridged_reanchor": "re-anchor the 18-24 participation cells to a head/spouse concept (or bridge the generator to the all-person universe by modelling non-head young-adult participation): makes the cells clearable but requires an amendment + a fresh referee round (the gate_w1 lock).",
+        "evidence_status": "MEASURED: the concept gap is ~22pp pooled, above the 15pp amendment threshold the registration named."
+      }
+    },
+    "c1_binary": {
+      "forensics1_analytic": {
+        "upper_read_ppi_vs_nra": [
+          0.016867681429543455,
+          0.20227475818622295
+        ],
+        "corrected_tail_ppi_vs_nra": [
+          0.013663480055423467,
+          0.20221993273399472
+        ],
+        "non_reversal_is_robust": true,
+        "reading": "the upper-read tail (heaviest plausible, most favourable to PPI) leaves PPI savings far below NRA; the corrected tail moves PPI in the conservative direction. PPI never overtakes NRA -> C1 cannot reverse."
+      },
+      "candidate1_empirical": {
+        "c1_reversed": false
+      },
+      "candidate2_empirical": {
+        "c1_reversed_to_anchor": false,
+        "required_swap_realised": false,
+        "kendall_tau_vs_required": 0.6666666666666666
+      },
+      "consolidated": "C1 (progressive_price_indexing must outrank nra_raised_to_70 in savings) is NOT reversed by any contract-consistent deployment built: forensics-1 proved it analytically robust (the most favourable tail leaves PPI ~0.014-0.017 vs NRA ~0.202, and a realistic tail only widens the gap), and both candidate 1 and candidate 2 confirm the non-reversal empirically. The transported AIME does not lift PPI past NRA."
+    },
+    "amendment2_disposition": {
+      "the_two_concept_cells": [
+        "18-24 participation (population-concept, >=15pp)",
+        "C1 fingerprint (PPI-over-NRA, non-reversal robust)"
+      ],
+      "summary": "Both are amendment-2 questions the diagnostic now records with evidence: the 18-24 participation cells miss by a measured population-concept delta (PSID head/spouse ~0.89 vs CPS all-person ~0.64, >=15pp), and C1's non-reversal is robust under forensics-1's analytic argument plus two empirical candidate confirmations. Each has the same honest fork: report-only with disclosure (no threshold movement, cells stay unclearable) vs a concept-bridged re-anchor (clearable but needs an amendment + referee round)."
+    }
+  },
+  "candidate3_design_implications": {
+    "q6": "The 25-34 overshoot is an entry-LEVEL miss a CPS-anchored entry model (contract-permitted) recalibrates; the 65+ undershoot is a hazard-frame (cohort-vintage) mismatch -- DIVORCE over-accumulation, NOT the pre-registered widowhood -- that entry recalibration cannot fix. Do not chase 65+ married with an entry lever; it needs a hazard re-cal (prohibited) or a 65+ frame re-anchor (amendment).",
+    "q7": "The coresident_parent roster (contract-permitted entry-state channel) is the clean size-1 lever and the fuller fertility window lifts the large sizes, but JOINTLY they clear only size-2 -- necessary but INSUFFICIENT for the household-size family (sizes 3/4/5+ lift toward the frame yet stay short; size-1 keeps a ~0.11 residual). Do not expect these two entry-state levers to land hh_size; the residual needs a coresidence-composition repair beyond the initial roster, and the fuller window trades against Q6's 25-entry marital seeding (couples vs lone adults) -- the two levers must be co-designed.",
+    "q8": "Add the interior (25-59) sex covariate the boundary treatment already carries at 18-24/60-69: it clears the four byte-carried F/M cells with no collateral. A cheap, clean lever -- a missing covariate, not a hazard defect.",
+    "q9": "The 18-24 participation cells and C1 are AMENDMENT-2 questions, not candidate levers: the 18-24 miss is a measured >=15pp population-concept delta and C1's non-reversal is robust. Spend no candidate-3 lever on either; carry them as report-only-with-disclosure or route to a concept-bridge amendment."
+  },
+  "revision_pins": {
+    "frame_artifact_sha256": "c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5",
+    "frame_revision": "populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701",
+    "pe_us_version": "1.752.2",
+    "gates_yaml_blob": "a6967ea9d6f4f9a53ec03cc013908aef304b73a7",
+    "pe_us_dir": "/Users/maxghenis/PolicyEngine/policyengine-us-main"
+  },
+  "pointer": {
+    "registration": "4953088871",
+    "grading": "4953064479",
+    "candidate2": "4952253568",
+    "forensics1": "4951218279"
+  }
+}
