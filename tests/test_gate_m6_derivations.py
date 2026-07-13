@@ -61,10 +61,13 @@ ASYMMETRIC_AGE2_RUNG = "sex_pooled_age2p"
 
 # The design pin: PR #175 amended the draft and re-pinned design_commit off the
 # stale 1d83a221 (PR #170) to PR #175's design commit; the flip FINALIZES that
-# pin to the #175 squash-merge, per the draft's design_commit_note.
+# pin to a squash-merge per the draft's design_commit_note. It was first
+# finalized to the #175 squash (ce9893b), then RE-FINALIZED to the #178 squash
+# (4c6a0f6) once SS 2.7.6 COMPLETED the forward law the covers references.
 DESIGN_PR = "175"
-DESIGN_COMMIT_DRAFT = "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
-DESIGN_COMMIT_FINAL = "ce9893b13e74a99f38d04ace2d278fac495012d0"  # #175 squash
+DESIGN_COMMIT_DRAFT = "d6abb16b0a034ca08a26e3eb8fc9211967c53259"  # PR #175 pin
+DESIGN_COMMIT_175 = "ce9893b13e74a99f38d04ace2d278fac495012d0"  # interim #175
+DESIGN_COMMIT_FINAL = "4c6a0f69f5637c6832659ab4dc8599b2c1a928b2"  # #178 squash
 # PR #175's new not_certified margin: the gated {2016,2018} earnings cells ride
 # the design 2.7 FORWARD earnings law, first-certified by gate_m6 (gate_1 does
 # NOT cover it).
@@ -395,6 +398,10 @@ def check_history(block: dict[str, Any]) -> None:
     fin = entry["design_commit_finalized"]
     assert fin["from"] == DESIGN_COMMIT_DRAFT
     assert fin["to"] == DESIGN_COMMIT_FINAL == block["design_commit"]
+    # the RE-finalization: the interim #175 squash was superseded by the #178
+    # squash once SS 2.7.6 completed the forward law (twice-verified).
+    assert fin["refinalized_from"] == DESIGN_COMMIT_175
+    assert "2.7.6" in fin["reason"] and "4960583620" in fin["reason"]
     # the ceremony narrative names the load-bearing facts
     content = entry["content"]
     assert "0.8449" in content  # v1 pause
@@ -579,10 +586,10 @@ def test_mutations_are_caught():
     with pytest.raises(AssertionError):
         check_partition_rollups(m8, v3)
 
-    # 9. DESIGN-COMMIT finalization drift: the un-finalized PR #175 design
-    # commit (not the #175 squash-merge) must fail the lock-delta binding.
+    # 9. DESIGN-COMMIT re-finalization drift: the interim #175 squash (not the
+    # #178 squash that completes the forward law) must fail the lock-delta bind.
     m9 = _deep(_gate())
-    m9["design_commit"] = DESIGN_COMMIT_DRAFT
+    m9["design_commit"] = DESIGN_COMMIT_175
     with pytest.raises(AssertionError):
         check_lock_deltas(m9)
 

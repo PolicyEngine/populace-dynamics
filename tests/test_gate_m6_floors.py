@@ -561,14 +561,16 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     assert live["id"] == "m6_temporal_holdout_projection_drift"
     assert live["floor_run"] == "runs/m6_holdout_floors_v3.json"
     # the lock-time deltas: locked / status / +history / the design_commit pin
-    # finalized to the #175 squash-merge (the draft prescribes this in
-    # design_commit_note). design_pr stays "175" (carried verbatim).
+    # finalized to a squash-merge (the draft prescribes this in
+    # design_commit_note). It is re-finalized to the #178 squash-merge (4c6a0f6,
+    # SS 2.7.6 completing the forward law) from the interim #175 squash.
+    # design_pr stays "175" (carried verbatim).
     assert "history" in live and "history" not in block
     assert block["locked"] is False
     assert block["status"] == "draft_cleared_ready_for_lock_flip"
     assert live["design_pr"] == block["design_pr"] == "175"
     assert block["design_commit"] == "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
-    assert live["design_commit"] == "ce9893b13e74a99f38d04ace2d278fac495012d0"
+    assert live["design_commit"] == "4c6a0f69f5637c6832659ab4dc8599b2c1a928b2"
     assert "design_commit_note" in live and "design_commit_note" in block
     _deltas = ("locked", "status", "history", "design_commit")
     live_cmp = {k: v for k, v in live.items() if k not in _deltas}

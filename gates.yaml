@@ -5135,26 +5135,28 @@ gates:
     # design_pr 175, the forward-earnings-law first-certification in covers +
     # not_certified.forward_earnings_law_not_gate1_certified) carried VERBATIM with
     # exactly the lock-time deltas: `locked: true`, `status: locked`, the `history`
-    # entry, AND the design_commit pin FINALIZED per design_commit_note to the #175
-    # squash-merge commit ce9893b (from PR #175's design commit d6abb16b). Ceremony:
-    # v1 floor fired the OC-before-lock PAUSE (1 gated flow cell / combined p_gate
-    # 0.8449) -> candidate-blind pinned-ladder redesign adjudicated -> v2 cleared
-    # 0.9067 -> adversarial referee AMEND x4 (comment 4958425437; the marital-ladder
-    # enumeration was incomplete) -> fixes + adjudicated v3 (comment 4958956779; 11
-    # gated = 5 flow + 6 earnings, p_seed 0.8934 / p_gate 0.9087) -> re-check PROCEED
-    # TO LOCK (comment 4959310892) -> ratified 2026-07-13 by merge of PR #172 (squash
-    # 1818784) under the standing campaign directive of 2026-07-07. The frozen floor
-    # runs/m6_holdout_floors_v3.json is RATIFIED = FROZEN and only READ (round(mean +
-    # k*sd, 3), capped at ln(1.5)), never rewritten. Bindings go LOCKED-HOT (tests/
-    # test_gate_m6_derivations.py). gate_1 / gate_2 (2a + 2b + 2c) / gate_3 / gate_m4
-    # / gate_w1 untouched.
+    # entry, AND the design_commit pin FINALIZED per design_commit_note. The pin is
+    # RE-FINALIZED to the #178 squash-merge 4c6a0f6 (SS 2.7.6, forward rank-to-level +
+    # re-ranking laws; twice-verified, comment 4960583620) which COMPLETES the forward
+    # law the covers references -- superseding the interim #175 squash ce9893b (off PR
+    # #175's design commit d6abb16b). Ceremony: v1 floor fired the OC-before-lock PAUSE
+    # (1 gated flow cell / combined p_gate 0.8449) -> candidate-blind pinned-ladder
+    # redesign adjudicated -> v2 cleared 0.9067 -> adversarial referee AMEND x4 (comment
+    # 4958425437; the marital-ladder enumeration was incomplete) -> fixes + adjudicated
+    # v3 (comment 4958956779; 11 gated = 5 flow + 6 earnings, p_seed 0.8934 / p_gate
+    # 0.9087) -> re-check PROCEED TO LOCK (comment 4959310892) -> ratified 2026-07-13 by
+    # merge of PR #172 (squash 1818784) under the standing campaign directive of
+    # 2026-07-07. The frozen floor runs/m6_holdout_floors_v3.json is RATIFIED = FROZEN
+    # and only READ (round(mean + k*sd, 3), capped at ln(1.5)), never rewritten. Bindings
+    # go LOCKED-HOT (tests/test_gate_m6_derivations.py). gate_1 / gate_2 (2a + 2b + 2c) /
+    # gate_3 / gate_m4 / gate_w1 untouched.
     id: m6_temporal_holdout_projection_drift
     status: locked
     locked: true
     kind: temporal_holdout
     design: docs/design/m6_projection_engine.md
     design_pr: "175"
-    design_commit: ce9893b13e74a99f38d04ace2d278fac495012d0
+    design_commit: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
     design_commit_note: >-
       design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
       pre-amendment revision-1 design) to this PR's design commit carrying the
@@ -5567,13 +5569,20 @@ gates:
         design_commit_finalized:
           rule: design_commit_note (finalize the design pin to the squash-merge at the lock flip)
           from: d6abb16b0a034ca08a26e3eb8fc9211967c53259
-          to: ce9893b13e74a99f38d04ace2d278fac495012d0
-          note: >-
+          to: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
+          refinalized_from: ce9893b13e74a99f38d04ace2d278fac495012d0
+          reason: >-
             design_pr #175 amended the block draft (the design 2.7 forward-earnings
             law: first-certified by gate_m6, gate_1 does NOT cover it) and re-pinned
             design_commit off the stale 1d83a221 (PR #170) to PR #175's design commit
-            d6abb16b0a034ca08a26e3eb8fc9211967c53259. Per the draft's design_commit_note, this flip
-            FINALIZES that pin to the #175 squash-merge commit ce9893b13e74a99f38d04ace2d278fac495012d0.
+            d6abb16b0a034ca08a26e3eb8fc9211967c53259. Per the draft's design_commit_note, this flip first
+            FINALIZED that pin to the #175 squash-merge ce9893b13e74a99f38d04ace2d278fac495012d0. Sol's
+            round-2 review then found the forward rank-to-level + re-ranking laws
+            under-determined; SS 2.7.6 (PR #178, squash-merge 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2,
+            twice-verified -- VERIFIED comment 4960583620) COMPLETED that forward law,
+            the law the covers references, so the pin is RE-FINALIZED from
+            ce9893b13e74a99f38d04ace2d278fac495012d0 to 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 to reference the COMPLETE
+            forward law, per the same finalize-at-lock-flip rule.
         referee_round:
           floor: >-
             PR #172 (runs/m6_holdout_floors_v3.json, sha256 e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77), the
@@ -5642,15 +5651,18 @@ gates:
           flip can claim any M7-seeding support. The PR #175 amendment adds the
           forward_earnings_law_not_gate1_certified margin: the gated {2016,2018}
           earnings cells ride the design 2.7 FORWARD earnings law, first-certified
-          by gate_m6 -- gate_1 does NOT cover it. ZERO mortality and ZERO
-          widowhood cells are gated -- on verified power grounds (no admissible
-          pooling clears either: mortality best ~0.472, widowhood best ~0.474,
-          and mortality's 85+ stratum stays attrition_confounded_truth). The
-          block is the PR #175-amended draft
+          by gate_m6 -- gate_1 does NOT cover it; SS 2.7.6 (PR #178, squash
+          4c6a0f69f5637c6832659ab4dc8599b2c1a928b2) COMPLETED that forward law. ZERO mortality and
+          ZERO widowhood cells are gated -- on verified power grounds (no
+          admissible pooling clears either: mortality best ~0.472, widowhood best
+          ~0.474, and mortality's 85+ stratum stays attrition_confounded_truth).
+          The block is the PR #175-amended draft
           (docs/design/gate_m6_block_draft.yaml) carried VERBATIM with exactly
           the lock-time deltas: locked true, status locked, this history entry,
-          AND the design_commit pin FINALIZED per design_commit_note from PR
-          #175's design commit d6abb16b0a034ca08a26e3eb8fc9211967c53259 to the #175 squash-merge
-          ce9893b13e74a99f38d04ace2d278fac495012d0. ZERO threshold movement vs the ratified frozen
-          floor: the flip READS runs/m6_holdout_floors_v3.json and rewrites
-          nothing. Bindings go LOCKED-HOT (tests/test_gate_m6_derivations.py).
+          AND the design_commit pin FINALIZED per design_commit_note -- from PR
+          #175's design commit d6abb16b0a034ca08a26e3eb8fc9211967c53259, first to the #175 squash
+          ce9893b13e74a99f38d04ace2d278fac495012d0, then RE-FINALIZED to the #178 squash
+          4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 once SS 2.7.6 completed the forward law. ZERO
+          threshold movement vs the ratified frozen floor: the flip READS
+          runs/m6_holdout_floors_v3.json and rewrites nothing. Bindings go
+          LOCKED-HOT (tests/test_gate_m6_derivations.py).
