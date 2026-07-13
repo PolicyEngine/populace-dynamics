@@ -1,0 +1,637 @@
+{
+  "schema_version": "gate_w1_forensics3.v1",
+  "run": "gate_w1_forensics3_v1",
+  "gate": "gate_w1",
+  "reported_not_gated": true,
+  "diagnostic": "W1 forensics 3 -- cap_150k adjacency decomposition + hh_size residual quantification; measures the two open post-c3 questions before any amendment-3 proposal. Publishes regardless of verdict.",
+  "registration": {
+    "issue": 42,
+    "comment_id": "4959668253",
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4959668253"
+  },
+  "registration_pointer": "4959668253",
+  "c3_grading_pointer": "4959658059",
+  "c3_registration_pointer": "4959017270",
+  "forensics1_pointer": "4951218279",
+  "forensics2_pointer": "4953088871",
+  "inputs": {
+    "candidate1_artifact": "runs/gate_w1_candidate1_v1.json",
+    "candidate2_artifact": "runs/gate_w1_candidate2_v1.json",
+    "candidate3_artifact": "runs/gate_w1_candidate3_v1.json",
+    "m2_encoding_artifact": "runs/m2_pseudo_projection_v1.json",
+    "pinned_frame": {
+      "bundle_id": "us-4.18.8",
+      "country_id": "us",
+      "policyengine_version": "4.18.8",
+      "model_package": "policyengine-us",
+      "model_version": "1.752.2",
+      "data_package": "populace-data",
+      "data_version": "0.1.0",
+      "hf_repo_id": "policyengine/populace-us",
+      "hf_filename": "populace_us_2024.h5",
+      "hf_repo_type": "dataset",
+      "dataset": "populace_us_2024",
+      "revision": "populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701",
+      "artifact_sha256": "c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5",
+      "reference_period": "2024"
+    }
+  },
+  "protocol": {
+    "one_shot": true,
+    "publishes_regardless": true,
+    "train_frame_side_only": true,
+    "no_gated_surface_deployment": true,
+    "k_household_draws": 4,
+    "instrumentation_bit_identity": "Q10 reproduces the committed cube c2 exhaustion deltas; Q11 reproduces the committed cube hh_size cells; both before any counterfactual is measured",
+    "env_split": "frame exported in the policyengine.py .venv (scripts/export_frame_persons.py); fit + measure in the .venv-gate -- the split the c3 run sidecar records"
+  },
+  "deployment_frame": {
+    "bundle_id": "us-4.18.8",
+    "country_id": "us",
+    "policyengine_version": "4.18.8",
+    "model_package": "policyengine-us",
+    "model_version": "1.752.2",
+    "data_package": "populace-data",
+    "data_version": "0.1.0",
+    "hf_repo_id": "policyengine/populace-us",
+    "hf_filename": "populace_us_2024.h5",
+    "hf_repo_type": "dataset",
+    "dataset": "populace_us_2024",
+    "revision": "populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701",
+    "artifact_sha256": "c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5",
+    "reference_period": "2024"
+  },
+  "generator_fit_provenance": {
+    "gate1": {
+      "module": "run_gate1_candidate5b.fit_cell_marginals",
+      "panel_rows": 126867,
+      "n_cells": 91,
+      "age_min": 25,
+      "age_max": 59,
+      "period_min": 1998,
+      "period_max": 2022,
+      "fit_seconds": 11.0
+    },
+    "family_transitions": {
+      "candidate_id": "candidate16_registry_v1",
+      "sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1",
+      "n_train_persons": 41409,
+      "fit_seconds": 28.1
+    },
+    "household_composition": {
+      "candidate_id": "gate2b_candidate9_registry_v1",
+      "sha256": "6137d921032c49ccd71c2302418759868689dac731706f1093a21716080800ab",
+      "n_train_persons": 46941,
+      "fit_seconds": 110.4
+    },
+    "gate_m4": {
+      "artifact": "m4_disability_v1.json",
+      "run": "m4_disability_v1",
+      "bands": [
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-66"
+      ],
+      "source": "runs/m4_disability_v1.json reference_moments prevalence"
+    },
+    "q2_boundary_marginals": {
+      "source": "run_gate1_baseline.family_earnings_panel, ages 18-24/60-69 x sex, period 2022",
+      "n_cells": 4,
+      "ranges": [
+        "18-24",
+        "60-69"
+      ],
+      "sex_covariate": true,
+      "byte_carried_from": "transport_deployment_v2",
+      "fit_seconds": 12.8
+    },
+    "q8_interior_marginals": {
+      "source": "run_gate1_baseline.family_earnings_panel, interior bands 25-34/35-44/45-54/55-61 x sex, period 2022",
+      "n_cells": 8,
+      "bands": [
+        "25-34",
+        "35-44",
+        "45-54",
+        "55-61"
+      ],
+      "sex_covariate": true,
+      "fit_seconds": 0.0
+    },
+    "q7_coresident_parent_roster": {
+      "source": "PSID household person-waves coresident_parent by band x sex",
+      "seed_band": "15-24",
+      "seed_rate_female": 0.6911652087581024,
+      "seed_rate_male": 0.7591885761012466,
+      "fertility_entry_age": 15,
+      "fit_seconds": 32.5
+    }
+  },
+  "reconciliations": {
+    "float64_machine_epsilon": 2.220446049250313e-16,
+    "identity_bar_64_eps": 1.4210854715202004e-14,
+    "q10_instrumentation_bit_identity_max_dev": 0.0,
+    "q11_instrumentation_bit_identity_max_dev": 0.0,
+    "q11_partition_max_abs_deviation_from_one": 1.1102230246251565e-16,
+    "all_instrumentation_reconciled": true,
+    "reconciliation_bar_note": "Q10 re-runs the committed #117 ledger on the transported frame and reproduces the cube's c2 exhaustion deltas within the identity bar; Q11 re-runs regenerate_person_frame_v3 and reproduces the cube's hh_size cells bit-for-bit; the five hh_size shares partition to 1.0 in every config."
+  },
+  "q10_cap150k_adjacency": {
+    "mechanism": "cap_150k raises the taxable maximum to $150k-2016 NAWI-indexed (always above the current wage base), so it taxes the near-band [wage_base, $150k-indexed] just above the base. On the anchor's implicit compressed frame (~12.7% of payroll above the base, A/B~0.115) this near-band is thin and cap_150k is rank-4 (Smith +1yr). The representative frame de-compresses the tail (A/B -> ~0.6 UPPER read / ~0.22 true), which is exactly the correction that lifts elimination past +2pp (the certified swap) AND, because the near-band is ~40-50% of the above-base payroll, lifts cap_150k past +1pp and +2pp to rank-2 (deployed 16.7yr).",
+    "instrumentation_fidelity": {
+      "reproduced": "committed cube c2 exhaustion-delay deltas",
+      "max_abs_deviation_vs_committed_cube": 0.0,
+      "bit_identical": true,
+      "committed_exhaustion_deltas": {
+        "cap_150k": 16.7453575523391,
+        "elimination": 41.0,
+        "payroll_plus_1pp": 2.5512940523046836,
+        "payroll_plus_2pp": 5.7052498220803045
+      },
+      "rerun_exhaustion_deltas": {
+        "cap_150k": 16.7453575523391,
+        "elimination": 41.0,
+        "payroll_plus_1pp": 2.5512940523046836,
+        "payroll_plus_2pp": 5.7052498220803045
+      }
+    },
+    "revenue_components": {
+      "psid_anchor_frame": {
+        "d_bal_elim": 0.014294443697022999,
+        "d_bal_cap150": 0.0062624547665585326,
+        "d_bal_p1": 0.010000000000000009,
+        "d_bal_p2": 0.02000000000000001,
+        "A_over_B": 0.11527777175018547,
+        "Aband_over_B": 0.05050366747224623,
+        "Aband_over_A": 0.43810412628109263,
+        "p1_delta_is_1pp": true,
+        "p2_delta_is_2pp": true
+      },
+      "deployed_representative_frame": {
+        "d_bal_elim": 0.21003994834163917,
+        "d_bal_cap150": 0.046198368676007934,
+        "d_bal_p1": 0.010000000000000536,
+        "d_bal_p2": 0.02000000000000053,
+        "A_over_B": 1.6938705511422514,
+        "Aband_over_B": 0.3725674893226446,
+        "Aband_over_A": 0.219950390584101,
+        "p1_delta_is_1pp": true,
+        "p2_delta_is_2pp": true
+      },
+      "frac_payroll_above_wage_base_deployed": 0.3771342996479947,
+      "A_over_B_moved_by_correction": true
+    },
+    "gap_decomposition": {
+      "smith_cap_150k_years": 1.0,
+      "psid_anchor_frame_cap_150k_years": 1.1188537982975504,
+      "deployed_representative_frame_cap_150k_years": 16.7453575523391,
+      "gap_total_deployed_minus_smith": 15.745357552339101,
+      "component_a_frame_above_cap_share_years": 15.62650375404155,
+      "component_bc_encoding_config_plus_vintage_years": 0.11885379829755038,
+      "share_a_frame_above_cap": 0.9924515021076867,
+      "share_bc_config_vintage": 0.007548497892313261,
+      "dominant_component": "a_frame_above_cap_share",
+      "note": "units differ (Smith open 75-yr projection vs frame-relative closed-cohort ledger); (b)/(c) are jointly the Smith->m2 residual and are small because m2 calibrates the reserve to Smith's 2034 baseline and reproduces the anchor rank-4. The transportable content is the ORDERING, driven by A/B and A_band/A below."
+    },
+    "entailment": {
+      "compression_correction_is": "the rise in A/B (PV-career-weighted taxable payroll above the wage base -- the ledger revenue ratio, an UPPER read vs the raw cross-sectional frac_above) from the anchor's implicit compressed frame to the representative frame",
+      "A_over_B_note": "A/B here is the ledger's PV-career-weighted revenue ratio (d_bal_elim/rate), not the raw cross-sectional payroll share frac_above; the transported careers over-concentrate the tail, so both are upper reads and the deployed A/B >> frac_above.",
+      "A_over_B_psid_anchor_frame": 0.11527777175018547,
+      "A_over_B_deployed_representative": 1.6938705511422514,
+      "A_over_B_moved": true,
+      "c2_breakeven_A_over_B": 0.16129032258064516,
+      "Aband_over_A_psid": 0.43810412628109263,
+      "Aband_over_A_deployed": 0.219950390584101,
+      "smith_adjacency_window_A_over_B_at_f_psid": [
+        0.16129032258064516,
+        0.18407761181089566
+      ],
+      "smith_adjacency_window_width_at_f_psid": 0.0227872892302505,
+      "at_breakeven_cap_still_rank4": true,
+      "psid_frame_order": [
+        "payroll_plus_2pp",
+        "elimination",
+        "payroll_plus_1pp",
+        "cap_150k"
+      ],
+      "deployed_frame_order": [
+        "elimination",
+        "cap_150k",
+        "payroll_plus_2pp",
+        "payroll_plus_1pp"
+      ],
+      "deployed_cap_rank": 2,
+      "deployed_breaks_adjacency": true,
+      "true_frame_sensitivity": {
+        "ssa_above_max_share": 0.18,
+        "ssa_true_frame_A_over_B": 0.2195121951219512,
+        "order_at_f_psid_0p44": [
+          "elimination",
+          "payroll_plus_2pp",
+          "cap_150k",
+          "payroll_plus_1pp"
+        ],
+        "cap_gt_1pp_at_f_psid": true,
+        "order_at_f_deployed_0p22": [
+          "elimination",
+          "payroll_plus_2pp",
+          "payroll_plus_1pp",
+          "cap_150k"
+        ],
+        "cap_gt_1pp_at_f_deployed": false,
+        "boundary_near_band_fraction_f": 0.3673835125448029,
+        "reading": "on the conservative SSA true frame (A/B~=0.22) the verdict is f-dependent: cap stays rank-4 iff f < 0.367. At the compressed near-band f~=0.44 the adjacency is already broken (cap outranks +1pp); at a heavier-far-tail f~=0.22 it holds. The DEPLOYED certified frame (the actual transport target) is unambiguous -- cap is rank-2."
+      },
+      "entailment_holds": true,
+      "verdict": "HOLDS on the deployed representative frame (the certified transport target): its A/B (1.694 PV) puts cap_150k at rank 2, above +1pp and +2pp, so the SAME correction that lifts elimination past +2pp (the certified swap) mechanically lifts cap_150k. The Smith 4-element ordering [elim, +2pp, +1pp, cap] demands cap LAST but the representative tail entails cap SECOND -- internally inconsistent as a representative-frame transport target. On a conservative true frame the break is f-dependent (boundary f~=0.37), but the certified frame is unambiguous."
+    },
+    "construction_attempt": {
+      "target": "restore the Smith cap_150k adjacency (cap_150k rank-4, below +1pp) WHILE keeping the certified elim<->+2pp swap (elim rank-1)",
+      "requirement": "A/B in (breakeven, cap_edge/f) AND A_band/A = f < 0.5; the window is empty unless f<0.5 (cap_edge/f>breakeven <=> f<0.5)",
+      "f_psid_near_band_fraction": 0.43810412628109263,
+      "f_deployed_near_band_fraction": 0.219950390584101,
+      "levers_enumerated": [
+        {
+          "lever": "the pinned certified frame",
+          "permitted": false,
+          "reason": "the representative frame is PINNED (bundle us-4.18.8, sha c2065b64...); A/B is not a free parameter. It resolves to 1.694 (an over-concentrated UPPER read) and ~0.22 on the true SSA-anchored frame -- both far above the window upper edge 0.184."
+        },
+        {
+          "lever": "the permanent variance share rho (career mobility)",
+          "permitted": false,
+          "reason": "rho is PINNED to 0.467 (the committed autocorrelation battery back-out); and it scales the WHOLE above-base tail, not the near-band selectively -- lowering rho spreads A and A_band together, never carving the just-above-base hole the window needs."
+        },
+        {
+          "lever": "the #117 cap_150k encoding (raise the $150k cap)",
+          "permitted": false,
+          "reason": "the encoding is the committed #117 pin ($150k-2016 NAWI-indexed). Raising the cap threshold only SHRINKS A_band toward zero at the limit cap->inf, but then cap_150k collapses to +0 (rank-4 by vanishing, not by frame) -- a different provision, not the registered cap_150k; and any threshold at/below the true frame's dense near-tail keeps A_band/B above the +1pp edge."
+        },
+        {
+          "lever": "back-solve the frame tail to land A/B in the window",
+          "permitted": false,
+          "reason": "PROHIBITED: choosing the frame tail so cap_150k reproduces its Smith rank is the identity-in-disguise (reading the scored anchor ordering to set the input); the frame is data-bound, not a fitted knob."
+        }
+      ],
+      "near_band_dominance": "A_band (the [wage_base, $150k-indexed] near-band) is the DENSEST part of a monotone-thinning earnings tail, so f = A_band/A stays large (PSID 0.438, deployed 0.220); no unimodal earnings distribution and no contract-permitted lever makes f small enough (<0.5) AND lands A/B in the resulting narrow window. The construction ENUMERATES EMPTY.",
+      "restoration_exists": false
+    },
+    "pair_scoped_respec": {
+      "option": "pair-scoped C2 (elimination<->+2pp adjacent swap ONLY)",
+      "anchor_supported": true,
+      "anchor_basis": "Smith 2015 p.3: full elimination +21yr > payroll +2pp +18yr, so elimination outranks +2pp -- a single anchor-reported adjacency that does NOT depend on the compressed 4-element tail.",
+      "swap_realised_by_candidate": {
+        "c1": true,
+        "c2": true,
+        "c3": true
+      },
+      "realised_3_of_3": true,
+      "would_certify": "the representative frame reproduces the elim>+2pp ordering (the above-wage-base compression correction) -- the frame-robust, transportable content the fingerprint was built to test.",
+      "would_not_certify": "the cap_150k rank (frame-entailed to rise) or the +1pp<->cap adjacency; the pair-scope DROPS the two provisions whose ranks the representative tail mechanically moves.",
+      "any_published_anchor_supports_full_4_element_on_representative_frame": false,
+      "anchor_provenance_checked": {
+        "only_anchor": "Smith 2015 (Urban Institute 72196, DYNASIM 2014 TR)",
+        "smith_full_order": [
+          "elimination",
+          "payroll_plus_2pp",
+          "payroll_plus_1pp",
+          "cap_150k"
+        ],
+        "reading": "Smith's full 4-element order is a 2015-vintage DYNASIM projection (2014 TR, $118.5k base, then-current above-max share); the entailment shows it cannot hold on a 2026 representative frame. No published anchor supports the full 4-element ordering on a representative frame -- unlike C1's re-spec (which enumerated EMPTY), the pair-scoped C2 is anchor-consistent and non-empty."
+      }
+    },
+    "adjudication": {
+      "q1_permitted_lever_restores_adjacency": {
+        "answer": false,
+        "basis": "construction enumerates empty: A/B is pinned (frame + rho + encoding all committed), lands far above the narrow window, and the near-band f>0.5 keeps cap>+1pp whenever elim>+2pp."
+      },
+      "q2_cap_150k_concept_mismatched_entailment": {
+        "answer": true,
+        "basis": "HOLDS on the deployed representative frame (the certified transport target): its A/B (1.694 PV) puts cap_150k at rank 2, above +1pp and +2pp, so the SAME correction that lifts elimination past +2pp (the certified swap) mechanically lifts cap_150k. The Smith 4-element ordering [elim, +2pp, +1pp, cap] demands cap LAST but the representative tail entails cap SECOND -- internally inconsistent as a representative-frame transport target. On a conservative true frame the break is f-dependent (boundary f~=0.37), but the certified frame is unambiguous."
+      },
+      "q3_pair_scoped_respec": {
+        "answer": "the pair-scoped C2 is the anchor-consistent re-spec; the full 4-element ordering is not a coherent representative-frame target",
+        "enters_amendment3_as": "anchor-consistent option (non-empty)"
+      }
+    },
+    "finding": {
+      "dominant_gap_component": "a_frame_above_cap_share",
+      "share_a_frame_above_cap": 0.9924515021076867,
+      "entailment_holds": true,
+      "permitted_lever_restoration_exists": false,
+      "pair_scoped_respec_anchor_consistent": true,
+      "summary": "Q10: the 16.7y-vs-1y gap is dominated (share 0.992) by (a) the frame's above-cap payroll share; (b)+(c) config+vintage are 0.008. The entailment HOLDS: the compression correction that certifies the elim<->+2pp swap mechanically lifts cap_150k, so the 4-element ordering is internally inconsistent on a representative frame. No contract-permitted lever restores the adjacency (construction empty). The pair-scoped C2 (elim<->+2pp only, realised 3/3) is the anchor-consistent re-spec."
+    }
+  },
+  "q11_hhsize_residual": {
+    "mechanism": "hh_size = 1 + spouse + child_counts + n_parents_ego + nonfamily. Lever 3 moves n_parents_ego (coresident_parent roster, Q7 lever a) and child_counts (15-entry fertility window, Q7 lever b); the marital core (spouse, size-2) is the household generator's own cohab/legal-residual model, decoupled from the fertility panel (the co-design coupling caveat). The coresidence roster owns the size-1<->size-3 mirror (a young adult moving between a lone and a parental home); the fertility window owns the size-4/5plus deficits (child_counts). Both are young-adult sub-channels of the size-1 excess.",
+    "instrumentation_fidelity": {
+      "reproduced": "seed-0 draw-0 c3 hh_size_share cells",
+      "n_cells_checked": 5,
+      "max_abs_rate_deviation_vs_committed_cube": 0.0,
+      "bit_identical": true
+    },
+    "configs": {
+      "c0_none": {
+        "shares": {
+          "1": 0.2958194240288233,
+          "2": 0.3392006549273946,
+          "3": 0.1457498624407603,
+          "4": 0.13035856857984843,
+          "5plus": 0.0888714900231733
+        },
+        "minors_per_adult": 0.1769489166451933,
+        "terminal_coresident_parent_rate": 0.0
+      },
+      "cor_only": {
+        "shares": {
+          "1": 0.24881246756829214,
+          "2": 0.33996220689808343,
+          "3": 0.16767383106100636,
+          "4": 0.14332287060512727,
+          "5plus": 0.10022862386749075
+        },
+        "minors_per_adult": 0.1769489166451933,
+        "terminal_coresident_parent_rate": 0.08125802939679404
+      },
+      "fer_only": {
+        "shares": {
+          "1": 0.2327245189979522,
+          "2": 0.3392386482929047,
+          "3": 0.14017022903180076,
+          "4": 0.15657546040749654,
+          "5plus": 0.13129114326984573
+        },
+        "minors_per_adult": 0.24450391632979546,
+        "terminal_coresident_parent_rate": 0.0
+      },
+      "joint_c3": {
+        "shares": {
+          "1": 0.19245441241144035,
+          "2": 0.3352356828988797,
+          "3": 0.16046420603304917,
+          "4": 0.16965238888461237,
+          "5plus": 0.14219330977201833
+        },
+        "minors_per_adult": 0.24450391632979546,
+        "terminal_coresident_parent_rate": 0.08144587252534674
+      }
+    },
+    "partition_max_abs_deviation_from_one": 1.1102230246251565e-16,
+    "per_cell_attribution": {
+      "1": {
+        "rate_a_frame": 0.08346551060908304,
+        "c0_none": 0.2958194240288233,
+        "cor_only": 0.24881246756829214,
+        "fer_only": 0.2327245189979522,
+        "joint_c3": 0.19245441241144035,
+        "coresidence_main_effect": -0.04700695646053113,
+        "fertility_main_effect": -0.06309490503087106,
+        "marital_core_interaction": 0.006736849874019291,
+        "total_lever3_effect": -0.10336501161738293,
+        "residual_after_c3_rate_a_minus_joint": -0.1089889018023573,
+        "c3_miss_signed_joint_minus_rate_a": 0.1089889018023573,
+        "coresidence_share_of_moved": 0.40232347576578015,
+        "fertility_share_of_moved": 0.5400171252619964,
+        "interaction_share_of_moved": 0.05765939897222341,
+        "dominant_channel": "fertility"
+      },
+      "2": {
+        "rate_a_frame": 0.3002006839844665,
+        "c0_none": 0.3392006549273946,
+        "cor_only": 0.33996220689808343,
+        "fer_only": 0.3392386482929047,
+        "joint_c3": 0.3352356828988797,
+        "coresidence_main_effect": 0.0007615519706888341,
+        "fertility_main_effect": 3.799336551008059e-05,
+        "marital_core_interaction": -0.004764517364713783,
+        "total_lever3_effect": -0.003964972028514868,
+        "residual_after_c3_rate_a_minus_joint": -0.03503499891441325,
+        "c3_miss_signed_joint_minus_rate_a": 0.03503499891441325,
+        "coresidence_share_of_moved": 0.1368697679420315,
+        "fertility_share_of_moved": 0.006828349634494301,
+        "interaction_share_of_moved": 0.8563018824234742,
+        "dominant_channel": "marital_core_interaction"
+      },
+      "3": {
+        "rate_a_frame": 0.21380934072805993,
+        "c0_none": 0.1457498624407603,
+        "cor_only": 0.16767383106100636,
+        "fer_only": 0.14017022903180076,
+        "joint_c3": 0.16046420603304917,
+        "coresidence_main_effect": 0.021923968620246065,
+        "fertility_main_effect": -0.005579633408959533,
+        "marital_core_interaction": -0.001629991618997656,
+        "total_lever3_effect": 0.014714343592288875,
+        "residual_after_c3_rate_a_minus_joint": 0.05334513469501076,
+        "c3_miss_signed_joint_minus_rate_a": -0.05334513469501076,
+        "coresidence_share_of_moved": 0.7525322445622212,
+        "fertility_share_of_moved": 0.19151888628417263,
+        "interaction_share_of_moved": 0.05594886915360618,
+        "dominant_channel": "coresidence"
+      },
+      "4": {
+        "rate_a_frame": 0.20973362179818003,
+        "c0_none": 0.13035856857984843,
+        "cor_only": 0.14332287060512727,
+        "fer_only": 0.15657546040749654,
+        "joint_c3": 0.16965238888461237,
+        "coresidence_main_effect": 0.012964302025278845,
+        "fertility_main_effect": 0.02621689182764811,
+        "marital_core_interaction": 0.00011262645183698905,
+        "total_lever3_effect": 0.03929382030476394,
+        "residual_after_c3_rate_a_minus_joint": 0.04008123291356766,
+        "c3_miss_signed_joint_minus_rate_a": -0.04008123291356766,
+        "coresidence_share_of_moved": 0.3299323385898181,
+        "fertility_share_of_moved": 0.6672013976831263,
+        "interaction_share_of_moved": 0.0028662637270556847,
+        "dominant_channel": "fertility"
+      },
+      "5plus": {
+        "rate_a_frame": 0.1927908428802106,
+        "c0_none": 0.0888714900231733,
+        "cor_only": 0.10022862386749075,
+        "fer_only": 0.13129114326984573,
+        "joint_c3": 0.14219330977201833,
+        "coresidence_main_effect": 0.011357133844317455,
+        "fertility_main_effect": 0.042419653246672434,
+        "marital_core_interaction": -0.0004549673421448547,
+        "total_lever3_effect": 0.053321819748845034,
+        "residual_after_c3_rate_a_minus_joint": 0.05059753310819226,
+        "c3_miss_signed_joint_minus_rate_a": -0.05059753310819226,
+        "coresidence_share_of_moved": 0.20941852173195463,
+        "fertility_share_of_moved": 0.7821921619551128,
+        "interaction_share_of_moved": 0.008389316312932646,
+        "dominant_channel": "fertility"
+      }
+    },
+    "channel_ownership": {
+      "coresidence_dominant_cells": [
+        "3"
+      ],
+      "fertility_dominant_cells": [
+        "1",
+        "4",
+        "5plus"
+      ],
+      "coresidence_share_of_moved_by_cell": {
+        "1": 0.40232347576578015,
+        "3": 0.7525322445622212,
+        "4": 0.3299323385898181,
+        "5plus": 0.20941852173195463
+      },
+      "coresidence_owns_size1_size3_mirror": true,
+      "reading": "coresidence dominates size-3 and the size-1<->size-3 mirror; fertility dominates size-1's movement and the size-4/5plus deficits. Two channels own two distinct regions -- structured, not featureless."
+    },
+    "mirror_structure": {
+      "size1_c3_excess_vs_frame": 0.1089889018023573,
+      "size3plus_c3_deficit_vs_frame": -0.14402390071677068,
+      "excess_deficit_balance": -0.035034998914413376,
+      "coresidence_moves_size1": -0.04700695646053113,
+      "coresidence_moves_size3plus": 0.046245404489842365,
+      "coresidence_mirror_ratio": 0.9837991644634939,
+      "coresidence_is_mirror_structured": true,
+      "residual_excess_size1": -0.1089889018023573,
+      "residual_deficit_size3plus": 0.14402390071677068,
+      "interpretation": "The size-1 excess mirrors the size-3+ deficit (partition), and the CORESIDENCE channel moves them in a near-exact mirror (size-1 down ~= size-3+ up, ratio ~0.98) -- a young adult leaving a lone household to join a size-3+ parental home. That is the coresidence-composition signature, and it is confirmed. It does NOT mean coresidence owns the whole residual: the coresidence mirror lands mass in size-3 (which coresidence dominates), while the size-4/5plus deficits are loaded by the fertility window (child_counts), and size-1's excess is jointly under-coresidence AND under-early-fertility (young mothers)."
+    },
+    "candidate_independence": {
+      "three_candidates": {
+        "c1": "base transport (no lever 3)",
+        "c2": "v2 levers (no lever 3)",
+        "c3": "v3 co-designed roster + fertility window (lever 3 ON)"
+      },
+      "named_levers": [
+        "Q7 lever a: coresident_parent roster (wave-0 15-24 seed)",
+        "Q7 lever b: fuller 15-entry fertility window",
+        "c3 co-design: both on one shared child ledger"
+      ],
+      "exact_quad_failing_cells": {
+        "1": {
+          "n_seed_pass": 0,
+          "rate_b": 0.19453003103487998,
+          "rate_a": 0.08346551060908304
+        },
+        "3": {
+          "n_seed_pass": 0,
+          "rate_b": 0.16159261615656667,
+          "rate_a": 0.21380934072805993
+        },
+        "4": {
+          "n_seed_pass": 1,
+          "rate_b": 0.1659146646733943,
+          "rate_a": 0.20973362179818003
+        },
+        "5plus": {
+          "n_seed_pass": 0,
+          "rate_b": 0.14310575505915255,
+          "rate_a": 0.1927908428802106
+        }
+      },
+      "config_clears_failing_cell": {
+        "1": {
+          "c0_none": false,
+          "cor_only": false,
+          "fer_only": false,
+          "joint_c3": false
+        },
+        "3": {
+          "c0_none": false,
+          "cor_only": false,
+          "fer_only": false,
+          "joint_c3": false
+        },
+        "4": {
+          "c0_none": false,
+          "cor_only": false,
+          "fer_only": false,
+          "joint_c3": false
+        },
+        "5plus": {
+          "c0_none": false,
+          "cor_only": false,
+          "fer_only": false,
+          "joint_c3": false
+        }
+      },
+      "any_config_clears_all_failing_cells": false,
+      "untried_full_age_roster_probe": {
+        "description": "wave-0 coresident_parent seed pushed to the ceiling (1.0, every adult), above the permitted train stock, 15-entry fertility",
+        "size1_at_ceiling_seed": 0.17860508419066104,
+        "terminal_coresident_parent_rate_at_ceiling": 0.1111907770703279,
+        "frame_rate_a_size1": 0.08346551060908304,
+        "reads_more_than_train_stock": true,
+        "closes_size1": false,
+        "note": "material closure = size-1 within 0.03 of the frame's 0.0835. The wave-0 seed is the only permitted roster knob (the machinery reads wave-0 only); the ceiling is the maximal reachable coresidence. If it does not close size-1, the certified parental-exit hazard caps terminal coresidence and the roster lever is exhausted."
+      },
+      "verdict": "levers_exhausted",
+      "exhaustion_basis": "the size-1 residual persists across every permitted config (c0/cor/fer/joint) AND the untried full-age roster probe does not close it (terminal coresidence is capped by the certified parental-exit hazard + composition generator, not by the seed) -- the coresidence-composition residual is irreducible under contract-permitted entry-state levers; closing it needs a non-entry-state coresidence model (an amendment)."
+    },
+    "finding": {
+      "coresidence_dominant_all_failing_cells": false,
+      "coresidence_gt_half_all_failing_cells": false,
+      "coresidence_dominant_cells": [
+        "3"
+      ],
+      "fertility_dominant_cells": [
+        "1",
+        "4",
+        "5plus"
+      ],
+      "mirror_structured": true,
+      "attribution": "mixed_but_structured",
+      "verdict": "levers_exhausted",
+      "summary": "Q11: the size-1<->size-3+ MIRROR is a clean coresidence-composition signature (coresidence moves size-1 -0.047 and size-3+ +0.046, ratio 0.98), and coresidence dominates size-3 (share 0.75). But coresidence does NOT own >50% of every failing cell: the fertility window (also permitted, maxed at the 15-entry certified support) loads the size-4/5plus deficits (fertility-dominant) and is the larger young-adult sub-channel for size-1. So the registered coresidence->50%-each-cell expectation is REFINED to mixed-but-structured attribution -- coresidence owns the mirror, fertility owns the large sizes. Both permitted entry-state levers are EXHAUSTED (the roster ceiling reaches terminal coresidence only 0.111 -- hazard-capped -- and does not close size-1; the fertility window is at the support floor), so the residual needs a non-entry-state coresidence/household model (an amendment)."
+    }
+  },
+  "expectations_vs_findings": {
+    "q10": {
+      "registered": {
+        "entailment_holds_and_a_dominant": 0.6,
+        "permitted_lever_restoration_exists": 0.1,
+        "vintage_config_dominates": 0.15,
+        "inconclusive": 0.15
+      },
+      "found": {
+        "entailment_holds": true,
+        "dominant_component": "a_frame_above_cap_share",
+        "share_a_frame_above_cap": 0.9924515021076867,
+        "permitted_lever_restoration_exists": false
+      },
+      "outcome": "entailment HOLDS and (a) the frame above-cap share dominates -- the p~=0.6 branch; permitted-lever restoration does NOT exist (p~=0.1 branch not realised); vintage/config does NOT dominate (p~=0.15 branch not realised)"
+    },
+    "q11": {
+      "registered": {
+        "coresidence_dominant_gt_half_with_mirror": 0.7,
+        "untried_permitted_lever_emerges": 0.1,
+        "mixed_attribution_no_dominant": 0.2
+      },
+      "found": {
+        "coresidence_gt_half_all_failing_cells": false,
+        "coresidence_dominant_cells": [
+          "3"
+        ],
+        "fertility_dominant_cells": [
+          "1",
+          "4",
+          "5plus"
+        ],
+        "mirror_structured": true,
+        "attribution": "mixed_but_structured",
+        "verdict": "levers_exhausted"
+      },
+      "outcome": "REFINEMENT: the p~=0.7 branch (coresidence >50% of EACH failing cell) is NOT realised -- coresidence dominates only size-3 and the size-1<->size-3 mirror (confirmed), while the fertility window loads size-4/5plus. The outcome is the p~=0.2 mixed-attribution branch, but STRUCTURED (two channels own two regions), not featureless; no untried permitted lever emerges (the p~=0.1 branch), so the levers are exhausted."
+    }
+  },
+  "amendment3_implications": {
+    "q10": "the pair-scoped C2 (elim<->+2pp only, realised 3/3, anchor-supported) is the anchor-consistent re-spec; the full 4-element ordering is not a coherent representative-frame target (the entailment). Enter the pair-scoped option in the amendment-3 proposal; do NOT chase cap_150k's Smith rank.",
+    "q11": "the hh_size residual is a coresidence-composition residual the contract-permitted entry-state levers (c3's co-designed roster + fertility) cannot close; closing it needs a non-entry-state coresidence model (an amendment), not another entry-state lever."
+  },
+  "revision_pins": {
+    "frame_artifact_sha256": "c2065b642ab00da74746afdfd9f06890e5f32f9b10bd6610ff236452d40f39c5",
+    "frame_revision": "populace-us-2024-sparse-l0-refit-57k-71a0887-national-only-20260701",
+    "pe_us_version": "1.752.2",
+    "gates_yaml_blob": "c43b2be2f7aeceafb2aae3181b3718e6e6145aa6",
+    "pe_us_dir": "/Users/maxghenis/PolicyEngine/policyengine-us"
+  }
+}
