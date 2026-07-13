@@ -521,8 +521,11 @@ it is not in `from_refit_bundle`'s required set). The contract is therefore
 **per-year, frame-in / `ndarray`-out**, and **stateful across years through the
 frame** — not the pure function the revision-1 draft (incorrectly) described.
 
-- **frame columns read** (the conditioning surface, all carried across years by
-  `assembly._merge_period_columns`): `earnings` — the **most recent drawn/realized
+- **frame columns read** (the conditioning surface; `earnings` is written
+  in-place by `apply_earnings` and carried across years by the loop's frame
+  reassignment `current = self.modules.earnings(current, ...)`, while
+  `assembly._merge_period_columns` threads the marital/disability/household
+  update-frames): `earnings` — the **most recent drawn/realized
   level**, `0` encoding non-participation (this is how the **drawn prior biennial
   rank re-enters**: `generate` re-ranks it to `rank_t`); the realized `≤2014` wave
   columns (the earlier-lag `rank_{t−2}` and the `2014` anchor `u_A`); the `≤T*`
@@ -534,8 +537,9 @@ frame** — not the pure function the revision-1 draft (incorrectly) described.
   frame's `rank_t` / `rank_{t−2}` / anchor → de-index to a level — consuming the
   §2.7.5 substream slots, and return that level (`0` if non-participating). On an
   **odd year** return the deterministic §2.7.2 carry-forward value (no RNG consumed).
-  Either return is written to `frame["earnings"]` and carried forward by
-  `_merge_period_columns`, so the drawn `2016` level is the `2018` step's `rank_t`.
+  Either return is written to `frame["earnings"]` and carried forward by the
+  loop's frame reassignment, so the drawn `2016` level is the `2018` step's
+  `rank_t`.
 - **drawn-prior-rank threading (named input via the frame).** The chain conditional
   `rank_{t+2} | rank_t, rank_{t−2}, u_A, age` needs, at `2018`, the **drawn** `2016`
   rank; it is **not** a `generate` argument but is recovered inside `generate` by
@@ -1272,7 +1276,7 @@ lock ceremony.
     "newly_chosen_fit_window_only": ["forward_conditional_donor_pools_on_<=2014_forward_tuples", "forward_participation_gate_coefficients", "anchor_flip_initial_2014", "start_of_chain_memory_ramp_2014->2016_one_step"],
     "annualization": "NON-SCORED; real per-year forward seam has no lookahead so DEFAULT is carry-forward (participation+level) of the last drawn/realized biennial value; log-linear interpolation only via batch-compute+backfill (departs from per-period stream assignment); scored cells read only {2016,2018}; interp-vs-carry gate-immaterial",
     "certification": "NOT gate_1-certified (different/forward law); first-certified by gate_m6; no gate_1 certificate transfers",
-    "seam_signature": "EarningsGenerator.generate(frame, year, rng) -> np.ndarray (steps.py:164-169); per-year, called by apply_earnings every projection year; stateful THROUGH the frame (drawn earnings column carried by _merge_period_columns), not a pure fn",
+    "seam_signature": "EarningsGenerator.generate(frame, year, rng) -> np.ndarray (steps.py:164-169); per-year, called by apply_earnings every projection year; stateful THROUGH the frame (drawn earnings column written in-place and carried by the loop's frame reassignment; _merge_period_columns threads the marital/disability/household update-frames), not a pure fn",
     "rng_slots": "per-year person stream context.person_generator(EARNINGS, person_id) = stream(k,t=year,earnings); RNG consumed only at even reference years; even-year spawns candidate-7 SUBSTREAM_CODES {gate:1,donor:2,reentry:3}; odd-year carry-forward deterministic",
     "drawn_prior_rank_threading": "at 2018, drawn-2016 rank recovered inside generate by re-ranking the frame's carried earnings column (0=non-participation); rank_{t-2} + anchor from realized-2014 columns; no generator-held cross-year state"
   },
