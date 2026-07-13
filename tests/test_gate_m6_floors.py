@@ -539,11 +539,38 @@ def test_v3_presence_f6_split_and_household_rule_declared():
     assert diag["n_household_gated_flow_cells"] == 3
 
 
-def test_gates_yaml_untouched_and_design_amended():
+def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
+    """Flip-time polarity of the draft's untouched-guard: the M6 lock flip
+    (2026-07-13) INSERTS the gate_m6 block this draft carries, so gates.yaml
+    now holds a LOCKED gate_m6 top-level gate (the floors/draft step left it
+    absent; this assertion inverts at the flip, exactly as the gate_w1 floors
+    test inverted its sibling assertion). The DRAFT's own
+    gates_yaml_untouched_by_this_draft stays True -- that is a statement about
+    the DRAFT artifact, not the live contract. VERBATIM fidelity: the live
+    block equals the draft block modulo exactly the three lock-time deltas
+    (locked: true, status: locked, + the added history entry)."""
     block = _block()
+    # a statement about the DRAFT step; stays True post-flip.
     assert block["gates_yaml_untouched_by_this_draft"] is True
     gates = yaml.safe_load((ROOT / "gates.yaml").read_text(encoding="utf-8"))
-    assert "gate_m6" not in gates.get("gates", {})
+    live = gates["gates"]["gate_m6"]
+    assert live["locked"] is True
+    assert live["status"] == "locked"
+    assert live["id"] == "m6_temporal_holdout_projection_drift"
+    assert live["floor_run"] == "runs/m6_holdout_floors_v3.json"
+    # exactly the three lock-time deltas: locked / status / +history.
+    assert "history" in live and "history" not in block
+    assert block["locked"] is False
+    assert block["status"] == "draft_cleared_ready_for_lock_flip"
+    live_cmp = {
+        k: v
+        for k, v in live.items()
+        if k not in ("locked", "status", "history")
+    }
+    draft_cmp = {
+        k: v for k, v in block.items() if k not in ("locked", "status")
+    }
+    assert live_cmp == draft_cmp
     text = DESIGN_PATH.read_text(encoding="utf-8")
     assert "4.10" in text and "Post-pause surface redesign" in text
     assert V1_SHA in text  # the pause evidence is cited in the design
