@@ -298,45 +298,68 @@ def test_household_registry_rebuilds_next_wave_after_cut_and_keeps_spec():
 
 def _earnings_panel() -> pd.DataFrame:
     rows = []
-    for person_id, values in (
-        (1, [100.0, 80.0, 0.0, 9999.0]),
-        (2, [120.0, 130.0, 140.0, 9999.0]),
-    ):
-        for period, earnings in zip(
-            [2010, 2012, 2014, 2016], values, strict=True
-        ):
-            rows.append(
-                {
-                    "person_id": person_id,
-                    "period": period,
-                    "earnings": earnings,
-                    "age": 30 + (period - 2010) // 2,
-                    "weight": float(person_id),
-                }
-            )
+    for bin_index in range(8):
+        for offset in range(3):
+            person_id = 10 * bin_index + offset + 1
+            for period in range(2004, 2017, 2):
+                earnings = float(
+                    1_000 * (bin_index + 1)
+                    + 50 * offset
+                    + 10 * (period - 2004)
+                )
+                if offset == 0 and period == 2014:
+                    earnings = 0.0
+                if period == 2016:
+                    earnings = 999_999.0
+                rows.append(
+                    {
+                        "person_id": person_id,
+                        "period": period,
+                        "earnings": earnings,
+                        "age": 27 + 5 * bin_index,
+                        "weight": float(offset + 1),
+                    }
+                )
     return pd.DataFrame(rows)
+
+
+def _earnings_nawi() -> dict[int, float]:
+    return {year: 100.0 * 1.02 ** (year - 2004) for year in range(2004, 2017)}
 
 
 def test_earnings_refit_fits_both_qrf_gates_on_only_preboundary_pairs():
     factory = _RecordingQRFFactory()
     result = refit_earnings_chained_generator(
-        _earnings_panel(), seed=7, boundary_year=2014, qrf_factory=factory
+        _earnings_panel(),
+        _earnings_nawi(),
+        seed=7,
+        boundary_year=2014,
+        qrf_factory=factory,
     )
 
     assert factory.factory_seeds == [7, 7]
     assert len(factory.fit_calls) == 2
     shared, zero = factory.fit_calls
-    assert shared["frame"]["period"].max() == 2014
-    assert zero["frame"]["person_id"].unique().tolist() == [1]
+    assert shared["frame"]["period_tp2"].max() == 2014
+    assert zero["frame"]["person_id"].unique().tolist() == [
+        1,
+        11,
+        21,
+        31,
+        41,
+        51,
+        61,
+        71,
+    ]
     assert result.anchors.set_index("person_id").loc[1, "period"] == 2014
     assert result.anchors.set_index("person_id").loc[1, "earnings"] == 0
     assert result.estimation_panel["period"].max() == 2014
-    assert result.n_zero_anchor_pairs == 2
+    assert result.n_zero_anchor_pairs == 40
     for call in factory.fit_calls:
         assert call["kwargs"] == {
-            "predictors": ["earnings", "age_tm2"],
-            "targets": ["earnings_tm2"],
-            "weights": "weight_tm2",
+            "predictors": ["earnings", "age_tp2"],
+            "targets": ["earnings_tp2"],
+            "weights": "weight_tp2",
         }
 
 
@@ -512,7 +535,7 @@ def test_complete_refit_entrypoint_invokes_every_composed_object(monkeypatch):
         modifier_interview_years=pd.Series([2013, 2015]),
         modifier_marriage_records=pd.DataFrame(),
         modifier_person_weight=pd.Series(dtype=float),
-        ssa_params=object(),
+        ssa_params=SimpleNamespace(nawi={}),
         ssa_params_vintage=2014,
         modifier_train_ids=set(),
         disability_panel=object(),  # type: ignore[arg-type]
@@ -725,7 +748,10 @@ def test_refit_entry_points_do_not_use_filesystem_artifacts(monkeypatch):
     monkeypatch.setattr(Path, "write_text", forbidden)
     factory = _RecordingQRFFactory()
     result = refit_earnings_chained_generator(
-        _earnings_panel(), seed=1, qrf_factory=factory
+        _earnings_panel(),
+        _earnings_nawi(),
+        seed=1,
+        qrf_factory=factory,
     )
     assert result.provenance.certified_full_window_artifacts_read is False
 

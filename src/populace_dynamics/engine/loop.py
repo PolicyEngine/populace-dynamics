@@ -23,6 +23,7 @@ from populace_dynamics.engine.rng import (
 FrameStep = Callable[
     [pd.DataFrame, "PeriodContext", np.random.Generator], pd.DataFrame
 ]
+InitialFrameStep = Callable[[pd.DataFrame], pd.DataFrame]
 MaritalStep = Callable[
     [pd.DataFrame, "PeriodContext", np.random.Generator], "MaritalStepResult"
 ]
@@ -116,6 +117,7 @@ class PeriodModules:
     earnings: FrameStep
     claiming: FrameStep
     household_composition: MaritalReaderStep
+    initialize: InitialFrameStep | None = None
 
 
 @dataclass(frozen=True)
@@ -173,16 +175,20 @@ class ProjectionEngine:
         if end_year < start_year:
             raise ValueError("end_year precedes the initial slice")
 
+        current = initial_slice.copy()
+        if self.modules.initialize is not None:
+            current = self.modules.initialize(current)
+            self._validate_slice(current, "initialized initial_slice")
+            if set(current["year"].unique()) != {start_year}:
+                raise ValueError("initialization changed the starting year")
+
         n_periods = end_year - start_year
         streams = ProjectionRNGRegistry(draw_index, n_periods)
-        current = initial_slice.copy()
         slices = [current.copy()]
         traces: list[PeriodTrace] = []
         shared_metadata = dict(metadata or {})
         next_person_id = (
-            int(initial_slice["person_id"].max()) + 1
-            if len(initial_slice)
-            else 1
+            int(current["person_id"].max()) + 1 if len(current) else 1
         )
         supplied_allocator = shared_metadata.setdefault(
             "synthetic_id_allocator",
@@ -196,7 +202,7 @@ class ProjectionEngine:
         person_ordinals = {
             person_id: ordinal
             for ordinal, person_id in enumerate(
-                sorted(initial_slice["person_id"].unique())
+                sorted(current["person_id"].unique())
             )
         }
 

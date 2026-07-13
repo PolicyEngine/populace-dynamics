@@ -235,6 +235,15 @@ def apply_earnings(
     if not np.isfinite(generated).all() or (generated < 0).any():
         raise ValueError("earnings generator returned invalid earnings")
     out = frame.copy()
+    if (
+        context.year % 2 == 0
+        and "gen_earn_w2" in frame
+        and "gen_earn_w4" in frame
+    ):
+        out["gen_earn_w4"] = frame["gen_earn_w2"].to_numpy(
+            dtype=np.float64, copy=True
+        )
+        out["gen_earn_w2"] = generated.astype(np.float64)
     out["earnings"] = generated.astype(np.float64)
     return out
 

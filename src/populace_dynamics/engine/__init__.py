@@ -14,6 +14,10 @@ from populace_dynamics.engine.composition import (
     simulate_candidate9_internal_reference,
 )
 from populace_dynamics.engine.disability import simulate_reproduction
+from populace_dynamics.engine.forward_earnings import (
+    ForwardEarningsGenerator,
+    fit_forward_earnings,
+)
 from populace_dynamics.engine.loop import (
     MaritalStepResult,
     PeriodContext,
@@ -57,6 +61,7 @@ __all__ = [
     "CompositionRngs",
     "EvaluationMode",
     "FertilityDraws",
+    "ForwardEarningsGenerator",
     "M6RefitBundle",
     "M6RefitInputs",
     "MaritalStepResult",
@@ -74,6 +79,7 @@ __all__ = [
     "check_candidate9_recertification",
     "composition_rngs_from_registry",
     "prepare_evaluation_support",
+    "fit_forward_earnings",
     "refit_m6_components",
     "simulate_candidate9_injected",
     "simulate_candidate9_internal_reference",

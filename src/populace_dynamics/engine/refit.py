@@ -34,6 +34,10 @@ from populace_dynamics.models import disability_hazard_sim as m4
 from populace_dynamics.models import family_transitions as ft
 from populace_dynamics.models import household_composition as hc
 
+from .forward_earnings import (
+    ForwardEarningsGenerator,
+    fit_forward_earnings,
+)
 from .steps import AgeSexMortalityModel
 
 __all__ = [
@@ -68,13 +72,13 @@ EARNINGS_SPEC_REGISTRATION = (
     "#issuecomment-4905323933"
 )
 EARNINGS_SPEC = {
-    "candidate": "gate1_candidate11_same_spec_as_candidate10",
+    "candidate": "m6_forward_mirror_of_gate1_candidate11",
     "shared_qrf": {
         "implementation": "populace.fit.qrf.RegimeGatedQRF",
         "parameters": "defaults",
-        "predictors": ["earnings", "age_tm2"],
-        "target": "earnings_tm2",
-        "weight": "weight_tm2",
+        "predictors": ["earnings", "age_tp2"],
+        "target": "earnings_tp2",
+        "weight": "weight_tp2",
     },
     "zero_anchor_qrf": {
         "implementation": "populace.fit.qrf.RegimeGatedQRF",
@@ -88,6 +92,10 @@ EARNINGS_SPEC = {
         "full_reentry_pool": True,
         "q0_memory_exempt": True,
     },
+    "age_support": [25, 64],
+    "age_bins": 8,
+    "level_map": "pooled_age_bin_nawi_normalized_cell_marginal",
+    "wage_index_projection": "ols_log_nawi_2005_2014",
 }
 EARNINGS_SPEC_SHA256 = hashlib.sha256(
     json.dumps(EARNINGS_SPEC, sort_keys=True, separators=(",", ":")).encode()
@@ -127,14 +135,16 @@ class ExternalVintage:
 
 @dataclass(frozen=True)
 class EarningsChainedRefit:
-    """The two candidate-11 participation fits and their truncated support."""
+    """The fitted M6 forward chain and its truncated support."""
 
+    generator: ForwardEarningsGenerator
     shared_gate: Any
     zero_anchor_gate: Any | None
     estimation_panel: pd.DataFrame
-    backward_pairs: pd.DataFrame
+    forward_pairs: pd.DataFrame
     anchors: pd.DataFrame
     n_zero_anchor_pairs: int
+    u_w_diagnostics: Mapping[str, Any]
     seed: int
     spec_registration: str
     adapter_spec_sha256: str
@@ -734,109 +744,48 @@ def _default_qrf_factory(*, seed: int) -> _QRFModel:
     return RegimeGatedQRF(seed=seed)
 
 
-def _backward_pairs(panel: pd.DataFrame) -> pd.DataFrame:
-    base = panel[["person_id", "period", "earnings", "age", "weight"]].copy()
-    earlier = base.rename(
-        columns={
-            "earnings": "earnings_tm2",
-            "age": "age_tm2",
-            "weight": "weight_tm2",
-        }
-    ).assign(period=lambda frame: frame["period"] + 2)
-    return base.merge(
-        earlier[
-            [
-                "person_id",
-                "period",
-                "earnings_tm2",
-                "age_tm2",
-                "weight_tm2",
-            ]
-        ],
-        on=["person_id", "period"],
-        how="inner",
-    )
-
-
-def _anchor_rows(panel: pd.DataFrame) -> pd.DataFrame:
-    index = panel.groupby("person_id")["period"].idxmax()
-    return panel.loc[
-        index, ["person_id", "period", "earnings", "age", "weight"]
-    ].reset_index(drop=True)
-
-
-def _fit_qrf(model: _QRFModel, pairs: pd.DataFrame) -> Any:
-    return model.fit(
-        pairs,
-        predictors=["earnings", "age_tm2"],
-        targets=["earnings_tm2"],
-        weights="weight_tm2",
-    )
-
-
 def refit_earnings_chained_generator(
     panel: pd.DataFrame,
+    nawi: Mapping[int, float],
     *,
     seed: int,
     boundary_year: int = BOUNDARY_YEAR,
     qrf_factory: QRFModelFactory | None = None,
 ) -> EarningsChainedRefit:
-    """Refit candidate-11's shared and zero-anchor QRF participation gates.
-
-    Earnings are dated on the income-reference-year axis, so the temporal cut
-    uses ``period`` directly.  Backward pairs and anchors are built only after
-    that cut, preventing either QRF or the permanent/anchor support from seeing
-    a post-``T*`` row.
-    """
-    _require_columns(
+    """Refit the pinned forward conditional-rank law on ``<=T*`` rows."""
+    fitted = fit_forward_earnings(
         panel,
-        ("person_id", "period", "earnings", "age", "weight"),
-        "earnings panel",
-    )
-    estimation = truncate_estimation_frame(
-        panel,
+        nawi,
+        seed=seed,
         boundary_year=boundary_year,
-        year_column="period",
-        label="earnings panel",
-    )
-    estimation = estimation[
-        (estimation["age"] >= 25)
-        & (estimation["age"] <= 59)
-        & (estimation["weight"] > 0)
-    ].reset_index(drop=True)
-    if estimation.empty:
-        raise ValueError("earnings refit has no admissible estimation rows")
-    pairs = _backward_pairs(estimation)
-    if pairs.empty:
-        raise ValueError("earnings refit has no adjacent biennial pairs")
-    anchors = _anchor_rows(estimation)
-    factory = qrf_factory or _default_qrf_factory
-    shared = _fit_qrf(factory(seed=seed), pairs)
-
-    zero_ids = set(anchors.loc[anchors["earnings"] == 0, "person_id"])
-    zero_pairs = pairs[pairs["person_id"].isin(zero_ids)].reset_index(
-        drop=True
-    )
-    zero_gate = (
-        _fit_qrf(factory(seed=seed), zero_pairs) if len(zero_pairs) else None
+        qrf_factory=qrf_factory or _default_qrf_factory,
     )
     provenance = RefitProvenance(
         boundary_year=boundary_year,
-        estimation_rule="earnings income-reference period <=T*",
+        estimation_rule=(
+            "forward earnings income-reference period <=T*; age 25-64; "
+            "calendar-invariant NAWI-normalized marginal"
+        ),
         n_rows={
-            "estimation_panel": len(estimation),
-            "backward_pairs": len(pairs),
-            "zero_anchor_pairs": len(zero_pairs),
+            "estimation_panel": len(fitted.estimation_panel),
+            "forward_pairs": len(fitted.forward_pairs),
+            "zero_anchor_pairs": fitted.n_zero_anchor_pairs,
         },
-        max_year={"earnings_reference_year": _max_year(estimation, "period")},
+        max_year={
+            "earnings_reference_year": _max_year(
+                fitted.estimation_panel, "period"
+            )
+        },
     )
     return EarningsChainedRefit(
-        shared_gate=shared,
-        zero_anchor_gate=zero_gate,
-        estimation_panel=estimation,
-        backward_pairs=pairs,
-        anchors=anchors,
-        n_zero_anchor_pairs=len(zero_pairs),
+        generator=fitted.generator,
+        shared_gate=fitted.generator.shared_gate,
+        zero_anchor_gate=fitted.generator.zero_anchor_gate,
+        estimation_panel=fitted.estimation_panel,
+        forward_pairs=fitted.forward_pairs,
+        anchors=fitted.anchors,
+        n_zero_anchor_pairs=fitted.n_zero_anchor_pairs,
+        u_w_diagnostics=fitted.u_w_diagnostics,
         seed=int(seed),
         spec_registration=EARNINGS_SPEC_REGISTRATION,
         adapter_spec_sha256=EARNINGS_SPEC_SHA256,
@@ -1141,6 +1090,7 @@ def refit_m6_components(
     )
     earnings = refit_earnings_chained_generator(
         inputs.earnings_panel,
+        inputs.ssa_params.nawi,
         seed=inputs.earnings_seed,
         boundary_year=boundary_year,
         qrf_factory=qrf_factory,

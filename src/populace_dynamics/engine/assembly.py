@@ -97,7 +97,7 @@ class CertifiedEngineInputs:
         bundle: M6RefitBundle,
         *,
         mortality: AgeSexMortalityModel,
-        earnings: EarningsGenerator,
+        earnings: EarningsGenerator | None = None,
         marital_panel_builder: MaritalPanelBuilder,
         household_panel_builder: HouseholdPanelBuilder,
         disability_panel: disability_data.DisabilityPanel,
@@ -111,6 +111,7 @@ class CertifiedEngineInputs:
             "modifier": bundle.modifier,
             "disability": bundle.disability,
             "claiming_pmfs": bundle.claiming_pmfs,
+            "earnings": bundle.earnings if earnings is None else earnings,
         }
         missing = [name for name, value in required.items() if value is None]
         if missing:
@@ -119,6 +120,13 @@ class CertifiedEngineInputs:
         assert bundle.household is not None
         assert bundle.modifier is not None
         assert bundle.claiming_pmfs is not None
+        default_earnings = (
+            bundle.earnings.generator if bundle.earnings is not None else None
+        )
+        selected_earnings = (
+            earnings if earnings is not None else default_earnings
+        )
+        assert selected_earnings is not None
         household_fit = bundle.household.fitted
         return cls(
             family=bundle.family.fitted,
@@ -128,7 +136,7 @@ class CertifiedEngineInputs:
             mortality=mortality,
             disability=bundle.disability,
             claiming=ClaimingSchedule(bundle.claiming_pmfs),
-            earnings=earnings,
+            earnings=selected_earnings,
             marital_panel_builder=marital_panel_builder,
             household_panel_builder=household_panel_builder,
             disability_panel=disability_panel,
@@ -186,6 +194,12 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
             "the authoritative candidate-16 fit"
         )
     state = _AssemblyState()
+
+    def initialize(frame):
+        materialize = getattr(
+            inputs.earnings, "materialize_initial_frame", None
+        )
+        return materialize(frame) if materialize is not None else frame.copy()
 
     def mortality_step(frame, context, rng):
         return apply_mortality(frame, context, rng, model=inputs.mortality)
@@ -335,4 +349,5 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
         earnings=earnings_step,
         claiming=claiming_step,
         household_composition=household_step,
+        initialize=initialize,
     )

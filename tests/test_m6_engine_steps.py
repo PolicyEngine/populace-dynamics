@@ -91,6 +91,58 @@ def test_earnings_adapter_consumes_the_injected_generator():
     pd.testing.assert_frame_equal(first, replay)
 
 
+def test_even_year_earnings_adapter_shifts_generated_lags():
+    class Model:
+        def generate(self, frame, year, rng):
+            del frame, rng
+            assert year == 2016
+            return np.array([300.0, 400.0])
+
+    frame = pd.DataFrame(
+        {
+            "person_id": [1, 2],
+            "earnings": [100.0, 200.0],
+            "gen_earn_w2": [90.0, 180.0],
+            "gen_earn_w4": [80.0, 160.0],
+        }
+    )
+
+    result = apply_earnings(
+        frame, _context(2016), np.random.default_rng(7), model=Model()
+    )
+
+    assert result["earnings"].tolist() == [300.0, 400.0]
+    assert result["gen_earn_w2"].tolist() == [300.0, 400.0]
+    assert result["gen_earn_w4"].tolist() == [90.0, 180.0]
+    assert frame["gen_earn_w2"].tolist() == [90.0, 180.0]
+    assert frame["gen_earn_w4"].tolist() == [80.0, 160.0]
+
+
+def test_odd_year_earnings_adapter_preserves_generated_lags():
+    class Model:
+        def generate(self, frame, year, rng):
+            del rng
+            assert year == 2017
+            return frame["earnings"].to_numpy(dtype=np.float64)
+
+    frame = pd.DataFrame(
+        {
+            "person_id": [1, 2],
+            "earnings": [300.0, 400.0],
+            "gen_earn_w2": [300.0, 400.0],
+            "gen_earn_w4": [90.0, 180.0],
+        }
+    )
+
+    result = apply_earnings(
+        frame, _context(2017), np.random.default_rng(8), model=Model()
+    )
+
+    assert result["earnings"].tolist() == [300.0, 400.0]
+    assert result["gen_earn_w2"].tolist() == [300.0, 400.0]
+    assert result["gen_earn_w4"].tolist() == [90.0, 180.0]
+
+
 def test_person_earnings_stream_does_not_shift_when_an_earlier_id_is_absent():
     class Model:
         def generate(self, frame, year, rng):

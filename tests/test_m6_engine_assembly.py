@@ -15,6 +15,7 @@ from populace_dynamics.engine.assembly import (
 )
 from populace_dynamics.engine.composition import CompositionDiagnostics
 from populace_dynamics.engine.loop import MaritalStepResult, ProjectionEngine
+from populace_dynamics.engine.refit import M6RefitBundle
 from populace_dynamics.engine.steps import (
     AgeSexMortalityModel,
     ClaimingSchedule,
@@ -27,6 +28,97 @@ class _Earnings:
     def generate(self, frame, year, rng):
         del year
         return rng.uniform(1_000, 2_000, len(frame))
+
+
+class _InitializingEarnings(_Earnings):
+    def materialize_initial_frame(self, frame):
+        out = frame.copy()
+        out["earnings_state_initialized"] = True
+        return out
+
+
+def _minimal_refit_bundle(earnings):
+    family = SimpleNamespace(name="same-cutoff-fit")
+    household = SimpleNamespace(
+        family_transitions=family,
+        male_gap=-2.0,
+    )
+    return M6RefitBundle(
+        boundary_year=2014,
+        family=SimpleNamespace(fitted=family),
+        household=SimpleNamespace(fitted=household),
+        earnings=earnings,
+        modifier=SimpleNamespace(modifier=object(), axis=object()),
+        disability=object(),
+        claiming_pmfs={("female", 2014): {62: 1.0}},
+    )
+
+
+def _minimal_bundle_binding_kwargs():
+    mortality = AgeSexMortalityModel(
+        bands=((0, 120),),
+        probability={
+            ("0+", "female"): 0.0,
+            ("0+", "male"): 0.0,
+        },
+    )
+    panel = disability.DisabilityPanel(
+        person_years=pd.DataFrame(),
+        pairs=pd.DataFrame(),
+    )
+    weights = StartWaveWeightSnapshot.from_frame(
+        pd.DataFrame({"person_id": [1], "weight": [1.0]}),
+        boundary_period=2014,
+    )
+    return {
+        "mortality": mortality,
+        "marital_panel_builder": lambda frame, context: (object(), {1}),
+        "household_panel_builder": lambda frame, context: (object(), {1}),
+        "disability_panel": panel,
+        "disability_ids": {1},
+        "start_weights": weights,
+    }
+
+
+def test_refit_bundle_uses_default_earnings_and_its_initializer():
+    default = _InitializingEarnings()
+    bundle = _minimal_refit_bundle(SimpleNamespace(generator=default))
+
+    inputs = CertifiedEngineInputs.from_refit_bundle(
+        bundle, **_minimal_bundle_binding_kwargs()
+    )
+    modules = assemble_period_modules(inputs)
+    frame = pd.DataFrame({"person_id": [1], "year": [2014]})
+
+    assert inputs.earnings is default
+    initialized = (
+        ProjectionEngine(modules)
+        .project(frame, end_year=2014, draw_index=0)
+        .slices[0]
+    )
+    assert initialized["earnings_state_initialized"].tolist() == [True]
+
+
+def test_refit_bundle_external_earnings_overrides_default_and_initializer():
+    default = _InitializingEarnings()
+    external = _Earnings()
+    bundle = _minimal_refit_bundle(SimpleNamespace(generator=default))
+
+    inputs = CertifiedEngineInputs.from_refit_bundle(
+        bundle,
+        earnings=external,
+        **_minimal_bundle_binding_kwargs(),
+    )
+    modules = assemble_period_modules(inputs)
+    frame = pd.DataFrame({"person_id": [1], "year": [2014]})
+
+    assert inputs.earnings is external
+    initialized = (
+        ProjectionEngine(modules)
+        .project(frame, end_year=2014, draw_index=0)
+        .slices[0]
+    )
+    pd.testing.assert_frame_equal(initialized, frame)
 
 
 def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
