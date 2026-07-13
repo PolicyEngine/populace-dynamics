@@ -22,18 +22,30 @@
   family-A faithful-candidate OC is **recomputed** on the residual 47-cell surface
   (§4, §5). No tolerance, σ, anchor value, or ordering is edited; the demoted
   cells' tolerances/orderings are retained under report-only.
-- **Fixes round**: this revision incorporates the adversarial referee round
-  ([4953763322][ref-round], verdict AMEND THE AMENDMENT). The round confirmed the
-  demotion boundary is principled (the referee's own five extra
-  construction-attempts confirm 65+ unreachability; the whittling question is
-  answered against self-interest, §3.1) and required correcting the **per-cell
-  grounds** (finding 2): the blanket "no candidate can clear any of the 7" was
-  **false on the committed record** — candidate 1 *passed*
-  `coresident_spouse.65+|female` on 4 of 5 seeds — so §4c/§5/§6/§8 now carry the
+- **Fixes rounds**: the first fixes round ([4953911698][fixes-round]) incorporated
+  the adversarial referee round ([4953763322][ref-round], verdict AMEND THE
+  AMENDMENT). That round confirmed the demotion boundary is principled (the
+  referee's own five extra construction-attempts confirm 65+ unreachability; the
+  whittling question is answered against self-interest, §3.1) and required
+  correcting the **per-cell grounds** (finding 2): the blanket "no candidate can
+  clear any of the 7" was **false on the committed record** — candidate 1 *passed*
+  `coresident_spouse.65+|female` on 4 of 5 seeds — so §4c/§5/§6/§8 carry the
   per-cell truth (per-seed pass records; ceiling-vs-window for the cells the
   stationary distribution cannot reach; scored-duplicate for the coresident cell
   that straddles the boundary), the retained surface carries the mandated candor
-  and series forecast (finding 4), and the σ ranges are corrected (finding 5).
+  and series forecast (finding 4), and the σ ranges are corrected (finding 5). The
+  **verification round** ([4954135376][verify-round], verdict FURTHER FIXES) then
+  confirmed every load-bearing number recomputes from the committed artifacts and
+  ruled the `scored_duplicate_of_demoted_married_quantity` ground **principled**
+  (§4c) — but caught two per-cell-false survivors introduced/inherited by the fixes
+  commit: a re-blanketed §2c impossibility sentence (false for
+  `coresident_spouse.65+|female`, whose *lower* window the ~0.577 ceiling sits
+  *inside* on 4/5 seeds) and a §3.1 retained-cell record listing
+  `marital_share.never_married.25-34|male` as failing 5/5 (candidate 1 clears it
+  1/5). This second fixes revision corrects both (each now bound — MM4/MM6), folds
+  the verifier's principled ruling + a deployment-contingent guard into §4c's
+  duplicate ground, and reconciles the amendment-3 `hh_size` risk count to four
+  (verifier note N2).
 - **Evidence base**: W1 forensics 2 (`runs/gate_w1_forensics2_v1.json`,
   registration [4953088871][reg2], grading [4953311492][grade2]) — Q6 (the 65+
   divorce over-accumulation) and Q9 (the measured 18-24 concept gap + the C1
@@ -52,6 +64,8 @@
 [grade2]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4953311492
 [reg1]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4951218279
 [ref-round]: https://github.com/PolicyEngine/populace-dynamics/pull/169#issuecomment-4953763322
+[fixes-round]: https://github.com/PolicyEngine/populace-dynamics/pull/169#issuecomment-4953911698
+[verify-round]: https://github.com/PolicyEngine/populace-dynamics/pull/169#issuecomment-4954135376
 
 ## 1. Summary
 
@@ -127,9 +141,11 @@ the 65+ quad — **7 cells** — to report-only, with per-cell machine reasons; 
 
 **The amended 48-cell surface is not itself known passable (§5, §9): it removes
 proven-unreachable cells; it does not establish a passable surface.** Two
-unpassability risks are already visible in committed artifacts — the five
-`hh_size` cells (Q7 graded REFUTED) and C2's `cap_150k` adjacency — and are
-forecast as amendment-3 risks now, not discovered one PR at a time.
+unpassability risks are already visible in committed artifacts — the **four**
+`hh_size` cells Q7 leaves out of tolerance (sizes 1/3/4/5+; all five `hh_size`
+cells fail 5/5, but Q7's joint roster+window lever clears only size-2, graded
+REFUTED) and C2's `cap_150k` adjacency — and are forecast as amendment-3 risks
+now, not discovered one PR at a time.
 
 ## 2. The finding (W1 forensics 2 Q6/Q9; W1 forensics 1 Q5/Q1)
 
@@ -194,8 +210,16 @@ stationary ceiling almost independent of the entry level**: forensics 1 Q1's
 entry-0 equilibration lands **0.5767** (65+ F), and Q6's entry-0.58 chain lands
 **0.5728** — a contraction of only ~0.007 per unit of entry stock, so even an
 entry stock of 1.0 buys ≤ +0.004 over the 0.577 ceiling. The male ceiling is
-~0.717. These ceilings sit **below the frame's pass windows** (§4c), which is why
-the 65+ cells cannot be cleared by any permitted entry-state lever. The grading
+~0.717. **Per cell (§4c) — the ceiling-below-window relation holds for three of the
+four, not the quad.** For the married pair and `coresident_spouse.65+|male` these
+ceilings sit *below* the frame's pass windows, which is why those three cells
+cannot be cleared by any permitted entry-state lever (the males 0/5, and
+`marital_share.married.65+|female` caps 2–3/5). But `coresident_spouse.65+|female`
+is scored against a *lower* window (frame coresident/married ratio ~0.97–0.99), so
+the same ~0.577 ceiling sits **inside** that cell's window on **4 of 5** seeds
+(per-seed lower edges [0.5478, 0.5759, 0.5717, 0.5769, 0.5813]) — which is exactly
+why candidate 1 clears it 4/5 and its demotion ground is *duplication of the
+demoted married quantity*, **not** unreachability (§4c). The grading
 adjudicated Q6 "**HALF-HELD**": the 65+ channel is divorce over-accumulation of
 the **hazard-evolution class — re-calibration prohibited, so the 65+ pair is
 amendment territory or unfixable**; the contract adjudication is exact — a
@@ -258,11 +282,15 @@ It is not: the demotion boundary tracks one principle — **demote iff the commi
 forensics establishes that no contract-permitted lever reaches the cell at the
 gate ≥4-of-5 level; retain every cell with a live permitted lever, however badly
 the built candidates miss it.** Applied against self-interest: the retained surface
-keeps cells failing **5/5 for both candidates** — `hh_size_share.{1..5plus}`,
-`marital_share.married.25-34|male`, `earnings_participation.35-44|female`,
-`marital_share.never_married.25-34|male` — because each maps to a permitted
-candidate-3 lever (Q8 sex covariate, proven 4/4; Q6 CPS-anchored entry, adjudicated
-permitted; Q7 roster/window, permitted). A whittler would have demoted these; the
+keeps every gate-eligible cell failing **5/5 for both candidates** —
+`hh_size_share.{1..5plus}`, `marital_share.married.25-34|male`,
+`earnings_participation.35-44|female` (the complete 5/5-fail retained set) —
+because each maps to a permitted candidate-3 lever (Q8 sex covariate, proven 4/4;
+Q6 CPS-anchored entry, adjudicated permitted; Q7 roster/window, permitted); it even
+retains `marital_share.never_married.25-34|male`, which candidate 1 *clears* on its
+single loosest seed (**1/5**; flags [T,F,F,F,F], score 0.1707 vs tolerance 0.192;
+candidate 2 0/5) — retention against self-interest *a fortiori*, its Q6
+CPS-anchored entry lever still live. A whittler would have demoted these; the
 proposal does not. The 15pp concept-gap threshold was pre-registered before
 measurement. The referee's own five extra construction-attempts (§4c) confirm the
 65+ cells are unreachable — per-band and entry-55 seeding move them *worse*.
@@ -358,6 +386,25 @@ amendment cures. (`coresident_spouse.65+|male` is the same regenerated duplicate
 but is additionally a hard 0/5 against its own ceiling, so it carries the ceiling
 reason.)
 
+**The duplication is identity, not correlation — and the ground is
+deployment-contingent (verification round [4954135376][verify-round] ruled this
+principled).** The ratio is exactly **1.0** because both committed deployments'
+`spec_resolutions` regenerate `coresident_spouse` as `(terminal marital_state ==
+married)` — the regeneration text is **bit-identical** in candidate 1 and candidate
+2 — so `ratio == 1.0` is a **machine-checkable identity per candidate**, not a
+correlation that a tighter candidate might loosen. The gate was scoring **one
+deployed number twice under two names**; demoting the married quantity while gating
+its bit-identical alias would be a *nominal* demotion of the same quantity. The
+boundary principle survives, restated at the quantity level: *demote iff no
+permitted lever reaches the quantity; a bit-identical alias is the same quantity
+under another name.* The narrowness is machine-enforced — the `ratio == 1.0`
+condition is checked per candidate, so a *merely correlated* cell cannot be swept
+in under this reason. **The ground is therefore deployment-contingent**: a future
+candidate that models spousal coresidence **separately** (`ratio ≠ 1.0`) dissolves
+the duplicate ground *for that world*, and re-gating `coresident_spouse.65+|female`
+is then available only via the standing forensics-then-ceremony path (report-only +
+§10 enforce it) — never a bare re-gate. (State it at flip time.)
+
 **Option c2 — re-anchor.** Deferred (§10).
 
 **The candidate-independence argument (the construction-attempt method).** The
@@ -444,8 +491,10 @@ risks are already committed:
 
 **Series forecast (referee finding 4).** The gate trajectory is lock **65 gated**
 → amendment 1 **55** → amendment 2 **48**; the committed evidence already names the
-next candidates. **Amendment-3 risks, pre-named now:** the five `hh_size` cells and
-C2's `cap_150k` adjacency. The standing rule: if candidate 3's co-designed
+next candidates. **Amendment-3 risks, pre-named now:** the **four** `hh_size` cells
+Q7 leaves out of tolerance (sizes 1/3/4/5+; all five `hh_size` cells fail 5/5, but
+Q7's joint lever clears size-2, so only these four are at risk) and C2's `cap_150k`
+adjacency. The standing rule: if candidate 3's co-designed
 roster/window lever fails to close the coresidence-composition residual, that
 failure becomes amendment-3 evidence **only** via the same forensics-then-ceremony
 standard (a registered, `reported_not_gated` diagnostic, then a public proposal +
@@ -604,11 +653,13 @@ must show the flip changes only `gate_w1` and moves no locked sibling.
     the residual 47 cells to p_seed 0.9344 / p_gate 0.9623 (from 53 cells / 0.922 /
     0.9481). NOT KNOWN PASSABLE: the amended 48-cell gate removes proven-unreachable
     cells; it does not establish a passable surface. Committed unpassability risks,
-    forecast as amendment-3 candidates: the five hh_size cells (Q7 graded REFUTED,
-    "not closable by these two entry-state levers alone", all 5/5-fail both
-    candidates) and C2's cap_150k adjacency (deployed 16.7 years vs Smith rank-4 1
-    year; corrected tail tau -1/3; robustness asserted only for the elim<->+2pp
-    pair) -- each reopenable only via the same forensics-then-ceremony standard.
+    forecast as amendment-3 candidates: the four hh_size cells Q7 leaves out of
+    tolerance (sizes 1/3/4/5+; all five hh_size cells 5/5-fail both candidates, but
+    Q7's joint roster+window lever clears only size-2 -- graded REFUTED, "not
+    closable by these two entry-state levers alone") and C2's cap_150k adjacency
+    (deployed 16.7 years vs Smith rank-4 1 year; corrected tail tau -1/3; robustness
+    asserted only for the elim<->+2pp pair) -- each reopenable only via the same
+    forensics-then-ceremony standard.
     Certification scope narrows: the C1 reversal, the 18-24 participation, and the
     65+ marital/coresident composition are report-only, published-not-certified.
     The gate_w1 faithful-candidate OC returns from an achievable 0 to 0.9623 x
@@ -641,9 +692,10 @@ What the gate **claims** after the flip:
   cells carried from the lock and amendment 1.
 - **Does not support**: the C1 reversal, the 18-24 participation, or the 65+
   marital/coresident composition as certified quantities. **Named amendment-3
-  risks** (forecast, not discovered one PR at a time): the five `hh_size` cells and
-  C2's `cap_150k` adjacency — each reopenable only via the same
-  forensics-then-ceremony standard, never a bare demotion; if candidate 3's
+  risks** (forecast, not discovered one PR at a time): the **four** `hh_size` cells
+  Q7 leaves out of tolerance (sizes 1/3/4/5+; all five fail 5/5, but Q7's joint
+  lever clears size-2) and C2's `cap_150k` adjacency — each reopenable only via the
+  same forensics-then-ceremony standard, never a bare demotion; if candidate 3's
   fingerprint runs byte-carry the career panel again, the C2 "empirical burden"
   framing expires and a Q5-grade `cap_150k` robustness analysis is the prerequisite.
   (The dynamics remain gate-1/2a/2b/2c/M4 certified on their PSID holdouts; W1
@@ -688,9 +740,19 @@ pending the bridges.**
       coresident-F 4/5 record; §5/§9 candor + series forecast; §3 σ ranges 2.0–6.6σ;
       §4a rewrite; the referee's R1–R3 construction-attempts; ledger + bindings
       extended and mutation-checked).
-- [ ] **Verification round** (recompute every number from committed artifacts; the
-      §7 flip text, §7 roll-ups, and §8 history figures are string-bound by
-      `tests/test_gate_w1_amendment2_proposal.py`).
+- [x] **Verification round** ([4954135376][verify-round], verdict FURTHER FIXES):
+      every load-bearing number recomputes from the committed artifacts, the
+      `scored_duplicate_of_demoted_married_quantity` ground is ruled **principled**,
+      and 24/24 bindings + the mutation battery reproduce; three text-tier items
+      remained — the §2c blanket (finding 1), the §3.1 5/5-fail record (finding 2),
+      the PR-body refresh (finding 3) — plus note N2 (hh_size count).
+- [x] **Fixes 2** (this revision: §2c per-cell truth + the MM4 binding; §3.1
+      5/5-fail list corrected + the MM6 binding; §4c deployment-contingent duplicate
+      guard citing [4954135376][verify-round]; the amendment-3 `hh_size` risks
+      reconciled to four (N2); PR body refreshed; re-run bindings + mutation battery
+      with the MM4/MM6 analogues now caught).
+- [ ] **Re-verification** (the corrected §2c/§3.1 recompute from the cubes; the
+      string-bound §7 flip text, roll-ups, and §8 history unchanged).
 - [ ] **Ratify by merge** of the flip PR (after the ceremony clears).
 - [ ] **Flip** `gates.yaml` per §7 and append the §8 history entry.
 - [ ] Then: candidate 3 against the amended contract (CPS-anchored entry, interior

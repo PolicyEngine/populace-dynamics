@@ -333,6 +333,47 @@ def test_ceiling_vs_window_65plus_female_arithmetic_bound():
     assert led["coresident_clears_4_of_5_candidate1"] is True
 
 
+def test_section2c_no_blanket_65plus_impossibility_coresident_inside_window():
+    """MM4 guard (verification round 4954135376, finding 1): section 2c must NOT
+    re-blanket '65+ cells cannot be cleared by any permitted entry-state lever' --
+    that is FALSE for coresident_spouse.65+|female, which candidate 1 clears 4/5
+    because the ~0.577 stationary ceiling sits INSIDE that cell's (lower) window on
+    4 of 5 seeds. Bound to the cube so the false blanket cannot return AND the
+    per-cell correction cannot be silently dropped."""
+    s2 = _section(2)
+    flat = " ".join(s2.split())
+    # the false blanket and the original-blocker paraphrases must be ABSENT.
+    for banned in (
+        "65+ cells cannot be cleared by any permitted entry-state lever",
+        "the 65+ cells cannot be cleared",
+        "cannot clear the 65+ quad",
+        "clear any of the 7",
+    ):
+        assert banned not in flat, banned
+    # the per-cell correction for coresident-65+|female must be PRESENT in 2c.
+    assert (
+        "coresident_spouse.65+|female" in flat
+        or "coresident_spouse.65+| female" in flat
+    )
+    assert "inside" in flat and ("4 of 5" in flat or "4/5" in flat)
+    # cube truth: the deployed value (== married rbar, ratio 1.0) sits INSIDE the
+    # coresident-F window on 4/5 seeds; candidate 1 clears the cell 4/5.
+    ps1 = _candidate(1)["family_a"]["per_seed"]
+    cores_inside, cflags = 0, []
+    for s in ps1:
+        ce = s["per_cell"]["coresident_spouse.65+|female"]
+        me = s["per_cell"]["marital_share.married.65+|female"]
+        assert round(ce["rbar"] / me["rbar"], 6) == 1.0
+        cores_le = ce["rate_a"] * math.exp(-ce["tolerance"])
+        cores_inside += 1 if ce["rbar"] >= cores_le else 0
+        cflags.append("T" if ce["pass"] else "F")
+    assert cores_inside == 4
+    assert cflags == ["T", "T", "T", "T", "F"]
+    assert (
+        _seed_pass_counts(_candidate(1), "coresident_spouse.65+|female") == 4
+    )
+
+
 # --------------------------------------------------------------------------
 # Finding 5: the corrected sigma ranges (2.0-6.6, not 3-8)
 # --------------------------------------------------------------------------
@@ -370,6 +411,46 @@ def test_sigma_range_corrected_2_to_6p6():
     s3 = _section(3)
     assert "2.0σ–6.6σ" in s3 or "2.0" in s3 and "6.6" in s3
     assert "3–8σ" not in s3 and "(3-8σ)" not in s3
+
+
+def test_section3_1_5of5_fail_list_per_cell_true_excludes_never_married():
+    """MM6 guard (verification round 4954135376, finding 2): section 3.1's '5/5 for
+    both candidates' whittling list must be per-cell true. marital_share.
+    never_married.25-34|male is NOT 5/5-fail (candidate 1 clears seed 1, 0.1707 vs
+    0.192) and must not be reintroduced into that list; the concrete named cells
+    recompute as genuine 5/5-fail from BOTH cubes; and the '5/5' count itself is
+    pinned so a '4/5' downgrade fails too."""
+    s3 = _section(3)
+    flat = " ".join(s3.split())
+    assert "5/5 for both candidates" in flat  # pins the count word.
+    m = re.search(r"5/5 for both candidates\*{0,2}\s*—(.+?)—", flat)
+    assert m, "the 5/5-fail cell list clause was not found in section 3.1"
+    clause = m.group(1)
+    nm = "marital_share.never_married.25-34|male"
+    assert nm not in clause  # the false membership must stay OUT of the list.
+    # recompute the genuine 5/5-fail RETAINED set from both committed cubes.
+    per_cell = _candidate(1)["family_a"]["per_seed"][0]["per_cell"]
+    genuine = {
+        c
+        for c in per_cell
+        if c not in FAMILY_A_DEMOTED
+        and _seed_pass_counts(_candidate(1), c) == 0
+        and _seed_pass_counts(_candidate(2), c) == 0
+    }
+    assert nm not in genuine
+    assert _seed_pass_counts(_candidate(1), nm) == 1  # clears seed 1.
+    assert _seed_pass_counts(_candidate(2), nm) == 0
+    # the clause names exactly the genuine set (hh_size shorthand + two concretes).
+    assert "hh_size_share.{1..5plus}" in clause
+    for k in ("1", "2", "3", "4", "5plus"):
+        assert f"hh_size_share.{k}" in genuine, k
+    for cell in (
+        "marital_share.married.25-34|male",
+        "earnings_participation.35-44|female",
+    ):
+        assert cell in clause and cell in genuine, cell
+    # the corrected per-cell record of never_married is stated (retained a fortiori).
+    assert nm in flat and ("1/5" in flat or "single loosest seed" in flat)
 
 
 # --------------------------------------------------------------------------
@@ -603,6 +684,22 @@ def test_c2_record_bound_and_amendment3_forecast():
     prose = _prose_without_ledger()
     assert "cap_150k" in prose and "amendment-3" in prose.lower()
     assert "forensics-then-ceremony" in prose
+    # verifier note N2: the amendment-3 hh_size risks are the FOUR cells Q7 leaves
+    # out of tolerance (sizes 1/3/4/5+); size-2 is the one the joint lever clears.
+    # All five hh_size cells still fail 5/5 (candor test) -- only four are risks.
+    assert {r for r in risks if r.startswith("hh_size")} == {
+        "hh_size_share.1",
+        "hh_size_share.3",
+        "hh_size_share.4",
+        "hh_size_share.5plus",
+    }
+    assert "hh_size_share.2" not in risks
+    q7j = _forensics2()["q7_coresident_parent_fertility"]["scoring"]["joint"]
+    assert q7j["per_cell"]["2"]["clears"] is True
+    for k in ("1", "3", "4", "5plus"):
+        assert q7j["per_cell"][k]["clears"] is False
+    # the prose risk-framing names the four sizes and flags size-2 as the cleared one.
+    assert "1/3/4/5+" in prose and "size-2" in prose
 
 
 # --------------------------------------------------------------------------
