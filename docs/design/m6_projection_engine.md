@@ -4,11 +4,19 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 1). This document seeds the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 2). This document seeds the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
   ratify-by-merge → lock). **It edits no `gates.yaml` cell, moves no threshold,
   builds no floor, and writes no test.** The gate block and its floor are
   authored in a later ceremony, not here.
+- **Revision 2** adds the forward earnings generator spec (§2.7), a design
+  amendment unblocking the engine build's honest blocker (Sol, PR #173): the
+  certified gate-1 candidate-11 generator is a **backward** biennial imputation
+  chain and cannot be composed into the M6 forward loop without a new stochastic
+  law. §2.7 specifies that law — a forward mirror of the certified conditioning
+  structure, fit `≤2014` by construction and **first-certified by `gate_m6`** (not
+  `gate_1`) — with the annualization rule, the certification framing, and the
+  implementation contract for the engine lane; §4.2 and decision 10 are updated.
 - **Revision 1** incorporates the adversarial design referee round (PR #170
   comment 4953818376, verdict MAJOR REVISION) and the ten-decision adjudication
   (comment 4953722912, whose conditions bind). The referee cleared the two hard
@@ -368,6 +376,155 @@ composition (via `spouse_from_marital`, `simulated_marital_binary`,
 marital-blind, R2): step 5 disability, step 6 earnings, step 7 claiming. No step
 re-simulates the core.
 
+### 2.7 The forward earnings generator (design amendment, unblocks #173)
+
+**The blocker (Sol, PR #173 "M6 engine: wave-loop composition", BLOCKED
+honestly).** The engine build composed steps 1–8 and passed the §2.6
+re-certification margin check, but reported a BLOCKER: the certified gate-1
+candidate-11 earnings generator (`scripts/run_gate1_candidate11.py`, run
+`gate1_rank_knn_v5`; byte-identical to candidate-10, `run_gate1_candidate10.py`) is
+a **backward** biennial imputation chain — it anchors each person's chronologically
+**latest** real earnings, predicts wave `t−2` participation from later earnings,
+and draws earlier ranks from pair/triple/re-entry pools conditioned on **later**
+ranks. M6 starts from realized 2014 and needs **forward** earnings. Sol correctly
+refused to (i) invert the certified backward conditional, (ii) extrapolate
+period-specific marginals beyond the last `≤2014` fit cell, or (iii) map the
+two-year kernel to annual steps — each a different stochastic law than the one
+gate-1 certified — shipping only the admissible `≤2014` refit plumbing and an
+**explicit external earnings seam** (`CertifiedEngineInputs` still requires an
+externally supplied earnings generator). This subsection specifies that generator.
+
+**2.7.1 The forward law.** A **biennial forward conditional-rank chain**
+`2014 → 2016 → 2018` for the scored path — the gate's earnings cells live on
+reference years `{2016, 2018}` (§4.1), realized 2014 is the anchor, so two biennial
+forward steps produce the two scored draws (the chain continues `2018 → 2020 →
+2022` for the report-only/seam path, but those draws are not gated — §4.1 shock
+demotion). The scored path stays **biennial**, at the certified `period_step 2`
+(`gates.yaml views.psid_family_earnings_pairs`), so no annual kernel is invented
+for any gated cell — retiring Sol's concern (iii).
+
+The forward law **mirrors the certified candidate-11 conditioning structure**,
+reversed in time, and is **fit from scratch on `≤2014` forward wave tuples** — it is
+**not** an inversion of the certified backward conditional (retiring concern (i)).
+Because it is a `≤2014`-fit conditional-rank law applied out-of-sample to the
+`2014→2016` and `2016→2018` steps — not a period-specific marginal carried past its
+last fit cell — it does not extrapolate a marginal (retiring concern (ii)):
+applying a `≤2014` transition law out-of-sample is exactly what the temporal
+holdout scores.
+
+The mirror, primitive by primitive (certified backward → forward):
+
+| certified backward primitive | forward mirror | machinery |
+|---|---|---|
+| anchor = chronologically **latest** real earnings | anchor = realized **2014** (the only real forward anchor) | candidate-7 anchor `u_A` |
+| predict `t−2` participation from **later** earnings | predict `t+2` participation from **earlier** earnings | RegimeGatedQRF sign gate |
+| draw **earlier** ranks conditional on **later** ranks | draw **later** ranks conditional on **earlier** ranks | k-NN conditional rank bootstrap |
+| two-step-plus-anchor memory (two later waves + anchor) | two-step-plus-anchor memory (two earlier waves + anchor) | candidate-7/10 |
+
+**What transfers byte-for-byte from candidate-11/10** (`run_gate1_candidate11.py` /
+`run_gate1_candidate10.py` docstrings): k-NN `k = 25`; distance weights
+`1 / 0.5 / 0.25`; the fixed `λ = 0.1` donor-coordinate blend for non-Q0 targets
+(Q0 exempt, its third distance term staying `|u_A(donor) − u_A(target)|`); the
+`u_w` shrunk-permanent rank (candidate-3 z-decomposition) as the latent-permanent
+coordinate; the RegimeGatedQRF participation sign-gate architecture; the zero-anchor
+participation regime with the **full** re-entry pool (no restriction); the weighted
+single-record draw with no smoothing/jitter; and age as the only other covariate
+(marital-blind, per the verified R2 facts, §2.6).
+
+**What is newly chosen — justified from `≤2014` (fit-window) diagnostics only**,
+candidate-blind with respect to the holdout:
+
+- the **forward conditional itself** (`rank_{t+2} | rank_t, rank_{t−2}, u_A, age`)
+  and its k-NN donor pools, **re-formed on `≤2014` forward-ordered wave tuples**
+  (the certified pools are formed on the reversed order). The pool-formation rule
+  is candidate-7's verbatim, applied to forward tuples.
+- the **forward participation gate coefficients**, re-fit on `≤2014` forward wave
+  pairs (the RegimeGatedQRF architecture and features are transferred; only the fit
+  direction is forward).
+- the **anchor role flip** (initial rather than terminal) — forced by the projection
+  (2014 is the only real forward anchor) and consistent with the certified rule that
+  the anchor is the sole real wave available to the chain's direction.
+- the **start-of-chain memory ramp**: `2014→2016` has one prior wave (2014, also the
+  anchor) so it runs at one-step-plus-anchor memory; `2016→2018` has two priors
+  `{2014, 2016}` and runs at full two-step-plus-anchor memory. This mirrors the
+  certified chain's own earliest-wave boundary, reversed; the ramp is fixed from the
+  `≤2014` wave calendar, not chosen against any 2016/2018 cell.
+
+**Spec-selection disclosure (#42 comment 4948637741; §4.2 finding 1).** This forward
+spec is written **knowing the holdout exists**, but every choice above is
+**derivable from `≤2014` data alone** — hyperparameters transferred from the
+certified `≤2014`-inner-validated candidate, new choices fixed from `≤2014` wave
+tuples and diagnostics, none tuned against any 2016/2018 observable. The gate then
+scores the composed engine out-of-sample; **`gate_m6` IS the forward generator's
+first certification** (§2.7.3). It inherits the §4.2 spec-selection limitation:
+out-of-sample for its fitted parameters, in-sample for its structural choice
+(mirroring a full-window-selected certified spec).
+
+**2.7.2 Annualization (non-scored).** The annual period loop (§2.2) needs an
+earnings value every year for the pe-us seam (§5), AIME accumulation, and claiming
+(§2.2 step 7); the biennial forward chain draws only even reference years. The odd
+years `{2015, 2017, 2019, …}` are filled by a **non-scored** rule that never enters
+a gated cell — the scored earnings-moment cells (§4.5) read **only** the biennial
+forward draws at `{2016, 2018}`:
+
+- **participation** for an odd year is **carried** from the preceding biennial wave
+  (a binary is not interpolated; piecewise-constant hold);
+- **positive-earnings level** for an odd year is **log-linear interpolation of the
+  NAWI-indexed level** between the two bracketing biennial values (realized or
+  drawn) when both brackets are positive; if either bracket is zero
+  (non-participation), the odd year takes the preceding biennial wave's state
+  (carry-forward). `2015` brackets realized-2014 and drawn-2016 under this rule.
+
+These annual values feed the seam/claiming/AIME plumbing exclusively; they carry a
+`non_scored_annualization` tag and are excluded from every `gate_m6` cell and every
+floor. **The one under-determined choice** (flagged for the engine lane): log-linear
+interpolation vs carry-forward for participant odd-year levels. Interpolation is
+specified (smoother AIME career path, least-distorting to the top-35 average);
+carry-forward is the named alternative. Because these values touch no gated cell,
+the choice is **immaterial to certification** — the floors ceremony need not
+adjudicate it.
+
+**2.7.3 Certification framing.** The forward generator is a **different stochastic
+law** than gate-1 certified (forward conditional ≠ backward conditional), so it is
+**NOT** covered by `gate_1`; **no `gate_1` certificate transfers to it.** It enters
+`gate_m6`'s scored run as one composed module of the engine and is **first-certified
+there**, on the temporal holdout, exactly like the composition itself (§2.6) — its
+`≤2014` fit makes it leakage-safe by construction, and the gate scores its
+2016/2018 output against realized PSID earnings (§4.5). §4.2 adds it to the refit
+enumeration; decision 10 records that a `gate_m6` pass is the forward generator's
+sole certification.
+
+**2.7.4 Implementation contract (for the engine lane).** The generator fills Sol's
+`CertifiedEngineInputs` externally-supplied-earnings slot. Precise interface:
+
+- **inputs** — per person: the realized `≤2014` biennial earnings history (waves
+  `1998, 2000, …, 2014` on the `data/family.py` head/spouse concept), the `≤T*`
+  latent-permanent state `u_w` (shrunk permanent rank from the `≤2014` refit),
+  birth-year/age; and the engine-injected RNG generator for each biennial step
+  (§2.7.5). All fit inputs (donor pools, participation-gate coefficients) are
+  `≤2014`; the generator reads no post-`T*` datum.
+- **outputs** — per person, per biennial scored step `t ∈ {2016, 2018}`: a
+  participation flag and, if participating, a positive-earnings level (NAWI-indexed,
+  de-indexed to the calendar year for the seam); plus the §2.7.2 non-scored annual
+  series. The scored path exposes only the `{2016, 2018}` biennial draws to
+  `gate_m6`.
+- **RNG stream slots** — §2.7.5.
+- **the seam** — a pure function `(realized_history, u_w, age, rng) →
+  biennial_forward_draws` with no engine state beyond its `≤2014` fit; it plugs into
+  `CertifiedEngineInputs` as the earnings generator the build (#173) left external,
+  unblocking the M6 forward loop.
+
+**2.7.5 RNG stream slots (F3 registry, §3.2).** The forward earnings module consumes
+RNG **only at the biennial forward steps** `t ∈ {2016, 2018}` (odd-year
+annualization is deterministic, §2.7.2). Under the `(draw × module × period ×
+person)` spawn tree, the earnings module at a biennial step spawns candidate-7's
+three canonical sub-streams — **participation gate**, **donor draw**, **re-entry
+draw** — as ordered children of `stream(k, t, earnings)`, preserving the certified
+two-element `SeedSequence([·, code])` draw order within each. Person draws are
+consumed in canonical `person_id` order (§3.2); no two `(k, t)` earnings streams
+share entropy, so any biennial step is independently reproducible, and the split
+stream stays disjoint from `5200 + k` (§3.3).
+
 ## 3. RNG discipline — the projection stream registry
 
 ### 3.1 The inherited convention
@@ -483,6 +640,18 @@ fitter. The complete refit enumeration — **including the gate-1 earnings gener
   earnings-QRF** fits are re-run with their estimation panels truncated at `T*`,
   and the projection re-draws 2015–2022 state seeded from each person's realized
   2014 state.
+
+**Forward earnings — the certified gate-1 generator is backward (design amendment
+§2.7).** The enumeration lists the gate-1 earnings generator, but the certified
+candidate-11 chain is a **backward** biennial imputation
+(`run_gate1_candidate11.py`; §2.7), so its admissible `≤2014` refit is the
+participation-gate plumbing (PR #173), **not** a forward generator. The forward
+scored earnings at `{2016, 2018}` come from the **forward conditional-rank chain of
+§2.7** — a **different stochastic law** fit `≤2014` by construction and
+**first-certified by `gate_m6`**, not covered by `gate_1`. It enters this
+enumeration as a `≤2014`-fit object (leakage-safe) whose out-of-sample 2016/2018
+output the gate scores; no `gate_1` certificate transfers to it (§2.7.3, decision
+10).
 
 **Spec-vs-fit (finding 3, reconciling §7's "no new estimation").** Refitting a
 frozen spec on ≤2014 produces new fitted numbers — re-estimation of *estimates*,
@@ -972,6 +1141,12 @@ a resolution, the change is noted.
 10. **Certify only the post-demotion holdout surface; 2100 = report-only
     extrapolation — ACCEPTED,** with the finding-1 certified-claims language: even
     the gated claim is conditional on full-window spec selection (§4.2, §4.9).
+    **Revision 2 addition:** the certified/not-certified language also records that
+    the **forward earnings generator (§2.7) is not `gate_1`-certified** — it is a
+    different (forward) stochastic law than the certified backward chain, `≤2014`-fit
+    by construction, and a `gate_m6` pass is its **sole** certification. No `gate_1`
+    certificate transfers to it; the composed-engine pass certifies the forward law
+    together with the composition.
 
 ## 9. Floors-ceremony plan (§9 deliverables)
 
@@ -1020,7 +1195,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 1,
+  "revision": 2,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -1057,6 +1232,16 @@ lock ceremony.
     "injection_forced": true,
     "injection_class_under_R1": "surgery (bypasses candidate-9 internal ft.simulate)",
     "recertification": "targeted distributional margin check on candidate-9 composition outputs (P2 identical core; 2c marginal-preserving); not a gate-2b re-ceremony"
+  },
+  "forward_earnings_generator": {
+    "blocker": "Sol PR #173 (BLOCKED): certified candidate-11 is a backward biennial chain; cannot compose forward without a new law",
+    "law": "biennial forward conditional-rank chain 2014->2016->2018 (scored on {2016,2018}), mirrors certified conditioning structure reversed, fit <=2014 from scratch (not an inversion)",
+    "transfers_from_candidate11": ["knn_k=25", "distance_weights_1/0.5/0.25", "lambda=0.1_donor_blend_Q0_exempt", "u_w_shrunk_permanent_rank", "RegimeGatedQRF_participation_gate", "zero_anchor_full_reentry_pool", "weighted_single_record_draw_no_jitter", "age_only_covariate_marital_blind"],
+    "newly_chosen_fit_window_only": ["forward_conditional_donor_pools_on_<=2014_forward_tuples", "forward_participation_gate_coefficients", "anchor_flip_initial_2014", "start_of_chain_memory_ramp_2014->2016_one_step"],
+    "annualization": "NON-SCORED; participation carried from prior biennial wave; positive level log-linear interpolation of NAWI-indexed level between biennial brackets (carry-forward if a bracket is zero); scored cells read only {2016,2018}; under-determined interp-vs-carry choice is gate-immaterial",
+    "certification": "NOT gate_1-certified (different/forward law); first-certified by gate_m6; no gate_1 certificate transfers",
+    "rng_slots": "consumed only at biennial steps {2016,2018}; each spawns candidate-7 sub-streams (participation gate / donor draw / re-entry draw) under stream(k,t,earnings); odd-year annualization deterministic",
+    "seam": "fills Sol CertifiedEngineInputs externally-supplied earnings slot; pure fn (realized_<=2014_history, u_w, age, rng) -> biennial forward draws"
   },
   "scoring": {
     "estimator": "mean over K=20 draws, numpy.random.default_rng(5200 + k), scored once |ln(rbar/rate_a)|",
