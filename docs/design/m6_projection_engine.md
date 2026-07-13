@@ -693,6 +693,63 @@ search whose *structure* was chosen on the full window," and the 2100 production
 projection is report-only extrapolation beyond the validated window (decision 10,
 §7).
 
+### 4.10 Post-pause surface redesign — the power-derivation and the v1→v2 registry
+
+The floors ceremony's step-1 OC-before-lock check (§4.9) **fired the §9 pause**.
+The frozen v1 floor artifact `runs/m6_holdout_floors_v1.json`
+(sha256 `16c28d8cd9095e5233ab224c659c8d5b9eb1621099e2524455a3a8ff8e88d318`, the
+**pause evidence**) priced the §4.5 age-band × sex surface and found it does not
+support a lock in **either** direction: the certifiable **flow** surface was
+near-vacuous (a single gated flow cell, `first_marriage.18-29|female`), because an
+8-year biennial holdout at that granularity yields ~0.1 half-split log-ratio noise
+per flow cell, so at the design-pinned FLOW `k=3` most flow tolerances land just
+over the `ln(1.5)` cap; and the combined faithful `p_gate` was **0.8449 < 0.90**
+(the named weak-power floor), because 16 earnings-moment cells compound under the
+4-of-5 conjunction. The pause is the correct outcome, not a defect: it is the W1
+lesson (identify an unlockable surface **before** locking) applied to the power of
+the surviving surface.
+
+The adjudicated redesign is executed by two **candidate-blind** ladders
+(`scripts/build_m6_holdout_floors_v2.py` → `runs/m6_holdout_floors_v2.json`). They
+are candidate-blind *by construction*: every choice is a function only of
+truth-side power arithmetic — floor sigmas, weaker-half event counts, and v1
+`tolerance/σ` ratios — and never references an engine, a candidate, or what a model
+would find easy or hard.
+
+- **Coarsening ladder (flows).** Per transition type, pool **adjacent** strata
+  minimally in the pinned order *sex-pool → age-pool-adjacent*, climbing until a
+  cell's tolerance `≤ ln(1.5)` **and** `≥ 20` weaker-half events; adopt the
+  **minimal** rung with `≥ 1` clearing cell uniformly for that transition type.
+  Mortality `85+` stays report-only (`attrition_confounded_truth`) at every rung.
+  Outcome: `first_marriage` clears already at age×sex (`.18-29|female`); `divorce`
+  clears sex-pooled at ages `18-44`; disability `incidence`/`recovery` clear only
+  fully pooled (`.20-66`); **mortality, `widowhood`, `remarriage` clear nothing at
+  any rung** (honestly recorded — the holdout is too thin for them even pooled).
+- **Earnings decompounding ladder.** Prune gated earnings cells
+  **weakest-power-first** (largest v1 `tolerance/σ` first), recomputing the
+  combined `p_gate` after each prune, stopping at the **first** `p_gate ≥ 0.90`,
+  never below `≥ 1` gated cell per concept family (log-quantiles, dispersion,
+  mobility, zero-rate, autocorrelation, change-mean). This retains the **largest**
+  surface meeting the power floor under the ladder — *maximum falsifiability
+  subject to power*. Outcome: 9 of 16 earnings cells pruned, 7 retained (one per
+  concept family, plus a second `change_mean`).
+
+**Redesigned gated registry (v2): 11 cells — 4 flow + 7 earnings.**
+
+| Family | Gated cells | Adopted rung |
+|---|---|---|
+| marital | `first_marriage.18-29\|female`, `divorce.18-44` | age×sex; sex-pooled age `18-44` |
+| disability | `incidence.20-66`, `recovery.20-66` | sex-pooled, fully age-pooled |
+| earnings | `earn_p10.prime`, `earn_zero_rate.older`, `earn_dlog_sd.older`, `earn_mob_h1_diag`, `earn_autocorr_lag2`, `earn_dlog_mean.prime`, `earn_dlog_mean.older` | v1 person-disjoint floor (unchanged), decompounded |
+
+The v2 faithful-candidate OC on this surface is **`p_seed 0.8921` / `p_gate 0.9067`**
+(flows-only `0.9882`, earnings-only `0.9518`), and the certifiable flow surface now
+carries **4** gated cells — so the surface **clears** the weak-power threshold in
+both directions and the ceremony may proceed to lock. The redesign held every
+invariant fixed: `T* = 2014` (**no window extension** this round — that is a
+separate adjudication re-deriving decisions 1–2), lag-5 report-only, FLOW `k = 3`,
+the `ln(1.5)` cap, the 4-of-5 conjunction, and the `0.90` floor.
+
 ## 5. PolicyEngine integration — the W2 pattern per projection year
 
 The seam is the ADR-0001 W2 pattern applied once per projected calendar year. pe-us
@@ -866,6 +923,11 @@ lock ceremony.
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
+  "floors_ceremony_outcome": {
+    "step1_v1": "PAUSED (near-vacuous flow surface + p_gate 0.8449 < 0.90); evidence runs/m6_holdout_floors_v1.json sha256 16c28d8c...",
+    "redesign_v2": "candidate-blind coarsening + decompounding ladders (see 4.10); runs/m6_holdout_floors_v2.json; 11 gated (4 flow + 7 earnings), p_gate 0.9067 >= 0.90, ceremony may proceed",
+    "gates_yaml_still_untouched": true
+  },
   "gates_yaml_untouched_by_this_document": true,
   "fit_holdout": {
     "boundary_T_star": 2014,

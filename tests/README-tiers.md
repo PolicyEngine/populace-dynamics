@@ -34,12 +34,13 @@ pytest --collect-only -q -m oracle_policyengine | tail -1
 | Tier | Tests at HEAD |
 |---|---:|
 | `unit` | 216 |
-| `artifact` | 868 |
+| `artifact` | 870 |
 | `integration_psid` | 790 |
 | `reproduction_legacy` | 520 |
 | `oracle_policyengine` | 156 |
-| **Total** | **2,550** |
+| **Total** | **2,552** |
 
-The `artifact` tier grew by 14 with `tests/test_gate_m6_floors.py` (the
-`gate_m6` temporal-holdout floors, ceremony step 1); the enforced manifest
-`tier_counts.json` carries the CI-equivalent full-collection count (893).
+The `artifact` tier grew by 16 with `tests/test_gate_m6_floors.py` (the
+`gate_m6` temporal-holdout floors: the v1 pause evidence + the v2 redesign
+bindings); the enforced manifest `tier_counts.json` carries the CI-equivalent
+full-collection count (895).
