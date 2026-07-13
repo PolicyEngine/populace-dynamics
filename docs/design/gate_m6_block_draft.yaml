@@ -37,7 +37,7 @@ gates:
     kind: temporal_holdout
     design: docs/design/m6_projection_engine.md
     design_pr: "175"
-    design_commit: 1d83a221d33da68703eb8da61ad62acf0b881627
+    design_commit: d6abb16b0a034ca08a26e3eb8fc9211967c53259
     design_commit_note: >-
       design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
       pre-amendment revision-1 design) to this PR's design commit carrying the
