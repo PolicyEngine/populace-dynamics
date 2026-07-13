@@ -425,8 +425,10 @@ The mirror, primitive by primitive (certified backward → forward):
 `run_gate1_candidate10.py` docstrings): k-NN `k = 25`; distance weights
 `1 / 0.5 / 0.25`; the fixed `λ = 0.1` donor-coordinate blend for non-Q0 targets
 (Q0 exempt, its third distance term staying `|u_A(donor) − u_A(target)|`); the
-`u_w` shrunk-permanent rank (candidate-3 z-decomposition) as the latent-permanent
-coordinate; the RegimeGatedQRF participation sign-gate architecture; the zero-anchor
+`u_w = Φ(ŵ/σ̂_w)` shrunk-permanent rank — **candidate-8's construct** (PR #58,
+`run_gate1_candidate8.py:27-38`) built on candidate-3's Stage-1c correlated-noise
+decomposition (c10 itself: "the u_w decomposition is candidate 8's") — as the
+latent-permanent coordinate; the RegimeGatedQRF participation sign-gate architecture; the zero-anchor
 participation regime with the **full** re-entry pool (no restriction); the weighted
 single-record draw with no smoothing/jitter; and age as the only other covariate
 (marital-blind, per the verified R2 facts, §2.6).
@@ -460,29 +462,35 @@ first certification** (§2.7.3). It inherits the §4.2 spec-selection limitation
 out-of-sample for its fitted parameters, in-sample for its structural choice
 (mirroring a full-window-selected certified spec).
 
-**2.7.2 Annualization (non-scored).** The annual period loop (§2.2) needs an
-earnings value every year for the pe-us seam (§5), AIME accumulation, and claiming
-(§2.2 step 7); the biennial forward chain draws only even reference years. The odd
-years `{2015, 2017, 2019, …}` are filled by a **non-scored** rule that never enters
-a gated cell — the scored earnings-moment cells (§4.5) read **only** the biennial
-forward draws at `{2016, 2018}`:
+**2.7.2 Annualization (non-scored), under the real per-year seam.** The engine calls
+the earnings generator **every projection year** (§2.7.4: `generate(frame, year,
+rng)` invoked by `apply_earnings`, `origin/m6-engine:src/populace_dynamics/engine/
+steps.py:205-238`, docstring "Draw annual earnings"), but the forward chain draws
+only at even reference years `{2016, 2018}`. The odd years `{2015, 2017, 2019, …}`
+are filled by a **non-scored** rule that never enters a gated cell — the scored
+earnings-moment cells (§4.5) read **only** the biennial forward draws at
+`{2016, 2018}`:
 
-- **participation** for an odd year is **carried** from the preceding biennial wave
-  (a binary is not interpolated; piecewise-constant hold);
-- **positive-earnings level** for an odd year is **log-linear interpolation of the
-  NAWI-indexed level** between the two bracketing biennial values (realized or
-  drawn) when both brackets are positive; if either bracket is zero
-  (non-participation), the odd year takes the preceding biennial wave's state
-  (carry-forward). `2015` brackets realized-2014 and drawn-2016 under this rule.
+- **carry-forward is the default** (participation and level both): the odd-year value
+  is the last available biennial value — realized for `2015` (`= 2014`), the drawn
+  `2016` for `2017`, the drawn `2018` for `2019`. This is the only rule computable in
+  the **forward per-year** seam: at the `2015` call the `2016` draw does not yet
+  exist (the loop runs forward one year at a time, no lookahead — §2.7.4), so no
+  interpolation toward the *next* biennial value is possible without drawing `2016`
+  early on the wrong period's RNG stream.
+- **the interpolation alternative** (log-linear on the NAWI-indexed level between
+  bracketing biennial waves, participation piecewise-constant) is available only if
+  the engine **batch-computes** the biennial draws first and backfills the odd years
+  — a departure from the pure per-year seam and the F3 per-period stream assignment
+  (the `2016` draw must consume the `2016` period stream, not be triggered at the
+  `2015` call). It is named for the engine lane but is **not** the seam-faithful
+  default.
 
-These annual values feed the seam/claiming/AIME plumbing exclusively; they carry a
-`non_scored_annualization` tag and are excluded from every `gate_m6` cell and every
-floor. **The one under-determined choice** (flagged for the engine lane): log-linear
-interpolation vs carry-forward for participant odd-year levels. Interpolation is
-specified (smoother AIME career path, least-distorting to the top-35 average);
-carry-forward is the named alternative. Because these values touch no gated cell,
-the choice is **immaterial to certification** — the floors ceremony need not
-adjudicate it.
+Either way the odd-year values carry a `non_scored_annualization` tag, feed only the
+pe-us seam / AIME / claiming, and are excluded from every `gate_m6` cell and floor.
+The interp-vs-carry choice is **immaterial to certification** — it moves only
+report-only AIME/benefit levels (referee question 3) — and the real forward seam
+resolves the revision-1 flag to **carry-forward**.
 
 **2.7.3 Certification framing.** The forward generator is a **different stochastic
 law** than gate-1 certified (forward conditional ≠ backward conditional), so it is
@@ -494,36 +502,60 @@ there**, on the temporal holdout, exactly like the composition itself (§2.6) �
 enumeration; decision 10 records that a `gate_m6` pass is the forward generator's
 sole certification.
 
-**2.7.4 Implementation contract (for the engine lane).** The generator fills Sol's
-`CertifiedEngineInputs` externally-supplied-earnings slot. Precise interface:
+**2.7.4 Implementation contract (for the engine lane) — the real `EarningsGenerator`
+seam.** The forward generator implements PR #173's `EarningsGenerator` protocol
+(`origin/m6-engine:src/populace_dynamics/engine/steps.py:164-169`):
 
-- **inputs** — per person: the realized `≤2014` biennial earnings history (waves
-  `1998, 2000, …, 2014` on the `data/family.py` head/spouse concept), the `≤T*`
-  latent-permanent state `u_w` (shrunk permanent rank from the `≤2014` refit),
-  birth-year/age; and the engine-injected RNG generator for each biennial step
-  (§2.7.5). All fit inputs (donor pools, participation-gate coefficients) are
-  `≤2014`; the generator reads no post-`T*` datum.
-- **outputs** — per person, per biennial scored step `t ∈ {2016, 2018}`: a
-  participation flag and, if participating, a positive-earnings level (NAWI-indexed,
-  de-indexed to the calendar year for the seam); plus the §2.7.2 non-scored annual
-  series. The scored path exposes only the `{2016, 2018}` biennial draws to
-  `gate_m6`.
-- **RNG stream slots** — §2.7.5.
-- **the seam** — a pure function `(realized_history, u_w, age, rng) →
-  biennial_forward_draws` with no engine state beyond its `≤2014` fit; it plugs into
-  `CertifiedEngineInputs` as the earnings generator the build (#173) left external,
-  unblocking the M6 forward loop.
+```
+class EarningsGenerator(Protocol):
+    def generate(self, frame: pd.DataFrame, year: int, rng) -> np.ndarray: ...
+```
 
-**2.7.5 RNG stream slots (F3 registry, §3.2).** The forward earnings module consumes
-RNG **only at the biennial forward steps** `t ∈ {2016, 2018}` (odd-year
-annualization is deterministic, §2.7.2). Under the `(draw × module × period ×
-person)` spawn tree, the earnings module at a biennial step spawns candidate-7's
-three canonical sub-streams — **participation gate**, **donor draw**, **re-entry
-draw** — as ordered children of `stream(k, t, earnings)`, preserving the certified
-two-element `SeedSequence([·, code])` draw order within each. Person draws are
-consumed in canonical `person_id` order (§3.2); no two `(k, t)` earnings streams
-share entropy, so any biennial step is independently reproducible, and the split
-stream stays disjoint from `5200 + k` (§3.3).
+`apply_earnings` (`steps.py:205-238`) calls `generate` **every projection year**,
+once per eligible person (`age ≥ 15`) with that person's engine-owned
+`ProjectionModule.EARNINGS` stream (`context.person_generator(...)`), and writes the
+returned per-row earnings level into `frame["earnings"]`; `CertifiedEngineInputs.
+earnings` (`assembly.py:86`) is the standalone slot the build left external
+(`earnings_step` → `apply_earnings(..., model=inputs.earnings)`, `assembly.py:292-293`;
+it is not in `from_refit_bundle`'s required set). The contract is therefore
+**per-year, frame-in / `ndarray`-out**, and **stateful across years through the
+frame** — not the pure function the revision-1 draft (incorrectly) described.
+
+- **frame columns read** (the conditioning surface, all carried across years by
+  `assembly._merge_period_columns`): `earnings` — the **most recent drawn/realized
+  level**, `0` encoding non-participation (this is how the **drawn prior biennial
+  rank re-enters**: `generate` re-ranks it to `rank_t`); the realized `≤2014` wave
+  columns (the earlier-lag `rank_{t−2}` and the `2014` anchor `u_A`); the `≤T*`
+  latent-permanent `u_w`; `age`/birth-year; `sex`. No column dated after `T*` is
+  read; the fit (donor pools, participation-gate coefficients) is `≤2014`.
+- **the parity branch** (the load-bearing per-year fact `generate` must implement):
+  branch on `year`. On an **even reference year** `∈ {2016, 2018, …}` compute the
+  forward biennial draw — participation gate → later-rank draw conditional on the
+  frame's `rank_t` / `rank_{t−2}` / anchor → de-index to a level — consuming the
+  §2.7.5 substream slots, and return that level (`0` if non-participating). On an
+  **odd year** return the deterministic §2.7.2 carry-forward value (no RNG consumed).
+  Either return is written to `frame["earnings"]` and carried forward by
+  `_merge_period_columns`, so the drawn `2016` level is the `2018` step's `rank_t`.
+- **drawn-prior-rank threading (named input via the frame).** The chain conditional
+  `rank_{t+2} | rank_t, rank_{t−2}, u_A, age` needs, at `2018`, the **drawn** `2016`
+  rank; it is **not** a `generate` argument but is recovered inside `generate` by
+  re-ranking the frame's carried `earnings` column (the `2016` drawn level), with
+  `rank_{t−2}` and `u_A` from the realized-`2014` columns. The generator holds **no**
+  cross-year state of its own; all chain state lives in the frame the engine threads.
+
+**2.7.5 RNG stream slots (F3 registry, §3.2), under the per-year seam.** `generate`
+receives the person's `ProjectionModule.EARNINGS` generator for the **current year**
+(`context.person_generator(ProjectionModule.EARNINGS, person_id)`,
+`steps.py:212-224`) — the engine's realization of the §3.2 `stream(k, t, earnings)`
+slot at period `t = year`. RNG is consumed **only at even reference years** (odd-year
+carry-forward is deterministic, §2.7.2). At an even year the generator spawns
+candidate-7's three canonical sub-streams from that per-person period stream —
+**participation gate**, **donor draw**, **re-entry draw** (`run_gate1_candidate10.py:
+239` `SUBSTREAM_CODES {gate:1, donor-draw:2, re-entry-draw:3}`; the two-element
+`SeedSequence([·, code])` of `:242-252`) — preserving the certified draw order.
+Because each biennial draw uses its own period-`t` per-person stream, no two
+`(k, t)` earnings draws share entropy, any biennial step is independently
+reproducible, and the split stream stays disjoint from `5200 + k` (§3.3).
 
 ## 3. RNG discipline — the projection stream registry
 
@@ -1236,12 +1268,13 @@ lock ceremony.
   "forward_earnings_generator": {
     "blocker": "Sol PR #173 (BLOCKED): certified candidate-11 is a backward biennial chain; cannot compose forward without a new law",
     "law": "biennial forward conditional-rank chain 2014->2016->2018 (scored on {2016,2018}), mirrors certified conditioning structure reversed, fit <=2014 from scratch (not an inversion)",
-    "transfers_from_candidate11": ["knn_k=25", "distance_weights_1/0.5/0.25", "lambda=0.1_donor_blend_Q0_exempt", "u_w_shrunk_permanent_rank", "RegimeGatedQRF_participation_gate", "zero_anchor_full_reentry_pool", "weighted_single_record_draw_no_jitter", "age_only_covariate_marital_blind"],
+    "transfers_from_candidate11": ["knn_k=25", "distance_weights_1/0.5/0.25", "lambda=0.1_donor_blend_Q0_exempt", "u_w_shrunk_permanent_rank_candidate8_PR58_on_candidate3_stage1c", "RegimeGatedQRF_participation_gate", "zero_anchor_full_reentry_pool", "weighted_single_record_draw_no_jitter", "age_only_covariate_marital_blind"],
     "newly_chosen_fit_window_only": ["forward_conditional_donor_pools_on_<=2014_forward_tuples", "forward_participation_gate_coefficients", "anchor_flip_initial_2014", "start_of_chain_memory_ramp_2014->2016_one_step"],
-    "annualization": "NON-SCORED; participation carried from prior biennial wave; positive level log-linear interpolation of NAWI-indexed level between biennial brackets (carry-forward if a bracket is zero); scored cells read only {2016,2018}; under-determined interp-vs-carry choice is gate-immaterial",
+    "annualization": "NON-SCORED; real per-year forward seam has no lookahead so DEFAULT is carry-forward (participation+level) of the last drawn/realized biennial value; log-linear interpolation only via batch-compute+backfill (departs from per-period stream assignment); scored cells read only {2016,2018}; interp-vs-carry gate-immaterial",
     "certification": "NOT gate_1-certified (different/forward law); first-certified by gate_m6; no gate_1 certificate transfers",
-    "rng_slots": "consumed only at biennial steps {2016,2018}; each spawns candidate-7 sub-streams (participation gate / donor draw / re-entry draw) under stream(k,t,earnings); odd-year annualization deterministic",
-    "seam": "fills Sol CertifiedEngineInputs externally-supplied earnings slot; pure fn (realized_<=2014_history, u_w, age, rng) -> biennial forward draws"
+    "seam_signature": "EarningsGenerator.generate(frame, year, rng) -> np.ndarray (steps.py:164-169); per-year, called by apply_earnings every projection year; stateful THROUGH the frame (drawn earnings column carried by _merge_period_columns), not a pure fn",
+    "rng_slots": "per-year person stream context.person_generator(EARNINGS, person_id) = stream(k,t=year,earnings); RNG consumed only at even reference years; even-year spawns candidate-7 SUBSTREAM_CODES {gate:1,donor:2,reentry:3}; odd-year carry-forward deterministic",
+    "drawn_prior_rank_threading": "at 2018, drawn-2016 rank recovered inside generate by re-ranking the frame's carried earnings column (0=non-participation); rank_{t-2} + anchor from realized-2014 columns; no generator-held cross-year state"
   },
   "scoring": {
     "estimator": "mean over K=20 draws, numpy.random.default_rng(5200 + k), scored once |ln(rbar/rate_a)|",

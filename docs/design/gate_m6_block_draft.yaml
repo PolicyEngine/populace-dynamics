@@ -36,8 +36,16 @@ gates:
     locked: false
     kind: temporal_holdout
     design: docs/design/m6_projection_engine.md
-    design_pr: "170"
+    design_pr: "175"
     design_commit: 1d83a221d33da68703eb8da61ad62acf0b881627
+    design_commit_note: >-
+      design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
+      pre-amendment revision-1 design) to this PR's design commit carrying the
+      §2.7 forward-earnings amendment -- the backward-vs-forward law distinction
+      and the first-certified-by-gate_m6 framing (covers + not_certified
+      .forward_earnings_law_not_gate1_certified). The concrete hash is set to
+      this PR's design commit; it is finalized to the squash-merge commit at the
+      lock flip.
     design_verified_comment: "4953958949"
     adjudication: issue #42 comment 4953722912
     redesign_adjudication: >-
@@ -57,6 +65,12 @@ gates:
       after the §4.10 coarsening) + the decompounded earnings-moment battery,
       FLOOR-priced. Family B -- external alignment audit + entrants (report-only
       / margin). Family C -- drift-direction fingerprints (binary, optional).
+      The gated {2016,2018} earnings-moment cells are produced by the design
+      §2.7 FORWARD earnings law -- a DIFFERENT stochastic law than the
+      gate_1-certified BACKWARD biennial chain, which cannot compose forward
+      (Sol PR #173). A gate_m6 PASS is that forward law's FIRST and SOLE
+      certification; gate_1 does NOT cover it and no gate_1 certificate
+      transfers (see not_certified.forward_earnings_law_not_gate1_certified).
 
     # ---- AMENDMENT 1: the negative surface, at headline prominence ----------
     # (referee comment 4958425437, amendment 1 — the amendment-2 candor
@@ -115,6 +129,18 @@ gates:
           The gated surface was selected (coarsening + earnings decompounding)
           on the same holdout it is priced against; the faithful OC is
           conditional on that in-sample selection (§4.9 search disclosure).
+      - margin: forward_earnings_law_not_gate1_certified
+        detail: >-
+          The gated {2016,2018} earnings-moment cells ride on the design §2.7
+          FORWARD earnings law, first-certified HERE -- gate_1 does NOT cover it
+          (it certified only the BACKWARD chain) and no gate_1 certificate
+          transfers. This is DISTINCT from spec_selection_in_sample (the surface
+          selection): the forward law additionally carries a STRUCTURAL
+          spec-selection -- it mirrors a full-window-selected certified spec
+          (§2.7.1), so its STRUCTURE is in-sample for selection while
+          out-of-sample for its <=2014-fit parameters (§2.7.3). A PASS statement
+          must say the gated earnings use an M6-first-certified forward law, not
+          the gate_1-certified generator.
 
     gates_yaml_untouched_by_this_draft: true
     floor_run: runs/m6_holdout_floors_v3.json
