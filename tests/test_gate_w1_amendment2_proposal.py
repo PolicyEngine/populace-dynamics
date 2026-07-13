@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -710,7 +711,15 @@ def test_family_a_oc_recomputes_before_and_after_on_the_derivations_basis():
     floors = _floors()
     per = floors["faithful_candidate_oc"]["per_cell"]
     gate_eligible = floors["gate_partition"]["gate_eligible"]
-    tol = _family_a_tolerances()
+    # post-flip: the live contract carries 47 gated tolerances; the 6 demoted
+    # cells' tolerances are RETAINED verbatim under retained_tolerances, so
+    # the 53-cell pre-amendment basis reconstructs exactly.
+    live_tol = _family_a_tolerances()
+    assert len(live_tol) == 47
+    retained = _gate_w1()["thresholds"]["family_a"]["retained_tolerances"]
+    assert set(retained) == FAMILY_A_DEMOTED
+    tol = dict(live_tol)
+    tol.update({c: retained[c]["tolerance"] for c in FAMILY_A_DEMOTED})
     assert len(tol) == len(gate_eligible) == 53 == led["n_gated_before"]
 
     p_seed_b, p_gate_b = _oc(gate_eligible, tol, per)
@@ -764,32 +773,41 @@ def test_partition_arithmetic_bound_to_current_gates_yaml():
     fa = _gate_w1()["thresholds"]["family_a"]
     fc = _gate_w1()["thresholds"]["family_c"]
 
+    # post-flip: the LIVE contract carries the ledger's "after" state; the
+    # ledger's "now" figures remain the recorded pre-flip state.
+    assert led["family_a_partition"]["gated_now"] == 53
+    assert led["family_a_partition"]["report_only_now"] == 52
     assert (
         len(_family_a_tolerances())
-        == led["family_a_partition"]["gated_now"]
-        == 53
+        == led["family_a_partition"]["gated_after"]
+        == 53 - 6
+        == 47
     )
     assert (
         len(fa["report_only"])
-        == led["family_a_partition"]["report_only_now"]
-        == 52
+        == led["family_a_partition"]["report_only_after"]
+        == 52 + 6
+        == 58
     )
-    assert led["family_a_partition"]["gated_after"] == 53 - 6 == 47
-    assert led["family_a_partition"]["report_only_after"] == 52 + 6 == 58
 
     part = fc["gate_partition"]
+    assert led["family_c_partition"]["gated_now"] == 2
+    assert led["family_c_partition"]["report_only_now"] == 0
+    assert f"fingerprint.{fc['fingerprints']['c1']['id']}" == C1_CELL
+    assert C1_CELL not in part["gate_eligible"]
+    assert C1_CELL in fc["report_only"]
     assert (
-        part["n_gate_eligible"] == led["family_c_partition"]["gated_now"] == 2
+        part["n_gate_eligible"]
+        == led["family_c_partition"]["gated_after"]
+        == 2 - 1
+        == 1
     )
     assert (
         part["n_report_only"]
-        == led["family_c_partition"]["report_only_now"]
-        == 0
+        == led["family_c_partition"]["report_only_after"]
+        == 0 + 1
+        == 1
     )
-    assert f"fingerprint.{fc['fingerprints']['c1']['id']}" == C1_CELL
-    assert C1_CELL in part["gate_eligible"]
-    assert led["family_c_partition"]["gated_after"] == 2 - 1 == 1
-    assert led["family_c_partition"]["report_only_after"] == 0 + 1 == 1
 
     ov = led["overall_partition"]
     assert ov["gated_now"] == 53 + 0 + 2 == 55
@@ -946,17 +964,35 @@ def test_no_self_rescue_per_cell_record_is_the_corrected_finding2_wording():
 # --------------------------------------------------------------------------
 # The proposal is a DRAFT: gates.yaml is UNTOUCHED (no flip)
 # --------------------------------------------------------------------------
-def test_gates_yaml_untouched_all_55_cells_still_gated():
+def test_gates_yaml_flipped_per_section7_and_moves_no_sibling():
+    """Post-flip polarity of the proposal's untouched-guard: gates.yaml now
+    carries section 7 exactly (47/58 family A with retained tolerances; C1
+    report-only; OC 0.9344/0.9623), the PROPOSAL itself touched nothing (the
+    ledger records that), and the flip moves NO sibling gate (the section-7
+    subset master-compare)."""
     gw1 = _gate_w1()
     fa = gw1["thresholds"]["family_a"]
     fc = gw1["thresholds"]["family_c"]
     tol = _family_a_tolerances()
-    assert FAMILY_A_DEMOTED <= set(tol)
-    assert set(fa["report_only"]).isdisjoint(FAMILY_A_DEMOTED)
-    assert C1_CELL in fc["gate_partition"]["gate_eligible"]
-    assert fc["gate_partition"]["n_gate_eligible"] == 2
-    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 53
-    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9481
+    assert FAMILY_A_DEMOTED.isdisjoint(set(tol))
+    assert FAMILY_A_DEMOTED <= set(fa["report_only"])
+    assert set(fa["retained_tolerances"]) == FAMILY_A_DEMOTED
+    assert C1_CELL not in fc["gate_partition"]["gate_eligible"]
+    assert C1_CELL in fc["report_only"]
+    assert fc["gate_partition"]["n_gate_eligible"] == 1
+    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 47
+    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9623
+    # zero threshold movement: retained == the ledger's demoted tolerances.
+    assert {
+        c: r["tolerance"] for c, r in fa["retained_tolerances"].items()
+    } == {
+        "earnings_participation.18-24|female": 0.211,
+        "earnings_participation.18-24|male": 0.221,
+        "marital_share.married.65+|female": 0.163,
+        "marital_share.married.65+|male": 0.084,
+        "coresident_spouse.65+|female": 0.168,
+        "coresident_spouse.65+|male": 0.094,
+    }
     assert _ledger()["gates_yaml_untouched_by_this_proposal"] is True
 
     try:
@@ -969,5 +1005,14 @@ def test_gates_yaml_untouched_all_55_cells_still_gated():
         ).stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         pytest.skip("origin/master gates.yaml unreachable")
-    master = yaml.safe_load(master_text)["gates"]["gate_w1"]
-    assert gw1 == master
+    with open(os.path.join(ROOT, "gates.yaml")) as fh:
+        live_doc = yaml.safe_load(fh)["gates"]
+    master_doc = yaml.safe_load(master_text)["gates"]
+    # the section-7 subset master-compare: no locked sibling moves. (Equal on
+    # gate_w1 too once the flip has merged; different only in gate_w1 while
+    # the flip PR is open.)
+    assert set(live_doc) == set(master_doc)
+    for name in sorted(master_doc):
+        if name == "gate_w1":
+            continue
+        assert live_doc[name] == master_doc[name], name
