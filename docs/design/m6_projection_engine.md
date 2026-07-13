@@ -4,11 +4,21 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 2). This document seeds the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 4). This document seeded the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
-  ratify-by-merge → lock). **It edits no `gates.yaml` cell, moves no threshold,
-  builds no floor, and writes no test.** The gate block and its floor are
-  authored in a later ceremony, not here.
+  ratify-by-merge → lock), now **locked** (`gates.gate_m6`, v3 floor
+  `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This document edits no
+  `gates.yaml` cell, moves no threshold, builds no floor, and writes no test.**
+- **Revision 4 (design amendment 3)** adds §2.8, the **scored-run harness** — the
+  deliverable whose absence stopped the registered `gate_m6` candidate-1 run before
+  scoring (#42 comment 4962640241 registered it; comment 4962773701 is the designed
+  pre-scoring stop, graded a registration error, naming this amendment as the
+  unblock path). §2.8 pins the projected-slice→native-panel builders per field
+  against the certified `MaritalPanel`/`HouseholdCompositionPanel` schemas, the
+  year-0 realized-2015-interview slice mirroring the floor, the drift-scoring layer
+  bound to the frozen v3 floor's cell machinery, and the two real-data pre-flights
+  — so the harness build lane implements with zero design choices, candidate-blind
+  (builders and scorer exercised on synthetic frames only until the registered run).
 - **Revision 2** adds the forward earnings generator spec (§2.7), a design
   amendment unblocking the engine build's honest blocker (Sol, PR #173): the
   certified gate-1 candidate-11 generator is a **backward** biennial imputation
@@ -751,6 +761,436 @@ commit** (not the round-2 `d6abb16`); the block draft's `design_commit_note`
 already records the finalize-at-lock-flip rule, and the `gate_m6` lock is holding
 for this amendment.
 
+### 2.8 The scored-run harness (design amendment 3, unblocks the `gate_m6` run)
+
+**The blocker (the run lane's designed pre-scoring stop).** `gate_m6` candidate-1
+was registered as a one-shot temporal-holdout run (#42 comment 4962640241) and
+then **stopped before any scored phase** (#42 comment 4962773701, graded a
+registration error): the engine (PR #173, merged 95a3e05) is **build-only** —
+the per-slice native-panel builders (`marital_panel_builder`,
+`household_panel_builder`, `assembly.py:59-72`) exist only as test stubs
+(`tests/test_m6_engine_assembly.py:75-76,269-270`,
+`lambda frame, context: (object(), {1})`), the M6 drift-scoring composition is
+unbuilt, and pre-flight 1 has only ever run on synthetic ensembles. The stop was
+correct: reconstructing the certified simulators' observed-panel schemas from
+projected state inside a scoring lane, unspecified, would be unregistered
+modeling. This subsection is the **reviewed design amendment** the stop names as
+the unblock path — it pins every modeling decision in the harness so the build
+lane implements with **zero** design choices (the §2.7.6 bar), **candidate-blind**:
+the builders and scorer are exercised on **synthetic frames only** until the
+registered run, and no holdout truth is read anywhere in the harness build.
+
+What is already built and is *not* redesigned here (verified against 95a3e05):
+the RNG spawn tree (`engine/rng.py`, §3.2), the injected marital core
+(`marital.simulate_marital_step`, §2.6), candidate-9 injection
+(`composition.simulate_candidate9_injected`, §2.6), the M4 reproduction adapter
+(`disability.simulate_reproduction`, §4.4), the composition re-certification
+check (`composition.check_candidate9_recertification`, §2.6), the `≤T*` refit
+(`refit.refit_m6_components`, §4.2), and — decisively for §2.8.1 — the
+**support/weight/presence contract** (`engine/support.py`:
+`prepare_evaluation_support`, `StartWaveWeightSnapshot`, `EvaluationMode`,
+`PresenceBasis`, `WidowhoodMode`), which already implements symmetric
+presence-conditioning, the F6 start-wave weight on all three sides, and the
+forward-mode rejection of realized inputs. The unbuilt deliverables §2.8 designs
+are exactly the four the stop enumerated: the projected-slice→native-panel
+builders (§2.8.2), the year-0 realized slice (§2.8.3), the drift-scoring layer
+(§2.8.4), and the runner with its two pre-flights (§2.8.5–§2.8.7).
+
+**2.8.1 The adjudicated core — the year-0 closed panel carries realized
+histories.** *Adjudicated (orchestrator).* For the closed-panel **reproduction**
+test, a projected slice's history provenance is **realized**: the per-slice
+builders read each person's **realized ≤ their anchor interview** (2015 for the
+bulk; the 2017/2019 presence-conditioned openers seed at their later anchor, §2.8.3)
+marriage / household history as the seed, and the projected years' contributions to
+the native panels are constructed from the engine's **simulated** state under the
+per-field rules of §2.8.2. The per-person anchor boundary is the true leakage
+fence: seeding a 2019-opener from realized ≤2019 state is the ratified
+presence-conditioning (block `f6_weight.start_wave`; §4.4), not a leak — the seed is
+the projection's realized *initial condition* (decision 5, generalized to the
+anchor wave), no fitter sees it (the refit stays `≤2014`, §4.2), and the scored
+quantity is the out-of-sample transition *from* that seed. The argument is entirely
+from the ratified record, not a new choice:
+
+- Decision 5 (§8) ratified **realized-`T*` seeding + M4 reproduction mode +
+  exogenous widowhood** for the gated holdout, with the forward-projection variant
+  a *registered successor gate* (§4.4, §7). §4.4 split the support basis:
+  disability is **reproduction mode** (`disability_hazard_sim.simulate_draw`
+  preserves realized support and re-draws only state, F5); mortality/marital are
+  **presence-conditioned forward-style** on presence-at-start-of-interval
+  (conditioning-not-leakage). Both sit on **realized** support.
+- The engine already instantiates this for disability: `assembly.disability_step`
+  (`assembly.py:257-304`) builds the reproduction support from the **realized**
+  `inputs.disability_panel.person_years` filtered to the projection window
+  `[start_year+1, end_year]` — **not** from the projected frame — and re-draws
+  state via `simulate_reproduction`, seeded from realized wave-one state, on the
+  per-period `DISABILITY` streams. The marital and household builders **extend
+  this same template**: read realized histories for the year-0 population (they
+  are PSID-observed people), simulate state forward.
+- `engine/support.py` already encodes the two modes as distinct objects:
+  `EvaluationMode.GATED_REALIZED` (requires the realized truth/floor/presence and
+  the boundary weight snapshot; `WidowhoodMode.EXOGENOUS_CERTIFIED_HAZARD`) vs
+  `EvaluationMode.FORWARD` (rejects every realized holdout input;
+  `WidowhoodMode.ENDOGENOUS_RECONCILIATION_REQUIRED`; `structural_delta` names the
+  gap). The harness runs the gated path in `GATED_REALIZED`.
+
+**Forward/production path — out of scope, pointer restated.** The forward
+production projection **cannot** carry realized histories (no PSID panel over the
+projected future), so it seeds from re-drawn transport state (§2.4 deployment
+initial condition), needs the endogenous-widowhood reconciliation (F1), and
+synthesizes disability support (F5). That object is **decision 5's registered
+successor gate**; its delta from the gated presence-conditioned path is already
+recorded (§4.4 third bullet; `support.py` `FORWARD`-mode `structural_delta`; §7
+"Deferred to the decision-5 successor gate"), and `gate_m6` publishes the
+**report-only re-drawn-seed comparison** with a pre-named margin seeding that
+gate's flip criteria (decision 5(b), §4.8). §2.8 builds none of it.
+
+**2.8.2 The projected-slice → native-panel builders, per field.** Each builder is
+a pure function `(frame, context) -> (native_panel, holdout_ids)` matching the
+`assembly.py:59-72` protocols. It constructs a native panel that is
+**schema-byte-compatible** with the certified reader's output
+(`transitions.build_marital_panel` / `household_composition.build_household_panel`)
+so the certified simulators consume it unchanged — R1 plumbing (feeding input
+state through the certified interface), not surgery. The panel is **whole-window**
+and the certified core is run **once per draw** and cached, exactly mirroring the
+built `disability_step` (which caches `state.disability_projection` and slices it
+per period): re-running the certified core per period on per-period streams would
+stitch a person's trajectory from independent draws and break the longitudinal
+marital-event cells, so the reproduction core is one certified realization per
+draw `k`, sliced by the loop.
+
+**Cached-core stream address (pinned).** A single whole-window run per draw must
+consume **one** deterministic stream address. Pinned: the **period-0 deployment
+address** (`rng.py:41-44`; "period zero is addressable for deployment and
+compatibility checks") — **not** the period-1 first-invocation streams the loop
+passes. Period 0 reproduces the certified single-period topology (`tagged_generator`
+preserves the exact `SeedSequence([5200+k, tag])` streams candidate-9 was certified
+on, §3.2) and is the **same** address the §2.8.5 internal reference already uses
+(`composition.simulate_candidate9_internal_reference`, `composition.py:643-653`,
+`n_periods=0`, `composition_rngs_from_registry(…, 0)`), so pre-flight 1's
+injected-vs-internal margin check compares like with like. Concretely, per draw `k`
+(`draw_index = k`): the cached marital core takes `main_rng =
+registry.generator(0, MARITAL_CORE)` and `gap_rng =
+registry.child_generator(0, MARITAL_CORE, 1)`; the cached household core takes the
+**single** `composition_rngs_from_registry(registry, 0)` `CompositionRngs`
+(`composition.py:532-539`); the household-conditioning fertility it consumes is
+drawn on `registry.generator(0, FERTILITY)`. Both addresses are bit-exact
+reproducible (the §4.9 pass-verification standard).
+
+*Marital builder — the certified `MaritalPanel` schema (episodes → change-points →
+per-year state via backward-asof) as the contract.* The certified
+`_simulate_candidate16_with_generators` (`marital.py:61-122`) reads from
+`panel.attrs` — `person_id`, `birth_year`, `sex`, `start_exposure_year`
+(→`start_year`), `censor_year` (→`end_year`) — and from the **entry** (first)
+`person_years` row — `marital_state`, `marriage_duration`,
+`years_since_dissolution` — seeding `current_start = start_year − duration`,
+`dissolution_year = start_year − years_since`. The builder sets, per field:
+
+| field (certified schema) | reproduction-test construction |
+|---|---|
+| `attrs` **universe** (`person_id / birth_year / sex`, and the whole attrs frame) | `attrs = transitions.build_marital_panel(marriage.marriage_history(), death_records, anchor_weight).attrs ∩ anchor` — the **identical** universe the truth side scores (`marital_tables`, `build_m6_holdout_floors.py:259-261`). This drops anchor persons **absent from the marriage-history file** (children; MH-uncovered adults) on both sides symmetrically — they have no truth-side marital exposure (`_valid_persons`, `transitions.py:239-277`), and a builder that seeded them would project them as `never_married` at-risk (the `pd.isna` entry path, `marital.py:100-101`), biasing the `first_marriage` denominator. `_valid_persons` also enforces `start_exposure_year ≤ censor_year` and resolves the missing-entry-row case by construction. |
+| `attrs.start_exposure_year` | the person's realized **start-of-holdout wave** (`anchor_wave`; 2015 = the `SEED_WAVE` for the bulk) — the reproduction seed boundary |
+| `attrs.censor_year` | the projection horizon 2022, **clipped to the person's realized presence/death censor** (`transitions.person_attributes` from `death_records`), so projected exposure = the realized support the truth side scores (§4.4 symmetric presence) |
+| `attrs.n_marriages` | the **lifetime MH18** count `person_attributes` writes (`transitions.py:239-243`; `marriage.py:216`) — the same value the truth-side `build_marital_panel` carries, so the seed is byte-identical. It is **carried-inert**: the C16 core never reads it (the hazard order re-seeds to `1` on entry, `marital.py:107,119`) and `_assemble_panel` **overwrites** it from the simulated episodes + the marriage residual (`marital.py:262-272`). No value-of-record choice — the builder writes MH18 and it is inert. |
+| entry `person_years` row (`marital_state`, `marriage_duration`, `years_since_dissolution`) | the **realized** seed-wave marital state, from `transitions.build_marital_panel(marriage.marriage_history(), death_records, weight)` sliced at the seed wave — the identical machinery the truth side runs (`build_m6_holdout_floors.marital_tables:259-261`) |
+
+The projected years then extend this seed under four pinned rules, each stated in
+the certified schema so the projected `person_years`, reassembled through
+`transitions._assign_state`, reproduce the same state/duration series the truth
+side scores:
+
+- **episode extension** — a Y0-intact marriage extends as an **open** episode
+  carrying its *realized* `current_start` (`= seed_wave − realized
+  marriage_duration`); the C16 pass either keeps it intact to `censor_year`
+  (episode emitted `how="intact"`, `end=NA`, `marital.py:243-249`) or closes it at
+  a **simulated** dissolution year. Realized pre-Y0 episodes are **not**
+  re-simulated — only the most-recent/open state seeds the machine, and the
+  projected window appends **new** episodes for simulated (re)marriages.
+- **change-point appends** — each simulated transition appends a change-point
+  exactly as `transitions._changepoints` derives one from a realized episode
+  (`marry` at the simulated year carrying `current_start`; `dissolve` at the
+  simulated year carrying `dissolution_year`), preserving the `dissolve`-before-
+  `marry` tie order (`kind_order`) and the `allow_exact_matches=False` discrete-time
+  convention (`transitions.py:307-352,377-423`). The certified `_assemble_panel`
+  already emits episodes in this form; the builder introduces no new change-point
+  kind.
+- **duration accounting** — `marriage_duration` at projected year `t` = `t −
+  current_start` (realized start if the marriage predates Y0, simulated start
+  otherwise); `years_since_dissolution` = `t − dissolution_year` (realized if the
+  person entered the holdout dissolved, simulated otherwise). This is *verbatim*
+  what C16 computes internally (`duration = year − current_start`,
+  `years_since = year − dissolution_year`, `marital.py:188,217`); the seed maps the
+  realized entry `marriage_duration` / `years_since_dissolution` into
+  `current_start` / `dissolution_year` per the certified seed logic
+  (`marital.py:104-118`).
+- **censor handling at the projection boundary** — the C16 loop simulates
+  `[start_exposure_year, censor_year]` (`marital.py:150-152`); at `censor_year` a
+  still-married person's open episode is emitted `intact`
+  (`marital.py:243-249`). Setting `censor_year` to the realized presence/death
+  censor makes projected and realized exposure the same person-year support, which
+  is what symmetric presence-conditioning requires (§4.4).
+
+*Household builder — the certified `HouseholdCompositionPanel` schema
+(`person_waves` observed states → evolve) as the contract.* Candidate-9's injected
+path (`composition._compose_base_injected`) reads the **observed** seed states from
+`hh.person_waves` via `padded_person_matrices` — `obs_parent`, `obs_multigen`,
+`obs_cohab`, `obs_skipgen` (`composition.py:240-241,302,475-479`) — and evolves
+them forward with the fitted entry/exit rates + the **injected** marital binary
+(`spouse_from_marital`, `simulated_marital_binary`), re-simulating nothing (§2.6).
+The builder therefore constructs `person_waves` whose `{person_id, year, age, sex,
+weight, band}` are the realized holdout support and whose
+`{coresident_parent, multigen, coresident_grandchild, cohabiting}` are the
+**realized ≤ anchor-interview** observed states at the seed wave, read from
+`household_composition.build_household_panel` on the realized roster (sliced ≤ the
+person's anchor interview) and to the holdout support; the transition helpers
+(`has_next` / `next_*`) are rebuilt by `household_composition._add_transitions`. The
+projected years are candidate-9's forward evolution over that seeded support,
+consuming the §2.8.1 injected marital result and the **single** period-0
+`CompositionRngs` (`composition.composition_rngs_from_registry(registry, 0)`;
+`simulate_candidate9_injected` takes exactly one `CompositionRngs` per whole-window
+call, `composition.py:532-539`) — identical to the certified injected simulator,
+only the seed provenance (realized anchor state) and the whole-window caching are
+pinned here.
+
+**2.8.3 The year-0 slice from the realized 2015-interview state.** The seed slice
+mirrors the floor's realized panel **exactly**, so projection and truth condition
+identically. `T* = 2014` realizes its state at the **2015 interview**
+(`SEED_WAVE = 2015`, reference year 2014;
+`build_m6_holdout_floors.py:15-16,58-59`). Pins:
+
+- **Universe / `holdout_ids`** = every person present in a **gated start wave**
+  (`GATED_START_WAVES = (2015, 2017, 2019)`) with positive weight — the closed
+  panel (§4.8), built by `build_anchor_frame` (`build_m6_holdout_floors.py:153-171`).
+  The bulk seed at 2015; persons whose earliest gated presence is 2017/2019 are
+  **presence-conditioned openers** whose gated intervals open at their anchor wave,
+  handled symmetrically on both sides by the §2.8.4 presence sets (not a separate
+  seed population).
+- **Per-field seed reads (PSID source → column), each the source the floor reads:**
+  `panels.demographic_panel` → person-year presence, `age`, `sex`, `weight`,
+  `interview` (the `household_id` = family interview number); `marriage.marriage_
+  history` → `transitions.build_marital_panel` → `marital_state`,
+  `marriage_duration`, `years_since_dissolution`, `n_marriages` at the seed wave;
+  `household_composition.build_household_panel` → the `coresident_*` / `multigen` /
+  `cohabiting` seed; `data.disability` reader → `disabled` / `retired` seed;
+  `family.family_earnings_panel` → realized 2014 anchor earnings **and** realized
+  2012 (`t−4` start-lag) and the `u_w` latent-permanent rank the forward earnings
+  chain needs (§2.7.6.5; materialized at period 0 by `refit.py`); `data.deaths` →
+  `sex`, `death_year` for the mortality slices.
+- **F6 weight and `household_id`** = the person's cross-sectional PSID weight and
+  family interview number at their realized **start-of-holdout (anchor) wave**,
+  held **fixed** across the window (`build_anchor_frame`;
+  `StartWaveWeightSnapshot`, §4.7). Never the per-year calibrated weight on the
+  gated rates.
+- **Presence-conditioning set — flows** = `presence_by_wave` (waves 2013/2015/2017/
+  2019/2021, sequence 1–20, positive weight; `build_m6_holdout_floors.py:174-181`),
+  applied to projection, truth, and floor **symmetrically** by
+  `support.prepare_evaluation_support` with `PresenceBasis.START_OF_INTERVAL` (the
+  interval's opening biennial interview), which additionally enforces
+  **identical** projection/truth person-period support and applies the F6 snapshot
+  to all three sides. This basis keys the marital and disability flow intervals.
+- **Support basis — earnings** = the realized `family_earnings_panel`'s own
+  **person-period row existence** at the reference years `{2016, 2018}` (present,
+  positive-weight, valid-earnings; `earnings_frame`,
+  `build_m6_holdout_floors.py:354-378`), an **`EXACT_WAVE`-class** basis on the
+  even reference years — **not** the odd-wave `presence_by_wave` flow sets (whose
+  keys cannot even address the even reference years). The gated earnings cells are
+  scored on this realized support (§2.8.4, finding 1); it is the earnings analogue
+  of the disability reproduction support.
+
+**2.8.4 The M6 drift-scoring layer.** The scorer computes, per gated cell,
+`|ln(rbar_projected / rate_a)|` against the frozen **v3** floor tolerance
+(`runs/m6_holdout_floors_v3.json`, sha256 `e931c886…`), reusing the floor cell
+machinery **verbatim**:
+
+- **Truth-side cell functions reused as the single source** (named): the frame
+  builders `build_anchor_frame`, `presence_by_wave`, `mortality_slices`,
+  `marital_tables`, `disability_pairs`, `earnings_frame`; the cell functions
+  `mortality_cells`, `marital_cells`, `disability_cells`, `earnings_cells`
+  (with `MARITAL_AT_RISK`, `EARN_COHORTS`, `band_of`); the primitives `_rate`,
+  `_wquantile`, `_score`; the change/mobility/autocorr moments in
+  `harness.moments`; the split `harness.panel.split_panel_by_person`; the tolerance
+  `evaluation.derive_tolerance`. These live in `scripts/build_m6_holdout_floors.py`
+  today; the ceremony **extracts them to one importable module** that both the
+  floor script and the scorer import, so byte-identity is by construction. If any
+  cell value is instead re-implemented, a **harness self-test** computes the
+  realized `rate_a` on the same realized side-A via **both** the floor function and
+  the scorer's reduction and asserts **byte-identity**, failing the run otherwise
+  (the design admits no drift between the two reductions).
+- **The projected side** reduces each K-draw to the **same**
+  presence-conditioned, F6-weighted, windowed long frames the truth side uses, then
+  applies the **same** cell functions. The **flow** families reduce over realized
+  support by construction: projected marital events + at-risk person-years come from
+  the frame-independent §2.8.2 marital builder (realized presence/censor), and
+  disability pairs from the realized-support reproduction (`assembly.py:257-304`).
+  Earnings is scored on the realized earnings support per the finding-1 pin below
+  — **not** the survivor-attrited live-frame `earnings` column. `rbar_projected` is
+  the **K = 20**-draw mean (`numpy.random.default_rng(5200 + k)`, §3.1) of the
+  projected rate; the odd-year earnings carry-forward and the biennial
+  `{2016, 2018}` scored draws are as pinned in §2.7.2/§2.7.6.
+- **The gated earnings cells score on the realized support, not the live projected
+  frame (adjudicated — the one gated family §2.8 must resolve against certified
+  step-1 mortality).** Step-1 mortality (`apply_mortality`, `steps.py:108-130`,
+  "return only the period's survivors") removes simulated deaths from every later
+  frame slice, so the projected frame's `{2016, 2018}` earnings person-periods are a
+  **strict subset** of the realized `earnings_frame` support on essentially every
+  draw. Scoring that survivor-conditioned subset against all-present realized truth
+  would either **abort every draw** under the §2.8.3 identity guard
+  (`support.py:311-315`) or silently score **survivor-conditioned** earnings —
+  admitting the `not_certified` mortality drift (§4.10) into six gated cells through
+  survivorship, with a systematic mortality–earnings direction on `earn_p10.prime`,
+  `earn_zero_rate.older`, et al. **Adjudicated**, by the same symmetric-conditioning
+  principle §2.8.1 applies to histories and §4.4's cancellation logic ("the same
+  wave-presence selection sits on both the projected and the realized rate"), and by
+  §4.7's own framing ("the `gate_m4` construction with the time axis substituted",
+  whose reproduction precedent scores on **realized** support): the gated earnings
+  cells are a **reproduction read on the realized earnings support** — the realized
+  `family_earnings_panel` row existence at `{2016, 2018}` (the §2.8.3 `EXACT_WAVE`
+  earnings basis) defines the scored person-periods, and the forward chain is
+  evaluated for **every realized-present person-period regardless of simulated
+  death**. This is **bit-safe**: `apply_earnings` draws on **person-keyed**
+  `EARNINGS` streams (`context.person_generator(EARNINGS, person_id)`,
+  `steps.py:222-233`), so evaluating a realized-present-but-simulated-dead person's
+  chain consumes **that person's own** entropy and perturbs no survivor's bits —
+  the gated earnings reduction is independent of projected mortality's RNG
+  consumption. Projected step-1 mortality still runs and still feeds the report-only
+  diagnostics and the engine's internal dynamics (AIME / claiming / household
+  roster); it does **not** enter the gated earnings read. **What this conditions
+  on:** realized reference-year presence (positive-weight, valid-earnings) — not a
+  modeled engine outcome, so conditioning-not-leakage, on the same footing as the
+  flows' presence and age/sex. **What it does not score:** mortality's effect on the
+  earnings *composition* (the survivorship channel) — that is the reproduction
+  test's designed scope, identical to the disability and marital flows, and
+  mortality drift stays `not_certified` (§4.10).
+- **Gate-seed construction (the `gate_m4` construction, time axis substituted;
+  §4.7).** For each gate seed `s ∈ {0,1,2,3,4}`, `split_panel_by_person` on the
+  cell's **correlation-respecting unit** (the block's `split_units`: **household**
+  for marital/mortality, **person** for disability/earnings) with `fraction = 0.5`,
+  `seed = s` selects **side-A**; `rate_a` is side-A's realized presence-conditioned
+  rate, `rbar_projected` is the K = 20-draw mean of the engine projecting **side-A**
+  persons from their realized `T*` state; the score is `_score`'s
+  `|ln(rbar/rate_a)|` (log-ratio cells) or `|rbar − rate_a|` (`abs_gap_log` /
+  `abs_gap_corr` cells). Scoring on a half matches the tolerance's half-split
+  sampling-noise scale.
+- **Conjunction and pass rule, read from the locked block (invented nowhere).**
+  A cell clears at seed `s` iff its score `≤` the block tolerance; a **seed
+  passes** iff **every** gated cell clears at that seed; **family A passes** iff
+  `≥ 4 of 5` gate seeds pass — the seed-level 4-of-5 conjunction the block pins
+  (`gate_seeds [0..4]`, `conjunction: 4 of 5 seeds`) and the standing
+  `gate_2a`/`gate_m4` semantics (`gates.yaml` gate_m4 "seed s passes iff every
+  gate-eligible cell passes … the gate passes iff ≥4 of 5"). The 11 gated cells,
+  their `split_unit`, `metric`, `k` (FLOW `k=3`), and tolerances are read from the
+  locked `gate_m6` `views` block (§4.10 v3 registry); the harness computes no
+  tolerance and moves no threshold.
+- **Undefined-draw and regeneration guards.** An undefined gated rate on **any**
+  draw invalidates the run (`_score` returns `None`; `undefined_draw_rule`, §4.8).
+  The artifact records the **across-draw dispersion** (`max_across_draw_sd`,
+  `max_per_draw_abs_ln`) and asserts a **regenerated surface** — non-zero
+  across-draw dispersion proving the projection *regenerates* every scored column
+  rather than passing a degenerate identity (the `conformance` guard prior scored
+  runs record).
+
+**2.8.5 Pre-flight 1 — the candidate-9 re-certification margin (real-data,
+holdout-blind).** Before any scored phase, the harness runs the §2.6 targeted
+transfer check on the **`≤2014`-refit** household panel over the gate-seed draws:
+for each `k`, `composition.simulate_candidate9_injected` (injected whole-window
+step-3 marital) vs `composition.simulate_candidate9_internal_reference` (the frozen
+internal `ft.simulate`), reduced to the pre-named channel moments
+(`composition.composition_channel_moments`; `RECERTIFICATION_CHANNEL_SETS`:
+cohabitation, legal-spouse-residual, occupancy, household-size), checked by
+`composition.check_candidate9_recertification` at the **≥3σ** `gate_m4`-style
+margin. This is **candidate-blind**: it compares two *simulation* paths on the
+fitted panel and reads **no holdout cell**. A failure is a **designed abort** —
+`check_candidate9_recertification` raises, the run stops pre-scoring, the one-shot
+is **not** consumed, and the fuller re-ceremony §2.6 names is triggered (not a
+self-rescue). The per-channel margins publish with the run (registration
+observation 3).
+
+**2.8.6 Pre-flight 2 — the certified sign-path verification.** The harness verifies
+that the forward earnings generator deploys the **externally-driven**
+`forward_earnings._gate_sign_draw` path — the `hasattr(fitted, "draw_sign")` branch
+(`forward_earnings.py:815-819`), certified candidate-10's RegimeGatedQRF sign gate
+— rather than the internal `_target_models` test-seam fallback
+(`forward_earnings.py:820-826`), by running the participation gate on a **synthetic
+probe** frame and recording **which branch executed** into the run artifact
+(registration observation 6). No holdout contact (synthetic probe only).
+
+**2.8.7 The runner phase structure.** One ordered pass, each phase a pure function
+of the prior:
+
+1. **Refit** — `refit.refit_m6_components(M6RefitInputs, boundary_year=2014)`
+   returns the `M6RefitBundle` (family/household/earnings/modifier/disability/
+   claiming/mortality, each a truncated-panel fit of the frozen spec, §4.2);
+   `CertifiedEngineInputs.from_refit_bundle(...)` binds it with the real §2.8.2
+   builders, the realized `disability_panel`, and the §2.8.3
+   `StartWaveWeightSnapshot`. Record the refit provenance — registry
+   `spec_sha256`s, `boundary_year`, `EARNINGS_SPEC_SHA256`, and that certified
+   full-window artifacts were neither read nor written (`RefitProvenance`).
+2. **Pre-flight 1** (§2.8.5) — abort-on-fail, margins published.
+3. **Pre-flight 2** (§2.8.6) — sign-path recorded.
+4. **Project + score, per gate seed** — for `s ∈ {0..4}`, project side-A through
+   `ProjectionEngine.project(initial_slice, end_year=2022, draw_index=k)` for
+   `k = 0..19`, reduce to cells, score against the v3 floor (§2.8.4); collect the
+   per-seed `{seed, n_side_a_units, seed_pass, n_cells_pass/fail,
+   undefined_draw_cells, worst_cells[]}` and the family-A verdict.
+5. **Report-only** — the shock-window diagnostics, the `not_certified` surface
+   (mortality drift first, §4.10), the re-drawn-`T*`-seed comparison (decision 5b),
+   entrants (family B), and the alignment displacement — all published, none gated.
+6. **Assemble + write** — one artifact `runs/gate_m6_candidate<N>_v1.json` via
+   `artifacts.write_new(..., sidecar=True)` (exclusive-create enforces the
+   one-shot; the `.env.json` sidecar carries `environment_block()` + the contract
+   ref). The artifact **stamps** the run's #42 **registration-id** and the
+   `refit.EARNINGS_SPEC_REGISTRATION` lineage constant (`refit.py:70`), the floor
+   `sha256` (`e931c886…`), the resolved spec `sha256`s, and `publishes_regardless`
+   — the schema prior scored runs use (`schema_version`, `run`, `candidate`,
+   `registration`, `lineage`, `gate`, `protocol`, `verdict`, `family_a`,
+   `family_b`, `family_c`).
+
+**2.8.8 What the harness must NOT do (the §2.7.6 fence, extended).** The harness
+is holdout-fenced by construction:
+
+- **No `gates.yaml` read beyond the `gate_m6` block's protocol/cells** — the 11
+  gated cells, their `split_units`, `metric`/`k`, tolerances, `gate_seeds`, and the
+  4-of-5 conjunction, read-only. It computes no tolerance, moves no threshold, and
+  touches no other gate.
+- **No holdout-informed choice** — every builder rule (§2.8.2), the year-0 reads
+  (§2.8.3), and the cell reductions (§2.8.4) are fixed from the ratified design and
+  certified code; nothing is tuned to a 2015–2019 / 2016–2018 observable. The
+  builders and scorer are exercised on **synthetic frames only** until the
+  registered run, and pre-flights 1–2 read no holdout cell.
+- **No realized post-boundary macro read on the scored path** — the §2.7.6.3
+  leakage prohibition extends to the harness: the scored earnings de-index uses the
+  generator's own `≤2014` `I_proj`, **never** the frame's realized `nawi` column
+  (`steps.py:145-156`), which is admissible only for the non-scored seam /
+  `taxable_max` and the **report-only** alignment path (decision 9, §4.8). No
+  realized 2015–2022 aggregate enters any gated cell.
+- **Forward-mode inputs stay rejected** — a gated run uses
+  `EvaluationMode.GATED_REALIZED`; `support.prepare_evaluation_support` structurally
+  rejects supplying realized truth/floor/presence to a `FORWARD` call, so the
+  successor-gate object cannot silently borrow the gated support.
+
+**2.8.9 Closes the blocker; residual open decisions.** Every deliverable the
+designed stop enumerated is now pinned — the realized-history provenance (§2.8.1),
+the per-field projected-panel construction against the certified schemas (§2.8.2),
+the year-0 realized slice mirroring the floor (§2.8.3), the drift-scoring layer
+reusing the floor cell functions verbatim with a byte-identity self-test (§2.8.4),
+the two pre-flights (§2.8.5–§2.8.6), and the runner with its one-shot stamping and
+fence (§2.8.7–§2.8.8) — so the build lane implements the harness with **zero**
+design choices. **Residual open decisions: none.** Three items are **mechanical
+alignments / disclosures, not design choices**, recorded for the build lane: (i)
+`marital_step` and `household_step` compute the certified core **once per draw and
+cache** (the built `disability_step` pattern) at the period-0 address (§2.8.2),
+rather than the stub-era per-period recompute; (ii) the truth-side cell functions
+are **extracted to one shared importable module** that both the floor script and
+the scorer import (byte-identity by construction, self-tested per §2.8.4); (iii)
+step-4 **fertility** remains a per-period recompute on the cached marital result
+(`apply_fertility` → `simulate_fertility` per period, `steps.py:401-433`), so
+frame-materialized births are stitched across years — **inert on every gated cell**
+(children fall outside `holdout_ids` and every gated band, and births feed only the
+report-only entrant/roster paths), disclosed rather than fixed. This closes the run
+lane's blocker; a fresh
+`gate_m6` registration follows the harness build and its engine-referee-style
+review, with a forecast informed by nothing new (no holdout contact occurs in the
+harness build).
+
 ## 3. RNG discipline — the projection stream registry
 
 ### 3.1 The inherited convention
@@ -1421,7 +1861,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 3,
+  "revision": 5,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -1477,6 +1917,33 @@ lock ceremony.
     "secondary_gaps_pinned": {"memory_after_2018": "two rolling generated-biennial-level cols gen_earn_w2/gen_earn_w4 + realized-<=2014 start-lags", "generator_to_substream": "engine.rng.seed_from_generator(rng)->int then SeedSequence([seed,code]) codes {1:gate,2:donor,3:reentry} (m6-engine rng.py; candidate10:239)", "frame_schema": "person_id,age,sex,u_w,realized_earn_2014,realized_earn_2012,earnings,gen_earn_w2,gen_earn_w4; engine refit.py materializes u_w+realized_earn_* at period 0; _merge_period_columns carries", "age_support": "forward law fits [25,64] (EXTENDS transferred gate-1 [25,59], refit.py:802-806) because gated cohorts prime 25-44 + older 45-64 (EARN_COHORTS build_m6_holdout_floors.py:120, no panel age cap); [25,59] is a NON-transferable hyperparameter (conflicts pre-registered surface; would kill earn_zero_rate.older); 8 age_bins {25-29..60-64}; participation-gate/donor-pools/memory/marginal all fit [25,64] pooled <=2014; clip <25->25-29, >64->60-64; <25 & 65+ non-scored; principle: law must cover the scored surface, narrowing to fit support = candidate-informed surface design PROHIBITED"},
     "closes_round2_blocker": true,
     "lock_flip_design_commit_finalizes_to_this_amendment_merge": true
+  },
+  "scored_run_harness": {
+    "amendment_3_section": "2.8 (unblocks the gate_m6 run; designed stop #42 comment 4962773701, registration 4962640241); revised per amendment-3 referee MAJOR REVISION #42 comment 4963629234 (F1 adjudicated + F2-F6 pins + fertility disclosure)",
+    "core_adjudication": "year-0 closed panel carries REALIZED histories: builders read each person's realized <= THEIR ANCHOR INTERVIEW marriage/household history (2015 for the bulk; 2017/2019 presence-conditioned openers seed at their later anchor) as the seed (decision 5 reproduction-mode semantics extended from disability_step assembly.py:257-304); the per-person anchor is the true leakage fence (ratified block f6_weight.start_wave + 4.4; seed = realized initial condition, refit stays <=2014, no fitter sees it); projected years constructed from simulated state under the pinned per-field rules; forward/production path out of scope (decision-5 successor gate, support.py FORWARD structural_delta)",
+    "builders": {
+      "contract": "(frame, context) -> (native_panel, holdout_ids) per assembly.py:59-72; schema-byte-compatible with transitions.build_marital_panel / household_composition.build_household_panel (R1 plumbing); whole-window, certified core run ONCE per draw and cached (the built disability_step pattern)",
+      "cached_core_stream_address": "PINNED period-0 deployment address (rng.py:41-44), NOT period-1 first-invocation: reproduces the certified single-period topology and is the address the 2.8.5 internal reference uses (composition.py:643-653, n_periods=0). Per draw k: marital main_rng=generator(0,MARITAL_CORE), gap_rng=child_generator(0,MARITAL_CORE,1); household = the SINGLE composition_rngs_from_registry(registry,0) CompositionRngs (composition.py:532-539); household-conditioning fertility = generator(0,FERTILITY). Bit-exact reproducible (4.9)",
+      "marital_universe": "attrs = build_marital_panel(marriage.marriage_history(), death_records, anchor_weight).attrs INTERSECT anchor (F3): identical to the truth-side marital_tables universe; drops MH-absent anchor persons (children, MH-uncovered adults) SYMMETRICALLY (else asymmetric first_marriage denominator via the pd.isna never_married entry path marital.py:100-101); _valid_persons enforces start_exposure<=censor and resolves the missing-entry-row case",
+      "marital_per_field": "attrs person-constant realized; start_exposure_year = realized anchor wave (SEED_WAVE 2015 bulk); censor_year = 2022 clipped to realized presence/death censor; entry person_years row = realized anchor-wave state via the truth side's own build_marital_panel; n_marriages = lifetime MH18 person_attributes writes (transitions.py:239-243, marriage.py:216) = the truth-side value (byte-identical seed), CARRIED-INERT (core never reads it, order re-seeds to 1 marital.py:107,119; _assemble_panel overwrites from simulated episodes+residual marital.py:262-272); episode extension = open episode carries realized current_start, closed at simulated dissolution or emitted intact at censor (marital.py:243-249); changepoint appends = certified marry/dissolve kinds with kind_order tie rule + allow_exact_matches=False (transitions.py:307-352,377-423); duration = year - current_start, years_since = year - dissolution_year (marital.py:188,217 verbatim); no new changepoint kind",
+      "household_per_field": "person_waves support = realized holdout support; obs_parent/multigen/cohab/skipgen seed states = realized <= anchor-interview build_household_panel slice; projected years = candidate-9 injected forward evolution (composition.py) consuming the SINGLE period-0 CompositionRngs (composition_rngs_from_registry(registry,0)); transition helpers rebuilt by _add_transitions"
+    },
+    "year0_slice": "mirror the v3 floor's realized panel EXACTLY: universe/holdout_ids = build_anchor_frame (gated start waves 2015/2017/2019, positive weight); per-field PSID reads = the floor's own sources (panels.demographic_panel, marriage.marriage_history->build_marital_panel, build_household_panel, disability reader, family_earnings_panel incl. realized 2014/2012 + u_w per 2.7.6.5, data.deaths); F6 weight + household_id fixed at the realized anchor wave (StartWaveWeightSnapshot); FLOWS presence set = presence_by_wave, PresenceBasis.START_OF_INTERVAL (opening biennial interview), symmetric via prepare_evaluation_support; EARNINGS support basis (F6) = realized family_earnings_panel person-period row existence at {2016,2018} (present, positive-weight, valid-earnings; earnings_frame), an EXACT_WAVE-class basis on reference years, NOT the odd-wave flow presence sets",
+    "drift_scoring": {
+      "reuse_verbatim": ["build_anchor_frame", "presence_by_wave", "mortality_slices", "marital_tables", "disability_pairs", "earnings_frame", "mortality_cells", "marital_cells", "disability_cells", "earnings_cells", "_rate", "_wquantile", "_score", "harness.moments", "harness.panel.split_panel_by_person", "evaluation.derive_tolerance"],
+      "extraction": "floor cell machinery extracted to ONE importable module shared by floor script and scorer; any reimplementation bound by a harness SELF-TEST asserting byte-identical cell values on the realized panel (fail-the-run otherwise)",
+      "flow_projected_side": "marital events + at-risk person-years from the frame-INDEPENDENT marital builder (realized presence/censor); disability pairs from realized-support reproduction (assembly.py:257-304) -- both realized-support by construction",
+      "gated_earnings_support_ADJUDICATED_F1": "gated earnings cells score on the REALIZED earnings support, NOT the survivor-attrited live frame. Step-1 mortality (apply_mortality steps.py:108-130) drops simulated deaths from every later frame slice -> projected {2016,2018} earnings person-periods are a STRICT SUBSET of realized earnings_frame support on ~every draw; scoring that would abort under the 2.8.3 identity guard (support.py:311-315) OR silently admit not_certified mortality drift into 6 gated cells via survivorship. Adjudicated by the same symmetric-conditioning principle 2.8.1 applies to histories + 4.4 cancellation + 4.7 gate_m4-reproduction-on-realized-support: the forward chain is evaluated for EVERY realized-present person-period regardless of simulated death. BIT-SAFE: apply_earnings draws on person-keyed EARNINGS streams (context.person_generator, steps.py:222-233), so a dead-but-present person's chain consumes ONLY its own entropy, perturbing no survivor's bits. Mortality stays report-only (feeds diagnostics + AIME/claiming/household, not the gated earnings read). Conditions on realized reference-year presence (conditioning-not-leakage); does NOT score mortality's earnings-composition (survivorship) channel = designed reproduction-test scope, same as flows; mortality drift stays not_certified",
+      "construction": "per gate seed s in {0..4}: split_panel_by_person on the block's split_unit selects side-A; rate_a = side-A realized presence-conditioned rate; rbar = K=20-draw mean (5200+k) of the engine projecting side-A persons from realized T* state; score per the cell metric (log_ratio | abs_gap_log | abs_gap_corr)",
+      "conjunction": "cell clears iff score <= locked block tolerance; seed passes iff EVERY gated cell clears; family A passes iff >= 4 of 5 gate seeds (read from the locked block, computed nowhere)",
+      "guards": ["undefined_draw_rule (any undefined gated rate on any draw invalidates)", "regenerated-surface conformance (non-zero across-draw dispersion recorded)"]
+    },
+    "preflight_1": "candidate-9 re-certification margin on the <=2014-refit REAL panel over gate-seed draws BEFORE any scored phase: simulate_candidate9_injected vs simulate_candidate9_internal_reference, composition_channel_moments over RECERTIFICATION_CHANNEL_SETS, check_candidate9_recertification >=3sigma; holdout-blind (two simulation paths, no holdout cell); failure = DESIGNED ABORT pre-scoring (one-shot not consumed, fuller re-ceremony per 2.6); per-channel margins publish",
+    "preflight_2": "verify the externally-driven _gate_sign_draw draw_sign branch deploys (forward_earnings.py:815-819) vs the _target_models test seam (:820-826) on a SYNTHETIC probe; record which path executed",
+    "runner_phases": ["refit (refit_m6_components boundary 2014 + from_refit_bundle; RefitProvenance + EARNINGS_SPEC_SHA256 recorded)", "preflight_1 (abort-on-fail)", "preflight_2", "project+score per gate seed (K=20 draws, side-A, v3 floor)", "report_only (shock, not_certified, re-drawn-seed comparison, entrants, alignment displacement)", "assemble + artifacts.write_new(sidecar=True) stamping registration-id + EARNINGS_SPEC_REGISTRATION + floor sha e931c886 + spec sha256s; publishes_regardless"],
+    "must_not": ["no gates.yaml read beyond the gate_m6 block's protocol/cells (no tolerance computed, no threshold moved)", "no holdout-informed choice (synthetic frames only until the registered run)", "no realized post-boundary macro read on the scored path (2.7.6.3 fence: I_proj only, never the frame's realized nawi)", "forward-mode inputs stay rejected (EvaluationMode.GATED_REALIZED only; FORWARD rejects realized inputs)"],
+    "residual_open_decisions": "none",
+    "mechanical_alignments_for_build_lane": ["once-per-draw cached core in marital_step/household_step at the period-0 address (disability_step pattern)", "extract floor cell functions to a shared module (byte-identity by construction, self-tested)", "step-4 fertility stays per-period recompute (apply_fertility steps.py:401-433), births stitched across years -- INERT on every gated cell (children outside holdout_ids + bands; births feed report-only entrant/roster only); disclosed not fixed"]
   },
   "scoring": {
     "estimator": "mean over K=20 draws, numpy.random.default_rng(5200 + k), scored once |ln(rbar/rate_a)|",
