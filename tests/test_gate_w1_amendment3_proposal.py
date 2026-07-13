@@ -697,11 +697,12 @@ def test_family_a_oc_recomputes_before_and_after_on_frozen_floor():
     floors = _floors()
     per = floors["faithful_candidate_oc"]["per_cell"]
     gate_eligible = floors["gate_partition"]["gate_eligible"]  # 53
-    # reconstruct the 53-cell basis: LIVE 47 gated tolerances + the a2-retained 6.
+    # reconstruct the 53-cell basis: LIVE 43 gated tolerances + the 10
+    # retained (6 a2 + 4 a3) -- post-flip polarity.
     live_tol = _family_a_tolerances()
-    assert len(live_tol) == 47
+    assert len(live_tol) == 43
     retained = _gate_w1()["thresholds"]["family_a"]["retained_tolerances"]
-    assert set(retained) == A2_DEMOTED
+    assert set(retained) == A2_DEMOTED | set(HH_DEMOTED)
     tol = dict(live_tol)
     tol.update({c: retained[c]["tolerance"] for c in retained})
     assert len(tol) == len(gate_eligible) == 53
@@ -712,9 +713,10 @@ def test_family_a_oc_recomputes_before_and_after_on_frozen_floor():
     p_seed_b, p_gate_b = _oc(surv47, tol, per)
     assert round(p_seed_b, 4) == led["p_seed_before"] == 0.9344
     assert round(p_gate_b, 4) == led["p_gate_before"] == 0.9623
-    # matches the LIVE contract's committed faithful_candidate_oc.
+    # the LIVE contract's committed faithful_candidate_oc carries the a3
+    # (after) values post-flip.
     foc = _gate_w1()["thresholds"]["family_a"]["faithful_candidate_oc"]
-    assert foc["p_seed_pass"] == 0.9344 and foc["p_gate_pass_4_of_5"] == 0.9623
+    assert foc["p_seed_pass"] == 0.9403 and foc["p_gate_pass_4_of_5"] == 0.9684
 
     # AFTER (a3 state): 47 minus the 4 hh_size = 43.
     assert set(HH_DEMOTED) <= set(surv47)
@@ -925,8 +927,10 @@ def test_no_self_rescue_all_three_stand_fail():
     assert c3["verdict"]["gate_pass"] is False
     assert c3["family_a"]["family_a_pass"] is False
     assert c3["family_c"]["family_c_pass"] is False
-    # family-A on the current 47 surface: 0/5 seeds, failing exactly the hh quad.
-    gated47 = set(_family_a_tolerances())
+    # family-A on the SCORING-TIME 47 surface (post-flip: reconstruct as the
+    # live 43 gated cells + the a3-retained hh_size quad).
+    gated47 = set(_family_a_tolerances()) | set(HH_DEMOTED)
+    assert len(gated47) == 47
     seeds_pass = 0
     fail_union = set()
     for seed in c3["family_a"]["per_seed"]:
@@ -987,35 +991,55 @@ def test_no_blanket_impossibility_reintroduction():
 # --------------------------------------------------------------------------
 # MUTATION GUARD 2: the proposal is a DRAFT -- gates.yaml is UNTOUCHED
 # --------------------------------------------------------------------------
-def test_gates_yaml_untouched_and_still_in_amendment2_state():
-    """Draft polarity: the proposal edits nothing. gates.yaml still carries the
-    amendment-2 post-flip state (47 family-A gated incl. all five hh_size cells; C2
-    gated as the 4-element ordering), is byte-identical to origin/master, and the
-    ledger records gates_yaml_untouched. The a3 flip is a separate ratified PR.
-    """
+def test_gates_yaml_flipped_per_section7_and_moves_no_sibling():
+    """Post-flip polarity of the proposal's untouched-guard: gates.yaml now
+    carries section 7 exactly (43/62 family A with the hh_size quad in
+    retained_tolerances; C2 pair-scoped with the cap_150k/+1pp legs
+    report-only; OC 0.9403/0.9684; cube [20,43,5]), the PROPOSAL itself
+    touched nothing (the ledger records that), and the flip moves NO sibling
+    gate (the section-7 subset master-compare, stable pre- and post-merge)."""
     gw1 = _gate_w1()
     fa = gw1["thresholds"]["family_a"]
     fc = gw1["thresholds"]["family_c"]
     tol = _family_a_tolerances()
-    # the four cells this proposal WOULD demote are STILL gated (draft).
-    for cell in (*HH_DEMOTED, HH_RETAINED_GATED):
-        assert cell in tol, cell
-    assert len(tol) == 47
-    # the a2 retained set is present (a2 already flipped); a3 has not.
-    assert set(fa["retained_tolerances"]) == A2_DEMOTED
-    assert set(HH_DEMOTED).isdisjoint(set(fa["report_only"]))
-    # C2 is still gated as the (pre-a3) 4-element fingerprint.
+    # the four demoted cells are OUT of the views; size-2 stays gated.
+    for cell in HH_DEMOTED:
+        assert cell not in tol, cell
+        assert cell in fa["report_only"], cell
+        assert (
+            fa["report_reasons"][cell]
+            == "no_permitted_entry_state_lever_reaches_cell"
+        )
+    assert HH_RETAINED_GATED in tol
+    assert len(tol) == 43
+    # both amendments' retained sets are present, byte-exact.
+    assert set(fa["retained_tolerances"]) == A2_DEMOTED | set(HH_DEMOTED)
+    assert {
+        c: fa["retained_tolerances"][c]["tolerance"] for c in HH_DEMOTED
+    } == {
+        "hh_size_share.1": 0.191,
+        "hh_size_share.3": 0.191,
+        "hh_size_share.4": 0.174,
+        "hh_size_share.5plus": 0.184,
+    }
+    # C2 stays gated, re-scoped to the pair; the legs publish report-only.
     assert fc["gate_partition"]["gate_eligible"] == [
         "fingerprint.elimination_plus2pp"
     ]
     assert fc["gate_partition"]["n_gate_eligible"] == 1
-    # OC + cube shape still the committed a2 values.
-    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 47
-    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9623
+    c2 = fc["fingerprints"]["c2"]
+    assert "required_swap_realised" in c2["gated_check_amendment_3"]
+    assert c2["report_only_legs_amendment_3"]["legs"] == [
+        "cap_150k",
+        "payroll_plus_1pp",
+    ]
+    # OC + cube shape carry the ratified a3 values.
+    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 43
+    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9684
     proto = gw1["thresholds"]["protocol"]["fresh_run_artifact_schema"]
-    assert proto["per_draw_per_cell_rates"]["shape"] == [20, 47, 5]
+    assert proto["per_draw_per_cell_rates"]["shape"] == [20, 43, 5]
     assert _ledger()["gates_yaml_untouched_by_this_proposal"] is True
-    # byte-identical to origin/master.
+    # the section-7 subset master-compare: no sibling gate moves.
     try:
         master_text = subprocess.run(
             ["git", "show", "origin/master:gates.yaml"],
@@ -1027,11 +1051,13 @@ def test_gates_yaml_untouched_and_still_in_amendment2_state():
     except (subprocess.CalledProcessError, FileNotFoundError):
         pytest.skip("origin/master gates.yaml unreachable")
     with open(os.path.join(ROOT, "gates.yaml")) as fh:
-        assert fh.read() == master_text
-    # and no sibling gate differs from master either.
-    live_doc = yaml.safe_load(open(os.path.join(ROOT, "gates.yaml")))["gates"]
+        live_doc = yaml.safe_load(fh)["gates"]
     master_doc = yaml.safe_load(master_text)["gates"]
-    assert live_doc == master_doc
+    assert set(master_doc) <= set(live_doc)
+    for name in sorted(master_doc):
+        if name == "gate_w1":
+            continue
+        assert live_doc[name] == master_doc[name], name
 
 
 # --------------------------------------------------------------------------

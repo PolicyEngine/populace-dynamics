@@ -3707,15 +3707,16 @@ gates:
       the TRANSPORT of the PSID-estimated generators onto the certified populace
       CPS representative frame (roadmap #113 M5, workstream #100 W1): family
       A -- CPS-observable cross-sectional joints (earnings x age x sex, marital
-      composition, household composition), FLOOR-priced, 47 gated / 58 report-only;
+      composition, household composition), FLOOR-priced, 43 gated / 62 report-only;
       family B -- SSA administrative margins of the deployed + simulated benefits,
       ANCHOR-priced, 0 gated (family B gates nothing) / 25 report-only (2
       disability-conversion M4-simulated margins + 8 DI age-composition bands,
       both demoted by amendment 1; 14 circular claim-age + 1 benefit level);
       family C -- the two committed ordinal compression fingerprints that
       must REVERSE to the anchor orderings, BINARY, 1 gated / 1 report-only
-      (C1 demoted by amendment 2).
-      48 gated / 84 report-only + the report-only A' published-value family.
+      (C1 demoted by amendment 2; C2 re-scoped to the pair-scoped elim<->+2pp
+      swap by amendment 3, its cap_150k/+1pp legs report-only within C2).
+      44 gated / 88 report-only + the report-only A' published-value family.
       Per the standing description_claims_exactly_the_scored_surface rule the
       surface claimed is EXACTLY these cells. Does NOT re-certify the dynamics
       (gate-1 earnings, gate-2a/2b/2c demographic / household / marriage x earnings,
@@ -4047,20 +4048,12 @@ gates:
               person-level weighted share by household size (1/2/3/4/5+).
             floor_run: runs/gate_w1_floors_v1.json
             tolerances:
-              hh_size_share.1: 0.191
               hh_size_share.2: 0.123
-              hh_size_share.3: 0.191
-              hh_size_share.4: 0.174
-              hh_size_share.5plus: 0.184
             derivations:
               floor_run: runs/gate_w1_floors_v1.json
               floor_key: noise_floor_seeds_0_99
               rules:
-                hh_size_share.1: {key: hh_size_share.1, k: 4, rounding: 3}
                 hh_size_share.2: {key: hh_size_share.2, k: 4, rounding: 3}
-                hh_size_share.3: {key: hh_size_share.3, k: 4, rounding: 3}
-                hh_size_share.4: {key: hh_size_share.4, k: 4, rounding: 3}
-                hh_size_share.5plus: {key: hh_size_share.5plus, k: 4, rounding: 3}
           coresident_spouse:
             statistic: >-
               weighted share living with a spouse (A_MARITL spouse-present),
@@ -4118,7 +4111,8 @@ gates:
           marital_share.widowed.65+|female, marital_share.widowed.65+|male,
           earnings_participation.18-24|female, earnings_participation.18-24|male,
           marital_share.married.65+|female, marital_share.married.65+|male,
-          coresident_spouse.65+|female, coresident_spouse.65+|male]
+          coresident_spouse.65+|female, coresident_spouse.65+|male,
+          hh_size_share.1, hh_size_share.3, hh_size_share.4, hh_size_share.5plus]
         report_reasons:
           earnings_participation.18-24|female: population_concept_delta_head_spouse_universe
           earnings_participation.18-24|male: population_concept_delta_head_spouse_universe
@@ -4126,6 +4120,10 @@ gates:
           marital_share.married.65+|male: cohort_vintage_hazard_frame_mismatch
           coresident_spouse.65+|male: cohort_vintage_hazard_frame_mismatch
           coresident_spouse.65+|female: scored_duplicate_of_demoted_married_quantity
+          hh_size_share.1: no_permitted_entry_state_lever_reaches_cell
+          hh_size_share.3: no_permitted_entry_state_lever_reaches_cell
+          hh_size_share.4: no_permitted_entry_state_lever_reaches_cell
+          hh_size_share.5plus: no_permitted_entry_state_lever_reaches_cell
         retained_tolerances:
           earnings_participation.18-24|female: {tolerance: 0.211, view: earnings_participation,
             k: 4, rounding: 3}
@@ -4138,6 +4136,14 @@ gates:
           coresident_spouse.65+|female: {tolerance: 0.168, view: coresident_spouse,
             k: 4, rounding: 3}
           coresident_spouse.65+|male: {tolerance: 0.094, view: coresident_spouse,
+            k: 4, rounding: 3}
+          hh_size_share.1: {tolerance: 0.191, view: hh_size_share,
+            k: 4, rounding: 3}
+          hh_size_share.3: {tolerance: 0.191, view: hh_size_share,
+            k: 4, rounding: 3}
+          hh_size_share.4: {tolerance: 0.174, view: hh_size_share,
+            k: 4, rounding: 3}
+          hh_size_share.5plus: {tolerance: 0.184, view: hh_size_share,
             k: 4, rounding: 3}
         demoted_disclosure_note: >-
           amendment 2 (2026-07-12-w1-family-a-concept-cells, ratified by merge of
@@ -4160,6 +4166,31 @@ gates:
           machine reasons are per-cell in report_reasons. See gate_w1.history entry
           2026-07-12-w1-family-a-concept-cells and
           docs/amendments/gate_w1_amendment_2_family_a_concept_cells.md.
+        demoted_disclosure_note_amendment_3: >-
+          amendment 3 (2026-07-13-w1-hh-size-and-c2-pair, ratified by merge of
+          PR #180, squash cb1ef63) DEMOTES the four hh_size cells
+          (hh_size_share.{1,3,4,5plus}) from gated to report-only, machine
+          reason no_permitted_entry_state_lever_reaches_cell: forensics-3 Q11
+          (runs/gate_w1_forensics3_v1.json) exhausts the permitted entry-state
+          lever space three candidates deep -- the roster-ceiling probe reaches
+          terminal coresidence only 0.111 (capped by the CERTIFIED parental-exit
+          hazard, not the seed, at and beyond the permitted maximum) and the
+          fertility window is maxed at the 15-entry certified support ceiling.
+          Per-cell channel attribution (each figure bound to the forensics-3
+          artifact): size-1 fertility 0.54 / coresidence 0.46 (mixed); size-3
+          coresidence 0.75 (the 0.98 size-1<->size-3+ mirror); size-4 fertility
+          0.67; size-5plus fertility 0.78. Per-cell truth: hh_size_share.2
+          (tolerance 0.123) STAYS GATED -- it clears in candidate 3 on 5/5
+          seeds exactly as forensics-2 Q7's arithmetic predicted; size-4
+          cleared candidate-3 seed 1 (4/5 fail, not 5/5); sizes 1/3/5plus fail
+          5/5 in all three candidates. The residual requires a non-entry-state
+          coresidence/household model -- outside the transport contract's
+          permitted lever space, not a claim that the cells are unreachable by
+          any future model class. The four tolerances are RETAINED verbatim
+          under retained_tolerances (zero threshold movement -- byte-equal to
+          the FROZEN floor). See gate_w1.history entry
+          2026-07-13-w1-hh-size-and-c2-pair and
+          docs/amendments/gate_w1_amendment_3_hh_size_and_c2_pair.md.
         power_cap:
           t_max: ln(1.5)
           rule: >-
@@ -4295,9 +4326,9 @@ gates:
             concept-matched. The residual is the transport target's own fidelity,
             disclosed not graded.
         faithful_candidate_oc:
-          n_gated_cells: 47
-          p_seed_pass: 0.9344
-          p_gate_pass_4_of_5: 0.9623
+          n_gated_cells: 43
+          p_seed_pass: 0.9403
+          p_gate_pass_4_of_5: 0.9684
           basis_note: >-
             DRAW-NOISE-FREE half-normal basis (per-cell score ~ half-normal(realized_sigma);
             cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the
@@ -4555,13 +4586,15 @@ gates:
           binary ordinal (committed anchor orderings; no floor)
         pre_committed_in: '#113 (M5 row + the two compression fingerprints)'
         check: >-
-          on the certified representative frame the C2 fingerprint reverses
-          (C1 demoted to report-only by amendment 2,
-          fingerprint_reversal_not_realized; its ordering + PPI-NRA gap
-          publish) to required_representative_order (Kendall tau -> 1.0 vs
-          the anchor), and no OTHER adjacency changes. If transport is real
-          C2 reverses; if cosmetic it does not (C1's non-reversal is
-          structural -- amendment 2).
+          on the certified representative frame the C2 elim<->+2pp adjacency
+          reverses (elimination outranks +2pp; anchor-supported, realised 3/3),
+          the pair the representative frame can coherently reverse; the
+          cap_150k/+1pp legs are report-only
+          (anchor_ordering_internally_inconsistent_under_certified_swap -- the
+          certified compression correction mechanically lifts cap_150k, Q10).
+          C1 remains report-only (fingerprint_reversal_not_realized, amendment
+          2; its ordering + PPI-NRA gap publish). If transport is real the
+          elim<->+2pp swap realises; if cosmetic it does not.
         orderings_derive_from_committed_anchors: >-
           fix F / finding 8a: the required after-orders are DERIVED by ranking
           the committed anchor values descending -- C1 the Mermin payroll-pct
@@ -4597,7 +4630,14 @@ gates:
             (amendment 2: family C now GATES the C2 fingerprint only -- C1 is
             report-only, fingerprint_reversal_not_realized -- so the operative
             conjunction is the C2 fingerprint alone; C1 publishes on the same
-            statistic without gating).
+            statistic without gating). Amendment 3 RE-SCOPES the gated C2
+            check to the PAIR: PASS iff required_swap_realised on
+            [payroll_plus_2pp, elimination] -- elimination outranks
+            payroll_plus_2pp on the deployed ordering -- with no requirement
+            on the cap_150k/+1pp positions, which publish report-only
+            (anchor_ordering_internally_inconsistent_under_certified_swap).
+            The full-ordering statistic is still computed and published; only
+            the pair gates.
         fingerprints:
           c1:
             id: ppi_nra
@@ -4648,6 +4688,37 @@ gates:
               a representative frame carries >16.1% of payroll above the wage
               base (the break-even), so taxable-max elimination's revenue gain
               exceeds +2pp's -- reversing the compressed-tail order.
+            gated_check_amendment_3: >-
+              amendment 3 (2026-07-13-w1-hh-size-and-c2-pair, ratified by
+              merge of PR #180, squash cb1ef63) RE-SCOPES the gated check to
+              required_swap_realised on [payroll_plus_2pp, elimination] ONLY
+              -- the pair the anchor supports (Smith p.3 orders elimination
+              +21 > payroll_plus_2pp +18) and the deployment realised in all
+              three committed candidate runs. The required_representative_order,
+              psid_frame_order, and provision_deltas above are RETAINED
+              verbatim as the report-only ordering disclosure.
+            report_only_legs_amendment_3:
+              legs: [cap_150k, payroll_plus_1pp]
+              machine_reason: anchor_ordering_internally_inconsistent_under_certified_swap
+              disclosure: >-
+                forensics-3 Q10 (runs/gate_w1_forensics3_v1.json): the
+                certified compression correction that realises the elim<->+2pp
+                swap mechanically lifts cap_150k on the PINNED certified frame
+                -- deployed cap_150k rank 2 (bit-identical across c1/c2/c3;
+                A_band/B 0.373; 16.7-year exhaustion delay vs the Smith
+                anchor's rank-4 / 1 year), so the pinned transport target
+                cannot hold the full 4-element ordering. This is a property of
+                the pinned frame's A/B = 1.694 (it would need f < 0.0476 to
+                land in the f-conditional Smith-adjacency window), ON THE
+                PINNED FRAME, NOT a universal claim: forensics-3's own
+                order_at_f_deployed_0p22 exhibits a frame (A/B ~= 0.22,
+                f ~= 0.22) that realises the swap AND holds the full order.
+                No published anchor supports the full 4-element ordering on a
+                representative frame; no contract-permitted lever restores the
+                Smith adjacency on the pinned frame (restoration enumerated
+                empty). The deployed 4-element ordering and the cap_150k
+                figure publish with every fresh run. See
+                docs/amendments/gate_w1_amendment_3_hh_size_and_c2_pair.md.
         gate_partition: {gate_eligible: [fingerprint.elimination_plus2pp],
           n_gate_eligible: 1, n_report_only: 1}
         report_only: [fingerprint.ppi_nra]
@@ -4744,11 +4815,11 @@ gates:
               dispersion); see degenerate_candidates.
           per_draw_per_cell_rates:
             required: true
-            shape: [20, 47, 5]
+            shape: [20, 43, 5]
             shape_dims: K_draws x gated_cells x gate_seeds
             rule: >-
               commit every draw's per-cell deployed rate r[k, cell, s] for all
-              K=20 draws, all 47 gated cells, all 5 gate seeds, so rbar and
+              K=20 draws, all 43 gated cells, all 5 gate seeds, so rbar and
               |ln(rbar/rate_a)| recompute cell-by-cell.
           undefined_draw_rule:
             required: true
@@ -4817,16 +4888,19 @@ gates:
         tranche: w1_representative_frame_transport
         certifies: >-
           the TRANSPORT of the already-fit PSID generators onto the certified
-          populace frame -- the 48 gated cells (47 family-A joints + 1 family-C
-          fingerprint -- C2, the taxable-max elimination reversal); the 18-24
-          participation pair, the 65+ marital/coresident quad, and the C1
-          (PPI-over-NRA) fingerprint are report-only pending
+          populace frame -- the 44 gated cells (43 family-A joints + 1 family-C
+          fingerprint -- the pair-scoped C2 elim<->+2pp compression swap); the
+          four hh_size cells and the cap_150k/+1pp ordering legs are
+          report-only pending a non-entry-state household-composition model and
+          the anchor-ordering re-specification; the 18-24 participation pair,
+          the 65+ marital/coresident quad, and the C1 (PPI-over-NRA)
+          fingerprint are report-only pending
           concept/cohort-vintage/re-specification bridges; family B certifies NO
           SSA margin after amendment 1 (all 10 SSA family-B admin margins are
           report-only, pending a concept-bridge amendment). A PASS certifies that
           stochastic regeneration through the deployed generators reproduces the
           CPS-observable cross-section within the frame's own sampling floor, and
-          reverses the C2 fingerprint to the anchor ordering.
+          reverses the C2 elim<->+2pp swap.
         supports:
         - >-
           the cross-sectional microsim, the local-area cuts, and the 75-year
@@ -5127,6 +5201,125 @@ gates:
         report-only). Evidence chain: candidate 1 (PR #162), candidate 2 (PR
         #167), W1 forensics 1 (PR #163), W1 forensics 2 (PR #168), referee
         round (PR #169 comment 4953763322).
+    - id: 2026-07-13-w1-hh-size-and-c2-pair
+      proposed: '2026-07-13'
+      referee_round:
+        review: >-
+          PR #180 comment 4962052314 (verdict AMEND THE AMENDMENT --
+          recommendation survives every recomputation incl. the referee's own
+          merge-base proof that the a2 amendment3_risks equal exactly the
+          acted-on set and pre-date candidate 3; F1 = the a2 defect class
+          re-instantiated, a false frame-level universal in the C2 argument
+          refuted by forensics-3's own order_at_f_deployed_0p22; F2 =
+          fertility-lever terminology).
+        fixes: >-
+          60f6ee5 (comment 4962297637 -- the C2 impossibility scoped to the
+          pinned certified frame with the two dispositive grounds leading;
+          ledger definition cap_150k_impossibility with scope
+          pinned_certified_frame_only and is_universal_claim false; the
+          universal-phrasing guard exposed as BANNED_UNIVERSAL_C2_PHRASINGS;
+          fertility floor -> ceiling; 26 bindings, 16 mutations).
+        verification: >-
+          PR #180 comment 4962578395 (verdict FURTHER FIXES x2 -- the a2
+          verification catch-class confirmed twice: the refuted universal
+          verbatim in the PR body [the future squash message, outside the
+          battery's reach] and one unscoped universal inside the very section
+          F1 ordered scoped, proven blind via synonym mutations M4/M4b; the
+          machine reason ruled ACCEPTABLE-WITH-DEFINITION, final).
+        fixes_2: >-
+          e3c63de + master-merge 1d51b77 (comment 4962844009 -- the PR body
+          rewritten pinned-frame-scoped [zero universals on the live sweep];
+          the section-2a restoration clause scoped with the restored "(<0.5)"
+          gloss + "no contract-permitted lever" conjunct + the bound
+          pinned_A_over_B_needs_f_below_round4 = 0.0476; the guard extended
+          and demonstrated catching M4/M4b + both soft spots).
+        re_verification: >-
+          PR #180 comment 4963441188 (verdict RATIFY AS-IS; both items
+          resolved-not-renamed; the 0.0476 round-4 value re-derived and
+          adjudicated correct; the verifier's fresh synonym NOT caught --
+          disclosed as the honest limit of any string guard, with the ledger
+          scope binding + AND-bound caveat + the ceremony as the real
+          defense; merge anatomy clean).
+      ratified: >-
+        2026-07-13 by merge of PR #180 (squash commit cb1ef63) under the
+        maintainer's standing campaign directive of 2026-07-07, exercised only
+        after the full ceremony (round-1 AMEND 4962052314 -> fixes 4962297637
+        -> verification FURTHER-FIXES 4962578395 -> fixes-2 4962844009 ->
+        re-verification RATIFY AS-IS 4963441188). The PR title was refreshed
+        before the ratifying merge (the amendment-2 standing correction,
+        applied). This flip records the completed ceremony and applies
+        section 7; no_self_rescue applies.
+      flipped_live: this pull request
+      content: >-
+        STRUCTURAL demotion + RE-SPECIFICATION, ZERO THRESHOLD MOVEMENT. 4
+        family-A cells are DEMOTED from gated to report-only -- the
+        household-size quad hh_size_share.{1,3,4,5plus} -- under one uniform
+        machine reason no_permitted_entry_state_lever_reaches_cell; and the
+        family-C gated binary C2 (fingerprint.elimination_plus2pp) is
+        RE-SCOPED from the full 4-element compression ordering to the
+        pair-scoped elim<->+2pp adjacent swap, with the cap_150k and +1pp legs
+        published report-only
+        (anchor_ordering_internally_inconsistent_under_certified_swap).
+        hh_size_share.2 stays gated (candidate 3 clears it 5/5). All 4 hh_size
+        tolerances (0.191/0.191/0.174/0.184) and the C2 orderings publish
+        report-only (retained, not deleted). Motivated by W1 forensics 3
+        (runs/gate_w1_forensics3_v1.json, registration 4959668253, grading
+        4960691167) Q10/Q11, W1 forensics 2 Q7, and the ratified amendment-2
+        series forecast that PRE-NAMED both surfaces before candidate 3 ran.
+        Q11 (hh_size): the size-1<->size-3+ coresidence mirror is confirmed
+        (coresidence moves size-1 -0.047 vs size-3+ +0.046, ratio 0.98; owns
+        size-3 at 0.75), while the fertility window owns size-4 (0.67) and
+        size-5plus (0.78) and size-1 is mixed (fertility 0.54 / coresidence
+        0.46); both permitted entry-state levers are EXHAUSTED -- the
+        roster-ceiling probe (seed pushed to and beyond the permitted maximum)
+        reaches terminal coresidence only 0.111, capped by the CERTIFIED
+        parental-exit hazard, and does NOT close the size-1 excess (0.179 vs
+        frame 0.083); closing it needs a non-entry-state household model (an
+        amendment). PER-CELL TRUTH (no blanket impossibility): from the three
+        committed cubes, sizes 1/3/5plus fail 5/5 for c1/c2/c3, size-4 fails
+        5/5 for c1/c2 but CLEARS c3 seed 1 (1/5), and size-2 CLEARS c3 5/5 --
+        so size-2 stays gated and no blanket household-size-unreachability
+        claim is made. Q10 (cap_150k): the 16.7y-vs-1y gap is owned 0.9925 by
+        the frame's above-cap payroll share; on the PINNED certified frame the
+        same compression that certifies the elim<->+2pp swap puts cap_150k at
+        rank 2 (deployed A_band/B 0.373, bit-identical across c1/c2/c3;
+        deployed A/B 1.694 PV), so the PINNED transport target VIOLATES the
+        full Smith order while realising the swap -- internally inconsistent
+        ON THE PINNED FRAME, NOT a universal claim: the order-survival window
+        is f-conditional (0.1613, 0.0806/f) and at f~0.22 forensics-3's own
+        order_at_f_deployed_0p22 shows a frame that realises the swap AND
+        holds the full order (tau 1.0); the re-scope drops a target the pinned
+        frame cannot hold, not one no frame can. At f~0.44 the window is
+        (0.1613, 0.184) and the deployed A/B 1.694 sits ~10x above it;
+        contract-permitted lever restoration enumerates EMPTY. The pair-scoped
+        C2 is anchor-supported (Smith 2015 p.3: elim +21yr > +2pp +18yr),
+        realised 3/3 across c1/c2/c3, and certifies exactly the
+        frame-compression mechanism the fingerprint exists for; no published
+        anchor supports the full 4-element ordering on a representative frame.
+        NO-SELF-RESCUE: candidate 1 (PR #162), candidate 2 (PR #167), and
+        candidate 3 (PR #176) all STAND FAIL; c3's committed gate FAIL was
+        scored under the current contract (47 family-A + the 4-element C2)
+        with family-A 0/5 (failure union exactly the four hh_size cells) AND
+        family-C failing the 4-element reversal -- the demotion rescues
+        nothing. Unlike amendment 2, this is the first amendment after which
+        the amended surface is KNOWN PASSABLE by a committed model: candidate
+        3 lands 43/43 of the surviving family-A cells in-band 5/5 and realised
+        the elim<->+2pp swap. The whittling question is therefore answered in
+        its strongest form: the demotion boundary is the permitted-lever line
+        (Q10 construction empty, Q11 levers exhausted, three candidates deep),
+        it was pre-named in the ratified amendment-2 forecast BEFORE c3 ran
+        (amendment3_risks = exactly this set), and it changes no committed
+        verdict -- a candidate-4 registration of the UNCHANGED c3 model
+        follows the flip, subject to the standing independent bit-exact
+        reproduction addendum before the record admits a pass. The gate_w1
+        faithful-candidate OC moves from 0.9623 x I(C2) to 0.9684 x
+        I(pair-swap) on the residual 44-cell gated surface (48 -> 44 gated, 84
+        -> 88 report-only; family A 47 -> 43, cube shape [20,47,5] ->
+        [20,43,5]). Certification scope narrows: the four hh_size shares and
+        the cap_150k/+1pp ordering legs are report-only,
+        published-not-certified. Evidence chain: candidate 1 (PR #162),
+        candidate 2 (PR #167), candidate 3 (PR #176), W1 forensics 2 (PR
+        #168), W1 forensics 3 (PR #179).
   gate_m6:
     # NEW LOCKED gate (roadmap #113 M6, the temporal-holdout projection-drift
     # gate). The gate_w1 / gate_m4 pattern: ADDED as a locked top-level gate by

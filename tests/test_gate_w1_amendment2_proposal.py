@@ -69,6 +69,16 @@ MARITAL_CORESIDENT_65 = (
     "coresident_spouse.65+|male",
 )
 FAMILY_A_DEMOTED = set(PARTICIPATION_18_24) | set(MARITAL_CORESIDENT_65)  # 6
+
+# amendment 3 (2026-07-13-w1-hh-size-and-c2-pair) later demoted the hh_size
+# quad; a2-era live-state bindings reconstruct their bases via
+# retained_tolerances.
+A3_HH_DEMOTED = {
+    "hh_size_share.1",
+    "hh_size_share.3",
+    "hh_size_share.4",
+    "hh_size_share.5plus",
+}
 ALL_DEMOTED = FAMILY_A_DEMOTED | {C1_CELL}  # 7
 
 # Per-cell machine reasons (finding 2: per-cell truth, two reasons for the 65+
@@ -715,11 +725,13 @@ def test_family_a_oc_recomputes_before_and_after_on_the_derivations_basis():
     # cells' tolerances are RETAINED verbatim under retained_tolerances, so
     # the 53-cell pre-amendment basis reconstructs exactly.
     live_tol = _family_a_tolerances()
-    assert len(live_tol) == 47
+    # amendment 3 later demoted the hh_size quad: live is 43; the a2-era
+    # 47- and 53-cell bases reconstruct via retained_tolerances.
+    assert len(live_tol) == 43
     retained = _gate_w1()["thresholds"]["family_a"]["retained_tolerances"]
-    assert set(retained) == FAMILY_A_DEMOTED
+    assert set(retained) == FAMILY_A_DEMOTED | A3_HH_DEMOTED
     tol = dict(live_tol)
-    tol.update({c: retained[c]["tolerance"] for c in FAMILY_A_DEMOTED})
+    tol.update({c: retained[c]["tolerance"] for c in retained})
     assert len(tol) == len(gate_eligible) == 53 == led["n_gated_before"]
 
     p_seed_b, p_gate_b = _oc(gate_eligible, tol, per)
@@ -777,14 +789,16 @@ def test_partition_arithmetic_bound_to_current_gates_yaml():
     # ledger's "now" figures remain the recorded pre-flip state.
     assert led["family_a_partition"]["gated_now"] == 53
     assert led["family_a_partition"]["report_only_now"] == 52
+    # amendment 3 later demoted the hh_size quad: the a2 "after" state
+    # reconstructs as the live 43 gated + the 4 a3-retained cells.
     assert (
-        len(_family_a_tolerances())
+        len(_family_a_tolerances()) + len(A3_HH_DEMOTED)
         == led["family_a_partition"]["gated_after"]
         == 53 - 6
         == 47
     )
     assert (
-        len(fa["report_only"])
+        len(fa["report_only"]) - len(A3_HH_DEMOTED)
         == led["family_a_partition"]["report_only_after"]
         == 52 + 6
         == 58
@@ -976,15 +990,19 @@ def test_gates_yaml_flipped_per_section7_and_moves_no_sibling():
     tol = _family_a_tolerances()
     assert FAMILY_A_DEMOTED.isdisjoint(set(tol))
     assert FAMILY_A_DEMOTED <= set(fa["report_only"])
-    assert set(fa["retained_tolerances"]) == FAMILY_A_DEMOTED
+    assert set(fa["retained_tolerances"]) == FAMILY_A_DEMOTED | A3_HH_DEMOTED
     assert C1_CELL not in fc["gate_partition"]["gate_eligible"]
     assert C1_CELL in fc["report_only"]
     assert fc["gate_partition"]["n_gate_eligible"] == 1
-    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 47
-    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9623
-    # zero threshold movement: retained == the ledger's demoted tolerances.
+    # amendment 3 moved the OC to the 43-cell surface.
+    assert fa["faithful_candidate_oc"]["n_gated_cells"] == 43
+    assert fa["faithful_candidate_oc"]["p_gate_pass_4_of_5"] == 0.9684
+    # zero threshold movement: the a2-demoted retained values are byte-exact
+    # (the a3-retained hh_size quad rides alongside, bound in its own module).
     assert {
-        c: r["tolerance"] for c, r in fa["retained_tolerances"].items()
+        c: r["tolerance"]
+        for c, r in fa["retained_tolerances"].items()
+        if c in FAMILY_A_DEMOTED
     } == {
         "earnings_participation.18-24|female": 0.211,
         "earnings_participation.18-24|male": 0.221,

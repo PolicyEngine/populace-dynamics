@@ -702,13 +702,23 @@ AMENDMENT2_DEMOTED_A = {
     "coresident_spouse.65+|male",
 }
 
+AMENDMENT3_DEMOTED_A = {
+    "hh_size_share.1",
+    "hh_size_share.3",
+    "hh_size_share.4",
+    "hh_size_share.5plus",
+}
 
-def test_gate_w1_family_a_power_cap_and_partition_47_58():
-    """Every gated family-A tolerance <= T_max = ln(1.5); post-amendment-2 the
+DEMOTED_A_ALL = AMENDMENT2_DEMOTED_A | AMENDMENT3_DEMOTED_A
+
+
+def test_gate_w1_family_a_power_cap_and_partition_43_62():
+    """Every gated family-A tolerance <= T_max = ln(1.5); post-amendment-3 the
     contract's gated set == the FROZEN floor's derived partition (53 / 52)
-    minus the 6 amendment-2 demotes (47 / 58); the floor's 52 keep the floor's
-    own machine reasons, the 6 demotes carry the amendment's per-cell reasons,
-    and their tolerances are RETAINED verbatim (zero threshold movement)."""
+    minus the 6 amendment-2 demotes minus the 4 amendment-3 hh_size demotes
+    (43 / 62); the floor's 52 keep the floor's own machine reasons, the 10
+    demotes carry their amendments' per-cell reasons, and every tolerance is
+    RETAINED verbatim (zero threshold movement)."""
     g = _gate_w1()
     fa = g["family_a"]
     assert fa["power_cap"]["t_max"] == "ln(1.5)"
@@ -724,10 +734,10 @@ def test_gate_w1_family_a_power_cap_and_partition_47_58():
     partition = art["gate_partition"]
     # amendment 2: the frozen floor still lists all 53 as gate_eligible; the
     # CONTRACT surface is the floor partition minus the 6 demoted cells.
-    assert gated == set(partition["gate_eligible"]) - AMENDMENT2_DEMOTED_A
-    assert report_only == set(partition["report_only"]) | AMENDMENT2_DEMOTED_A
-    assert len(gated) == 47
-    assert len(report_only) == 58
+    assert gated == set(partition["gate_eligible"]) - DEMOTED_A_ALL
+    assert report_only == set(partition["report_only"]) | DEMOTED_A_ALL
+    assert len(gated) == 43
+    assert len(report_only) == 62
     assert gated.isdisjoint(report_only)
     assert gated | report_only == set(art["reference_moments"])
     # the floor's 52 report-only cells keep the floor's own machine reasons.
@@ -735,7 +745,7 @@ def test_gate_w1_family_a_power_cap_and_partition_47_58():
 
     reasons = Counter(
         art["cell_stability"][c]["report_reason"]
-        for c in report_only - AMENDMENT2_DEMOTED_A
+        for c in report_only - DEMOTED_A_ALL
     )
     assert reasons == {
         "tolerance_above_t_max": 44,
@@ -761,10 +771,14 @@ def test_gate_w1_family_a_power_cap_and_partition_47_58():
         "coresident_spouse.65+|female": (
             "scored_duplicate_of_demoted_married_quantity"
         ),
+        "hh_size_share.1": "no_permitted_entry_state_lever_reaches_cell",
+        "hh_size_share.3": "no_permitted_entry_state_lever_reaches_cell",
+        "hh_size_share.4": "no_permitted_entry_state_lever_reaches_cell",
+        "hh_size_share.5plus": "no_permitted_entry_state_lever_reaches_cell",
     }
     # zero threshold movement: the 6 tolerances are retained verbatim.
     retained = fa["retained_tolerances"]
-    assert set(retained) == AMENDMENT2_DEMOTED_A
+    assert set(retained) == DEMOTED_A_ALL
     assert {c: r["tolerance"] for c, r in retained.items()} == {
         "earnings_participation.18-24|female": 0.211,
         "earnings_participation.18-24|male": 0.221,
@@ -772,38 +786,50 @@ def test_gate_w1_family_a_power_cap_and_partition_47_58():
         "marital_share.married.65+|male": 0.084,
         "coresident_spouse.65+|female": 0.168,
         "coresident_spouse.65+|male": 0.094,
+        "hh_size_share.1": 0.191,
+        "hh_size_share.3": 0.191,
+        "hh_size_share.4": 0.174,
+        "hh_size_share.5plus": 0.184,
     }
 
 
 def test_gate_w1_family_a_oc_recomputes_from_tolerances_and_sigmas():
-    """Post-amendment-2 the faithful-candidate OC (p_seed 0.9344 / p_gate
-    0.9623) recomputes from the 47 gated family-A tolerances and the frozen
+    """Post-amendment-3 the faithful-candidate OC (p_seed 0.9403 / p_gate
+    0.9684) recomputes from the 43 gated family-A tolerances and the frozen
     floor sigmas on the draw-noise-free half-normal basis, independent of the
-    stored value. The frozen artifact keeps the 53-cell pre-amendment OC
-    (0.922 / 0.9481), which also still recomputes from the full floor
-    partition (the artifact is untouched by the flip)."""
+    stored value. The pre-amendment bases reconstruct exactly via
+    retained_tolerances: 47 cells -> 0.9344 / 0.9623 (amendment 2), 53 cells
+    -> 0.922 / 0.9481 (the lock; the frozen artifact still carries it)."""
     art = _artifact()
     per = art["faithful_candidate_oc"]["per_cell"]
     tolerances = _w1_family_a_tolerances()
-    assert len(tolerances) == 47
+    assert len(tolerances) == 43
     p_seed = 1.0
     for cell, tol in tolerances.items():
         sigma = per[cell]["realized_sigma"]
         p_seed *= 2.0 * _normal_cdf(tol / sigma) - 1.0
     p_gate = p_seed**5 + 5 * p_seed**4 * (1.0 - p_seed)
-    assert round(p_seed, 4) == 0.9344
-    assert round(p_gate, 4) == 0.9623
+    assert round(p_seed, 4) == 0.9403
+    assert round(p_gate, 4) == 0.9684
     oc = _gate_w1()["family_a"]["faithful_candidate_oc"]
-    assert oc["p_seed_pass"] == 0.9344
-    assert oc["p_gate_pass_4_of_5"] == 0.9623
-    assert oc["n_gated_cells"] == 47
+    assert oc["p_seed_pass"] == 0.9403
+    assert oc["p_gate_pass_4_of_5"] == 0.9684
+    assert oc["n_gated_cells"] == 43
     # the FROZEN artifact still carries the 53-cell pre-amendment OC, and it
     # still recomputes from the floor's own full partition.
-    p_seed_53 = 1.0
     retained = _gate_w1()["family_a"]["retained_tolerances"]
-    for cell, tol in tolerances.items():
+    # amendment-2 basis (47 cells): live 43 + the 4 a3-retained hh_size.
+    p_seed_47 = p_seed
+    for cell in sorted(AMENDMENT3_DEMOTED_A):
         sigma = per[cell]["realized_sigma"]
-        p_seed_53 *= 2.0 * _normal_cdf(tol / sigma) - 1.0
+        p_seed_47 *= (
+            2.0 * _normal_cdf(retained[cell]["tolerance"] / sigma) - 1.0
+        )
+    p_gate_47 = p_seed_47**5 + 5 * p_seed_47**4 * (1.0 - p_seed_47)
+    assert round(p_seed_47, 4) == 0.9344
+    assert round(p_gate_47, 4) == 0.9623
+    # lock basis (53 cells): all retained tolerances restored.
+    p_seed_53 = p_seed
     for cell, r in retained.items():
         sigma = per[cell]["realized_sigma"]
         p_seed_53 *= 2.0 * _normal_cdf(r["tolerance"] / sigma) - 1.0
@@ -816,7 +842,7 @@ def test_gate_w1_family_a_oc_recomputes_from_tolerances_and_sigmas():
 
 def test_gate_w1_protocol_is_the_ratified_k20_estimator_stream_9100():
     """The family-A protocol is the ratified mean-over-K=20 estimator on stream
-    9100; the fresh-run schema is [20, 47, 5] post-amendment-2 with BOTH
+    9100; the fresh-run schema is [20, 43, 5] post-amendment-3 with BOTH
     dispersion fields; the regenerated-surface rule + identity-candidate
     prohibition are pinned."""
     proto = _gate_w1()["protocol"]
@@ -826,7 +852,7 @@ def test_gate_w1_protocol_is_the_ratified_k20_estimator_stream_9100():
     assert "K=20" in proto["estimator"]
     assert "NOT the mean of the per-draw" in proto["estimator"]
     schema = proto["fresh_run_artifact_schema"]
-    assert schema["per_draw_per_cell_rates"]["shape"] == [20, 47, 5]
+    assert schema["per_draw_per_cell_rates"]["shape"] == [20, 43, 5]
     assert schema["undefined_draw_rule"]["pre_specified"] is True
     disp = schema["per_draw_dispersion_disclosure"]
     assert disp["report_only"] is True
@@ -1033,8 +1059,21 @@ def test_gate_w1_family_c_orderings_derive_from_committed_anchors():
     assert "Kendall tau 1.0" in proc["pass_rule"]
     # amendment 2: the operative conjunction is C2 alone; C1 publishes.
     assert "GATES the C2 fingerprint only" in proc["pass_rule"]
-    assert "the C2 fingerprint reverses" in fc["check"]
+    # amendment 3: the gated C2 check is the PAIR (elim<->+2pp) only.
+    assert "required_swap_realised" in proc["pass_rule"]
+    assert "only the pair gates" in proc["pass_rule"].lower()
+    assert "the C2 elim<->+2pp adjacency reverses" in fc["check"]
     assert "BOTH fingerprints reverse" not in fc["check"]
+    c2 = fc["fingerprints"]["c2"]
+    assert "required_swap_realised" in c2["gated_check_amendment_3"]
+    legs = c2["report_only_legs_amendment_3"]
+    assert legs["legs"] == ["cap_150k", "payroll_plus_1pp"]
+    assert (
+        legs["machine_reason"]
+        == "anchor_ordering_internally_inconsistent_under_certified_swap"
+    )
+    assert "ON THE PINNED FRAME, NOT a universal claim" in legs["disclosure"]
+    assert "f < 0.0476" in legs["disclosure"]
 
 
 def test_gate_w1_frame_pin_matches_the_certified_bundle_sha():
@@ -1057,21 +1096,23 @@ def test_gate_w1_frame_pin_matches_the_certified_bundle_sha():
 
 
 def test_gate_w1_covers_and_certification_scope():
-    """Post-amendment-2: the covers text names the 48 gated surface
-    (description-claims-exactly) — family A 47 gated / 58 report-only, family
-    C 1 gated / 1 report-only — with family B's inner figures still CONTRACT
-    text (flip-note N1: 0 gated / 25 report-only), and certification_scope
-    certifies 48 cells / C2-only reversal / no SSA family-B margin, still not
-    the dynamics (which stay gate-1/2a/2b/2c/M4-certified)."""
+    """Post-amendment-3: the covers text names the 44 gated surface
+    (description-claims-exactly) — family A 43 gated / 62 report-only, family
+    C 1 gated / 1 report-only (C2 pair-scoped) — with family B's inner figures
+    still CONTRACT text (0 gated / 25 report-only), and certification_scope
+    certifies 44 cells / the pair-scoped C2 swap / no SSA family-B margin,
+    still not the dynamics (which stay gate-1/2a/2b/2c/M4-certified)."""
     b = _gate_w1_block()
     covers = b["covers"]
     assert "TRANSPORT" in covers
-    assert "47 gated / 58 report-only" in covers
-    # the roll-up flipped 55 -> 48; the pre-amendment roll-ups are gone.
-    assert "48 gated / 84 report-only" in covers
+    assert "43 gated / 62 report-only" in covers
+    # the roll-up flipped 48 -> 44; the pre-amendment roll-ups are gone.
+    assert "44 gated / 88 report-only" in covers
+    assert "48 gated /" not in covers
     assert "55 gated" not in covers
     assert "65 gated" not in covers
     assert "53 gated" not in covers
+    assert "47 gated /" not in covers
     assert "1 gated / 1 report-only" in covers
     assert "C1 demoted by amendment 2" in covers
     # flip-note N1: section 7.5's inner family-B figures are now contract text.
@@ -1080,10 +1121,10 @@ def test_gate_w1_covers_and_certification_scope():
     assert "Does NOT re-certify the dynamics" in covers
     csc = _gate_w1()["certification_scope"]
     assert csc["tranche"] == "w1_representative_frame_transport"
-    assert "48 gated cells" in csc["certifies"]
+    assert "44 gated cells" in csc["certifies"]
+    assert "48 gated cells" not in csc["certifies"]
     assert "55 gated cells" not in csc["certifies"]
-    assert "65 gated cells" not in csc["certifies"]
-    assert "reverses the C2 fingerprint" in csc["certifies"]
+    assert "reverses the C2 elim<->+2pp swap" in csc["certifies"]
     assert "report-only pending" in csc["certifies"]
     assert "family B certifies NO" in csc["certifies"]
     dns = " ".join(csc["does_not_support"])
