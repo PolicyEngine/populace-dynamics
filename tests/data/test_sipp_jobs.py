@@ -1,0 +1,261 @@
+"""Tests for the SIPP job-level monthly reader and spell collapse."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
+from populace_dynamics.data import sipp_jobs
+
+REAL_DATA = Path("~/PolicyEngine/sipp-data").expanduser()
+needs_real_sipp = pytest.mark.skipif(
+    not REAL_DATA.is_dir(),
+    reason="SIPP pu files not staged",
+)
+
+_PERSON_DEFAULTS = {
+    "SSUID": "000114552888",
+    "PNUM": 101,
+    "SWAVE": 1,
+    "WPFINWGT": 5000.5,
+    "TAGE": 40,
+    "ESEX": 1,
+}
+
+_SLOT_DEFAULTS = {
+    "JOBID": 101,
+    "BMONTH": 1,
+    "EMONTH": 12,
+    "CLWRK": 5,
+    "JBORSE": 1,
+    "EMPSIZE": 3,
+    "IND": "7380",
+    "MSUM": 3000,
+}
+
+
+def _write_pu_file(
+    directory: Path,
+    year: int,
+    months: list[dict],
+    slots: int = 2,
+) -> Path:
+    """Write a fixture pipe-delimited SIPP pu file.
+
+    ``months`` holds one dict per person-month row; job-slot values
+    are given as ``{"job1": {...}, "job2": {...}}`` overrides (an
+    absent job key leaves that slot structurally empty). Defaults
+    describe a private-sector job with monthly earnings 3000.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+    records = []
+    for spec in months:
+        row: dict = {**_PERSON_DEFAULTS}
+        row["MONTHCODE"] = spec.get("month", 1)
+        for key, value in spec.items():
+            if key in ("month",) or key.startswith("job"):
+                continue
+            row[key] = value
+        for n in range(1, slots + 1):
+            job = spec.get(f"job{n}")
+            for template in sipp_jobs._SLOT_TEMPLATES:
+                column = template.format(n=n)
+                suffix = column.split("_", 1)[1]
+                if job is None:
+                    row[column] = ""
+                else:
+                    row[column] = job.get(suffix, _SLOT_DEFAULTS[suffix])
+        records.append(row)
+    frame = pd.DataFrame(records)
+    path = directory / f"pu{year}.csv"
+    frame.to_csv(path, index=False, sep="|")
+    return path
+
+
+class TestReadSippJobMonths:
+    def test_basic_read(self, tmp_path):
+        months = [{"month": m, "job1": {}} for m in (1, 2, 3)]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 3
+        assert (out["person_id"] == "000114552888-101").all()
+        assert (out["ref_year"] == 2022).all()
+        assert (out["earnings_share"] == 1.0).all()
+        assert out["top_earner"].all()
+        assert (out["class_of_worker"] == "private_for_profit").all()
+        assert (out["industry"] == "7380").all()
+
+    def test_concurrent_jobs_share_and_top(self, tmp_path):
+        months = [
+            {
+                "month": 1,
+                "job1": {"MSUM": 3000},
+                "job2": {"JOBID": 202, "MSUM": 1000, "CLWRK": 3},
+            }
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 2
+        assert list(out["earnings_share"]) == [0.75, 0.25]
+        assert list(out["top_earner"]) == [True, False]
+        assert list(out["class_of_worker"]) == [
+            "private_for_profit",
+            "state",
+        ]
+
+    def test_missing_earnings_code(self, tmp_path):
+        months = [{"month": 1, "job1": {"MSUM": -999}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert out["earnings"].isna().all()
+        assert out["earnings_share"].isna().all()
+        assert not out["top_earner"].any()
+
+    def test_inactive_slot_dropped(self, tmp_path):
+        months = [{"month": 1, "job1": {"JOBID": -999}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 0
+
+    def test_unsupported_year_raises(self, tmp_path):
+        path = _write_pu_file(tmp_path, 2021, [{"month": 1, "job1": {}}])
+        with pytest.raises(ValueError, match="API-verified"):
+            sipp_jobs.read_sipp_job_months(2021, path=path)
+
+    def test_year_and_filename_must_agree(self, tmp_path):
+        path = _write_pu_file(tmp_path, 2022, [{"month": 1, "job1": {}}])
+        with pytest.raises(ValueError, match="SIPP 2022"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_missing_person_column_raises(self, tmp_path):
+        path = _write_pu_file(tmp_path, 2023, [{"month": 1, "job1": {}}])
+        frame = pd.read_csv(path, sep="|").drop(columns="WPFINWGT")
+        frame.to_csv(path, index=False, sep="|")
+        with pytest.raises(ValueError, match=r"\['WPFINWGT'\]"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_missing_slot_column_raises(self, tmp_path):
+        path = _write_pu_file(tmp_path, 2023, [{"month": 1, "job1": {}}])
+        frame = pd.read_csv(path, sep="|").drop(columns="EJB1_CLWRK")
+        frame.to_csv(path, index=False, sep="|")
+        with pytest.raises(ValueError, match="EJB1_CLWRK"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_domain_violations_raise(self, tmp_path):
+        for spec, match in (
+            ({"month": 13, "job1": {}}, "MONTHCODE"),
+            ({"month": 1, "job1": {"CLWRK": 9}}, "EJB1_CLWRK"),
+            ({"month": 1, "job1": {"JBORSE": 4}}, "EJB1_JBORSE"),
+            ({"month": 1, "job1": {"EMPSIZE": 0}}, "EJB1_EMPSIZE"),
+            ({"month": 1, "job1": {"BMONTH": 13}}, "EJB1_BMONTH"),
+            ({"month": 1, "job1": {"JOBID": 0}}, "EJB1_JOBID"),
+            ({"month": 1, "job1": {"MSUM": -5}}, "TJB1_MSUM"),
+            ({"month": 1, "WPFINWGT": -1, "job1": {}}, "WPFINWGT"),
+        ):
+            path = _write_pu_file(tmp_path / match, 2023, [spec])
+            with pytest.raises(ValueError, match=match):
+                sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_missing_codes_tolerated_on_active_slots(self, tmp_path):
+        months = [
+            {
+                "month": 1,
+                "job1": {"CLWRK": -9, "EMPSIZE": -9, "BMONTH": -9},
+            }
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert list(out["class_of_worker"]) == ["missing"]
+        assert list(out["empsize_code"]) == [-9]
+
+    def test_staging_and_env(self, tmp_path, monkeypatch):
+        _write_pu_file(tmp_path, 2022, [{"month": 1, "job1": {}}])
+        out = sipp_jobs.read_sipp_job_months(2022, data_dir=tmp_path)
+        assert len(out) == 1
+        monkeypatch.setenv("POPULACE_DYNAMICS_SIPP_DIR", str(tmp_path))
+        assert len(sipp_jobs.read_sipp_job_months(2022)) == 1
+
+    def test_missing_staged_file_raises(self, tmp_path):
+        with pytest.raises(FileNotFoundError, match="pu2023"):
+            sipp_jobs.read_sipp_job_months(2023, data_dir=tmp_path)
+
+
+class TestJobSpells:
+    def test_gap_splits_spell(self, tmp_path):
+        months = [
+            {"month": 1, "job1": {}},
+            {"month": 2, "job1": {}},
+            {"month": 5, "job1": {}},
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        spells = sipp_jobs.job_spells(
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+        )
+        assert len(spells) == 2
+        first, second = spells.iloc[0], spells.iloc[1]
+        assert (first["start_month"], first["end_month"]) == (1, 2)
+        assert first["n_months"] == 2
+        assert (second["start_month"], second["end_month"]) == (5, 5)
+        assert list(spells["spell_id"]) == [1, 2]
+
+    def test_attribute_change_is_surfaced(self, tmp_path):
+        months = [
+            {"month": 1, "job1": {"EMPSIZE": 3}},
+            {"month": 2, "job1": {"EMPSIZE": 4}},
+            {"month": 3, "job1": {"EMPSIZE": 4}},
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        spells = sipp_jobs.job_spells(
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+        )
+        assert len(spells) == 1
+        assert not spells.iloc[0]["attributes_constant"]
+        assert spells.iloc[0]["empsize_code"] == 4  # modal
+
+    def test_earnings_share_and_primary(self, tmp_path):
+        months = [
+            {
+                "month": m,
+                "job1": {"MSUM": 3000},
+                "job2": {"JOBID": 202, "MSUM": 1000},
+            }
+            for m in (1, 2)
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        spells = sipp_jobs.job_spells(
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+        )
+        assert len(spells) == 2
+        main = spells[spells["job_id"] == 101].iloc[0]
+        side = spells[spells["job_id"] == 202].iloc[0]
+        assert main["earnings_share"] == 0.75
+        assert side["earnings_share"] == 0.25
+        assert bool(main["primary_job"]) is True
+        assert bool(side["primary_job"]) is False
+        assert main["total_earnings"] == 6000.0
+
+    def test_wrong_frame_raises(self):
+        with pytest.raises(ValueError, match="read_sipp_job_months"):
+            sipp_jobs.job_spells(pd.DataFrame({"x": [1]}))
+
+
+@needs_real_sipp
+class TestRealData:
+    def test_reads_any_staged_year(self):
+        staged = [
+            p
+            for year in sipp_jobs.SIPP_JOB_YEARS
+            for p in REAL_DATA.glob(f"pu{year}.csv*")
+        ]
+        if not staged:
+            pytest.skip("no pu files staged")
+        path = staged[-1]
+        year = int(path.name[2:6])
+        out = sipp_jobs.read_sipp_job_months(year, path=path)
+        assert len(out) > 100_000
+        shares = out.groupby(["person_id", "month"])["earnings_share"].sum()
+        assert ((shares.dropna() - 1.0).abs() < 1e-9).all()
+        spells = sipp_jobs.job_spells(out)
+        assert (spells["n_months"].between(1, 12)).all()
