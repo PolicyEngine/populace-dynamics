@@ -285,3 +285,28 @@ def test_projection_loop_activates_openers_at_anchor_with_global_ordinals():
     assert observed[0][2] == {1: 0, 2: 1, 3: 2}
     assert observed[2][1] == (1, 2)
     assert observed[4][1] == (1, 2, 3)
+
+
+def test_person_sex_map_raises_on_conflicting_coded_values():
+    from populace_dynamics.harness.m6_population import _person_sex_map
+
+    # Two conflicting coded sexes for one person must raise, not first-win.
+    conflicting = pd.DataFrame(
+        {
+            "person_id": [1, 1],
+            "sex": pd.array(["female", "male"], dtype="string"),
+        }
+    )
+    with pytest.raises(ValueError, match="conflicting"):
+        _person_sex_map(conflicting)
+
+
+def test_demo_fixture_matches_the_committed_demographic_schema():
+    from populace_dynamics.harness.m6_schema_audit import (
+        COMMITTED_FRAME_SCHEMAS,
+    )
+
+    # The fixture must not silently re-flatter: its columns are exactly the
+    # committed real demographic_panel schema (no sex).
+    demo, *_ = _inputs()
+    assert set(demo.columns) == COMMITTED_FRAME_SCHEMAS["demographic_panel"]

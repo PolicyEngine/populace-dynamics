@@ -57,3 +57,20 @@ def test_audit_flags_a_frame_with_no_schema_entry():
         if name != "death_records"
     }
     assert any("death_records" in line for line in audit_columns(broken))
+
+
+def test_manifest_pins_the_expected_phase_set():
+    # Deleting a PHASE_FRAME_COLUMN_READS entry would silently narrow the audit
+    # with every other test still green; pin the audited phase set.
+    assert set(PHASE_FRAME_COLUMN_READS) == {
+        "assemble_m6_inputs.require_columns",
+        "build_anchor_frame",
+        "presence_by_wave",
+        "mortality_slices",
+        "marital_tables_from_panel",
+        "disability_pairs",
+        "earnings_frame",
+        "build_realized_population",
+        "marital_panel_builder",
+        "household_panel_builder",
+    }
