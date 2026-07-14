@@ -238,4 +238,98 @@ of the scope phrase "OASI(+DI, bounded by what M4/gate-2 actually certified)":
 M7 does not manufacture certified benefit levels the underlying gates declined to
 certify. §2.6 makes the boundary explicit per class.
 
+### 2.4 The trust-fund balance identity
+
+The per-year ledger is the OASDI fund recursion:
+
+```
+TF[y] = TF[y-1] + revenue[y] + interest[y] − outlays[y]              (I)
+interest[y] = interest_rate(y) · TF[y-1]        (start-of-year-balance convention)
+```
+
+with `TF[y_0-1] = reserve_0` the opening reserve. From it derive the two headline
+Trustees objects the #113 M7 row names:
+
+- **the trust-fund ratio path** — `ratio[y] = TF[y-1] / outlays[y]`, start-of-year
+  assets as a percent of that year's cost (the standard SSA definition);
+- **the 75-year actuarial balance in % of taxable payroll** —
+  `balance = [ PV(revenue) + reserve_0 − PV(outlays) − PV(target_ending_reserve) ]
+  / PV(taxable_payroll)` in the summarized-rate form, or M2's flow-only analogue
+  `[PV(revenue) − PV(outlays)] / PV(taxable_payroll)` (M2 `balance_analogue`,
+  discount `0.029`).
+
+**Two accounting views, which M7 must carry and reconcile.** M2 deliberately ran
+two: a **discounted** PV balance analogue and an **undiscounted, reserve-
+calibrated** exhaustion ledger (M2 `named_deltas`: "two accounting views, both
+frame-relative"). The exhaustion year is the first `y` with `TF[y] < 0`
+(fractional, linearly interpolated; M2 `exhaustion_analogue`). Identity (I) is an
+**accounting identity** — it must close to floating-point zero by construction if
+the components are materialized consistently. That closure is one half of the
+proposed gate (§6): for every year `y`, the artifact carries `TF[y-1]`,
+`revenue[y]`, `interest[y]`, `outlays[y]`, `TF[y]` independently, and a referee
+can recompute (I) and confirm the residual is `0`. It is **non-vacuous** because a
+dropped beneficiary class, a double-counted employer half, or a mis-discounted PV
+breaks it — the same reconcile-to-`0.0` discipline M6 applied to its recombination
+identity (M6 candidate-16 residual `1.7e-18`, "reconciled to 0.0").
+
+**Interest and the opening reserve are LOUD input gaps (§4.3).** `interest_rate(y)`
+(the trust-fund's special-issue yield) has **no pe-us node** — M2 confirms "no
+policyengine-us rate node" for the TR rate and carried `discount_rate 0.029` as a
+TR-cited constant. The opening reserve M2 did not source at all: it **calibrated**
+`reserve_0 = 7,889,236,006,574.16` so the baseline exhausts in Smith's 2034 year
+(M2 `calibration_disclosure`). Whether M7 keeps the calibrated-reserve convention
+or binds an actual SSA Trustees opening-balance series is §8 decision 3.
+
+### 2.5 COLA and awards indexation
+
+Two distinct indexation channels feed the accounts, and only one is sourced today.
+
+- **Awards indexation (present in pe-us).** Bend points and the wage base are
+  NAWI-indexed at *eligibility* (415(a): `bend_points(year)` uses `NAWI(year−2) /
+  NAWI(1977)`, `ss/params.py:138-149`; the wage base is its own NAWI-driven step
+  series). This is fully sourced from pe-us and **vintage-pinned exactly as M6
+  §2.8.10.2 pins it**: realized NAWI ≤2014, `I_proj` beyond — never realized
+  post-`T*` NAWI on any scored path. For a forward projection to 2100, future
+  eligibility years read projected NAWI; M7 inherits M6's wage-index surface
+  rather than re-deriving it (§8 decision 6).
+- **Benefits-in-payment indexation / COLA (the LOUD gap, §4.3).** After a worker
+  claims, the benefit is uprated annually by the COLA (CPI-W, 215(i)). **pe-us's
+  `ss/` machinery applies no COLA** and binds no CPI-W series — `ss/benefits.py`
+  computes the claim-year benefit only. M2 sidestepped this by working in
+  **wage-indexed real (2048 age-60-indexing) dollars**, in which a benefit is
+  carried at constant real PIA across ages — COLA and NAWI-deflation net out of
+  the *level* convention, so no explicit CPI-W series is needed. The Mermin
+  `reduced_cola` provision (COLA − 0.4pp) is then a **benefit-side encoding**
+  reused verbatim (M2 `outlay_side`), not a nominal-series perturbation.
+
+**The consequence for M7 is a nominal-vs-real fork (§8 decision 2).** If M7 keeps
+M2's **real** convention, no CPI-W series is required and interest is a *real*
+rate (2.9%); the accounts stay comparable to M2. If M7 goes **nominal** (the units
+a Trustees report actually prints), it must bind a CPI-W / COLA series *and* a
+nominal special-issue interest series — **neither has a pe-us node** — and every
+benefit-in-payment path grows by COLA. The two are a coherent pair (real flows ↔
+real interest; nominal flows ↔ nominal interest + COLA); mixing them breaks
+identity (I). M7 must declare the convention per run; the M2-repro run (§5.1) is
+real by construction.
+
+### 2.6 The DI / OASI certification boundary (what M4 and gate-2 actually certified)
+
+Making the scope phrase "bounded by what M4/gate-2 actually certified" operational,
+per class:
+
+| Class | Composition certified by | Level status |
+|---|---|---|
+| OASI retired-worker | earnings (gate_1/gate_m6), claiming mix, survival | **report-only** (PIA never gated) |
+| DI disabled-worker | gate_m4 hazards + `prevalence.50-59` stock + Table-50 exit **dominance** (all shape/dominance) | **report-only** (M4: "no SSA DI LEVEL is gated") |
+| DI→retirement conversion at FRA | gate_m4 exit composition; `disability_conversion.py` | **report-only** level |
+| 402(b)/(c) spouse | gate_2b/2c household + couple formation | **report-only** (aux rate = statute constant) |
+| 402(e)/(f) survivor | gate_2b + mortality (who survives whom) | **report-only** (aux rate = statute constant) |
+
+Every level is report-only; only composition is certified. M7 must **not** present
+any beneficiary-class dollar aggregate as a certified level, and must **not** claim
+a certified DI trust-fund balance — the DI fund is a report-only lift of a class
+whose levels no gate certified. The auxiliary classes additionally depend on M3
+tranches (2b/2c) whose own lock status bounds them; if a tranche M7 leans on is not
+locked at run time, that class is disclosed report-only with its tranche gap named.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
