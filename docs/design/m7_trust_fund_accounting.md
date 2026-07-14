@@ -536,4 +536,63 @@ a documented arithmetic change M7 must name and justify cell-by-cell (the M6
 "NOT met" outcome is part of the committed record and must reproduce as-is —
 reproduction means matching M2's *result*, including its registered forecast miss.
 
+### 5.2 The Mermin cost-ordering anchor
+
+Mermin (2005), Urban Institute 411260, DYNASIM3 Runid 432, Table 1
+(`@mermin2005benefitreductions`; transcription re-verified against the PDF on
+2026-07-09 per #74 protocol note 3, `scripts/replication_cost_ordering.py:197-227`).
+The "75-year deficit/surplus (percent of taxable payroll)" row:
+
+| Provision | Mermin Table 1 (% taxable payroll) | Mermin % of scheduled, 2050 |
+|---|---|---|
+| price indexing (PI) | `+0.68` | `69.3` |
+| progressive price indexing (PPI) | `-0.14` | `81.8` |
+| NRA raised to 70 | `-0.5` | `85.2` |
+| reduced COLA (−0.4pp) | `-1.12` | `98.3` |
+| scheduled deficit | `-1.69` | `100.0` (payable `78.4`) |
+
+M7 reports its own per-provision % of taxable payroll and the induced **ordering**
+against this row — a sign/rank check, **never a level match.** The transportable
+content is the ordering by savings (PI > PPI > NRA > COLA by Mermin's 75-yr
+payroll effect) and, on the observed frame, the **PPI↔NRA swap** M2 already found
+(its F4 outlay order `PI > NRA > PPI > COLA`, the compressed-careers swap that
+persists "because the support is unchanged"). M7 must reproduce that swap on the
+M2 frame (§5.1) and may report whether opening the frame (M6 entrants, forward
+careers) unwinds it — as a reported observation, not a graded one.
+
+### 5.3 SSA Trustees historical corridors — with the level-vs-composition caveat
+
+M7 on the M6 panel produces objects that *look* like Trustees series: an OASDI
+**cost rate** (`outlays / taxable_payroll`), an **income rate** (`revenue /
+taxable_payroll`), a **balance** in % of taxable payroll, and a **trust-fund ratio
+path**. It is tempting to grade these against the Trustees Report's historical
+corridor. **This is exactly the temptation M2 was built to refuse, and the caveat
+must be stated in the artifact, loudly.**
+
+**The survey panel is not the covered-worker universe.** M2's frame is 1,549 PSID
+careers, `weight_sum 33,696,344` — and M6's panel, while larger, is a
+CPS-anchored transported frame, not the ~180M-worker / ~68M-beneficiary OASDI
+universe. So **aggregate dollar levels are not comparable to SSA aggregates**:
+wrong universe size, a closed 1943–1957 cohort in M2 / an open transported panel
+in M6, real (wage-indexed) rather than nominal dollars, and — the decisive one —
+a **composition** that omits classes. M2's baseline balance analogue is
+`+0.04689` — *positive*, the arithmetic opposite of the real OASDI 75-year
+deficit — for one reason it states plainly: it "is POSITIVE because revenue is the
+full combined-OASDI rate on all taxable payroll while outlays are OASI
+retired-worker benefits only (no DI, no auxiliary) and fall later on the calendar."
+That single number is the proof that these levels are frame-relative.
+
+**What normalization is honest.** Dividing by taxable payroll (the cost/income
+rate, the balance-as-%-of-payroll) or by beneficiary count (per-capita benefit)
+divides out the **universe-size** mismatch, so those normalized *shapes* — the
+cost-rate trajectory, the trust-fund-ratio decline, the balance sign — are the
+honest objects to lay beside the Trustees corridor, **report-only, with named
+composition deltas** (OASI-only vs OASDI; no immigration in M2; PSID/CPS vs the
+covered universe; real vs nominal). What is **not** honest, and what M7 must never
+present as agreement: a levels-match of aggregate dollars, or a normalized rate
+gated against the external corridor as if the composition deltas were noise. They
+are not noise; they are the reason #113's roadmap "in LEVELS" gate is not
+attainable here (§8 decision 1), and the reason §6 gates internal identities
+instead.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
