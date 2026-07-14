@@ -7,9 +7,10 @@
   anchors: #74 (the anchor catalogue, the "Rosetta stone" anchor 2), #100
   (W1/W2/W3 seams), #106 (external review). Depends on M6 exposing the §6 levels
   (`docs/design/m6_projection_engine.md` §6) on the projected panel.
-- **Status**: DESIGN (draft, revision 1) — **for the adversarial fable referee
+- **Status**: DESIGN (draft, revision 2) — **for the adversarial fable referee
   round, which follows the in-flight `gate_m6` verdict** (this document does not
-  trigger it). **This document edits no `gates.yaml` cell, moves no threshold,
+  trigger it). Revision 2 applies the round-1 referee's SPEC-SOUND fixes (see the
+  revision log). **This document edits no `gates.yaml` cell, moves no threshold,
   builds no floor, writes no test, and runs no scored anything.** The proposed
   `gate_m7` in §6 is a *proposal for the referee*, not a lock.
 - **What M7 is, in one sentence**: a **deterministic accounting layer** that
@@ -51,9 +52,19 @@
 
 ## Revision log (finding → section)
 
-- Revision 1 seeds the document for the referee round. No findings yet; the
-  referee's verdict and any ten-decision adjudication will be mapped here in
-  revision 2, exactly as the M6 doc maps PR #170's round.
+- **Revision 2** applies the round-1 SPEC-SOUND referee (PR #202 comment
+  4972284096; 0 BLOCKING, 4 SHOULD-FIX, 6 NOTE). **S1** (CPI-W/COLA is a *present*
+  pe-us node, not an absent series) → §4.1 / §4.2 / §4.3 (A/B/C reclassification) +
+  §2.5; **S2** (Decision 1 — roadmap #113-amendment ratification path + option-(c)
+  report-only companion) → §5.3, §6, §8 decision 1; **S3** (sex-dimension coupling
+  to `m6-sex-patch`) → §2.1, §8 decision 13; **S4** (stale count) → this log +
+  §8 now lists **thirteen** decisions. Notes: **N1** (aux already bound in-repo) →
+  §4.3 A; **N2** (bend-constant label: 1979-cohort / 1977-indexed) → §4.1 / §4.2;
+  **N3** (candidate-16 is a gate-2 identity M6 consumes) → §2.4, §3; **N4** (gate_m4
+  internal reproduction vs concept-bridged anchor cells) → §2.6; **N5**
+  (cross-platform byte-identity needs a pinned numpy build) → §3; **N6** ("graded in
+  its own units" roadmap tension) → §8 decision 1.
+- **Revision 1** seeded the document for the round-1 referee.
 
 ## 1. Summary
 
@@ -127,6 +138,12 @@ its own. Quoting the M6 contract, M7 consumes, keyed by `(year)`:
 - **benefit outlays by type by year** — OASI retired-worker, DI disabled-worker,
   402(b)/(c)/(e)/(f) auxiliary, survival-weighted on the calendar (M4 DI +
   auxiliaries; FRA conversions per `disability_conversion.py`);
+- **person sex and the sex-resolved mortality/survival state** — the survivor and
+  spousal outlays (`widow_benefit`, 402(e)/(f), `ss/benefits.py:266-328`) and the
+  survival weighting `S` are sex-dependent (who-survives-whom; M2 itself carries
+  `n_careers_mermin_sex_resolvable`), so M7 consumes person sex from the projected
+  panel. The panel's **sex construction is an upstream dependency** — the in-flight
+  `m6-sex-patch` is changing which frame supplies it (§8 decision 13);
 - **immigration entries by year** — the synthetic entrant cohorts M2 structurally
   lacks (M2's frame is *closed*, `n_common_frame 1549`, `weight_sum 33696344.0`);
 - **the per-year alignment-layer adjustments** — the versioned interventions M6
@@ -840,6 +857,19 @@ the choice, the options, and this design's lean — the referee decides.
     "beneficiary" (dual-entitled counted once or by class; auxiliary-only
     recipients). *Open;* affects only the report-only per-capita corridor. **Lean:**
     unique-person beneficiary count with a class-breakout table, disclosed.
+13. **Panel sex source — the `m6-sex-patch` coupling (§2.1).** M7's survivor/spousal
+    outlays and survival weighting consume person sex from the projected panel. The
+    real staged-PSID `demo` frame has **no `sex` column** (`(892,639 × 7)`:
+    `person_id, period, age, sequence, relationship, weight, interview`); the
+    in-flight `m6-sex-patch` (grading 4972045579) sources sex in
+    `build_realized_population` from where it actually lives (a sibling
+    `load_sources` frame). *Coupling:* because M7 "consumes a fixed panel," the
+    patch's **canonical sex-source choice** shifts M7's report-only M6-panel
+    survivor outlays. *Insulation (why not blocking):* the gated M2-repro run rides
+    the frozen M2 artifact (already sex-resolved) and the M6-panel survivor levels
+    are report-only (§2.6). **Lean:** M7 consumes whatever canonical sex column the
+    patched builders certify, records the frame-stack revision in provenance, and
+    discloses the coupling — it picks no sex source of its own.
 
 The referee is invited to add decisions this draft missed; the revision-2 log will
 map the round's verdict to these entries, as M6's did.
