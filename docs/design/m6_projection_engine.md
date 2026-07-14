@@ -4,11 +4,23 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 4). This document seeded the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 6). This document seeded the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
   ratify-by-merge → lock), now **locked** (`gates.gate_m6`, v3 floor
   `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This document edits no
   `gates.yaml` cell, moves no threshold, builds no floor, and writes no test.**
+- **Revision 6 (design amendment 3b)** adds §2.8.3a, the **year-0 earnings-domain
+  law**, closing the harness build lane's round-4 blocker (Sol,
+  `~/PolicyEngine/sol-worktrees/m6-harness-REPORT.md`): the closed-panel universe
+  includes people the certified forward-earnings initializer has no year-0 state for
+  (non-head/spouse members; 2017/2019 openers), and `materialize_initial_frame`
+  raises for any such person. §2.8.3a pins the earnings-module domain = the
+  2014-anchored realized-earnings **closed panel**, an explicit non-scored marker +
+  wrapper-level domain filter for everyone else (later earnings-entrants are
+  report-only open additions, §4.8), the 2014-fixed anchor rule, and the
+  domain-restricted symmetric gated-earnings scoring — with the empirical finding
+  that the frozen v3 floor over-includes ~21 % open-additions in its earnings
+  support (a disclosed conservative delta + self-check, not a threshold move).
 - **Revision 4 (design amendment 3)** adds §2.8, the **scored-run harness** — the
   deliverable whose absence stopped the registered `gate_m6` candidate-1 run before
   scoring (#42 comment 4962640241 registered it; comment 4962773701 is the designed
@@ -993,8 +1005,121 @@ identically. `T* = 2014` realizes its state at the **2015 interview**
   `build_m6_holdout_floors.py:354-378`), an **`EXACT_WAVE`-class** basis on the
   even reference years — **not** the odd-wave `presence_by_wave` flow sets (whose
   keys cannot even address the even reference years). The gated earnings cells are
-  scored on this realized support (§2.8.4, finding 1); it is the earnings analogue
-  of the disability reproduction support.
+  scored on this realized support **intersected with the earnings domain**
+  (§2.8.3a — the 2014-anchored closed-panel population the certified chain can
+  project; §2.8.4, finding 1); it is the earnings analogue of the disability
+  reproduction support.
+
+**2.8.3a The year-0 earnings-domain law (closes Sol round-4 blocker).** The
+closed-panel universe (§2.8.3) includes persons for whom the certified
+forward-earnings generator has **no** year-0 state, and its initializer requires
+that state for **every** initial person — a build-stopping contradiction the round-4
+build lane correctly refused to improvise (`~/PolicyEngine/sol-worktrees/
+m6-harness-REPORT.md`). `family_earnings_panel` emits a reference-year row only for
+a **family head or spouse** present in that collection wave (`data/family.py:
+785-857`), so non-head/spouse anchor members (children, other relatives) have **no**
+earnings row at all, and a person whose first gated presence is 2017/2019 has **no**
+2014 row (it comes only from the 2015 interview). `fit_forward_earnings` restricts
+`u_w_by_person` / `realized_earn_2014_by_person` to persons with a realized 2014
+anchor (`engine/forward_earnings.py:725-736`), and `ForwardEarningsGenerator.
+materialize_initial_frame` **raises** for any initial person absent from both maps,
+**before** any age rule can exclude anyone (`forward_earnings.py:882-896`).
+
+*Adjudicated (from the ratified F1 + §4.8 closed-panel principles): no synthetic
+initialization law is needed or permitted — the excluded people are the earnings
+open-additions, report-only by §4.8, not a gated population.* Pins:
+
+- **The earnings-module domain = the realized-state (closed-panel) population** =
+  persons with the realized 2014 head/spouse earnings anchor + `u_w` that
+  `materialize_initial_frame` requires (`realized_earn_2014_by_person ∩
+  u_w_by_person`). This **is** the earnings closed panel — the 2014 realized-earnings
+  cross-section (§2.1, §4.8) — the only population the 2014-anchored chain can
+  project.
+- **Non-domain persons carry an explicit non-scored marker.** Pin the frame column
+  `earnings_domain: bool` (True iff the person is in the domain). For
+  `earnings_domain == False` the wrapper writes `earnings = 0.0` and leaves the
+  chain-state columns (`u_w`, `realized_earn_2014/2012`, `gen_earn_w2/w4`) absent,
+  and their per-year seam / report-only earnings follow the pinned **non-scored
+  zero** rule (the pe-us W2 seam already tolerates zeros, §5; the marker and the
+  count publish). No fallback earnings law, no synthetic `u_w`, no backfilled 2014
+  anchor is introduced. **Report-only distortion, disclosed (no gated-cell
+  impact):** the ~21 % later earnings-entrants (§2.8.3a floor bullet) are **real
+  earners** — they have realized 2016/2018 income — carried at `0.0` throughout, so
+  their report-only **AIME / PIA / claiming levels (the §5 W2 seam) are understated**
+  and the family-B report-only benefit tier must **not** be read at face value for
+  the marked population. This touches **no gated `gate_m6` cell** (AIME, PIA, and
+  claiming are report-only, never gated); the marker lets the report-only tier net
+  them out or annotate them.
+- **The domain filter lives in the earnings-module wrapper, not the certified
+  generator — a per-person check at both entry points.** The `EarningsGenerator`
+  adapter intercepts the two places the certified earnings state is touched: (a)
+  `initialize` → `materialize_initial_frame` (`assembly.py:198-202`), where the
+  wrapper materializes the state for the **in-domain rows only** and re-assembles
+  the full frame with the out-of-domain rows carrying the marker + `earnings = 0.0`
+  and their chain-state columns absent; and (b) `apply_earnings`, whose registry
+  path already calls `generate` **per person on a single-row frame**
+  (`steps.py:213-232`), so the domain filter is a **per-person check** (skip the
+  out-of-domain person, write the non-scored zero), **not** a batch-subframe
+  rewrite. The build lane reads it as a per-person predicate at (b) and a
+  subframe-materialize-plus-reassembly at (a); both are mechanical, within the
+  pinned wrapper remit (R1). The certified generator therefore only ever sees
+  in-domain persons and its `materialize_initial_frame` requirement is satisfied by
+  construction — the certified stochastic law is untouched.
+- **The anchor/later-opener rule (F4-symmetric, earnings-specific).** The certified
+  chain is **2014-anchored** (`fit_forward_earnings` anchors on `period ==
+  boundary_year == 2014`), so — unlike the marital/household seeds, whose anchor
+  wave varies 2015/2017/2019 — the earnings-domain wave is **uniformly the 2015
+  interview** (the only interview producing a 2014 reference year). There is **no**
+  2017/2019 earnings-domain entry: a later opener has realized 2016/2018 but no
+  realized 2014, so it is a **later earnings-entrant = an open addition (§4.8, §2.1)
+  → report-only**, carrying the non-scored earnings marker throughout. This is
+  symmetric with the histories' rule in the precise sense that each module seeds at
+  the wave producing *its* required anchor state; for the 2014-anchored chain that
+  wave is fixed. **Per-module open-addition, distinguished from family B:** these
+  people are **closed-panel** members — scored for the marital / household /
+  disability **flows** — reclassified as open-additions **for earnings only**
+  (each module scores the realizable domain of its own certified law). A person can
+  therefore be closed-panel for flows and an open-addition for earnings; this is a
+  per-module reframe of the §4.8 open-addition concept and is **not** the family-B
+  synthetic-birth / immigrant-entrant population (§2.1, §4.8), which has no PSID
+  ground truth for **any** module.
+- **Gated-earnings scoring support = realized support ∩ the earnings domain,
+  symmetric on both sides.** The forward chain is evaluated (per F1) for every
+  realized-present **in-domain** person-period regardless of simulated death; the
+  truth side (`rate_a`) is restricted to the **same** domain, so projection and
+  truth carry identical support and the §2.8.4 identity guard holds. Later
+  earnings-entrants are excluded from **both** sides (report-only open additions),
+  not scored survivor-/entrant-conditioned.
+- **Floor consistency — the empirical delta (replaces the "holds by construction"
+  expectation).** Verified against the staged PSID through the frozen floor
+  machinery: of the frozen v3 floor's gated-earnings support (**13,163** persons at
+  `{2016, 2018}`, prime+older), **2,722 (~21 %: 2,199 prime, 590 older)** are later
+  earnings-entrants **outside** the 2014-anchored domain — the frozen floor
+  **over-included open-additions** in the gated earnings cells (a lineage artifact
+  of `build_anchor_frame`'s multi-wave anchor merge; the flows presence-condition
+  those openers at their anchor, but the 2014-anchored chain cannot project them).
+  So point-(6)'s "no gated earnings cell's realized support includes any excluded
+  person" is **empirically false** for the two level cells and the change cells; it
+  **does** hold for non-head/spouse members (no earnings row → in no earnings cell).
+  The consequence is **conservative**, not a leak: scoring the closed-panel domain
+  against the frozen full-support tolerance faces ~`√(N/N_domain)` inflated
+  half-split noise (~1.17× prime, ~1.06× older), so the effective earnings
+  tolerances are **tighter** than the closed-panel warrants (harder to pass, no
+  false-PASS risk). Bind it with a **harness self-check**: recompute the
+  domain-restricted (closed-panel) earnings floor half-splits and publish the
+  tolerance / earnings-OC delta vs the frozen v3 floor (report-only — the frozen
+  tolerances remain the gated contract, applied conservatively). The escalation is
+  **two-directional**, honoring §4.9's both-directions weak-power check: route to
+  the **floors-ceremony finding** rule (adjudication-7 / §4.9 — a ceremony finding,
+  never a silent redesign; a possible earnings-floor re-derivation on the
+  closed-panel domain) if **either** (a) the recomputed closed-panel earnings OC
+  falls **below the 0.90** weak-power floor (near-**unpassable** — the modal
+  direction here, since the frozen tolerances were non-vacuity-certified on the
+  full support and the domain half-split noise is almost-certainly larger), **or**
+  (b) the domain-restricted surface trips the §4.9 **vacuity** guard in the other
+  direction (near-**tautological**: any domain-restricted gated tolerance lands at
+  the `ln(1.5)` cap, or the domain earnings OC approaches 1 with a near-unfailable
+  cell). Both directions publish; neither is silently absorbed.
 
 **2.8.4 The M6 drift-scoring layer.** The scorer computes, per gated cell,
 `|ln(rbar_projected / rate_a)|` against the frozen **v3** floor tolerance
@@ -1014,7 +1139,11 @@ machinery **verbatim**:
   cell value is instead re-implemented, a **harness self-test** computes the
   realized `rate_a` on the same realized side-A via **both** the floor function and
   the scorer's reduction and asserts **byte-identity**, failing the run otherwise
-  (the design admits no drift between the two reductions).
+  (the design admits no drift between the two reductions). This is a **cell-function
+  identity** on a *given* support; the earnings **domain support-restriction**
+  (§2.8.3a — realized ∩ the 2014-anchored closed panel) is a documented support
+  filter applied on top of the identical function, with its own recompute self-check
+  (§2.8.3a), not a change to the function.
 - **The projected side** reduces each K-draw to the **same**
   presence-conditioned, F6-weighted, windowed long frames the truth side uses, then
   applies the **same** cell functions. The **flow** families reduce over realized
@@ -1044,9 +1173,11 @@ machinery **verbatim**:
   whose reproduction precedent scores on **realized** support): the gated earnings
   cells are a **reproduction read on the realized earnings support** — the realized
   `family_earnings_panel` row existence at `{2016, 2018}` (the §2.8.3 `EXACT_WAVE`
-  earnings basis) defines the scored person-periods, and the forward chain is
-  evaluated for **every realized-present person-period regardless of simulated
-  death**. This is **bit-safe**: `apply_earnings` draws on **person-keyed**
+  earnings basis) **intersected with the §2.8.3a earnings domain** (the 2014-anchored
+  closed panel; later earnings-entrants are report-only open additions, excluded
+  symmetrically from both sides) defines the scored person-periods, and the forward
+  chain is evaluated for **every realized-present in-domain person-period regardless
+  of simulated death**. This is **bit-safe**: `apply_earnings` draws on **person-keyed**
   `EARNINGS` streams (`context.person_generator(EARNINGS, person_id)`,
   `steps.py:222-233`), so evaluating a realized-present-but-simulated-dead person's
   chain consumes **that person's own** entropy and perturbs no survivor's bits —
@@ -1170,11 +1301,19 @@ is holdout-fenced by construction:
 **2.8.9 Closes the blocker; residual open decisions.** Every deliverable the
 designed stop enumerated is now pinned — the realized-history provenance (§2.8.1),
 the per-field projected-panel construction against the certified schemas (§2.8.2),
-the year-0 realized slice mirroring the floor (§2.8.3), the drift-scoring layer
-reusing the floor cell functions verbatim with a byte-identity self-test (§2.8.4),
-the two pre-flights (§2.8.5–§2.8.6), and the runner with its one-shot stamping and
-fence (§2.8.7–§2.8.8) — so the build lane implements the harness with **zero**
-design choices. **Residual open decisions: none.** Three items are **mechanical
+the year-0 realized slice mirroring the floor (§2.8.3), the **year-0
+earnings-domain law** closing the round-4 build blocker (§2.8.3a, amendment 3b),
+the drift-scoring layer reusing the floor cell functions verbatim with a
+byte-identity self-test (§2.8.4), the two pre-flights (§2.8.5–§2.8.6), and the
+runner with its one-shot stamping and fence (§2.8.7–§2.8.8) — so the build lane
+implements the harness with **zero** design choices. **Residual open decisions:
+none.** One **flagged floors-ceremony finding** (not a harness-design gap): §2.8.3a
+found empirically that the frozen v3 floor's gated-earnings support over-includes
+~21 % later earnings-entrants (open additions the 2014-anchored chain cannot
+project), so the frozen earnings tolerances are applied **conservatively** and the
+§2.8.3a self-check may escalate an earnings-floor re-derivation to the ceremony
+(the §4.9 / adjudication-7 rule — a ceremony finding, never a silent redesign);
+the harness itself is fully specified. Three items are **mechanical
 alignments / disclosures, not design choices**, recorded for the build lane: (i)
 `marital_step` and `household_step` compute the certified core **once per draw and
 cache** (the built `disability_step` pattern) at the period-0 address (§2.8.2),
@@ -1861,7 +2000,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 5,
+  "revision": 7,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -1929,6 +2068,17 @@ lock ceremony.
       "household_per_field": "person_waves support = realized holdout support; obs_parent/multigen/cohab/skipgen seed states = realized <= anchor-interview build_household_panel slice; projected years = candidate-9 injected forward evolution (composition.py) consuming the SINGLE period-0 CompositionRngs (composition_rngs_from_registry(registry,0)); transition helpers rebuilt by _add_transitions"
     },
     "year0_slice": "mirror the v3 floor's realized panel EXACTLY: universe/holdout_ids = build_anchor_frame (gated start waves 2015/2017/2019, positive weight); per-field PSID reads = the floor's own sources (panels.demographic_panel, marriage.marriage_history->build_marital_panel, build_household_panel, disability reader, family_earnings_panel incl. realized 2014/2012 + u_w per 2.7.6.5, data.deaths); F6 weight + household_id fixed at the realized anchor wave (StartWaveWeightSnapshot); FLOWS presence set = presence_by_wave, PresenceBasis.START_OF_INTERVAL (opening biennial interview), symmetric via prepare_evaluation_support; EARNINGS support basis (F6) = realized family_earnings_panel person-period row existence at {2016,2018} (present, positive-weight, valid-earnings; earnings_frame), an EXACT_WAVE-class basis on reference years, NOT the odd-wave flow presence sets",
+    "earnings_domain_law_2.8.3a_amendment_3b": {
+      "blocker": "Sol round-4 (~/PolicyEngine/sol-worktrees/m6-harness-REPORT.md): the closed-panel universe includes persons with NO year-0 earnings state (non-head/spouse anchor members: family_earnings_panel emits rows only for head/spouse family.py:785-857; 2017/2019 openers: no 2014 row from a non-2015 interview), but ForwardEarningsGenerator.materialize_initial_frame RAISES for any initial person absent from realized_earn_2014_by_person / u_w_by_person (forward_earnings.py:882-896), BEFORE any age rule; fit_forward_earnings restricts those maps to realized-2014 anchors (forward_earnings.py:725-736)",
+      "adjudication": "from ratified F1 + 4.8 closed-panel: NO synthetic init law needed or permitted; the excluded people are earnings OPEN-ADDITIONS (report-only 4.8), not a gated population",
+      "domain": "earnings-module domain = realized-state (closed-panel) population = realized_earn_2014_by_person INTERSECT u_w_by_person (the materialize requirement) = the 2014 realized-earnings cross-section (2.1, 4.8)",
+      "marker": "frame column earnings_domain: bool (True iff in domain); for False the wrapper writes earnings=0.0, leaves u_w/realized_earn_2014/2012/gen_earn_w2/w4 absent, seam/report-only earnings = pinned NON-SCORED zero (W2 seam tolerates zeros, 5); count publishes; no fallback earnings law / synthetic u_w / backfilled 2014 anchor. REPORT-ONLY DISTORTION disclosed (finding 3, NO gated-cell impact): the ~21% later earnings-entrants are REAL earners (realized 2016/2018 income) carried at 0.0 throughout, so their report-only AIME/PIA/claiming levels (the 5 W2 seam) are UNDERSTATED -- the family-B report-only benefit tier must not be read at face value for the marked population; AIME/PIA/claiming are report-only, never gated in gate_m6",
+      "filter_location": "the EarningsGenerator WRAPPER (not the certified generator), a PER-PERSON check at BOTH entry points (finding 5): (a) initialize->materialize_initial_frame (assembly.py:198-202) materializes state for the in-domain rows only + reassembles the full frame (out-of-domain rows carry marker+earnings=0.0, chain-state cols absent); (b) apply_earnings whose registry path already calls generate per person on a single-row frame (steps.py:213-232), so the domain filter is a PER-PERSON predicate (skip out-of-domain, write non-scored zero), NOT a batch-subframe rewrite; chain-state cols for out-of-domain rows handled by wrapper reassembly. Certified generator sees only in-domain persons -> its requirement satisfied by construction (R1 plumbing, law untouched)",
+      "anchor_rule_F4_symmetric": "the chain is 2014-anchored (fit anchors on period==boundary_year==2014), so the earnings-domain wave is UNIFORMLY the 2015 interview (only interview producing a 2014 reference year); NO 2017/2019 earnings-domain entry (openers have realized 2016/2018 but no 2014 -> later earnings-entrants = open additions 4.8/2.1 -> report-only, non-scored marker throughout); symmetric with histories in that each module seeds at the wave producing ITS anchor state (for the 2014-anchored chain that wave is fixed). PER-MODULE open-addition, distinguished from family B (finding 4): these are CLOSED-PANEL members (scored for marital/household/disability flows) reclassified as open-additions FOR EARNINGS ONLY (each module scores its own law's realizable domain) -- a person can be closed-panel for flows and open-addition for earnings; NOT the family-B synthetic-birth/immigrant entrants (no PSID truth for ANY module)",
+      "gated_scoring_support": "realized support INTERSECT earnings domain, SYMMETRIC on projection and truth (rate_a); forward chain evaluated (F1) for every realized-present IN-DOMAIN person-period regardless of simulated death; later earnings-entrants excluded from BOTH sides (report-only)",
+      "floor_consistency_EMPIRICAL": "point-(6) 'holds by construction' is FALSE: verified vs staged PSID through the frozen floor machinery, of the frozen v3 gated-earnings support (13163 persons at {2016,2018} prime+older) 2722 (~21%: 2199 prime, 590 older) are later earnings-entrants OUTSIDE the 2014-anchored domain -> the frozen v3 floor OVER-INCLUDED open-additions (build_anchor_frame multi-wave-anchor lineage artifact). Holds for non-head/spouse members (no earnings row -> in no cell). Consequence CONSERVATIVE not a leak: closed-panel domain scored vs the frozen full-support tolerance faces ~sqrt(N/N_domain) inflated half-split noise (~1.17x prime, ~1.06x older) -> effective earnings tolerances TIGHTER (harder to pass, no false-PASS). BIND: harness self-check recomputes the domain-restricted earnings floor half-splits, publishes tolerance/earnings-OC delta vs frozen v3 (report-only; frozen tolerances remain the gated contract, applied conservatively). TWO-DIRECTIONAL escalation (finding 2, honoring 4.9 both-directions): route to the floors-ceremony finding rule (adjudication-7/4.9: ceremony finding not silent redesign; possible earnings-floor re-derivation on the domain) if EITHER (a) recomputed closed-panel earnings OC < 0.90 (near-UNPASSABLE, the modal direction) OR (b) the domain-restricted surface trips the 4.9 vacuity guard (near-TAUTOLOGICAL: a domain-restricted gated tolerance at the ln(1.5) cap, or OC ~1 with a near-unfailable cell); both directions publish, neither silently absorbed",
+      "self_test_note": "the 2.8.4 byte-identity self-test is CELL-FUNCTION identity on a given support; the domain support-restriction is a documented filter applied on top (its own recompute self-check), not a function change"
+    },
     "drift_scoring": {
       "reuse_verbatim": ["build_anchor_frame", "presence_by_wave", "mortality_slices", "marital_tables", "disability_pairs", "earnings_frame", "mortality_cells", "marital_cells", "disability_cells", "earnings_cells", "_rate", "_wquantile", "_score", "harness.moments", "harness.panel.split_panel_by_person", "evaluation.derive_tolerance"],
       "extraction": "floor cell machinery extracted to ONE importable module shared by floor script and scorer; any reimplementation bound by a harness SELF-TEST asserting byte-identical cell values on the realized panel (fail-the-run otherwise)",
