@@ -177,6 +177,9 @@ CPS_FIRMSIZE_INTERVALS_2011_2018: dict[int, tuple[int, float]] = {
 CPS_FIRMSIZE_INTERVALS_STANDARD: dict[int, tuple[int, float]] = {
     1: (1, 9),  # Under 10
     2: (10, 24),  # 10 to 24
+    # Code 3 overlaps codes 1 and 2 by value but never co-occurs with
+    # them: it is exclusive to the 1988-1991 vintage. The non-overlap
+    # invariant is therefore checked on this table with code 3 removed.
     3: (1, 24),  # Under 25 (1988-1991)
     5: (25, 99),  # 25 to 99 -- straddles the 50 edge
     7: (100, 499),
@@ -268,6 +271,8 @@ SUSB_ENTRSIZE_INTERVALS: dict[str, tuple[int, float]] = {
     "17": (400, 499),
     "18": (500, 749),
     "19": (750, 999),
+    # Census skips codes 20/21; "31" really is the 1,000-1,499 class
+    # (verified against the raw 2022 SUSB detailed-sizes file).
     "31": (1000, 1499),
     "22": (1500, 1999),
     "23": (2000, 2499),

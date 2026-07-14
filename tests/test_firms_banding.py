@@ -34,11 +34,17 @@ from populace_dynamics.firms.banding import (
 
 ALL_INTERVAL_TABLES = {
     "cps_2011_2018": CPS_FIRMSIZE_INTERVALS_2011_2018,
+    "cps_standard": banding.CPS_FIRMSIZE_INTERVALS_STANDARD,
     "sipp": SIPP_EMPSIZE_INTERVALS,
     "susb": SUSB_ENTRSIZE_INTERVALS,
     "lehd": LEHD_FIRMSIZE_INTERVALS,
     "bds": BDS_FSIZE_INTERVALS,
 }
+
+# CPS standard code 3 ("Under 25", 1988-1991 only) overlaps codes 1/2
+# by value but never co-occurs with them within a vintage; the
+# non-overlap invariant is checked with it removed (see banding.py).
+VINTAGE_EXCLUSIVE_CODES = {"cps_standard": {3}}
 
 
 # ---------------------------------------------------------------
@@ -88,7 +94,12 @@ def test_band_of_count_rejects_nonpositive():
 
 @pytest.mark.parametrize("name", sorted(ALL_INTERVAL_TABLES))
 def test_source_intervals_non_overlapping(name):
-    intervals = sorted(ALL_INTERVAL_TABLES[name].values())
+    excluded = VINTAGE_EXCLUSIVE_CODES.get(name, set())
+    intervals = sorted(
+        iv
+        for code, iv in ALL_INTERVAL_TABLES[name].items()
+        if code not in excluded
+    )
     for (lo_a, hi_a), (lo_b, _) in zip(intervals, intervals[1:], strict=False):
         assert hi_a < lo_b, f"{name}: [{lo_a},{hi_a}] overlaps {lo_b}"
 
@@ -98,6 +109,11 @@ def _spans(name):
         return [
             cps_firmsize_to_canonical(c, 2015)
             for c in CPS_FIRMSIZE_INTERVALS_2011_2018
+        ]
+    if name == "cps_standard":
+        return [
+            cps_firmsize_to_canonical(c, 2020)
+            for c in banding.CPS_FIRMSIZE_INTERVALS_STANDARD
         ]
     if name == "sipp":
         return [sipp_empsize_to_canonical(c) for c in SIPP_EMPSIZE_INTERVALS]

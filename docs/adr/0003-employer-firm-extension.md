@@ -119,7 +119,8 @@ gates E1/E2/E7/E11 score on held-out dimensions of the same sources
 state axis) that calibration never touches. The exact cell lists lock
 with C3 after the floor runs.
 
-Two unit rules recorded now (issue #192 review, point 4):
+Three unit rules recorded now (issue #192 review, point 4; branch
+review finding 3):
 
 - **QWI/J2J cells count jobs, not persons** — each person-employer
   pair in a quarter is a separate job. Phase 0 is primary-job-only,
@@ -129,6 +130,15 @@ Two unit rules recorded now (issue #192 review, point 4):
   C3 item, not a footnote.
 - **QWI publishes mean earnings (`EarnS`), never medians**; E7 is
   stated on means.
+- **J2J's employer universe is broader than SUSB/QWI's.** The
+  committed J2J extract uses ownership `oslp` (state/local government
+  plus private), while the QWI extract is private-only (`op`) and
+  SUSB excludes government entirely. Dropping NAICS 92 removes Public
+  Administration but not state/local employment embedded in other
+  sectors (notably 61 Educational Services and 62 Health Care). Any
+  E11 cell definition must either restate J2J on a private-comparable
+  basis or carry this scope difference as a pre-registered caveat;
+  the choice locks with C3.
 
 ## Consequences
 
