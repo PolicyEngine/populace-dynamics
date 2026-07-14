@@ -399,4 +399,98 @@ amendment. The deployment pin is **policyengine-us 1.752.2** (the frame pin,
 | TR ultimate assumptions (real int 2.9%, CPI 2.7%, real-wage diff 1.13%) | 2014 OASDI TR Table V.B1 | **NONE** | **GAP → §4.3** |
 | Trust-fund opening reserve | SSA TR historical | **NONE** | **GAP → §4.3** (M2 *calibrated* it) |
 
+### 4.2 What pe-us 1.752.2 exposes (the revenue and own-benefit side)
+
+The entire **own-benefit** formula and the **revenue** rate/base are sourced from
+the pinned pe-us tree with no hand-typing beyond the two statutory 1978-base bend
+constants (`ss/params.py` docstring; `load_ssa_parameters` reads `nawi.yaml`,
+`wage_base.yaml`, `pia/formula_factors.yaml`, `full_retirement_age_by_birth_year
+.yaml`, the early/delayed adjustment rates, and cross-checks derived bend points
+against pe-us's stored thresholds and `NAWI(1977) = 9,779.44`, `ss/params.py:334`).
+These carry the M6 §2.8.10.2 vintage rule unchanged. So the **income side** and
+the **OASI retired-worker level** are fully pe-us-sourced; the gaps are all on the
+**auxiliary, DI-fund, indexation, and reserve/interest** perimeter.
+
+### 4.3 What pe-us 1.752.2 LACKS — flagged loudly (each needs a 3d-style amendment)
+
+**These are the series a faithful M7 needs that policyengine-us 1.752.2 does not
+provide. Each is a design STOP, exactly like M6's second designed stop
+(`gate_m6` §2.8.10): it must be pinned by a reviewed amendment before any scored
+M7 run, not silently filled.**
+
+1. **Auxiliary 402(b)/(c)/(e)/(f) rate constants — NO pe-us node anywhere.** Per
+   `ss/params.py` (docstring lines 18-38): pe-us "carries `social_security_
+   retirement`, `social_security_survivors` and `social_security_dependents` as
+   uprated survey **inputs** (no formula)," computing only the worker's own PIA
+   and 402(q)/(w) adjustment. The spousal share (0.5), survivor share (1.0),
+   RIB-LIM (0.825), 71.5% survivor floor, and protected-remarriage ages are
+   therefore carried as **statute-cited constants** validated against SSA worked
+   examples (`tests/ss/test_aux_benefits.py`, `runs/aux_benefit_examples_v1.json`),
+   not pe-us. Any auxiliary outlay M7 reports rides these constants — the same
+   "constant of the statute itself" exception pe-us's own tree forces.
+2. **Trust-fund interest rate (special-issue yield) — NO pe-us node.** M2 states
+   it directly: "no policyengine-us rate node" for the TR rate. Required for
+   `interest[y]` in identity (I). Bind as a TR-cited constant / versioned
+   alignment input.
+3. **TR ultimate assumptions (real interest 2.9%, CPI 2.7%, real-wage
+   differential 1.13%) — NO pe-us node.** M2 carried the 2014 TR Table V.B1
+   bundle as a "TR-cited constant (no TR PDF staged; no policyengine-us rate
+   node)." These parameterize discounting and (in a nominal run) COLA/wage growth.
+4. **COLA / CPI-W benefits-in-payment series — NO pe-us node in `ss/`.** Needed
+   only for a **nominal** M7 (§2.5); a real-dollar M7 nets it out. If M7 goes
+   nominal, this is a hard binding, not an option.
+5. **Trust-fund opening reserve — NO pe-us node; M2 did not source it at all.**
+   M2 **calibrated** `reserve_0` to hit Smith's 2034 exhaustion year
+   (`calibration_disclosure`). A levels-honest M7 either keeps the calibrated
+   convention (disclosed, frame-relative) or binds an SSA TR historical
+   opening-balance series (§8 decision 3).
+
+Gaps 2–5 share a root cause: **policyengine-us models the benefit/​tax *formula*,
+not the *trust fund*.** The trust-fund perimeter (interest, reserve, the
+macro/CPI assumption set) is Trustees-Report territory with no upstream node. M7's
+amendment must pin these to staged TR sources at a fixed vintage with the §4.4
+tamper gate — or, absent a staged TR artifact, carry them as explicitly TR-cited
+frame-relative constants that feed only report-only levels, never a gated cell.
+
+### 4.4 The tamper-gate factory (mirroring M6 §2.8.10.4)
+
+M7's inputs are supplied by a **zero-argument factory** on the M6 pattern — a new
+module `scripts/registered_m7_inputs.py` exposing `build_inputs() ->
+M7AccountingInputs`, resolved the way `run_gate_m6_candidate1.py` resolves
+`registered_m6_inputs:build_inputs`. Every binding is **hardcoded**; there is no
+argument and no environment-derived vintage selection beyond
+`POPULACE_DYNAMICS_PE_US_DIR` → the pinned 1.752.2 install. Deterministic steps,
+in order:
+
+1. **Version + directory assert (M6 §2.8.10.2/.5, F2).** Assert
+   `importlib.metadata.version("policyengine-us") == CERTIFIED_PIN["model_version"]
+   == "1.752.2"` **and** assert the resolved parameter directory is the
+   metadata-versioned install — the metadata assert alone does not bind the
+   *directory* `POPULACE_DYNAMICS_PE_US_DIR` loads from (the F2 finding M6 §2.8.10.5
+   closes). Then `params_full = load_ssa_parameters()` runs its own load-time
+   cross-check (derived bend points vs pe-us thresholds; `NAWI(1977)`).
+2. **Content-hash tamper gate on every staged external artifact.** For each staged
+   file under a repo-root-anchored `data/external/` (`DATA = Path(__file__)
+   .resolve().parents[1] / "data" / "external"`, never CWD-relative, mirroring
+   `claiming._ROOT`) — the TR-constants JSON (gaps 2–4), the auxiliary-constant
+   provenance record (gap 1), and any staged reserve series (gap 5) — **assert the
+   JSON file's own sha256 equals a constant hardcoded in the factory.** The raw
+   source's hash (a TR PDF, an SSA table page) lives separately in
+   `provenance.source_sha256` as **build-time** provenance, **not** the tamper
+   gate (M6 §2.8.10.4's exact split: "the factory instead asserts the JSON file's
+   own hash").
+3. **Vintage refusal.** Route every staged series through
+   `validate_external_vintage` (`engine/refit.py:825-838`) so any `vintage > T*`
+   raises **before any accounting, artifact write, or gate evaluation** — the same
+   fence M6's `_validate_external_inputs` (`harness/m6_inputs.py:198-250`) puts in
+   front of fit/score/write.
+
+The point of the hash gate on **report-only** frame-relative constants (gaps 2–5
+feed no gated cell) is the same as M6's on its report-only claiming reference:
+tamper-evidence. A constant that silently drifts would move the reported levels
+and the M2-reproduction check without a diff anywhere; the sha256 gate makes the
+one thing that could silently change — the staged TR/aux numbers — impossible to
+change unnoticed. The factory is the single pinned entry point, candidate-blind
+(no binding is tuned to any observable), exactly as M6 §2.8.10 requires of its own.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
