@@ -332,4 +332,71 @@ whose levels no gate certified. The auxiliary classes additionally depend on M3
 tranches (2b/2c) whose own lock status bounds them; if a tranche M7 leans on is not
 locked at run time, that class is disclosed report-only with its tranche gap named.
 
+## 3. The determinism law
+
+**Law.** *Given the same M6 panel and the same pinned parameter bundle (§4), the
+M7 accounts are byte-identical across runs, processes, and platforms. There is no
+stochastic element at the accounting layer.*
+
+This is stronger than M6's discipline and simpler to guarantee, because M7
+consumes no randomness. Every stochastic draw — earnings, mortality, marital
+transitions, claiming age, disability incidence, immigrant entry — is realized
+**upstream** in M6's wave loop and is already a fixed column of the panel M7
+reads. M6 owns a projection RNG stream registry (M6 §3, the `(draw × module ×
+period × person)` spawn tree); **M7 owns no RNG stream and spawns none.** The
+accounting is a pure function
+
+```
+accounts = A( panel , params )        with no rng argument
+```
+
+built from caps (`min`), products, weighted sums (`Σ w·x`), a discount, and the
+recursion (I). Determinism therefore reduces to two mechanical obligations:
+
+1. **Pinned reduction order.** Floating-point addition is non-associative, so
+   every aggregate `Σ_i w[i,y]·x[i,y]` fixes a canonical iteration order (sort by
+   `(person_id, year)`) and a fixed dtype, so the summed bytes do not depend on
+   row order, thread count, or grouping. This is the M7 analogue of M6's
+   draw-by-draw byte-identity (M6 candidate-16 "RNG-neutral … byte-identical
+   draw-by-draw"); here it is reduction-order neutrality.
+2. **Pinned parameter bytes.** The parameter side is fully determined by the
+   pe-us 1.752.2 pin plus the statute/TR constants (§4), each vintage-asserted and
+   hash-gated (§4.4). No parameter is read from the environment beyond the pinned
+   pe-us directory.
+
+**Verification is trivial and belongs in the gate's determinism check:** run M7
+twice on the same panel and byte-diff the artifact (modulo the wall-clock
+`elapsed_seconds` field, as M2 already excludes). Any difference is a defect —
+an unpinned reduction, a dict-ordering leak, or a stray RNG call — not noise. The
+determinism law is what makes the M2-reproduction identity (§5.1) a *byte* claim
+rather than an approximate one.
+
+## 4. Input bindings — the SSA series, vintage-pinned with tamper gates
+
+M7's parameter side must be pinned to the same bar M6 §2.8.10 set for its external
+references: fixed source, fixed vintage, tamper-evident, and **loudly flagged**
+where the series does not exist in policyengine-us and would need a 3d-style
+amendment. The deployment pin is **policyengine-us 1.752.2** (the frame pin,
+`data/deployment_frame.py`, shared with every `gate_w1` artifact and adopted by M6
+§2.8.10.2). The vintage boundary `T* = 2014` is inherited: realized values ≤2014,
+`I_proj` projections beyond, never realized post-`T*` NAWI on a scored path
+(`engine/refit.py:825-838` `validate_external_vintage` raises on `vintage > 2014`).
+
+### 4.1 The binding table
+
+| Series | Source | pe-us node (1.752.2) | Status |
+|---|---|---|---|
+| Payroll tax rate (employee 6.2% / employer 6.2%) | 26 USC 3101(a)/3111(a) | `gov/irs/payroll/social_security/rate/{employee,employer}` | **present** |
+| Wage base (taxable max) | 42 USC 430 | `gov/ssa/social_security/wage_base.yaml` | **present** (realized ≤2014, Trustees/`I_proj` beyond) |
+| NAWI (average-wage index) | SSA determinations | `gov/ssa/nawi.yaml` | **present** (realized ≤2014, projections beyond) |
+| PIA formula factors (90/32/15) | 42 USC 415(a) | `gov/ssa/social_security/pia/formula_factors.yaml` | **present** |
+| FRA schedule | 42 USC 416(l) | `gov/ssa/.../full_retirement_age_by_birth_year.yaml` | **present** |
+| Early-reduction & delayed-credit rates | 42 USC 402(q)/(w) | `gov/ssa/.../retirement_age_adjustment/...` | **present** |
+| 1978-base bend constants ($180 / $1,085) | 42 USC 415(a)(1)(B) | — (statute constant, cross-checked to pe-us thresholds, `ss/params.py:60-62,340-354`) | **statute constant** |
+| Auxiliary 402(b)/(c)/(e)/(f) rate constants | 42 USC 402(b)/(c)/(e)/(f)/(k)/(q) | **NONE** | **GAP → §4.3** |
+| COLA / CPI-W (benefits-in-payment) | 42 USC 415(i) | **NONE in `ss/`** | **GAP → §4.3** (nominal runs only) |
+| Trust-fund interest rate (special-issue yield) | TR intermediate | **NONE** | **GAP → §4.3** |
+| TR ultimate assumptions (real int 2.9%, CPI 2.7%, real-wage diff 1.13%) | 2014 OASDI TR Table V.B1 | **NONE** | **GAP → §4.3** |
+| Trust-fund opening reserve | SSA TR historical | **NONE** | **GAP → §4.3** (M2 *calibrated* it) |
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
