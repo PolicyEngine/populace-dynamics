@@ -14,6 +14,10 @@ from populace_dynamics.engine.composition import (
     simulate_candidate9_internal_reference,
 )
 from populace_dynamics.engine.disability import simulate_reproduction
+from populace_dynamics.engine.earnings_domain import (
+    EarningsDomainAdapter,
+    earnings_domain_person_ids,
+)
 from populace_dynamics.engine.forward_earnings import (
     ForwardEarningsGenerator,
     fit_forward_earnings,
@@ -34,6 +38,7 @@ from populace_dynamics.engine.refit import (
     BOUNDARY_YEAR,
     M6RefitBundle,
     M6RefitInputs,
+    prepare_m6_preflight_context,
     refit_m6_components,
 )
 from populace_dynamics.engine.rng import (
@@ -60,6 +65,7 @@ __all__ = [
     "CompositionDiagnostics",
     "CompositionRngs",
     "EvaluationMode",
+    "EarningsDomainAdapter",
     "FertilityDraws",
     "ForwardEarningsGenerator",
     "M6RefitBundle",
@@ -78,7 +84,9 @@ __all__ = [
     "assemble_period_modules",
     "check_candidate9_recertification",
     "composition_rngs_from_registry",
+    "earnings_domain_person_ids",
     "prepare_evaluation_support",
+    "prepare_m6_preflight_context",
     "fit_forward_earnings",
     "refit_m6_components",
     "simulate_candidate9_injected",

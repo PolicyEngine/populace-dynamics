@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from types import SimpleNamespace
 
 import numpy as np
@@ -10,6 +11,7 @@ import pandas as pd
 from populace_dynamics.data import disability, household_composition
 from populace_dynamics.engine import assembly
 from populace_dynamics.engine.assembly import (
+    M6_DRAW_OUTPUTS_KEY,
     CertifiedEngineInputs,
     assemble_period_modules,
 )
@@ -37,10 +39,29 @@ class _InitializingEarnings(_Earnings):
         return out
 
 
+@dataclass(frozen=True)
+class _FamilyFit:
+    name: str
+    spousal_age_gaps: dict
+
+
+@dataclass(frozen=True)
+class _HouseholdFit:
+    family_transitions: object
+    male_gap: float
+
+
 def _minimal_refit_bundle(earnings):
-    family = SimpleNamespace(name="same-cutoff-fit")
-    household = SimpleNamespace(
-        family_transitions=family,
+    family = _FamilyFit(
+        name="authoritative-cutoff-fit",
+        spousal_age_gaps={"male": {0: np.asarray([-4.0, -2.0])}},
+    )
+    embedded = _FamilyFit(
+        name="candidate9-internal-cutoff-fit",
+        spousal_age_gaps={},
+    )
+    household = _HouseholdFit(
+        family_transitions=embedded,
         male_gap=-2.0,
     )
     return M6RefitBundle(
@@ -87,6 +108,11 @@ def test_refit_bundle_uses_default_earnings_and_its_initializer():
     inputs = CertifiedEngineInputs.from_refit_bundle(
         bundle, **_minimal_bundle_binding_kwargs()
     )
+    original_household = bundle.household.fitted
+    assert inputs.household is not original_household
+    assert inputs.household.family_transitions is bundle.family.fitted
+    assert original_household.family_transitions is not bundle.family.fitted
+    assert inputs.male_gap == -3.0
     modules = assemble_period_modules(inputs)
     frame = pd.DataFrame({"person_id": [1], "year": [2014]})
 
@@ -166,6 +192,16 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
         )
         return frame
 
+    def fake_household_fertility(marital, components, ids, male_gap, rng):
+        del marital, components, ids, male_gap, rng
+        calls.append("household_fertility")
+        return FertilityDraws(
+            maternal=empty_births,
+            paternal=pd.DataFrame(
+                {"parent_person_id": [1], "birth_year": [2015]}
+            ),
+        )
+
     def fake_disability(
         panel,
         model,
@@ -233,6 +269,9 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
 
     monkeypatch.setattr(assembly, "simulate_marital_step", fake_marital)
     monkeypatch.setattr(assembly, "apply_fertility", fake_fertility)
+    monkeypatch.setattr(
+        assembly, "simulate_fertility", fake_household_fertility
+    )
     monkeypatch.setattr(assembly, "simulate_reproduction", fake_disability)
     monkeypatch.setattr(
         assembly, "simulate_candidate9_injected", fake_composition
@@ -285,16 +324,26 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
             "weight": [10.0],
         }
     )
-    result = ProjectionEngine(assemble_period_modules(inputs)).project(
+    engine = ProjectionEngine(assemble_period_modules(inputs))
+    draw0_outputs = {}
+    result = engine.project(
         initial,
-        end_year=2015,
+        end_year=2016,
         draw_index=0,
         metadata={
-            "nawi_by_year": {2015: 50_000.0},
-            "wage_base_by_year": {2015: 120_000.0},
+            "nawi_by_year": {2015: 50_000.0, 2016: 51_000.0},
+            "wage_base_by_year": {2015: 120_000.0, 2016: 121_000.0},
+            M6_DRAW_OUTPUTS_KEY: draw0_outputs,
         },
     )
-    assert calls == ["marital", "fertility", "disability", "composition"]
+    assert calls == [
+        "marital",
+        "fertility",
+        "disability",
+        "household_fertility",
+        "composition",
+        "fertility",
+    ]
     final = result.slices[-1]
     assert final.loc[0, "coresident_spouse"]
     assert final.loc[0, "hh_size"] == 2
@@ -302,3 +351,32 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
     assert 1_000 <= final.loc[0, "earnings"] <= 2_000
     assert final.loc[0, "claim_age"] == 62
     assert final.loc[0, "claimed"]
+
+    # A module assembly may be reused, but every projection invocation must
+    # rebuild the once-per-draw cores and publish them to that draw's collector.
+    draw1_outputs = {}
+    engine.project(
+        initial,
+        end_year=2016,
+        draw_index=1,
+        metadata={
+            "nawi_by_year": {2015: 50_000.0, 2016: 51_000.0},
+            "wage_base_by_year": {2015: 120_000.0, 2016: 121_000.0},
+            M6_DRAW_OUTPUTS_KEY: draw1_outputs,
+        },
+    )
+    assert (
+        calls
+        == [
+            "marital",
+            "fertility",
+            "disability",
+            "household_fertility",
+            "composition",
+            "fertility",
+        ]
+        * 2
+    )
+    assert draw0_outputs["marital"] is not draw1_outputs["marital"]
+    assert draw0_outputs["disability"] is not draw1_outputs["disability"]
+    assert draw0_outputs["household"] is not draw1_outputs["household"]

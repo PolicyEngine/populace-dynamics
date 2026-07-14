@@ -183,6 +183,25 @@ RECERTIFICATION_CHANNEL_SETS: dict[str, tuple[str, ...]] = {
 }
 
 
+def _attach_cohabitation_seed(
+    person_waves: pd.DataFrame, fitted: FittedHouseholdComposition
+) -> pd.DataFrame:
+    """Prefer the harness's realized-anchor state when it is injected.
+
+    The certified standalone path still obtains cohabitation from its fitted
+    sparse flag.  The M6 panel builder supplies a realized anchor value on
+    every support row; merging the cutoff flag over it would both discard that
+    registered initial condition and create ambiguous ``_x``/``_y`` columns.
+    """
+    out = person_waves.copy()
+    if "cohabiting" not in out:
+        out = out.merge(
+            fitted.cohab_flag, on=["person_id", "year"], how="left"
+        )
+    out["cohabiting"] = out["cohabiting"].fillna(False).astype(bool)
+    return out
+
+
 def _carried_c1_states_injected(
     hh: hc.HouseholdCompositionPanel,
     fitted: FittedHouseholdComposition,
@@ -282,12 +301,7 @@ def _compose_base_injected(
         .sort_values(["person_id", "year"])
         .reset_index(drop=True)
     )
-    side_a_pw = side_a_pw.merge(
-        fitted.cohab_flag, on=["person_id", "year"], how="left"
-    )
-    side_a_pw["cohabiting"] = (
-        side_a_pw["cohabiting"].fillna(False).astype(bool)
-    )
+    side_a_pw = _attach_cohabitation_seed(side_a_pw, fitted)
 
     matrices = padded_person_matrices(side_a_pw)
     pw = matrices["pw"]

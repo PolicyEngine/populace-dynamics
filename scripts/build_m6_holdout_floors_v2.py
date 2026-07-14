@@ -43,10 +43,14 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from populace_dynamics import artifacts
 from populace_dynamics.data import deaths, disability, panels
+from populace_dynamics.harness.m6_cells import (
+    coarsened_disability_cells,
+    coarsened_marital_cells,
+    coarsened_mortality_cells,
+)
 
 
 def _load_v1():
@@ -134,97 +138,10 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _stratum(frame: pd.DataFrame, bands, sex_pool: bool) -> pd.DataFrame:
-    f = frame.copy()
-    f["band2"] = f["age"].map(lambda a: v1.band_of(a, tuple(bands)))
-    f = f[f["band2"].notna()]
-    if sex_pool:
-        f["stratum"] = f["band2"]
-    else:
-        f["stratum"] = f["band2"].astype(str) + "|" + f["sex"].astype(str)
-    return f
-
-
-# --------------------------------------------------------------------------
-# Re-banded flow cells for one floor half.
-# --------------------------------------------------------------------------
-def mort_cells(sl: pd.DataFrame, bands, sex_pool: bool) -> dict[str, dict]:
-    f = _stratum(sl, bands, sex_pool)
-    g = (
-        f.assign(we=f.weight * f.exposure, wd=f.weight * f.death)
-        .groupby("stratum", observed=True)
-        .agg(
-            we=("we", "sum"),
-            wd=("wd", "sum"),
-            nd=("death", "sum"),
-            na=("death", "size"),
-        )
-    )
-    return {
-        f"death.{s}": {
-            "rate": v1._rate(r["wd"], r["we"]),
-            "n_events": int(round(r["nd"])),
-            "n_at_risk": int(r["na"]),
-        }
-        for s, r in g.iterrows()
-    }
-
-
-def marital_cells(
-    ev: pd.DataFrame, py: pd.DataFrame, trans: str, bands, sex_pool: bool
-) -> dict[str, dict]:
-    states = v1.MARITAL_AT_RISK[trans]
-    te = _stratum(ev[ev.transition == trans], bands, sex_pool)
-    atr = _stratum(py[py.marital_state.isin(states)], bands, sex_pool)
-    num = te.groupby("stratum", observed=True).agg(
-        numw=("weight", "sum"), ne=("weight", "size")
-    )
-    den = atr.groupby("stratum", observed=True).agg(
-        denw=("weight", "sum"), na=("weight", "size")
-    )
-    joined = num.join(den, how="outer")
-    out: dict[str, dict] = {}
-    for s, r in joined.iterrows():
-        numw = 0.0 if pd.isna(r["numw"]) else float(r["numw"])
-        denw = 0.0 if pd.isna(r["denw"]) else float(r["denw"])
-        n_ev = 0 if pd.isna(r["ne"]) else int(r["ne"])
-        n_at = 0 if pd.isna(r["na"]) else int(r["na"])
-        out[f"{trans}.{s}"] = {
-            "rate": v1._rate(numw, denw),
-            "n_events": n_ev,
-            "n_at_risk": n_at,
-        }
-    return out
-
-
-def disab_cells(
-    pairs: pd.DataFrame, kind: str, bands, sex_pool: bool
-) -> dict[str, dict]:
-    if kind == "incidence":
-        sub = pairs[~pairs.from_disabled].copy()
-        sub["_ev"] = sub.to_disabled.astype(float)
-    else:
-        sub = pairs[pairs.from_disabled].copy()
-        sub["_ev"] = (~sub.to_disabled).astype(float)
-    f = _stratum(sub, bands, sex_pool)
-    g = (
-        f.assign(w=f.weight, wev=f.weight * f._ev)
-        .groupby("stratum", observed=True)
-        .agg(
-            denw=("w", "sum"),
-            numw=("wev", "sum"),
-            na=("w", "size"),
-            ne=("_ev", "sum"),
-        )
-    )
-    return {
-        f"{kind}.{s}": {
-            "rate": v1._rate(r["numw"], r["denw"]),
-            "n_events": int(round(r["ne"])),
-            "n_at_risk": int(r["na"]),
-        }
-        for s, r in g.iterrows()
-    }
+# Shared verbatim v3 flow reductions; aliases preserve this script's API.
+mort_cells = coarsened_mortality_cells
+marital_cells = coarsened_marital_cells
+disab_cells = coarsened_disability_cells
 
 
 def _cleared(floor: dict, key: str) -> tuple[bool, float]:

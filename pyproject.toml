@@ -108,7 +108,7 @@ python_classes = "Test*"
 python_functions = "test_*"
 markers = [
     "unit: tests with no external data, artifact, or oracle dependency",
-    "artifact: tests that inspect committed runs/*.json artifacts",
+    "artifact: tests that inspect committed artifacts or the sanctioned M6 truth-only identity seam",
     "integration_psid: tests whose modules reference the PSID data root",
     "reproduction_legacy: frozen Gate-2 candidate reproduction tests",
     "oracle_policyengine: tests that need a policyengine-us checkout",
