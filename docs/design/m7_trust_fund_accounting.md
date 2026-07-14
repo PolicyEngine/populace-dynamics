@@ -781,4 +781,49 @@ the choice, the options, and this design's lean — the referee decides.
 The referee is invited to add decisions this draft missed; the revision-2 log will
 map the round's verdict to these entries, as M6's did.
 
-<!-- M7-CURSOR-DO-NOT-SHIP -->
+## 9. Design-parameters summary (design proposal — not a test-bound ledger)
+
+This block summarizes the proposed design and the artifact/code fields it derives
+from. Unlike a ratified amendment's consistency ledger, it is **not** bound to
+committed artifacts by a test — this is a docs-only design draft that builds no
+floor and writes no test. The numbers become test-bound only when the `gate_m7`
+block and its floor are authored in a future lock ceremony (§6).
+
+```json m7-design-parameters
+{
+  "design_id": "2026-07-14-m7-trust-fund-accounting",
+  "revision": 1,
+  "status": "design_draft_for_referee",
+  "referee_round": "follows the in-flight gate_m6 verdict; NOT triggered by this document",
+  "gates_yaml_untouched_by_this_document": true,
+  "builds_no_floor_writes_no_test_runs_nothing_scored": true,
+  "roadmap_m7_row_verbatim": "Full revenue + trust-fund accounting: OASDI cost/income rates, trust-fund ratio path, 75-yr actuarial balance in % of taxable payroll | gate: Reproduce the corresponding TR baseline deficit within a pre-registered tolerance; per-provision balance vs the Five-Approaches A-tables in LEVELS, not just ordinally | unlocks: The Rosetta stone (#74 anchor 2) graded in its own units",
+  "certifies_proposed": {
+    "m2_reproduction": "M7 accounting on the M2 setup reproduces runs/m2_pseudo_projection_v1.json to floating point, or names every delta",
+    "balance_identity_closure": "start + revenue + interest - outlays = end, residual == 0 every year; PV balance two ways agrees to residual == 0",
+    "determinism": "byte-identical accounts on re-run; no RNG at the accounting layer (all draws realized upstream in M6)"
+  },
+  "explicitly_not_gated": "external SSA/Trustees aggregates; TR baseline deficit in LEVELS; per-provision A-table LEVELS; DI trust-fund balance as a certified level; any beneficiary-class dollar level",
+  "central_open_decision": "roadmap asks to gate in LEVELS (#113 M7 row); this design argues the 1549-career PSID survey panel is not the covered-worker universe (M2 baseline balance +0.04689 is positive because revenue is combined-OASDI on all payroll while outlays are OASI-only), so external levels are frame-relative and not honestly gradable -> proposes an internal-identity gate instead (§8 decision 1, for the referee)",
+  "m2_reproduction_targets": {
+    "commit": "747966cd", "pe_us_revision": "bf71be3b",
+    "baseline_balance": 0.04689166331354922,
+    "baseline_exhaustion_year": 2034.0,
+    "calibrated_reserve": 7889236006574.162,
+    "smith_balance_deltas": {"cap_150k": 0.0062624547665585326, "elimination": 0.014294443697022999, "payroll_plus_1pp": 0.010000000000000009, "payroll_plus_2pp": 0.02000000000000001, "fra_to_72": 0.02561498010756378},
+    "smith_exhaustion_delta_years": {"cap_150k": 1.1188537982975504, "elimination": 3.2048065597855384, "payroll_plus_1pp": 1.950472894025097, "payroll_plus_2pp": 4.231370822865529, "fra_to_72": 41.0},
+    "mermin_outlay_deltas": {"price_indexing": -0.3326593963115843, "progressive_price_indexing": -0.11000744343246105, "nra_raised_to_70": -0.20234306477534883, "reduced_cola": -0.007987803755968265},
+    "forecasts": {"F1": "met 100% 14/14", "F2": "NOT met, kendall 0.667", "F3": "met", "F4": "met"}
+  },
+  "input_bindings": {
+    "pe_us_pin": "1.752.2", "vintage_boundary_T_star": 2014,
+    "present_in_pe_us": ["payroll_rate_employee_employer", "wage_base", "nawi", "pia_formula_factors", "fra_schedule", "early_delayed_adjustment_rates"],
+    "LOUD_GAPS_need_3d_style_amendment": ["auxiliary_402bcef_rate_constants", "trust_fund_interest_rate", "tr_ultimate_assumptions_2014", "cola_cpiw_benefits_in_payment", "trust_fund_opening_reserve"],
+    "tamper_gate": "scripts/registered_m7_inputs.py build_inputs() zero-arg; version+dir assert (M6 2.8.10.5 F2); sha256 on staged JSON (M6 2.8.10.4); validate_external_vintage refuses vintage>2014 (refit.py:825-838)"
+  },
+  "anchors_all_report_only": ["m2_reproduction (internal, feeds gate)", "mermin_2005_table1_411260", "smith_2015_solvency_72196", "ssa_trustees_historical_corridors (level-vs-composition caveat)"],
+  "open_decisions_for_referee": ["1 internal-gate vs roadmap external-level gate", "2 nominal vs real accounting", "3 calibrated reserve vs sourced opening balance", "4 OASI-vs-DI rate/fund split", "5 scheduled vs payable baseline + post-exhaustion rule", "6 inherit M6 wage-index surface vs re-derive", "7 M6-unexposed level: raise vs synthesize", "8 interest timing convention", "9 M2-reproduction byte-exact vs 1e-12 tolerance", "10 TR vintage for corridors 2014 vs current", "11 immigrant-entrant partial-career treatment", "12 per-capita beneficiary denominator"],
+  "evidence_base": ["runs/m2_pseudo_projection_v1.json", "scripts/m2_pseudo_projection.py", "ss/params.py", "ss/benefits.py", "docs/design/m6_projection_engine.md#6", "gates.gate_m4", "disability_conversion.py", "scripts/replication_cost_ordering.py", "engine/refit.py:825-838", "harness/m6_inputs.py:198-250"]
+}
+```
+
