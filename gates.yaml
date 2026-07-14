@@ -4332,14 +4332,15 @@ gates:
           basis_note: >-
             DRAW-NOISE-FREE half-normal basis (per-cell score ~ half-normal(realized_sigma);
             cell pass = 2*Phi(tolerance/sigma)-1; seed pass = product over the
-            47 gated cells; gate = p^5 + 5 p^4 (1-p)). ACHIEVABLE under the
-            K=20 mean, UNACHIEVABLE under a single draw. RECOMPUTED on the 47-cell
-            gated surface after amendment 2 demoted 6 family-A cells to report-only
-            (a CHANGE from the pre-amendment 53-cell 0.922 / 0.9481, not the
-            amendment-1 invariance); the FROZEN floor runs/gate_w1_floors_v1.json
-            keeps its own 53-cell faithful_candidate_oc 0.922 / 0.9481 (the
-            amendment re-scopes the CONTRACT, not the floor). Recomputed from the
-            47 retained view tolerances + the floor sigmas by
+            43 gated cells; gate = p^5 + 5 p^4 (1-p)). ACHIEVABLE under the
+            K=20 mean, UNACHIEVABLE under a single draw. RECOMPUTED on the 43-cell
+            gated surface after amendment 3 demoted the 4 hh_size cells to
+            report-only (following the amendment-2 recompute to 47 cells /
+            0.9344 / 0.9623 -- each a CHANGE, not the amendment-1 invariance);
+            the FROZEN floor runs/gate_w1_floors_v1.json keeps its own 53-cell
+            faithful_candidate_oc 0.922 / 0.9481 (the amendments re-scope the
+            CONTRACT, not the floor). Recomputed from the 43 retained view
+            tolerances + the floor sigmas by
             tests/test_gate_w1_derivations.py.
         weight_concentration: {kish_effective_n_persons: 14327.8, household_weight_max: 433329.4781144226}
       family_b:
