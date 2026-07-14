@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
+import importlib.util
 import platform as platform_module
 import subprocess
 from dataclasses import dataclass
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 __all__ = ["ContractRef", "contract_revision", "environment_block"]
+
+#: The fitting stack the M6/W1 refit runs against, as (distribution, import)
+#: pairs.  It lives in a dedicated env (populace-fit pins scikit-learn <1.9 and
+#: cannot coexist with the base venv); the base environment block never recorded
+#: its vintage, leaving a scored run's frame-stack provenance unrecoverable from
+#: the sidecar (grading #42 comment 4972045579).
+_FITTING_STACK_PACKAGES: tuple[tuple[str, str], ...] = (
+    ("populace-fit", "populace.fit"),
+    ("populace-frame", "populace.frame"),
+)
 
 _REPOSITORY_HINT = Path(__file__).resolve().parents[2]
 _CONTRACT_PATH = Path("gates.yaml")
@@ -107,8 +118,69 @@ def contract_revision(root: str | Path | None = None) -> str:
     return ContractRef.current(root).blob_sha
 
 
-def environment_block() -> dict[str, str]:
-    """Return runtime versions required to reproduce an artifact."""
+def _package_git_revision(import_name: str) -> str:
+    """Return the git HEAD of an installed package's source tree, or ``unknown``.
+
+    An editable install (the fitting stack's dedicated env) resolves to a git
+    checkout, so its revision is recoverable; a wheel install resolves to a
+    non-git directory and degrades to ``unknown``.
+    """
+    try:
+        spec = importlib.util.find_spec(import_name)
+    except (ImportError, ValueError):
+        return "unknown"
+    if spec is None:
+        return "unknown"
+    locations: list[Path] = []
+    if spec.origin and spec.origin not in ("built-in", "frozen"):
+        locations.append(Path(spec.origin).parent)
+    for entry in spec.submodule_search_locations or ():
+        locations.append(Path(entry))
+    for location in locations:
+        try:
+            revision = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=location,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        except (OSError, subprocess.CalledProcessError):
+            continue
+        if revision:
+            return revision
+    return "unknown"
+
+
+def _fitting_stack_block() -> dict[str, object]:
+    """Fitting-stack provenance: version + git rev when importable, else absent.
+
+    Each package is recorded as ``{"version", "git_rev"}`` when installed and
+    ``"absent"`` otherwise, so the sidecar carries the frame-stack vintage a
+    scored M6/W1 run was fit against.
+    """
+    block: dict[str, object] = {}
+    for dist_name, import_name in _FITTING_STACK_PACKAGES:
+        key = dist_name.replace("-", "_")
+        try:
+            dist_version = version(dist_name)
+        except PackageNotFoundError:
+            block[key] = "absent"
+            continue
+        block[key] = {
+            "version": dist_version,
+            "git_rev": _package_git_revision(import_name),
+        }
+    return block
+
+
+def environment_block() -> dict[str, object]:
+    """Return runtime versions required to reproduce an artifact.
+
+    Alongside the interpreter and core-library versions, this records the
+    fitting-stack provenance (populace-fit / populace-frame) the base block
+    previously omitted.
+    """
     return {
         "python": platform_module.python_version(),
         "numpy": version("numpy"),
@@ -116,4 +188,5 @@ def environment_block() -> dict[str, str]:
         "sklearn": version("scikit-learn"),
         "scipy": version("scipy"),
         "platform": platform_module.platform(),
+        "fitting_stack": _fitting_stack_block(),
     }
