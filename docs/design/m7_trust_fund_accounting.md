@@ -595,4 +595,73 @@ are not noise; they are the reason #113's roadmap "in LEVELS" gate is not
 attainable here (§8 decision 1), and the reason §6 gates internal identities
 instead.
 
+## 6. Proposed `gate_m7` (proposal for the referee — NOT locked)
+
+`gate_m7` is proposed as an **internal-identity** gate: it certifies that M7's
+accounting is arithmetically self-consistent and reproduces the committed M2
+result, and it certifies **nothing external.** This is a deliberate departure
+from the roadmap #113 M7 row's "reproduce the TR baseline deficit … in LEVELS"
+wording, argued in §5.3 and surfaced as §8 decision 1. The block below is a
+**sketch for the referee**, `locked: false`, editing no `gates.yaml` cell and
+built on no floor; it becomes real only in a future lock ceremony (design review →
+referee → verification → ratify-by-merge → lock), which this document does not
+begin.
+
+```yaml gate_m7-proposed-not-locked
+gates:
+  gate_m7:
+    id: m7_trust_fund_accounting_internal_identity
+    status: design_proposal_for_referee     # NOT draft_cleared, NOT locked
+    locked: false
+    kind: internal_identity                  # cf. gate_m6 temporal_holdout, gate_m4 anchor_based
+    design: docs/design/m7_trust_fund_accounting.md
+    covers: >-
+      the TRUST-FUND ACCOUNTING layer (roadmap #113 M7): per-projection-year
+      taxable payroll, payroll-tax revenue, benefit outlays by beneficiary class,
+      and the trust-fund balance ledger, computed deterministically over the M6
+      panel. The gate certifies TWO INTERNAL IDENTITIES ONLY: (1) M2-REPRODUCTION
+      -- M7's accounting restricted to the M2 setup reproduces
+      runs/m2_pseudo_projection_v1.json's committed numbers to floating point, or
+      names every delta; (2) BALANCE-IDENTITY CLOSURE -- for every projection year
+      the ledger (start + revenue + interest - outlays = end) closes with residual
+      == 0 to floating point, and the PV balance analogue computed two ways (from
+      the annual ledger vs from the flow PVs) agrees to residual == 0. No external
+      SSA/Trustees aggregate is gated; all external anchors (Mermin ordering, TR
+      corridors, per-provision A-table levels) are REPORT-ONLY.
+    thresholds:
+      m2_reproduction:
+        rule: >-
+          exact byte reproduction of the committed cells (baseline balance
+          0.04689166331354922; baseline exhaustion 2034.0; the five Smith
+          balance/exhaustion deltas; the four Mermin outlay deltas; F1-F4
+          outcomes incl. F2 NOT met) OR a named, justified per-cell delta ledger.
+        tolerance: 0.0            # exact; deltas are named, not tolerated
+        locked: false
+      balance_identity_closure:
+        rule: >-
+          max_y |TF[y] - (TF[y-1] + revenue[y] + interest[y] - outlays[y])| == 0
+          AND |PV_balance_from_ledger - PV_balance_from_flows| == 0, both to a
+          fixed relative floating-point tolerance (~1e-12), on every scored run.
+        tolerance: 1.0e-12        # floating-point closure, not an empirical band
+        locked: false
+      determinism:
+        rule: byte-identical artifact on re-run (modulo elapsed_seconds), per §3.
+        locked: false
+    not_certified: >-
+      external OASDI level match; TR baseline deficit in levels; per-provision
+      A-table LEVELS; DI trust-fund balance as a certified level; any beneficiary
+      -class dollar aggregate as a certified level; the 2100 path beyond M6's
+      gated window; behavioral response.
+    publishes_regardless: true               # one-shot, published regardless of verdict
+```
+
+**Why these two and not an external match.** The M2-reproduction identity pins the
+arithmetic to a committed, adversarially-reviewed reference. The balance-identity
+closure pins internal consistency — it is non-vacuous (a dropped class or a
+mis-discount breaks it) yet fully attainable (it is an accounting identity, not an
+empirical fit). Together they certify "the accounting is correct and reproduces
+what we already published," which is the honest ceiling on a frame whose levels
+§5.3 shows are not externally gradable. The determinism sub-check (§3) makes both
+identities byte-claims.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
