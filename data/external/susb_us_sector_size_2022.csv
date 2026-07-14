@@ -1,0 +1,533 @@
+naics_sector,naics_description,entrsize_code,entrsize_label,firms,establishments,employment,employment_noise_flag,annual_payroll_kusd
+--,Total,01,Total,6395635,8298562,135748407,G,8965035263
+--,Total,02,<5,4029041,4035233,6295615,G,354954498
+--,Total,03,5-9,1034135,1047874,6810300,G,311979624
+--,Total,04,10-14,428589,447481,5015443,G,236056210
+--,Total,05,15-19,228328,246879,3828826,G,183454332
+--,Total,33,<20,5720093,5777467,21950184,G,1086444664
+--,Total,06,20-24,142888,162097,3114197,G,151971190
+--,Total,07,25-29,95073,111767,2549379,G,126520926
+--,Total,08,30-34,68222,84583,2171535,G,110412097
+--,Total,09,35-39,50819,65392,1872661,G,96654896
+--,Total,10,40-49,70770,98116,3118666,G,167209521
+--,Total,11,50-74,89207,142638,5366080,G,298979139
+--,Total,12,75-99,44181,87533,3784183,G,222851733
+--,Total,13,100-149,40744,107445,4922865,G,305125131
+--,Total,14,150-199,19444,69493,3340620,G,212683053
+--,Total,15,200-299,18798,94905,4561498,G,302539784
+--,Total,16,300-399,8904,61462,3068601,G,215028678
+--,Total,17,400-499,5451,49564,2430087,G,168628707
+--,Total,37,<500,6374594,6912462,62250556,G,3465049519
+--,Total,18,500-749,6974,85574,4237717,G,292346233
+--,Total,19,750-999,3426,58890,2963606,G,208305002
+--,Total,31,"1,000-1,499",3412,83203,4151589,G,305347201
+--,Total,22,"1,500-1,999",1777,59680,3069744,G,237645761
+--,Total,23,"2,000-2,499",1091,47693,2443736,G,184454799
+--,Total,24,"2,500-4,999",2099,137331,7321331,G,582438093
+--,Total,25,"5,000+",2262,913729,49310128,G,3689448655
+11,"Agriculture, Forestry, Fishing and Hunting",01,Total,22599,23332,168634,G,8921632
+11,"Agriculture, Forestry, Fishing and Hunting",02,<5,15879,15891,22902,G,1246874
+11,"Agriculture, Forestry, Fishing and Hunting",03,5-9,3539,3546,23136,G,1124894
+11,"Agriculture, Forestry, Fishing and Hunting",04,10-14,1176,1197,13622,G,702601
+11,"Agriculture, Forestry, Fishing and Hunting",05,15-19,543,548,8932,G,472954
+11,"Agriculture, Forestry, Fishing and Hunting",33,<20,21137,21182,68592,G,3547323
+11,"Agriculture, Forestry, Fishing and Hunting",06,20-24,295,303,6240,G,368409
+11,"Agriculture, Forestry, Fishing and Hunting",07,25-29,207,210,5410,G,308722
+11,"Agriculture, Forestry, Fishing and Hunting",08,30-34,126,140,3872,G,224514
+11,"Agriculture, Forestry, Fishing and Hunting",09,35-39,102,110,3574,G,188223
+11,"Agriculture, Forestry, Fishing and Hunting",10,40-49,160,170,6745,G,347953
+11,"Agriculture, Forestry, Fishing and Hunting",11,50-74,181,223,10037,G,569520
+11,"Agriculture, Forestry, Fishing and Hunting",12,75-99,82,103,6521,G,337386
+11,"Agriculture, Forestry, Fishing and Hunting",13,100-149,82,149,7947,G,441451
+11,"Agriculture, Forestry, Fishing and Hunting",14,150-199,45,66,6002,G,311928
+11,"Agriculture, Forestry, Fishing and Hunting",15,200-299,39,115,5796,G,335444
+11,"Agriculture, Forestry, Fishing and Hunting",16,300-399,29,132,6476,G,284505
+11,"Agriculture, Forestry, Fishing and Hunting",17,400-499,13,64,3022,G,171147
+11,"Agriculture, Forestry, Fishing and Hunting",37,<500,22498,22967,140234,G,7436525
+11,"Agriculture, Forestry, Fishing and Hunting",18,500-749,28,78,6329,G,295269
+11,"Agriculture, Forestry, Fishing and Hunting",19,750-999,8,11,2246,H,153084
+11,"Agriculture, Forestry, Fishing and Hunting",31,"1,000-1,499",12,37,6310,G,271039
+11,"Agriculture, Forestry, Fishing and Hunting",22,"1,500-1,999",7,15,2327,H,125994
+11,"Agriculture, Forestry, Fishing and Hunting",23,"2,000-2,499",5,14,292,H,19458
+11,"Agriculture, Forestry, Fishing and Hunting",24,"2,500-4,999",13,17,4118,H,96512
+11,"Agriculture, Forestry, Fishing and Hunting",25,"5,000+",28,193,6778,J,523751
+21,"Mining, Quarrying, and Oil and Gas Extraction",01,Total,17341,23180,508023,G,55559266
+21,"Mining, Quarrying, and Oil and Gas Extraction",02,<5,9788,9811,15255,G,1260739
+21,"Mining, Quarrying, and Oil and Gas Extraction",03,5-9,2417,2449,15909,G,1196653
+21,"Mining, Quarrying, and Oil and Gas Extraction",04,10-14,1207,1257,14119,G,1073530
+21,"Mining, Quarrying, and Oil and Gas Extraction",05,15-19,710,768,11734,G,925302
+21,"Mining, Quarrying, and Oil and Gas Extraction",33,<20,14122,14285,57017,G,4456224
+21,"Mining, Quarrying, and Oil and Gas Extraction",06,20-24,491,554,10220,G,885455
+21,"Mining, Quarrying, and Oil and Gas Extraction",07,25-29,334,360,8908,G,776498
+21,"Mining, Quarrying, and Oil and Gas Extraction",08,30-34,253,290,7660,G,687661
+21,"Mining, Quarrying, and Oil and Gas Extraction",09,35-39,205,252,7292,G,641482
+21,"Mining, Quarrying, and Oil and Gas Extraction",10,40-49,311,406,12781,G,1214186
+21,"Mining, Quarrying, and Oil and Gas Extraction",11,50-74,426,578,23250,G,2185733
+21,"Mining, Quarrying, and Oil and Gas Extraction",12,75-99,220,346,16632,G,1602854
+21,"Mining, Quarrying, and Oil and Gas Extraction",13,100-149,259,557,25217,G,2383150
+21,"Mining, Quarrying, and Oil and Gas Extraction",14,150-199,106,228,13850,G,1400638
+21,"Mining, Quarrying, and Oil and Gas Extraction",15,200-299,142,444,24069,G,2631513
+21,"Mining, Quarrying, and Oil and Gas Extraction",16,300-399,86,322,20680,G,2451165
+21,"Mining, Quarrying, and Oil and Gas Extraction",17,400-499,48,191,13033,G,1805958
+21,"Mining, Quarrying, and Oil and Gas Extraction",37,<500,17003,18813,240609,G,23122517
+21,"Mining, Quarrying, and Oil and Gas Extraction",18,500-749,78,398,29550,G,3928859
+21,"Mining, Quarrying, and Oil and Gas Extraction",19,750-999,47,340,18149,G,2224503
+21,"Mining, Quarrying, and Oil and Gas Extraction",31,"1,000-1,499",49,546,28727,G,3686479
+21,"Mining, Quarrying, and Oil and Gas Extraction",22,"1,500-1,999",27,302,20982,G,2535686
+21,"Mining, Quarrying, and Oil and Gas Extraction",23,"2,000-2,499",14,57,10652,H,1405780
+21,"Mining, Quarrying, and Oil and Gas Extraction",24,"2,500-4,999",56,722,45975,G,5291228
+21,"Mining, Quarrying, and Oil and Gas Extraction",25,"5,000+",67,2002,113379,H,13364214
+22,Utilities,01,Total,6772,20425,645214,G,78714666
+22,Utilities,02,<5,3651,3659,6417,G,424208
+22,Utilities,03,5-9,1080,1089,6963,G,407306
+22,Utilities,04,10-14,372,389,4322,G,323961
+22,Utilities,05,15-19,190,243,3062,G,245617
+22,Utilities,33,<20,5293,5380,20764,G,1401092
+22,Utilities,06,20-24,144,171,3111,G,258209
+22,Utilities,07,25-29,110,138,2876,G,263625
+22,Utilities,08,30-34,91,144,2795,G,235860
+22,Utilities,09,35-39,89,128,3169,G,294490
+22,Utilities,10,40-49,126,193,5542,G,576252
+22,Utilities,11,50-74,216,409,12430,G,1162935
+22,Utilities,12,75-99,154,377,12560,G,1244233
+22,Utilities,13,100-149,152,469,15886,G,1501065
+22,Utilities,14,150-199,62,331,9090,G,982855
+22,Utilities,15,200-299,78,344,16810,G,1839303
+22,Utilities,16,300-399,25,147,7105,G,826736
+22,Utilities,17,400-499,26,195,9457,G,1167819
+22,Utilities,37,<500,6566,8426,121595,G,11754474
+22,Utilities,18,500-749,44,407,18068,G,2235124
+22,Utilities,19,750-999,18,135,9840,H,1340840
+22,Utilities,31,"1,000-1,499",28,553,17304,H,2021022
+22,Utilities,22,"1,500-1,999",17,461,14020,G,1640294
+22,Utilities,23,"2,000-2,499",10,393,9987,H,1397275
+22,Utilities,24,"2,500-4,999",30,869,49057,G,5711598
+22,Utilities,25,"5,000+",59,9181,405343,H,52614039
+23,Construction,01,Total,782487,800651,7361847,G,534390375
+23,Construction,02,<5,524170,524204,822576,G,45137243
+23,Construction,03,5-9,124087,124164,810782,G,43637800
+23,Construction,04,10-14,46775,46858,546385,G,32810278
+23,Construction,05,15-19,23799,23936,398559,G,25717802
+23,Construction,33,<20,718831,719162,2578302,G,147303123
+23,Construction,06,20-24,14487,14633,315203,G,21328222
+23,Construction,07,25-29,9467,9586,252990,G,17677907
+23,Construction,08,30-34,6657,6823,211822,G,15024084
+23,Construction,09,35-39,5122,5296,187608,G,13411853
+23,Construction,10,40-49,6966,7326,304982,G,22352858
+23,Construction,11,50-74,8408,9262,499693,G,37772808
+23,Construction,12,75-99,3995,4701,334354,G,25772574
+23,Construction,13,100-149,3386,4403,393316,G,31111226
+23,Construction,14,150-199,1563,2383,252458,G,20601162
+23,Construction,15,200-299,1407,2652,311249,G,25727671
+23,Construction,16,300-399,552,1207,166867,G,14601573
+23,Construction,17,400-499,351,961,133749,G,11623856
+23,Construction,37,<500,781192,788395,5942593,G,404308917
+23,Construction,18,500-749,420,1460,200485,G,17590032
+23,Construction,19,750-999,202,962,126274,G,10930224
+23,Construction,31,"1,000-1,499",188,1214,146478,G,13429860
+23,Construction,22,"1,500-1,999",106,1192,115765,G,11281261
+23,Construction,23,"2,000-2,499",68,523,76459,G,7338571
+23,Construction,24,"2,500-4,999",134,1872,206876,G,19462179
+23,Construction,25,"5,000+",177,5033,546917,G,50049331
+31-33,Manufacturing,01,Total,239265,285500,12188330,G,851307959
+31-33,Manufacturing,02,<5,97530,97635,177386,G,9942051
+31-33,Manufacturing,03,5-9,44117,44352,294151,G,13691007
+31-33,Manufacturing,04,10-14,22359,22669,261716,G,12950173
+31-33,Manufacturing,05,15-19,13773,14138,229145,G,12097374
+31-33,Manufacturing,33,<20,177779,178794,962398,G,48680605
+31-33,Manufacturing,06,20-24,9321,9670,200920,G,10868477
+31-33,Manufacturing,07,25-29,6817,7198,180289,G,9952658
+31-33,Manufacturing,08,30-34,5244,5603,164017,G,9211836
+31-33,Manufacturing,09,35-39,4079,4388,146709,G,8462944
+31-33,Manufacturing,10,40-49,6132,6778,261605,G,15245507
+31-33,Manufacturing,11,50-74,8450,9825,489601,G,29202399
+31-33,Manufacturing,12,75-99,4874,6240,394340,G,24059011
+31-33,Manufacturing,13,100-149,4873,6920,545520,G,33993056
+31-33,Manufacturing,14,150-199,2644,4338,403716,G,25532374
+31-33,Manufacturing,15,200-299,2668,4954,553168,G,35618844
+31-33,Manufacturing,16,300-399,1352,3065,379834,G,25233527
+31-33,Manufacturing,17,400-499,855,2360,302553,G,20313090
+31-33,Manufacturing,37,<500,235088,250133,4984670,G,296374328
+31-33,Manufacturing,18,500-749,1165,3770,538442,G,36018047
+31-33,Manufacturing,19,750-999,650,2619,400418,G,27642473
+31-33,Manufacturing,31,"1,000-1,499",655,3705,539627,G,37525125
+31-33,Manufacturing,22,"1,500-1,999",349,2610,383009,G,27003784
+31-33,Manufacturing,23,"2,000-2,499",212,1568,295581,G,21854966
+31-33,Manufacturing,24,"2,500-4,999",510,5895,1020706,G,76036313
+31-33,Manufacturing,25,"5,000+",636,15200,4025877,G,328852923
+42,Wholesale Trade,01,Total,277932,388706,6143230,G,535195540
+42,Wholesale Trade,02,<5,161461,161867,267702,G,18028651
+42,Wholesale Trade,03,5-9,44539,45572,293240,G,19566752
+42,Wholesale Trade,04,10-14,19518,20815,226269,G,15828760
+42,Wholesale Trade,05,15-19,10841,12180,179574,G,12831468
+42,Wholesale Trade,33,<20,236359,240434,966785,G,66255631
+42,Wholesale Trade,06,20-24,7039,8278,149065,G,11008319
+42,Wholesale Trade,07,25-29,4767,5938,123971,G,9176359
+42,Wholesale Trade,08,30-34,3699,4875,112276,G,8241653
+42,Wholesale Trade,09,35-39,2814,3870,98783,G,7307083
+42,Wholesale Trade,10,40-49,4019,5946,165245,G,12357308
+42,Wholesale Trade,11,50-74,5364,9185,292063,G,22365681
+42,Wholesale Trade,12,75-99,2881,5987,213670,G,16883505
+42,Wholesale Trade,13,100-149,2952,7572,287083,G,23008778
+42,Wholesale Trade,14,150-199,1543,4740,196199,G,15588863
+42,Wholesale Trade,15,200-299,1707,7154,277159,G,22856089
+42,Wholesale Trade,16,300-399,899,4602,188760,G,16338708
+42,Wholesale Trade,17,400-499,586,3586,142534,G,12649217
+42,Wholesale Trade,37,<500,274629,312167,3213593,G,244037194
+42,Wholesale Trade,18,500-749,800,6695,233815,G,20304925
+42,Wholesale Trade,19,750-999,440,3964,152293,G,13946300
+42,Wholesale Trade,31,"1,000-1,499",495,5740,201276,G,18216141
+42,Wholesale Trade,22,"1,500-1,999",281,4095,143228,G,13130559
+42,Wholesale Trade,23,"2,000-2,499",170,3327,107800,G,10952484
+42,Wholesale Trade,24,"2,500-4,999",449,9950,350699,G,38942004
+42,Wholesale Trade,25,"5,000+",668,42768,1740526,G,175665933
+44-45,Retail Trade,01,Total,645404,1045890,15922438,G,584116408
+44-45,Retail Trade,02,<5,386900,388146,703142,G,25898865
+44-45,Retail Trade,03,5-9,129145,132771,847757,G,28062757
+44-45,Retail Trade,04,10-14,47708,52519,555646,G,19617000
+44-45,Retail Trade,05,15-19,22172,26204,368766,G,13691538
+44-45,Retail Trade,33,<20,585925,599640,2475311,G,87270160
+44-45,Retail Trade,06,20-24,12778,16779,274319,G,10625546
+44-45,Retail Trade,07,25-29,8127,11294,212894,G,8663490
+44-45,Retail Trade,08,30-34,5944,8732,183544,G,7926729
+44-45,Retail Trade,09,35-39,4369,6614,154942,G,7093633
+44-45,Retail Trade,10,40-49,6293,10370,264217,G,12810572
+44-45,Retail Trade,11,50-74,8010,15457,450357,G,23802694
+44-45,Retail Trade,12,75-99,4003,9322,313472,G,18306809
+44-45,Retail Trade,13,100-149,3560,11315,371968,G,21919818
+44-45,Retail Trade,14,150-199,1619,7311,223749,G,13142240
+44-45,Retail Trade,15,200-299,1397,10031,250225,G,14582254
+44-45,Retail Trade,16,300-399,685,6532,160787,G,8749901
+44-45,Retail Trade,17,400-499,405,5548,116512,G,6135644
+44-45,Retail Trade,37,<500,643115,718945,5452297,G,241029490
+44-45,Retail Trade,18,500-749,598,10678,211586,G,10324708
+44-45,Retail Trade,19,750-999,310,8180,144790,G,7199888
+44-45,Retail Trade,31,"1,000-1,499",314,12093,200378,G,9296851
+44-45,Retail Trade,22,"1,500-1,999",180,7183,162472,G,7925811
+44-45,Retail Trade,23,"2,000-2,499",108,6034,128734,G,5645526
+44-45,Retail Trade,24,"2,500-4,999",249,18870,371302,G,14138214
+44-45,Retail Trade,25,"5,000+",530,263907,9250879,G,288555920
+48-49,Transportation and Warehousing,01,Total,237527,294354,6108121,G,345454903
+48-49,Transportation and Warehousing,02,<5,168095,168196,225522,G,11195253
+48-49,Transportation and Warehousing,03,5-9,25512,25725,167318,G,8421730
+48-49,Transportation and Warehousing,04,10-14,11017,11297,128450,G,6664462
+48-49,Transportation and Warehousing,05,15-19,6671,6940,110791,G,5839646
+48-49,Transportation and Warehousing,33,<20,211295,212158,632081,G,32121091
+48-49,Transportation and Warehousing,06,20-24,4220,4521,90217,G,4786569
+48-49,Transportation and Warehousing,07,25-29,3092,3360,80869,G,4331531
+48-49,Transportation and Warehousing,08,30-34,2200,2488,67308,G,3604795
+48-49,Transportation and Warehousing,09,35-39,1652,1939,58401,G,3124074
+48-49,Transportation and Warehousing,10,40-49,2471,3038,103752,G,5551864
+48-49,Transportation and Warehousing,11,50-74,3553,4603,200902,G,9883690
+48-49,Transportation and Warehousing,12,75-99,2204,3206,172066,G,8049335
+48-49,Transportation and Warehousing,13,100-149,1918,3402,195357,G,9761563
+48-49,Transportation and Warehousing,14,150-199,890,2352,115694,G,6452266
+48-49,Transportation and Warehousing,15,200-299,898,2644,145474,G,8759289
+48-49,Transportation and Warehousing,16,300-399,445,1568,86824,G,5219285
+48-49,Transportation and Warehousing,17,400-499,325,1493,78884,G,5150343
+48-49,Transportation and Warehousing,37,<500,235163,246772,2027829,G,106795695
+48-49,Transportation and Warehousing,18,500-749,488,2384,129512,G,8106631
+48-49,Transportation and Warehousing,19,750-999,276,1767,92741,G,5836527
+48-49,Transportation and Warehousing,31,"1,000-1,499",321,2222,123988,G,8207467
+48-49,Transportation and Warehousing,22,"1,500-1,999",194,1848,97961,G,6290773
+48-49,Transportation and Warehousing,23,"2,000-2,499",93,822,56315,G,3885113
+48-49,Transportation and Warehousing,24,"2,500-4,999",325,4079,261687,G,17812815
+48-49,Transportation and Warehousing,25,"5,000+",667,34460,3318088,G,188519882
+51,Information,01,Total,89332,160946,3634012,G,515680526
+51,Information,02,<5,59695,59805,82556,G,8001296
+51,Information,03,5-9,11219,11500,73800,G,4960200
+51,Information,04,10-14,4744,5016,55070,G,3972855
+51,Information,05,15-19,2552,2830,42290,G,3156147
+51,Information,33,<20,78210,79151,253716,G,20090498
+51,Information,06,20-24,1649,1993,35225,G,2694378
+51,Information,07,25-29,1159,1432,30557,G,2376843
+51,Information,08,30-34,822,1027,25038,G,2024782
+51,Information,09,35-39,663,822,23659,G,2079565
+51,Information,10,40-49,1001,1461,42531,G,3806894
+51,Information,11,50-74,1333,2270,75752,G,6859858
+51,Information,12,75-99,762,1373,61158,G,6045136
+51,Information,13,100-149,877,1932,96497,G,10271467
+51,Information,14,150-199,479,1058,72598,G,8196547
+51,Information,15,200-299,530,1726,106856,G,11635567
+51,Information,16,300-399,316,1299,87216,G,10813112
+51,Information,17,400-499,186,779,62631,G,7559201
+51,Information,37,<500,87987,96323,973434,G,94453848
+51,Information,18,500-749,288,2164,130514,G,17064338
+51,Information,19,750-999,149,1526,87216,G,11984763
+51,Information,31,"1,000-1,499",183,1955,123284,G,18340374
+51,Information,22,"1,500-1,999",102,1392,99442,G,15483725
+51,Information,23,"2,000-2,499",70,2305,75104,G,13579435
+51,Information,24,"2,500-4,999",194,6717,285362,G,42457608
+51,Information,25,"5,000+",359,48564,1859656,G,302316435
+52,Finance and Insurance,01,Total,244536,480546,6831897,G,845136982
+52,Finance and Insurance,02,<5,179506,179806,301683,G,20561167
+52,Finance and Insurance,03,5-9,34966,35868,222237,G,16049024
+52,Finance and Insurance,04,10-14,9009,10302,104157,G,9481485
+52,Finance and Insurance,05,15-19,4044,5423,66658,G,6877818
+52,Finance and Insurance,33,<20,227525,231399,694735,G,52969494
+52,Finance and Insurance,06,20-24,2401,3784,51423,G,5667713
+52,Finance and Insurance,07,25-29,1721,2993,45143,G,4970155
+52,Finance and Insurance,08,30-34,1300,2492,40124,G,4434886
+52,Finance and Insurance,09,35-39,941,2077,33642,G,3892494
+52,Finance and Insurance,10,40-49,1540,3949,65002,G,7623528
+52,Finance and Insurance,11,50-74,2121,6735,120462,G,13612910
+52,Finance and Insurance,12,75-99,1250,5584,101552,G,11764171
+52,Finance and Insurance,13,100-149,1426,8669,158556,G,19014745
+52,Finance and Insurance,14,150-199,794,6480,124129,G,15703335
+52,Finance and Insurance,15,200-299,895,8838,191917,G,22801503
+52,Finance and Insurance,16,300-399,487,6210,142798,G,22094680
+52,Finance and Insurance,17,400-499,309,4926,112138,G,14718762
+52,Finance and Insurance,37,<500,242710,294136,1881621,G,199268376
+52,Finance and Insurance,18,500-749,403,8099,196520,G,22455383
+52,Finance and Insurance,19,750-999,248,7399,159799,G,19820133
+52,Finance and Insurance,31,"1,000-1,499",231,9216,205182,G,29389273
+52,Finance and Insurance,22,"1,500-1,999",155,7523,194301,G,29021881
+52,Finance and Insurance,23,"2,000-2,499",104,8065,153315,G,22385161
+52,Finance and Insurance,24,"2,500-4,999",235,22178,492193,G,66776803
+52,Finance and Insurance,25,"5,000+",450,123930,3548966,G,456019972
+53,Real Estate and Rental and Leasing,01,Total,366557,466656,2333125,G,162142568
+53,Real Estate and Rental and Leasing,02,<5,305689,306079,403485,H,23642240
+53,Real Estate and Rental and Leasing,03,5-9,31943,32848,204891,G,10947633
+53,Real Estate and Rental and Leasing,04,10-14,9866,10924,113651,G,6743899
+53,Real Estate and Rental and Leasing,05,15-19,4578,5607,75125,G,4606304
+53,Real Estate and Rental and Leasing,33,<20,352076,355458,797152,G,45940076
+53,Real Estate and Rental and Leasing,06,20-24,2690,3647,56985,G,3651110
+53,Real Estate and Rental and Leasing,07,25-29,1785,2414,45909,G,2905522
+53,Real Estate and Rental and Leasing,08,30-34,1310,1967,39959,G,2614022
+53,Real Estate and Rental and Leasing,09,35-39,933,1483,32312,G,2044480
+53,Real Estate and Rental and Leasing,10,40-49,1270,2390,51086,G,3417645
+53,Real Estate and Rental and Leasing,11,50-74,1753,4157,94858,G,6981201
+53,Real Estate and Rental and Leasing,12,75-99,906,2892,65532,G,4636593
+53,Real Estate and Rental and Leasing,13,100-149,993,4950,93136,G,6853678
+53,Real Estate and Rental and Leasing,14,150-199,485,3218,59204,G,4249422
+53,Real Estate and Rental and Leasing,15,200-299,604,6709,98351,G,7252194
+53,Real Estate and Rental and Leasing,16,300-399,298,4212,62652,G,4684543
+53,Real Estate and Rental and Leasing,17,400-499,219,4066,55260,G,4024116
+53,Real Estate and Rental and Leasing,37,<500,365322,397563,1552396,G,99254602
+53,Real Estate and Rental and Leasing,18,500-749,283,5916,83157,G,6339145
+53,Real Estate and Rental and Leasing,19,750-999,150,3155,45507,G,3067691
+53,Real Estate and Rental and Leasing,31,"1,000-1,499",188,4218,64614,G,5715804
+53,Real Estate and Rental and Leasing,22,"1,500-1,999",87,3431,45546,G,3621009
+53,Real Estate and Rental and Leasing,23,"2,000-2,499",60,2095,25616,H,2147680
+53,Real Estate and Rental and Leasing,24,"2,500-4,999",165,11052,106258,G,9772284
+53,Real Estate and Rental and Leasing,25,"5,000+",302,39226,410031,H,32224353
+54,"Professional, Scientific, and Technical Services",01,Total,872305,974303,10152104,G,1067844288
+54,"Professional, Scientific, and Technical Services",02,<5,652709,653155,914744,G,67674185
+54,"Professional, Scientific, and Technical Services",03,5-9,103960,104788,678450,G,47669646
+54,"Professional, Scientific, and Technical Services",04,10-14,38737,40145,451132,G,34480447
+54,"Professional, Scientific, and Technical Services",05,15-19,19600,21002,326222,G,26495883
+54,"Professional, Scientific, and Technical Services",33,<20,815006,819090,2370548,G,176320161
+54,"Professional, Scientific, and Technical Services",06,20-24,11475,12831,248653,G,21291556
+54,"Professional, Scientific, and Technical Services",07,25-29,7377,8557,195592,G,17302431
+54,"Professional, Scientific, and Technical Services",08,30-34,5261,6513,164725,G,14920222
+54,"Professional, Scientific, and Technical Services",09,35-39,3892,5075,140752,G,12853820
+54,"Professional, Scientific, and Technical Services",10,40-49,5554,7449,238866,G,22683779
+54,"Professional, Scientific, and Technical Services",11,50-74,7108,10633,410837,G,40954472
+54,"Professional, Scientific, and Technical Services",12,75-99,3724,6624,299947,G,30704698
+54,"Professional, Scientific, and Technical Services",13,100-149,3691,8057,406993,G,43851135
+54,"Professional, Scientific, and Technical Services",14,150-199,1838,4789,277264,G,29679368
+54,"Professional, Scientific, and Technical Services",15,200-299,1940,6062,388791,G,44130240
+54,"Professional, Scientific, and Technical Services",16,300-399,1028,3574,275891,G,31522462
+54,"Professional, Scientific, and Technical Services",17,400-499,635,3022,203940,G,23227391
+54,"Professional, Scientific, and Technical Services",37,<500,868529,902276,5622799,G,509441735
+54,"Professional, Scientific, and Technical Services",18,500-749,879,4485,352027,G,40532107
+54,"Professional, Scientific, and Technical Services",19,750-999,449,2914,230028,G,28399646
+54,"Professional, Scientific, and Technical Services",31,"1,000-1,499",547,5315,342262,G,45282838
+54,"Professional, Scientific, and Technical Services",22,"1,500-1,999",312,3355,247417,G,34229210
+54,"Professional, Scientific, and Technical Services",23,"2,000-2,499",211,3162,169707,G,18990898
+54,"Professional, Scientific, and Technical Services",24,"2,500-4,999",492,6091,467068,G,57167522
+54,"Professional, Scientific, and Technical Services",25,"5,000+",886,46705,2720796,G,333800332
+55,Management of Companies and Enterprises,01,Total,25413,51218,3661977,G,464501361
+55,Management of Companies and Enterprises,02,<5,3450,3459,3992,H,792065
+55,Management of Companies and Enterprises,03,5-9,742,753,3296,G,356355
+55,Management of Companies and Enterprises,04,10-14,594,608,3465,G,358051
+55,Management of Companies and Enterprises,05,15-19,459,469,3166,G,394741
+55,Management of Companies and Enterprises,33,<20,5245,5289,13919,G,1901212
+55,Management of Companies and Enterprises,06,20-24,440,454,3846,G,522991
+55,Management of Companies and Enterprises,07,25-29,418,435,3665,G,299948
+55,Management of Companies and Enterprises,08,30-34,425,433,4185,G,396659
+55,Management of Companies and Enterprises,09,35-39,388,406,4100,G,356776
+55,Management of Companies and Enterprises,10,40-49,758,791,9359,G,759741
+55,Management of Companies and Enterprises,11,50-74,1469,1524,22067,G,1950224
+55,Management of Companies and Enterprises,12,75-99,1235,1293,23617,G,2113431
+55,Management of Companies and Enterprises,13,100-149,1929,2029,47438,G,4341027
+55,Management of Companies and Enterprises,14,150-199,1415,1517,41112,G,3669014
+55,Management of Companies and Enterprises,15,200-299,2015,2238,77351,G,7469640
+55,Management of Companies and Enterprises,16,300-399,1315,1493,63635,G,6265107
+55,Management of Companies and Enterprises,17,400-499,988,1158,62593,G,6197927
+55,Management of Companies and Enterprises,37,<500,18040,19060,376887,G,36243697
+55,Management of Companies and Enterprises,18,500-749,1570,1899,122229,G,13500175
+55,Management of Companies and Enterprises,19,750-999,930,1291,93316,G,10166652
+55,Management of Companies and Enterprises,31,"1,000-1,499",1153,1772,155808,G,18852997
+55,Management of Companies and Enterprises,22,"1,500-1,999",666,1105,118824,G,13862852
+55,Management of Companies and Enterprises,23,"2,000-2,499",445,800,112945,G,12431076
+55,Management of Companies and Enterprises,24,"2,500-4,999",1077,2617,341496,G,43545543
+55,Management of Companies and Enterprises,25,"5,000+",1532,22674,2340472,G,315898369
+56,Administrative and Support and Waste Management and Remediation Services,01,Total,376192,450481,13578709,G,764277276
+56,Administrative and Support and Waste Management and Remediation Services,02,<5,243585,243723,356783,G,19667720
+56,Administrative and Support and Waste Management and Remediation Services,03,5-9,54965,55227,359653,G,16256168
+56,Administrative and Support and Waste Management and Remediation Services,04,10-14,21800,22149,253842,G,12150330
+56,Administrative and Support and Waste Management and Remediation Services,05,15-19,11682,12042,194892,G,9368741
+56,Administrative and Support and Waste Management and Remediation Services,33,<20,332032,333141,1165170,G,57442959
+56,Administrative and Support and Waste Management and Remediation Services,06,20-24,7432,7803,160320,G,7968421
+56,Administrative and Support and Waste Management and Remediation Services,07,25-29,4976,5280,131407,G,6627601
+56,Administrative and Support and Waste Management and Remediation Services,08,30-34,3730,4072,116497,G,5833341
+56,Administrative and Support and Waste Management and Remediation Services,09,35-39,2840,3124,102501,G,4992490
+56,Administrative and Support and Waste Management and Remediation Services,10,40-49,4090,4569,174646,G,8810720
+56,Administrative and Support and Waste Management and Remediation Services,11,50-74,5339,6448,306193,G,15419602
+56,Administrative and Support and Waste Management and Remediation Services,12,75-99,2941,3706,232340,G,11605083
+56,Administrative and Support and Waste Management and Remediation Services,13,100-149,3092,4430,335283,G,16688946
+56,Administrative and Support and Waste Management and Remediation Services,14,150-199,1763,2734,261077,G,12455681
+56,Administrative and Support and Waste Management and Remediation Services,15,200-299,1980,3465,391514,G,18373703
+56,Administrative and Support and Waste Management and Remediation Services,16,300-399,1044,2254,276085,G,13204890
+56,Administrative and Support and Waste Management and Remediation Services,17,400-499,731,2038,238479,G,11169936
+56,Administrative and Support and Waste Management and Remediation Services,37,<500,371990,383064,3891512,G,190593373
+56,Administrative and Support and Waste Management and Remediation Services,18,500-749,1065,3222,461616,G,22099221
+56,Administrative and Support and Waste Management and Remediation Services,19,750-999,549,2046,312438,G,15330297
+56,Administrative and Support and Waste Management and Remediation Services,31,"1,000-1,499",652,3637,496696,G,22864703
+56,Administrative and Support and Waste Management and Remediation Services,22,"1,500-1,999",333,3264,323280,G,16675579
+56,Administrative and Support and Waste Management and Remediation Services,23,"2,000-2,499",257,2135,316449,G,15252314
+56,Administrative and Support and Waste Management and Remediation Services,24,"2,500-4,999",520,5436,926957,G,51046734
+56,Administrative and Support and Waste Management and Remediation Services,25,"5,000+",826,47677,6849761,G,430415055
+61,Educational Services,01,Total,103287,114806,3743840,G,180428011
+61,Educational Services,02,<5,52200,52282,78623,G,3611923
+61,Educational Services,03,5-9,16264,16393,109105,G,3094896
+61,Educational Services,04,10-14,8673,8861,101357,G,2704364
+61,Educational Services,05,15-19,4951,5155,82681,G,2295621
+61,Educational Services,33,<20,82088,82691,371766,G,11706804
+61,Educational Services,06,20-24,3304,3559,71558,G,2125753
+61,Educational Services,07,25-29,2445,2638,64866,G,2038768
+61,Educational Services,08,30-34,1819,2050,57312,G,1877341
+61,Educational Services,09,35-39,1432,1611,52117,G,1783314
+61,Educational Services,10,40-49,2212,2541,96733,G,3486334
+61,Educational Services,11,50-74,3095,3716,183879,G,7397332
+61,Educational Services,12,75-99,1686,2180,140872,G,6210902
+61,Educational Services,13,100-149,1574,2000,182240,G,8675082
+61,Educational Services,14,150-199,840,1314,134942,G,6733361
+61,Educational Services,15,200-299,832,1547,186540,G,9611908
+61,Educational Services,16,300-399,400,828,123359,G,6006958
+61,Educational Services,17,400-499,289,766,106299,G,4819290
+61,Educational Services,37,<500,102016,107441,1772483,G,72473147
+61,Educational Services,18,500-749,356,1298,180776,G,7284944
+61,Educational Services,19,750-999,199,923,137887,G,5643838
+61,Educational Services,31,"1,000-1,499",224,1139,222068,G,9325601
+61,Educational Services,22,"1,500-1,999",122,573,171849,G,6921825
+61,Educational Services,23,"2,000-2,499",81,428,134943,G,6184183
+61,Educational Services,24,"2,500-4,999",106,1086,225617,G,10596421
+61,Educational Services,25,"5,000+",183,1918,898217,G,61998052
+62,Health Care and Social Assistance,01,Total,693801,976418,21171232,G,1279490192
+62,Health Care and Social Assistance,02,<5,367849,368579,594793,G,38875156
+62,Health Care and Social Assistance,03,5-9,134359,135688,900195,G,43198929
+62,Health Care and Social Assistance,04,10-14,60901,63353,712865,G,34393904
+62,Health Care and Social Assistance,05,15-19,30818,33613,516767,G,24890995
+62,Health Care and Social Assistance,33,<20,593927,601233,2724620,G,141358984
+62,Health Care and Social Assistance,06,20-24,19088,22214,415654,G,19844970
+62,Health Care and Social Assistance,07,25-29,12374,15151,331359,G,15920572
+62,Health Care and Social Assistance,08,30-34,8901,11592,282508,G,13535751
+62,Health Care and Social Assistance,09,35-39,6800,9302,249603,G,11898343
+62,Health Care and Social Assistance,10,40-49,9701,14676,425731,G,20086779
+62,Health Care and Social Assistance,11,50-74,13180,23096,786569,G,37052068
+62,Health Care and Social Assistance,12,75-99,7285,15908,612578,G,28825574
+62,Health Care and Social Assistance,13,100-149,7687,21410,907509,G,43411414
+62,Health Care and Social Assistance,14,150-199,3814,14463,631802,G,30466668
+62,Health Care and Social Assistance,15,200-299,3798,19310,873587,G,44006892
+62,Health Care and Social Assistance,16,300-399,1795,12422,574446,G,28861666
+62,Health Care and Social Assistance,17,400-499,1092,9867,444972,G,23137197
+62,Health Care and Social Assistance,37,<500,689442,790644,9260938,G,458406878
+62,Health Care and Social Assistance,18,500-749,1375,16434,749084,G,39424545
+62,Health Care and Social Assistance,19,750-999,699,11019,536666,G,28359609
+62,Health Care and Social Assistance,31,"1,000-1,499",670,13760,704816,G,39876533
+62,Health Care and Social Assistance,22,"1,500-1,999",379,8896,570190,G,36680122
+62,Health Care and Social Assistance,23,"2,000-2,499",250,7008,480903,G,31483573
+62,Health Care and Social Assistance,24,"2,500-4,999",460,19484,1441799,G,99309923
+62,Health Care and Social Assistance,25,"5,000+",526,109173,7426836,G,545949009
+71,"Arts, Entertainment, and Recreation",01,Total,148290,162960,2318357,G,110036008
+71,"Arts, Entertainment, and Recreation",02,<5,96401,96505,117301,G,13636148
+71,"Arts, Entertainment, and Recreation",03,5-9,18992,19170,125167,G,4576049
+71,"Arts, Entertainment, and Recreation",04,10-14,9554,9946,111464,G,3426314
+71,"Arts, Entertainment, and Recreation",05,15-19,5532,5708,92100,G,2531525
+71,"Arts, Entertainment, and Recreation",33,<20,130479,131329,446032,G,24170036
+71,"Arts, Entertainment, and Recreation",06,20-24,3427,3636,73491,G,2165424
+71,"Arts, Entertainment, and Recreation",07,25-29,2302,2461,60752,G,1757179
+71,"Arts, Entertainment, and Recreation",08,30-34,1701,1896,53409,G,2007397
+71,"Arts, Entertainment, and Recreation",09,35-39,1300,1469,47286,G,1334508
+71,"Arts, Entertainment, and Recreation",10,40-49,1823,2098,78180,G,2477784
+71,"Arts, Entertainment, and Recreation",11,50-74,2583,3196,150477,G,4730898
+71,"Arts, Entertainment, and Recreation",12,75-99,1230,1692,100073,G,3243111
+71,"Arts, Entertainment, and Recreation",13,100-149,1163,1740,131233,G,4684331
+71,"Arts, Entertainment, and Recreation",14,150-199,560,1052,86626,G,2996900
+71,"Arts, Entertainment, and Recreation",15,200-299,545,1236,114477,G,6773418
+71,"Arts, Entertainment, and Recreation",16,300-399,267,874,73711,G,6043573
+71,"Arts, Entertainment, and Recreation",17,400-499,162,537,60669,G,4880487
+71,"Arts, Entertainment, and Recreation",37,<500,147542,153216,1476416,G,67265046
+71,"Arts, Entertainment, and Recreation",18,500-749,232,1163,103911,G,9566805
+71,"Arts, Entertainment, and Recreation",19,750-999,111,654,57962,G,5392530
+71,"Arts, Entertainment, and Recreation",31,"1,000-1,499",127,1406,96467,G,7479933
+71,"Arts, Entertainment, and Recreation",22,"1,500-1,999",50,923,45145,G,1956621
+71,"Arts, Entertainment, and Recreation",23,"2,000-2,499",34,467,38649,G,1915622
+71,"Arts, Entertainment, and Recreation",24,"2,500-4,999",71,1258,80277,G,3359657
+71,"Arts, Entertainment, and Recreation",25,"5,000+",123,3873,419530,G,13099794
+72,Accommodation and Food Services,01,Total,574723,771856,13793478,G,353090402
+72,Accommodation and Food Services,02,<5,214362,214951,347090,H,15161486
+72,Accommodation and Food Services,03,5-9,114647,115186,768127,G,17646135
+72,Accommodation and Food Services,04,10-14,71114,72083,831878,G,19041475
+72,Accommodation and Food Services,05,15-19,46505,47704,775332,G,18032218
+72,Accommodation and Food Services,33,<20,446628,449924,2722427,G,69881314
+72,Accommodation and Food Services,06,20-24,32067,33752,693403,G,16341764
+72,Accommodation and Food Services,07,25-29,21681,23318,576020,G,13736790
+72,Accommodation and Food Services,08,30-34,15208,17063,478467,G,11638347
+72,Accommodation and Food Services,09,35-39,10936,12615,398276,G,9746474
+72,Accommodation and Food Services,10,40-49,14213,17253,616786,G,15653336
+72,Accommodation and Food Services,11,50-74,15953,22272,932211,G,24054175
+72,Accommodation and Food Services,12,75-99,6074,10848,503163,G,13275455
+72,Accommodation and Food Services,13,100-149,4537,12309,519765,G,13597444
+72,Accommodation and Food Services,14,150-199,1904,7961,309406,G,7990242
+72,Accommodation and Food Services,15,200-299,1797,10903,398996,G,9981076
+72,Accommodation and Food Services,16,300-399,918,8447,290138,G,7421727
+72,Accommodation and Food Services,17,400-499,548,6474,218431,G,5592402
+72,Accommodation and Food Services,37,<500,572464,633139,8657489,G,218910546
+72,Accommodation and Food Services,18,500-749,720,10787,386437,G,9705839
+72,Accommodation and Food Services,19,750-999,399,8213,291071,G,7247514
+72,Accommodation and Food Services,31,"1,000-1,499",388,11043,390812,G,10209435
+72,Accommodation and Food Services,22,"1,500-1,999",184,7025,248484,G,6274392
+72,Accommodation and Food Services,23,"2,000-2,499",116,6135,192778,G,5065195
+72,Accommodation and Food Services,24,"2,500-4,999",218,15508,541964,G,14847616
+72,Accommodation and Food Services,25,"5,000+",234,80006,3084443,H,80829865
+81,Other Services (except Public Administration),01,Total,729236,797836,5471987,G,228192073
+81,Other Services (except Public Administration),02,<5,479121,479552,847238,G,29796947
+81,Other Services (except Public Administration),03,5-9,138949,140381,903583,G,31036661
+81,Other Services (except Public Administration),04,10-14,45238,47000,524950,G,19305483
+81,Other Services (except Public Administration),05,15-19,20557,22336,342464,G,12968844
+81,Other Services (except Public Administration),33,<20,683865,689269,2618235,G,93107935
+81,Other Services (except Public Administration),06,20-24,11768,13503,254094,G,9561965
+81,Other Services (except Public Administration),07,25-29,7368,8996,195699,G,7428584
+81,Other Services (except Public Administration),08,30-34,4963,6375,155756,G,5965181
+81,Other Services (except Public Administration),09,35-39,3529,4808,127828,G,5147685
+81,Other Services (except Public Administration),10,40-49,4546,6703,194460,G,7931479
+81,Other Services (except Public Administration),11,50-74,5327,9049,304442,G,13020939
+81,Other Services (except Public Administration),12,75-99,2263,5151,179736,G,8171872
+81,Other Services (except Public Administration),13,100-149,1907,5132,201921,G,9615755
+81,Other Services (except Public Administration),14,150-199,867,3158,121702,G,6530189
+81,Other Services (except Public Administration),15,200-299,833,4533,149168,G,8153236
+81,Other Services (except Public Administration),16,300-399,355,2274,81337,G,4404560
+81,Other Services (except Public Administration),17,400-499,245,1533,64931,G,4284924
+81,Other Services (except Public Administration),37,<500,727836,760484,4649309,G,183324304
+81,Other Services (except Public Administration),18,500-749,315,4237,103659,G,5570136
+81,Other Services (except Public Administration),19,750-999,184,1772,64965,G,3618490
+81,Other Services (except Public Administration),31,"1,000-1,499",193,3632,85492,G,5355726
+81,Other Services (except Public Administration),22,"1,500-1,999",105,4487,65502,H,2984383
+81,Other Services (except Public Administration),23,"2,000-2,499",85,2355,57507,G,2520489
+81,Other Services (except Public Administration),24,"2,500-4,999",169,3630,101920,G,6067119
+81,Other Services (except Public Administration),25,"5,000+",349,17239,343633,G,18751426
+99,Industries not classified,01,Total,8498,8498,11852,H,554827
+99,Industries not classified,02,<5,7928,7928,6425,J,400281
+99,Industries not classified,03,5-9,404,404,2540,G,79029
+99,Industries not classified,04,10-14,93,93,1083,G,26838
+99,Industries not classified,05,15-19,33,33,566,H,13794
+99,Industries not classified,33,<20,8458,8458,10614,H,519942
+99,Industries not classified,06,20-24,12,12,250,G,5939
+99,Industries not classified,07,25-29,8,8,203,J,5743
+99,Industries not classified,08,30-34,8,8,261,G,7036
+99,Industries not classified,09,35-39,3,3,107,H,1165
+99,Industries not classified,10,40-49,9,9,417,G,15002
+99,Industries not classified,37,<500,8498,8498,11852,H,554827
