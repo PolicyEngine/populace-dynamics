@@ -124,8 +124,11 @@ def verify_external_sign_path(generator: Any) -> SignPathRecord:
     """Exercise and record the externally-driven earnings sign-gate branch.
 
     The probe is synthetic and deliberately bypasses the earnings frame.  Its
-    sole purpose is to prove that each fitted participation gate exposes the
-    certified ``draw_sign`` interface instead of the internal-model fallback.
+    sole purpose is to prove that each fitted participation gate deploys the
+    CERTIFIED ``_target_models`` reconstruction (the branch every real
+    ``FittedRegimeGatedQRF`` executes, section 2.8.6 as corrected by design
+    amendment 3c) rather than the ``draw_sign`` test seam, which exists only
+    on injected doubles.
     """
     named_gates = [("shared_gate", getattr(generator, "shared_gate", None))]
     zero_gate = getattr(generator, "zero_anchor_gate", None)
@@ -138,9 +141,14 @@ def verify_external_sign_path(generator: Any) -> SignPathRecord:
     outputs: list[int] = []
     checked: list[str] = []
     for name, gate in named_gates:
-        if gate is None or not callable(getattr(gate, "draw_sign", None)):
+        if (
+            gate is None
+            or callable(getattr(gate, "draw_sign", None))
+            or getattr(gate, "_target_models", None) is None
+        ):
             raise RuntimeError(
-                f"{name} does not deploy the externally-driven draw_sign path"
+                f"{name} does not deploy the certified _target_models"
+                " reconstruction (or carries the draw_sign test seam)"
             )
         signs = np.asarray(
             _gate_sign_draw(gate, current_level, target_age, uniforms),
@@ -151,7 +159,7 @@ def verify_external_sign_path(generator: Any) -> SignPathRecord:
         checked.append(name)
         outputs.extend(int(value) for value in signs)
     return SignPathRecord(
-        branch="externally_driven_draw_sign",
+        branch="certified_target_models_reconstruction",
         gates_checked=tuple(checked),
         probe_rows=len(current_level),
         output_signs=tuple(outputs),

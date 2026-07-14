@@ -97,7 +97,10 @@ def _synthetic_operations(events, *, fail_at=None):
         return record("preflight_1", {"passed": True})
 
     def preflight_2(_inputs, _phase, _contract):
-        return record("preflight_2", {"branch": "externally_driven_draw_sign"})
+        return record(
+            "preflight_2",
+            {"branch": "certified_target_models_reconstruction"},
+        )
 
     def score_seed(_inputs, _phase, _contract, seed):
         return record(

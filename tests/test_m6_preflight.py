@@ -90,27 +90,58 @@ def test_candidate9_preflight_uses_period_zero_for_both_paths(monkeypatch):
 
 
 class _ExternalGate:
+    """The draw_sign TEST SEAM double (design amendment 3c: must be REJECTED)."""
+
     def draw_sign(self, current_level, target_age, uniforms):
         del current_level, target_age
         return (uniforms < 0.5).astype(np.int64)
 
 
-def test_sign_path_records_external_branch_on_synthetic_probe():
+class _CertifiedInnerGate:
+    classes_ = np.asarray([0, 1], dtype=np.int64)
+
+    def predict_proba(self, values):
+        return np.tile(
+            np.asarray([[0.5, 0.5]], dtype=np.float64), (len(values), 1)
+        )
+
+
+class _CertifiedModel:
+    columns = ("earnings", "age_tp2")
+    gate = _CertifiedInnerGate()
+
+
+class _CertifiedGate:
+    """A _target_models reconstruction double (the CERTIFIED branch)."""
+
+    def __init__(self):
+        self._target_models = {"earnings_tp2": _CertifiedModel()}
+
+
+def test_sign_path_records_certified_branch_on_synthetic_probe():
     record = m6_preflight.verify_external_sign_path(
         SimpleNamespace(
-            shared_gate=_ExternalGate(), zero_anchor_gate=_ExternalGate()
+            shared_gate=_CertifiedGate(), zero_anchor_gate=_CertifiedGate()
         )
     )
 
-    assert record.branch == "externally_driven_draw_sign"
+    assert record.branch == "certified_target_models_reconstruction"
     assert record.gates_checked == ("shared_gate", "zero_anchor_gate")
     assert record.probe_rows == 2
-    assert record.output_signs == (1, 0, 1, 0)
+    # uniforms [0.25, 0.75] against cumsum [0.5, 1.0] -> classes 0, 1.
+    assert record.output_signs == (0, 1, 0, 1)
 
 
-def test_sign_path_rejects_internal_target_model_fallback():
-    fallback = SimpleNamespace(_target_models={})
-    with pytest.raises(RuntimeError, match="externally-driven"):
+def test_sign_path_rejects_draw_sign_test_seam():
+    with pytest.raises(RuntimeError, match="_target_models"):
         m6_preflight.verify_external_sign_path(
-            SimpleNamespace(shared_gate=fallback, zero_anchor_gate=None)
+            SimpleNamespace(shared_gate=_ExternalGate(), zero_anchor_gate=None)
+        )
+
+
+def test_sign_path_rejects_gate_without_reconstruction():
+    bare = SimpleNamespace()
+    with pytest.raises(RuntimeError, match="_target_models"):
+        m6_preflight.verify_external_sign_path(
+            SimpleNamespace(shared_gate=bare, zero_anchor_gate=None)
         )
