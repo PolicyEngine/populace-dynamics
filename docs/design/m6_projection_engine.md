@@ -106,7 +106,7 @@
   revision 11 (closes factory-referee F1/F2, PR #191 comment 4969829131: the pinned
   seven-band external-rates shape vs `AgeSexMortalityModel`'s 0-start requirement, and the
   version gate's unbound parameter directory; N1 `_era_mapping` docstring soften).
-- amendment 3f (demographic-seed sex source correction) → §2.8.3f (corrects the
+- amendment 3f (demographic-seed sex source correction) → §2.8.3f, §10 revision 12 (corrects the
   §2.8.3 per-field list, which attributed `sex` to `panels.demographic_panel`; the
   demo frame has no `sex`, so `build_realized_population` now sources it from
   `data.deaths` — closes the third registration's crash-2, graded #42 comment
@@ -1159,7 +1159,7 @@ execution — the second pre-scoring crash of the third registration (registered
 graded #42 comment 4972045579). Person sex is person-constant `ER32000` from the PSID
 cross-year individual file, read by `data.deaths.read_death_records` — the **same** source
 §2.8.3 already names for the mortality slices, and the same canonical attach the certified
-deployment builders use (`household_composition.join_demographics`, `disability.attach_sex`).
+builders use (`household_composition.join_demographics`, `disability.attach_sex`).
 *Resolution, PINNED:* `build_realized_population` takes the `death_records` frame and joins
 person sex by `person_id` before the demographic seed, validating one coded value per person
 (no conflicts) and full coded-sex coverage over the anchor persons (raise on any anchor
@@ -2522,7 +2522,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 11,
+  "revision": 12,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
