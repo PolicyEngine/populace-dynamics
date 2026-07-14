@@ -95,10 +95,13 @@
   friction F7.
 - 8 (weight semantics over the projection window) → friction F6, §4.7.
 - 10 (dual-axis reference-year/event-year shock-window pin) → §4.1.
-- 11 (claiming-table vintage) → §2.2 step 7, §7.
+- 11 (claiming-table vintage) → §2.2 step 7, §7; **frozen §2.8.10** (2014-edition 6.B5.1).
 - 12 (biennial boundary peek at `T*`) → §4.2.
 - 13 (household-ID persistence + weight carriage) → §2.2 step 8, §9.
 - 14 (compute the OC before lock; weak-power pause) → §9.
+- amendment 3d (≤`T*` external-reference input bindings: claiming / SSA-params / mortality
+  vintages + the input factory) → §2.8.10, §10 revision 9 (resolves finding 11's freeze
+  branch).
 
 ## 1. Summary
 
@@ -207,7 +210,8 @@ sub-states):
    with DI→retirement conversions supplied by step 5. The 6.B5.1 reference is the
    *2023* Supplement (`claiming.py:7`), a post-`T*` external table; it touches no
    gated cell but feeds report-only benefit levels, so it is frozen to a ≤`T*`
-   vintage or its vintage leak is named (finding 11, §7).
+   vintage or its vintage leak is named (finding 11, §7; **the ≤`T*` freeze is pinned
+   in §2.8.10 — the *2014*-edition 6.B5.1**).
 8. **household composition reconciliation** — resolve cohabitation, legal-spouse
    residual, parental-home exit, multigenerational and skip-generation occupancy,
    non-family bridge, and household size from the `household_composition` registry
@@ -1371,6 +1375,213 @@ lane's blocker; a fresh
 review, with a forecast informed by nothing new (no holdout contact occurs in the
 harness build).
 
+### 2.8.10 The ≤2014 external-reference input bindings (design amendment 3d, closes the second designed stop)
+
+The harness of §2.8.1–§2.8.9 is fully specified, but it does **not execute itself**:
+`run_gate_m6_candidate1.py` is not self-starting (its docstring: "a fresh issue-42
+registration and an explicit input factory are required"), requiring an
+`--input-factory module:callable` that returns an `M6HarnessInputs` via
+`load_m6_inputs` (`harness/m6_inputs.py:542-564`). That entry point takes **three
+caller-owned external references** — `ssa_params` + `ssa_params_vintage`, a
+`claiming_reference`, and
+`mortality_exposure` + `mortality_external_rates` + `mortality_external_vintage` —
+and `_validate_external_inputs` (`m6_inputs.py:198-250`) refuses any of them past
+`T*` through `validate_external_vintage` (`engine/refit.py:825-838`; `vintage > 2014`
+raises). The run lane's **second designed pre-scoring stop** (registered
+4967241464, graded
+[#42 comment 4967433717](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4967433717))
+found that this certified binding **does not exist**: the only committed claiming
+reference is the *2023* Supplement, and `claiming_pmfs_from_reference` **correctly
+raises** `claiming reference vintage 2023 is post-T* (2014)`. The guard architecture
+worked — it kept the runner from silently selecting a new external vintage; the
+one-shot was preserved, nothing scored. This subsection is the reviewed amendment the
+stop names as the unblock: it pins all three ≤`T*` bindings **and** the factory that
+supplies them, at the §2.7.6 / §2.8.9 bar (**zero** build-lane choices,
+candidate-blind — the bindings are fixed sources and vintages, tuned to no 2015–2019
+observable). It **resolves finding 11** (§2.2 step 7, §9 `claiming_vintage_freeze`) by
+taking its **"≤`T*` claiming vintage"** branch, not the "named 2023 leak" branch.
+
+**2.8.10.1 Binding 1 — the claiming reference (the hard blocker).** *Source, PINNED:*
+the **SSA *Annual Statistical Supplement, 2014* (the 2014 edition), Table 6.B5.1** —
+"percentage distribution of retired-worker awardees by age at month of entitlement, by
+sex and year of entitlement." It carries entitlement years **1998–2013** (each edition
+*Y* tabulates 1998..*Y*−1; verified against the committed 2023 file's 1998–2022) with
+`supplement_year = 2014`. *Why this edition:* it is the **maximal edition with
+`supplement_year ≤ 2014`** — the 2015 edition (data through 2014) has
+`supplement_year = 2015` and `validate_external_vintage` rejects it. The 2014 edition's
+**information** is entirely ≤2013 claiming behaviour; its publication (~early 2015) is
+post-`T*` but its information is ≤`T*`, **leakage-safe on the exact §2.7.6.3
+publication-lag principle** ("only its publication *date* is post-`T*`, not its
+*information*"). This is the finding-11 freeze. *Fields to extract* (mirror
+`scripts/build_ssa_claim_ages.py` verbatim): per (sex, entitlement year) the twelve
+published raw age columns `{age62, age63, age64, age65_before_fra, age65_at_fra,
+age65_after_fra, age66_before_fra, age66_at_fra, age66_after_fra,
+disability_conversion, age67_69, age70plus}` (`null` for the era-inapplicable `. . .`
+cells), `number_thousands`, `average_age`, and the footnote-a FRA schedule; the
+era-dependent applicable-column map is recorded per year exactly as the 2023 build
+does. *Target schema, PINNED:* `data/external/ssa_claim_ages_2014supplement.json`,
+byte-shaped **identically to the committed `ssa_claim_ages_2023supplement.json`** —
+`schema_version = "ssa_claim_ages.v1"`, `table = "6.B5.1"`, `supplement_year = 2014`,
+`column_schema.{raw_columns, collapsed_categories}` (the eight-way partition `{age62,
+age63, age64, age65, age66, disability_conversion, age67_69, age70plus}`),
+`provenance`, `validation`, `fra_schedule`, and `data.{male,female}.{"YYYY":
+{number_thousands, average_age, raw, categories, fra_at, …}}` — so
+`claiming.load_claim_age_reference(path)` parses it (`claiming.py:147-166`) and
+`claiming_pmfs_from_reference` admits it (`supplement_year 2014 ≤ 2014`; entitlement
+years ≤2014 present). *Acquisition protocol* (the **orchestrator** performs; ssa.gov
+returns HTTP 403 to `curl` / WebFetch): from an authenticated browser session, fetch
+**`https://www.ssa.gov/policy/docs/statcomps/supplement/2014/6b.html`** (Table 6.B5.1;
+PDF fallback `…/2014/supplement14.pdf`), transcribe verbatim into
+`scripts/build_ssa_claim_ages_2014supplement.py` (embedded `RAW_TABLE`, era-column
+handling, cross-validated to the digit against a live DOM/PDF extraction of the same
+page in the same session), emit the JSON, and **commit the raw fetched source
+alongside** (e.g. `data/external/sources/ssa_supplement_2014_6b.html`) recording in
+`provenance`: `source_url`, retrieval date (UTC), `fetch_method`, and the **sha256 of
+the committed source**. *Consumption:* **report-only** — claiming is R2 marital-blind
+(§2.6) and feeds only report-only benefit levels (AIME/PIA/claiming are never gated,
+§2.8.3a); it is a **hard blocker** solely because `load_m6_inputs` materialises the
+PMFs at assembly and raises on any post-2014 vintage before any PSID read. The
+documented nearest-year fallback (`claiming._resolve_year`) snaps projected entitlement
+years >2013 to 2013 — the held-out claim mix frozen at the last ≤`T*` observation.
+
+**2.8.10.2 Binding 2 — the SSA parameters vintage.** *Revision, PINNED:* load from
+**policyengine-us 1.752.2** — the deployment-frame pin (`data/deployment_frame.py:48`,
+`CERTIFIED_PIN["model_version"]`, shared with every `gate_w1` artifact); the build lane
+points `POPULACE_DYNAMICS_PE_US_DIR` at a 1.752.2 checkout. `params_full =
+load_ssa_parameters()` (`ss/params.py:206`) runs its load-time cross-check (derived
+bend points vs pe-us stored thresholds; `NAWI(1977) = 9,779.44`) on the **realized**
+series, which passes. Declare `ssa_params_vintage = 2014`. The **field-level vintage
+rule** (mechanically load-bearing — the guard checks only the declared int, not the
+dict contents, so leakage-safety is a *design* obligation the factory must honour):
+
+- **NAWI — realized ≤2014, `I_proj` beyond (replace, do not truncate).** Keep the
+  realized values for years ≤2014 (the `[2005, 2014]` window intact: 2005 = 36,952.94 …
+  2014 = 46,481.52) and **replace every entry for year >2014** with the §2.7.6.3
+  projection `I_proj(y) = exp(α + β·y)`, where `(α, β)` is the OLS fit of `ln(NAWI)` on
+  year over `[2005, 2014]` — **byte-identical to
+  `engine.forward_earnings.fit_projected_wage_index`** (`forward_earnings.py:181-206`) —
+  over the **same year-key range** as the pinned revision (so `max(nawi)` is unchanged).
+  *Why replace, not truncate:* `couple_earnings.indexed_earnings_supply` admits a person
+  to the gate-2c permanent-earnings axis only if `min_nawi ≤ birth+60 ≤ max_nawi`
+  (`_admitted`, `couple_earnings.py:350-362`) and indexes their ≤2014 earnings to the
+  age-60-year NAWI; a hard truncation to ≤2014 collapses `max_nawi` to 2014, admitting
+  only `birth ≤ 1954` — **near-empty for a PSID first-marriage panel** — so
+  `refit_first_marriage_modifier` raises (`"gate-2c permanent earnings supply is
+  empty"`, `refit.py:879-880`) or degenerates. That modifier drives the **gated**
+  marital flows (`divorce.18-44`, `first_marriage.18-29|female`, `remarriage.18-64`), and
+  §2.7.6.3 names **AIME indexing** as a NAWI consumer under the **leakage prohibition on
+  realized post-`T*` NAWI on the scored path**; a current pe-us checkout carries
+  **realized** 2015–2024 NAWI (2015 = 48,098.63 vs `I_proj(2015) = 47,252.12`, an $846
+  gap) which would leak realized wage growth into those gated flows. Replacing post-2014
+  NAWI with the identical `I_proj` the forward law re-derives internally hands the refit
+  **one `T*`-admissible wage-index surface** — realized ≤2014, `I_proj` beyond — so every
+  NAWI consumer (the forward de-index, AIME indexing, bend-point derivation) reads only
+  ≤`T*` values, while the **admitted universe** (a function of the year-key *range*, not
+  the values) is unchanged.
+- **Ordering constraint (PINNED).** The replacement **must follow `load_ssa_parameters`
+  and must not re-trigger its cross-check**: that check compares derived bend points
+  (`nawi[year−2]`) to pe-us's realized-based stored thresholds across the whole stored
+  range, and re-deriving post-2014 bend points from `I_proj` — intended for the fit —
+  would spuriously trip it. So the order is **load (cross-check on realized) →
+  `dataclasses.replace(params_full, nawi=…, wage_base=…)`**. `SSAParameters` is a frozen
+  dataclass with no `__post_init__` (`ss/params.py:65-136`), so `replace` bypasses the
+  check by construction.
+- **Wage base — truncate change-years to ≤2014.** Keep the step-function entries through
+  2014 (= 117,000); drop 2015+. Inert on every gated cell (the ≤2014-truncated earnings
+  panel credits only ≤2014 earnings, so `benefits.creditable_history` consults only
+  ≤2014 bases), and it keeps the declared vintage literally true; the report-only AIME's
+  use of the persisted 2014 base for post-2014 projected earnings is a report-only
+  immateriality (§2.7.6.3 admits the realized base only on the `taxable_max` /
+  report-only path anyway).
+- **Bend points — inherit the NAWI rule.** Derived, not stored (`bend_points(year) =
+  f(nawi[year−2])`, `ss/params.py:138-149`); realized-derived through eligibility year
+  2016, `I_proj`-derived beyond, consumed only on the report-only PIA path — no separate
+  step.
+- **Statutory step schedules — pass through.** The 416(l) FRA-by-birth-year table, the
+  PIA formula factors, the 402(q) early-reduction rates, the 402(w)
+  delayed-credit-by-birth-year steps, `max_delayed_years`, and the auxiliary
+  spouse/survivor constants (`ss/params.py:87-136`) are keyed by **birth year** or are
+  statutory constants — no calendar-year vintage content; every value in the model's
+  scope was fixed in statute well before 2014. Unchanged from the pinned revision.
+- **Prohibited, enumerated.** (a) any **realized** NAWI for year >2014 on any refit path
+  (replaced by `I_proj`); (b) any `wage_base` change-year >2014 in the bundle; (c) any
+  pe-us parameter whose effective date >2014 that the refit reads. The 2026 bend-point
+  determination (1,286 / 7,749) that `load_ssa_parameters` cross-checks is a **load-time
+  self-consistency assertion on the realized series, not a fit input** — it enters no
+  fitted estimate and no gated cell; recorded here so the referee does not read it as a
+  post-`T*` leak.
+
+**2.8.10.3 Binding 3 — the mortality reference (ungated).** *Vintage, PINNED:* **NCHS
+*United States Life Tables, 2010*** (NVSR Vol. 63 No. 7, released Nov 2014),
+`data/external/nchs_life_tables_2010.json` (`vintage_year = 2010`);
+`mortality_external_vintage = 2010` (the vintage the canonical fixture
+`tests/test_m6_inputs.py:263` already uses). *Why 2010, and 2023 prohibited:* the 2023
+table (NVSR 74-6) is post-`T*` — `validate_external_vintage` raises (2023 > 2014); it is
+admissible only for `build_mortality_floors.py`'s **same-time** reproduction floor, not a
+temporal holdout. Both 2010 and 2000 (NVSR 51-3) are ≤`T*` decennial complete life
+tables; **2010 is the latest admissible vintage** and is ≤`T*` on both axes (describes
+2010 mortality, published Nov 2014). The external table sets the population mortality
+**level** against which the ≤2014 PSID hazard ratio is estimated (`fit_mortality_model`:
+`ratio = psid_rate / central_rate`, `refit.py:1083-1088`); the 2010 decennial is
+contemporaneous with the end of the fit window, whereas the 2000 decennial anchors to a
+14-year-stale, higher-mortality level (US mortality fell 2000→2010) — the mortality
+analog of §2.7.6.3's "recent regime, exclude the structural break." *external-rates
+shaping, PINNED* (mirror `build_mortality_floors.py:256-275` `nchs_band_rates`):
+`mortality_external_rates` with columns `{lower_age, upper_age, age_band, sex,
+central_rate}`; for each band × sex ∈ {female, male}, `central_rate = (l_a − l_{b+1}) /
+(T_a − T_{b+1})` from the 2010 table's `lx`/`Tx` columns (open top band `[85,120] = l_85
+/ T_85`), over the seven `MORTALITY_BANDS` `(25-34, 35-44, 45-54, 55-64, 65-74, 75-84,
+85+)` (`m6_cells.py:70-78`); band strings via `band_label` (hyphen closed, `"85+"`
+open); `(lower_age, upper_age)` the band endpoints. *exposure shaping, PINNED* (mirror
+`m6_cells.mortality_slices` / `build_exposure_slices`): `mortality_exposure` with columns
+`{event_year, required_interview_year, age_band, sex, start_weight, exposure, death}`
+from the ≤2014 PSID person-interval single-year slices — `exposure = 0.5` in the
+death-year slice else `1.0`, `death = 1.0` in that slice else `0.0`; `age_band` from
+`MORTALITY_BANDS`, `sex` from `data.deaths`, `start_weight` the F6 realized start-wave
+anchor weight; `event_year` the PSID exact death year and `required_interview_year` the
+interview that dates the death, so `prepare_mortality_refit_inputs` (`refit.py:987-1026`)
+keeps as a **flow** only deaths with **both** `event_year ≤ 2014` **and**
+`required_interview_year ≤ 2014` (the biennial-boundary rule, finding 12). *Consumption —
+UNGATED:* the rates + exposure feed `fit_mortality_model` (the projection's step-1
+age×sex hazard) and the report-only mortality / AIME / PIA / household diagnostics; **no
+mortality cell is in the 11-cell gated set** (`death.85+` is report-only,
+attrition-demoted, `m6_cells.py:79-83`, §2.8.4). Per the F1 adjudication (§2.8.4), gated
+flows and earnings score on the **realized** support regardless of simulated death, so
+this binding touches **no gated tolerance** — it is required only because
+`load_m6_inputs` validates the mortality vintage + shape at assembly.
+
+**2.8.10.4 Binding 4 — the factory contract.** *PINNED:* a new module exposing
+**`registered_m6_inputs:build_inputs`** — a **zero-argument** `build_inputs() ->
+M6HarnessInputs` resolved by `run_gate_m6_candidate1.py --input-factory
+registered_m6_inputs:build_inputs` (`run_gate_m6_candidate1.py:37-46`). Every binding
+above is **hardcoded**; there is no argument and no environment-derived vintage
+selection beyond `POPULACE_DYNAMICS_PE_US_DIR` → the pinned 1.752.2 checkout.
+Deterministic steps, in order: **(1)** assert the pe-us checkout is 1.752.2
+(`CERTIFIED_PIN["model_version"]`); `params_full = load_ssa_parameters()`; **(2)**
+`params = dataclasses.replace(params_full, nawi = {realized ≤2014} ∪ {I_proj(y) : y>2014
+in params_full.nawi}, wage_base = {change-year ≤2014})` (§2.8.10.2, `I_proj` via
+`fit_projected_wage_index`); **(3)** `claiming_reference =
+claiming.load_claim_age_reference("data/external/ssa_claim_ages_2014supplement.json")`
+and **assert its sha256 equals the pinned constant** (the committed raw source's sha256
+recorded in `provenance`); **(4)** build `mortality_external_rates` from
+`nchs_life_tables_2010.json` (band collapse) and `mortality_exposure` from the ≤2014 PSID
+slices (§2.8.10.3); **(5)** `return load_m6_inputs(ssa_params=params,
+ssa_params_vintage=2014, claiming_reference=claiming_reference, mortality_exposure=…,
+mortality_external_rates=…, mortality_external_vintage=2010)` (defaults
+`boundary_year=2014`, `earnings_seed=5200`). `load_m6_inputs` then **re-validates every
+vintage at assembly** (`validate_external_vintage` ×3, `claiming_pmfs_from_reference`,
+`prepare_mortality_refit_inputs`), so the harness re-checks the factory's bindings before
+any PSID read; the sha256 gate plus the three ≤`T*` guards make the one binding that
+could silently drift — the acquired claiming source — tamper-evident. The factory is
+exercised on the committed references + staged PSID **only at the registered run**; the
+build/test lane never executes the runner against real data (runner docstring, §2.8.8).
+
+**Residual: none.** All three references are pinned to a single ≤`T*` source and vintage
+each, and the factory is a deterministic **build** over them, not a design choice.
+Amendment 3d proceeds as 3b / 3c did: this pin → referee → the factory build
+(`registered_m6_inputs`) plus the acquired claiming source with provenance → referee →
+merge → a third `gate_m6` registration → the run.
+
 ## 3. RNG discipline — the projection stream registry
 
 ### 3.1 The inherited convention
@@ -2027,7 +2238,8 @@ The ceremony that seeds from this revised §4 must produce, before locking:
   household-disjoint floor split and the household-level report-only cells depend on,
   consistent with the F6 weight convention (§4.7).
 - **the claiming-vintage freeze (finding 11)** — a ≤`T*` claiming vintage for the
-  report-only benefit levels, or the named 2023-Supplement vintage leak.
+  report-only benefit levels, or the named 2023-Supplement vintage leak. **Pinned
+  §2.8.10: the *2014* Supplement 6.B5.1 (`supplement_year = 2014`).**
 
 ## 10. Design-parameters summary (design proposal — not a test-bound ledger)
 
@@ -2041,7 +2253,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 8,
+  "revision": 9,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -2100,6 +2312,48 @@ lock ceremony.
   },
   "scored_run_harness": {
     "amendment_3_section": "2.8 (unblocks the gate_m6 run; designed stop #42 comment 4962773701, registration 4962640241); revised per amendment-3 referee MAJOR REVISION #42 comment 4963629234 (F1 adjudicated + F2-F6 pins + fertility disclosure)",
+    "amendment_3d_section": "2.8.10 (the <=T* external-reference input bindings; closes the run lane's SECOND designed pre-scoring stop, #42 registration 4967241464 graded comment 4967433717); resolves finding 11 via the claiming-vintage-freeze branch",
+    "input_reference_bindings": {
+      "blocker": "run_gate_m6_candidate1.py is not self-starting: the --input-factory returning M6HarnessInputs via load_m6_inputs needs three <=T* external references that did not exist; the only committed claiming ref is the 2023 Supplement, and claiming_pmfs_from_reference correctly raises vintage 2023 is post-T* (2014)",
+      "claiming": {
+        "source": "SSA Annual Statistical Supplement 2014 edition, Table 6.B5.1 (retired-worker awardees by age at entitlement, by sex and entitlement year)",
+        "supplement_year": 2014,
+        "entitlement_years": "1998-2013 (each edition Y tabulates 1998..Y-1)",
+        "why": "maximal edition with supplement_year<=2014 (the 2015 edition, data through 2014, is rejected); its information is <=2013 so it is leakage-safe on the 2.7.6.3 publication-lag principle",
+        "target_file": "data/external/ssa_claim_ages_2014supplement.json (schema ssa_claim_ages.v1, table 6.B5.1, supplement_year 2014, byte-shaped like the committed 2023 file)",
+        "acquisition": "orchestrator browser-fetch https://www.ssa.gov/policy/docs/statcomps/supplement/2014/6b.html (PDF fallback supplement14.pdf); ssa.gov 403s curl/WebFetch; commit the raw source + record source_url, retrieval date, fetch_method, source sha256 in provenance; factory asserts the committed-JSON sha256 at load",
+        "consumption": "REPORT-ONLY (R2 marital-blind; feeds report-only benefit levels; never gated); a HARD blocker only because load_m6_inputs materializes the PMFs at assembly and rejects any post-2014 vintage before any PSID read",
+        "nearest_year_fallback": "projected entitlement years >2013 snap to 2013 (claiming._resolve_year) -- held-out claim mix frozen at the last <=T* observation"
+      },
+      "ssa_params": {
+        "pe_us_revision": "policyengine-us 1.752.2 (deployment_frame CERTIFIED_PIN model_version)",
+        "ssa_params_vintage": 2014,
+        "nawi_rule": "realized <=2014 kept; every entry y>2014 REPLACED with I_proj(y)=exp(a+b*y), (a,b)=OLS ln(NAWI)~year over [2005,2014] (byte-identical to fit_projected_wage_index), over the SAME year-key range so max(nawi) is unchanged",
+        "why_replace_not_truncate": "indexed_earnings_supply admits a person only if min_nawi<=birth+60<=max_nawi (couple_earnings._admitted) and indexes <=2014 earnings to the age-60-year NAWI; truncation to <=2014 collapses the admitted universe to birth<=1954, emptying the gate-2c modifier axis that drives the gated marital flows (divorce/first_marriage/remarriage); 2.7.6.3 names AIME indexing a NAWI consumer under the realized-post-T*-NAWI leakage prohibition, and a current checkout realized 2015 NAWI 48098.63 vs I_proj 47252.12 (846 gap) would leak into those gated flows",
+        "ordering": "REPLACE only AFTER load_ssa_parameters -- its bend-point cross-check runs on the realized series and re-deriving post-2014 bend points from I_proj would spuriously trip it; use dataclasses.replace on the frozen SSAParameters (no __post_init__)",
+        "wage_base_rule": "truncate change-years <=2014 (inert on gated cells: the <=2014 panel credits only <=2014 bases via creditable_history)",
+        "bend_points": "derived (nawi[year-2]); inherit the NAWI rule (realized through eligibility year 2016, I_proj beyond); report-only PIA path only",
+        "statutory_schedules": "416(l) FRA / PIA factors / 402(q) / 402(w) / max_delayed / aux spouse-survivor constants are birth-year-keyed or statutory -> no calendar vintage -> pass through unchanged",
+        "prohibited": ["realized NAWI y>2014 on any refit path", "wage_base change-year >2014 in the bundle", "any pe-us value effective >2014 the refit reads"],
+        "cross_check_note": "the 2026 bend-point determination (1286/7749) load_ssa_parameters checks is a load-time self-consistency assertion on the realized series, NOT a fit input or gated cell"
+      },
+      "mortality": {
+        "vintage": "NCHS United States Life Tables 2010 (NVSR 63-7, released Nov 2014), data/external/nchs_life_tables_2010.json (vintage_year 2010)",
+        "mortality_external_vintage": 2010,
+        "why_2010": "2023 (NVSR 74-6) is post-T* and validate_external_vintage rejects it; 2010 is the latest admissible decennial, <=T* on both axes, and anchors the ratio=psid_rate/central_rate to a mortality LEVEL contemporaneous with the fit-window end; 2000 (NVSR 51-3) is 14-yr stale (US mortality fell 2000->2010) -- the mortality analog of 2.7.6.3 recent-regime logic",
+        "external_rates": "columns {lower_age,upper_age,age_band,sex,central_rate}; central_rate=(l_a-l_{b+1})/(T_a-T_{b+1}) from lx/Tx (open [85,120]=l_85/T_85) over 7 MORTALITY_BANDS (25-34,35-44,45-54,55-64,65-74,75-84,85+), sex {female,male}; mirrors build_mortality_floors nchs_band_rates",
+        "exposure": "columns {event_year,required_interview_year,age_band,sex,start_weight,exposure,death} from <=2014 PSID single-year slices (exposure 0.5 in the death slice, death 1.0), F6 start-wave weight; prepare_mortality_refit_inputs flow-truncates to event_year<=2014 AND required_interview_year<=2014 (biennial rule, finding 12)",
+        "consumption": "UNGATED: feeds fit_mortality_model (step-1 age x sex hazard) + report-only mortality/AIME/PIA/household diagnostics; NO death.* in the 11 gated cells (death.85+ report-only, attrition-demoted); per F1 gated flows/earnings score on realized support regardless of simulated death -- touches no gated tolerance"
+      },
+      "factory": {
+        "entry": "registered_m6_inputs:build_inputs -- zero-arg build_inputs() -> M6HarnessInputs (run_gate_m6_candidate1.py --input-factory)",
+        "steps": "1) assert pe-us 1.752.2 + load_ssa_parameters (cross-check on realized); 2) dataclasses.replace NAWI(realized<=2014 + I_proj) + wage_base(<=2014); 3) load_claim_age_reference(ssa_claim_ages_2014supplement.json) + assert pinned sha256; 4) build mortality_external_rates(NCHS 2010 band collapse) + mortality_exposure(<=2014 PSID slices); 5) load_m6_inputs(ssa_params_vintage=2014, mortality_external_vintage=2010, boundary 2014, earnings_seed 5200)",
+        "revalidation": "load_m6_inputs re-runs validate_external_vintage x3 + claiming_pmfs_from_reference + prepare_mortality_refit_inputs at assembly; the sha256 gate + three <=T* guards make the acquired claiming source tamper-evident",
+        "build_lane_never_runs_real_data": true
+      },
+      "residual_open_decisions": "none",
+      "next": "3d pin -> referee -> factory build (registered_m6_inputs) + acquired claiming source with provenance -> referee -> merge -> THIRD gate_m6 registration -> run"
+    },
     "core_adjudication": "year-0 closed panel carries REALIZED histories: builders read each person's realized <= THEIR ANCHOR INTERVIEW marriage/household history (2015 for the bulk; 2017/2019 presence-conditioned openers seed at their later anchor) as the seed (decision 5 reproduction-mode semantics extended from disability_step assembly.py:257-304); the per-person anchor is the true leakage fence (ratified block f6_weight.start_wave + 4.4; seed = realized initial condition, refit stays <=2014, no fitter sees it); projected years constructed from simulated state under the pinned per-field rules; forward/production path out of scope (decision-5 successor gate, support.py FORWARD structural_delta)",
     "builders": {
       "contract": "(frame, context) -> (native_panel, holdout_ids) per assembly.py:59-72; schema-byte-compatible with transitions.build_marital_panel / household_composition.build_household_panel (R1 plumbing); whole-window, certified core run ONCE per draw and cached (the built disability_step pattern)",
@@ -2160,7 +2414,7 @@ lock ceremony.
     "F6": "weight semantics over the projection window (start-wave vs per-year calibrated)",
     "F7": "PSID attrition on the truth side (mortality worst)"
   },
-  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze"],
+  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze (PINNED 2.8.10: 2014 Supplement 6.B5.1, supplement_year 2014)"],
   "non_goals": ["behavioral_response", "macro_feedback", "trust_fund_accounting_M7", "rules_on_whole_panel_M8", "new_spec_estimation", "validated_projection_beyond_holdout", "forward_engine_certification_deferred_to_successor_gate"],
   "process_addendum_bindings": {"pass_run_verification": "#42 comment 4948637741", "ladder_search_disclosure": "#42 comment 4948637741 + finding 1 spec-selection"}
 }
