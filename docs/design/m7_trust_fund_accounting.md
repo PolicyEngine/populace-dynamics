@@ -698,4 +698,87 @@ and reproduces M2 (§6). It supports **no** claim beyond that. In the campaign's
 - **No whole-panel simultaneous rules scoring.** Executing rulespec/pe-us rules
   per projected year across the panel is M8 (W2/W3), not M7.
 
+## 8. Open decisions for the referee
+
+These are under-determined and are **listed, not silently resolved.** Each states
+the choice, the options, and this design's lean — the referee decides.
+
+1. **Internal gate vs the roadmap's external-level gate (the central one).** #113
+   M7 says gate on "the TR baseline deficit … in LEVELS" and "per-provision balance
+   vs the Five-Approaches A-tables in LEVELS." §5.3 argues those levels are not
+   honestly gradable on a survey panel. *Options:* (a) internal-identity gate
+   (§6); (b) the roadmap's external-level gate with a pre-registered tolerance; (c)
+   a normalized-shape gate on % of taxable payroll with composition deltas held
+   fixed. **Lean: (a)** — it matches the M2 precedent and the campaign's "levels
+   are frame-relative" discipline; (b) would gate the composition mismatch as if
+   it were model error. This lean directly contradicts the roadmap wording, which
+   is why it is decision 1 and not a silent choice.
+2. **Nominal vs real accounting (§2.5).** *Options:* (a) M2's wage-indexed real
+   dollars (no CPI-W needed, real interest 2.9%); (b) nominal (Trustees' printed
+   units, requires the CPI-W and nominal special-issue series — both §4.3 gaps).
+   **Lean: (a) for the gated M2-repro run** (mandatory — M2 is real); the M6-panel
+   report-only run may additionally present (b) if the CPI-W/interest bindings are
+   staged. Mixing the two within one ledger breaks identity (I).
+3. **Calibrated reserve vs sourced opening balance (§2.4, §4.3 gap 5).** *Options:*
+   (a) keep M2's calibrated `reserve_0` (disclosed, frame-relative, reproduces
+   M2); (b) bind an SSA TR historical opening-balance series. **Lean: (a) on the
+   M2-repro run** (required for reproduction); (b) is only meaningful if the
+   external-level path (decision 1b) is adopted, and even then the universe
+   mismatch makes a real opening balance incommensurable with panel-scale flows.
+4. **OASI-vs-DI rate/fund split (§2.2).** *Options:* (a) one combined OASDI fund at
+   12.4% (M2's convention, OASI-only outlays); (b) two funds, revenue split
+   10.6%/1.8%, DI outlays from `gate_m4` composition. **Lean: (a) for M2-repro**;
+   (b) as an additional report-only view once DI outlays are wired, clearly marked
+   report-only (DI levels are ungated, §2.6).
+5. **Scheduled vs payable baseline (#74 protocol note 1).** M7 should produce both
+   (scheduled = full statutory benefits; payable = benefits scaled to available
+   revenue after exhaustion). *Open:* which is primary, and the exact
+   post-exhaustion payable rule (uniform proportional reduction to the income rate,
+   vs the statutory sequence). **Lean:** report both; gate neither's *level*;
+   the payable rule is a named convention, disclosed, not certified.
+
+6. **Wage-index surface: inherit M6's vs re-derive (§2.5).** M6 already pins a
+   realized-≤2014 / `I_proj`-beyond NAWI surface (M6 §2.8.10.2). *Options:* (a) M7
+   reads M6's surface verbatim; (b) M7 re-derives it. **Lean: (a)** — re-deriving
+   risks a second, divergent wage-index vintage and re-opens the leakage
+   prohibition M6 already closed.
+7. **A level M7 needs that M6 §6 does not expose.** *Options:* (a) raise it as an
+   M6 §6 gap and block M7 until M6 exposes it; (b) synthesize it in M7. **Lean:
+   (a)** — M7 introduces no dynamics (§2.1); anything M6 does not expose is an M6
+   boundary question, not an M7 shortcut.
+8. **Interest timing convention (§2.4).** `interest[y] = rate · TF[y-1]`
+   (start-of-year) vs a mid-year / average-balance convention (closer to SSA's).
+   **Lean:** start-of-year for identity-closure simplicity; the choice is a named
+   convention, immaterial to the closure gate but material to the reported ratio
+   path — so it is disclosed, not hidden.
+9. **"Reproduce M2" exactness vs floating-point reduction order (§3, §5.1).** If M7
+   re-implements the aggregations in a different summation order than
+   `scripts/m2_pseudo_projection.py`, byte-exact reproduction of M2's committed
+   floats may not hold even with correct arithmetic. *Options:* (a) M7 reuses M2's
+   exact reduction path on the M2 frame (true byte reproduction); (b)
+   reproduction is defined to a fixed relative tolerance (~1e-12) with any residual
+   named. **Lean: (a) where feasible**, falling back to (b) with a disclosed
+   reduction-order note — the §6 `m2_reproduction.tolerance: 0.0` presumes (a).
+10. **TR vintage for the report-only corridors.** The Mermin/Smith anchors and
+    M2's TR constants are **2014-TR-vintage** (DYNASIM's vintage). A 2026 projection
+    could instead lay its corridors beside the current Trustees Report
+    (`@ssa2025trustees`). *Options:* (a) hold 2014 vintage for commensurability
+    with M2/Mermin/Smith; (b) add the current TR as a second report-only corridor.
+    **Lean:** (a) for the reproduction anchor; (b) additionally, clearly
+    vintage-labeled, for the M6-panel report.
+11. **Immigrant-entrant partial careers.** Entrants (§2.1) lack pre-entry covered
+    earnings; their taxable payroll and AIME see only post-entry years. *Open:* the
+    coverage-year treatment for AIME's 35-year divisor and for the taxable-payroll
+    aggregate. **Lean:** treat pre-entry years as non-covered zeros (the AIME
+    convention in `ss/benefits.py:100-117` already zero-fills unselected years) and
+    disclose the entrant share of each year's payroll — a reported composition
+    delta, never a gated cell.
+12. **Per-capita denominator for §5.3 normalization.** Which head is a
+    "beneficiary" (dual-entitled counted once or by class; auxiliary-only
+    recipients). *Open;* affects only the report-only per-capita corridor. **Lean:**
+    unique-person beneficiary count with a class-breakout table, disclosed.
+
+The referee is invited to add decisions this draft missed; the revision-2 log will
+map the round's verdict to these entries, as M6's did.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
