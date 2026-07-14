@@ -146,6 +146,26 @@ class TestReadCpsTenure:
             "no_response",
         ]
 
+    def test_blank_id_component_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"HRHHID2": ""}])
+        with pytest.raises(ValueError, match="blank HRHHID2"):
+            cps_tenure.read_cps_tenure(2024, path=path)
+
+    def test_duplicate_person_id_raises(self, tmp_path):
+        rows = [{"PULINENO": 1}, {"PULINENO": 1}]
+        path = _write_person_file(tmp_path, 2024, rows)
+        frame = pd.read_csv(path)
+        frame["PULINENO"] = 1
+        frame.to_csv(path, index=False)
+        with pytest.raises(ValueError, match="duplicated person id"):
+            cps_tenure.read_cps_tenure(2024, path=path)
+
+    def test_empty_file_gets_friendly_error(self, tmp_path):
+        path = tmp_path / "jan24pub.csv"
+        path.write_text("")
+        with pytest.raises(ValueError, match="empty"):
+            cps_tenure.read_cps_tenure(2024, path=path)
+
     def test_class_of_worker_labels(self, tmp_path):
         rows = [{"PEIO1COW": 2}, {"PEIO1COW": 7}]
         path = _write_person_file(tmp_path, 2024, rows)
@@ -197,6 +217,56 @@ class TestTenureTabulation:
         )
         out = cps_tenure.tenure_tabulation(records)
         assert out["unweighted_n"].sum() == 1
+
+    def test_zero_weight_rows_excluded_from_quantiles(self, tmp_path):
+        # A zero-weight knot at tenure 10 would drag the weighted
+        # median from 6.0 to 10.0 if included.
+        rows = [
+            {"PRTAGE": 30, "PTST1TN": 100, "PWTENWGT": 10_000_000},
+            {"PRTAGE": 30, "PTST1TN": 1000, "PWTENWGT": 0},
+            {"PRTAGE": 30, "PTST1TN": 1100, "PWTENWGT": 10_000_000},
+        ]
+        path = _write_person_file(tmp_path, 2024, rows)
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        out = cps_tenure.tenure_tabulation(records)
+        band = out[out["age_band"] == "25_34"].iloc[0]
+        assert band["p50"] == 6.0
+        assert band["unweighted_n"] == 2
+        assert band["weighted_persons"] == 2000.0
+
+    def test_custom_bands_with_gap_exclude_gap_ages(self, tmp_path):
+        rows = [
+            {"PRTAGE": 18, "PTST1TN": 100},
+            {"PRTAGE": 22, "PTST1TN": 100},  # in the gap
+            {"PRTAGE": 30, "PTST1TN": 100},
+        ]
+        path = _write_person_file(tmp_path, 2024, rows)
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        out = cps_tenure.tenure_tabulation(
+            records, age_bands=((16, 19), (25, 34))
+        )
+        assert set(out["age_band"]) == {"16_19", "25_34"}
+        assert out["unweighted_n"].sum() == 2
+
+    def test_overlapping_or_reversed_bands_raise(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"PRTAGE": 30}])
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        with pytest.raises(ValueError, match="overlap"):
+            cps_tenure.tenure_tabulation(
+                records, age_bands=((16, 30), (25, 44))
+            )
+        with pytest.raises(ValueError, match="reversed"):
+            cps_tenure.tenure_tabulation(records, age_bands=((30, 16),))
+
+    def test_empty_input_returns_empty_schema(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"PTST1TN": -2}])
+        records = cps_tenure.read_cps_tenure(
+            2024, path=path, include_nonresponse=True
+        )
+        out = cps_tenure.tenure_tabulation(records)
+        assert len(out) == 0
+        assert "age_band" in out.columns
+        assert "p50" in out.columns
 
     def test_wrong_frame_raises(self):
         with pytest.raises(ValueError, match="read_cps_tenure"):

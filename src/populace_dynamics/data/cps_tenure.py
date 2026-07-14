@@ -249,11 +249,16 @@ def read_cps_tenure(
     _check_path_year(person_path, year)
 
     required = set(_REQUIRED_COLUMNS)
-    raw = pd.read_csv(
-        person_path,
-        usecols=lambda column: column in required,
-        dtype=_STRING_COLUMNS,
-    )
+    try:
+        raw = pd.read_csv(
+            person_path,
+            usecols=lambda column: column in required,
+            dtype=_STRING_COLUMNS,
+        )
+    except pd.errors.EmptyDataError:
+        raise ValueError(
+            f"{person_path.name} is empty; {_README_POINTER}."
+        ) from None
     missing = sorted(required - set(raw.columns))
     if missing:
         raise ValueError(
@@ -262,10 +267,24 @@ def read_cps_tenure(
             "variable names."
         )
 
+    # The id components get the same refuse-on-mismatch treatment as
+    # the coded columns: a blank id would concatenate into a NaN
+    # person_id that vanishes from downstream groupbys.
+    for column in ("HRHHID", "HRHHID2"):
+        ids = raw[column]
+        blank = ids.isna() | (ids.astype(str).str.strip() == "")
+        if blank.any():
+            raise ValueError(
+                f"CPS January {year}: {int(blank.sum())} row(s) have "
+                f"a blank {column}; refusing a file with unusable "
+                "person ids."
+            )
+
     valid_tenure = set(PTST1TN_NONRESPONSE) | {*range(0, PTST1TN_TOPCODE + 1)}
     for column, check, cast in (
         ("PTST1TN", lambda v: ~v.isin(sorted(valid_tenure)), int),
-        ("PWTENWGT", lambda v: v < 0, float),
+        ("PWTENWGT", lambda v: (v < 0) | ~np.isfinite(v), float),
+        ("PULINENO", lambda v: (v < 1) | (v > 99), int),
         ("PRTAGE", lambda v: (v < 0) | (v > 90), int),
         ("PESEX", lambda v: ~v.isin((1, 2)), int),
         ("GESTFIPS", lambda v: (v < 1) | (v > 56), int),
@@ -273,10 +292,22 @@ def read_cps_tenure(
         ("PEIO1COW", lambda v: ~v.isin((-1, *PEIO1COW_LABELS)), int),
     ):
         values = pd.to_numeric(raw[column], errors="coerce")
-        bad = raw[column][values.isna() | check(values)]
+        bad = raw[column][
+            values.isna()
+            | check(values)
+            | ((values != values.round()) if cast is int else False)
+        ]
         if len(bad):
             raise _domain_error(year, column, bad)
         raw[column] = values.astype(cast)
+
+    duplicated = raw.duplicated(["HRHHID", "HRHHID2", "PULINENO"])
+    if duplicated.any():
+        raise ValueError(
+            f"CPS January {year}: {int(duplicated.sum())} duplicated "
+            "person id(s) (HRHHID+HRHHID2+PULINENO); refusing a file "
+            "with a corrupted person-id column."
+        )
 
     usable = raw["PTST1TN"] >= 0
 
@@ -338,7 +369,10 @@ def _weighted_quantile(
 ) -> float:
     """Weighted quantile with linear interpolation on cumulative
     weight midpoints (deterministic, matching common survey
-    practice)."""
+    practice). Zero-weight observations must be excluded by the
+    caller: as interpolation knots they would distort the path."""
+    if weights.sum() <= 0:
+        raise ValueError("weighted quantile needs positive weight")
     order = np.argsort(values, kind="stable")
     values = values[order]
     weights = weights[order]
@@ -355,16 +389,28 @@ def tenure_tabulation(
     """Weighted tenure quantiles by age band — the E3 evidence.
 
     Args:
-        records: Output of :func:`read_cps_tenure`; nonresponse
-            rows (NaN ``tenure_years``) are ignored.
-        age_bands: Inclusive ``(lo, hi)`` age bands.
+        records: Output of :func:`read_cps_tenure`. Nonresponse rows
+            (NaN ``tenure_years``), zero-weight rows (supplement
+            nonrespondents carry weight 0, and a zero-weight knot
+            would distort the interpolated quantiles), and ages
+            outside every band are all excluded — so
+            ``unweighted_n`` sums can be smaller than
+            ``len(records)`` by design.
+        age_bands: Inclusive ``(lo, hi)`` age bands. Bands must be
+            sorted and non-overlapping; gaps are allowed (ages in a
+            gap are excluded).
         by: Extra grouping columns (e.g. ``("sex",)`` or
             ``("class_of_worker",)``) on top of year and age band.
 
     Returns:
         One row per year x age band (x ``by``) with ``p25``,
         ``p50``, ``p75`` of ``tenure_years``, ``weighted_persons``,
-        ``unweighted_n``, and ``topcoded_share``.
+        ``unweighted_n``, and ``topcoded_share``. Empty input
+        yields an empty frame with these columns.
+
+    Raises:
+        ValueError: On missing columns or malformed ``age_bands``
+            (reversed or overlapping).
     """
     needed = {"year", "tenure_years", "age", "weight", "tenure_topcoded"}
     missing = sorted((needed | set(by)) - set(records.columns))
@@ -373,14 +419,19 @@ def tenure_tabulation(
             f"records is missing column(s) {missing}; pass the "
             "output of read_cps_tenure."
         )
-    usable = records[records["tenure_years"].notna()].copy()
-    labels = [f"{lo}_{hi}" for lo, hi in age_bands]
-    cuts = pd.cut(
-        usable["age"],
-        bins=[age_bands[0][0] - 1, *[hi for _, hi in age_bands]],
-        labels=labels,
+    for lo, hi in age_bands:
+        if lo > hi:
+            raise ValueError(f"age band ({lo}, {hi}) is reversed.")
+    intervals = pd.IntervalIndex.from_tuples(list(age_bands), closed="both")
+    if intervals.is_overlapping:
+        raise ValueError(f"age bands {age_bands} overlap.")
+    usable = records[
+        records["tenure_years"].notna() & (records["weight"] > 0)
+    ].copy()
+    cuts = pd.cut(usable["age"], bins=intervals)
+    usable["age_band"] = cuts.map(
+        lambda i: f"{int(i.left)}_{int(i.right)}", na_action="ignore"
     )
-    usable["age_band"] = cuts
     usable = usable[usable["age_band"].notna()]
 
     rows = []
@@ -403,4 +454,17 @@ def tenure_tabulation(
                 ),
             }
         )
-    return pd.DataFrame(rows)
+    columns = [
+        "year",
+        "age_band",
+        *by,
+        "p25",
+        "p50",
+        "p75",
+        "weighted_persons",
+        "unweighted_n",
+        "topcoded_share",
+    ]
+    if not rows:
+        return pd.DataFrame(columns=columns)
+    return pd.DataFrame(rows)[columns]
