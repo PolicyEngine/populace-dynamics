@@ -398,7 +398,9 @@ def mortality_exposure_adapter(
             "exposure",
             "death",
         ]
-    ].reset_index(drop=True)
+    ].reset_index(
+        drop=True
+    )
 
 
 # --------------------------------------------------------------------------
