@@ -1278,7 +1278,13 @@ internal `ft.simulate`), reduced to the pre-named channel moments
 (`composition.composition_channel_moments`; `RECERTIFICATION_CHANNEL_SETS`:
 cohabitation, legal-spouse-residual, occupancy, household-size), checked by
 `composition.check_candidate9_recertification` at the **≥3σ** `gate_m4`-style
-margin. This is **candidate-blind**: it compares two *simulation* paths on the
+margin. The injected arm supplies the §2.8.2-pinned household-conditioning
+fertility (`steps.simulate_fertility` drawn on `registry.generator(0, FERTILITY)`,
+mirroring the certified `assembly.py` household step) into
+`simulate_candidate9_injected`, so it carries the same maternal-birth line the
+internal reference generates inline through `ft.simulate`; the two arms differ
+**only** in marital-state provenance, not in the presence of fertility. This is
+**candidate-blind**: it compares two *simulation* paths on the
 fitted panel and reads **no holdout cell**. A failure is a **designed abort** —
 `check_candidate9_recertification` raises, the run stops pre-scoring, the one-shot
 is **not** consumed, and the fuller re-ceremony §2.6 names is triggered (not a
