@@ -118,9 +118,12 @@ PHASE_ORDER = (
     "assemble_and_write",
 )
 
-# This is the pre-amendment design registration cited by section 2.8.  It is
-# useful lineage, but cannot authorize the first scored run built afterward.
-_KNOWN_STALE_REGISTRATIONS = frozenset({"4962640241"})
+# Superseded registrations, each publicly graded as a designed pre-scoring
+# stop on issue #42: the pre-amendment design registration cited by section
+# 2.8 (stop: no harness), and the second registration (stop: no <= T*
+# external-reference binding; graded 4967433717).  Useful lineage, but
+# neither can authorize a scored run.
+_KNOWN_STALE_REGISTRATIONS = frozenset({"4962640241", "4967241464"})
 _REGISTRATION = re.compile(
     r"^(?:[0-9]{7,}|https://github\.com/[^/]+/[^/]+/issues/42"
     r"#issuecomment-[0-9]+)$"
