@@ -54,6 +54,7 @@ __all__ = [
     "claiming_pmfs_from_reference",
     "fit_mortality_model",
     "prepare_mortality_refit_inputs",
+    "prepare_m6_preflight_context",
     "refit_disability",
     "refit_earnings_chained_generator",
     "refit_family_transitions",
@@ -192,6 +193,13 @@ class M6RefitBundle:
             out["family_transitions"] = self.family.spec_sha256
         if self.household is not None:
             out["household_composition"] = self.household.spec_sha256
+        if self.modifier is not None:
+            # Gate-2c's modifier is built around the same certified C16
+            # transition spec.  Keep the role-specific key even though the
+            # digest intentionally duplicates family_transitions.
+            out["first_marriage_modifier_core"] = (
+                couple_v2.CERTIFIED_SPEC.sha256
+            )
         return out
 
 
@@ -713,6 +721,27 @@ def _truncate_household_context(
         parent_counts=_truncate_year_frame(
             context.parent_counts, boundary_year, "parent counts"
         ),
+    )
+
+
+def prepare_m6_preflight_context(
+    inputs: M6RefitInputs,
+    *,
+    boundary_year: int = BOUNDARY_YEAR,
+) -> hc.FitContext:
+    """Return the exact cutoff household context used by pre-flight 1.
+
+    The transfer check must simulate on the same holdout-blind native panels
+    supplied to the candidate-9 refit.  Exposing the existing field-aware
+    truncation here prevents a runner from accidentally reaching back to the
+    full-window ``M6RefitInputs.household_context``.
+    """
+    if int(boundary_year) != BOUNDARY_YEAR:
+        raise ValueError(
+            f"the M6 scored harness requires boundary_year={BOUNDARY_YEAR}"
+        )
+    return _truncate_household_context(
+        inputs.household_context, int(boundary_year)
     )
 
 

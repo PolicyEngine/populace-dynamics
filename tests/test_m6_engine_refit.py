@@ -19,6 +19,7 @@ from populace_dynamics.engine.refit import (
     M6RefitInputs,
     claiming_pmfs_from_reference,
     fit_mortality_model,
+    prepare_m6_preflight_context,
     prepare_mortality_refit_inputs,
     refit_disability,
     refit_earnings_chained_generator,
@@ -294,6 +295,19 @@ def test_household_registry_rebuilds_next_wave_after_cut_and_keeps_spec():
     assert person_one["next_coresident_spouse"].tolist() == [True, np.nan]
     assert context.relationship_map["interview_year"].tolist() == [2013]
     assert context.parent_pairs["year"].tolist() == [2013]
+
+
+def test_preflight_context_is_the_exact_holdout_blind_household_input():
+    context = _household_context()
+    inputs = SimpleNamespace(household_context=context)
+
+    prepared = prepare_m6_preflight_context(inputs)  # type: ignore[arg-type]
+
+    assert prepared.hh.person_waves["year"].max() == 2013
+    assert prepared.mpanel.person_years["year"].max() <= 2014
+    assert prepared.demographic_panel["period"].max() == 2013
+    assert prepared.relationship_map["interview_year"].max() == 2013
+    assert prepared.train_ids == frozenset({1, 2})
 
 
 def _earnings_panel() -> pd.DataFrame:

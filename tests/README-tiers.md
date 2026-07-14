@@ -9,11 +9,14 @@ beyond pytest's normal collection. Classification uses this precedence:
 2. `oracle_policyengine`: modules that reference
    `POPULACE_DYNAMICS_PE_US_DIR` or the legacy default
    `~/PolicyEngine/policyengine-us` checkout.
-3. `integration_psid`: modules that reference
+3. `artifact`: the path-exact, design-sanctioned M6 truth-side byte-identity
+   test (`test_m6_truth_identity.py`). It reads staged PSID when available,
+   never runs a projection, and skips cleanly when the data are absent.
+4. `integration_psid`: all other modules that reference
    `POPULACE_DYNAMICS_PSID_DIR` or the default `~/PolicyEngine/psid-data`
    root.
-4. `artifact`: modules that read committed `runs/*.json` evidence artifacts.
-5. `unit`: all remaining tests.
+5. `artifact`: modules that read committed `runs/*.json` evidence artifacts.
+6. `unit`: all remaining tests.
 
 The count manifest in `tier_counts.json` is enforced during a full-suite
 collection. Update it deliberately whenever tests move between tiers or the
@@ -33,9 +36,9 @@ pytest --collect-only -q -m oracle_policyengine | tail -1
 
 | Tier | Tests at HEAD |
 |---|---:|
-| `unit` | 330 |
-| `artifact` | 965 |
+| `unit` | 375 |
+| `artifact` | 1,003 |
 | `integration_psid` | 800 |
 | `reproduction_legacy` | 520 |
 | `oracle_policyengine` | 156 |
-| **Total** | **2,771** |
+| **Total** | **2,854** |

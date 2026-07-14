@@ -23,6 +23,8 @@ from populace_dynamics.engine.rng import (
 FrameStep = Callable[
     [pd.DataFrame, "PeriodContext", np.random.Generator], pd.DataFrame
 ]
+
+SCHEDULED_ENTRIES_KEY = "m6_scheduled_entries_by_year"
 InitialFrameStep = Callable[[pd.DataFrame], pd.DataFrame]
 MaritalStep = Callable[
     [pd.DataFrame, "PeriodContext", np.random.Generator], "MaritalStepResult"
@@ -187,8 +189,38 @@ class ProjectionEngine:
         slices = [current.copy()]
         traces: list[PeriodTrace] = []
         shared_metadata = dict(metadata or {})
+        scheduled_entries = shared_metadata.get(SCHEDULED_ENTRIES_KEY, {})
+        if not isinstance(scheduled_entries, Mapping):
+            raise TypeError(
+                f"metadata {SCHEDULED_ENTRIES_KEY!r} must be a mapping"
+            )
+        normalized_entries: dict[int, pd.DataFrame] = {}
+        for raw_year, entries in scheduled_entries.items():
+            year = int(raw_year)
+            if year <= start_year or year > end_year:
+                raise ValueError(
+                    f"scheduled entry year {year} lies outside the projection"
+                )
+            if not isinstance(entries, pd.DataFrame):
+                raise TypeError("scheduled entries must be pandas frames")
+            self._validate_slice(entries, f"scheduled entries {year}")
+            if set(entries["year"].unique()) != {year - 1}:
+                raise ValueError(
+                    f"scheduled entries {year} must carry year {year - 1}"
+                )
+            normalized_entries[year] = entries.copy()
+
+        all_initial_ids = set(current["person_id"].tolist())
+        for entries in normalized_entries.values():
+            overlap = all_initial_ids & set(entries["person_id"].tolist())
+            if overlap:
+                raise ValueError(
+                    "a scheduled person appears more than once: "
+                    f"{sorted(overlap)[:10]}"
+                )
+            all_initial_ids.update(entries["person_id"].tolist())
         next_person_id = (
-            int(current["person_id"].max()) + 1 if len(current) else 1
+            int(max(all_initial_ids)) + 1 if all_initial_ids else 1
         )
         supplied_allocator = shared_metadata.setdefault(
             "synthetic_id_allocator",
@@ -201,14 +233,28 @@ class ProjectionEngine:
             )
         person_ordinals = {
             person_id: ordinal
-            for ordinal, person_id in enumerate(
-                sorted(current["person_id"].unique())
-            )
+            for ordinal, person_id in enumerate(sorted(all_initial_ids))
         }
 
         for period_index, year in enumerate(
             range(start_year + 1, end_year + 1), start=1
         ):
+            entrants = normalized_entries.get(year)
+            if entrants is not None:
+                overlap = set(current["person_id"]) & set(
+                    entrants["person_id"]
+                )
+                if overlap:
+                    raise ValueError(
+                        "scheduled entrants are already active: "
+                        f"{sorted(overlap)[:10]}"
+                    )
+                current = pd.concat(
+                    [current, entrants], ignore_index=True, sort=False
+                )
+                current = current.sort_values(
+                    "person_id", kind="stable"
+                ).reset_index(drop=True)
             context = PeriodContext(
                 period_index=period_index,
                 year=year,

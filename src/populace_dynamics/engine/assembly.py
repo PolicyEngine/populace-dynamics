@@ -12,9 +12,10 @@ from __future__ import annotations
 
 import hashlib
 import pickle
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Protocol
 
+import numpy as np
 import pandas as pd
 
 from populace_dynamics.data import disability as disability_data
@@ -25,6 +26,7 @@ from populace_dynamics.engine.composition import (
     simulate_candidate9_injected,
 )
 from populace_dynamics.engine.disability import simulate_reproduction
+from populace_dynamics.engine.earnings_domain import wrap_earnings_domain
 from populace_dynamics.engine.loop import (
     MaritalStepResult,
     PeriodContext,
@@ -43,6 +45,7 @@ from populace_dynamics.engine.steps import (
     apply_earnings,
     apply_fertility,
     apply_mortality,
+    simulate_fertility,
 )
 from populace_dynamics.engine.support import StartWaveWeightSnapshot
 from populace_dynamics.models.disability_hazard_sim import (
@@ -50,6 +53,9 @@ from populace_dynamics.models.disability_hazard_sim import (
 )
 from populace_dynamics.models.family_transitions.fitted import (
     FittedFamilyTransitions,
+)
+from populace_dynamics.models.household_composition.components.marital_core_adapter import (
+    fit_male_gap,
 )
 from populace_dynamics.models.household_composition.fitted import (
     FittedHouseholdComposition,
@@ -127,7 +133,16 @@ class CertifiedEngineInputs:
             earnings if earnings is not None else default_earnings
         )
         assert selected_earnings is not None
-        household_fit = bundle.household.fitted
+        # Candidate 9 retains its independently refitted embedded C16 object
+        # in ``bundle`` for the injected-vs-internal pre-flight.  The scored
+        # engine binds an immutable local copy to the authoritative step-3 C16
+        # fit, so downstream fertility and composition cannot silently fall
+        # back to a second marital law.
+        household_fit = replace(
+            bundle.household.fitted,
+            family_transitions=bundle.family.fitted,
+            male_gap=fit_male_gap(bundle.family.fitted),
+        )
         return cls(
             family=bundle.family.fitted,
             modifier=bundle.modifier.modifier,
@@ -179,10 +194,37 @@ def _merge_period_columns(
 
 @dataclass
 class _AssemblyState:
-    marital: dict[int, MaritalStepResult] = field(default_factory=dict)
-    marital_ids: dict[int, set[int]] = field(default_factory=dict)
+    draw_index: int | None = None
+    marital_projection: MaritalStepResult | None = None
+    marital_ids: set[int] = field(default_factory=set)
     fertility: dict[int, FertilityDraws] = field(default_factory=dict)
     disability_projection: disability_data.DisabilityPanel | None = None
+    household_projection: hc_data.HouseholdCompositionPanel | None = None
+
+    def reset(self, draw_index: int) -> None:
+        """Start one projection invocation with draw-local cached cores."""
+        self.draw_index = int(draw_index)
+        self.marital_projection = None
+        self.marital_ids.clear()
+        self.fertility.clear()
+        self.disability_projection = None
+        self.household_projection = None
+
+
+M6_DRAW_OUTPUTS_KEY = "m6_draw_outputs"
+
+
+def _publish_draw_output(
+    context: PeriodContext, name: str, value: object
+) -> None:
+    collector = context.metadata.get(M6_DRAW_OUTPUTS_KEY)
+    if collector is None:
+        return
+    if not isinstance(collector, dict):
+        raise TypeError(
+            f"context metadata {M6_DRAW_OUTPUTS_KEY!r} must be a dict"
+        )
+    collector[name] = value
 
 
 def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
@@ -194,39 +236,66 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
             "the authoritative candidate-16 fit"
         )
     state = _AssemblyState()
+    earnings = wrap_earnings_domain(inputs.earnings)
+
+    def ensure_draw(context: PeriodContext, *, start: bool = False) -> None:
+        # Mortality is the first ordered step, so ``start`` also distinguishes
+        # a repeated invocation at the same draw index.  The other adapters
+        # keep the defensive draw-index check for focused direct-call tests.
+        if start or state.draw_index != context.draw_index:
+            state.reset(context.draw_index)
 
     def initialize(frame):
-        materialize = getattr(
-            inputs.earnings, "materialize_initial_frame", None
-        )
+        materialize = getattr(earnings, "materialize_initial_frame", None)
         return materialize(frame) if materialize is not None else frame.copy()
 
     def mortality_step(frame, context, rng):
-        return apply_mortality(frame, context, rng, model=inputs.mortality)
+        ensure_draw(context, start=context.period_index == 1)
+        survivors = apply_mortality(
+            frame, context, rng, model=inputs.mortality
+        )
+        collector = context.metadata.get(M6_DRAW_OUTPUTS_KEY)
+        if collector is not None:
+            if not isinstance(collector, dict):
+                raise TypeError(
+                    f"context metadata {M6_DRAW_OUTPUTS_KEY!r} must be a dict"
+                )
+            survivor_ids = set(survivors["person_id"])
+            mortality = frame[["person_id", "age", "sex", "weight"]].copy()
+            mortality["cal_year"] = context.year
+            mortality["death"] = ~mortality["person_id"].isin(survivor_ids)
+            mortality["exposure"] = np.where(mortality["death"], 0.5, 1.0)
+            collector.setdefault("mortality_slices", []).append(mortality)
+        return survivors
 
     def marital_step(frame, context, rng):
-        panel, ids = inputs.marital_panel_builder(frame, context)
+        del rng
+        ensure_draw(context)
         if context.rng_registry is None:
             raise RuntimeError(
                 "certified assembly requires the M6 RNG registry"
             )
-        gap_rng = context.rng_registry.child_generator(
-            context.period_index, ProjectionModule.MARITAL_CORE, 1
-        )
-        result = simulate_marital_step(
-            panel,
-            ids,
-            inputs.family,
-            inputs.modifier,
-            inputs.permanent_axis,
-            main_rng=rng,
-            gap_rng=gap_rng,
-        )
-        state.marital[context.year] = result
-        state.marital_ids[context.year] = ids
-        return result
+        if state.marital_projection is None:
+            panel, ids = inputs.marital_panel_builder(frame, context)
+            state.marital_projection = simulate_marital_step(
+                panel,
+                ids,
+                inputs.family,
+                inputs.modifier,
+                inputs.permanent_axis,
+                main_rng=context.rng_registry.generator(
+                    0, ProjectionModule.MARITAL_CORE
+                ),
+                gap_rng=context.rng_registry.child_generator(
+                    0, ProjectionModule.MARITAL_CORE, 1
+                ),
+            )
+            state.marital_ids = set(ids)
+            _publish_draw_output(context, "marital", state.marital_projection)
+        return state.marital_projection
 
     def fertility_step(frame, context, marital, rng):
+        ensure_draw(context)
         marital_columns = tuple(
             column
             for column in (
@@ -249,13 +318,14 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
             marital,
             rng,
             components=inputs.family,
-            holdout_ids=state.marital_ids[context.year],
+            holdout_ids=state.marital_ids,
             male_gap=inputs.male_gap,
             birth_store=state.fertility,
         )
 
     def disability_step(frame, context, rng):
         del rng
+        ensure_draw(context)
         if state.disability_projection is None:
             if context.rng_registry is None:
                 raise RuntimeError(
@@ -293,6 +363,9 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
                 start_weights=inputs.start_weights,
                 rng_by_period=by_period,
             )
+            _publish_draw_output(
+                context, "disability", state.disability_projection
+            )
         updates = state.disability_projection.person_years.rename(
             columns={"period": "year"}
         )
@@ -304,31 +377,41 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
         )
 
     def earnings_step(frame, context, rng):
-        return apply_earnings(frame, context, rng, model=inputs.earnings)
+        return apply_earnings(frame, context, rng, model=earnings)
 
     def claiming_step(frame, context, rng):
         return apply_claiming(frame, context, rng, schedule=inputs.claiming)
 
     def household_step(frame, context, marital, rng):
         del rng
-        panel, ids = inputs.household_panel_builder(frame, context)
+        ensure_draw(context)
         if context.rng_registry is None:
             raise RuntimeError(
                 "certified assembly requires the M6 RNG registry"
             )
-        simulated, _diagnostics = simulate_candidate9_injected(
-            panel,
-            inputs.household,
-            ids,
-            marital,
-            composition_rngs_from_registry(
-                context.rng_registry, context.period_index
-            ),
-            fertility=state.fertility[context.year],
-        )
+        if state.household_projection is None:
+            panel, ids = inputs.household_panel_builder(frame, context)
+            household_fertility = simulate_fertility(
+                marital,
+                inputs.family,
+                state.marital_ids,
+                inputs.male_gap,
+                context.rng_registry.generator(0, ProjectionModule.FERTILITY),
+            )
+            simulated, diagnostics = simulate_candidate9_injected(
+                panel,
+                inputs.household,
+                ids,
+                marital,
+                composition_rngs_from_registry(context.rng_registry, 0),
+                fertility=household_fertility,
+            )
+            state.household_projection = simulated
+            _publish_draw_output(context, "household", simulated)
+            _publish_draw_output(context, "household_diagnostics", diagnostics)
         return _merge_period_columns(
             frame,
-            simulated.person_waves,
+            state.household_projection.person_waves,
             year=context.year,
             columns=(
                 "coresident_spouse",

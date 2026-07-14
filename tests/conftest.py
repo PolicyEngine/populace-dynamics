@@ -21,6 +21,13 @@ _POLICYENGINE_ORACLE_INDICATORS = (
     "POPULACE_DYNAMICS_PE_US_DIR",
     "~/PolicyEngine/policyengine-us",
 )
+# Section 2.8.4 explicitly assigns this one truth-side-only, byte-identity
+# check to the artifact tier even though it reads staged PSID when available.
+# Keep the exception path-exact so no projected or general integration test
+# can inherit the lower tier accidentally.
+_SANCTIONED_ARTIFACT_MODULES = frozenset(
+    {Path("tests/test_m6_truth_identity.py")}
+)
 _TIER_POLICY_COLLECTION = pytest.StashKey()
 
 
@@ -40,6 +47,8 @@ def _classify_test_module(relative_path: Path, source: str) -> str:
         indicator in source for indicator in _POLICYENGINE_ORACLE_INDICATORS
     ):
         return "oracle_policyengine"
+    if relative_path in _SANCTIONED_ARTIFACT_MODULES:
+        return "artifact"
     if any(indicator in source for indicator in _PSID_DATA_INDICATORS):
         return "integration_psid"
     if _references_run_artifact(source):

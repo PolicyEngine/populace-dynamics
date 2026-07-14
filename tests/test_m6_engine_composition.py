@@ -15,6 +15,7 @@ from populace_dynamics.engine.composition import (
     RECERTIFICATION_CHANNEL_SETS,
     CompositionDiagnostics,
     CompositionRngs,
+    _attach_cohabitation_seed,
     check_candidate9_recertification,
     composition_rngs_from_registry,
     simulate_candidate9_injected,
@@ -36,6 +37,30 @@ class _NoExit:
     def predict(self, age, is_male):
         del is_male
         return np.zeros(len(age))
+
+
+def test_injected_realized_cohabitation_seed_precedes_cutoff_fit_flag():
+    person_waves = pd.DataFrame(
+        {
+            "person_id": [1, 1],
+            "year": [2015, 2017],
+            "cohabiting": [True, True],
+        }
+    )
+    fitted = SimpleNamespace(
+        cohab_flag=pd.DataFrame(
+            {
+                "person_id": [1, 1],
+                "year": [2015, 2017],
+                "cohabiting": [False, False],
+            }
+        )
+    )
+
+    result = _attach_cohabitation_seed(person_waves, fitted)
+
+    assert result["cohabiting"].tolist() == [True, True]
+    assert not any(column.endswith(("_x", "_y")) for column in result)
 
 
 def _household_panel(n_people: int) -> hc.HouseholdCompositionPanel:

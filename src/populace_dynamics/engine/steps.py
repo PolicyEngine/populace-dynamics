@@ -14,6 +14,11 @@ from typing import Protocol
 import numpy as np
 import pandas as pd
 
+from populace_dynamics.engine.earnings_domain import (
+    EARNINGS_CHAIN_STATE_COLUMNS,
+    EARNINGS_DOMAIN_COLUMN,
+    earnings_domain_mask,
+)
 from populace_dynamics.engine.loop import MaritalStepResult, PeriodContext
 from populace_dynamics.engine.marital import simulate_maternal_births
 from populace_dynamics.engine.rng import ProjectionModule
@@ -210,17 +215,36 @@ def apply_earnings(
     model: EarningsGenerator,
 ) -> pd.DataFrame:
     """Draw annual earnings from the refitted chained generator."""
-    if context.rng_registry is None:
+    domain_restricted = EARNINGS_DOMAIN_COLUMN in frame
+    if domain_restricted:
+        validate_domain = getattr(model, "validate_domain", None)
+        domain = np.asarray(
+            (
+                validate_domain(frame)
+                if validate_domain is not None
+                else earnings_domain_mask(frame)
+            ),
+            dtype=bool,
+        )
+        if domain.shape != (len(frame),):
+            raise ValueError(
+                "earnings-domain predicate returned the wrong shape"
+            )
+    else:
+        domain = np.ones(len(frame), dtype=bool)
+    if context.rng_registry is None and not domain_restricted:
         generated = np.asarray(model.generate(frame, context.year, rng))
     else:
         generated = np.zeros(len(frame), dtype=np.float64)
         eligible = (
             frame.get("age", pd.Series(18, index=frame.index)).to_numpy() >= 15
-        )
+        ) & domain
         for index in np.flatnonzero(eligible):
             person_id = frame.iloc[index]["person_id"]
-            person_rng = context.person_generator(
-                ProjectionModule.EARNINGS, person_id
+            person_rng = (
+                context.person_generator(ProjectionModule.EARNINGS, person_id)
+                if context.rng_registry is not None
+                else rng
             )
             draw = np.asarray(
                 model.generate(frame.iloc[[index]], context.year, person_rng)
@@ -235,15 +259,30 @@ def apply_earnings(
     if not np.isfinite(generated).all() or (generated < 0).any():
         raise ValueError("earnings generator returned invalid earnings")
     out = frame.copy()
+    if domain_restricted:
+        out[EARNINGS_DOMAIN_COLUMN] = domain
+        for column in EARNINGS_CHAIN_STATE_COLUMNS:
+            if column in out:
+                out.loc[~domain, column] = np.nan
     if (
         context.year % 2 == 0
         and "gen_earn_w2" in frame
         and "gen_earn_w4" in frame
     ):
-        out["gen_earn_w4"] = frame["gen_earn_w2"].to_numpy(
-            dtype=np.float64, copy=True
-        )
-        out["gen_earn_w2"] = generated.astype(np.float64)
+        if domain_restricted:
+            next_w4 = np.full(len(frame), np.nan, dtype=np.float64)
+            next_w2 = np.full(len(frame), np.nan, dtype=np.float64)
+            next_w4[domain] = frame.loc[domain, "gen_earn_w2"].to_numpy(
+                dtype=np.float64, copy=True
+            )
+            next_w2[domain] = generated[domain]
+            out["gen_earn_w4"] = next_w4
+            out["gen_earn_w2"] = next_w2
+        else:
+            out["gen_earn_w4"] = frame["gen_earn_w2"].to_numpy(
+                dtype=np.float64, copy=True
+            )
+            out["gen_earn_w2"] = generated.astype(np.float64)
     out["earnings"] = generated.astype(np.float64)
     return out
 
