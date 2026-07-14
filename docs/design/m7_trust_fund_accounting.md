@@ -144,4 +144,98 @@ gate M6 did not already certify** — it is arithmetic over M6's output plus §4
 parameter bindings. If a level M7 needs is *not* in M6's exposed surface, that is
 an M6 gap to be raised against M6 §6, not silently synthesized here (§8 decision 7).
 
+### 2.2 Taxable payroll and payroll-tax revenue (employer + employee, wage-base cap)
+
+**Taxable payroll.** For each person `i` and covered year `y`,
+
+```
+taxable_earnings[i,y] = min( earnings[i,y] , wage_base(y) )
+taxable_payroll[y]    = Σ_i  w[i,y] · taxable_earnings[i,y]
+```
+
+where `w[i,y]` is M6's per-year calibrated weight and `wage_base(y)` is the
+contribution-and-benefit base. The cap is the committed `creditable_history`
+convention (`ss/benefits.py:68-75`, "cap each year's earnings at that year's wage
+base") applied over **all** working years — M2's `taxable_payroll_convention`
+notes it reuses the AIME-convention per-year capping *"but over ALL working
+years (every covered year pays tax), not the highest-35 selection."* `wage_base(y)`
+is a step function read from pe-us (`ss/params.py:151-160`, `wage_base_for`).
+
+**Revenue.** Payroll-tax income is the combined OASDI rate on taxable payroll:
+
+```
+revenue[y] = rate_combined · taxable_payroll[y]
+           = ( rate_employee + rate_employer ) · taxable_payroll[y]
+```
+
+The employer and employee halves are **both** counted (the task's employer +
+employee requirement): `rate_employee = rate_employer = 0.062`, summing to the
+`rate_combined = 0.124` M2 loaded from `gov/irs/payroll/social_security/rate/
+{employee,employer}` (26 USC 3101(a) employee + 3111(a) employer). This is the
+**scheduled-rate** convention a Trustees projection uses, applied to all taxable
+payroll — not the historical rate ramp (M2 `named_deltas`: "combined OASDI rate
+from the pe-us statute series (12.4%) … as the current-law scheduled rate").
+
+**Cap-reform recomputation.** Because M6 exposes **uncapped** person earnings
+(§2.1), the two revenue-side provisions recompute without re-simulation:
+`cap_150k` raises the base to $150k stated in 2016 dollars, wage-indexed by NAWI
+to each earnings year (42 USC 430; M2 `revenue_side.cap_150k`); `elimination`
+removes the cap (`min(earnings, ∞) = earnings`); `payroll_plus_{1,2}pp` add
+`0.01`/`0.02` to `rate_combined`. Each is a pure recomputation on the exposed
+levels.
+
+**The OASI-vs-DI rate split is an open decision (§8 decision 4).** Statute splits
+the 12.4% into OASI (10.6%) and DI (1.8%). M2 applied the *combined* 12.4% against
+*OASI-only* outlays — a deliberate asymmetry that drives its positive baseline
+balance (§2.4, §5.3). M7's "OASI(+DI)" scope must state, per run, whether revenue
+is allocated to a combined OASDI fund or split across two funds; the M2-repro run
+(§5.1) must reproduce M2's combined-rate / OASI-outlay convention exactly.
+
+### 2.3 Benefit outlays by beneficiary class
+
+The outlay convention is M2's, generalized. For a retired worker, M2 places at
+calendar year `birth_year + a`:
+
+```
+outlay[i, a] = 12 · PIA[i] · Σ_{claim c ≤ a} pmf_c(i) · benefit_factor(c) · S(62→a | i)
+```
+
+where `pmf_c` is the B2 claim-age distribution, `benefit_factor(c)` the 402(q)/(w)
+early-reduction / delayed-credit factor (`ss/benefits.py:134-164`), and `S` the
+B1 NCHS-2023 × PSID-band survival weight (M2 `outlay_side.convention`). `PIA[i]`
+is `pia(aime(history), eligibility_year)` (`ss/benefits.py:100-131`). M7 sums
+`Σ_i w[i,y] · outlay[i,y]` by class:
+
+- **OASI retired-worker** — the M2 class, unchanged. Own AIME→PIA→claim-factor,
+  survival-weighted.
+- **DI disabled-worker** — the M4 addition. **Bounded by `gate_m4`**: the M4 gate
+  is *anchor-based* and certifies the work-limitation **incidence/recovery
+  hazards**, the disabled-occupancy **prevalence stock** (`prevalence.50-59`),
+  and the near-FRA **exit composition** (retirement-vs-return, Table 50
+  dominance) — but its `covers` field states plainly *"no SSA DI LEVEL is
+  gated."* So the disabled **headcount trajectory** feeding DI outlays rides
+  certified shape/dominance, while the **DI benefit dollar level** is
+  report-only (the disability PIA, like every PIA, is never gated; M6 §2.8.3a).
+  The **DI→retirement conversion at FRA** (`disability_conversion.py`) moves the
+  disabled worker onto the retired-worker rolls at FRA — the "conversion column"
+  of Table 6.B5.1.
+- **402(b)/(c) spouse and 402(e)/(f) survivor auxiliary** — the M3/household
+  addition. `spousal_benefit` (`ss/benefits.py:205-236`) and `widow_benefit`
+  (`ss/benefits.py:266-328`) encode the excess-spouse and widow(er) amounts
+  including dual entitlement, the RIB-LIM, and the 71.5% survivor floor. These
+  require M3 couple/household structure (who is married to whom, who survives
+  whom) — **bounded by `gate_2` (2b household composition, 2c couple formation)
+  and mortality**. Their rate constants have **no pe-us node** and are carried as
+  statute-cited constants (§4.3, the LOUD gap).
+
+**The unifying certification rule.** Across all three classes, **every benefit
+dollar level is report-only** (AIME/PIA/claiming/auxiliary are never gated). What
+*is* certified is the **population composition** that determines *who* draws
+*which* class in *which* year — marital state (gate_2), disability state
+(gate_m4), survival (mortality), earnings (gate_1, gate_m6). M7 outlays are thus
+"certified-composition × report-only-level" products. This is the exact meaning
+of the scope phrase "OASI(+DI, bounded by what M4/gate-2 actually certified)":
+M7 does not manufacture certified benefit levels the underlying gates declined to
+certify. §2.6 makes the boundary explicit per class.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
