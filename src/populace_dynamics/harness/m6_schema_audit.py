@@ -78,13 +78,16 @@ COMMITTED_FRAME_SCHEMAS: dict[str, frozenset[str]] = {
             "earnings_acc",
         }
     ),
-    # data.disability.read_disability_status (raw, pre-attach_sex)
+    # data.disability.read_disability_status (raw, pre-attach_sex); verified
+    # against the real loader (proof run) -- carries sequence + raw status too.
     "disability_status": frozenset(
         {
             "person_id",
             "period",
             "age",
             "weight",
+            "sequence",
+            "status",
             "status_code",
             "disabled",
             "retired",
@@ -125,6 +128,7 @@ COMMITTED_FRAME_SCHEMAS: dict[str, frozenset[str]] = {
             "sex",
             "weight",
             "transition",
+            "origin",
             "marriage_duration",
             "years_since_dissolution",
         }
