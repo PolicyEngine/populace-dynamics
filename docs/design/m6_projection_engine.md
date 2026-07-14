@@ -106,6 +106,11 @@
   revision 11 (closes factory-referee F1/F2, PR #191 comment 4969829131: the pinned
   seven-band external-rates shape vs `AgeSexMortalityModel`'s 0-start requirement, and the
   version gate's unbound parameter directory; N1 `_era_mapping` docstring soften).
+- amendment 3f (demographic-seed sex source correction) → §2.8.3f, §10 revision 12 (corrects the
+  §2.8.3 per-field list, which attributed `sex` to `panels.demographic_panel`; the
+  demo frame has no `sex`, so `build_realized_population` now sources it from
+  `data.deaths` — closes the third registration's crash-2, graded #42 comment
+  4972045579; adds the `m6_schema_audit` full-phase column contract).
 
 ## 1. Summary
 
@@ -995,8 +1000,11 @@ identically. `T* = 2014` realizes its state at the **2015 interview**
   handled symmetrically on both sides by the §2.8.4 presence sets (not a separate
   seed population).
 - **Per-field seed reads (PSID source → column), each the source the floor reads:**
-  `panels.demographic_panel` → person-year presence, `age`, `sex`, `weight`,
-  `interview` (the `household_id` = family interview number); `marriage.marriage_
+  `panels.demographic_panel` → person-year presence, `age`, `weight`,
+  `interview` (the `household_id` = family interview number; person `sex` is
+  **not** a demographic-panel column — it is sourced from `data.deaths`, the
+  same reader named for the mortality slices below, see amendment 3f §2.8.3f);
+  `marriage.marriage_
   history` → `transitions.build_marital_panel` → `marital_state`,
   `marriage_duration`, `years_since_dissolution`, `n_marriages` at the seed wave;
   `household_composition.build_household_panel` → the `coresident_*` / `multigen` /
@@ -1138,6 +1146,30 @@ open-additions, report-only by §4.8, not a gated population.* Pins:
   direction (near-**tautological**: any domain-restricted gated tolerance lands at
   the `ln(1.5)` cap, or the domain earnings OC approaches 1 with a near-unfailable
   cell). Both directions publish; neither is silently absorbed.
+
+**2.8.3f Amendment 3f — the demographic-seed sex source correction (closes the
+third-registration crash-2).** §2.8.3's per-field list above erroneously attributed
+`sex` to `panels.demographic_panel`. The certified `demographic_panel` schema is
+`{person_id, period, age, sequence, relationship, weight, interview}` (`panels.py:252-253`)
+— **seven columns, no `sex`** — so `build_realized_population` reading `sex` from that
+frame via `_anchor_rows(columns=("age","sex","interview"))` (`m6_population.py:186`) raised
+`ValueError: anchor source is missing columns ['sex']` (`m6_population.py:139`) at the
+refit phase (`build_realized_population`, `m6_runner.py:355`) on the **first** real-frame
+execution — the second pre-scoring crash of the third registration (registered 4971244215,
+graded #42 comment 4972045579). Person sex is person-constant `ER32000` from the PSID
+cross-year individual file, read by `data.deaths.read_death_records` — the **same** source
+§2.8.3 already names for the mortality slices, and the same canonical attach the certified
+builders use (`household_composition.join_demographics`, `disability.attach_sex`).
+*Resolution, PINNED:* `build_realized_population` takes the `death_records` frame and joins
+person sex by `person_id` before the demographic seed, validating one coded value per person
+(no conflicts) and full coded-sex coverage over the anchor persons (raise on any anchor
+person with no `male`/`female` sex). The demographic panel's seed reads are `{person_id,
+period, age, interview}`; `sex` moves to the `death_records` read. A static full-phase column
+audit (`m6_schema_audit`, `tests/test_m6_schema_audit*.py`) now pins every phase's real-frame
+column reads against the loaders' committed and real schemas, and the fixture over this path
+carries the real seven-column demographic schema plus a real-schema death-records sibling, so
+a frame that cannot supply a read fails a test rather than the run. Docs-and-patch; edits no
+`gates.yaml` cell, moves no threshold, builds no floor.
 
 **2.8.4 The M6 drift-scoring layer.** The scorer computes, per gated cell,
 `|ln(rbar_projected / rate_a)|` against the frozen **v3** floor tolerance
@@ -2490,7 +2522,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 11,
+  "revision": 12,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -2551,6 +2583,7 @@ lock ceremony.
     "amendment_3_section": "2.8 (unblocks the gate_m6 run; designed stop #42 comment 4962773701, registration 4962640241); revised per amendment-3 referee MAJOR REVISION #42 comment 4963629234 (F1 adjudicated + F2-F6 pins + fertility disclosure)",
     "amendment_3d_section": "2.8.10 (the <=T* external-reference input bindings; closes the run lane's SECOND designed pre-scoring stop, #42 registration 4967241464 graded comment 4967433717); resolves finding 11 via the claiming-vintage-freeze branch; revised per amendment-3d referee SPEC-SOUND #42 comment 4968160638 (NAWI rule verified end-to-end; 8 refinement findings landed at revision 10)",
     "amendment_3e_section": "2.8.10.5 (the mortality-rates SHAPE BRIDGE + parameter-dir binding; DOCS-ONLY, closes factory-referee F1/F2 against the merged spec/engine pair, PR #191 comment 4969829131, on the factory's real outputs -- factory 67e7fad graded MERGE-READY build-only). F1 BLOCKING: the pinned seven-band mortality_external_rates shape is rejected by AgeSexMortalityModel.__post_init__ (bands must start at age 0, contiguous through 120, steps.py:57-68) at the run's FIRST phase fit_mortality_model (m6_runner.py:348, before pre-flights/score/write); a bare added 0-24 external row then hits the undefined-fit-cell guard (no <25 PSID exposure; build_exposure_slices drops out-of-band ages). RESOLUTION = option (b), input-side INERT (0,24) projection-coverage pad on BOTH fit inputs, engine untouched: external {central_rate = NCHS (l0-l25)/(T0-T25) ~ 0.000766 male / 0.000451 female, OUTCOME-INERT because aligned_rate = central_rate*(psid_rate/central_rate) = psid_rate cancels it, refit.py:1083-1088} + exposure {event_year = required_interview_year = 2014 (=T*, survives truncation), start_weight = exposure = 1.0, death = 0.0 -> psid_rate = 0 -> <25 hazard = -expm1(0) = 0 exactly}. Verified by execution on the merged refit.py: unpadded raises; padded yields a valid 8-band 0->120 model; the fourteen 25+ cells are byte-identical and invariant to pad value/weight; MORTALITY_BANDS==mf.BANDS guard (registered_m6_inputs.py:238) unchanged; the (0,24) band feeds ONLY apply_mortality as a zero hazard and appears in no scored/disclosed cell (mortality ungated, certifies_nothing_about_mortality_drift). Rejected option (a) [real NCHS <25 level consumed by the fit]: needs an engine no-exposure fallback AND imports an NCHS level, violating the aligned_rate=psid_rate anchor contract (PSID levels, NCHS inert). F2 SHOULD-FIX: assert_pe_us_version reads importlib.metadata but load_ssa_parameters reads YAML from POPULACE_DYNAMICS_PE_US_DIR / a checkout (ss/params.py:187-227), decoupled from the metadata -- a mismatched dir passes the gate. RESOLUTION = factory-side assert_pe_us_param_dir in build_inputs step 1: (_resolve_pe_us(None)/_SSA).resolve() == Path(importlib.metadata.distribution('policyengine-us').locate_file('policyengine_us')).resolve()/parameters/gov/ssa (verified on the real 1.752.2 site-packages install: locate_file == policyengine_us.__file__ parent, and site-packages is non-git so pe_us_revision='unknown'). N1: SOFTEN _era_mapping's docstring 'verified in build()' -> empirical/unasserted (era_map is provenance-only, read by nothing; no assert). Patch lane applies all three to registered_m6_inputs / extract_ssa_claim_ages_2014 + adds the missing fit_mortality_model bridge test.",
+    "amendment_3f_section": "2.8.3f (the demographic-seed SEX SOURCE correction; DOCS-AND-PATCH, closes the third registration's crash-2, registered 4971244215 graded #42 comment 4972045579). BUG: 2.8.3's per-field seed-reads list attributed sex to panels.demographic_panel, but the certified demographic_panel schema is {person_id,period,age,sequence,relationship,weight,interview} (panels.py:252-253) -- SEVEN cols, NO sex -- so build_realized_population reading sex from it via _anchor_rows(columns=(age,sex,interview), m6_population.py:186) raised ValueError: anchor source is missing columns ['sex'] (m6_population.py:139) at refit_m6_phase->build_realized_population (m6_runner.py:355), the FIRST real-frame execution of the phase (run 1 masked it: its QRF-import crash at m6_runner.py:345 precedes :355). CANONICAL SOURCE: person sex is ER32000 from the PSID cross-year individual file, read by data.deaths.read_death_records -- the SAME reader 2.8.3 already names for the mortality slices, and the same attach the certified builders use (household_composition.join_demographics household_composition.py:400, disability.attach_sex disability.py:443); marriage MH4 sex (marriage.marriage_history) is marriage-file-scoped, not the demographic universe, so it is not a competing source for the anchor persons. RESOLUTION: build_realized_population takes death_records and joins person sex by person_id before the demographic seed (uniqueness = one coded value per person; full coded-sex coverage over anchor persons, raise on any male/female-less anchor person); demographic_panel seed reads become {person_id,period,age,interview}, sex moves to the death_records read. GUARDS ADDED: m6_schema_audit static full-phase column contract (unit vs committed schemas + integration_psid vs real loaders) + the population fixture rebuilt to the real 7-col demo schema plus a real-schema death-records sibling so the defect class cannot re-hide behind a flattering fixture; sidecar environment_block extended with the fitting-stack (populace-fit/populace-frame) provenance it omitted; run script env prerequisites now name the fitting stack.",
     "input_reference_bindings": {
       "blocker": "run_gate_m6_candidate1.py is not self-starting: the --input-factory returning M6HarnessInputs via load_m6_inputs needs three <=T* external references that did not exist; the only committed claiming ref is the 2023 Supplement, and claiming_pmfs_from_reference correctly raises vintage 2023 is post-T* (2014)",
       "claiming": {
@@ -2592,7 +2625,7 @@ lock ceremony.
         "build_lane_never_runs_real_data": true
       },
       "residual_open_decisions": "none (the mortality-exposure row-dating semantics -- the referee's one under-pinned item -- are now pinned in 2.8.10.3: symmetric closing-wave dating, the re-derivation adapter, the next_wave derivation, the start_weight disclosure)",
-      "next": "3d pin -> referee SPEC-SOUND (revise) -> revision 10 landed -> factory build (registered_m6_inputs) merged 67e7fad -> factory-referee MERGE-READY build-only with F1/F2 (PR #191 comment 4969829131) -> amendment 3e (2.8.10.5, revision 11) pins the F1 (0,24) inert shape-bridge pad + F2 param-dir assert + N1 -> referee -> F1/F2/N1 patch to registered_m6_inputs + the missing fit_mortality_model bridge test -> referee -> merge -> THIRD gate_m6 registration -> run"
+      "next": "3d pin -> referee SPEC-SOUND (revise) -> revision 10 landed -> factory build (registered_m6_inputs) merged 67e7fad -> factory-referee MERGE-READY build-only with F1/F2 (PR #191 comment 4969829131) -> amendment 3e (2.8.10.5, revision 11) pins the F1 (0,24) inert shape-bridge pad + F2 param-dir assert + N1 -> referee -> F1/F2/N1 patch to registered_m6_inputs + the missing fit_mortality_model bridge test -> referee -> merge -> THIRD gate_m6 registration (4971244215) -> run FAILED TO EXECUTE, two pre-scoring crashes, one-shot unconsumed (graded 4972045579): crash-1 QRF-import env miss (populace-fit absent, disclosed re-exec fixed it), crash-2 ValueError anchor source missing ['sex'] at m6_population.py:139 -> amendment 3f (2.8.3f) sources the demographic-seed sex canonically from data.deaths + adds the m6_schema_audit full-phase column contract + real-schema fixture + fitting-stack sidecar provenance + run-env docs -> referee (real-frame population construction permitted, no scoring) -> merge -> FOURTH gate_m6 registration -> run"
     },
     "core_adjudication": "year-0 closed panel carries REALIZED histories: builders read each person's realized <= THEIR ANCHOR INTERVIEW marriage/household history (2015 for the bulk; 2017/2019 presence-conditioned openers seed at their later anchor) as the seed (decision 5 reproduction-mode semantics extended from disability_step assembly.py:257-304); the per-person anchor is the true leakage fence (ratified block f6_weight.start_wave + 4.4; seed = realized initial condition, refit stays <=2014, no fitter sees it); projected years constructed from simulated state under the pinned per-field rules; forward/production path out of scope (decision-5 successor gate, support.py FORWARD structural_delta)",
     "builders": {
