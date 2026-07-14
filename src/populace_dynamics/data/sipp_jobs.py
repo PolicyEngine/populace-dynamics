@@ -297,23 +297,42 @@ def read_sipp_job_months(
         | {f"TJB{n}_IND": "string" for n in slots},
     )
 
+    # Structural keys must identify the person-month; the API lists
+    # -9/-999 sentinels even for these, but a row whose identity is
+    # missing is unusable, so sentinels here refuse the file. The
+    # bounds are deliberately conservative supersets of the published
+    # ranges (2023 API: PNUM 101-499, SWAVE 1-4) so that later panel
+    # years cannot be false-refused.
     for column, low, high in (
         ("MONTHCODE", 1, 12),
         ("PNUM", 101, 9999),
         ("SWAVE", 1, 99),
-        ("TAGE", 0, 120),
-        ("ESEX", 1, 2),
     ):
         values = pd.to_numeric(raw[column], errors="coerce")
         bad = raw[column][values.isna() | (values < low) | (values > high)]
         if len(bad):
             raise _domain_error(year, column, bad)
         raw[column] = values.astype(int)
+
+    # Person attributes may carry the API-listed -9/-999 sentinels
+    # (the same convention the slot validator tolerates); they map to
+    # NA rather than refusing the file. Anything else out of range
+    # still refuses.
+    for column, low, high in (("TAGE", 0, 120), ("ESEX", 1, 2)):
+        values = pd.to_numeric(raw[column], errors="coerce")
+        sentinel = values.isin((_MISSING, _MISSING_ID))
+        bad = raw[column][
+            ~sentinel & (values.isna() | (values < low) | (values > high))
+        ]
+        if len(bad):
+            raise _domain_error(year, column, bad)
+        raw[column] = values.where(~sentinel).astype("Int64")
     weights = pd.to_numeric(raw["WPFINWGT"], errors="coerce")
-    bad_weight = raw["WPFINWGT"][weights.isna() | (weights < 0)]
+    sentinel = weights == _MISSING_ID
+    bad_weight = raw["WPFINWGT"][~sentinel & (weights.isna() | (weights < 0))]
     if len(bad_weight):
         raise _domain_error(year, "WPFINWGT", bad_weight)
-    raw["WPFINWGT"] = weights.astype(float)
+    raw["WPFINWGT"] = weights.where(~sentinel).astype(float)
 
     month_codes = frozenset(range(1, 13))
     long_parts: list[pd.DataFrame] = []
@@ -375,6 +394,22 @@ def read_sipp_job_months(
 
     out = pd.concat(long_parts, ignore_index=True)
     out["job_id"] = out["job_id"].astype(int)
+
+    # One JOBID must occupy one slot per person-month; a duplicate
+    # would double-count spell months and split earnings shares, so
+    # it refuses like any other dictionary violation.
+    duplicated = out.duplicated(["person_id", "month", "job_id"])
+    if duplicated.any():
+        example = out.loc[duplicated.idxmax()]
+        raise ValueError(
+            f"SIPP {year}: the same EJB job id appears in more than "
+            "one slot for one person-month "
+            f"({int(duplicated.sum())} row(s), e.g. person "
+            f"{example['person_id']!r} month {example['month']} job "
+            f"{example['job_id']}); refusing a file whose job slots "
+            "are not distinct jobs."
+        )
+
     out["class_of_worker"] = out["clwrk"].map(
         lambda code: CLWRK_LABELS.get(code, "missing")
     )
@@ -382,6 +417,10 @@ def read_sipp_job_months(
         lambda code: JBORSE_LABELS.get(code, "missing")
     )
 
+    # Shares are within *known* earnings: a co-job with missing
+    # earnings (-999) does not shrink the others' shares, and a
+    # month whose known earnings total zero gets NaN shares (its
+    # top_earner flag can still be True for a known-zero job).
     month_totals = out.groupby(["person_id", "month"])["earnings"].transform(
         "sum"
     )
@@ -446,6 +485,27 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
             "output of read_sipp_job_months."
         )
 
+    if job_months.empty:
+        return pd.DataFrame(
+            columns=[
+                "person_id",
+                "start_year",
+                "start_month",
+                "end_year",
+                "end_month",
+                "n_months",
+                "job_id",
+                "industry",
+                "empsize_code",
+                "class_of_worker",
+                "attributes_constant",
+                "total_earnings",
+                "earnings_share",
+                "primary_job",
+                "spell_id",
+            ]
+        )
+
     frame = job_months.sort_values(["person_id", "job_id", "month"]).copy()
     frame["_break"] = (
         frame.groupby(["person_id", "job_id"])["month"].diff().ne(1)
@@ -462,6 +522,9 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
     grouped = frame.groupby(["person_id", "job_id", "_run"], sort=True)
     for (person_id, job_id, _), spell in grouped:
         months = spell["month"]
+        # mode() sorts, so a tie resolves to the smallest value —
+        # arbitrary but deterministic, and always surfaced via
+        # attributes_constant=False.
         modal = {
             column: spell[column].mode(dropna=False).iloc[0]
             for column in ("industry", "empsize_code", "class_of_worker")

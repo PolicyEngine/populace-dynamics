@@ -170,6 +170,33 @@ class TestReadSippJobMonths:
         assert list(out["class_of_worker"]) == ["missing"]
         assert list(out["empsize_code"]) == [-9]
 
+    def test_duplicate_job_id_across_slots_raises(self, tmp_path):
+        months = [{"month": 1, "job1": {"JOBID": 101}, "job2": {"JOBID": 101}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        with pytest.raises(ValueError, match="more than one slot"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_person_attribute_sentinels_tolerated(self, tmp_path):
+        months = [{"month": 1, "TAGE": -9, "ESEX": -9, "job1": {}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 1
+        assert out["age"].isna().all()
+        assert out["sex"].isna().all()
+
+    def test_structural_sentinel_refused(self, tmp_path):
+        months = [{"month": 1, "PNUM": -999, "job1": {}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        with pytest.raises(ValueError, match="PNUM"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_known_zero_earnings_semantics(self, tmp_path):
+        months = [{"month": 1, "job1": {"MSUM": 0}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert out["earnings_share"].isna().all()
+        assert out["top_earner"].all()
+
     def test_staging_and_env(self, tmp_path, monkeypatch):
         _write_pu_file(tmp_path, 2022, [{"month": 1, "job1": {}}])
         out = sipp_jobs.read_sipp_job_months(2022, data_dir=tmp_path)
@@ -235,6 +262,15 @@ class TestJobSpells:
         assert bool(main["primary_job"]) is True
         assert bool(side["primary_job"]) is False
         assert main["total_earnings"] == 6000.0
+
+    def test_empty_input_returns_empty_schema(self, tmp_path):
+        months = [{"month": 1, "job1": {"JOBID": -999}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        empty = sipp_jobs.read_sipp_job_months(2023, path=path)
+        spells = sipp_jobs.job_spells(empty)
+        assert len(spells) == 0
+        assert "spell_id" in spells.columns
+        assert "person_id" in spells.columns
 
     def test_wrong_frame_raises(self):
         with pytest.raises(ValueError, match="read_sipp_job_months"):
