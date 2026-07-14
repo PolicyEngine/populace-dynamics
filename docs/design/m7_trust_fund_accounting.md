@@ -493,4 +493,47 @@ one thing that could silently change — the staged TR/aux numbers — impossibl
 change unnoticed. The factory is the single pinned entry point, candidate-blind
 (no binding is tuned to any observable), exactly as M6 §2.8.10 requires of its own.
 
+## 5. Anchors — all REPORT-ONLY
+
+M7 carries three anchor families. **None gates** (§6 gates only internal
+identities). They are reported alongside the levels so a reader can see agreement
+and named disagreement, exactly as M2 reported its forecasts without grading them
+("the orchestrator grades … this artifact reports outcomes vs forecasts and does
+not grade").
+
+### 5.1 The M2-reproduction anchor (the internal one, feeds the gate)
+
+Unlike the two external families below, M2-reproduction is an **internal** anchor:
+M7's accounting engine, restricted to the exact M2 setup, must reproduce
+`runs/m2_pseudo_projection_v1.json` (commit `747966cd`, `pe_us_revision bf71be3b`)
+**to floating point, or name every delta.** The committed targets:
+
+| Quantity | Committed M2 value |
+|---|---|
+| common frame | `n_common_frame 1549`, `weight_sum 33696344.0`, born 1943–1957, earnings 1968–2018, benefits 2005–2057 |
+| combined OASDI rate | `0.124` (employee `0.062` + employer `0.062`) |
+| calibrated reserve | `7889236006574.162` |
+| baseline exhaustion year | `2034.0` |
+| baseline balance analogue | `0.04689166331354922` |
+| cap_150k | balance `0.053154118080107754`, Δbalance `0.0062624547665585326`, exhaustion `2035.1188537982976`, Δyears `1.1188537982975504` |
+| elimination | balance `0.06118610701057222`, Δbalance `0.014294443697022999`, exhaustion `2037.2048065597855`, Δyears `3.2048065597855384` |
+| payroll +1pp | balance `0.05689166331354923`, Δbalance `0.010000000000000009`, exhaustion `2035.950472894025`, Δyears `1.950472894025097` |
+| payroll +2pp | balance `0.06689166331354923`, Δbalance `0.02000000000000001`, exhaustion `2038.2313708228655`, Δyears `4.231370822865529` |
+| FRA→72 | balance `0.072506643421113`, Δbalance `0.02561498010756378`, exhaustion `null` (never exhausts on-frame), Δyears `41.0` (censored) |
+| PI outlay Δ | `-0.3326593963115843` (`-33.266%`) |
+| PPI outlay Δ | `-0.11000744343246105` (`-11.001%`) |
+| NRA→70 outlay Δ | `-0.20234306477534883` (`-20.234%`) |
+| reduced-COLA outlay Δ | `-0.007987803755968265` (`-0.799%`) |
+| forecast outcomes | F1 met (100%, 14/14); **F2 NOT met** (Kendall τ `0.667`, our order +2pp > elim > +1pp > cap vs Smith elim > +2pp > +1pp > cap); F3 met; F4 met |
+
+**Why reproduction is the expectation, not a hope.** M7 generalizes M2 by *adding*
+classes (DI, auxiliary) and *opening* the frame (immigration, forward dynamics).
+On the M2 setup those additions are switched **off** (OASI-only, closed 1943–1957
+cohort, real dollars, calibrated reserve), so a faithful generalization must
+collapse to M2 exactly. A non-zero delta is therefore diagnostic: either a bug, or
+a documented arithmetic change M7 must name and justify cell-by-cell (the M6
+"reproduce M2's committed numbers or explain every delta" discipline). The F2
+"NOT met" outcome is part of the committed record and must reproduce as-is —
+reproduction means matching M2's *result*, including its registered forecast miss.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
