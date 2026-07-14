@@ -464,7 +464,8 @@ the statute itself" exception pe-us's tree forces for the 1979-cohort bend amoun
 a STOP).** The **CPI-W / COLA** series a nominal M7 (§2.5) needs is **present in
 policyengine-us**: `gov/ssa/uprating.yaml` — "the US indexes Social Security
 benefits (OASDI and SSI) … annually updating based on **CPI-W in the third quarter
-of the prior year**," actuals through 2026, CBO-married forecasts through 2035, and
+of the prior year**," actuals through 2025 (2026 is the first CBO-married forecast
+row), forecasts through 2035, and
 2036–2100 set programmatically — plus the raw `gov/bls/cpi/cpi_w.yaml` index (from
 1913). The repo's `ss/` wrapper simply doesn't load it yet (`ss/benefits.py`
 computes the claim-year benefit only). So COLA is **not** a trust-fund-perimeter
