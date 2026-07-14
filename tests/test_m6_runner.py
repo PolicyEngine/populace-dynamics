@@ -268,10 +268,11 @@ def test_report_only_marks_unavailable_paths_without_fabricating_zero():
 
 @pytest.mark.parametrize(
     "registration",
-    ["", "not-a-comment", "4962640241", "4967241464"],
+    ["", "not-a-comment", "4962640241", "4967241464", "4971244215"],
 )
 def test_registration_must_be_fresh_and_explicit(registration):
-    # Both graded pre-scoring stops (registrations 1 and 2) are stale.
+    # All three graded pre-scoring terminations (registrations 1-3) are stale;
+    # registration 3 (4971244215) crashed pre-scoring, graded 4972045579.
     with pytest.raises(ValueError):
         validate_registration_id(registration)
 
