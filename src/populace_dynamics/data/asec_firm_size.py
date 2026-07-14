@@ -182,7 +182,7 @@ def _check_path_year(path: Path, year: int) -> None:
 
 
 def _domain_error(year: int, column: str, bad: pd.Series) -> ValueError:
-    values = ", ".join(str(v) for v in sorted(bad.unique())[:8])
+    values = ", ".join(sorted(map(str, bad.unique()))[:8])
     return ValueError(
         f"ASEC {year} {column} contains out-of-dictionary value(s) "
         f"[{values}] on {len(bad)} row(s); refusing to band a file "
@@ -218,10 +218,13 @@ def read_asec_firm_size(
 
     Raises:
         ValueError: On an unsupported year, a path/year mismatch,
-            missing required columns, or any value outside the
-            year's dictionary domain (NOEMP outside 0-6, LJCW
-            outside 0-7, or a nonzero NOEMP off the ``WKSWORK > 0``
-            universe).
+            missing required columns, any value outside the year's
+            dictionary domain (NOEMP outside 0-6, LJCW outside 0-7,
+            a negative weight), or a universe violation: NOEMP and
+            LJCW share the longest-job universe in every dictionary
+            (stated as ``WORKYN = 1`` in 2011-2018 and
+            ``WKSWORK > 0`` in 2019+, which coincide), so each must
+            be nonzero exactly on the ``WKSWORK > 0`` rows.
         FileNotFoundError: If no staged person file can be found.
     """
     bands = noemp_band_map(year)
@@ -235,8 +238,16 @@ def read_asec_firm_size(
         person_path = _resolve_person_path(year, _resolve_data_dir(data_dir))
     _check_path_year(person_path, year)
 
-    raw = pd.read_csv(person_path, usecols=None, low_memory=False)
-    missing = sorted(set(_REQUIRED_COLUMNS) - set(raw.columns))
+    # PERIDNUM is a 22-digit identifier: wider than int64, and a
+    # float64 fallback would round distinct persons together, so it
+    # must never pass through a numeric dtype.
+    required = set(_REQUIRED_COLUMNS)
+    raw = pd.read_csv(
+        person_path,
+        usecols=lambda column: column in required,
+        dtype={"PERIDNUM": "string"},
+    )
+    missing = sorted(required - set(raw.columns))
     if missing:
         raise ValueError(
             f"{person_path.name} is missing required column(s) "
@@ -245,24 +256,36 @@ def read_asec_firm_size(
         )
     raw = raw.loc[:, list(_REQUIRED_COLUMNS)].copy()
 
-    for column, low, high in (
-        ("NOEMP", 0, 6),
-        ("LJCW", 0, 7),
-        ("WKSWORK", 0, 52),
+    for column, low, high, cast in (
+        ("NOEMP", 0, 6, int),
+        ("LJCW", 0, 7, int),
+        ("WKSWORK", 0, 52, int),
+        ("I_NOEMP", 0, 9, int),
+        ("MARSUPWT", 0, None, float),
     ):
         values = pd.to_numeric(raw[column], errors="coerce")
-        bad = raw[column][values.isna() | (values < low) | (values > high)]
+        out_of_domain = values.isna() | (values < low)
+        if high is not None:
+            out_of_domain |= values > high
+        bad = raw[column][out_of_domain]
         if len(bad):
             raise _domain_error(year, column, bad)
-        raw[column] = values.astype(int)
+        raw[column] = values.astype(cast)
 
-    off_universe = raw[(raw["NOEMP"] > 0) & (raw["WKSWORK"] == 0)]
-    if len(off_universe):
-        raise ValueError(
-            f"ASEC {year}: {len(off_universe)} row(s) carry a nonzero "
-            "NOEMP outside the WKSWORK > 0 universe; the file does "
-            "not match the dictionary's universe statement."
-        )
+    # NOEMP and LJCW share the longest-job universe in every
+    # dictionary year, so a zero inside WKSWORK > 0 (or a nonzero
+    # outside it) means the file does not match its dictionary.
+    for column in ("NOEMP", "LJCW"):
+        mismatch = raw[(raw[column] > 0) != (raw["WKSWORK"] > 0)]
+        if len(mismatch):
+            raise ValueError(
+                f"ASEC {year}: {len(mismatch)} row(s) violate the "
+                f"{column} universe ({column} must be nonzero "
+                "exactly where WKSWORK > 0); the file does not "
+                "match the dictionary's universe statement — "
+                "re-adjudicate against that year's dictionary "
+                "before extending the reader."
+            )
 
     universe = raw[raw["WKSWORK"] > 0].reset_index(drop=True)
     return pd.DataFrame(
@@ -275,7 +298,7 @@ def read_asec_firm_size(
             "firm_size_band": universe["NOEMP"].map(
                 lambda code: bands.get(int(code), "niu")
             ),
-            "noemp_allocated": pd.to_numeric(universe["I_NOEMP"]) > 0,
+            "noemp_allocated": universe["I_NOEMP"] > 0,
             "ljcw": universe["LJCW"],
             "class_of_worker": universe["LJCW"].map(
                 lambda code: CLASS_OF_WORKER_LABELS.get(int(code), "niu")

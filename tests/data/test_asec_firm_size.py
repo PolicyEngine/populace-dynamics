@@ -118,6 +118,42 @@ class TestReadAsecFirmSize:
         with pytest.raises(ValueError, match="universe"):
             asec_firm_size.read_asec_firm_size(2021, path=path)
 
+    def test_zero_noemp_inside_universe_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"NOEMP": 0}])
+        with pytest.raises(ValueError, match="NOEMP universe"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_zero_ljcw_inside_universe_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"LJCW": 0}])
+        with pytest.raises(ValueError, match="LJCW universe"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_mixed_type_domain_violation_stays_a_value_error(self, tmp_path):
+        rows = [{"NOEMP": "A"}, {"NOEMP": 7}]
+        path = _write_person_file(tmp_path, 2021, rows)
+        with pytest.raises(ValueError, match="out-of-dictionary"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_negative_weight_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"MARSUPWT": -1.0}])
+        with pytest.raises(ValueError, match="MARSUPWT"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_wide_person_ids_survive_exactly(self, tmp_path):
+        # 22-digit PERIDNUMs differing only in the last digit round
+        # together under any numeric read (int64 tops out at 19
+        # digits; float64 keeps ~15-16), so exact string survival
+        # is the regression test for the dtype pin.
+        ids = [
+            "8812345678901234567891",
+            "8812345678901234567892",
+        ]
+        path = _write_person_file(
+            tmp_path, 2021, [{"PERIDNUM": i} for i in ids]
+        )
+        out = asec_firm_size.read_asec_firm_size(2021, path=path)
+        assert list(out["person_id"]) == ids
+
     def test_universe_and_flags(self, tmp_path):
         rows = [
             {"NOEMP": 1, "I_NOEMP": 1, "LJCW": 6},
@@ -184,6 +220,7 @@ class TestRealData:
         year = 2000 + int(staged[-1].name[5:7])
         out = asec_firm_size.read_asec_firm_size(year, path=staged[-1])
         assert len(out) > 10_000
+        assert out["person_id"].is_unique
         assert set(out["firm_size_band"]) <= set(
             asec_firm_size.noemp_band_map(year).values()
         )
