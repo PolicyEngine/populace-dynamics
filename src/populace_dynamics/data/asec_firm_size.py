@@ -47,6 +47,7 @@ import os
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 __all__ = [
@@ -242,11 +243,16 @@ def read_asec_firm_size(
     # float64 fallback would round distinct persons together, so it
     # must never pass through a numeric dtype.
     required = set(_REQUIRED_COLUMNS)
-    raw = pd.read_csv(
-        person_path,
-        usecols=lambda column: column in required,
-        dtype={"PERIDNUM": "string"},
-    )
+    try:
+        raw = pd.read_csv(
+            person_path,
+            usecols=lambda column: column in required,
+            dtype={"PERIDNUM": "string"},
+        )
+    except pd.errors.EmptyDataError:
+        raise ValueError(
+            f"{person_path.name} is empty; {_README_POINTER}."
+        ) from None
     missing = sorted(required - set(raw.columns))
     if missing:
         raise ValueError(
@@ -256,17 +262,43 @@ def read_asec_firm_size(
         )
     raw = raw.loc[:, list(_REQUIRED_COLUMNS)].copy()
 
+    # The join key gets the same refuse-on-mismatch treatment as
+    # every coded column: a blank or duplicated PERIDNUM is exactly
+    # what a botched fixed-width conversion produces, and NaN ids
+    # vanish silently from downstream groupbys.
+    ids = raw["PERIDNUM"]
+    blank = ids.isna() | (ids.astype(str).str.strip() == "")
+    if blank.any():
+        raise ValueError(
+            f"ASEC {year}: {int(blank.sum())} row(s) have a blank "
+            "PERIDNUM; refusing a file with unusable person ids."
+        )
+    duplicated = ids[ids.duplicated()]
+    if len(duplicated):
+        raise ValueError(
+            f"ASEC {year}: PERIDNUM is not unique "
+            f"({len(duplicated)} duplicated id(s), e.g. "
+            f"{duplicated.iloc[0]!r}); refusing a file with a "
+            "corrupted person-id column."
+        )
+
     for column, low, high, cast in (
         ("NOEMP", 0, 6, int),
         ("LJCW", 0, 7, int),
         ("WKSWORK", 0, 52, int),
         ("I_NOEMP", 0, 9, int),
+        ("WEIND", 0, 23, int),
+        ("INDUSTRY", 0, 9999, int),
         ("MARSUPWT", 0, None, float),
     ):
         values = pd.to_numeric(raw[column], errors="coerce")
-        out_of_domain = values.isna() | (values < low)
+        out_of_domain = values.isna() | (values < low) | ~np.isfinite(values)
         if high is not None:
             out_of_domain |= values > high
+        if cast is int:
+            # Dictionary codes are integers; 2.9 is not a code and
+            # must not silently truncate into one.
+            out_of_domain |= values != values.round()
         bad = raw[column][out_of_domain]
         if len(bad):
             raise _domain_error(year, column, bad)
@@ -303,12 +335,10 @@ def read_asec_firm_size(
             "class_of_worker": universe["LJCW"].map(
                 lambda code: CLASS_OF_WORKER_LABELS.get(int(code), "niu")
             ),
-            "industry_major": pd.to_numeric(universe["WEIND"]).astype(int),
-            "industry_detailed": pd.to_numeric(universe["INDUSTRY"]).astype(
-                int
-            ),
+            "industry_major": universe["WEIND"],
+            "industry_detailed": universe["INDUSTRY"],
             "wkswork": universe["WKSWORK"],
-            "weight": pd.to_numeric(universe["MARSUPWT"]).astype(float),
+            "weight": universe["MARSUPWT"],
         }
     )
 
@@ -332,8 +362,9 @@ def firm_size_tabulation(
     Returns:
         One row per group with ``weighted_persons`` (MARSUPWT sum),
         ``unweighted_n``, and ``allocated_share`` (weighted share of
-        the group whose NOEMP was allocated/edited), sorted by the
-        grouping columns.
+        the group whose NOEMP was allocated/edited; NaN for a group
+        whose weights sum to zero), sorted by the grouping columns.
+        NaN group keys are kept, never silently dropped.
     """
     missing = sorted(
         (set(by) | {"weight", "noemp_allocated"}) - set(records.columns)
@@ -346,11 +377,15 @@ def firm_size_tabulation(
     working = records.assign(
         _allocated_weight=records["weight"] * records["noemp_allocated"]
     )
-    grouped = working.groupby(list(by), sort=True)
+    grouped = working.groupby(list(by), sort=True, dropna=False)
     out = grouped.agg(
         weighted_persons=("weight", "sum"),
         unweighted_n=("weight", "size"),
         _allocated_weight=("_allocated_weight", "sum"),
     ).reset_index()
-    out["allocated_share"] = out["_allocated_weight"] / out["weighted_persons"]
+    out["allocated_share"] = np.where(
+        out["weighted_persons"] > 0,
+        out["_allocated_weight"] / out["weighted_persons"],
+        np.nan,
+    )
     return out.drop(columns="_allocated_weight")

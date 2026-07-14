@@ -139,6 +139,38 @@ class TestReadAsecFirmSize:
         with pytest.raises(ValueError, match="MARSUPWT"):
             asec_firm_size.read_asec_firm_size(2021, path=path)
 
+    def test_blank_person_id_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"PERIDNUM": ""}])
+        with pytest.raises(ValueError, match="blank PERIDNUM"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_duplicate_person_id_raises(self, tmp_path):
+        rows = [{"PERIDNUM": 77}, {"PERIDNUM": 77}]
+        path = _write_person_file(tmp_path, 2021, rows)
+        with pytest.raises(ValueError, match="not unique"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_fractional_code_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"NOEMP": 2.9}])
+        with pytest.raises(ValueError, match="NOEMP"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_industry_garbage_gets_friendly_error(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"INDUSTRY": "XX"}])
+        with pytest.raises(ValueError, match="INDUSTRY"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_infinite_weight_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2021, [{"MARSUPWT": "inf"}])
+        with pytest.raises(ValueError, match="MARSUPWT"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
+    def test_empty_file_gets_friendly_error(self, tmp_path):
+        path = tmp_path / "pppub21.csv"
+        path.write_text("")
+        with pytest.raises(ValueError, match="empty"):
+            asec_firm_size.read_asec_firm_size(2021, path=path)
+
     def test_wide_person_ids_survive_exactly(self, tmp_path):
         # 22-digit PERIDNUMs differing only in the last digit round
         # together under any numeric read (int64 tops out at 19
@@ -205,6 +237,20 @@ class TestFirmSizeTabulation:
         ]
         out = asec_firm_size.firm_size_tabulation(pd.concat(frames))
         assert set(out["firm_size_band"]) == {"10_49", "10_24"}
+
+    def test_zero_weight_group_share_is_nan(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"MARSUPWT": 0.0}])
+        records = asec_firm_size.read_asec_firm_size(2024, path=path)
+        out = asec_firm_size.firm_size_tabulation(records)
+        assert out.iloc[0]["weighted_persons"] == 0.0
+        assert pd.isna(out.iloc[0]["allocated_share"])
+
+    def test_nan_group_keys_are_kept(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{}, {}])
+        records = asec_firm_size.read_asec_firm_size(2024, path=path)
+        records.loc[0, "class_of_worker"] = None
+        out = asec_firm_size.firm_size_tabulation(records)
+        assert out["weighted_persons"].sum() == records["weight"].sum()
 
     def test_wrong_frame_raises(self):
         with pytest.raises(ValueError, match="read_asec_firm_size"):
