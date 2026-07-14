@@ -325,7 +325,9 @@ def _era_mapping(
     Consecutive years that share an applicable-column signature form one era.
     Derived from the source rather than hardcoded, so the record can never
     disagree with the data. The men and women panels share the same era
-    structure (verified in :func:`build`); men's panel drives the derivation.
+    structure in the 2014 edition -- an empirical property of this source,
+    asserted nowhere (the era records are provenance-only and read by no
+    consumer); men's panel drives the derivation.
     """
     men = parsed["male"]
     eras: list[dict[str, Any]] = []
