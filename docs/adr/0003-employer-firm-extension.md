@@ -84,6 +84,17 @@ One tidy table, written by workstream A, read by workstream B:
   not the spell table.
 - Multi-job holding is resolved primary-job-only in phase 0;
   `earnings_share` retains the information needed to revisit this.
+- **Hours granularity is deferred, and the deferral is explicit**
+  (registered downstream consumer: SNAP ABAWD work-requirement
+  compliance, issue #192 — the 80-hours-per-month test of
+  7 CFR 273.24 and the 3-in-36 countable-month clock need
+  month-resolved hours, not spell start/end plus annual earnings).
+  C1 as frozen carries no hours column, so it **cannot yet serve
+  monthly-hours consumers**; a `hours_band` (or monthly hours)
+  column is the first scheduled C1 amendment, to be added by joint
+  PR once workstream A's phase-1 spell imputation establishes what
+  hours granularity SIPP can support. Consumers must not proxy
+  monthly compliance from annual quantities in the meantime.
 
 ### Conditioning DAG — the firm-size x tenure bridge
 
