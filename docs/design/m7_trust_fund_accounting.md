@@ -269,8 +269,11 @@ proposed gate (§6): for every year `y`, the artifact carries `TF[y-1]`,
 `revenue[y]`, `interest[y]`, `outlays[y]`, `TF[y]` independently, and a referee
 can recompute (I) and confirm the residual is `0`. It is **non-vacuous** because a
 dropped beneficiary class, a double-counted employer half, or a mis-discounted PV
-breaks it — the same reconcile-to-`0.0` discipline M6 applied to its recombination
-identity (M6 candidate-16 residual `1.7e-18`, "reconciled to 0.0").
+breaks it — the same reconcile-to-`0.0` discipline behind the **gate-2**
+recombination identity M6 adopts as `ft.CANDIDATE_16` (its
+`support_stratum_recombination` residual `1.734723475976807e-18`,
+`runs/gate2_hazard_v16.json`, "reconciled to 0.0") — a gate-2 identity M6 consumes,
+not an M6-native reconciliation.
 
 **Interest and the opening reserve are LOUD input gaps (§4.3).** `interest_rate(y)`
 (the trust-fund's special-issue yield) has **no pe-us node** — M2 confirms "no
@@ -292,10 +295,13 @@ Two distinct indexation channels feed the accounts, and only one is sourced toda
   post-`T*` NAWI on any scored path. For a forward projection to 2100, future
   eligibility years read projected NAWI; M7 inherits M6's wage-index surface
   rather than re-deriving it (§8 decision 6).
-- **Benefits-in-payment indexation / COLA (the LOUD gap, §4.3).** After a worker
-  claims, the benefit is uprated annually by the COLA (CPI-W, 215(i)). **pe-us's
-  `ss/` machinery applies no COLA** and binds no CPI-W series — `ss/benefits.py`
-  computes the claim-year benefit only. M2 sidestepped this by working in
+- **Benefits-in-payment indexation / COLA (present in pe-us, not yet wired — §4.3
+  B).** After a worker claims, the benefit is uprated annually by the COLA (CPI-W,
+  215(i)). The CPI-W/COLA series **is present in pe-us** (`gov/ssa/uprating.yaml` +
+  `gov/bls/cpi/cpi_w.yaml`); the repo's **`ss/` wrapper simply does not load it**
+  yet — `ss/benefits.py` computes the claim-year benefit only. A nominal M7 wires
+  it like NAWI/`wage_base` (§4.3 B), no new artifact. M2 sidestepped it by working
+  in
   **wage-indexed real (2048 age-60-indexing) dollars**, in which a benefit is
   carried at constant real PIA across ages — COLA and NAWI-deflation net out of
   the *level* convention, so no explicit CPI-W series is needed. The Mermin
@@ -305,9 +311,10 @@ Two distinct indexation channels feed the accounts, and only one is sourced toda
 **The consequence for M7 is a nominal-vs-real fork (§8 decision 2).** If M7 keeps
 M2's **real** convention, no CPI-W series is required and interest is a *real*
 rate (2.9%); the accounts stay comparable to M2. If M7 goes **nominal** (the units
-a Trustees report actually prints), it must bind a CPI-W / COLA series *and* a
-nominal special-issue interest series — **neither has a pe-us node** — and every
-benefit-in-payment path grows by COLA. The two are a coherent pair (real flows ↔
+a Trustees report actually prints), it must **wire** the existing CPI-W/COLA node
+(§4.3 B, present in pe-us) *and* **bind** a nominal special-issue interest series
+(§4.3 C, genuinely absent) — and every benefit-in-payment path grows by COLA. The
+two are a coherent pair (real flows ↔
 real interest; nominal flows ↔ nominal interest + COLA); mixing them breaks
 identity (I). M7 must declare the convention per run; the M2-repro run (§5.1) is
 real by construction.
@@ -320,7 +327,7 @@ per class:
 | Class | Composition certified by | Level status |
 |---|---|---|
 | OASI retired-worker | earnings (gate_1/gate_m6), claiming mix, survival | **report-only** (PIA never gated) |
-| DI disabled-worker | gate_m4 hazards + `prevalence.50-59` stock + Table-50 exit **dominance** (all shape/dominance) | **report-only** (M4: "no SSA DI LEVEL is gated") |
+| DI disabled-worker | gate_m4 flow hazards + `prevalence.50-59` stock (8 internal half-split **reproduction** cells) + Table-19 shape / Table-50 exit **dominance** (4 concept-bridged anchor cells) | **report-only** (M4: "no SSA DI LEVEL is gated") |
 | DI→retirement conversion at FRA | gate_m4 exit composition; `disability_conversion.py` | **report-only** level |
 | 402(b)/(c) spouse | gate_2b/2c household + couple formation | **report-only** (aux rate = statute constant) |
 | 402(e)/(f) survivor | gate_2b + mortality (who survives whom) | **report-only** (aux rate = statute constant) |
@@ -335,8 +342,9 @@ locked at run time, that class is disclosed report-only with its tranche gap nam
 ## 3. The determinism law
 
 **Law.** *Given the same M6 panel and the same pinned parameter bundle (§4), the
-M7 accounts are byte-identical across runs, processes, and platforms. There is no
-stochastic element at the accounting layer.*
+M7 accounts are byte-identical across runs and processes (and across platforms
+given a pinned numpy build — the cross-platform caveat of §8 decision 9). There is
+no stochastic element at the accounting layer.*
 
 This is stronger than M6's discipline and simpler to guarantee, because M7
 consumes no randomness. Every stochastic draw — earnings, mortality, marital
@@ -356,9 +364,11 @@ recursion (I). Determinism therefore reduces to two mechanical obligations:
 1. **Pinned reduction order.** Floating-point addition is non-associative, so
    every aggregate `Σ_i w[i,y]·x[i,y]` fixes a canonical iteration order (sort by
    `(person_id, year)`) and a fixed dtype, so the summed bytes do not depend on
-   row order, thread count, or grouping. This is the M7 analogue of M6's
-   draw-by-draw byte-identity (M6 candidate-16 "RNG-neutral … byte-identical
-   draw-by-draw"); here it is reduction-order neutrality.
+   row order, thread count, or grouping. This is the M7 analogue of the
+   draw-by-draw byte-identity of the **gate-2** candidate-16 marital core M6 embeds
+   ("RNG-neutral … byte-identical draw-by-draw"); here it is reduction-order
+   neutrality. Cross-platform identity additionally needs a pinned numpy build
+   (pairwise-summation/SIMD differences otherwise perturb the low bits; §8 dec. 9).
 2. **Pinned parameter bytes.** The parameter side is fully determined by the
    pe-us 1.752.2 pin plus the statute/TR constants (§4), each vintage-asserted and
    hash-gated (§4.4). No parameter is read from the environment beyond the pinned
