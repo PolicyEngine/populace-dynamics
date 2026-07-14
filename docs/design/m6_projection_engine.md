@@ -4,11 +4,21 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 6). This document seeded the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 7). This document seeded the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
   ratify-by-merge → lock), now **locked** (`gates.gate_m6`, v3 floor
   `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This document edits no
   `gates.yaml` cell, moves no threshold, builds no floor, and writes no test.**
+- **Revision 7 (design amendment 3c)** corrects §2.8.6 and the §10 `preflight_2`
+  field, which **inverted** the certified earnings sign-path. They pinned
+  pre-flight 2 to verify the `draw_sign` branch and to reject the `_target_models`
+  reconstruction as a "test seam," but today's certified `RegimeGatedQRF` exposes
+  `_target_models` and **no** `draw_sign`, so the faithful-to-spec pre-flight
+  aborts every real run (harness-referee finding F1, PR #185 comment 4966859161).
+  The corrected pin verifies the `_target_models` reconstruction deploys and
+  rejects the `draw_sign` seam — restoring the direction of engine-referee
+  observation 6 (PR #173 comment 4962620806), with the designed-abort semantics
+  unchanged. Docs-only; edits no `gates.yaml` cell and writes no test.
 - **Revision 6 (design amendment 3b)** adds §2.8.3a, the **year-0 earnings-domain
   law**, closing the harness build lane's round-4 blocker (Sol,
   `~/PolicyEngine/sol-worktrees/m6-harness-REPORT.md`): the closed-panel universe
@@ -1235,14 +1245,45 @@ is **not** consumed, and the fuller re-ceremony §2.6 names is triggered (not a
 self-rescue). The per-channel margins publish with the run (registration
 observation 3).
 
-**2.8.6 Pre-flight 2 — the certified sign-path verification.** The harness verifies
-that the forward earnings generator deploys the **externally-driven**
-`forward_earnings._gate_sign_draw` path — the `hasattr(fitted, "draw_sign")` branch
-(`forward_earnings.py:815-819`), certified candidate-10's RegimeGatedQRF sign gate
-— rather than the internal `_target_models` test-seam fallback
-(`forward_earnings.py:820-826`), by running the participation gate on a **synthetic
-probe** frame and recording **which branch executed** into the run artifact
-(registration observation 6). No holdout contact (synthetic probe only).
+**2.8.6 Pre-flight 2 — the certified sign-path verification.** The harness
+verifies that the forward earnings generator deploys the **certified
+externally-driven** sign path — the `_target_models` reconstruction inside
+`forward_earnings._gate_sign_draw` (`forward_earnings.py:820-826`), which
+reproduces `populace.fit.qrf.FittedRegimeGatedQRF._gate_draw` (`qrf.py:731`)
+bit-for-bit on engine-supplied uniforms and is the branch every certified
+candidate-10 `RegimeGatedQRF` sign gate actually executes — rather than the
+`hasattr(fitted, "draw_sign")` fast-path (`forward_earnings.py:815-819`), which
+is a **test seam** reached only by injected doubles
+(`tests/test_m6_preflight.py:92`, `tests/test_m6_engine_forward_earnings.py:33`).
+Today's certified `FittedRegimeGatedQRF` exposes `_target_models` and defines no
+`draw_sign` method (`qrf.py:612`), so on every real fit `_gate_sign_draw` falls
+through to the reconstruction and the `draw_sign` branch never fires outside
+tests. The harness runs the participation gate on a **synthetic probe** frame,
+records **which branch executed** into the run artifact, and — keeping the
+designed-abort semantics — aborts the run if a gate deploys the `draw_sign` test
+seam instead of the certified `_target_models` reconstruction. No holdout
+contact (synthetic probe only). Should populace-fit ever expose a certified
+`draw_sign` on `RegimeGatedQRF`, this pin is revisited so verification still
+confirms the deployed path is the certified externally-driven draw (registration
+observation 6).
+
+**Reconciliation with observation 6 and harness-referee F1.** Engine-referee
+observation 6 (PR #173 comment 4962620806) reads: "`_gate_sign_draw` prefers a
+`draw_sign` method when the fitted gate exposes one (test seam; the certified
+reconstruction is the fallback and is what production `RegimeGatedQRF` objects
+will hit today)." That is correct — `draw_sign` is the seam and the
+`_target_models` reconstruction is the certified path. The prior wording of this
+section and of the §10 `preflight_2` field **inverted** it, pinning pre-flight 2
+to verify the `draw_sign` branch and to reject `_target_models` as a "test-seam
+fallback"; taken literally that aborts every real run, because the certified gate
+exposes no `draw_sign`. Harness-referee finding F1 (PR #185 comment 4966859161)
+proved the abort — `verify_external_sign_path` raises against the real
+`_target_models`-only shape, so the registered scored run would stop at phase 3
+today. This amendment restores observation 6's direction — certified branch
+`_target_models`, seam `draw_sign` — and leaves the designed-abort intact, now
+firing on the seam rather than on the certified path. Observation 6 was **not**
+wrong about which branch is the seam; the earlier §2.8.6/§10 prose transcribed it
+backwards.
 
 **2.8.7 The runner phase structure.** One ordered pass, each phase a pure function
 of the prior:
@@ -2000,7 +2041,7 @@ lock ceremony.
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 7,
+  "revision": 8,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -2089,7 +2130,7 @@ lock ceremony.
       "guards": ["undefined_draw_rule (any undefined gated rate on any draw invalidates)", "regenerated-surface conformance (non-zero across-draw dispersion recorded)"]
     },
     "preflight_1": "candidate-9 re-certification margin on the <=2014-refit REAL panel over gate-seed draws BEFORE any scored phase: simulate_candidate9_injected vs simulate_candidate9_internal_reference, composition_channel_moments over RECERTIFICATION_CHANNEL_SETS, check_candidate9_recertification >=3sigma; holdout-blind (two simulation paths, no holdout cell); failure = DESIGNED ABORT pre-scoring (one-shot not consumed, fuller re-ceremony per 2.6); per-channel margins publish",
-    "preflight_2": "verify the externally-driven _gate_sign_draw draw_sign branch deploys (forward_earnings.py:815-819) vs the _target_models test seam (:820-826) on a SYNTHETIC probe; record which path executed",
+    "preflight_2": "verify the certified externally-driven _gate_sign_draw _target_models reconstruction deploys (forward_earnings.py:820-826; reproduces FittedRegimeGatedQRF._gate_draw on engine-supplied uniforms -- today's RegimeGatedQRF exposes _target_models and NO draw_sign, so this is the branch every real candidate-10 gate takes) vs the draw_sign test seam (:815-819; only test doubles define draw_sign) on a SYNTHETIC probe; record which path executed; DESIGNED ABORT if a gate deploys the draw_sign seam. Corrects the prior inversion (harness-referee F1, PR #185 comment 4966859161); restores engine-referee obs 6 (PR #173 comment 4962620806): draw_sign=seam, _target_models=certified",
     "runner_phases": ["refit (refit_m6_components boundary 2014 + from_refit_bundle; RefitProvenance + EARNINGS_SPEC_SHA256 recorded)", "preflight_1 (abort-on-fail)", "preflight_2", "project+score per gate seed (K=20 draws, side-A, v3 floor)", "report_only (shock, not_certified, re-drawn-seed comparison, entrants, alignment displacement)", "assemble + artifacts.write_new(sidecar=True) stamping registration-id + EARNINGS_SPEC_REGISTRATION + floor sha e931c886 + spec sha256s; publishes_regardless"],
     "must_not": ["no gates.yaml read beyond the gate_m6 block's protocol/cells (no tolerance computed, no threshold moved)", "no holdout-informed choice (synthetic frames only until the registered run)", "no realized post-boundary macro read on the scored path (2.7.6.3 fence: I_proj only, never the frame's realized nawi)", "forward-mode inputs stay rejected (EvaluationMode.GATED_REALIZED only; FORWARD rejects realized inputs)"],
     "residual_open_decisions": "none",
