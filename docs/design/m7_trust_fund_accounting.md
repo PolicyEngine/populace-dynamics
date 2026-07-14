@@ -622,8 +622,10 @@ covered universe; real vs nominal). What is **not** honest, and what M7 must nev
 present as agreement: a levels-match of aggregate dollars, or a normalized rate
 gated against the external corridor as if the composition deltas were noise. They
 are not noise; they are the reason #113's roadmap "in LEVELS" gate is not
-attainable here (§8 decision 1), and the reason §6 gates internal identities
-instead.
+attainable here (§8 decision 1), and the reason §6 gates internal identities while
+these normalized shapes ride **report-only** as the option-(c) companion surface
+(§8 decision 1) — the reading that honors "not just ordinally" without gating a
+level the frame cannot support.
 
 ## 6. Proposed `gate_m7` (proposal for the referee — NOT locked)
 
@@ -631,11 +633,17 @@ instead.
 accounting is arithmetically self-consistent and reproduces the committed M2
 result, and it certifies **nothing external.** This is a deliberate departure
 from the roadmap #113 M7 row's "reproduce the TR baseline deficit … in LEVELS"
-wording, argued in §5.3 and surfaced as §8 decision 1. The block below is a
-**sketch for the referee**, `locked: false`, editing no `gates.yaml` cell and
-built on no floor; it becomes real only in a future lock ceremony (design review →
-referee → verification → ratify-by-merge → lock), which this document does not
-begin.
+wording, argued in §5.3 and surfaced as §8 decision 1. **The departure is not
+self-ratifying:** the committed "in LEVELS" row is contract until amended, so
+adopting this gate requires an explicit **roadmap #113 amendment ceremony** (§8
+decision 1) — a design doc/referee cannot retire it by argument. The gate ships
+alongside the **option-(c) report-only companion surface** (the normalized % of
+taxable-payroll cost/income-rate and balance shapes, composition deltas named,
+§5.3), which honors "not just ordinally" without gating a frame-relative level.
+The block below is a **sketch for the referee**, `locked: false`, editing no
+`gates.yaml` cell and built on no floor; it becomes real only in a future lock
+ceremony (design review → referee → verification → ratify-by-merge → lock), which
+this document does not begin.
 
 ```yaml gate_m7-proposed-not-locked
 gates:
@@ -733,16 +741,41 @@ and reproduces M2 (§6). It supports **no** claim beyond that. In the campaign's
 These are under-determined and are **listed, not silently resolved.** Each states
 the choice, the options, and this design's lean — the referee decides.
 
-1. **Internal gate vs the roadmap's external-level gate (the central one).** #113
-   M7 says gate on "the TR baseline deficit … in LEVELS" and "per-provision balance
-   vs the Five-Approaches A-tables in LEVELS." §5.3 argues those levels are not
-   honestly gradable on a survey panel. *Options:* (a) internal-identity gate
-   (§6); (b) the roadmap's external-level gate with a pre-registered tolerance; (c)
-   a normalized-shape gate on % of taxable payroll with composition deltas held
-   fixed. **Lean: (a)** — it matches the M2 precedent and the campaign's "levels
-   are frame-relative" discipline; (b) would gate the composition mismatch as if
-   it were model error. This lean directly contradicts the roadmap wording, which
-   is why it is decision 1 and not a silent choice.
+1. **Internal-identity gate vs the roadmap's external-level gate (the central
+   one).** #113 M7 says gate on "the TR baseline deficit … in LEVELS" and
+   "per-provision balance vs the Five-Approaches A-tables in LEVELS, **not just
+   ordinally**." §5.3 argues those levels are not honestly gradable on a survey
+   panel. *Options:* (a) internal-identity gate (§6); (b) the roadmap's **raw
+   external-level** gate with a pre-registered tolerance; (c) a **normalized-shape**
+   gate on % of taxable payroll with composition deltas held fixed.
+   - **Rebuttal of (b):** raw levels certify the frame's composition/universe gap as
+     fidelity — M2's baseline balance is `+0.04689`, the arithmetic opposite of the
+     real deficit, purely from OASI-only outlays against full-rate revenue.
+   - **Option (c) taken seriously (not dismissed as (b)).** (c), not (b), is the
+     roadmap-faithful reading of "not just ordinally": normalizing by taxable
+     payroll divides out the universe-size mismatch (§5.3), so (c) is not obviously
+     composition-gaming. But **gating** (c) still fails: (i) "holding composition
+     fixed" needs a composition to hold it *to* — the covered-worker universe the
+     panel does not represent — so the gate re-imports an external target the frame
+     cannot honestly hit; (ii) M2's **F2 `τ=0.667`** shows even the weaker,
+     more-transportable *ordering* already misses Smith on this compressed frame, so
+     a tighter normalized-**level** band fails a fortiori. **Conditional adoption:**
+     M7 adopts (c) as a **report-only companion surface** (the normalized
+     cost/income-rate and balance-in-%-of-payroll shapes, composition deltas named
+     and held fixed, laid beside the Trustees corridor per §5.3) — which *honors*
+     "not just ordinally" (M7 reports normalized shapes, not merely orderings)
+     **without gating** a level the frame cannot support. N6: the roadmap's own
+     unlock says the Rosetta stone is "graded **in its own units**" (frame-relative),
+     in tension with the same row's "in LEVELS"; the companion resolves that tension
+     the way the unlock language leans.
+   - **Ratification path (not a referee blessing).** A design doc cannot retire the
+     committed "in LEVELS" gate row by argument; that row is **contract until
+     amended**. The honest path is an explicit **roadmap #113 amendment ceremony**
+     (proposal → adversarial referee → verification → ratify-by-merge) that replaces
+     "in LEVELS" with the §6 internal-identity gate **plus** the (c) report-only
+     companion. This doc *proposes* that substitution; it does not enact it.
+   - **Lean: (a) gated + (c) report-only companion, ratified via a #113 amendment**
+     — not (b), and not (c)-as-a-gate.
 2. **Nominal vs real accounting (§2.5).** *Options:* (a) M2's wage-indexed real
    dollars (no CPI-W needed, real interest 2.9%); (b) nominal (Trustees' printed
    units, requires the CPI-W and nominal special-issue series — both §4.3 gaps).
