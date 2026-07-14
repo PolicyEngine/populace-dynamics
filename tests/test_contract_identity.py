@@ -124,6 +124,14 @@ def test__given_running_process__then_environment_block_pins_versions():
         )
 
 
+def test__package_git_revision_is_unknown_for_a_site_packages_wheel():
+    from populace_dynamics.contract import _package_git_revision
+
+    # numpy is a wheel under site-packages; even inside a repo-contained venv it
+    # must not inherit the enclosing repo's HEAD (referee S3).
+    assert _package_git_revision("numpy") == "unknown"
+
+
 def test__given_default_artifact_write__then_no_sidecar_is_created(tmp_path):
     # Given
     destination = tmp_path / "candidate.json"

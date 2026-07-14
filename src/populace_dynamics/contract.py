@@ -137,6 +137,15 @@ def _package_git_revision(import_name: str) -> str:
     for entry in spec.submodule_search_locations or ():
         locations.append(Path(entry))
     for location in locations:
+        # A wheel install inside a repo-contained venv (e.g. .venv-wt) would
+        # otherwise attribute the enclosing repo's HEAD; only an editable
+        # source tree carries a meaningful package revision, so skip installs
+        # that resolve under site-packages / dist-packages.
+        if any(
+            part in ("site-packages", "dist-packages")
+            for part in location.parts
+        ):
+            continue
         try:
             revision = subprocess.run(
                 ["git", "rev-parse", "HEAD"],
