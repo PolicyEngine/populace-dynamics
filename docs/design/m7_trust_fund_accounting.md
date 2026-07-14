@@ -392,65 +392,82 @@ amendment. The deployment pin is **policyengine-us 1.752.2** (the frame pin,
 | PIA formula factors (90/32/15) | 42 USC 415(a) | `gov/ssa/social_security/pia/formula_factors.yaml` | **present** |
 | FRA schedule | 42 USC 416(l) | `gov/ssa/.../full_retirement_age_by_birth_year.yaml` | **present** |
 | Early-reduction & delayed-credit rates | 42 USC 402(q)/(w) | `gov/ssa/.../retirement_age_adjustment/...` | **present** |
-| 1978-base bend constants ($180 / $1,085) | 42 USC 415(a)(1)(B) | — (statute constant, cross-checked to pe-us thresholds, `ss/params.py:60-62,340-354`) | **statute constant** |
-| Auxiliary 402(b)/(c)/(e)/(f) rate constants | 42 USC 402(b)/(c)/(e)/(f)/(k)/(q) | **NONE** | **GAP → §4.3** |
-| COLA / CPI-W (benefits-in-payment) | 42 USC 415(i) | **NONE in `ss/`** | **GAP → §4.3** (nominal runs only) |
-| Trust-fund interest rate (special-issue yield) | TR intermediate | **NONE** | **GAP → §4.3** |
-| TR ultimate assumptions (real int 2.9%, CPI 2.7%, real-wage diff 1.13%) | 2014 OASDI TR Table V.B1 | **NONE** | **GAP → §4.3** |
-| Trust-fund opening reserve | SSA TR historical | **NONE** | **GAP → §4.3** (M2 *calibrated* it) |
+| Bend constants $180 / $1,085 (1979-cohort amounts, indexed off 1977 NAWI) | 42 USC 415(a)(1)(B) | — (statute constant, cross-checked to pe-us thresholds, `ss/params.py:60-62,340-354`) | **statute constant** |
+| Auxiliary 402(b)/(c)/(e)/(f) rate constants | 42 USC 402(b)/(c)/(e)/(f)/(k)/(q) | — (statute constants in `ss/params.py`, tested) | **already bound in-repo (§4.3 A)** |
+| CPI-W / COLA (benefits-in-payment) | 42 USC 415(i) | `gov/ssa/uprating.yaml`, `gov/bls/cpi/cpi_w.yaml` | **present, not yet wired in `ss/` (§4.3 B)** |
+| Trust-fund interest rate (special-issue yield) | TR intermediate | **NONE** | **GAP → §4.3 C** |
+| TR ultimate assumptions (real int 2.9%, CPI 2.7%, real-wage diff 1.13%) | 2014 OASDI TR Table V.B1 | **NONE** | **GAP → §4.3 C** |
+| Trust-fund opening reserve | SSA TR historical | **NONE** | **GAP → §4.3 C** (M2 *calibrated* it) |
 
 ### 4.2 What pe-us 1.752.2 exposes (the revenue and own-benefit side)
 
 The entire **own-benefit** formula and the **revenue** rate/base are sourced from
-the pinned pe-us tree with no hand-typing beyond the two statutory 1978-base bend
-constants (`ss/params.py` docstring; `load_ssa_parameters` reads `nawi.yaml`,
+the pinned pe-us tree with no hand-typing beyond the two statutory bend constants
+(the 1979-cohort $180/$1,085 amounts, indexed off 1977 NAWI; `ss/params.py`
+docstring; `load_ssa_parameters` reads `nawi.yaml`,
 `wage_base.yaml`, `pia/formula_factors.yaml`, `full_retirement_age_by_birth_year
 .yaml`, the early/delayed adjustment rates, and cross-checks derived bend points
 against pe-us's stored thresholds and `NAWI(1977) = 9,779.44`, `ss/params.py:334`).
 These carry the M6 §2.8.10.2 vintage rule unchanged. So the **income side** and
-the **OASI retired-worker level** are fully pe-us-sourced; the gaps are all on the
-**auxiliary, DI-fund, indexation, and reserve/interest** perimeter.
+the **OASI retired-worker level** are fully pe-us-sourced; the auxiliary constants
+are already bound in-repo (§4.3 A) and CPI-W/COLA is present in pe-us but not yet
+wired into `ss/` (§4.3 B), leaving the genuine gaps only on the **trust-fund
+perimeter** — interest, opening reserve, and the TR macro-assumption set (§4.3 C).
 
-### 4.3 What pe-us 1.752.2 LACKS — flagged loudly (each needs a 3d-style amendment)
+### 4.3 What M7 needs, by binding status (only category C is genuinely absent)
 
-**These are the series a faithful M7 needs that policyengine-us 1.752.2 does not
-provide. Each is a design STOP, exactly like M6's second designed stop
-(`gate_m6` §2.8.10): it must be pinned by a reviewed amendment before any scored
-M7 run, not silently filled.**
+**The series a faithful M7 needs, classified by how they bind. Only category C is a
+design STOP — a genuinely-absent series that must be pinned by a reviewed amendment
+before any scored M7 run (M6's second designed stop, `gate_m6` §2.8.10, is the
+precedent). A is already bound in-repo; B is present in pe-us but not yet wired.**
 
-1. **Auxiliary 402(b)/(c)/(e)/(f) rate constants — NO pe-us node anywhere.** Per
-   `ss/params.py` (docstring lines 18-38): pe-us "carries `social_security_
-   retirement`, `social_security_survivors` and `social_security_dependents` as
-   uprated survey **inputs** (no formula)," computing only the worker's own PIA
-   and 402(q)/(w) adjustment. The spousal share (0.5), survivor share (1.0),
-   RIB-LIM (0.825), 71.5% survivor floor, and protected-remarriage ages are
-   therefore carried as **statute-cited constants** validated against SSA worked
-   examples (`tests/ss/test_aux_benefits.py`, `runs/aux_benefit_examples_v1.json`),
-   not pe-us. Any auxiliary outlay M7 reports rides these constants — the same
-   "constant of the statute itself" exception pe-us's own tree forces.
-2. **Trust-fund interest rate (special-issue yield) — NO pe-us node.** M2 states
-   it directly: "no policyengine-us rate node" for the TR rate. Required for
-   `interest[y]` in identity (I). Bind as a TR-cited constant / versioned
-   alignment input.
-3. **TR ultimate assumptions (real interest 2.9%, CPI 2.7%, real-wage
-   differential 1.13%) — NO pe-us node.** M2 carried the 2014 TR Table V.B1
-   bundle as a "TR-cited constant (no TR PDF staged; no policyengine-us rate
-   node)." These parameterize discounting and (in a nominal run) COLA/wage growth.
-4. **COLA / CPI-W benefits-in-payment series — NO pe-us node in `ss/`.** Needed
-   only for a **nominal** M7 (§2.5); a real-dollar M7 nets it out. If M7 goes
-   nominal, this is a hard binding, not an option.
-5. **Trust-fund opening reserve — NO pe-us node; M2 did not source it at all.**
-   M2 **calibrated** `reserve_0` to hit Smith's 2034 exhaustion year
-   (`calibration_disclosure`). A levels-honest M7 either keeps the calibrated
-   convention (disclosed, frame-relative) or binds an SSA TR historical
+**A — already bound in-repo (statute constants; no amendment).** The auxiliary
+402(b)/(c)/(e)/(f) rate constants — spousal share (0.5), survivor share (1.0),
+RIB-LIM (0.825), the 71.5% survivor floor, protected-remarriage ages — are
+**already bound and tested** in existing repo code (`ss/benefits.py`
+`spousal_benefit` / `widow_benefit` / `survivor_reduction`; validated in
+`tests/ss/test_aux_benefits.py` against `runs/aux_benefit_examples_v1.json`),
+carried as statute-cited constants because pe-us "carries
+`social_security_{retirement,survivors,dependents}` as uprated survey **inputs**
+(no formula)" (`ss/params.py` docstring lines 18-38). This is the same "constant of
+the statute itself" exception pe-us's tree forces for the 1979-cohort bend amounts
+— **not** a pre-scored-run STOP. M7 reuses them as-is and stages nothing new.
+
+**B — present in pe-us but not yet wired into `ss/` (bind like NAWI/wage_base; not
+a STOP).** The **CPI-W / COLA** series a nominal M7 (§2.5) needs is **present in
+policyengine-us**: `gov/ssa/uprating.yaml` — "the US indexes Social Security
+benefits (OASDI and SSI) … annually updating based on **CPI-W in the third quarter
+of the prior year**," actuals through 2026, CBO-married forecasts through 2035, and
+2036–2100 set programmatically — plus the raw `gov/bls/cpi/cpi_w.yaml` index (from
+1913). The repo's `ss/` wrapper simply doesn't load it yet (`ss/benefits.py`
+computes the claim-year benefit only). So COLA is **not** a trust-fund-perimeter
+gap: M7 binds and vintage-pins `gov/ssa/uprating.yaml` **exactly as it binds
+NAWI/`wage_base`** — realized ≤`T*`, projection beyond, the same leakage fence that
+already handles those series' post-2014 values (never realized post-`T*` COLA on a
+scored path). *Confirm-at-pin caveat:* the node was verified present in 1.532.0 and
+1.690.7, not directly in the 1.752.2 pin, but `cpi_w.yaml` / `gov/ssa/uprating.yaml`
+are long-standing structurally-stable nodes (no trust-fund model has ever entered
+pe-us); the §4.4 factory confirms the node at the pin.
+
+**C — genuinely absent from pe-us (the real STOP: a reviewed amendment / TR-cited
+constants before any scored run).**
+
+1. **Trust-fund interest rate (special-issue yield).** M2: "no policyengine-us rate
+   node" for the TR rate. Required for `interest[y]` in identity (I).
+2. **TR ultimate assumptions (real interest 2.9%, CPI 2.7%, real-wage differential
+   1.13%).** M2 carried the 2014 TR Table V.B1 bundle as a "TR-cited constant (no TR
+   PDF staged; no policyengine-us rate node)."
+3. **Trust-fund opening reserve.** No pe-us node; M2 **calibrated** `reserve_0` to
+   hit Smith's 2034 exhaustion year (`calibration_disclosure`). Keep the calibrated
+   convention (disclosed, frame-relative) or bind an SSA TR historical
    opening-balance series (§8 decision 3).
 
-Gaps 2–5 share a root cause: **policyengine-us models the benefit/​tax *formula*,
-not the *trust fund*.** The trust-fund perimeter (interest, reserve, the
-macro/CPI assumption set) is Trustees-Report territory with no upstream node. M7's
-amendment must pin these to staged TR sources at a fixed vintage with the §4.4
-tamper gate — or, absent a staged TR artifact, carry them as explicitly TR-cited
-frame-relative constants that feed only report-only levels, never a gated cell.
+Category C shares a root cause: **policyengine-us models the benefit/tax *formula*,
+not the *trust fund*** — the interest/reserve/macro-assumption perimeter is
+Trustees-Report territory with no upstream node. M7's amendment pins these to staged
+TR sources at a fixed vintage with the §4.4 tamper gate, or — absent a staged TR
+artifact — carries them as explicitly TR-cited frame-relative constants that feed
+only report-only levels, never a gated cell.
 
 ### 4.4 The tamper-gate factory (mirroring M6 §2.8.10.4)
 
@@ -469,24 +486,27 @@ in order:
    *directory* `POPULACE_DYNAMICS_PE_US_DIR` loads from (the F2 finding M6 §2.8.10.5
    closes). Then `params_full = load_ssa_parameters()` runs its own load-time
    cross-check (derived bend points vs pe-us thresholds; `NAWI(1977)`).
-2. **Content-hash tamper gate on every staged external artifact.** For each staged
-   file under a repo-root-anchored `data/external/` (`DATA = Path(__file__)
-   .resolve().parents[1] / "data" / "external"`, never CWD-relative, mirroring
-   `claiming._ROOT`) — the TR-constants JSON (gaps 2–4), the auxiliary-constant
-   provenance record (gap 1), and any staged reserve series (gap 5) — **assert the
-   JSON file's own sha256 equals a constant hardcoded in the factory.** The raw
-   source's hash (a TR PDF, an SSA table page) lives separately in
-   `provenance.source_sha256` as **build-time** provenance, **not** the tamper
-   gate (M6 §2.8.10.4's exact split: "the factory instead asserts the JSON file's
-   own hash").
+2. **Content-hash tamper gate on every staged external artifact.** The only staged
+   external artifacts are the **category-C** constants (§4.3 C) — the TR-constants
+   JSON (interest rate + TR ultimate assumptions) and any staged opening-reserve
+   series. (Category A aux constants live in tested repo code, and category B
+   CPI-W/COLA loads from the pe-us node under the §2.8.10.2 version+dir assert, so
+   neither is a staged artifact.) For each staged file under a repo-root-anchored
+   `data/external/` (`DATA = Path(__file__).resolve().parents[1] / "data" /
+   "external"`, never CWD-relative, mirroring `claiming._ROOT`) — **assert the JSON
+   file's own sha256 equals a constant hardcoded in the factory.** The raw source's
+   hash (a TR PDF) lives separately in `provenance.source_sha256` as **build-time**
+   provenance, **not** the tamper gate (M6 §2.8.10.4's exact split: "the factory
+   instead asserts the JSON file's own hash").
 3. **Vintage refusal.** Route every staged series through
    `validate_external_vintage` (`engine/refit.py:825-838`) so any `vintage > T*`
    raises **before any accounting, artifact write, or gate evaluation** — the same
    fence M6's `_validate_external_inputs` (`harness/m6_inputs.py:198-250`) puts in
    front of fit/score/write.
 
-The point of the hash gate on **report-only** frame-relative constants (gaps 2–5
-feed no gated cell) is the same as M6's on its report-only claiming reference:
+The point of the hash gate on **report-only** frame-relative constants (the
+category-C constants feed no gated cell) is the same as M6's on its report-only
+claiming reference:
 tamper-evidence. A constant that silently drifts would move the reported levels
 and the M2-reproduction check without a diff anywhere; the sha256 gate makes the
 one thing that could silently change — the staged TR/aux numbers — impossible to
