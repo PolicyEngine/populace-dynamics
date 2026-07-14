@@ -133,6 +133,21 @@ COMMITTED_FRAME_SCHEMAS: dict[str, frozenset[str]] = {
             "years_since_dissolution",
         }
     ),
+    # data.transitions.build_marital_panel(...).attrs (person_attributes agg,
+    # transitions.py:239-262; verified 9-column schema in the proof run)
+    "marital.attrs": frozenset(
+        {
+            "person_id",
+            "sex",
+            "birth_year",
+            "most_recent_report_year",
+            "n_marriages",
+            "death_year",
+            "censor_year",
+            "weight",
+            "start_exposure_year",
+        }
+    ),
     # data.household_composition.build_household_panel(...).person_waves
     # (household_composition.py:412-424 + _add_transitions)
     "household.person_waves": frozenset(
@@ -244,6 +259,35 @@ PHASE_FRAME_COLUMN_READS: dict[str, dict[str, frozenset[str]]] = {
         "earnings_panel": frozenset(
             {"person_id", "period", "earnings", "age", "weight"}
         ),
+    },
+    # engine.panel_builders.marital_panel_builder (projection phase; reads the
+    # certified marital attrs + person_years -- never yet run on real frames).
+    "marital_panel_builder": {
+        "marital.attrs": frozenset(
+            {"person_id", "censor_year", "start_exposure_year", "weight"}
+        ),
+        "marital.person_years": frozenset({"person_id", "year"}),
+    },
+    # engine.panel_builders.household_panel_builder (projection phase; validates
+    # _HOUSEHOLD_SUPPORT_COLUMNS | _HOUSEHOLD_STATE_COLUMNS + the cohab seed).
+    "household_panel_builder": {
+        "household.person_waves": frozenset(
+            {
+                "person_id",
+                "year",
+                "age",
+                "band",
+                "sex",
+                "weight",
+                "hh_size",
+                "coresident_spouse",
+                "coresident_parent",
+                "coresident_child",
+                "coresident_grandchild",
+                "multigen",
+            }
+        ),
+        "cohabitation": frozenset({"person_id", "year", "cohabiting"}),
     },
 }
 

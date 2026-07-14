@@ -52,6 +52,7 @@ def _real_frames() -> dict[str, object]:
         "disability_status": disability_status,
         "marital.person_years": sources["mpanel"].person_years,
         "marital.events": sources["mpanel"].events,
+        "marital.attrs": sources["mpanel"].attrs,
         "household.person_waves": sources["hh"].person_waves,
         "cohabitation": cohabitation_flag(sources["rel_map"]),
         "disability_panel.person_years": disability_panel.person_years,
