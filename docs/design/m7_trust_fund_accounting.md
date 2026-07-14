@@ -242,8 +242,8 @@ is `pia(aime(history), eligibility_year)` (`ss/benefits.py:100-131`). M7 sums
   including dual entitlement, the RIB-LIM, and the 71.5% survivor floor. These
   require M3 couple/household structure (who is married to whom, who survives
   whom) — **bounded by `gate_2` (2b household composition, 2c couple formation)
-  and mortality**. Their rate constants have **no pe-us node** and are carried as
-  statute-cited constants (§4.3, the LOUD gap).
+  and mortality**. Their rate constants have **no pe-us node** but are **already
+  bound and tested in-repo** as statute-cited constants (§4.3 A) — not a gap.
 
 **The unifying certification rule.** Across all three classes, **every benefit
 dollar level is report-only** (AIME/PIA/claiming/auxiliary are never gated). What
@@ -795,11 +795,12 @@ the choice, the options, and this design's lean — the referee decides.
      — not (b), and not (c)-as-a-gate.
 2. **Nominal vs real accounting (§2.5).** *Options:* (a) M2's wage-indexed real
    dollars (no CPI-W needed, real interest 2.9%); (b) nominal (Trustees' printed
-   units, requires the CPI-W and nominal special-issue series — both §4.3 gaps).
+   units, requires wiring the present CPI-W/COLA node (§4.3 B) and binding the
+   absent nominal special-issue interest series (§4.3 C)).
    **Lean: (a) for the gated M2-repro run** (mandatory — M2 is real); the M6-panel
    report-only run may additionally present (b) if the CPI-W/interest bindings are
    staged. Mixing the two within one ledger breaks identity (I).
-3. **Calibrated reserve vs sourced opening balance (§2.4, §4.3 gap 5).** *Options:*
+3. **Calibrated reserve vs sourced opening balance (§2.4, §4.3 C).** *Options:*
    (a) keep M2's calibrated `reserve_0` (disclosed, frame-relative, reproduces
    M2); (b) bind an SSA TR historical opening-balance series. **Lean: (a) on the
    M2-repro run** (required for reproduction); (b) is only meaningful if the
@@ -885,9 +886,10 @@ block and its floor are authored in a future lock ceremony (§6).
 ```json m7-design-parameters
 {
   "design_id": "2026-07-14-m7-trust-fund-accounting",
-  "revision": 1,
+  "revision": 2,
+  "revision_2_note": "applies round-1 SPEC SOUND referee (PR #202 comment 4972284096, 0 BLOCKING / 4 SHOULD-FIX / 6 NOTE): S1 CPI-W/COLA reclassified as a PRESENT pe-us node (gov/ssa/uprating.yaml); S2 decision-1 roadmap #113-amendment ratification path + option-(c) report-only companion; S3 sex-dimension coupling to m6-sex-patch; S4 count; N1-N6",
   "status": "design_draft_for_referee",
-  "referee_round": "follows the in-flight gate_m6 verdict; NOT triggered by this document",
+  "referee_round": "the design referee round follows the in-flight gate_m6 verdict; NOT triggered by this document; verification referee follows the fixes",
   "gates_yaml_untouched_by_this_document": true,
   "builds_no_floor_writes_no_test_runs_nothing_scored": true,
   "roadmap_m7_row_verbatim": "Full revenue + trust-fund accounting: OASDI cost/income rates, trust-fund ratio path, 75-yr actuarial balance in % of taxable payroll | gate: Reproduce the corresponding TR baseline deficit within a pre-registered tolerance; per-provision balance vs the Five-Approaches A-tables in LEVELS, not just ordinally | unlocks: The Rosetta stone (#74 anchor 2) graded in its own units",
@@ -897,7 +899,7 @@ block and its floor are authored in a future lock ceremony (§6).
     "determinism": "byte-identical accounts on re-run; no RNG at the accounting layer (all draws realized upstream in M6)"
   },
   "explicitly_not_gated": "external SSA/Trustees aggregates; TR baseline deficit in LEVELS; per-provision A-table LEVELS; DI trust-fund balance as a certified level; any beneficiary-class dollar level",
-  "central_open_decision": "roadmap asks to gate in LEVELS (#113 M7 row); this design argues the 1549-career PSID survey panel is not the covered-worker universe (M2 baseline balance +0.04689 is positive because revenue is combined-OASDI on all payroll while outlays are OASI-only), so external levels are frame-relative and not honestly gradable -> proposes an internal-identity gate instead (§8 decision 1, for the referee)",
+  "central_open_decision": "roadmap asks to gate in LEVELS (#113 M7 row); this design argues the 1549-career PSID survey panel is not the covered-worker universe (M2 baseline balance +0.04689 is positive because revenue is combined-OASDI on all payroll while outlays are OASI-only), so external levels are frame-relative and not honestly gradable -> proposes an internal-identity gate + option-(c) normalized-shape REPORT-ONLY companion, retiring the 'in LEVELS' row via a roadmap #113 amendment ceremony (not by referee argument alone); §8 decision 1",
   "m2_reproduction_targets": {
     "commit": "747966cd", "pe_us_revision": "bf71be3b",
     "baseline_balance": 0.04689166331354922,
@@ -911,12 +913,14 @@ block and its floor are authored in a future lock ceremony (§6).
   "input_bindings": {
     "pe_us_pin": "1.752.2", "vintage_boundary_T_star": 2014,
     "present_in_pe_us": ["payroll_rate_employee_employer", "wage_base", "nawi", "pia_formula_factors", "fra_schedule", "early_delayed_adjustment_rates"],
-    "LOUD_GAPS_need_3d_style_amendment": ["auxiliary_402bcef_rate_constants", "trust_fund_interest_rate", "tr_ultimate_assumptions_2014", "cola_cpiw_benefits_in_payment", "trust_fund_opening_reserve"],
+    "already_bound_in_repo_statute_constants_A": ["auxiliary_402bcef_rate_constants (ss/benefits.py, tested runs/aux_benefit_examples_v1.json)"],
+    "present_in_pe_us_not_yet_wired_bind_like_nawi_B": ["cpi_w_cola via gov/ssa/uprating.yaml + gov/bls/cpi/cpi_w.yaml"],
+    "genuinely_absent_LOUD_GAPS_need_amendment_C": ["trust_fund_interest_rate", "tr_ultimate_assumptions_2014", "trust_fund_opening_reserve"],
     "tamper_gate": "scripts/registered_m7_inputs.py build_inputs() zero-arg; version+dir assert (M6 2.8.10.5 F2); sha256 on staged JSON (M6 2.8.10.4); validate_external_vintage refuses vintage>2014 (refit.py:825-838)"
   },
   "anchors_all_report_only": ["m2_reproduction (internal, feeds gate)", "mermin_2005_table1_411260", "smith_2015_solvency_72196", "ssa_trustees_historical_corridors (level-vs-composition caveat)"],
-  "open_decisions_for_referee": ["1 internal-gate vs roadmap external-level gate", "2 nominal vs real accounting", "3 calibrated reserve vs sourced opening balance", "4 OASI-vs-DI rate/fund split", "5 scheduled vs payable baseline + post-exhaustion rule", "6 inherit M6 wage-index surface vs re-derive", "7 M6-unexposed level: raise vs synthesize", "8 interest timing convention", "9 M2-reproduction byte-exact vs 1e-12 tolerance", "10 TR vintage for corridors 2014 vs current", "11 immigrant-entrant partial-career treatment", "12 per-capita beneficiary denominator"],
-  "evidence_base": ["runs/m2_pseudo_projection_v1.json", "scripts/m2_pseudo_projection.py", "ss/params.py", "ss/benefits.py", "docs/design/m6_projection_engine.md#6", "gates.gate_m4", "disability_conversion.py", "scripts/replication_cost_ordering.py", "engine/refit.py:825-838", "harness/m6_inputs.py:198-250"]
+  "open_decisions_for_referee": ["1 internal-gate vs roadmap external-level gate", "2 nominal vs real accounting", "3 calibrated reserve vs sourced opening balance", "4 OASI-vs-DI rate/fund split", "5 scheduled vs payable baseline + post-exhaustion rule", "6 inherit M6 wage-index surface vs re-derive", "7 M6-unexposed level: raise vs synthesize", "8 interest timing convention", "9 M2-reproduction byte-exact vs 1e-12 tolerance", "10 TR vintage for corridors 2014 vs current", "11 immigrant-entrant partial-career treatment", "12 per-capita beneficiary denominator", "13 panel sex source (m6-sex-patch coupling)"],
+  "evidence_base": ["runs/m2_pseudo_projection_v1.json", "scripts/m2_pseudo_projection.py", "ss/params.py", "ss/benefits.py", "gov/ssa/uprating.yaml", "gov/bls/cpi/cpi_w.yaml", "docs/design/m6_projection_engine.md#6", "gates.gate_m4", "disability_conversion.py", "scripts/replication_cost_ordering.py", "engine/refit.py:825-838", "harness/m6_inputs.py:198-250", "PR #202 referee comment 4972284096", "m6-sex-patch grading 4972045579"]
 }
 ```
 
