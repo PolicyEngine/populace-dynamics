@@ -664,4 +664,38 @@ what we already published," which is the honest ceiling on a frame whose levels
 §5.3 shows are not externally gradable. The determinism sub-check (§3) makes both
 identities byte-claims.
 
+## 7. What M7 does NOT certify (certification-scope voice)
+
+A `gate_m7` pass certifies that the accounting **arithmetic** is self-consistent
+and reproduces M2 (§6). It supports **no** claim beyond that. In the campaign's
+`certification_scope` voice, the following are explicitly **outside** the scope a
+`gate_m7` pass supports:
+
+- **No external level accuracy.** A pass says nothing about whether M7's OASDI
+  cost rate, income rate, balance, or trust-fund-ratio path matches the SSA
+  Trustees Report in levels. Those are frame-relative (§5.3); the corridors are
+  report-only.
+- **No certified benefit levels.** Every AIME, PIA, claiming-adjusted, and
+  auxiliary benefit dollar is report-only (M6 §2.8.3a). A pass certifies the
+  *composition* that routes people to classes, never a class's dollar level.
+- **No certified DI trust-fund balance.** The DI fund is a report-only lift of a
+  class (`gate_m4`) whose levels no gate certified ("no SSA DI LEVEL is gated").
+- **No behavioral response.** Claiming is drawn mechanically from Table 6.B5.1; no
+  labor-supply, claim-timing, or savings response to the rate, cap, or FRA
+  changes (M2: "no benefit feedback from cap changes"; #113 named-hard-part 4).
+- **No macro feedback.** Wages, prices, the trust-fund interest rate, and the wage
+  base are exogenous Trustees inputs; no general-equilibrium loop.
+- **No benefit feedback from cap reforms.** Raising or eliminating the taxable
+  maximum is scored revenue-side only; the higher covered earnings do not raise
+  the PIA (M2's stated convention — "Smith nets a modest benefit feedback").
+- **No validated projection beyond M6's gated window.** The 2100 path is
+  report-only extrapolation; M7 certifies accounting *over* M6's output, not the
+  projection's forward validity, which is M6's (conditional) claim, not M7's.
+- **No new spec estimation.** M7 estimates nothing; it composes M1–M6 certified
+  specs and adds only arithmetic plus the §4 parameter bindings. The TR interest /
+  CPI / reserve constants (§4.3) are **cited, not certified** — they parameterize
+  report-only levels and feed no gated cell.
+- **No whole-panel simultaneous rules scoring.** Executing rulespec/pe-us rules
+  per projected year across the panel is M8 (W2/W3), not M7.
+
 <!-- M7-CURSOR-DO-NOT-SHIP -->
