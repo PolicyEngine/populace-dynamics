@@ -442,7 +442,7 @@ def tenure_tabulation(
         weights = group["weight"].to_numpy(dtype=float)
         rows.append(
             {
-                **dict(zip(group_columns, keys)),
+                **dict(zip(group_columns, keys, strict=True)),
                 "p25": _weighted_quantile(values, weights, 0.25),
                 "p50": _weighted_quantile(values, weights, 0.50),
                 "p75": _weighted_quantile(values, weights, 0.75),
