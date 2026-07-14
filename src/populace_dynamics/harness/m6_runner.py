@@ -354,6 +354,7 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
     ) & frozenset(int(value) for value in inputs.truth.anchor["person_id"])
     population = build_realized_population(
         demographic_panel=inputs.demographic_panel,
+        death_records=inputs.death_records,
         earnings_panel=inputs.earnings_panel,
         disability_panel=inputs.disability_panel,
         panel_builder_inputs=inputs.panel_builder_inputs,
