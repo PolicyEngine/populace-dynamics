@@ -272,10 +272,22 @@ class TestWeightScaling:
         with pytest.raises(ValueError, match="I_NOEMP"):
             asec_firm_size.read_asec_firm_size(2024, path=path)
 
-    def test_workyn_wkswork_mismatch_raises(self, tmp_path):
-        path = _write_person_file(tmp_path, 2024, [{"WORKYN": 2}])
+    def test_workyn_wkswork_mismatch_raises_pre_2019(self, tmp_path):
+        # WORKYN = 1 is the stated universe in the 2011-2018
+        # dictionaries, so the coincidence with WKSWORK is enforced
+        # there.
+        path = _write_person_file(tmp_path, 2016, [{"WORKYN": 2}])
         with pytest.raises(ValueError, match="WORKYN"):
-            asec_firm_size.read_asec_firm_size(2024, path=path)
+            asec_firm_size.read_asec_firm_size(2016, path=path)
+
+    def test_workyn_mismatch_tolerated_2019_plus(self, tmp_path):
+        # 2019+ dictionaries state the universe as WKSWORK > 0
+        # directly; real 2024 data carries ~0.4% WORKYN = 2 rows
+        # beside a fully edited work block, so no coincidence
+        # requirement there.
+        path = _write_person_file(tmp_path, 2024, [{"WORKYN": 2}])
+        out = asec_firm_size.read_asec_firm_size(2024, path=path)
+        assert len(out) == 1
 
 
 @needs_real_asec

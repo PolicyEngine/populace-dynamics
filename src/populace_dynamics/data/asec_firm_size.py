@@ -323,17 +323,25 @@ def read_asec_firm_size(
         raw[column] = values.astype(cast)
 
     # The 2011-2018 dictionaries state the longest-job universe as
-    # WORKYN = 1 and the 2019+ dictionaries as WKSWORK > 0; the code
-    # keys on WKSWORK, so their coincidence is asserted here rather
-    # than assumed in prose.
-    workyn_mismatch = raw[(raw["WORKYN"] == 1) != (raw["WKSWORK"] > 0)]
-    if len(workyn_mismatch):
-        raise ValueError(
-            f"ASEC {year}: {len(workyn_mismatch)} row(s) have "
-            "WORKYN = 1 without WKSWORK > 0 (or vice versa); the "
-            "two universe statements no longer coincide — "
-            "re-adjudicate against that year's dictionary."
-        )
+    # WORKYN = 1; the code keys on WKSWORK, so for those years the
+    # coincidence is asserted rather than assumed. The 2019+
+    # dictionaries state the universe as WKSWORK > 0 directly, and
+    # the coincidence genuinely fails there on real data: the 2024
+    # file carries 572 rows (0.4%) with WORKYN = 2 beside a fully
+    # edited work block (most not even allocated) while NOEMP and
+    # LJCW track WKSWORK exactly (0 violations on 144,265 rows) —
+    # so for 2019+ WORKYN is domain-checked but not required to
+    # coincide.
+    if band_regime(year) == "2011_2018":
+        workyn_mismatch = raw[(raw["WORKYN"] == 1) != (raw["WKSWORK"] > 0)]
+        if len(workyn_mismatch):
+            raise ValueError(
+                f"ASEC {year}: {len(workyn_mismatch)} row(s) have "
+                "WORKYN = 1 without WKSWORK > 0 (or vice versa); "
+                "the stated WORKYN = 1 universe no longer matches "
+                "the WKSWORK key this reader uses — re-adjudicate "
+                "against that year's dictionary."
+            )
 
     # NOEMP and LJCW share the longest-job universe in every
     # dictionary year, so a zero inside WKSWORK > 0 (or a nonzero
