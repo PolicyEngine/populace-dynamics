@@ -262,20 +262,23 @@ gate scorer.
 Each binary margin-year-stratum supplies a candidate ledger with:
 
 `alignment_unit_id`, `person_id` or linked-unit members, `year`, `stratum_id`,
-positive `production_year_weight`, raw outcome `e_raw`, predicted probability
-`p`, and the module uniform `u`. The weight is the pre-reconciliation production
-year-`y` representation weight frozen for this margin call, not the M6 start-wave
-gate weight. The registered selection score is `p - u`. The raw Monte Carlo
-outcome is the zero-threshold selection (`p - u > 0`), so moving one common
-threshold preserves the realized latent draw-distance ordering. It does not claim
-to preserve probability-only risk ordering.
+positive `unit_weight`, scalar `target_contribution`, raw outcome `e_raw`,
+predicted probability `p`, and the module uniform `u`. `unit_weight` is the atomic
+unit's pre-reconciliation production year-`y` displacement weight, not the M6
+start-wave gate weight. `target_contribution` is the amount that selecting the unit
+adds to this scalar target cell; for a one-person count it is the frozen year-`y`
+person weight. The two fields are not assumed equal. The registered selection score
+is `p - u`. The raw Monte Carlo outcome is the zero-threshold selection
+(`p - u > 0`), so moving one common threshold preserves the realized latent
+draw-distance ordering. It does not claim to preserve probability-only risk
+ordering.
 
 The reconciler:
 
 1. sorts candidates by descending `p - u`, then by a dedicated alignment-stream
    tie key, then by canonical `alignment_unit_id`;
-2. computes the cumulative production-year weight for every prefix, including the
-   empty prefix;
+2. computes cumulative `target_contribution` for every prefix, including the empty
+   prefix;
 3. chooses the prefix whose cumulative weight is closest to the registered target;
 4. breaks equal absolute residuals by fewer flips from `e_raw`, then no overshoot,
    then the smaller prefix; and
@@ -290,12 +293,20 @@ selected prefix and its residual are unique, auditable, and byte-reproducible.
 Section 6 freezes each registered threshold-prefix resolution floor at its seam,
 before that margin's selection.
 
-For a linked unit, `production_year_weight` is the registered unit weight and the
-outcome applies atomically to every required member. Net-entry candidates use a pinned donor-unit
+For a linked unit, `unit_weight` is reported once and the outcome applies atomically
+to every required member. The bundle must separately register each member's person
+weight and the unit's target contribution. Net-entry candidates use a pinned donor
 pool and donor-distance tier in place of a model event probability; within a tier,
 the dedicated alignment key supplies the order. The bundle must name whether the
 unit is a person, maternal event, couple, family, or household. It may not fall
 back to person selection when that would orphan a relationship.
+
+The scalar prefix rule cannot align an atomic family independently in several
+age-sex cells: one selected family contributes a vector of member weights to those
+cells. Multi-cell linked-unit migration therefore requires a separately registered
+joint vector objective, optimizer, and deterministic tie rule. Decision 2 leaves
+that mechanism open, so the producer cannot activate family/household migration by
+running independent prefixes that would split or double-count the unit.
 
 The positive-prefix schema applies to one-sided events. Migration requires a
 separately targeted addition prefix and removal prefix. A signed V.A2 net target
@@ -690,7 +701,9 @@ a gate-path change.
 2. **Social Security area and migration units.** Ratify the bridge between the
    production roster and the Social Security area, the donor microdata and vintage,
    the atomic entrant unit, and the gross addition/removal targets or signed
-   optimizer needed to implement V.A2 net change without an arbitrary split.
+   optimizer needed to implement V.A2 net change without an arbitrary split. For
+   multi-person units, pin the joint vector objective and tie rule across age-sex
+   cells.
 3. **Covered-work candidate state.** Define a lawful potential covered-earnings
    value, participation probability/uniform or alternate registered selection
    score for a raw nonworker selected `0→1`, and coherent chain-state updates.
