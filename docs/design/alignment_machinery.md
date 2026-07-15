@@ -21,10 +21,10 @@ The M6 design names two report-only surfaces in one sentence:
 > entrants (family B), and the alignment displacement — all published, none gated.”
 
 That is the binding phase-5 rule in
-`docs/design/m6_projection_engine.md:1534-1536`. The same document later records
+`docs/design/m6_projection_engine.md:1838-1840`. The same document later records
 the current alignment state verbatim: the “runner records the alignment layer as
 not collected (`build_alignment_displacement(None, None)`,
-`m6_runner.py:1100`)” (`docs/design/m6_projection_engine.md:1782-1785`; the
+`m6_runner.py:1100`)” (`docs/design/m6_projection_engine.md:2100-2103`; the
 current call site has moved to `src/populace_dynamics/harness/m6_runner.py:1120-1128`).
 
 This document resolves only the missing producer of the aligned `after` frame and
@@ -46,9 +46,9 @@ M6 decision 9 is not reopened:
 > per-run **maximum alignment displacement** published as a reported (not gated)
 > magnitude (§4.8).”
 
-The quote is `docs/design/m6_projection_engine.md:2661-2663`. Family B likewise
+The quote is `docs/design/m6_projection_engine.md:2979-2981`. Family B likewise
 places external alignment, interventions, and maximum displacement outside the
-certifiable family-A surface (`docs/design/m6_projection_engine.md:2347-2362`).
+certifiable family-A surface (`docs/design/m6_projection_engine.md:2665-2680`).
 Therefore:
 
 1. A certification run always invokes the engine with alignment disabled. Supplying
@@ -482,13 +482,13 @@ universe.
 
 - The earnings-domain law marks people who are closed-panel members for flow
   modules but open additions for the 2014-anchored earnings law
-  (`docs/design/m6_projection_engine.md:1221-1300`). Economic alignment may select
+  (`docs/design/m6_projection_engine.md:1525-1604`). Economic alignment may select
   only people for whom the production earnings adapter exposes a lawful potential
   earnings state. It cannot backfill a gated earnings anchor or turn a marked
   person into gated support.
 - The marital entry law keeps anchor-present minors in the roster and seeds them
   only when they enter the certified marital risk set
-  (`docs/design/m6_projection_engine.md:997-1140`). Alignment cannot remove them
+  (`docs/design/m6_projection_engine.md:1009-1152`). Alignment cannot remove them
   merely because they were outside a module's year-0 domain.
 - Amendment 3h, merged into `master` by
   [PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216), separates
