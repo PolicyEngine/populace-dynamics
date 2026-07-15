@@ -32,6 +32,7 @@ def _write_person_file(
     defaults = {
         "HRHHID": "110011234567890",
         "HRHHID2": "11011",
+        "HRINTSTA": 1,
         "PULINENO": 1,
         "PTST1TN": 500,
         "PWTENWGT": 10_000_000,
@@ -164,6 +165,33 @@ class TestReadCpsTenure:
         path = tmp_path / "jan24pub.csv"
         path.write_text("")
         with pytest.raises(ValueError, match="empty"):
+            cps_tenure.read_cps_tenure(2024, path=path)
+
+    def test_noninterview_placeholders_excluded(self, tmp_path):
+        # Non-interviewed households (HRINTSTA 2-4) carry
+        # PULINENO = -1 / weight 0 / all-NIU placeholder rows; they
+        # are excluded before validation rather than tripping the
+        # person-record checks.
+        rows = [
+            {},
+            {
+                "HRINTSTA": 2,
+                "PULINENO": -1,
+                "PTST1TN": -1,
+                "PWTENWGT": 0,
+                "PRTAGE": -1,
+                "PESEX": -1,
+                "PEMLR": -1,
+                "PEIO1COW": -1,
+            },
+        ]
+        path = _write_person_file(tmp_path, 2024, rows)
+        out = cps_tenure.read_cps_tenure(2024, path=path)
+        assert len(out) == 1
+
+    def test_bad_pulineno_on_interviewed_row_still_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"PULINENO": -1}])
+        with pytest.raises(ValueError, match="PULINENO"):
             cps_tenure.read_cps_tenure(2024, path=path)
 
     def test_class_of_worker_labels(self, tmp_path):

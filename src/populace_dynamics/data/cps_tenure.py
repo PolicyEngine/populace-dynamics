@@ -121,6 +121,7 @@ DEFAULT_AGE_BANDS: tuple[tuple[int, int], ...] = (
 _REQUIRED_COLUMNS = (
     "HRHHID",
     "HRHHID2",
+    "HRINTSTA",
     "PULINENO",
     "PTST1TN",
     "PWTENWGT",
@@ -272,6 +273,19 @@ def read_cps_tenure(
             f"{missing}; expected original Census CPS person-file "
             "variable names."
         )
+
+    # The public file carries placeholder records for
+    # non-interviewed households (HRINTSTA 2-4: Type A/B/C
+    # noninterview) with PULINENO = -1, weight 0, and every person
+    # item NIU (verified on the real January 2024 file: 27,667 of
+    # 126,802 rows, all with PTST1TN = -1). They are structurally
+    # not person records and are excluded before validation; every
+    # remaining check then applies to interviewed-household persons.
+    intsta = pd.to_numeric(raw["HRINTSTA"], errors="coerce")
+    bad_intsta = raw["HRINTSTA"][intsta.isna() | ~intsta.isin((1, 2, 3, 4))]
+    if len(bad_intsta):
+        raise _domain_error(year, "HRINTSTA", bad_intsta)
+    raw = raw[intsta == 1].reset_index(drop=True)
 
     # The id components get the same refuse-on-mismatch treatment as
     # the coded columns: a blank id would concatenate into a NaN
