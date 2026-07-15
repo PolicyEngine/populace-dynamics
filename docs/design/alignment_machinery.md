@@ -412,83 +412,103 @@ would leave unresolved dependent state is unavailable pending decision 8.
 
 ## 5. Displacement accounting and publication
 
-### 5.1 Exact-key comparison views
+### 5.1 Two ledgers, one canonical before/after meaning
 
-The existing accounting function requires identical keys. Raw projection frames
-cannot satisfy that contract for roster-changing events: an aligned death removes
-a later person-wave, while an aligned birth or entrant adds one. The producer
-therefore constructs an immutable **candidate audit view** at each reconciliation
-seam, before it changes the roster. This is not a padded projection frame. It is
-the complete, registered set of units that could lawfully receive the named event.
+The existing function's labels make `before` the immutable unaligned scored path
+and `after` the final aligned report-only path. An immediate raw snapshot at a
+later hook is already conditional on earlier alignment, so passing it as `before`
+would make the function's `scored_path = "unaligned"` false. The producer keeps two
+separate ledgers:
 
-Each before/after audit-view pair has one row per
-`(alignment_unit_id, year, margin_id, stratum_id)` and carries numeric fields with
-fixed meanings:
+1. a **canonical path-comparison ledger**, derived from the immutable unaligned
+   companion and final aligned result and passed to the existing function; and
+2. an **incremental intervention ledger**, comparing raw and reconciled outcomes
+   inside the aligned replay and owned entirely by the production caller.
 
-| field | meaning |
+Raw projection panels cannot serve as the canonical pair for roster-changing
+events: deaths remove rows, while births and entrants add them. The producer builds
+a common audit keyspace over the union of stable
+`(comparison_unit_id, year, margin_id, stratum_id)` keys. Initial people retain
+their canonical IDs; entrants use donor-event IDs; synthetic children use the
+event-derived identities required by §4.4. Each path receives every union key and
+explicit numeric `eligible` and `present` indicators. This is a typed audit view,
+not a padded live panel.
+
+Each registered measure has one unit and a defined absence contribution:
+
+| measure | unit and absence rule |
 |---|---|
-| `event_selected` | zero or one for a discrete event; unchanged candidate rows remain present in both views |
-| `target_contribution` | `event_selected * representation_weight` in the target's units |
-| `materialized_people` | number of people added or removed by the selected linked-unit event |
-| `covered_wage` | annual covered wage for the continuous margin; absent from discrete views |
+| `eligible` or `present` | binary; zero explicitly means the keyed unit is in the union but not eligible/present on that path |
+| `represented_presence` | production-year represented people; `present * reference_weight`, accompanied by `present` |
+| `event_selected` | binary event outcome; accompanied by path-specific `eligible` |
+| `target_contribution` | the event's signed or unsigned contribution in the declared target unit; zero for explicit ineligibility only |
+| `covered_wage_contribution` | current covered-wage contribution; zero for explicit absence/noncoverage, with those indicators retained |
 
-The producer calls
+Undefined underlying state never becomes zero. The named contribution fields have
+zero as part of their definition, and their presence/eligibility indicators make
+the reason observable. The producer rejects null keys, null or non-finite numeric
+values, non-positive registered weights, duplicate keys, or an unmappable live
+row before calling the existing function. The function's own exact-key check then
+remains a second line of defense.
+
+The producer invokes
 [`build_alignment_displacement`](../../src/populace_dynamics/harness/m6_reporting.py)
-with the four key columns and the applicable value columns. The implementation at
-`src/populace_dynamics/harness/m6_reporting.py:321-415` remains authoritative.
-For example, an employment call compares `event_selected` and
-`target_contribution`; a wage call compares `covered_wage`. Calling by margin-year
-keeps the function's `n_intervened_rows` and maximum unambiguous. The run-level
-record also retains a call across all years of a margin so its native
-`per_year_maximum` and `maximum_alignment_displacement` fields remain available.
+separately for each margin and **homogeneous measure**, across all requested years.
+The implementation at
+`src/populace_dynamics/harness/m6_reporting.py:321-415` remains authoritative. A
+binary event, represented-person contribution, materialized-person count, and
+dollar value never share one call: its rowwise cross-field maximum would mix
+units. Each single-unit call retains native `per_year_maximum`, run
+`maximum_alignment_displacement`, and frame-global `n_intervened_rows`. The caller
+computes per-year counts and sums. It publishes no scalar maximum across
+incommensurate margins.
 
-An absent projection row never silently becomes a numeric zero. Zero is valid in
-an audit view only when it means “this registered candidate was not selected for
-this event.” A unit omitted from either side, a non-unique key, or an unregistered
-candidate is a hard accounting error, as the existing function already requires.
-The audit view and the materialized roster are linked by the recorded
-`alignment_unit_id`; the producer checks that every selected addition/removal was
-materialized exactly once.
+### 5.2 Incremental per-margin, per-year attribution
 
-### 5.2 Required per-margin, per-year ledger
-
-Every aligned run publishes one record for every requested
-`(margin_id, year, stratum_id)`, including records with no intervention. Each
-record contains:
+Every aligned run publishes one caller-owned record for every requested
+`(margin_id, year, stratum_id)`, including records with no direct intervention.
+Here `raw` means the raw module outcome conditional on all earlier aligned hooks;
+it is never labeled as the gate-scored path. Each record contains:
 
 - target, raw, and aligned weighted totals in one declared unit;
-- raw residual, aligned residual, and the precomputed feasibility floor;
+- raw residual, aligned residual, and the precomputed threshold-prefix resolution
+  floor;
 - counts of `0→1` and `1→0` unit flips;
-- distinct displaced people and displaced linked units;
-- gross displaced representation weight, counted once per changed person or
-  atomic linked unit, plus separate `0→1` and `1→0` represented weights;
+- distinct affected decision people, added/removed materialized people, and
+  displaced atomic units, with a margin-specific role code;
+- `displaced_person_count`, `gross_displaced_person_weight`,
+  `displaced_unit_count`, and `gross_displaced_unit_weight`, plus separate `0→1`
+  and `1→0` fields;
 - absolute target-contribution displacement and its maximum over a single unit;
 - for wages, the scalar, changed-worker count and representation weight, and
   weighted and unweighted absolute dollar displacement;
-- the canonical `build_alignment_displacement` result and hashes of its exact
-  before/after audit views; and
+- references to the canonical path-comparison results and hashes of the
+  incremental pre/post hook views; and
 - status, reason, candidate/materialization/measurement universes, target source,
   stream address, and algorithm revision.
 
-“Displaced person count” means the number of distinct panel people whose event or
-value changed, not the rounded sum of weights. “Gross displaced representation
-weight” means the sum of the registered fixed weights of those distinct changed
-units and is never netted between additions and removals. When a family event
-changes several people atomically, the ledger reports both one displaced linked
-unit and the distinct affected-person count; it uses the registered family-unit
-weight exactly once in the gross unit-weight field. Person-weight and unit-weight
-fields stay separate rather than presenting one as the other.
+The role code defines whose state changed. Mortality and covered work name the
+person; a fertility event names the mother as decision person and the child as a
+materialized addition; an entrant family names every entering member and one
+atomic donor unit. `displaced_person_count` is the distinct union of these affected
+people, never a rounded weight. `gross_displaced_person_weight` sums each affected
+person's frozen pre-reconciliation production-year weight once.
+`gross_displaced_unit_weight` separately sums each changed atomic unit's registered
+unit weight once. Adds and removals are never netted. The ledger also reports
+decision-person and materialized-person subtotals so a maternal event does not
+silently count a mother and child as interchangeable observations.
 
-These sums supplement rather than reinterpret the canonical function. In
-particular, `n_intervened_rows` is not relabeled as a person-weight count, and a
-maximum change in `event_selected` is not relabeled as aggregate displacement.
-The run summary publishes, for each margin and year, the canonical maximum and
-the gross count/weight measures, then publishes the maximum across years without
-discarding the underlying records.
+These sums supplement rather than reinterpret the canonical function. Its
+`n_intervened_rows` is not relabeled as a per-year person count, a maximum change
+in `event_selected` is not relabeled as aggregate displacement, and the canonical
+path difference is not claimed to be direct causal attribution to one hook. The
+run summary keeps both the path-comparison and incremental records for each margin
+and year.
 
 ### 5.3 Artifact labels and completeness
 
-An aligned artifact is publishable only if all requested margins have either:
+An aligned artifact is publishable only if at least one requested margin is
+`computed` and every requested margin has either:
 
 - `computed`, with a complete displacement ledger and fidelity result; or
 - `not_available`, with a pre-run reason such as a missing definition-matched
@@ -496,6 +516,10 @@ An aligned artifact is publishable only if all requested margins have either:
 
 `not_available` does not mean that the producer silently skipped an advertised
 margin. The artifact title and machine label list the margins actually applied.
+If no margin can be applied, the producer publishes only an unavailable-attempt
+sidecar; the inherited displacement surface remains
+`status = "not_computed"`, `reason = "alignment_layer_output_not_collected"`, and no
+panel is labeled `aligned_production`.
 `structurally_infeasible`, audit-view key mismatch, materialization mismatch, or
 hash mismatch withholds the aligned panel and publishes a failed production
 attempt sidecar. It never converts the unaligned companion into a failure of the
@@ -516,26 +540,27 @@ without its displacement sidecar is an artifact-schema failure.
 
 ## 6. Evaluation: floors first
 
-### 6.1 Pre-run feasibility floors
+### 6.1 Pre-run threshold-prefix resolution floors
 
 The target bundle, candidate construction, weights, strata, pooling ladder, score,
 tie rule, and numeric rules are frozen before an aligned run. From that frozen
 candidate ledger, the producer enumerates the empty and every ordered prefix and
-records the minimum attainable absolute residual in target units. That value is
-the **feasibility floor** for the discrete margin-year-stratum. It also records
-the target's distance outside the total attainable range, if any.
+records the minimum prefix residual in target units. That value is the
+**selection-resolution floor** for the discrete margin-year-stratum. It is not the
+minimum over every subset. The producer separately records whether the target lies
+outside the empty-to-total candidate range.
 
-The floor comes first: the producer writes and hashes it before selecting the
-aligned prefix, and the aligned evaluator reads rather than rewrites it. It may
-not declare exact agreement when unequal panel weights make exact agreement
-impossible. A continuous covered-wage margin has a zero arithmetic floor only
+The resolution floor comes first: the producer writes and hashes it before
+selecting the aligned prefix, and the aligned evaluator reads rather than rewrites
+it. It may not declare exact agreement when the registered threshold rule cannot
+achieve it. A continuous covered-wage margin has a zero arithmetic floor only
 when its denominator is positive and all registered finite-value conditions hold;
 otherwise it is infeasible.
 
-Sparse cells follow only the target bundle's pre-registered pooling ladder. The
-producer may move from single age to the next named age band when the exact cell
-is infeasible, but it must publish both records and may not search for a favorable
-pool after seeing the result. A target outside the candidate range remains
+Sparse cells follow only the target bundle's pre-registered pooling ladder and
+pre-run minimum-candidate rule. The producer decides pooling before inspecting
+prefix residuals, publishes both cell definitions, and may not pool merely because
+a non-prefix subset would fit better. A target outside the candidate range remains
 `structurally_infeasible`; pooling cannot manufacture eligible people.
 
 ### 6.2 Alignment-fidelity check
@@ -544,7 +569,7 @@ For every applied cell, the evaluator independently recomputes the aligned margi
 from the materialized panel using the declared measurement universe. The check
 passes only when:
 
-`abs(aligned_total - target) <= feasibility_floor + numeric_tolerance`.
+`abs(aligned_total - target) <= selection_resolution_floor + numeric_tolerance`.
 
 The bundle pins `numeric_tolerance` in target units; it cannot be a percentage
 chosen after execution. The evaluator also requires raw and aligned ledger totals
@@ -591,8 +616,9 @@ recommended by [Li and O'Donoghue (2014), §§5.3-5.8](https://www.jasss.org/17/
 
 A pre-boundary validation exercise turns alignment off for the module under test
 and compares its raw projection with observed/reference data. That follows the
-dynamic-microsimulation validation guidance to distinguish validation from a
-baseline that already imposes external controls ([Harding et al. 2010, pp. 12-13](https://www.researchgate.net/profile/Ann-Harding/publication/228846890_Issues_in_the_validation_of_dynamic_microsimulation_models/links/02e7e51e884cf87db4000000/Issues-in-the-validation-of-dynamic-microsimulation-models.pdf)).
+dynamic-microsimulation validation guidance to retain current, baseline, and
+reference outputs and switch alignment off for the target module
+([Harding et al. 2010, pp. 53-54](https://www.microsimulation.pub/articles/00038)).
 It is evidence about model behavior; the production fidelity check is evidence
 about reconciliation behavior. The report never collapses the two.
 
@@ -625,7 +651,7 @@ Trustees Report fail identity rather than updating a target in place.
 The aligned sidecar binds the target manifest to the unaligned scientific object:
 repository commit, environment lock hash, initial-slice hash, draw index, ordinary
 module RNG registry hash, alignment RNG registry hash, algorithm revision,
-candidate-ledger hashes, feasibility-floor hash, corridor hash or explicit null
+candidate-ledger hashes, selection-resolution-floor hash, corridor hash or explicit null
 reason, unaligned result hash, aligned result hash, and displacement-ledger hash.
 It also records the exact ordered margins and the seam after which each ran.
 
@@ -644,16 +670,19 @@ a gate-path change.
    alone are insufficient.
 2. **Social Security area and migration units.** Ratify the bridge between the
    production roster and the Social Security area, the donor microdata and vintage,
-   the atomic entrant unit, and whether the production target decomposes gross
-   immigration/emigration or only V.A2 net change.
+   the atomic entrant unit, and the gross addition/removal targets or signed
+   optimizer needed to implement V.A2 net change without an arbitrary split.
 3. **Covered-work candidate state.** Define a lawful potential covered-earnings
-   value for a raw nonworker selected `0→1`, settle wage-and-salary versus
-   self-employment coverage, and bind the result to IV.B4's “paid at any time in
-   year” concept without altering the certified earnings domain.
+   value, participation probability/uniform or alternate registered selection
+   score for a raw nonworker selected `0→1`, and coherent chain-state updates.
+   Settle wage-and-salary versus self-employment coverage and bind the result to
+   IV.B4's “paid at any time in year” concept without altering the certified
+   earnings domain.
 4. **Fertility measurement.** Choose maternal birth events, live births, or
-   children as the target unit; specify plurality and infant-death timing; and
-   bind the selected measure to the post-mortality live-roster materialization
-   rule without changing the frame-independent scoring schedule.
+   children as the target unit; expose the complete probability/uniform schedule;
+   specify parity evolution, birth order, plurality, and infant-death timing; and
+   bind the measure to post-mortality live-roster materialization without changing
+   the frame-independent scoring schedule.
 5. **Displacement-corridor ceremony.** Pre-register the historical window,
    horizon bands, strata, target-revision vintages, synthetic shocks, seeds,
    quantiles, and response to `above_reference`. This design intentionally
@@ -662,10 +691,15 @@ a gate-path change.
    the baseline Trustees levels, aligns only common exogenous margins, or carries
    reform-specific external targets; specify common-random coupling and labels so
    alignment cannot erase a modeled policy effect.
-7. **Release scope and economics phase.** Decide whether the first implementation
-   ships demographic margins alone and keeps employment/wages unavailable until
-   definition-matched inputs exist, or waits for the full ordered bundle. The
-   ordering and disclosure requirements do not change either way.
+7. **Release scope, horizon, and wage base.** Choose the first target-year interval
+   and complete the separately reviewed horizon extension beyond the current 2022
+   M6 panel builders. Pin the covered-wage base level/year and nominal-or-real V.B1
+   growth column. Decide whether demographic margins ship before economics or the
+   release waits for the full ordered bundle.
+8. **Dependent relational state.** Ratify how mortality and emigration update
+   spouse, parent-child, household, marital-core, and household-composition state,
+   including the pending amendment-3h removed-spouse case, without rewriting a
+   certified scoring schedule.
 
 ## 9. What this does not change
 
@@ -688,5 +722,8 @@ This design does not:
 The next implementation proposal must resolve the relevant open decisions, add
 code and tests in a separate change, and demonstrate the bit-exact replay,
 alignment-fidelity, materialization-reconciliation, artifact-label, and
-unaligned-gate-isolation checks. Until then, an alignment request remains explicit
-`not_available`; the certified projection remains unaligned.
+unaligned-gate-isolation checks. Until then, target margins may remain
+`not_available`, while the inherited displacement surface remains
+`status = "not_computed"` with
+`reason = "alignment_layer_output_not_collected"`; the certified projection
+remains unaligned.
