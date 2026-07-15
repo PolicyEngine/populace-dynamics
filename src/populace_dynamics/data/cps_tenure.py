@@ -99,6 +99,12 @@ PEIO1COW_LABELS: dict[int, str] = {
     8: "without_pay",
 }
 
+#: Total class-of-worker mapping over the validated domain
+#: {-1, 1..8}: -1 is genuinely NIU, and there is deliberately no
+#: silent default — an unmapped code would surface as NaN in tests
+#: rather than masquerade as "niu".
+_CLASS_OF_WORKER_TOTAL: dict[int, str] = {**PEIO1COW_LABELS, -1: "niu"}
+
 #: Default E3 age bands (BLS tenure-release convention).
 DEFAULT_AGE_BANDS: tuple[tuple[int, int], ...] = (
     (16, 19),
@@ -356,9 +362,7 @@ def read_cps_tenure(
             "state_fips": keep["GESTFIPS"],
             "pemlr": keep["PEMLR"],
             "class_of_worker_code": keep["PEIO1COW"],
-            "class_of_worker": keep["PEIO1COW"].map(
-                lambda code: PEIO1COW_LABELS.get(int(code), "niu")
-            ),
+            "class_of_worker": keep["PEIO1COW"].map(_CLASS_OF_WORKER_TOTAL),
             "weight": keep["PWTENWGT"] / 10_000.0,
         }
     )
@@ -396,9 +400,9 @@ def tenure_tabulation(
             outside every band are all excluded — so
             ``unweighted_n`` sums can be smaller than
             ``len(records)`` by design.
-        age_bands: Inclusive ``(lo, hi)`` age bands. Bands must be
-            sorted and non-overlapping; gaps are allowed (ages in a
-            gap are excluded).
+        age_bands: Inclusive ``(lo, hi)`` age bands, in ascending
+            order and non-overlapping (both enforced); gaps are
+            allowed (ages in a gap are excluded).
         by: Extra grouping columns (e.g. ``("sex",)`` or
             ``("class_of_worker",)``) on top of year and age band.
 
@@ -422,6 +426,9 @@ def tenure_tabulation(
     for lo, hi in age_bands:
         if lo > hi:
             raise ValueError(f"age band ({lo}, {hi}) is reversed.")
+    los = [lo for lo, _ in age_bands]
+    if los != sorted(los):
+        raise ValueError(f"age bands {age_bands} are not ascending.")
     intervals = pd.IntervalIndex.from_tuples(list(age_bands), closed="both")
     if intervals.is_overlapping:
         raise ValueError(f"age bands {age_bands} overlap.")

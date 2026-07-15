@@ -258,6 +258,52 @@ class TestTenureTabulation:
         with pytest.raises(ValueError, match="reversed"):
             cps_tenure.tenure_tabulation(records, age_bands=((30, 16),))
 
+    def test_touching_boundary_bands_raise(self, tmp_path):
+        # (20,24) and (24,30) share age 24 under closed="both" —
+        # the natural adjacent-bands mistake must refuse, not
+        # double-assign.
+        path = _write_person_file(tmp_path, 2024, [{"PRTAGE": 24}])
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        with pytest.raises(ValueError, match="overlap"):
+            cps_tenure.tenure_tabulation(
+                records, age_bands=((20, 24), (24, 30))
+            )
+
+    def test_unsorted_bands_raise(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"PRTAGE": 30}])
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        with pytest.raises(ValueError, match="ascending"):
+            cps_tenure.tenure_tabulation(
+                records, age_bands=((25, 34), (16, 19))
+            )
+
+    def test_non_midpoint_weighted_quantile(self, tmp_path):
+        # Unevenly spaced values with uneven weights, hand-computed
+        # under the cumulative-midpoint convention. Tenures 1.00 /
+        # 4.00 / 10.00 with weights 1000 / 2000 / 1000 (raw x10^4)
+        # put knots at 0.125 / 0.500 / 0.875 of total weight, so
+        # p25 interpolates one third of the way from 1.0 to 4.0
+        # (= 2.0), p50 lands on the middle knot (= 4.0), and p75
+        # two thirds of the way from 4.0 to 10.0 (= 8.0).
+        rows = [
+            {"PRTAGE": 30, "PTST1TN": 100, "PWTENWGT": 10_000_000},
+            {"PRTAGE": 30, "PTST1TN": 400, "PWTENWGT": 20_000_000},
+            {"PRTAGE": 30, "PTST1TN": 1000, "PWTENWGT": 10_000_000},
+        ]
+        path = _write_person_file(tmp_path, 2024, rows)
+        records = cps_tenure.read_cps_tenure(2024, path=path)
+        out = cps_tenure.tenure_tabulation(records)
+        band = out[out["age_band"] == "25_34"].iloc[0]
+        assert band["p25"] == pytest.approx(2.0)
+        assert band["p50"] == pytest.approx(4.0)
+        assert band["p75"] == pytest.approx(8.0)
+
+    def test_leading_zero_ids_survive(self, tmp_path):
+        rows = [{"HRHHID": "000011234567890", "HRHHID2": "01011"}]
+        path = _write_person_file(tmp_path, 2024, rows)
+        out = cps_tenure.read_cps_tenure(2024, path=path)
+        assert list(out["person_id"]) == ["000011234567890-01011-1"]
+
     def test_empty_input_returns_empty_schema(self, tmp_path):
         path = _write_person_file(tmp_path, 2024, [{"PTST1TN": -2}])
         records = cps_tenure.read_cps_tenure(
