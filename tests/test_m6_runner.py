@@ -275,13 +275,16 @@ def test_report_only_marks_unavailable_paths_without_fabricating_zero():
         "4967241464",
         "4971244215",
         "4973199058",
+        "4976428384",
     ],
 )
 def test_registration_must_be_fresh_and_explicit(registration):
-    # All four graded pre-scoring terminations (registrations 1-4) are stale;
-    # registration 3 (4971244215) crashed pre-scoring, graded 4972045579, and
+    # All five graded pre-scoring terminations (registrations 1-5) are stale;
+    # registration 3 (4971244215) crashed pre-scoring, graded 4972045579,
     # registration 4 (4973199058) fired the pre-flight-1 designed abort, graded
-    # 4973798460 (root-caused in forensics 4973982118).
+    # 4973798460 (root-caused in forensics 4973982118), and registration 5
+    # (4976428384) crashed in the seed-1 scoring projection on the marital
+    # entry-row gap, graded 4979269487 (forensics 4979437110, closed by 3g).
     with pytest.raises(ValueError):
         validate_registration_id(registration)
 
