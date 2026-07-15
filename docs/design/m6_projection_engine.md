@@ -1168,6 +1168,267 @@ Docs-only design amendment (revision 13); the implementing patch above lands aft
 the referee round, as amendments 3d/3e did. Edits no `gates.yaml` cell, moves no
 threshold, builds no floor, and writes no test in this PR.
 
+**2.8.2h Amendment 3h — the fertility / open-additions roster-materialization
+domain law (closes the reg-6 crash).** Step-4 fertility draws its maternal-birth
+schedule from the **frame-independent** §2.8.2 marital at-risk universe
+(`holdout_ids = state.marital_ids`, built **once** per draw with `del frame` and
+realized censor, `assembly.py:278-293`) but **materializes** the scheduled births
+onto the **frame-dependent** post-mortality roster (`materialize_maternal_births`,
+`steps.py:381`; called from `apply_fertility`, `steps.py:472`, itself step 4 of the
+§2.2 wave loop via `fertility_step`, `assembly.py:315`). The two universes are keyed
+to two different notions of when a person exits — the schedule to the **realized**
+marriage-history censor (clipped to `projection_end_year`), the roster to the
+**simulated** wave-loop mortality (`apply_mortality`, `steps.py:113`;
+`assembly.py:254`) — and nothing reconciles them. A woman whose simulated death
+precedes her realized censor stays in the fertility schedule after the roster has
+removed her; when the wave-t fertility RNG draws her a wave-t birth, the parent is
+absent from the roster and the guard **raises** (`steps.py:412`,
+`ValueError: birth parents are absent from the roster`). This is the sixth
+registration's execution failure (forensics #42 comment 4984997277, deterministic,
+one-shot unconsumed; graded #42 comment 4984699959).
+
+The forensics pinned it to a **single** realized trip on the pinned seed-0/draw-0
+person-side stream — `{782173}` at wave **2020** — reproduced byte-identically in
+three independent reconstructions. Person 782173 is a realized **survivor** (female,
+born 1988, anchored 2015, PSID censor 2022) whom the differential-mortality draw
+kills in **simulated 2020**; her realized censor keeps her fertile in the schedule
+through 2022; the wave-2020 fertility RNG draws her a 2020 birth two years after the
+roster dropped her. Per-wave, waves 2015–2019 materialize 50 / 55 / 63 / 54 / 34
+child rows with **zero** absent parents, and only wave 2020 (38 births, 1 absent
+parent) raises. The forensics' hypothesis classification is decisive:
+**(a) death-then-drawn is the sole mechanism, confirmed 100 %** — mortality is the
+only roster-removing step (aging / marital / fertility / disability / earnings /
+claiming / household never delete rows; entrants only add), and `valid_ids` derives
+from an inner join *with* `anchor`, so the at-risk set is a strict **subset** of the
+roster universe, which refutes **(c)** any id/join seam: an at-risk mother absent
+from the roster is absent **because** simulated mortality removed her, never because
+of an orphan id. **(b)** a non-mortality removal and **(d)** a 3g-seeding interaction
+are likewise refuted (782173 is bulk, her 3g clamp `max(2015, 2003)` a no-op). She is
+the first-manifesting member of a **structural susceptibility class** — at-risk
+fertile women whose simulated death precedes their realized censor and who retain
+≥1 fertile-age schedulable year while absent — which numbers **10** on the seed-0
+person side (earliest-absent-fertile-schedulable year distributing
+`{2015:1, 2016:1, 2017:1, 2019:2, 2020:1, 2021:2, 2022:2}`; the 2015 member, id
+5459180 born 1966, would trip first on any draw that drew her a 2015 post-death
+birth). Context: **456** persons die in the wave loop over the window on that side,
+against **11,552** at-risk, and the schedule observes none of them; the guard is a
+live tripwire over the full `5 seeds × 2 sides × 20 draws` ensemble, not a
+782173-specific data artifact.
+
+The pins already say where each universe belongs but no law separates them. §2.2
+step 1 makes **"decedents leave the risk set for all subsequent year-`t` steps"**
+and its DAG rationale is **"Deaths first so no dead person is married, made
+disabled, or paid"** — of which *born of* is the unstated fourth. §2.8.9 pins the
+at-risk universe **frame-independent for the scoring path** (correct — gated marital
+/ earnings / disability score on the §2.8.2 builder's realized support, never the
+live roster). The code reuses that one frame-independent universe for the **roster
+materialization** step, which §2.2 requires to be frame-dependent. §2.8.2g corrected
+the marital builder's *entry* universe; **3h separates the fertility builder's
+*scoring* universe from its *materialization* universe**, which §2.2 already implies
+and no §2.8 law states.
+
+*The structural tell — this is the one materializing step among reconciling
+peers.* Every other wave-loop module that consumes a frame-independent projection
+reconciles it against the roster by a **left merge keyed on the roster**
+(`_merge_period_columns`, `assembly.py:174-192`, `how="left"`): marital state
+(step 3, merged at `fertility_step`/`household_step`), disability (step 5,
+`assembly.py:372`), and household composition (step 8, `assembly.py:412`) all **drop**
+a decedent's frame-independent row silently, because a left join keyed on the
+surviving roster cannot attach a row for an absent person. Step-4 fertility is the
+**sole** module that reconciles by **materialize-with-raise** (`pd.concat` of new
+child rows behind a hard guard) rather than by drop-on-merge. 3h is not a new
+posture — it brings the one materializing step into line with the merge steps'
+already-correct **"reconcile, do not raise"** behavior. That parity is what makes 3h
+a **law** over the wave loop, not a one-hole patch (the sibling sweep below
+discharges the rest of the arm).
+
+*The domain law.*
+
+> Scheduled maternal births materialize **only for mothers present in the live
+> post-mortality roster at the birth wave**. The **simulated-mortality universe**
+> (the roster, §2.2 step 1) governs **materialization**; the **frame-independent
+> at-risk schedule** (the §2.8.2 marital builder, realized presence/censor) governs
+> **scoring**. A scheduled birth whose mother the wave loop has already removed does
+> **not** materialize; it is recorded in the run's report-only reconciliation.
+
+*The resolution options, adjudicated.* Three treatments for a scheduled birth whose
+mother is roster-absent; all three leave the frozen floors byte-identical (open
+additions are report-only, §2.1), so the decision turns on determinism and the
+report-only realization:
+
+| resolution | determinism (RNG stream) | report-only materialized births | scored / gated surface | verdict |
+|---|---|---|---|---|
+| **(i) drop-with-reconciliation, filter *after* the draw** (**adopted**) | **pure function of roster state**; the drop is post-draw so the fertility RNG stream is **byte-unchanged** — only the dropped rows differ | **down** by the post-death births (exactly **1** = `{782173}` on seed-0/draw-0; order ~1 birth/draw on this stream), **disclosed, report-only** | **none** — the roster is report-only (§2.1); scored moments read the frame-independent schedule (below) | **adopted** |
+| (ii) re-draw a replacement mother/birth | **fails** — a re-draw consumes RNG and shifts every downstream per-person stream; it also **fabricates** a birth for a different mother | up (invented births), non-reproducible | none | rejected on determinism |
+| (iii) keep-raising (status quo) | deterministic, but **aborts** the entire scored pre-artifact run | n/a (no artifact written) | none | rejected: a **report-only** mechanism must not abort a scored run |
+
+**(i) is adopted.** The three proof obligations, discharged:
+
+- **Determinism — the drop is a pure function of roster state, with no re-draw that
+  shifts a stream.** (i) filters the drawn maternal frame against
+  `set(frame["person_id"])` (the live post-mortality roster) **after** the
+  `simulate_fertility` draw (`steps.py:467`) and **before** the materialize call
+  (`steps.py:472`), dropping the roster-absent-parent rows. Because the draw is
+  untouched, the fertility RNG consumption is **byte-identical** to the pre-patch
+  run; the only difference is the set of rows concatenated into the roster. This is
+  the forensics' explicit RNG-address decision: *filter after the draw* (RNG
+  byte-unchanged) over *intersect the at-risk set before the draw* (which would
+  change `simulate_maternal_births`'s RNG consumption — fewer at-risk rows — and
+  shift the report-only realizations). Both are floor-inert; the post-draw filter is
+  the byte-cheaper one and is adopted.
+- **Report-only birth-count bias — down, quantified, disclosed.** Dropping the births
+  of simulation-decedents biases the **materialized** birth count **down** relative
+  to the certified frame-independent fertility moments (which continue to count every
+  scheduled at-risk birth). The magnitude is the count of post-death fertile-year
+  draws that land: **exactly 1** on seed-0/draw-0 (`{782173}`'s 2020 birth), order
+  **~1 birth per draw** on this stream; across the ensemble it is bounded by the
+  susceptibility class (10 women, seed-0 person side) against 456 wave-loop deaths.
+  This is a **report-only** distortion of the open-additions roster, disclosed and
+  netted in the reconciliation — it moves no gated cell (next bullet).
+- **Certified-scoring invariance — the scored moments read the schedule, not the
+  roster; pinned by code pointer.** The gated and certified surfaces score fertility
+  as **distributional moments over self-contained frame-independent panels**, never
+  over the materialized roster: `simulate_maternal_births` (`marital.py:288-352`)
+  reads **only** the static `panel.attrs` (`start_exposure_year`, `censor_year`,
+  `birth_year`, `sex`) across `[start_exposure_year, censor_year] ∩ fertile age` and
+  **never** touches the live roster; candidate-16's internal `births` and
+  candidate-9's household-composition conditioning fertility (`assembly.py:394`, a
+  **separate** `generator(0, FERTILITY)` draw that materializes **no** roster) are
+  the certified fertility lineage, whose `censor_year` **is** the person's survival.
+  The certified deployment therefore has **no** open-population child roster and **no**
+  independent mortality step, so the "parent absent from roster" state cannot arise —
+  the invariant holds **vacuously** in certified use, and the roster is report-only in
+  `gate_m6` (§2.1; §4.8 decision 4). **Pin: the drop touches only the report-only
+  materialized roster and provably cannot reach any gated or certified surface** —
+  the frozen floors (`runs/m6_holdout_floors_v{1,2,3}.json`, v3 sha `e931c886…`) and
+  every gated cell are byte-identical.
+
+*The sibling sweep (the arm-parity lesson).* 3h is a law only if **every** open-
+addition / materialization path in the wave loop that could key a new or dependent
+record to a roster-removable person is enumerated and dispositioned. The roster is
+removed from by exactly one step (step-1 mortality); the sweep is over every step and
+side-path that attaches records:
+
+| wave-loop path | code | attaches by | keys to a roster-removable person? | disposition |
+|---|---|---|---|---|
+| 1 mortality | `apply_mortality` (`steps.py:113`; `assembly.py:254`) | **removes** survivors | — (the removing step) | the guard's premise; unchanged |
+| 2 aging | `advance_age` (`steps.py:434`) | in-place age/calendar roll | no (no keying) | invariant N/A by construction |
+| 3 marital core | `marital_step` → `_merge_period_columns` (`assembly.py:271, 412`) | **left merge** on roster | drops absent by construction | holds by construction |
+| **4 fertility / roster** | `apply_fertility` → `materialize_maternal_births` (`steps.py:472, 381`) | **materialize** (concat + guard raise) | **yes — `parent_person_id` (mothers)** | **3h's law applies** |
+| 5 disability | `disability_step` → `_merge_period_columns` (`assembly.py:326, 372`) | left merge on roster | drops absent by construction | holds by construction |
+| 6 earnings | `earnings_step` → `apply_earnings` (`assembly.py:379`) | in-place earnings draw | no | invariant N/A by construction |
+| 7 claiming | `claiming_step` → `apply_claiming` (`assembly.py:382`) | in-place claim-age draw | no | invariant N/A by construction |
+| 8 household composition | `household_step` → `_merge_period_columns` (`assembly.py:385, 412`) | left merge on roster | drops absent by construction | holds by construction |
+| paternal shadow births | `materialize_maternal_births` docstring (`steps.py:386-388`) | **not materialized** — household-conditioning draws, deliberately not duplicated into child rows | would-be `father_person_id` | holds by construction (no materialization) |
+| candidate-9 conditioning fertility | `household_step` (`assembly.py:394`, `generator(0, FERTILITY)`) | feeds candidate-9 as conditioning; materializes **no** roster | — | holds by construction (separate draw, no roster attach) |
+| child-ordinal assignment | wave-end loop (`loop.py:329-331`) | **additive** ordinal keyed to the **post-materialization** roster | keyed to roster-**present** persons only; `if person_id not in person_ordinals` | holds by construction — **rules out the secondary KeyError** |
+| immigrant entry cohorts | §2.1 open additions | not wired in the current wave loop (`PeriodModules`, `assembly.py:426-436` has no entrant step); by design fresh-id rows | no — fresh ids, not keyed to removable persons | out of scope (not wired; the parent-guard shape cannot arise) |
+| synthetic id allocation | `SyntheticPersonIdAllocator.allocate` (`steps.py:418`) | fresh child ids | no | holds by construction |
+
+The **child-ordinal** row is load-bearing and answers the forensics' explicit
+question of why the materialized children do **not** raise a *second* KeyError. RNG
+for a person is drawn through `person_generator`, which **raises**
+`KeyError: no stable RNG ordinal for person …` for any id absent from
+`person_ordinals` (`loop.py:99-104`). Newborns are materialized at step 4 but the
+wave-end loop assigns an ordinal to **every** id in the surviving roster
+(`loop.py:329-331`) **after** all eight steps, so by the next wave's step-1 mortality
+every newborn already has an ordinal; the assignment is additive (`if … not in`) and
+keyed to the post-materialization roster, so it can never key to a removed person.
+Verified end-to-end by the forensics' full real-engine run (waves 2015–2019
+materialize and ordinal children with no defect; only wave 2020 raises the fertility
+guard). The **household** rows note one residual **report-only** consistency
+question the sweep surfaces but 3h does **not** reach: candidate-9 may compute a
+`coresident_spouse` flag for a living person from the **frame-independent** marital
+state even when the spouse was roster-removed by mortality — but that is a
+report-only **column value** on a roster-present person (merged, never materialized,
+never raised), analogous to the birth-count bias, not a guard violation; it is out of
+scope for 3h's guard-closure and flagged for the ceremony's report-only ledger.
+
+*Floor-inertia proof obligations.* Open additions are **report-only** by §2.1:
+
+> the **open additions** — synthetic births (from the fertility/roster module) and
+> immigrant entry cohorts … have no PSID ground truth over the holdout window and are
+> therefore **report-only in `gate_m6`** (family B, §4.8, decision 4). — §2.1
+
+Because no gated cell reads the live materialized roster, **all frozen floors are
+byte-identical by construction** — `runs/m6_holdout_floors_v{1,2,3}.json` untouched,
+the v3 sha `e931c886…` remains the gated contract applied unchanged — and the
+adopted filter-after-draw reconciliation additionally leaves the fertility **RNG
+stream** byte-identical, so even the report-only draw realizations of every
+**non-dropped** birth are unchanged. **The guard at `steps.py:412` stays.** Under the
+adopted placement the reconciliation filter lives in the open-additions **caller**
+(`apply_fertility`), so `materialize_maternal_births` receives only roster-present
+parents and its guard becomes **unreachable for the lawful path** — but it is
+**retained** as the invariant backstop for any caller that passes an un-reconciled
+birth frame (a genuine id/join defect, hypothesis (c), which the forensics refuted
+for the M6 at-risk universe but which the primitive must still catch). Cause removed,
+invariant satisfied by construction, guard kept — exactly the §2.8.2g / §2.8.3a
+posture, and the cleanest of the three because the surface is entirely report-only.
+
+*Implementing patch (pinned; lands after ratification, not in this PR).*
+
+- **`engine/steps.py` `apply_fertility`:** between the draw (`simulate_fertility`,
+  `:467`) and the materialize call (`:472`), filter `draws.maternal` to rows whose
+  `parent_person_id` is in `set(frame["person_id"])` (the live post-mortality
+  roster), and record the dropped rows in the report-only reconciliation. The draw is
+  untouched, so the RNG stream is byte-unchanged (the adopted post-draw point). No
+  change to the frame-independent `simulate_maternal_births` schedule
+  (`marital.py:288-352`), no change to `holdout_ids`/`state.marital_ids`
+  (`assembly.py:321`). `apply_mortality` and the guard are unchanged.
+- **The reconciliation record shape (report-only).** A per-wave report-only field
+  keyed by projection year — e.g. `roster_absent_births[context.year] =
+  {"dropped_parent_ids": frozenset(absent), "dropped_count": len(absent)}` —
+  published on the same report-only open-additions channel §4.8 decision 4 already
+  carries (alongside the existing `birth_store[context.year] = draws`,
+  `steps.py:470`). No gated cell, no `runs/` artifact, no `gates.yaml` block reads it.
+- **The discriminating test (the class the current fixtures lack).**
+  `tests/test_m6_engine_steps.py`'s materialize fixtures use `parent_person_id =
+  [10, 10]` with parent 10 **present** in the roster frame (`:203, :241`), so **no
+  current fixture exercises a roster-absent mother**. Add a dead-mother-scheduled-
+  birth fixture — a `births` frame with a `birth_year == context.year` row whose
+  `parent_person_id` is **not** in the roster `frame` (the mortality-removed mother) —
+  asserting: (a) under the pre-patch caller `materialize_maternal_births` raises
+  `birth parents are absent from the roster`; (b) under the patch `apply_fertility`
+  **drops** that birth, records it in the reconciliation, and materializes only the
+  roster-present-parent children; (c) the `simulate_fertility` RNG draw is
+  **byte-identical** to the same draw against a roster where the mother is present
+  (filter-after-draw invariance). **Real-frame proof target:** the **10-person
+  seed-0 susceptibility class** — post-patch, a full-window projection of the person
+  side must **complete** to 2022 with the drops recorded and the counts matching the
+  forensics (the singleton `{782173}` dropped at wave 2020, the class's earliest-
+  absent-fertile-schedulable distribution above). This real-frame proof runs in the
+  post-ratification patch lane (reusing the run-6 venv), **not** in this docs PR.
+- **Schema-audit / manifest deltas: none for 3h.** The filter reads only
+  `person_id` (already the roster key) and the drawn `parent_person_id`; it adds no
+  panel column and no reader-schema change, so `m6_schema_audit` (§2.8.3f) needs no
+  new contract row for fertility. **Erratum ridden here (PR #210 referee NOTE-1,
+  the 3g-implementation referee's deferred one-liner):** the `m6_schema_audit`
+  `marital_panel_builder` read-set (`m6_schema_audit.py:266-268`) lists
+  `marital.attrs = {person_id, censor_year, start_exposure_year, weight}` and
+  **omits `birth_year`**, which the ratified 3g clamp
+  `max(anchor_wave, birth_year + START_AGE)` (`panel_builders.py:187`) reads
+  (`birth_year` is on `attrs`, `transitions.py:239-243`). The 3g-patch lane must add
+  `birth_year` to that frozenset; recording the erratum here per the referee's
+  request. This is a manifest correction to the **3g** patch, carried as a note — 3h
+  itself edits no manifest.
+
+*What amendment 3h does NOT change.* The frozen floors are byte-identical
+(`runs/m6_holdout_floors_v{1,2,3}.json` untouched; v3 sha `e931c886…` the unchanged
+gated contract). No gated cell definition moves; no threshold, no floor, no
+`gates.yaml` cell, no certified-core edit. The frame-independent fertility **schedule**
+and its **scored** moments are unchanged — 3h touches only which scheduled births
+**materialize** onto the report-only roster. The certified fertility lineage
+(candidate-16 `births`, candidate-9 conditioning) is untouched; the guard
+(`steps.py:412`) stays; the §2.2 order of operations is unchanged (3h makes step 4
+honor the step-1 decedent exit §2.2 already mandates). The related report-only
+household-diagnostic consistency question (a `coresident_spouse` flag against a
+mortality-removed spouse) is **flagged, not fixed** — out of scope for the guard
+closure.
+
+Docs-only design amendment (revision 14); the implementing patch above lands after
+the referee round, as amendments 3d/3e/3g did. Edits no `gates.yaml` cell, moves no
+threshold, builds no floor, and writes no test in this PR.
+
 **2.8.3 The year-0 slice from the realized 2015-interview state.** The seed slice
 mirrors the floor's realized panel **exactly**, so projection and truth condition
 identically. `T* = 2014` realizes its state at the **2015 interview**
