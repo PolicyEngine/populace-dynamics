@@ -828,3 +828,381 @@ It also would not modify or extend the M6 certificate. Entrants remain family-B
 open additions under `m6_reporting.py:71-73` and its explicit immigrant
 person-row bridge at `m6_reporting.py:104-118` until a later ratified gate says
 otherwise.
+
+## 6. External bindings
+
+### 6.1 Manifest contract
+
+Every external or derived input is represented by a field-level manifest entry,
+following the sibling §2.8.10 pattern. Each entry must contain:
+
+- stable binding ID and semantic version;
+- source agency, exact report/file title, table/section, scenario and columns;
+- observation universe, reference-period convention, units, and covered years;
+- information date, publication/release date, retrieval timestamp, canonical URL,
+  and raw SHA-256;
+- parser name/version, ordered source-field map, unit conversion, rounding rule,
+  missing-year behavior, and universe transformation;
+- derived artifact schema, row count, minimum/maximum year, SHA-256, and immutable
+  artifact location;
+- consuming component and whether use is gated, alignment-only, report-only, or
+  blocking; and
+- explicit alternatives rejected or still open.
+
+An implementation factory must take no unbound source arguments. It resolves
+repository-root-relative immutable artifacts, checks every raw and derived hash,
+checks the declared time range and schema independently, and returns the ordered
+binding objects. No scored or production run may fetch a source over the network.
+
+This design records the sources and required fields, but it does not create raw
+or derived artifacts. Consequently no source hash is invented here: `raw_sha256`
+and `derived_sha256` are **required lock-ceremony fields** and remain blocking
+until an acquisition PR records the actual bytes.
+
+### 6.2 Binding ledger
+
+| Binding ID | Exact source and vintage | Fields/transformation | Consumer and status |
+|---|---|---|---|
+| `ssa_tr2026_v_a2_intermediate` | Social Security Administration, *[The 2026 Annual Report of the Board of Trustees of the Federal OASI and DI Trust Funds](https://www.ssa.gov/OACT/TR/2026/tr2026.pdf)*, §V.A.3, Table V.A2 “[Immigration Assumptions, Calendar Years 1940–2100](https://www.ssa.gov/oact/TR/2026/lr5a2.html),” assumptions set February 2026, report released June 2026. | Annual intermediate LPR inflow/outflow/status-adjustment/net; temporary-or-unlawfully-present inflow/outflow/status-adjustment/net; total net; thousands→persons; retain source rounding. Use exact annual rows 2026–2100. | Gross-entry control candidate and net reconciliation. Forward-assumption/report-only until universe bridge and exit design exist; prohibited as gate-estimation data. |
+| `ssa_tr2026_v_a2_sensitivity` | Same report/table/vintage, low-cost and high-cost alternatives. | Same component schema; never substitute 75-year average or ultimate value for annual rows. | Report-only scenario sensitivity. |
+| `ssa_area_to_census_resident_bridge` | **UNBOUND.** Must reconcile the 2026 report's Social Security-area definition (glossary pp. 247–248) to the ACS/Census resident universe with an exact source and vintage. | Annual inclusion/exclusion or factor by population category; preserve an auditable raw-SSA series beside the bridged series. Identity is not an admissible silent default. | **BLOCKING** for a schedule labeled resident-population aligned. A raw `ssa_area_proxy` may run report-only. |
+| `acs_pums_2010_2014_recent_arrivals` | Census Bureau, [2010–2014 ACS 5-year person PUMS `csv_pus.zip`](https://www2.census.gov/programs-surveys/acs/data/pums/2014/5-Year/csv_pus.zip); *[PUMS Data Dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)*, Jan. 14, 2016; *[Accuracy of the Data](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010_2014AccuracyPUMS.pdf)*. Observations 2010–2014. | Decode collection year from `SERIALNO`; bind `PWGTP`/replicate weights, `ADJINC`, `AGEP`, `SEX`, dual `YOEP05`/`YOEP12`, `NATIVITY`, `POBP`, education, marital/relationship, disability, employment and income/earnings fields plus allocation flags. Fit years 2010–2013; hold out 2014. | Primary donor estimation and proposed `gate_imm` truth, conditional on decision O6. |
+| `cps_asec_2014_foreign_born` | Census Bureau, *[2014 Annual Social and Economic Supplement Technical Documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14R.pdf)* and [2014 ASEC data page](https://www.census.gov/data/datasets/time-series/demo/cps/cps-asec.2014.html). | `A-AGE`, `A-MARITL`, `A-SEX`, `A-HGA`, six disability items, `PENATVTY`, grouped `PEINUSYR`, `PRCITSHP`, `MARSUPWT`, `WSAL-VAL`, `PEARNVAL`, `PTOTVAL`; bind Traditional **or** Redesign file and correction/repost status. | Report-only marginal triangulation. Exact file choice is decision O7; the two files may not be merged silently. |
+| `sipp_2014_wave1_entry_state` | Census Bureau, *[2014 SIPP Metadata All Sections v2](https://www2.census.gov/programs-surveys/sipp/tech-documentation/data-dictionaries/2014/w1/2014SIPP_Metadata_AllSections_v2.pdf)*, Sept. 12, 2017; [Wave 1 raw directory](https://www2.census.gov/programs-surveys/sipp/data/datasets/2014/w1/); *[SIPP 2014 Panel Source and Accuracy Statement, Wave 1](https://www2.census.gov/programs-surveys/sipp/tech-documentation/source-accuracy-statements/2014/sipp-2014-source-and-accuracy-statement.pdf)*. Interviews in 2014, reference year 2013. | `WPFINWGT`, marital state/history, age, `EBORNUS`, `ECITIZEN`, `ENATCIT`, grouped `TYRENTRY`, education, sex, disability and monthly earnings concepts. `TIMSTAT` is excluded from legal-status state. | Report-only joint-state/initializer diagnostics. No later-wave immigrant-only household coverage claim. |
+| `census_np2023_nim_corridors` | Census Bureau, *[Methodology, Assumptions, and Inputs for the 2023 National Population Projections](https://www2.census.gov/programs-surveys/popproj/technical-documentation/methodology/methodstatement23.pdf)* (Nov. 2023), migration pp. 8–14; [Alternative Scenarios table page](https://www.census.gov/data/tables/2023/demo/popproj/2023-alternative-summary-tables.html), Table 1 “Projected Population and Components of Change, 2022–2100”; [main workbook](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1.xlsx) and sibling `-h`, `-l`, `-z` workbooks. | Annual net international migration in thousands for main/high/low/zero scenarios; July 1 prior year–June 30 current year. Preserve scenario definitions: alternatives change gross foreign-born immigration, not every migration component. | Report-only cross-model corridors; never gate truth or a gross entrant control. |
+| `m6_projected_wage_index` | Existing sibling design §2.7.6.3/§2.8.10: realized SSA NAWI through 2014 and `I_proj` beyond, estimated only from `<=T*`; see `m6_projection_engine.md:666-708,1723-1756`. | ACS `ADJINC` first expresses pooled income in 2014 dollars; any projection-year entrant earnings use the already pinned `I_proj`, never realized post-2014 NAWI on a scored path. | Reused by a future entrant-earnings initializer. No new external fetch and no certificate transfer to entrant earnings. |
+| `emigration_duration_hazard` | **UNBOUND.** Table V.A2 supplies aggregate outflow counts only. The Duleep-Dowhan 2008 hazards and legacy model methods are research evidence, not a current operational binding. | Must identify age, sex, source grouping, time since entry, family/individual unit, re-entry treatment, universe and vintage. | **BLOCKING** for explicit exits and any Trustees net-alignment claim; outside entry-builder v1. |
+
+### 6.3 Binding-specific guards
+
+The SSA parser must assert scenario labels, all nine component columns, annual
+coverage, units, and the internal identities
+
+```text
+lpr_net = lpr_inflow - lpr_outflow + status_adjustment
+temporary_net = temporary_inflow - temporary_outflow - status_adjustment
+total_net = lpr_net + temporary_net
+```
+
+within the source's thousand-person rounding. It must not treat status adjustment
+as two events or as a new arrival.
+
+The ACS extractor must assert each collection year from `SERIALNO`, apply the
+correct dual-year-of-entry variable for that collection vintage, use person and
+replicate weights, and publish allocation/top-code/group-quarters counts. It must
+keep the survey's latest-entry meaning in field names; `first_entry_year` is
+prohibited without another source.
+
+The Census parser must preserve its July-to-June event year and resident-
+population universe. A calendar-year bridge to Trustees may be displayed only as
+a named transformation with both originals retained. The “zero” scenario may not
+be rewritten to zero net international migration.
+
+## 7. Open decisions for the referee
+
+Nothing in this list is silently resolved by the provisional recommendation.
+
+### O1. Literal gross entrants, exit scope, and the universe bridge — hardest
+
+Choose among:
+
+- **recommended**: gross new-person entrants through the seam, entry-only v1
+  explicitly report-only, followed by a separate emigration design before any net
+  alignment claim;
+- widen this design to include an audited exit law before implementing entries;
+  or
+- authorize a named reduced-form `net_entry_proxy` experiment, accepting that it
+  is not a literal immigrant cohort and cannot enter entrant/family/benefit gates.
+
+Also select or commission the Social Security-area→resident bridge. Raw identity
+is not presumed.
+
+### O2. Entry-year timing, age, and mortality exposure
+
+The seam inserts the prior-year-coordinate row before mortality and aging.
+Decide whether the external calendar-year inflow represents opening-of-period,
+midperiod, or end-of-period entry; what `age` means on the scheduled frame and
+the target slice; and whether first-period mortality exposure is full, fractional,
+or deferred. The choice must preserve the seam and publish an exposure audit.
+
+### O3. Recent-arrival window and matching ladder
+
+Ratify the proposed 0–4-year latest-entry window or a different duration; decide
+whether duration-zero/one donors receive priority; freeze age/source/education/
+family matching cells and their fallback order; and decide how return entrants
+are labeled without inferring unobserved prior U.S. coverage.
+
+### O4. Person versus co-arrival-family units and weights — hardest
+
+Choose person donors, co-resident co-arrival units, or a mixed rule. If units are
+chosen, bind relationship closure, common versus person-specific simulation
+weights, calibration to person totals, partial families, group quarters, and
+whether later exits occur by person or unit. This decision sets the correlation
+unit for floors.
+
+### O5. Atomic state/history packet and post-entry laws — hardest
+
+Decide which state comes from one ACS donor, which history may come from a
+jointly matched SIPP donor, and which requires a new model. In particular:
+
+- marital history and spouse-outside-roster state;
+- the ACS/SIPP disability-concept bridge;
+- entry employment, partial-year earnings, lags and persistent earnings state;
+- the entire entrant earnings law, since §2.8.3a membership cannot expand;
+- cross-domain marriage/household interactions with existing people; and
+- the certification boundary for ordinary cores applied to entrant inputs.
+
+The default is no independent marginal hot-decks and no certificate transfer.
+
+### O6. Observation date versus publication date at `T*`
+
+The proposed ACS pooled file contains only 2010–2014 observations but was
+published in January 2016. Ratify an observation-date rule analogous to the M6
+NAWI publication-lag reasoning, or reject the pooled file and redesign the gate
+around individually released pre-boundary files. The same issue affects the
+later-published SIPP metadata, which is report-only here.
+
+### O7. CPS ASEC diagnostic vintage
+
+Choose Traditional or Redesign 2014 ASEC public-use data and bind its correction
+history. This affects report-only triangulation, not candidate fitting or gate
+truth.
+
+### O8. Current-vintage production refits
+
+Decide whether a later ACS donor refit (for example 2015–2019 or 2020–2024)
+requires a new holdout/lock ceremony or may inherit a procedure-level certificate.
+The conservative default is that the exact-artifact certificate does not
+transfer and the refit remains report-only.
+
+### O9. Physical cohort size and calibration constraints
+
+Let the floor ceremony determine annual physical unit counts, weight caps,
+calibration margins, and maximum fallback share. No arbitrary “one row per N
+people” constant is adopted here.
+
+## 8. What this design does not change
+
+This document and its eventual entrant-side implementation must leave these
+surfaces unchanged unless a later, separately adjudicated design explicitly
+authorizes surgery:
+
+- `gates.yaml`, every `gate_m6` cell/threshold, the v1/v2/v3 M6 floors and their
+  hashes, `tests/tier_counts.json`, and all existing run artifacts;
+- M6's `T* = 2014`, temporal holdout, shock partition, weight convention, and
+  closed-panel scoring support;
+- the certified candidate-16 marital core, candidate-9 household composition
+  object, M4 disability reproduction object, gate-2c earnings modifier, and
+  gate-1/backward or M6/forward certified earnings specifications;
+- the §2.8.3a earnings-domain predicate and its realized-2014 state maps;
+- the §2.8.2g marital risk-set guard and seed-at-domain-entry law;
+- amendment 3h's schedule-versus-live-roster materialization distinction and
+  absent-parent guard;
+- `SCHEDULED_ENTRIES_KEY`, its frame/year/ID contract, and the existing 2017/2019
+  PSID opener schedule;
+- the eight-member `PeriodModules` order, existing module RNG streams, original-
+  person ordinals, synthetic-ID allocator semantics, and period trace;
+- M6's current statement that immigrant/open-panel additions are report-only;
+- M7 trust-fund accounting, M8 rules execution, and any PolicyEngine-US legal
+  eligibility rule; and
+- every source or artifact outside the immigration binding manifest.
+
+An entrant adapter may call unchanged core code, but it must do so under an
+entrant-domain label and separate report/gate surface. It may not alter the
+closed-panel input or score and call the resulting difference “immigration.”
+
+## 9. Candidate-blind implementation and certification order
+
+A later implementation should proceed in this order:
+
+1. Referee resolves O1–O6 and ratifies the external-binding schema.
+2. Acquisition PR commits/hash-binds exact source bytes and parsers; the zero-
+   argument binding factory passes independently of any candidate.
+3. Donor-build PR constructs only training artifacts and synthetic fixtures;
+   holdout outcomes remain sealed.
+4. Floors PR freezes the surface, creates truth-vs-truth floors, prunes unsupported
+   cells, and runs the operating-characteristic pause check.
+5. Schedule/state PR implements the deterministic builder, seam adapter, complete
+   state packet, failure guards, and report-only open-population run without
+   changing the M6 closed-panel score.
+6. A registered `gate_imm` candidate is scored once against the locked surface.
+7. If PASS is verified and ratified, the lock names exact source, derived, floor,
+   code and schedule-protocol hashes.
+8. Emigration and current-vintage refit designs run their own ceremonies before
+   any net-population or benefit certification claim.
+
+No stage reads a later stage's candidate outcomes to redesign an earlier frozen
+surface.
+
+## 10. Referee citation ledger
+
+- **DYNASIM4**: Cosic, Johnson, and Smith, *Urban's Dynamic Simulation of Income
+  Model 4* (Urban Institute, September 2024), pp. 1–2. Detailed donor mechanics
+  are not public in that overview.
+- **DYNASIM3 detail, not DYNASIM4**: Favreault, Smith, and Johnson, *The Dynamic
+  Simulation of Income Model (DYNASIM): An Overview* (Urban Institute, September
+  2015), Table 1, report p. 7.
+- **MINT**: Smith et al., *Modeling Income in the Near Term Version 6* (Urban
+  Institute, December 2010), ch. II §VI, pp. II-24–II-28, Tables 2-14–2-16; Smith
+  and Favreault, *Modeling Income in the Near Term 8 and 2014: Primer* (Urban
+  Institute, April 2019), pp. 15–16, note 21 p. 29, Table 3 pp. 39–40.
+- **PENSIM/PENSIM2**: Holmer, Janney, and Cohen, *PENSIM Overview* (2006),
+  §2.1.6 p. 8, Appendix B §§B.1.2–B.1.4 pp. 100–101 and §§B.7–B.8 pp. 106–107;
+  O'Donoghue, Redway, and Lennon, “Simulating migration in the Pensim2 dynamic
+  microsimulation model,” *International Journal of Microsimulation* 3(2), 2010,
+  Table 2, §§5.1–5.2.
+- **SSA methods/current controls**: Duleep and Dowhan, “Adding Immigrants to
+  Microsimulation Models” and “Incorporating Immigrant Flows into
+  Microsimulation Models,” *Social Security Bulletin* 68(1), 2008; *2026 OASDI
+  Trustees Report*, §V.A.3 and Table V.A2.
+- **Microdata**: Census 2010–2014 ACS 5-year PUMS dictionary/accuracy statement;
+  Census 2014 ASEC technical documentation; Census 2014 SIPP Wave 1 metadata and
+  source/accuracy statement. Exact variables and pages are pinned in §2.2 and
+  §6.2.
+- **Projection corridors**: Census, *Methodology, Assumptions, and Inputs for the
+  2023 National Population Projections* (November 2023), migration pp. 8–14, and
+  Alternative Scenarios Table 1.
+
+## 11. Design parameters and amendment history
+
+```json immigration-design-parameters
+{
+  "design_id": "2026-07-15-immigration-module",
+  "revision": 1,
+  "status": "design_draft_referee_pending",
+  "engine_baseline": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
+  "roadmap_issue": 113,
+  "docs_only": true,
+  "certifies_now": [],
+  "information_boundaries": {
+    "inherited_m6_T_star": 2014,
+    "trustees_2026_role": "versioned forward assumption and report-only alignment; never gate-estimation evidence",
+    "realized_post_T_star_nawi_on_scored_path": "prohibited"
+  },
+  "entry_seam": {
+    "metadata_key": "m6_scheduled_entries_by_year",
+    "definition_pin": "src/populace_dynamics/engine/loop.py:27",
+    "contract_pin": "src/populace_dynamics/engine/loop.py:192-257",
+    "frame_year": "entry_year - 1",
+    "activation": "top of period before mortality",
+    "new_period_module": false,
+    "ids_preassigned": true,
+    "synthetic_allocator_start": "max(initial and all scheduled person_id) + 1"
+  },
+  "provisional_adjudications": {
+    "cohort_control": "gross new-person inflow after an explicit Social-Security-area-to-resident bridge",
+    "status_adjustment": "aggregate reclassification; not an entrant and not assigned to persons",
+    "emigration": "outside entry-builder v1; mandatory successor before net-alignment claim",
+    "assignment": "recent-arrival ACS joint donor units plus model-based calibration; no cloned future",
+    "runtime": "schedule built once per scenario and reused across K engine draws",
+    "legal_status_dynamics": "out of scope",
+    "current_entry_only_outputs": "report_only"
+  },
+  "external_bindings": [
+    {
+      "id": "ssa_tr2026_v_a2_intermediate",
+      "source": "2026 OASDI Trustees Report, section V.A.3, Table V.A2",
+      "vintage": "assumptions set February 2026; report released June 2026",
+      "role": "gross-entry control candidate and net reconciliation",
+      "status": "report_only_until_universe_bridge_and_exit_law"
+    },
+    {
+      "id": "ssa_tr2026_v_a2_sensitivity",
+      "source": "2026 OASDI Trustees Report, Table V.A2 low-cost/high-cost",
+      "vintage": "2026",
+      "role": "scenario sensitivity",
+      "status": "report_only"
+    },
+    {
+      "id": "ssa_area_to_census_resident_bridge",
+      "source": "unbound",
+      "vintage": "unbound",
+      "role": "population-universe bridge",
+      "status": "blocking_for_resident_alignment"
+    },
+    {
+      "id": "acs_pums_2010_2014_recent_arrivals",
+      "source": "Census 2010-2014 ACS 5-year PUMS person file, dictionary, and accuracy statement",
+      "vintage": "observations 2010-2014; published January 2016",
+      "role": "fit 2010-2013; hold out 2014",
+      "status": "proposed_gate_binding_pending_O6"
+    },
+    {
+      "id": "cps_asec_2014_foreign_born",
+      "source": "Census 2014 ASEC public-use file and technical documentation",
+      "vintage": "2014",
+      "role": "marginal triangulation",
+      "status": "report_only_pending_traditional_or_redesign_choice"
+    },
+    {
+      "id": "sipp_2014_wave1_entry_state",
+      "source": "Census 2014 SIPP Wave 1 public-use file, metadata v2, and source/accuracy statement",
+      "vintage": "2013 reference year; 2014 interviews",
+      "role": "joint-state and initializer diagnostics",
+      "status": "report_only"
+    },
+    {
+      "id": "census_np2023_nim_corridors",
+      "source": "Census 2023 National Population Projections, Alternative Scenarios Table 1",
+      "vintage": "November 2023",
+      "role": "main/high/low/zero net-international-migration corridors",
+      "status": "report_only"
+    },
+    {
+      "id": "m6_projected_wage_index",
+      "source": "existing M6 <=2014 NAWI-derived I_proj binding",
+      "vintage": "realized through 2014; projected thereafter",
+      "role": "entrant earnings normalization",
+      "status": "reuse_without_certificate_transfer"
+    },
+    {
+      "id": "emigration_duration_hazard",
+      "source": "unbound",
+      "vintage": "unbound",
+      "role": "allocate aggregate outflow controls to roster-present people",
+      "status": "blocking_for_explicit_exit_and_net_alignment"
+    }
+  ],
+  "gate_imm": {
+    "exists_now": false,
+    "estimand": "held-out ACS recent-arrival resident-stock characteristic reproduction",
+    "fit_collection_years": [2010, 2011, 2012, 2013],
+    "holdout_collection_years": [2014],
+    "count_alignment_gated": false,
+    "floors_before_thresholds": true,
+    "operating_characteristic_before_lock": true,
+    "downstream_life_course_certified": false
+  },
+  "hardest_open_decisions": [
+    "O1: gross entrants plus separate exits versus entry-only report-only v1 or a named net-entry proxy, including the SSA-area-to-resident bridge",
+    "O4: person versus co-arrival-family simulation units, relationship closure, and common versus person weights",
+    "O5: atomic downstream state/history packet and entrant-specific post-entry earnings, disability, marital, and household laws"
+  ],
+  "certified_surfaces_untouched": [
+    "gate_m6 registry, thresholds, floors, hashes, and closed-panel support",
+    "candidate-16 marital core",
+    "candidate-9 household composition object",
+    "M4 disability reproduction object",
+    "certified earnings specifications and section 2.8.3a domain",
+    "section 2.8.2g marital domain law",
+    "amendment 3h live-roster materialization law",
+    "PeriodModules order and ProjectionRNGRegistry",
+    "SCHEDULED_ENTRIES_KEY contract and existing PSID openers",
+    "M7 trust-fund accounting and M8 rules execution"
+  ],
+  "amendment_history": [
+    {
+      "revision": 1,
+      "date": "2026-07-15",
+      "kind": "initial_docs_only_design",
+      "changes": [
+        "bind immigration activation to the existing scheduled-entry seam",
+        "separate gross entry controls from outflows, status adjustments, and net reconciliation",
+        "select donor-based entry state provisionally while prohibiting cloned futures",
+        "define the EntrantStateBundle and no-certificate-transfer boundary",
+        "propose floors-first gate_imm and enumerate external bindings and open referee decisions"
+      ]
+    }
+  ]
+}
+```
