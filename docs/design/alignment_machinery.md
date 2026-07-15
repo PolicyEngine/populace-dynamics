@@ -35,12 +35,12 @@ continues to report
 margin continues to report
 `unresolved_reason = "pre_named_margin_absent_from_ratified_spec"`
 (`src/populace_dynamics/harness/m6_reporting.py:37-38,418-459`). Nothing here
-supplies a re-drawn state, chooses that margin, or creates the decision-5
+supplies a re-drawn state, chooses that margin, or creates the M6 decision-5
 successor gate.
 
 ### 1.2 Mode separation is law
 
-Decision 9 is not reopened:
+M6 decision 9 is not reopened:
 
 > “**Alignment layer report-only; gate the un-aligned drift — ACCEPTED,** plus the
 > per-run **maximum alignment displacement** published as a reported (not gated)
@@ -277,6 +277,25 @@ layer” in `src/populace_dynamics/engine/assembly.py:1-8` names the existing
 native-panel adapter; the external target reconciler designed here is a distinct
 production wrapper around freshly assembled modules.
 
+The word “wrapper” names that production entry point; it does not choose who owns
+the seams. Section 8 decision 9 must select either (a) optional reconciliation and
+frozen-identity-registry hook parameters on the existing eight-step loop, reachable
+only through a production facade, or (b) a parallel production-only loop that
+orchestrates the same module callables in the same order. The first concentrates
+orchestration but changes the certified loop's extension surface; the second leaves
+that loop byte-identical but must prevent the two orchestrations from drifting.
+
+Gate isolation is structural in either architecture. The gate runner calls an
+unaligned-only facade with a closed request schema and allow-listed metadata. That
+request cannot express a target bundle, alignment specification, reconciliation
+hook registry, or frozen replay registry, and its return type cannot represent an
+aligned result. The aligned producer implementation remains outside the gate
+runner's import closure. CI enforces the boundary with dependency and signature
+checks, rejection of unknown alignment-bearing metadata, and a fixed-fixture check
+that canonical gate artifacts are byte-identical when the aligned producer is
+importable but uncalled and when its import is deliberately blocked. A runtime
+`alignment_enabled = false` flag alone is not structural isolation.
+
 The ordinary engine remains the eight-step loop in
 `src/populace_dynamics/engine/loop.py:268-321`. The wrapper does not add a ninth
 certified module or change that order. It captures a step's pre-state, raw
@@ -353,7 +372,8 @@ back to person selection when that would orphan a relationship.
 The scalar prefix rule cannot align an atomic family independently in several
 age-sex cells: one selected family contributes a vector of member weights to those
 cells. Multi-cell linked-unit migration therefore requires a separately registered
-joint vector objective, optimizer, and deterministic tie rule. Decision 2 leaves
+joint vector objective, optimizer, and deterministic tie rule. Section 8 decision 2
+leaves
 that mechanism open, so the producer cannot activate family/household migration by
 running independent prefixes that would split or double-count the unit.
 
@@ -380,7 +400,7 @@ prospective birth order without a second draw; fertility remains `not_available`
 until it does. The current earnings interface returns a continuous draw, not a
 covered-work participation probability and uniform
 (`src/populace_dynamics/engine/steps.py:169-287`); covered-work selection likewise
-remains unavailable until decision 3 pins a lawful score.
+remains unavailable until §8 decision 3 pins a lawful score.
 
 ### 4.3 Continuous covered-wage ratio
 
@@ -486,7 +506,7 @@ After mortality or emigration, the producer must validate spouse, parent-child,
 household, cached marital, and cached composition references before the next
 consumer. It may apply only a separately ratified dependent-state rule; it cannot
 clear or invent relationships opportunistically. A margin whose roster change
-would leave unresolved dependent state is unavailable pending decision 8.
+would leave unresolved dependent state is unavailable pending §8 decision 8.
 
 ## 5. Displacement accounting and publication
 
@@ -797,13 +817,22 @@ a gate-path change.
    spouse, parent-child, household, marital-core, and household-composition state,
    including amendment 3h's flagged removed-spouse case, without rewriting a
    certified scoring schedule.
+9. **Seam ownership and structural gate isolation.** Choose hooks in the existing
+   loop behind the unaligned-only facade or a parallel production-wrapper loop.
+   Name the owner of every reconciliation seam and frozen-identity-registry handoff,
+   and pin how orchestration drift is prevented. Ratify the closed gate request and
+   metadata schemas, production-module import boundary, dependency/signature
+   checks, and byte-identical present-versus-import-blocked gate-artifact check
+   required by §4.1.
 
 ## 9. What this does not change
 
 This design does not:
 
-- edit the eight-step engine loop, assembly law, current gate runner, gate
-  configuration, threshold, holdout floor, one-shot rule, or certification claim;
+- choose or implement either seam-ownership architecture in §8 decision 9; this
+  docs-only change does not edit the eight-step engine loop, assembly law, current
+  gate runner, gate configuration, threshold, holdout floor, one-shot rule, or
+  certification claim;
 - change the M6 decision that the gate scores the unaligned projection;
 - replace or alter `build_alignment_displacement`; it supplies the missing lawful
   `after` producer and exact-key inputs around the existing function;
