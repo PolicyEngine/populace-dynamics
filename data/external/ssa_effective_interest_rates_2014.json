@@ -1,0 +1,213 @@
+{
+  "schema_version": "ssa_effective_interest_rates.v1",
+  "series": "Effective Interest Rates Earned By the Assets of the OASI and DI Trust Funds",
+  "table": "Effective Interest Rates Earned By the Assets of the OASI and DI Trust Funds",
+  "unit": "percent",
+  "rate_basis": "estimated_effective_rate_earned_by_assets",
+  "interpretation_note": "SSA's estimated effective interest rate earned by trust-fund assets; distinct from the inflation-adjusted ultimate real interest assumption in 2014 Trustees Report Table II.C1.",
+  "vintage_year": 2014,
+  "source_capture_date": "2014-12-20T03:49:23Z",
+  "latest_observation_year": 2013,
+  "provenance": {
+    "source": "Social Security Administration, Office of the Chief Actuary",
+    "source_url": "https://www.ssa.gov/oact/ProgData/effectiveRates.html",
+    "source_file": "data/external/ssa_effective_interest_rates_2014.source.html",
+    "source_sha256": "867704b8e479adcee9a7047e762848fe9f50df22028f6a80657ad8bf683550f7",
+    "source_capture_date": "2014-12-20T03:49:23Z",
+    "retrieval_date": "2026-07-15T21:23:09Z",
+    "fetch_method": "Exact SSA HTTP 200 response body recovered from the Common Crawl CC-MAIN-2014-52 WARC capture dated 2014-12-20T03:49:23Z after direct browser-header curl to ssa.gov returned HTTP 403. The response-body SHA-1 was verified against WARC-Payload-Digest sha1:YJ2IJWUUVP6EPTXTSWJNZ4QI6P4ULVJL; this extractor verifies the committed body's sha256 before parsing.",
+    "table_of_record": "Effective Interest Rates Earned By the Assets of the OASI and DI Trust Funds",
+    "archive_warc_payload_digest": "sha1:YJ2IJWUUVP6EPTXTSWJNZ4QI6P4ULVJL",
+    "vintage_note": "The contemporaneous December 2014 source ends at calendar year 2013. The live page now contains post-boundary rows; those rows are intentionally absent from this source and artifact."
+  },
+  "validation": {
+    "first_observation_year": 1980,
+    "latest_observation_year": 2013,
+    "n_observations": 34,
+    "expected_headers": [
+      "Calendar year",
+      "OASI",
+      "DI",
+      "OASDI"
+    ],
+    "continuous_calendar_years": true
+  },
+  "build": {
+    "built_by": "scripts/extract_ssa_effective_interest_rates_2014.py",
+    "source_file": "data/external/ssa_effective_interest_rates_2014.source.html",
+    "source_sha256": "867704b8e479adcee9a7047e762848fe9f50df22028f6a80657ad8bf683550f7",
+    "reproducible": "parsed deterministically from the committed, sha256-verified HTML source; no network or wall-clock timestamp is used"
+  },
+  "data": {
+    "1980": {
+      "oasi": 8.5,
+      "di": 8.8,
+      "oasdi": 8.6
+    },
+    "1981": {
+      "oasi": 9.9,
+      "di": 10.1,
+      "oasdi": 9.9
+    },
+    "1982": {
+      "oasi": 10.9,
+      "di": 11.9,
+      "oasdi": 11.2
+    },
+    "1983": {
+      "oasi": 10.9,
+      "di": 10.4,
+      "oasdi": 10.8
+    },
+    "1984": {
+      "oasi": 11.8,
+      "di": 10.7,
+      "oasdi": 11.6
+    },
+    "1985": {
+      "oasi": 11.3,
+      "di": 10.6,
+      "oasdi": 11.2
+    },
+    "1986": {
+      "oasi": 11.3,
+      "di": 10.1,
+      "oasdi": 11.1
+    },
+    "1987": {
+      "oasi": 10.1,
+      "di": 9.7,
+      "oasdi": 10.1
+    },
+    "1988": {
+      "oasi": 9.8,
+      "di": 9.6,
+      "oasdi": 9.8
+    },
+    "1989": {
+      "oasi": 9.6,
+      "di": 9.6,
+      "oasdi": 9.6
+    },
+    "1990": {
+      "oasi": 9.3,
+      "di": 9.4,
+      "oasdi": 9.3
+    },
+    "1991": {
+      "oasi": 9.1,
+      "di": 9.2,
+      "oasdi": 9.1
+    },
+    "1992": {
+      "oasi": 8.7,
+      "di": 8.9,
+      "oasdi": 8.7
+    },
+    "1993": {
+      "oasi": 8.3,
+      "di": 8.6,
+      "oasdi": 8.3
+    },
+    "1994": {
+      "oasi": 8.0,
+      "di": 8.2,
+      "oasdi": 8.0
+    },
+    "1995": {
+      "oasi": 7.9,
+      "di": 7.4,
+      "oasdi": 7.8
+    },
+    "1996": {
+      "oasi": 7.7,
+      "di": 6.9,
+      "oasdi": 7.6
+    },
+    "1997": {
+      "oasi": 7.6,
+      "di": 7.0,
+      "oasdi": 7.5
+    },
+    "1998": {
+      "oasi": 7.3,
+      "di": 6.8,
+      "oasdi": 7.2
+    },
+    "1999": {
+      "oasi": 7.0,
+      "di": 6.6,
+      "oasdi": 6.9
+    },
+    "2000": {
+      "oasi": 6.9,
+      "di": 6.6,
+      "oasdi": 6.9
+    },
+    "2001": {
+      "oasi": 6.7,
+      "di": 6.5,
+      "oasdi": 6.6
+    },
+    "2002": {
+      "oasi": 6.4,
+      "di": 6.3,
+      "oasdi": 6.4
+    },
+    "2003": {
+      "oasi": 6.0,
+      "di": 5.9,
+      "oasdi": 6.0
+    },
+    "2004": {
+      "oasi": 5.7,
+      "di": 5.7,
+      "oasdi": 5.7
+    },
+    "2005": {
+      "oasi": 5.4,
+      "di": 5.5,
+      "oasdi": 5.5
+    },
+    "2006": {
+      "oasi": 5.3,
+      "di": 5.4,
+      "oasdi": 5.3
+    },
+    "2007": {
+      "oasi": 5.2,
+      "di": 5.3,
+      "oasdi": 5.3
+    },
+    "2008": {
+      "oasi": 5.1,
+      "di": 5.2,
+      "oasdi": 5.1
+    },
+    "2009": {
+      "oasi": 4.8,
+      "di": 5.0,
+      "oasdi": 4.9
+    },
+    "2010": {
+      "oasi": 4.6,
+      "di": 4.9,
+      "oasdi": 4.6
+    },
+    "2011": {
+      "oasi": 4.4,
+      "di": 4.8,
+      "oasdi": 4.4
+    },
+    "2012": {
+      "oasi": 4.1,
+      "di": 4.7,
+      "oasdi": 4.1
+    },
+    "2013": {
+      "oasi": 3.8,
+      "di": 4.5,
+      "oasdi": 3.8
+    }
+  }
+}
