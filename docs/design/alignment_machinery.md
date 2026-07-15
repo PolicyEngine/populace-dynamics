@@ -242,9 +242,10 @@ Every target carries its universe and measurement definition:
   District of Columbia. The target bundle must publish the bridge to the
   production roster; it cannot silently call the two populations equal
   ([SSA 2026 long-range model documentation, Demography p. 2](https://www.ssa.gov/oact/TR/2026/2026_LR_Model_Documentation.pdf)).
-- V.A2's lawful-permanent-resident adjustment-of-status inflow is an offsetting
-  outflow from the temporary/unlawfully present category. Counting both as entry
-  would create people who do not exist in the SSA total.
+- V.A2's positive lawful-permanent-resident adjustment-of-status amount is the
+  offsetting negative amount in the temporary/unlawfully present category. It is a
+  legal-status transfer; counting either side as roster entry or exit would add or
+  remove people who do not move into or out of the SSA total.
 - IV.B4 counts anyone with covered earnings at any time during a calendar year.
   [V.B2's employment and unemployment concepts use average-week CPS measures](https://www.ssa.gov/OACT/TR/2026/V_C_prog.html).
   They cannot share a column or target.
@@ -363,28 +364,29 @@ before that margin's selection.
 
 For a linked unit, `unit_weight` is reported once and the outcome applies atomically
 to every required member. The bundle must separately register each member's person
-weight and the unit's target contribution. Net-entry candidates use a pinned donor
-pool and donor-distance tier in place of a model event probability; within a tier,
-the dedicated alignment key supplies the order. The bundle must name whether the
-unit is a person, maternal event, couple, family, or household. It may not fall
-back to person selection when that would orphan a relationship.
+weight and the unit's target contribution. Migration-addition candidates use a
+pinned donor pool and donor-distance tier in place of a model event probability;
+within a tier, the dedicated alignment key supplies the order. The bundle must name
+whether the unit is a person, maternal event, couple, family, or household. It may
+not fall back to person selection when that would orphan a relationship.
 
 The scalar prefix rule cannot align an atomic family independently in several
 age-sex cells: one selected family contributes a vector of member weights to those
 cells. Multi-cell linked-unit migration therefore requires a separately registered
-joint vector objective, optimizer, and deterministic tie rule. Section 8 decision 2
-leaves
-that mechanism open, so the producer cannot activate family/household migration by
-running independent prefixes that would split or double-count the unit.
+joint vector objective, optimizer, and deterministic tie rule. §8 decision 2
+leaves that mechanism open, so the producer cannot activate family/household
+migration by running independent prefixes that would split or double-count the
+unit.
 
 The positive-prefix schema applies to one-sided events. Migration uses separately
 targeted addition and removal prefixes. V.A2 supplies the gross inflow and outflow
 columns needed to bind those branches at year × published category; its offsetting
-adjustments of status are category transfers, not roster events. The producer may
-not discard those source-bound gross targets and reconstruct branches from total
-net change alone. Activation remains blocked on §8 decision 2 because the age-sex
-and roster bridges, candidate-unit and donor rules, within-category flow semantics,
-and linked-unit vector objective are not ratified.
+adjustments of status are category transfers, not roster-addition or roster-removal
+events. The producer may not discard those source-bound gross targets and
+reconstruct branches from total net change alone. Activation remains blocked on
+§8 decision 2 because the age-sex and roster bridges, candidate-unit and donor
+rules, within-category flow semantics, and linked-unit vector objective are not
+ratified.
 
 The implementation must expose the complete eligible candidate ledger, not only
 raw positive events. Otherwise it could remove excess events but could not add a
