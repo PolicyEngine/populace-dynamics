@@ -315,6 +315,141 @@ def test_marital_core_appends_certified_change_points_and_durations():
     assert events.loc[2016, "years_since_dissolution"] == 1
 
 
+def _minor_marital_inputs(
+    *,
+    birth_year: float,
+    anchor_wave: int,
+    censor_year: float,
+    entry_state: str = "never_married",
+    entry_duration: object = pd.NA,
+    minor_person_id: int = 20,
+) -> PanelBuilderInputs:
+    """Amendment 3g fixture: a born-1980 bulk control (id 10, anchored 2015)
+    plus one sub-START_AGE-at-anchor person (``minor_person_id``).
+
+    The minor's certified marital ``person_years`` begin at
+    ``birth_year + START_AGE`` (the risk-set entry), so an ``anchor_wave``
+    below that has no certified row at the anchor -- the reg-5 crash class the
+    born-1980-1982 ``_marital_source`` fixtures lack.  ``entry_state`` /
+    ``entry_duration`` set the certified entry row so a test can prove the
+    builder *reads* that row rather than assuming ``never_married``.
+    """
+    start_exposure = birth_year + transitions.START_AGE
+    attrs = pd.DataFrame(
+        {
+            "person_id": [10, minor_person_id],
+            "sex": ["male", "female"],
+            "birth_year": [1980.0, birth_year],
+            "most_recent_report_year": [2023.0, censor_year],
+            "n_marriages": [0.0, 0.0],
+            "death_year": pd.array([pd.NA, pd.NA], dtype="Int64"),
+            "censor_year": [2023.0, censor_year],
+            "weight": [10.0, 20.0],
+            "start_exposure_year": [1995.0, start_exposure],
+        }
+    )
+    person_years = transitions._person_years_frame(attrs)
+    person_years["marital_state"] = "never_married"
+    person_years["marriage_duration"] = pd.array(
+        [pd.NA] * len(person_years), dtype="Int64"
+    )
+    person_years["years_since_dissolution"] = pd.array(
+        [pd.NA] * len(person_years), dtype="Int64"
+    )
+    entry_row = (person_years["person_id"] == minor_person_id) & (
+        person_years["year"] == start_exposure
+    )
+    person_years.loc[entry_row, "marital_state"] = entry_state
+    if entry_duration is not pd.NA:
+        person_years.loc[entry_row, "marriage_duration"] = entry_duration
+    source = transitions.MaritalPanel(
+        person_years=person_years,
+        events=_events_schema(),
+        attrs=attrs,
+    )
+    anchor = pd.DataFrame(
+        {
+            "person_id": [10, minor_person_id],
+            "weight": [10.0, 20.0],
+            "anchor_wave": [2015, anchor_wave],
+        }
+    )
+    return PanelBuilderInputs(
+        anchor=anchor,
+        marital=source,
+        household=_household_source(),
+        cohabitation=pd.DataFrame(
+            {"person_id": [10], "year": [2015], "cohabiting": [True]}
+        ),
+    )
+
+
+def test_marital_builder_seeds_sub_start_age_person_at_marital_entry():
+    # Person 20: born 2001, anchored 2015 -> birth + START_AGE = 2016 > 2015.
+    # Pre-3g the builder overrode start_exposure := 2015 and raised (no
+    # certified person_years row at 2015).  The 3g clamp
+    # max(anchor_wave, birth + START_AGE) seeds them at 2016 instead.
+    inputs = _minor_marital_inputs(
+        birth_year=2001.0, anchor_wave=2015, censor_year=2023.0
+    )
+
+    panel, holdout_ids = marital_panel_builder(
+        pd.DataFrame(), _context(inputs)
+    )
+
+    assert 20 in holdout_ids
+    seeded = panel.attrs.set_index("person_id")
+    assert seeded.loc[20, "start_exposure_year"] == 2016.0
+    minor_py = panel.person_years[panel.person_years["person_id"] == 20]
+    assert minor_py["year"].tolist() == [2016]
+    assert minor_py["marital_state"].tolist() == ["never_married"]
+    # The born-1980 bulk control still seeds at its own anchor wave, unmoved.
+    assert 10 in holdout_ids
+    assert seeded.loc[10, "start_exposure_year"] == 2015.0
+
+
+def test_marital_builder_drops_born_2008_minor_by_censor_filter():
+    # Person 20: born 2008, anchored 2015 -> birth + START_AGE = 2023.  The
+    # clamp sets start_exposure = 2023, which exceeds the 2022-clipped censor,
+    # so the existing start_exposure <= censor filter drops them (they never
+    # reach START_AGE within the projection horizon).  Neither seeded nor held.
+    inputs = _minor_marital_inputs(
+        birth_year=2008.0, anchor_wave=2015, censor_year=2023.0
+    )
+
+    panel, holdout_ids = marital_panel_builder(
+        pd.DataFrame(), _context(inputs)
+    )
+
+    assert holdout_ids == {10}
+    assert 20 not in panel.attrs["person_id"].tolist()
+    assert panel.person_years[panel.person_years["person_id"] == 20].empty
+
+
+def test_marital_builder_reads_certified_married_entry_row_for_minor():
+    # N3 discrimination: the builder READS the certified entry row -- it does
+    # not assume never_married.  A sub-START_AGE-at-anchor person whose
+    # certified entry row at birth + START_AGE is *married* must be seeded
+    # married (with its duration), which an assumed-constant seed would miss.
+    inputs = _minor_marital_inputs(
+        birth_year=2001.0,
+        anchor_wave=2015,
+        censor_year=2023.0,
+        entry_state="married",
+        entry_duration=3,
+    )
+
+    panel, holdout_ids = marital_panel_builder(
+        pd.DataFrame(), _context(inputs)
+    )
+
+    assert 20 in holdout_ids
+    minor_py = panel.person_years[panel.person_years["person_id"] == 20]
+    assert minor_py["year"].tolist() == [2016]
+    assert minor_py["marital_state"].tolist() == ["married"]
+    assert minor_py["marriage_duration"].tolist() == [3]
+
+
 def test_household_builder_uses_realized_support_and_anchor_state_only():
     inputs = _inputs()
     panel, holdout_ids = household_panel_builder(
