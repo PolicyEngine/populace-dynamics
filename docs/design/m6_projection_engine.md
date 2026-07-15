@@ -1554,10 +1554,14 @@ global fitted namespace/domain `{5, 6}`, selected side `{5}`, and one maternal
 birth. Current code allocates child ID `6` and raises `earnings_domain marker
 disagrees with fitted 2014 state`; the patch must allocate strictly above `6`,
 complete, and normalize the newborn to `earnings_domain=False`, `earnings=0`.
-Retain the `{5}`-only no-alias control and assert that each side/draw receives a
-fresh allocator; within each projection the IDs are unique and disjoint from the
-reserved global **real-person** namespace. Independent sides/draws may reuse the
-same synthetic integers because their projection rosters are never combined.
+Retain the `{5}`-only no-alias control. A second union tripwire adds real ID `9`
+to the full anchor (or one person-keyed fitted map) **outside** the domain and the
+selected side; the child must then allocate strictly above `9`, proving the lower
+bound is the maximum of the full reserved union—not merely the domain maximum.
+Assert that each side/draw receives a fresh allocator; within each projection the
+IDs are unique and disjoint from the reserved global **real-person** namespace.
+Independent sides/draws may reuse the same synthetic integers because their
+projection rosters are never combined.
 
 *F7 — self-check integrity: split first, then intersect.* Gate membership is
 assigned on the full anchor and only then intersected with the earnings domain
@@ -1668,7 +1672,8 @@ post-ceremony patch is one review unit containing **exactly F1 + F2 + F7 + F3**:
   `M6RealizedPopulation.projection_metadata`, and inject a fresh globally bounded
   allocator into each `ProjectionEngine.project` call. Keep the global earnings
   adapter and its validator unchanged. Add the real-engine alias/control fixture
-  to `tests/test_m6_engine_loop.py` (with earnings-domain assertions).
+  plus the higher non-domain-reserved-ID union tripwire to
+  `tests/test_m6_engine_loop.py` (with earnings-domain assertions).
 - **F7:** replace the `domain_anchor` split in
   `recompute_domain_earnings_floor` with full-anchor split then per-half domain
   intersection. Add the membership + mean/SD/OC reference tripwire to
