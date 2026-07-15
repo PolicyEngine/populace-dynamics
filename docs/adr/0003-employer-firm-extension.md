@@ -188,6 +188,15 @@ review finding 3):
 - `src/populace_dynamics/firms/banding.py` is the single canonical
   banding implementation; workstream A trains to it. Changing a band
   edge after the freeze requires a joint PR touching this ADR.
+- **Cross-workstream pushes carry an approval norm.** Both
+  workstreams push directly to each other's branches when useful
+  (reader fixes, rebases, contract-text corrections — this has run
+  in both directions and worked). The norm the freeze makes
+  explicit: a change that touches contract semantics (C1 columns,
+  C2 bands/codings, gate definitions) requires the *other*
+  workstream owner's approval on the PR even when the commit was
+  pushed directly, so pre-registration always records who decided,
+  not just who typed.
 - The committed target extracts (`data/external/susb_us_*`,
   `bds_us_*`, `qwi_us_*`, `j2j_us_*`; provenance in
   `data/external/employer_firm_target_sources.md`) are external
