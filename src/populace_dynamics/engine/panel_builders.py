@@ -184,7 +184,18 @@ def marital_panel_builder(
     attrs["censor_year"] = clipped_censor.astype(
         source.attrs["censor_year"].dtype
     )
-    attrs["start_exposure_year"] = attrs["anchor_wave"].astype(
+    # Amendment 3g (§2.8.2g): clamp the projected seed wave to the certified
+    # marital risk-set entry.  For the bulk (anchor_wave >= birth+START_AGE)
+    # this is anchor_wave, byte-unchanged; for the sub-START_AGE-at-anchor
+    # class (anchor_wave < birth+START_AGE) it is birth_year + START_AGE, the
+    # certified person_years entry the read below (:200-205) finds by
+    # construction.  Reads only existing attrs columns; the truth side is
+    # untouched, so the frozen floors stay byte-identical.
+    clamped_start = np.maximum(
+        attrs["anchor_wave"].to_numpy(dtype=np.float64),
+        attrs["birth_year"].to_numpy(dtype=np.float64) + transitions.START_AGE,
+    )
+    attrs["start_exposure_year"] = clamped_start.astype(
         source.attrs["start_exposure_year"].dtype
     )
     attrs["weight"] = attrs["weight_anchor"].astype(

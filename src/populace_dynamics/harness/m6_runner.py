@@ -129,9 +129,20 @@ PHASE_ORDER = (
 # refit all cleared -- but pre-flight 1 fired its designed abort because the
 # injected candidate-9 arm carried no maternal fertility line; graded
 # 4973798460, root-caused in forensics 4973982118 and fixed by the pre-flight-1
-# fertility-wiring patch).  Useful lineage, but none can authorize a scored run.
+# fertility-wiring patch), and the fifth registration (every prior failure layer
+# cleared, but the run FAILED TO EXECUTE in the seed-1 scoring projection -- the
+# marital builder found no certified entry row at anchor for the
+# sub-START_AGE-at-anchor class; graded 4979269487, root-caused in forensics
+# 4979437110 and closed by amendment 3g).  Useful lineage, but none can
+# authorize a scored run.
 _KNOWN_STALE_REGISTRATIONS = frozenset(
-    {"4962640241", "4967241464", "4971244215", "4973199058"}
+    {
+        "4962640241",
+        "4967241464",
+        "4971244215",
+        "4973199058",
+        "4976428384",
+    }
 )
 _REGISTRATION = re.compile(
     r"^(?:[0-9]{7,}|https://github\.com/[^/]+/[^/]+/issues/42"
