@@ -1,9 +1,15 @@
 # ADR 0003: Employer-firm extension — C1 spell schema and C2 canonical firm-size banding
 
-**Status:** Proposed (week-1 freeze candidate for the interface
-contracts on
-[populace-dynamics#192](https://github.com/PolicyEngine/populace-dynamics/issues/192);
-changed only by joint PR between workstreams A and B once frozen)
+**Status:** Accepted — C1 and C2 frozen 2026-07-15. From this
+point the contracts change only by joint PR between workstreams A
+and B ([populace-dynamics#192](https://github.com/PolicyEngine/populace-dynamics/issues/192)).
+
+**Sign-off:** @vahid-ahmadi (Workstream B, author) ·
+@daphnehanse11 (Workstream A) — recorded by the merge of the freeze
+PR, whose approvals from both workstream owners constitute the
+joint sign-off. First scheduled amendment (pre-registered above):
+the C1 ``hours_band``/monthly-hours column once phase-1 establishes
+SIPP's supportable hours granularity.
 
 ## Context
 
