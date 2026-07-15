@@ -3,7 +3,7 @@
 - **Design id**: `2026-07-15-immigration-module`
 - **Roadmap**: [#113](https://github.com/PolicyEngine/populace-dynamics/issues/113),
   M6 immigration entry cohorts and the versioned Trustees alignment layer.
-- **Status**: DESIGN DRAFT (revision 1; adversarial-referee adjudication pending).
+- **Status**: DESIGN DRAFT (revision 2; adversarial-referee adjudication pending).
   No immigration surface is certified by this document.
 - **Engine baseline**: `75d30dd57d71b91ee0929246b2f3cbb92263b350`.
   File:line pins refer to that tree unless a different source is named.
@@ -16,6 +16,13 @@
 
 ## Revision log (finding → section)
 
+- Revision 2 incorporates the pre-PR adversarial review: it distinguishes the
+  ACS survivor/stayer stock proxy from state at arrival; treats prior U.S.
+  covered earnings as censored for possible return entrants; adds fertility,
+  claiming, flow-to-stock, and stock-to-arrival blockers; composes immigrant IDs
+  with the existing 2017/2019 schedule; guards caller-supplied allocators; and
+  requires entrant RNG isolation before any byte-identity claim → §2.2–2.4,
+  §3.1–3.4, §4.1–4.11, §5, §6, O2/O5/O9–O13.
 - Dormant-generator finding: the engine already owns an entrant seam, but there
   is no immigration schedule generator → §3.1, §4.
 - Net-is-not-entry finding: the 2026 Trustees component table distinguishes
@@ -41,12 +48,16 @@ the top of its period.
 The proposed design makes four provisional choices, all reviewable by the
 referee:
 
-1. Size literal entrant cohorts from **gross new-person inflows**, not from net
-   migration. In the 2026 Trustees table, adjustment of status is a
-   reclassification and is not a new person.
-2. Use recent-arrival ACS donor units for the joint entry state. Estimation
-   creates a versioned donor artifact; the runtime schedule is deterministic
-   conditional on that artifact, a binding manifest, and a schedule seed.
+1. Use the positive inflow components of the 2026 Trustees stock accounting, not
+   net migration, as the candidate size control. In that table, adjustment of
+   status is a reclassification and not a new person. The temporary/unlawfully
+   present inflow counts only people who remain to year-end, so it is not a count
+   of every border arrival.
+2. Use recent-arrival ACS donor units for a joint **resident survivor/stayer
+   stock proxy**. A separately estimated stock-to-arrival bridge must backcast or
+   otherwise map that proxy before it can be called entry-time state. The runtime
+   schedule is deterministic conditional on the frozen artifacts, binding
+   manifest, and schedule seed.
 3. Copy donor information only through entry. Post-entry outcomes come from
    named populace-dynamics laws; no donor's future is cloned.
 4. Keep emigration outside the entry builder. Therefore entry-only v1 is
@@ -54,10 +65,11 @@ referee:
    A separately designed exit law is mandatory before that claim can be made.
 
 The fourth choice is intentionally costly but honest. Substituting total net
-change for actual entrants would create a reduced-form residual cohort whose age,
+change for a positive entrant control would create a reduced-form residual cohort whose age,
 family, earnings, and nativity composition has no literal interpretation. In
 2026, it would also replace 1.340 million gross arrivals with 0.130 million
-residual persons. That alternative remains an explicit referee decision, not a
+residual persons. The 1.340 million itself is an SSA stock-accounting inflow,
+not all physical arrivals during the year. That alternative remains an explicit referee decision, not a
 silent implementation shortcut.
 
 ## 1. Scope and non-goals
@@ -97,9 +109,11 @@ V1 specifies:
 - a proposed additive `gate_imm` for entrant characteristics; and
 - report-only reconciliation to SSA and Census population projections.
 
-The design covers people whose latest entry places them in the United States for
-the modeled spell. It does not assert that a survey's latest year-of-entry answer
-identifies a first migration, a legal admission, or continuous U.S. residence.
+The design covers people whose **reported year of entry** places them in the
+recent-arrival proxy for the modeled spell. ACS interviewers request the most
+recent entry from repeat entrants, but mail/self responses can be first or most
+recent; the public item therefore does not establish a first migration, legal
+admission, or continuous U.S. residence.
 
 ### 1.3 Non-goals
 
@@ -132,8 +146,8 @@ weights, or a fabricated negative entrant cohort would confound distinct events.
 This is a component boundary, not a declaration that emigration is unimportant.
 MINT, DYNASIM, PENSIM, and PENSIM2 all provide evidence that literal entrant
 modeling and population alignment require exits. Until a separate exit design is
-ratified, v1 may certify only entry-time characteristics conditional on a gross
-inflow control. Every stock, dependency ratio, benefit total, and net-migration
+ratified, v1 may certify only the named recent-arrival stock-proxy characteristics
+conditional on a positive inflow control. Every stock, dependency ratio, benefit total, and net-migration
 reconciliation remains report-only.
 
 ## 2. Evidence and adjudication
@@ -142,11 +156,11 @@ reconciliation remains report-only.
 
 | Model/source | Cohort count and exits | Entrant state | Transportable lesson |
 |---|---|---|---|
-| DYNASIM4 | The 2024 overview says immigration adds people, immigration and emigration are separate, and immigration is aligned to OACT targets (Cosic, Johnson, and Smith, *[Urban's Dynamic Simulation of Income Model 4](https://www.urban.org/sites/default/files/2024-09/Urban%E2%80%99s%20Dynamic%20Simulation%20of%20Income%20Model%204.pdf)*, pp. 1–2). | The public 2024 overview does not document a detailed donor algorithm. | Cite DYNASIM4 only for separate flows and OACT alignment; do not attribute undocumented donor mechanics to it. |
+| DYNASIM4 | The 2024 overview says immigration adds people, lists immigration and emigration separately, and says immigration is aligned to OACT targets (Cosic, Johnson, and Smith, *[Urban's Dynamic Simulation of Income Model 4](https://www.urban.org/sites/default/files/2024-09/Urban%E2%80%99s%20Dynamic%20Simulation%20of%20Income%20Model%204.pdf)*, pp. 1–2). | The public 2024 overview does not document a detailed donor algorithm. | Cite DYNASIM4 only for the listed flows and OACT alignment; do not attribute undocumented separation or donor mechanics to it. |
 | DYNASIM3 detail | Table 1 of Favreault, Smith, and Johnson, *[The Dynamic Simulation of Income Model (DYNASIM): An Overview](https://www.urban.org/sites/default/files/publication/67366/2000391-The-Dynamic-Simulation-of-Income-Model-DYNASIM-%20An-Overview.pdf)* (2015), p. 7, uses OACT/Dowhan-Duleep targets by sex, age at entry, and source region, and a separate SSA-data emigration hazard using entry age and origin. | The same table says observed post-1980 immigrants' life histories are donors. | Donor histories plus distinct exit hazards are a useful precedent, but this report describes DYNASIM3 and cannot establish DYNASIM4's detailed implementation. |
-| MINT6/MINT8 | MINT6 derived gross flows from OACT net targets and an emigration hazard; MINT8 uses projected gross legal and other-than-legal entries and models emigration separately (Smith et al., *[Modeling Income in the Near Term Version 6](https://www.urban.org/sites/default/files/publication/24986/412479-Modeling-Income-in-the-Near-Term-Version-.PDF)*, ch. II §VI, pp. II-24–II-28; Smith and Favreault, *[MINT8 and 2014: Primer](https://www.urban.org/sites/default/files/publication/100965/modeling_income_in_the_near_term_8_and_2014_primer.pdf)*, pp. 15–16, note 21 p. 29, Table 3 pp. 39–40). | MINT6 uses post-1990 SIPP immigrants to initialize sex, immigration age, source region, marital history/status, financial assets, and employment at arrival. It then runs ordinary post-entry modules. | Copy a coherent entry packet, never a donor's future. An initializer and the later transition laws are separate estimands. |
+| MINT6/MINT8 | MINT6 derived gross flows from OACT net targets and an emigration hazard; MINT8 uses projected gross legal and other-than-legal entries and models emigration separately (Smith et al., *[Modeling Income in the Near Term Version 6](https://www.urban.org/sites/default/files/publication/24986/412479-Modeling-Income-in-the-Near-Term-Version-.PDF)*, ch. II §VI, pp. II-24–II-28; Smith and Favreault, *[Modeling Income in the Near Term 8 and 2014: Primer](https://www.urban.org/sites/default/files/publication/100965/modeling_income_in_the_near_term_8_and_2014_primer.pdf)*, pp. 15–16, note 21 p. 29, Table 3 pp. 39–40). | MINT6 uses post-1990 SIPP immigrants to initialize sex, immigration age, source region, marital history/status, financial assets, and employment at arrival. It then runs ordinary post-entry modules. | Copy a coherent entry packet, never a donor's future. An initializer and the later transition laws are separate estimands. |
 | PENSIM | *[PENSIM Overview](https://www.retirementplanblog.com/wp-content/uploads/sites/304/2006/10/overview.pdf)* (Holmer, Janney, and Cohen, 2006), §2.1.6 p. 8, combines SSASIM/Trustees net immigration with native- and foreign-born emigration assumptions to derive gross flows; Appendix B §§B.1.2–B.1.4 pp. 100–101 schedules entry and exit from a life synthesized at birth. | A person's whole pre-entry life exists before the immigration event. | Whole-life synthesis avoids missing histories, but is not portable to a roster that materializes a person at entry. The needed analogue is an explicit entry-state packet. |
-| PENSIM2 | O'Donoghue, Redway, and Lennon, *[Simulating migration in the Pensim2 dynamic microsimulation model](https://www.microsimulation.pub/articles/00039)* (2010), §5.1 and Figure 3, disaggregates ONS net controls into gross immigration and emigration. | §5.2 samples immigrant **families** from the 2003 Labour Force Survey and calibrates person totals; Table 2 contrasts cloning and synthetic approaches. | Preserve joint family state and distinguish the control unit from the donor/simulation unit. Net-only migration can bias population structure (§3 and §4). |
+| PENSIM2 | O'Donoghue, Redway, and Lennon, *[Simulating migration in the Pensim2 dynamic microsimulation model](https://www.microsimulation.pub/articles/00039)* (2010), §5.1 and Figure 3, disaggregates ONS net controls into gross immigration and emigration. | §3 discusses synthetic generation versus cloning and Table 2 inventories model components; §5.2 samples immigrant **families** from the 2003 Labour Force Survey and calibrates person totals. | Preserve joint family state and distinguish the control unit from the donor/simulation unit. Net-only migration can bias population structure (§3 and §4). |
 
 MINT is the closest architectural analogue. Earlier MINT versions cloned a
 donor's later trajectory, but MINT6 “modifies this approach markedly”: donor
@@ -171,15 +185,15 @@ emigration cannot be ignored.
 
 | Source | Exact public support | V1 role | Binding limitation |
 |---|---|---|---|
-| ACS PUMS | Census, *[2010–2014 ACS 5-year PUMS Data Dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* (Jan. 14, 2016): `SERIALNO`, `PWGTP`, `AGEP`, `CIT`, disability items, `MAR`, `SCHL`, `SEX`, `WAGP`, dual `YOEP05`/`YOEP12`, `NATIVITY`, `PINCP`, and place of birth; the *[Accuracy of the Data](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010_2014AccuracyPUMS.pdf)*, §3 pp. 5–7 and §4 p. 8, defines the pooled sample and dual-variable rule. | Primary joint-state donor and gate truth, weighted by `PWGTP` with replicate-weight uncertainty. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. `YOEP` is the latest entry, and `WAGP` covers the prior 12 months, possibly including pre-entry months. The 2016 publication date versus `T*=2014` is an open admissibility decision (§6.2, decision O6). |
-| CPS ASEC | Census, *[2014 Annual Social and Economic Supplement Technical Documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14R.pdf)*: demographics p. 65; six disability items pp. 68–69; `PENATVTY`, grouped `PEINUSYR`, `PRCITSHP`, `MARSUPWT` p. 69; wage/salary and earnings pp. 77, 83. | Report-only marginal and earnings triangulation. | Smaller civilian-noninstitutional sample; grouped entry years; survey-date demographics versus prior-calendar-year income; 2014 Traditional and Redesign files must never be silently combined. |
+| ACS PUMS | Census, *[2010–2014 ACS 5-year PUMS Data Dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* (Jan. 14, 2016): `SERIALNO`, `PWGTP`, `AGEP`, `CIT`, disability items, `MAR`, `RELP`, `SCHL`, `SEX`, `WAGP`, dual `YOEP05`/`YOEP12`, `NATIVITY`, `PINCP`, and dual place-of-birth fields; the *[Accuracy of the Data](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010_2014AccuracyPUMS.pdf)*, §3 pp. 5–7 and §4 p. 8, defines the pooled sample and dual-variable rule. The *[2014 ACS Subject Definitions](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2014_ACSSubjectDefinitions.pdf)*, “Year of Entry,” pp. 128–129, documents the response concept and ambiguity. | Primary joint-stock donor and gate truth, weighted by `PWGTP` with replicate-weight uncertainty. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. Interviewers request the most recent entry, but unclarified/mail answers can be first or most recent. `WAGP` covers the prior 12 months, possibly including pre-entry months. `RELP` identifies relationship to the reference person, not arbitrary relationship pointers. The 2016 publication date versus `T*=2014` is decision O6. |
+| CPS ASEC | Census, *[2014 Traditional ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14.pdf)* or *[2014 Redesigned ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14R.pdf)*: the cited Redesigned layout has demographics p. 65; six disability items pp. 68–69; `PENATVTY`, grouped `PEINUSYR`, `PRCITSHP`, `MARSUPWT` p. 69; wage/salary and earnings pp. 77, 83. | Report-only marginal and earnings triangulation. | Smaller civilian noninstitutional universe plus Armed Forces members living in civilian housing; grouped entry years; survey-date demographics versus prior-calendar-year income. Traditional and Redesign files must never be silently combined. |
 | SIPP | Census, *[2014 SIPP Metadata, all sections v2](https://www2.census.gov/programs-surveys/sipp/tech-documentation/data-dictionaries/2014/w1/2014SIPP_Metadata_AllSections_v2.pdf)*: `WPFINWGT` p. 9; marital status p. 23; age p. 30; nativity/citizenship pp. 35–37; grouped `TYRENTRY` and entry-status item `TIMSTAT` pp. 38–39; education p. 42; sex p. 43; disability p. 1368; monthly earnings p. 2766. | Report-only joint-state and initializer plausibility check. | Wave 1 covers the 2013 reference year and a civilian-noninstitutional universe. Later waves miss newly arrived immigrant-only households. `TIMSTAT` is neither a legal-history panel nor authority to model status and is excluded from v1 state. |
 
 The ACS donor predicate is named, not implied:
 
 ```text
 foreign_born == true
-and 0 <= survey_year - latest_year_of_entry <= recent_arrival_max_duration
+and 0 <= survey_year - reported_year_of_entry <= recent_arrival_max_duration
 ```
 
 `survey_year` is decoded from `SERIALNO`; the correct `YOEP05`/`YOEP12`
@@ -188,6 +202,12 @@ year window, but the exact duration and fallback hierarchy remain decision O3.
 The extractor must bind allocation-flag treatment, top/bottom-code treatment,
 group-quarters policy, dual classifications, replicate weights, and the use of
 `ADJINC` before any artifact can be certified.
+
+This predicate defines a resident **stock proxy**, not entry-time truth. Education,
+marriage, disability, employment, earnings, survival, and residence may all
+change between reported entry and interview. Directly copying that state onto an
+entry-year row is only a named report-only initializer. A literal arrival-state
+claim requires the separately bound stock-to-arrival bridge in §6.2/O11.
 
 ### 2.3 Donor-based versus model-based assignment
 
@@ -203,6 +223,8 @@ passing marginal cells would not establish a coherent person or family packet.
   trimming, allocation-flag policy, and calibration loss are fitted/versioned;
 - survey concepts are mapped to named entrant concepts with missing/unsupported
   states rejected rather than guessed;
+- an explicit duration/backcast and survivor/stayer selection law maps the ACS
+  stock proxy to arrival state, or the result stays labeled `stock_proxy`;
 - a SIPP history donor, if used, is a second named imputation with its own joint-
   fidelity diagnostics;
 - future outcomes are never present in the donor artifact; and
@@ -214,8 +236,10 @@ surface and floors. Lower marginal error alone is insufficient.
 
 ### 2.4 Gross inflow, net change, and status adjustment
 
-The current control candidate is the *2026 OASDI Trustees Report*, §V.A.3 and
-[Table V.A2, “Immigration Assumptions, Calendar Years 1940–2100”](https://www.ssa.gov/oact/TR/2026/lr5a2.html).
+The current control candidate is *The 2026 Annual Report of the Board of Trustees
+of the Federal Old-Age and Survivors Insurance and Federal Disability Insurance
+Trust Funds*, §V.A.3, released June 9, 2026, and the [Supplemental Single-Year
+Table V.A2, “Immigration Assumptions, Calendar Years 1940–2100”](https://www.ssa.gov/oact/TR/2026/lr5a2.html).
 The assumptions were set in February 2026. Table V.A2 carries, separately, LPR
 new-arrival inflow, LPR/citizen outflow, adjustment to LPR status, LPR net change,
 temporary-or-unlawfully-present inflow, outflow, the offsetting status adjustment,
@@ -225,9 +249,9 @@ For intermediate 2026, in thousands:
 
 | Component | Persons (thousands) | Entry-seam meaning |
 |---|---:|---|
-| LPR new-arrival inflow | 600 | New-person inflow |
-| Temporary/unlawfully present inflow | 740 | New-person inflow |
-| **Gross new-person inflow** | **1,340** | Candidate entry-cohort total |
+| LPR new-arrival inflow | 600 | SSA stock-accounting new-person inflow |
+| Temporary/unlawfully present inflow | 740 | SSA stock-accounting new-person inflow, conditioned on remaining to year-end |
+| **Positive SSA inflow components** | **1,340** | Candidate entry-control proxy, not every physical arrival |
 | LPR/citizen outflow | 263 | Exit, never an entrant |
 | Temporary/unlawfully present outflow | 947 | Exit, never an entrant |
 | Adjustment to LPR status | 450 in each stock, opposite signs | Internal reclassification; not a new person |
@@ -237,6 +261,11 @@ The 75-year intermediate average total net change is 1.138 million, but Table
 V.A2 is annual and materially non-flat; the annual component values, not the
 average or ultimate constant, are the binding shape. Components may differ by
 rounding.
+
+For the temporary/unlawfully present stock, “inflow” counts people who enter the
+Social Security-area population and remain through the end of the year. Thus the
+positive sum is neither a border-admissions series nor an unselected gross-arrival
+flow.
 
 The table's universe is the Social Security area, not the Census resident
 population. The report's glossary includes residents of U.S. territories,
@@ -265,8 +294,10 @@ The baseline contract is exact:
   `year == entry_year - 1` (`engine/loop.py:192-211`).
 - Every scheduled `person_id` is pre-supplied, globally unique across the initial
   slice and all cohorts (`engine/loop.py:213-221`).
-- The dynamic synthetic-ID allocator starts above the maximum initial or
-  scheduled ID (`engine/loop.py:222-228`).
+- If metadata does not already supply one, the dynamic synthetic-ID allocator is
+  created above the maximum initial or scheduled ID (`engine/loop.py:222-228`).
+  Because the code uses `setdefault`, a caller-supplied allocator is only
+  type-checked at `engine/loop.py:225-233`; v1 must separately range-check it.
 - Stable person RNG ordinals are preassigned over the complete initial-plus-
   scheduled ID universe before period 1 (`engine/loop.py:234-237`).
 - At entry year, the frame is concatenated and stably sorted at the very top of
@@ -282,6 +313,13 @@ already publishes later PSID openers through the same key
 **immigration/new-entrant generator and its state packet**, not a generic engine
 entry mechanism.
 
+The immigration builder must **compose with**, not replace, that existing mapping.
+For each shared year it schema-reconciles and concatenates the unchanged PSID
+opener frame with the immigrant frame, then validates one prior-year coordinate
+and global ID uniqueness. It allocates immigrant IDs above the maximum of the
+initial IDs **and every pre-existing scheduled ID**. Because all new IDs are above
+that union, existing-person and existing-opener sorted ordinals remain unchanged.
+
 ### 3.2 Consequences for timing, IDs, and RNG
 
 An entry frame is a pre-period state. Mortality sees it first
@@ -293,16 +331,22 @@ settle whether an annual gross immigrant inflow should receive a full-year,
 half-year, or no domestic mortality exposure in its entry year.
 
 V1 therefore requires a named `entry_timing_basis` and a pre/post-aging age
-identity check. Decision O2 must settle the convention before implementation;
-the builder may not hide an age shift inside donor extraction. Whatever is
-chosen, the schedule frame must use the seam's `year = entry_year - 1` contract.
+identity check. The unchanged adapters implement only a full mortality draw at
+the scheduled age followed by unconditional `age += 1`; they cannot express a
+fractional exposure, defer aging, or output a target-year age-zero immigrant
+without an entrant-aware wrapper. Decision O2 must choose that feasible existing
+convention or authorize a separately scoped wrapper inside the mortality/aging
+slots. The builder may not hide an age shift or age `-1` inside donor extraction,
+and every choice retains the seam's `year = entry_year - 1` contract.
 
 IDs are assigned outside the loop in deterministic order. They must be finite
-integers, greater than every starting-population ID, collision-free across all
-years, and invariant to row order. These conditions preserve every original
-person's sorted-ID ordinal. The loop then places the newborn allocator above all
-scheduled IDs, so entrant IDs cannot collide with later births. No existing M6
-module stream is consumed to construct the schedule.
+integers, greater than every starting-population **or pre-existing scheduled** ID,
+collision-free across all years, and invariant to row order. These conditions
+preserve every original and PSID-opener sorted-ID ordinal. Projection metadata
+must omit a pre-supplied synthetic allocator, or assert its mutable `next_id` is
+strictly above the combined maximum before period 1; otherwise the loop does not
+protect births from collision. No existing M6 module stream is consumed to
+construct the schedule.
 
 ### 3.3 Amendment 3h: live-roster materialization
 
@@ -312,17 +356,18 @@ and draft [PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216).
 This sibling design adopts its domain law as a dependency while accurately
 describing its pending merge status:
 
-> Scheduled open-addition events may materialize a related person only when the
-> required parent/person is present in the live post-mortality roster. The
-> frame-independent risk schedule may remain the scoring universe; absent-parent
-> events are dropped after the draw and reconciled report-only so RNG addresses
-> do not shift.
+> A scheduled maternal birth may materialize a child only when the mother is
+> present in the live post-mortality roster. The frame-independent risk schedule
+> may remain the scoring universe; absent-mother events are dropped after the draw
+> and reconciled report-only so RNG addresses do not shift.
 
-Entrants are roster-present when their own rows are activated. Their later
-marriages, births, household links, and exits must still obey live-roster
-materialization. A donor packet may not create a spouse, child, or other relation
-whose person row is absent, and it may not weaken the existing birth-parent guard
-at `engine/steps.py:409-414`.
+Entrants are roster-present when their own rows are activated, and their later
+maternal births obey this exact 3h law. V1 separately proposes a broader
+**immigration relationship-closure invariant**: a donor packet may not materialize
+a linked spouse, child, or other person whose row is absent. That new invariant
+is analogous to, but not certified by, 3h; becoming `married` in the marital core
+does not itself materialize a spouse person. Neither law may weaken the existing
+birth-parent guard at `engine/steps.py:409-414`.
 
 ### 3.4 Why an entry row is not an initialized person
 
@@ -341,9 +386,11 @@ projection once per draw:
 - earnings initialization runs only on the original initial slice
   (`engine/assembly.py:239-250`; `engine/loop.py:180-185`).
 
-Worse, `_merge_period_columns` drops existing state columns before left-merging
-the cached update (`engine/assembly.py:174-192`). An immigrant absent from that
-update receives missing state even if the scheduled row carried a seed value.
+When a cached update has rows for the current year, `_merge_period_columns` drops
+existing state columns before left-merging it (`engine/assembly.py:174-192`). An
+immigrant absent from that nonempty update receives missing state even if the
+scheduled row carried a seed value; only a wholly empty year returns the frame
+unchanged.
 The later PSID openers work because their realized support is known to the
 whole-window builders in advance. An unknown synthetic immigrant has no such
 support.
@@ -384,9 +431,9 @@ The design separates source estimation, scenario binding, schedule realization,
 and period activation:
 
 ```text
-ACS <=T* records ──fit──> ImmigrationDonorArtifact ─┐
-                                                    ├─> ImmigrationScheduleBuilder
-SSA annual components ──bind──> BindingManifest ───┘              │
+ACS <=T* records ──fit──> ImmigrationDonorArtifact ─> ArrivalStateBridge ─┐
+                                                                          ├─> ImmigrationScheduleBuilder
+SSA annual components ──bind──> BindingManifest ─────────────────────────┘              │
                                                                   ├─> entry frames
 SIPP/CPS ──diagnostics only───────────────────────────────────────┤
                                                                   ├─> EntrantStateBundle
@@ -402,6 +449,8 @@ The conceptual products are:
   annual flow controls, universe labels, and scenario identity;
 - **`ImmigrationDonorArtifact`**: a fitted pool of recent-arrival person or family
   units, matching cells, fallback hierarchy, concept mappings, and provenance;
+- **`ArrivalStateBridge`**: an estimated duration/backcast and selection law, or
+  an explicit `stock_proxy` identity label that prohibits an arrival-state claim;
 - **`EntrantStateBundle`**: the entry frame plus module-native initial state and
   exposure objects for the same people;
 - **`ImmigrationSchedule`**: `entries_by_year`, the state bundle, deterministic
@@ -409,8 +458,9 @@ The conceptual products are:
 - **`ImmigrationAudit`**: cohort totals, donor support, calibration residuals,
   universe caveats, dropped/unsupported units, hashes, and certification labels.
 
-`ImmigrationSchedule.entries_by_year` is the only product sent to
-`SCHEDULED_ENTRIES_KEY`. The state bundle is consumed by explicit entrant-side
+The builder merges `ImmigrationSchedule.entries_by_year` with the pre-existing
+mapping and sends that single combined mapping to `SCHEDULED_ENTRIES_KEY`; it
+never overwrites the PSID opener frames. The state bundle is consumed by explicit entrant-side
 builders/adapters assembled before projection. There is no entrant event draw in
 the annual engine loop.
 
@@ -424,6 +474,8 @@ The campaign's estimation/determinism split is binding:
 - donor unit, matching variables, and fallback order;
 - sampling/calibration loss and weight trimming;
 - any ACS→SIPP joint-history imputation;
+- the stock-to-arrival duration/selection bridge, return-entry treatment, and
+  fertility/parity and prior-coverage mappings;
 - any entrant-specific earnings or disability initializer; and
 - every evaluation floor and eventual gate threshold.
 
@@ -448,7 +500,7 @@ process-error draws.
 For Trustees calendar year `y`, define the unbridged new-person control
 
 ```text
-G_ssa[y] = 1,000 * (
+G_ssa_stock[y] = 1,000 * (
     V_A2_intermediate[y].lpr_new_arrival_inflow
     + V_A2_intermediate[y].temporary_or_unlawfully_present_inflow
 )
@@ -458,9 +510,10 @@ Adjustment of status is excluded because the same person moves between the two
 Trustees stocks. Outflows are excluded because they are exit events. The
 intermediate total-net column is retained as `N_ssa[y]` for reconciliation only.
 
-`G_ssa` is not yet a usable resident-population cohort. Production construction
+`G_ssa_stock` is not yet a usable resident-population cohort. It includes the
+temporary/unlawfully present end-of-year-stayer condition. Production construction
 requires an adjudicated, vintage-pinned bridge
-`G_resident[y] = bridge(G_ssa[y])` between the Social Security-area and ACS
+`G_resident_entry_proxy[y] = bridge(G_ssa_stock[y])` between the Social Security-area stock accounting and ACS
 resident universes. Until decision O1 supplies that bridge, the builder must
 either hard-stop or produce an explicitly named `ssa_area_proxy` schedule whose
 entire projection is report-only. It may not silently set the bridge to identity
@@ -491,10 +544,12 @@ people, while the state to preserve may be a family. V1's provisional unit is a
 **co-resident co-arrival unit**, not a claimed historical travel party:
 
 1. Start with a PUMS household (`SERIALNO`).
-2. Select foreign-born recent-arrival people with the same latest-year-of-entry
+2. Select foreign-born recent-arrival people with the same reported-year-of-entry
    classification.
-3. Preserve spouse/partner and parent/minor-child links only when both endpoints
-   are in that selected set.
+3. Preserve only links unambiguously resolvable from the historical PUMS `RELP`
+   relationship-to-reference-person field (for example, the reference person's
+   spouse and children) when both endpoints are selected. Arbitrary spouse/parent
+   pointers are unavailable and remain unresolved.
 4. Assign a new `arrival_unit_id`; never expose `SERIALNO` as a synthetic person
    or household identifier.
 
@@ -522,12 +577,17 @@ The fitted donor artifact preserves, at minimum:
 - race and Hispanic-origin fields only where a downstream/reporting contract
   already has a defined concept;
 - marital status/history fields available at the survey date;
-- co-resident relationship structure and unit size;
+- reference-person relationship structure resolvable from `RELP`, unresolved-
+  relation markers, and unit size;
 - ACS disability-question indicators, without relabeling them DI status;
 - employment, weeks/hours where available, wage/salary earnings, self-employment
   earnings, and zero-earnings status; and
-- survey year, latest year of entry, observed duration, allocation flags, donor
+- survey year, reported year of entry, observed duration, allocation flags, donor
   weight, and all concept-map provenance.
+
+These are **interview-date stock characteristics**. They become entry-time
+characteristics only after the `ArrivalStateBridge`; an identity bridge must be
+named `stock_proxy` and is report-only.
 
 The default matching ladder begins with sex × broad age-at-entry × source region
 and then uses education and family state when support permits, consistent with
@@ -556,17 +616,35 @@ any stochastic calibration use named `purpose_tag` values so adding one draw doe
 not shift another purpose's addresses.
 
 After the full schedule is realized, IDs are allocated in stable order
-`(entry_year, unit_slot, member_slot)` beginning above the maximum initial
-`person_id`. The builder stores the allocation ledger and verifies global
-uniqueness before calling the engine. Arrival-unit and household IDs use their
-own namespaces and may not alias person IDs.
+`(entry_year, unit_slot, member_slot)` beginning above the maximum `person_id`
+across the initial population **and the full pre-existing schedule**. The builder
+stores the allocation ledger, merges same-year frames without changing their
+existing rows, and verifies global uniqueness before calling the engine.
+Arrival-unit and household IDs use their own namespaces and may not alias person
+IDs.
+
+The metadata adapter omits `synthetic_id_allocator` so the loop creates it from
+the combined universe. If another caller requires a supplied allocator, the
+adapter asserts `allocator.next_id > max(combined_person_ids)` before period 1;
+the loop's type check alone is insufficient.
 
 Changing a source vintage, donor artifact, recent-arrival definition, or schedule
 seed creates a new schedule identity. The design does not promise entrant or
 newborn byte identity across such scenarios. It does promise that, within one
 schedule, pre-supplying entrant IDs above the initial maximum leaves every
 original person's sorted-ID ordinal unchanged and lets the engine place its
-dynamic allocator above every scheduled entrant.
+dynamic allocator above every scheduled entrant only under the preceding
+metadata guard.
+
+Downstream RNG needs a separate isolation law. C16, fertility, and candidate-9
+consume shared ordered generators, so merely adding entrants to their panels can
+shift existing-person draws even though person ordinals are stable. A composite
+adapter must run the baseline closed support in its original order with its
+original generators, run entrant-only transitions under named disjoint
+draw×period×person namespaces, and return one authoritative partitioned marital
+result to the existing fertility/household reader slots. Any cross-domain
+marriage or household reconciliation that can change baseline people is a
+distinct report-only open-market product; it makes no byte-identity claim.
 
 ### 4.7 Entry-frame schema and hard invariants
 
@@ -576,8 +654,8 @@ Every scheduled entry frame contains these conceptual groups:
 |---|---|
 | Engine | `person_id`, `year`, `age`, `sex`, `weight` |
 | Entry identity | `synthetic_entry = true`, `entry_kind = "immigration"`, `entry_year`, `arrival_unit_id`, `foreign_born = true` |
-| Timing | `entry_timing_basis`, `age_timing_basis`, `years_since_entry = 0` |
-| Provenance | binding-manifest ID/hash, donor-artifact ID/hash, schedule ID/seed, donor-cell and fallback code |
+| Timing | `entry_timing_basis`, `age_timing_basis`, `reported_year_of_entry`, `entry_year`; `years_since_entry` is derived, not stored as mutable state |
+| Provenance | binding-manifest ID/hash, donor-artifact and arrival-state-bridge ID/hash, schedule ID/seed, donor-cell and fallback code |
 | Static/donor state | education, source region, marital/family seed, employment/earnings seed, disability-concept seed, household seed |
 | Domain markers | `earnings_domain = false` and named entrant-domain flags for every composite adapter |
 
@@ -590,7 +668,7 @@ Before engine invocation the builder hard-checks:
 - each frame has exactly `year = entry_year - 1`;
 - pre/post-aging age identities match decision O2;
 - person IDs are finite integers, globally unique, and greater than the initial
-  maximum;
+  and every pre-existing scheduled maximum;
 - all relation endpoints are either scheduled no later than the relation's
   materialization year or explicitly marked outside-roster;
 - weights are finite, positive, and reconcile at person and unit level;
@@ -603,6 +681,10 @@ Before engine invocation the builder hard-checks:
 Any failure aborts before period 1. There is no nearest-year, nearest-vintage,
 native-donor, legal-status, or fabricated-history fallback.
 
+Every entrant adapter derives `years_since_entry = context.year - entry_year` at
+read time. `advance_age` does not update that field, so a mutable carried counter
+is prohibited.
+
 ### 4.8 `EntrantStateBundle`
 
 The state bundle is atomic by scheduled person ID and contains:
@@ -613,7 +695,9 @@ The state bundle is atomic by scheduled person ID and contains:
 | `entrant_marital_seed` | Entry state/history, risk-set start year, relation IDs only for roster-present people, and entrant-domain marker. |
 | `entrant_household_seed` | Arrival-unit household links, household state, and entry-year exposure mask. |
 | `entrant_disability_seed` | Survey-concept indicators plus the explicitly estimated mapping to any entrant disability state. |
-| `entrant_earnings_seed` | Entry employment/earnings state, zero pre-entry U.S.-covered history, any entrant-specific lag state, and normalization provenance. |
+| `entrant_fertility_seed` | Prior parity/birth-history state, its source/uncertainty, and an exposure-start rule; absent a bound bridge the entrant is excluded from fertility risk. |
+| `entrant_earnings_seed` | Current-spell entry employment/earnings state, censored/unknown prior U.S.-covered history, any entrant-specific lag state, and normalization provenance. |
+| `entrant_claiming_seed` | `claimed`, `claim_age`, `claim_year`, prior-coverage/insured-status provenance, and an eligibility-domain marker. |
 | `entrant_relationship_roster` | Parent/spouse/child endpoints and the first year each endpoint can materialize. |
 | `entrant_audit` | Donor support, fallback, imputation, weight, universe, and hash records. |
 
@@ -626,9 +710,11 @@ passing marginal checks.
 The packet includes only state through entry and the minimum pre-entry history
 needed to define a downstream covariate. It never contains realized post-entry
 outcomes. Foreign earnings may inform education/occupation matching if a future
-source supports it, but U.S. Social Security covered earnings before modeled
-entry are zero. Return migration is not inferred from a latest-entry response;
-handling prior U.S. coverage is a successor design.
+source supports it. Because reported year of entry does not identify first entry,
+prior U.S. Social Security covered earnings are **unknown/censored**, not zero.
+A separately named first-entry-only scenario may set them to zero only with an
+adjudicated identification rule; otherwise insured-status and benefit outputs are
+suppressed. Return migration and prior coverage are decision O11.
 
 ### 4.9 Downstream module-state contract
 
@@ -637,10 +723,10 @@ handling prior U.S. coverage is a successor design.
 | Mortality | An activated entrant mechanically receives the existing age/sex mortality draw before aging. Decision O2 must define first-year exposure. | Mortality drift is already report-only; applying it to entrants is not newly certified. Emigration may not be encoded as excess mortality. |
 | Aging | The existing deterministic `advance_age` runs unchanged after the prior-year coordinate check. | Plumbing only; the entry-age convention, not the function, is the new law. |
 | Marital core | An entrant-side panel builder supplies one admissible entry seed and risk-set start. A production open-panel adapter may combine markets only in a report-only run. | Candidate-16's PSID certificate does not transfer to immigrants or to cross-domain matching. Closed-panel scored outputs must remain unchanged. |
-| Fertility | Co-arriving children are entrant rows. Children conceived/born after entry use the normal fertility path and amendment-3h live-roster materialization. | No absent donor relative may be materialized. Entrant fertility remains report-only. |
+| Fertility | Co-arriving children are entrant rows but do not reveal all prior births. The current kernel initializes parity to zero (`engine/marital.py:313`), so entrants are excluded from its fertility risk IDs until a bound parity/history seed and entrant-aware kernel exist. Later maternal births then use amendment-3h live-roster materialization. | No parity-zero default and no absent mother. Entrant fertility is blocked/report-only pending O12. |
 | Disability | ACS disability questions and SIPP work-limit/benefit concepts feed a separately estimated entrant initializer/forward law; they are never relabeled as the realized PSID M4 status. | M4 reproduction support and certificate stay unchanged. Entrant disability is a successor-gate surface. |
-| Earnings | Entrants remain `earnings_domain = false`. A separate immigrant-entrant generator owns entry earnings and all later entrant earnings until a future handoff law is designed. It uses zero pre-entry U.S.-covered earnings and a pinned wage normalization. | No fake 2014 earnings, `u_w`, `gen_earn_w2`, or `gen_earn_w4`; the §2.8.3a generator is untouched and its certificate does not transfer. |
-| Claiming | The schedule may be reused as plumbing, but insured status and AIME/PIA must use only simulated U.S.-covered earnings. | Entrant claims and benefits are report-only until earnings/history and eligibility concepts are certified. |
+| Earnings | Entrants remain `earnings_domain = false`. A separate immigrant-entrant generator owns current-spell entry earnings and all later entrant earnings until a future handoff law is designed. Prior U.S.-covered history remains censored unless O11 supplies it. | No fake 2014 earnings, `u_w`, `gen_earn_w2`, or `gen_earn_w4`; the §2.8.3a generator is untouched and its certificate does not transfer. |
+| Claiming | Entrants are excluded by an eligibility-domain adapter unless the state packet resolves prior/current covered quarters and insured status. This is necessary because current `apply_claiming` draws for every person age 50+ without testing insurance, AIME, or PIA (`engine/steps.py:320-378`). | No unconditional claiming draw; entrant claims and benefits are blocked/report-only until O5/O11 and an eligibility gate. |
 | Household composition | An entrant-side native panel starts exposure at entry, carries arrival-unit links, and makes no link to an absent person. | Candidate-9's PSID certificate does not transfer. Open-market effects on existing people are report-only. |
 
 The scored M6 closed-panel run and an open-population production run are distinct
@@ -653,7 +739,7 @@ retroactively change the frozen closed-panel gate or its certificate.
 The v1 audit publishes, by year:
 
 ```text
-gross_entry_control
+ssa_stock_accounting_inflow_control
 scheduled_entry_weight
 trustees_gross_outflow_required
 trustees_status_adjustment_reclassification
@@ -708,7 +794,7 @@ The candidate estimand is narrow:
 > entry-state marginals and named joint distributions at their empirical noise
 > floor?
 
-This is not a gate on external cohort counts: exact agreement with a forced
+This is not a gate on literal arrival-time state or external cohort counts: exact agreement with a forced
 control is tautological. It is not truth for gross arrivals, people who left or
 died before interview, legal status, or post-entry trajectories.
 
@@ -745,24 +831,31 @@ to which no exact-artifact certificate automatically transfers.
 
 The ceremony order is mandatory:
 
-1. Freeze the recent-arrival predicate, donor/simulation unit, concept map,
-   matching ladder, gate cells, metrics, and weighting rules without candidate
-   holdout results.
+1. Using training-only power analysis, freeze the recent-arrival predicate,
+   donor/simulation unit, physical annual sample size, weight caps, calibration
+   constraints, fallback limits, schedule-seed grid and aggregation/conjunction
+   rule, concept map, matching ladder, gate cells, metrics, and weighting rules
+   without candidate holdout results.
 2. Construct a correlation-respecting real-vs-real floor from deterministic,
    household-disjoint splits or survey replicate-weight pseudo-replicates of the
    2014 truth. Never split members of one donor/household unit.
-3. Publish, for every proposed cell, raw person count, raw unit count, weighted
-   effective sample size
-   `n_eff = (sum(w))^2 / sum(w^2)`, denominator, allocation share, top-code share,
-   and the distribution of the chosen distance under truth-vs-truth comparison.
-4. Prune, pool, or demote every cell that fails predeclared support or whose floor
+3. On training-era pseudo-holdouts only, run the complete donor-selection,
+   calibration, fallback, and schedule pipeline across the registered seed grid.
+   Freeze how candidate-pipeline variability combines with the truth-side floor;
+   no favorable single schedule seed can define a PASS.
+4. Publish, for every proposed cell, raw person count, raw unit count, person-
+   weight Kish ESS, cluster/unit-weight ESS, replicate-design variance,
+   denominator, allocation share, top-code share, and both truth-side and
+   pipeline distance distributions. The binding support measure is the most
+   conservative applicable unit/design quantity, not person ESS alone.
+5. Prune, pool, or demote every cell that fails predeclared support or whose floor
    is unstable. Record each demotion; do not widen a threshold to retain it.
-5. Price thresholds from the surviving empirical floors using a predeclared
+6. Price thresholds from the surviving empirical floors using a predeclared
    transform. No numerical tolerance is assumed by this design.
-6. Run an operating-characteristic experiment on the surviving conjunction
+7. Run an operating-characteristic experiment on the surviving conjunction
    using predeclared degraded pseudo-candidates. If power is weak or the gate is
    near-tautological, pause and redesign before any lock.
-7. Only then score the registered candidate and, if it passes, bind the exact
+8. Only then score the registered candidate and, if it passes, bind the exact
    artifacts, floor, registry, code commit, and hashes.
 
 This order is the M6 floors-before-thresholds law. Sparse single-age MINT6 cohorts
@@ -815,8 +908,9 @@ A `gate_imm` PASS could certify only:
   surviving registry named in the lock;
 - reproduction of the named held-out ACS recent-arrival resident-stock
   cross-sections within floor-priced thresholds; and
-- deterministic conversion of that artifact into seam-valid entry frames and a
-  complete entrant-state packet.
+- deterministic conversion of that artifact into seam-valid entry frames and
+  **structural/schema completeness** of the packet fields exercised by the gate.
+  It would not substantively validate latent histories or module-native mappings.
 
 It would not certify gross-flow truth, the Social Security-area→resident bridge,
 emigration, legal status, current-vintage refits, composition through 2100,
@@ -825,8 +919,8 @@ died before interview, any post-entry transition, any interaction with the
 closed population, or any Social Security eligibility/benefit result.
 
 It also would not modify or extend the M6 certificate. Entrants remain family-B
-open additions under `m6_reporting.py:71-73` and its explicit immigrant
-person-row bridge at `m6_reporting.py:104-118` until a later ratified gate says
+open additions under `harness/m6_reporting.py:71-73` and its explicit immigrant
+person-row bridge at `harness/m6_reporting.py:104-118` until a later ratified gate says
 otherwise.
 
 ## 6. External bindings
