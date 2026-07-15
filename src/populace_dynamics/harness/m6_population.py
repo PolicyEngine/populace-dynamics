@@ -20,6 +20,7 @@ from populace_dynamics.engine.support import StartWaveWeightSnapshot
 from populace_dynamics.harness.m6_cells import (
     EARN_ANCHOR_YEAR,
     SEED_WAVE,
+    SEXES,
     build_anchor_frame,
     earnings_frame,
     presence_by_wave,
@@ -150,15 +151,54 @@ def _anchor_rows(
     return selected[["person_id", *columns]]
 
 
+def _person_sex_map(sex_records: pd.DataFrame) -> pd.Series:
+    """Return a ``person_id`` -> coded-sex Series from a death-records frame.
+
+    Person sex is ``ER32000`` from the PSID cross-year individual file, read by
+    :func:`populace_dynamics.data.deaths.read_death_records`.  The demographic
+    panel never carries ``sex`` (§2.8.3f; grading #42 comment 4972045579), so it
+    is joined by ``person_id`` from the death records -- the same canonical
+    attach the certified builders use
+    (:func:`populace_dynamics.data.household_composition.join_demographics`,
+    :func:`populace_dynamics.data.disability.attach_sex`).  Only the two coded
+    sexes are retained and exactly one coded value per person is required; two
+    conflicting coded-sex rows for one person raise.
+    """
+    missing = {"person_id", "sex"} - set(sex_records.columns)
+    if missing:
+        raise ValueError(f"sex source is missing columns {sorted(missing)}")
+    coded = sex_records.loc[
+        sex_records["sex"].isin(SEXES), ["person_id", "sex"]
+    ].drop_duplicates()
+    if coded["person_id"].duplicated().any():
+        conflicting = sorted(
+            int(value)
+            for value in coded.loc[
+                coded["person_id"].duplicated(keep=False), "person_id"
+            ].unique()
+        )
+        raise ValueError(
+            "sex source has conflicting coded sex for persons "
+            f"{conflicting[:10]}"
+        )
+    return coded.set_index("person_id")["sex"].astype("string")
+
+
 def build_realized_population(
     *,
     demographic_panel: pd.DataFrame,
+    death_records: pd.DataFrame,
     earnings_panel: pd.DataFrame,
     disability_panel: disability.DisabilityPanel,
     panel_builder_inputs: PanelBuilderInputs,
     earnings_domain_ids: set[int] | frozenset[int],
 ) -> M6RealizedPopulation:
-    """Build the closed-panel seed and support bases fixed by section 2.8.3."""
+    """Build the closed-panel seed and support bases fixed by section 2.8.3.
+
+    ``death_records`` is the :func:`populace_dynamics.data.deaths.read_death_records`
+    frame; it is the canonical person-constant sex source for the demographic
+    seed (§2.8.3f), since the demographic panel carries no ``sex`` column.
+    """
     anchor = build_anchor_frame(demographic_panel)
     expected_anchor = panel_builder_inputs.anchor[
         ["person_id", "household_id", "weight", "anchor_wave"]
@@ -179,8 +219,16 @@ def build_realized_population(
             f"{sorted(unknown_domain)[:10]}"
         )
 
+    # Person sex is not on the demographic panel; source it canonically from
+    # the death-records individual file (§2.8.3f) and join it by person_id.
+    # Sex is person-constant, so attaching it to every demo row and selecting
+    # the anchor-wave row yields the realized anchor sex.
+    sex_by_person = _person_sex_map(death_records)
+    demographic_with_sex = demographic_panel.assign(
+        sex=demographic_panel["person_id"].map(sex_by_person).astype("string")
+    )
     demographic_seed = _anchor_rows(
-        demographic_panel,
+        demographic_with_sex,
         anchor,
         period_column="period",
         columns=("age", "sex", "interview"),
@@ -188,6 +236,14 @@ def build_realized_population(
     if set(demographic_seed["person_id"]) != holdout_ids:
         raise ValueError(
             "demographic panel does not cover every anchor person"
+        )
+    uncoded = demographic_seed.loc[
+        ~demographic_seed["sex"].isin(SEXES), "person_id"
+    ]
+    if len(uncoded):
+        raise ValueError(
+            "anchor persons have no coded sex in the death-records "
+            f"individual file: {sorted(int(v) for v in uncoded)[:10]}"
         )
     seed = anchor.merge(
         demographic_seed,

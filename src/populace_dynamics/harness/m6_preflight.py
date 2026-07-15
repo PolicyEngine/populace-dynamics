@@ -27,6 +27,7 @@ from populace_dynamics.engine.rng import (
     ProjectionModule,
     ProjectionRNGRegistry,
 )
+from populace_dynamics.engine.steps import simulate_fertility
 
 DRAW_COUNT = 20
 
@@ -88,12 +89,40 @@ def run_candidate9_recertification(
                 0, ProjectionModule.MARITAL_CORE, 1
             ),
         )
+        # Section 2.8.2 pins the injected household core's conditioning
+        # fertility to ``registry.generator(0, FERTILITY)``; the certified
+        # projection honors this at ``engine/assembly.py:394-408``.  Build it
+        # the same way so the injected arm carries the maternal line the
+        # internal reference generates inline through ``ft.simulate`` -- with
+        # ``fertility=None`` the injected arm dropped the entire maternal
+        # line (~24k births/draw) while the internal reference kept it, an
+        # asymmetry that aborted seven household-composition channels at
+        # 7-118x the 3-sigma tolerance (issue #42 forensics 4973982118).
+        #
+        # Argument derivations mirror ``assembly.py`` exactly: ``marital`` is
+        # the injected step-3 state, ``inputs.family`` is the authoritative
+        # candidate-16 fit, ``holdout_ids`` is this universe's train ids, and
+        # ``male_gap`` is ``float(inputs.household.male_gap)`` -- assembly's
+        # ``inputs.male_gap`` is likewise ``float(household_fit.male_gap)``
+        # (assembly.py:150,160).  The pre-flight deliberately does not rebind
+        # the candidate-9 household core to the family fit, so its own fitted
+        # ``male_gap`` is the value the internal reference's paternal shadow
+        # also consumes (``engine/composition.py`` fertility=None branch),
+        # keeping the two arms male_gap-symmetric.
+        household_fertility = simulate_fertility(
+            marital,
+            inputs.family,
+            set(inputs.holdout_ids),
+            float(inputs.household.male_gap),
+            registry.generator(0, ProjectionModule.FERTILITY),
+        )
         _panel, injected_diagnostics = simulate_candidate9_injected(
             inputs.household_panel,
             inputs.household,
             set(inputs.holdout_ids),
             marital,
             composition_rngs_from_registry(registry, 0),
+            fertility=household_fertility,
         )
         _reference_panel, internal_diagnostics = (
             simulate_candidate9_internal_reference(

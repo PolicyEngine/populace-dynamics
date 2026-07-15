@@ -193,19 +193,23 @@ def _validate_codes(
 ) -> pd.Series:
     """Coerce a coded column, enforcing its domain on active rows.
 
-    Inactive job slots are structurally empty (NaN) and exempt. On
-    active rows a value must be NaN (item nonresponse), the missing
-    code, or in ``allowed`` (``None`` means any value >= 0).
+    Inactive job slots are structurally empty (NaN) and exempt via the
+    ``active`` mask. On an active slot the *only* excused non-domain
+    values are the explicit ``-9``/``-999`` sentinels; a blank cell and
+    an unparseable string both coerce to NaN and must NOT be waved
+    through as item nonresponse — they refuse the file, matching the
+    person-column path in :func:`read_sipp_job_months`. (Otherwise a
+    mistyped or corrupt code on an active job would silently map to
+    ``"missing"`` instead of being caught.) ``allowed=None`` accepts any
+    value >= 0.
     """
     values = pd.to_numeric(frame[column], errors="coerce")
+    sentinel = values.isin((allow_missing_code, _MISSING_ID))
     if allowed is None:
-        ok = values.isna() | (values == allow_missing_code) | (values >= 0)
+        domain_ok = values >= 0
     else:
-        ok = (
-            values.isna()
-            | (values == allow_missing_code)
-            | values.isin(sorted(allowed))
-        )
+        domain_ok = values.isin(sorted(allowed))
+    ok = sentinel | domain_ok
     bad = frame[column][active & ~ok]
     if len(bad):
         raise _domain_error(year, column, bad)
@@ -357,6 +361,12 @@ def read_sipp_job_months(
         empsize = _validate_codes(
             year, raw, f"EJB{n}_EMPSIZE", active, _EMPSIZE_CODES
         )
+        # TJB{n}_MSUM has API range 0-9999999 and its ONLY sentinel is
+        # -999 (2022/2023 SIPP variable metadata); -9 is not a valid
+        # value here, unlike the coded slot columns. So the asymmetry is
+        # deliberate: -999 is tolerated (maps to NaN below) and every
+        # other negative — including -9 — refuses. Do not "harmonise"
+        # this to also excuse -9.
         earnings = pd.to_numeric(raw[f"TJB{n}_MSUM"], errors="coerce")
         bad_earn = raw[f"TJB{n}_MSUM"][
             active
@@ -428,6 +438,10 @@ def read_sipp_job_months(
     out["earnings_share"] = np.where(
         known, out["earnings"] / month_totals, np.nan
     )
+    # Top earner per person-month: highest known earnings wins; ties
+    # break to the lowest job_slot (deterministic and arbitrary, like
+    # the mode() tie-break in job_spells). NaN earnings sort last so a
+    # month with only unknown earnings yields no top_earner.
     ranked = out.sort_values(
         ["person_id", "month", "earnings", "job_slot"],
         ascending=[True, True, False, True],
@@ -465,7 +479,8 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
         spell's months).
 
     Raises:
-        ValueError: If ``job_months`` lacks the required columns.
+        ValueError: If ``job_months`` lacks the required columns, or if
+            it spans more than one ``ref_year`` (see below).
     """
     needed = {
         "person_id",
@@ -506,6 +521,25 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
             ]
         )
 
+    # Cross-year spell linkage is undefined in this C1 preview: the
+    # break/run detection, the person-month earnings lookup, and the
+    # spell edges all key on the calendar ``month`` (1-12) alone, so two
+    # different reference years sharing a month would collapse into one
+    # run and mis-count spells. read_sipp_job_months emits a single
+    # ref_year per file, so this only trips when caller-concatenated
+    # multi-year input is passed; refuse it loudly rather than silently
+    # mis-collapse. (To support it, fold ref_year into the sort/break
+    # keys via an absolute ``ref_year * 12 + month`` index and take the
+    # edges from the spell's first/last row.)
+    ref_years = job_months["ref_year"].dropna().unique()
+    if len(ref_years) > 1:
+        raise ValueError(
+            "job_spells received job-months spanning multiple ref_years "
+            f"({sorted(int(y) for y in ref_years)}); cross-year spell "
+            "linkage is undefined in this C1 preview. Collapse one SIPP "
+            "file's months at a time."
+        )
+
     frame = job_months.sort_values(["person_id", "job_id", "month"]).copy()
     frame["_break"] = (
         frame.groupby(["person_id", "job_id"])["month"].diff().ne(1)
@@ -522,6 +556,11 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
     grouped = frame.groupby(["person_id", "job_id", "_run"], sort=True)
     for (person_id, job_id, _), spell in grouped:
         months = spell["month"]
+        # NB: industry and empsize_code carry their raw codes here,
+        # including the -9/-999 sentinels (unlike class_of_worker, which
+        # read_sipp_job_months has already mapped to a "missing" label).
+        # A downstream consumer (firms/banding.py) must expect a sentinel
+        # mixed in with the 1-8 EMPSIZE codes / the industry codes.
         # mode() sorts, so a tie resolves to the smallest value —
         # arbitrary but deterministic, and always surfaced via
         # attributes_constant=False.

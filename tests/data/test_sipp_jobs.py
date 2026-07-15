@@ -170,6 +170,18 @@ class TestReadSippJobMonths:
         assert list(out["class_of_worker"]) == ["missing"]
         assert list(out["empsize_code"]) == [-9]
 
+    def test_corrupt_code_on_active_slot_refuses(self, tmp_path):
+        # Only the -9/-999 sentinels excuse a non-domain value on an
+        # active slot; an unparseable string or a blank must refuse
+        # rather than silently map to "missing".
+        for value in ("GARBAGE", ""):
+            months = [{"month": 1, "job1": {"CLWRK": value}}]
+            path = _write_pu_file(
+                tmp_path / f"c{value or 'blank'}", 2023, months
+            )
+            with pytest.raises(ValueError, match="EJB1_CLWRK"):
+                sipp_jobs.read_sipp_job_months(2023, path=path)
+
     def test_duplicate_job_id_across_slots_raises(self, tmp_path):
         months = [{"month": 1, "job1": {"JOBID": 101}, "job2": {"JOBID": 101}}]
         path = _write_pu_file(tmp_path, 2023, months)
@@ -275,6 +287,27 @@ class TestJobSpells:
     def test_wrong_frame_raises(self):
         with pytest.raises(ValueError, match="read_sipp_job_months"):
             sipp_jobs.job_spells(pd.DataFrame({"x": [1]}))
+
+    def test_multi_year_input_refuses(self, tmp_path):
+        # Two files concatenated span two ref_years (2021 and 2022);
+        # the month-keyed break/run logic would mis-collapse them, so
+        # job_spells must refuse rather than silently link across years.
+        p22 = _write_pu_file(
+            tmp_path / "y22", 2022, [{"month": m, "job1": {}} for m in (1, 2)]
+        )
+        p23 = _write_pu_file(
+            tmp_path / "y23", 2023, [{"month": m, "job1": {}} for m in (1, 2)]
+        )
+        both = pd.concat(
+            [
+                sipp_jobs.read_sipp_job_months(2022, path=p22),
+                sipp_jobs.read_sipp_job_months(2023, path=p23),
+            ],
+            ignore_index=True,
+        )
+        assert sorted(both["ref_year"].unique()) == [2021, 2022]
+        with pytest.raises(ValueError, match="multiple ref_years"):
+            sipp_jobs.job_spells(both)
 
 
 @needs_real_sipp
