@@ -1688,7 +1688,10 @@ post-ceremony patch is one review unit containing **exactly F1 + F2 + F7 + F3**:
 - **F7:** replace the `domain_anchor` split in
   `recompute_domain_earnings_floor` with full-anchor split then per-half domain
   intersection. Add the membership + mean/SD/OC reference tripwire to
-  `tests/test_m6_scoring.py`; do not rewrite the frozen floor.
+  `tests/test_m6_scoring.py`; do not rewrite the frozen floor. If either full-anchor
+  half contains zero domain members after intersection, retain the existing
+  `domain earnings floor left cells undefined` raise (`m6_scoring.py:762-766`) as
+  the designed disposition for that remote F3-class empty-half tail.
 - **F3:** add the explicit start-year coordinate and empty-safe initialization
   across `loop.py:172-185` and `earnings_domain.py:103-127`, plus typed empty
   adapters/results across marital/household assembly and the projected scoring
