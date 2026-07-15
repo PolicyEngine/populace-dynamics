@@ -574,7 +574,8 @@ values.
 
 PENSIM2's family sampling exposes a real unit mismatch: the external control is
 people, while the state to preserve may be a family. V1's provisional unit is a
-**co-resident co-arrival unit**, not a claimed historical travel party:
+**constructed co-resident same-reported-entry unit**, not a claimed historical
+travel party:
 
 1. Start with an annual PUMS household (`survey_year, SERIALNO`).
 2. Select foreign-born recent-arrival people with the same reported-year-of-entry
@@ -622,12 +623,13 @@ These are **interview-date stock characteristics**. They become entry-time
 characteristics only after the `ArrivalStateBridge`; an identity bridge must be
 named `stock_proxy` and is report-only.
 
-The default matching ladder begins with sex × broad age-at-entry × source region
-and then uses education and family state when support permits, consistent with
-the MINT/Duleep-Dowhan precedent. The precise cells are selected and frozen
-before candidate scoring. Fallbacks coarsen in a published order; they never
-cross a prohibited concept boundary merely to fill a cohort. Every fallback
-count appears in the audit.
+The stock-proxy matching ladder begins with sex × broad derived reported-entry-
+age proxy × source region and then uses education and family state when support
+permits, consistent with the MINT/Duleep-Dowhan precedent. A bound
+`ArrivalStateBridge` may instead emit literal arrival age under its own label.
+The precise cells are selected and frozen before candidate scoring. Fallbacks
+coarsen in a published order; they never cross a prohibited concept boundary
+merely to fill a cohort. Every fallback count appears in the audit.
 
 Long-run composition is held at the donor artifact's calibrated distribution
 unless a separately sourced, gate-reviewed composition trajectory is bound.
@@ -1023,7 +1025,7 @@ until an acquisition PR records the actual bytes.
 | `entrant_fertility_history_bridge` | **UNBOUND.** Candidate evidence must name exact SIPP fertility-history or CPS fertility-supplement files, variables, universe, observation years and release vintage. | Map prior parity/birth history and exposure start jointly with entrant family state; never default parity to zero. | **BLOCKING** for entrant fertility risk; decision O13. |
 | `prior_us_covered_earnings_bridge` | **UNBOUND.** ACS reported year of entry and public survey earnings do not establish first entry or prior U.S. Social Security covered earnings. | Identify repeat-entry/first-entry status, covered quarters and prior indexed earnings with a source, universe and vintage; otherwise retain censored/unknown. | **BLOCKING** for entrant insured status, claiming, AIME/PIA and benefits; decision O12. |
 | `census_np2023_nim_corridors` | Census Bureau, *[Methodology, Assumptions, and Inputs for the 2023 National Population Projections](https://www2.census.gov/programs-surveys/popproj/technical-documentation/methodology/methodstatement23.pdf)* (Nov. 2023), migration pp. 8–14; Table 1 in the Main Series and each Alternative Scenario, “Projected Population and Components of Change for the United States, [Main Series/High Immigration Scenario/Low Immigration Scenario/Zero Immigration Scenario]: 2022–2100”: [main](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1.xlsx), [high](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-h.xlsx), [low](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-l.xlsx), and [zero](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-z.xlsx) workbooks. | Annual net international migration in thousands for main/high/low/zero scenarios; July 1 prior year–June 30 current year. Preserve scenario definitions: alternatives change gross foreign-born immigration, not every migration component. | Report-only cross-model corridors; never gate truth or a positive entrant control. |
-| `m6_projected_wage_index` | Existing sibling design §2.7.6.3/§2.8.10: realized SSA NAWI through 2014 and `I_proj` beyond, estimated only from `<=T*`; see `m6_projection_engine.md:666-708,1723-1756`. | Annual-file `ADJINC` first expresses income in that survey year's dollars. Before cross-year training/holdout comparison bind `earnings_2014 = earnings_y_after_ADJINC * I_proj[2014] / I_proj[y]`; projection-year entrant earnings reverse the ratio from the 2014 base. Never use realized post-2014 NAWI on a scored path. | Reused by a future entrant-earnings initializer. No new external fetch and no certificate transfer to entrant earnings. |
+| `m6_projected_wage_index` | Existing sibling design §2.7.6.3/§2.8.10: `I_bound[y]` is realized SSA NAWI through 2014 and `I_proj[y]` beyond, estimated only from `<=T*`; see `m6_projection_engine.md:666-708,1723-1756`. | Annual-file `ADJINC` first expresses income in that survey year's dollars. Before cross-year training/holdout comparison bind `earnings_2014 = earnings_y_after_ADJINC * I_bound[2014] / I_bound[y]`; projection-year entrant earnings reverse the ratio from the 2014 base. Never use realized post-2014 NAWI on a scored path. | Reused by a future entrant-earnings initializer. No new external fetch and no certificate transfer to entrant earnings. |
 | `emigration_duration_hazard` | **UNBOUND.** Table V.A2 supplies aggregate outflow counts only. The Duleep-Dowhan 2008 hazards and legacy model methods are research evidence, not a current operational binding. | Must identify age, sex, source grouping, time since entry, family/individual unit, re-entry treatment, universe and vintage. | **BLOCKING** for explicit exits and any Trustees net-alignment claim; outside entry-builder v1. |
 
 ### 6.3 Binding-specific guards
@@ -1098,13 +1100,13 @@ education/family matching cells, annual pooling/replicate-block treatment,
 same-sex-marriage concept harmonization, and fallback order. Repeat-entry
 identification and prior U.S. coverage belong to O12.
 
-### O4. Person versus co-arrival-family units and weights — hardest
+### O4. Person versus constructed same-reported-entry units — hardest
 
-Choose person donors, co-resident co-arrival units, or a mixed rule. If units are
-chosen, bind relationship closure, common versus person-specific simulation
-weights, calibration to person totals, partial families, group quarters, and
-whether later exits occur by person or unit. This decision sets the correlation
-unit for floors.
+Choose person donors, constructed co-resident same-reported-entry units, or a
+mixed rule. If units are chosen, bind relationship closure, common versus person-
+specific simulation weights, calibration to person totals, partial families,
+group quarters, and whether later exits occur by person or unit. This decision
+sets the correlation unit for floors; it never identifies a travel party.
 
 ### O5. Atomic state/history packet and post-entry laws — hardest
 
@@ -1491,7 +1493,7 @@ excluded.
     "unit_key": ["survey_year", "SERIALNO"],
     "annual_pooling_rule": "freeze equal-year-mass versus population-mass treatment from training only",
     "replicate_design": "year-specific blocks; annual 2014 truth uses only its own replicate set",
-    "cross_year_earnings_normalization": "ADJINC to survey-year dollars then I_proj[2014] / I_proj[survey_year]",
+    "cross_year_earnings_normalization": "ADJINC to survey-year dollars then I_bound[2014] / I_bound[survey_year], where I_bound is realized NAWI through 2014 and I_proj thereafter",
     "concept_breaks": "bind and harmonize or demote the 2013 same-sex married-couple edit change",
     "count_alignment_gated": false,
     "physical_sample_design_frozen_from_training_power_analysis": true,
@@ -1504,7 +1506,7 @@ excluded.
   "hardest_open_decisions": [
     "O1/O2/O11/O15: literal flow versus net proxy, component timing, population-universe bridge, projection origin, and first cohort",
     "O5/O12/O13: atomic downstream packet, stock-to-arrival and repeat-coverage bridges, and fertility/claiming exclusions",
-    "O4/O14: person versus co-arrival-family units, relationship and weight closure, and RNG-isolated cross-domain markets"
+    "O4/O14: person versus constructed same-reported-entry units, relationship and weight closure, and RNG-isolated cross-domain markets"
   ],
   "certified_surfaces_untouched": [
     "gate_m6 registry, thresholds, floors, hashes, and closed-panel support",
