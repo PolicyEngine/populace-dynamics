@@ -266,6 +266,78 @@ def test_report_only_marks_unavailable_paths_without_fabricating_zero():
     assert redrawn["pass"] is None
 
 
+def test_report_only_lifts_roster_absent_birth_reconciliation():
+    phase = M6RefitPhase(
+        bundle=SimpleNamespace(mortality=None),
+        mortality=None,
+        population=SimpleNamespace(
+            holdout_ids=frozenset({1, 2}),
+            earnings_domain_ids=frozenset({1}),
+        ),
+        lineage={},
+    )
+    resolved = M6ResolvedContract(
+        contract=M6GateContract(
+            cells=(), gate_seeds=(), required_seed_passes=0
+        ),
+        floor_artifact={},
+        floor_path="synthetic",
+        floor_sha256="synthetic",
+    )
+    shock = {
+        "machine_reason": "synthetic",
+        **{
+            module: {"truth": {}, "projection": {}}
+            for module in ("mortality", "marital", "disability", "earnings")
+        },
+    }
+    seed_run = M6SeedRun(
+        seed=0,
+        score=_FakeSeedScore(0),
+        side_a_units={"household": 1, "person": 1},
+        draw_reports=(
+            {
+                "shock_window": shock,
+                "not_certified": {
+                    "mortality_drift": {},
+                    "widowhood": {},
+                },
+                "entrants": {
+                    "synthetic_births": 3,
+                    "immigrant_cohorts": 0,
+                    "synthetic_persons": 3,
+                    "scheduled_realized_openers": 2,
+                    "roster_absent_births": {
+                        2020: {
+                            "dropped_parent_ids": [782173],
+                            "dropped_count": 1,
+                        }
+                    },
+                },
+            },
+        ),
+    )
+
+    entrants = build_report_only(
+        SimpleNamespace(),
+        phase,
+        resolved,
+        (seed_run,),
+        {"truth_side_only": True},
+    )["family_b"]["entrants"]
+
+    assert entrants["roster_absent_births"] == {
+        "2020": {
+            "dropped_parent_ids": [782173],
+            "dropped_count": 1,
+        }
+    }
+    assert entrants["scheduled_realized_openers"] == {
+        "total": 2,
+        "by_year": None,
+    }
+
+
 @pytest.mark.parametrize(
     "registration",
     [

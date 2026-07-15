@@ -198,6 +198,9 @@ class _AssemblyState:
     marital_projection: MaritalStepResult | None = None
     marital_ids: set[int] = field(default_factory=set)
     fertility: dict[int, FertilityDraws] = field(default_factory=dict)
+    roster_absent_births: dict[int, dict[str, object]] = field(
+        default_factory=dict
+    )
     disability_projection: disability_data.DisabilityPanel | None = None
     household_projection: hc_data.HouseholdCompositionPanel | None = None
 
@@ -207,6 +210,7 @@ class _AssemblyState:
         self.marital_projection = None
         self.marital_ids.clear()
         self.fertility.clear()
+        self.roster_absent_births.clear()
         self.disability_projection = None
         self.household_projection = None
 
@@ -312,7 +316,7 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
             year=context.year,
             columns=marital_columns,
         )
-        return apply_fertility(
+        reconciled = apply_fertility(
             frame,
             context,
             marital,
@@ -321,7 +325,14 @@ def assemble_period_modules(inputs: CertifiedEngineInputs) -> PeriodModules:
             holdout_ids=state.marital_ids,
             male_gap=inputs.male_gap,
             birth_store=state.fertility,
+            roster_absent_births=state.roster_absent_births,
         )
+        _publish_draw_output(
+            context,
+            "roster_absent_births",
+            dict(state.roster_absent_births),
+        )
+        return reconciled
 
     def disability_step(frame, context, rng):
         del rng
