@@ -119,6 +119,18 @@
   seed-at-marital-entry over exclude-and-mark to keep the frozen v3 floor
   byte-identical; closes the fifth registration's execution failure, graded #42
   comment 4979269487, forensics comment 4979437110).
+- amendment 3h (fertility / open-additions roster-materialization domain law) →
+  §2.8.2h, §10 revision 14 (separates the frame-independent §2.8.2 at-risk *schedule*
+  that governs scoring from the simulated-mortality *roster* that governs
+  materialization — §2.2 step 1 already mandates the decedent exit for "all
+  subsequent year-`t` steps" but no §2.8 law stated it for step-4 materialization;
+  scheduled maternal births materialize only for roster-present mothers, and a
+  wave-loop-killed mother's scheduled birth drops into the report-only reconciliation
+  via a filter *after* the draw, leaving the fertility RNG stream byte-unchanged; the
+  guard `steps.py:412` stays as the invariant backstop; the frozen floors are
+  byte-identical because open additions are report-only (§2.1); closes the sixth
+  registration's execution failure, graded #42 comment 4984699959, forensics comment
+  4984997277).
 
 ## 1. Summary
 
@@ -1866,7 +1878,7 @@ rather than the stub-era per-period recompute; (ii) the truth-side cell function
 are **extracted to one shared importable module** that both the floor script and
 the scorer import (byte-identity by construction, self-tested per §2.8.4); (iii)
 step-4 **fertility** remains a per-period recompute on the cached marital result
-(`apply_fertility` → `simulate_fertility` per period, `steps.py:401-433`), so
+(`apply_fertility` → `simulate_fertility` per period, `steps.py:440-472`), so
 frame-materialized births are stitched across years — **inert on every gated cell**
 (the **synthetic newborns** fall outside `holdout_ids` and every gated band —
 distinct from the **anchor-present** minors `build_anchor_frame` admits *into*
