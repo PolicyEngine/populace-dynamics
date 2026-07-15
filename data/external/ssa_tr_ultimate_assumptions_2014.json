@@ -1,0 +1,101 @@
+{
+  "schema_version": "ssa_tr_ultimate_assumptions.v1",
+  "trustees_report_year": 2014,
+  "vintage_year": 2014,
+  "publication_date": "2014-07-28",
+  "scenario": "intermediate",
+  "table": "II.C1",
+  "title": "Long-Range Values of Key Assumptions for the 75-year Projection Period",
+  "provenance": {
+    "source": "2014 OASDI Trustees Report, Table II.C1",
+    "source_url": "https://www.ssa.gov/oact/tr/2014/II_C_assump.html",
+    "source_file": "data/external/ssa_tr_2014_ii_c1.source.html",
+    "source_sha256": "737ece58d16e4290702c0c48832d1fa3995d052d4211d87713ad7910bc2e4e60",
+    "retrieval_date": "2026-07-15T21:25:16Z",
+    "fetch_method": "Browser network-response capture on 2026-07-15 after browser-header curl returned HTTP 403. Headless Google Chrome fetched the authoritative SSA URL; Fetch API arrayBuffer() exposed the content-decoded response body, which is committed here. The extractor verifies the committed body's sha256 before parsing.",
+    "table_of_record": "Table II.C1.-Long-Range Valuesa of Key Assumptions for the 75-year Projection Period",
+    "scenario_binding": "Exact column header 'Intermediate' in Table II.C1",
+    "design_crosswalk": "The M7 design cites Table V.B1 for its three carried TR constants. Table II.C1 is the smallest authoritative 2014 Trustees Report table that contains and label-binds the complete five-assumption bundle requested here, including the same 2.9 percent real-interest, 2.70 percent CPI-W, and 1.13 percentage-point real-wage values."
+  },
+  "validation": {
+    "expected_headers": [
+      "Long-range assumptions",
+      "Intermediate",
+      "Low-cost",
+      "High-cost"
+    ],
+    "n_selected_assumptions": 5,
+    "all_scenario_values_label_checked": true,
+    "published_scenario_values": {
+      "ultimate_total_fertility_rate": {
+        "Intermediate": "2.0",
+        "Low-cost": "2.3",
+        "High-cost": "1.7"
+      },
+      "average_mortality_improvement_rate": {
+        "Intermediate": ".79",
+        "Low-cost": ".41",
+        "High-cost": "1.20"
+      },
+      "ultimate_cpi_w_growth_rate": {
+        "Intermediate": "2.70",
+        "Low-cost": "3.40",
+        "High-cost": "2.00"
+      },
+      "ultimate_real_wage_differential": {
+        "Intermediate": "1.13",
+        "Low-cost": "1.76",
+        "High-cost": ".52"
+      },
+      "ultimate_real_interest_rate": {
+        "Intermediate": "2.9",
+        "Low-cost": "3.4",
+        "High-cost": "2.4"
+      }
+    }
+  },
+  "build": {
+    "built_by": "scripts/extract_ssa_tr_ultimate_assumptions_2014.py",
+    "source_file": "data/external/ssa_tr_2014_ii_c1.source.html",
+    "source_sha256": "737ece58d16e4290702c0c48832d1fa3995d052d4211d87713ad7910bc2e4e60",
+    "reproducible": "parsed deterministically from the committed, sha256-verified XHTML response body; no network or wall-clock timestamp is used"
+  },
+  "assumptions": {
+    "ultimate_total_fertility_rate": {
+      "source_label": "Total fertility rate (children per woman), for 2038 and later",
+      "published_value": "2.0",
+      "value": 2.0,
+      "unit": "children_per_woman",
+      "horizon": "2038 and later"
+    },
+    "average_mortality_improvement_rate": {
+      "source_label": "Average annual percentage reduction in total age-sex-adjusted death rates from 2013 to 2088",
+      "published_value": ".79",
+      "value": 0.79,
+      "unit": "percent_per_year",
+      "horizon": "2013-2088 average annual reduction",
+      "interpretation_note": "A 75-year average reduction, not a terminal-year mortality rate."
+    },
+    "ultimate_cpi_w_growth_rate": {
+      "source_label": "Consumer Price Index (CPI-W), for 2020 and later",
+      "published_value": "2.70",
+      "value": 2.7,
+      "unit": "percent_per_year",
+      "horizon": "2020 and later"
+    },
+    "ultimate_real_wage_differential": {
+      "source_label": "Average annual real-wage differential (percent) for 2025 to 2088",
+      "published_value": "1.13",
+      "value": 1.13,
+      "unit": "percentage_points_per_year",
+      "horizon": "2025-2088"
+    },
+    "ultimate_real_interest_rate": {
+      "source_label": "Annual trust fund real interest rate (percent), for 2025 and later",
+      "published_value": "2.9",
+      "value": 2.9,
+      "unit": "percent_per_year",
+      "horizon": "2025 and later"
+    }
+  }
+}
