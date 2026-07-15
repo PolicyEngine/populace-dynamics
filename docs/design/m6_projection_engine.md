@@ -1393,8 +1393,14 @@ earnings-domain law** closing the round-4 build blocker (§2.8.3a, amendment 3b)
 the drift-scoring layer reusing the floor cell functions verbatim with a
 byte-identity self-test (§2.8.4), the two pre-flights (§2.8.5–§2.8.6), and the
 runner with its one-shot stamping and fence (§2.8.7–§2.8.8) — so the build lane
-implements the harness with **zero** design choices. **Residual open decisions:
-none.** One **flagged floors-ceremony finding** (not a harness-design gap): §2.8.3a
+implements the harness with **zero** design choices. **Residual open decisions
+(amendment 3g correction, 2026-07-15): one, now closed** — the marital projection
+carried **no** domain law for the sub-`START_AGE`-at-anchor class that
+`build_anchor_frame` admits (all ages, no filter) but the certified marital
+`person_years` do not cover at the anchor wave; the fifth registration's execution
+failure surfaced it (forensics #42 comment 4979437110) and §2.8.2g (amendment 3g)
+closes it via option B (seed-at-marital-entry; the frozen v3 floor stays
+byte-identical). One **flagged floors-ceremony finding** (not a harness-design gap): §2.8.3a
 found empirically that the frozen v3 floor's gated-earnings support over-includes
 ~21 % later earnings-entrants (open additions the 2014-anchored chain cannot
 project), so the frozen earnings tolerances are applied **conservatively** and the
@@ -1410,8 +1416,11 @@ the scorer import (byte-identity by construction, self-tested per §2.8.4); (iii
 step-4 **fertility** remains a per-period recompute on the cached marital result
 (`apply_fertility` → `simulate_fertility` per period, `steps.py:401-433`), so
 frame-materialized births are stitched across years — **inert on every gated cell**
-(children fall outside `holdout_ids` and every gated band, and births feed only the
-report-only entrant/roster paths), disclosed rather than fixed. This closes the run
+(the **synthetic newborns** fall outside `holdout_ids` and every gated band —
+distinct from the **anchor-present** minors `build_anchor_frame` admits *into*
+`holdout_ids`, who *do* age into the gated `first_marriage.18-29` band and are
+handled by amendment 3g (§2.8.2g) — and births feed only the report-only
+entrant/roster paths), disclosed rather than fixed. This closes the run
 lane's blocker; a fresh
 `gate_m6` registration follows the harness build and its engine-referee-style
 review, with a forecast informed by nothing new (no holdout contact occurs in the
