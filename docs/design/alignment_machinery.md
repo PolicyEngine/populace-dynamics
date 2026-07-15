@@ -327,10 +327,293 @@ universe.
   only when they enter the certified marital risk set
   (`docs/design/m6_projection_engine.md:997-1140`). Alignment cannot remove them
   merely because they were outside a module's year-0 domain.
-- Amendment 3h separates the frame-independent fertility schedule used for
-  scoring from the live post-mortality roster used for child materialization. Its
-  law is reviewed in [§2.8.2h at commit `b162f9c`](https://github.com/PolicyEngine/populace-dynamics/blob/b162f9c/docs/design/m6_projection_engine.md#L1183-L1264): only roster-present mothers materialize children; a scheduled birth to a removed mother enters report-only reconciliation. The alignment hook must use the live roster for materialization and must not resurrect a mother to satisfy a fertility target.
+- Pending sibling amendment 3h, supplied as binding for this design in
+  [PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216), separates
+  the frame-independent fertility schedule used for scoring from the live
+  post-mortality roster used for child materialization. Its law appears in
+  [§2.8.2h at commit `b162f9c`](https://github.com/PolicyEngine/populace-dynamics/blob/b162f9c/docs/design/m6_projection_engine.md#L1183-L1264): only roster-present mothers materialize children; a scheduled birth to a removed mother enters report-only reconciliation. The alignment hook must use the live roster for materialization and must not resurrect a mother to satisfy a fertility target.
 
 Every margin record therefore names `candidate_universe`, `materialization_universe`,
 `measurement_universe`, and `gate_universe = none`. Counts from one universe may
 not be presented as counts from another.
+
+## 5. Displacement accounting and publication
+
+### 5.1 Exact-key comparison views
+
+The existing accounting function requires identical keys. Raw projection frames
+cannot satisfy that contract for roster-changing events: an aligned death removes
+a later person-wave, while an aligned birth or entrant adds one. The producer
+therefore constructs an immutable **candidate audit view** at each reconciliation
+seam, before it changes the roster. This is not a padded projection frame. It is
+the complete, registered set of units that could lawfully receive the named event.
+
+Each before/after audit-view pair has one row per
+`(alignment_unit_id, year, margin_id, stratum_id)` and carries numeric fields with
+fixed meanings:
+
+| field | meaning |
+|---|---|
+| `event_selected` | zero or one for a discrete event; unchanged candidate rows remain present in both views |
+| `target_contribution` | `event_selected * representation_weight` in the target's units |
+| `materialized_people` | number of people added or removed by the selected linked-unit event |
+| `covered_wage` | annual covered wage for the continuous margin; absent from discrete views |
+
+The producer calls
+[`build_alignment_displacement`](../../src/populace_dynamics/harness/m6_reporting.py)
+with the four key columns and the applicable value columns. The implementation at
+`src/populace_dynamics/harness/m6_reporting.py:321-415` remains authoritative.
+For example, an employment call compares `event_selected` and
+`target_contribution`; a wage call compares `covered_wage`. Calling by margin-year
+keeps the function's `n_intervened_rows` and maximum unambiguous. The run-level
+record also retains a call across all years of a margin so its native
+`per_year_maximum` and `maximum_alignment_displacement` fields remain available.
+
+An absent projection row never silently becomes a numeric zero. Zero is valid in
+an audit view only when it means “this registered candidate was not selected for
+this event.” A unit omitted from either side, a non-unique key, or an unregistered
+candidate is a hard accounting error, as the existing function already requires.
+The audit view and the materialized roster are linked by the recorded
+`alignment_unit_id`; the producer checks that every selected addition/removal was
+materialized exactly once.
+
+### 5.2 Required per-margin, per-year ledger
+
+Every aligned run publishes one record for every requested
+`(margin_id, year, stratum_id)`, including records with no intervention. Each
+record contains:
+
+- target, raw, and aligned weighted totals in one declared unit;
+- raw residual, aligned residual, and the precomputed feasibility floor;
+- counts of `0→1` and `1→0` unit flips;
+- distinct displaced people and displaced linked units;
+- gross displaced representation weight, counted once per changed person or
+  atomic linked unit, plus separate `0→1` and `1→0` represented weights;
+- absolute target-contribution displacement and its maximum over a single unit;
+- for wages, the scalar, changed-worker count and representation weight, and
+  weighted and unweighted absolute dollar displacement;
+- the canonical `build_alignment_displacement` result and hashes of its exact
+  before/after audit views; and
+- status, reason, candidate/materialization/measurement universes, target source,
+  stream address, and algorithm revision.
+
+“Displaced person count” means the number of distinct panel people whose event or
+value changed, not the rounded sum of weights. “Gross displaced representation
+weight” means the sum of the registered fixed weights of those distinct changed
+units and is never netted between additions and removals. When a family event
+changes several people atomically, the ledger reports both one displaced linked
+unit and the distinct affected-person count; it uses the registered family-unit
+weight exactly once in the gross unit-weight field. Person-weight and unit-weight
+fields stay separate rather than presenting one as the other.
+
+These sums supplement rather than reinterpret the canonical function. In
+particular, `n_intervened_rows` is not relabeled as a person-weight count, and a
+maximum change in `event_selected` is not relabeled as aggregate displacement.
+The run summary publishes, for each margin and year, the canonical maximum and
+the gross count/weight measures, then publishes the maximum across years without
+discarding the underlying records.
+
+### 5.3 Artifact labels and completeness
+
+An aligned artifact is publishable only if all requested margins have either:
+
+- `computed`, with a complete displacement ledger and fidelity result; or
+- `not_available`, with a pre-run reason such as a missing definition-matched
+  granular target.
+
+`not_available` does not mean that the producer silently skipped an advertised
+margin. The artifact title and machine label list the margins actually applied.
+`structurally_infeasible`, audit-view key mismatch, materialization mismatch, or
+hash mismatch withholds the aligned panel and publishes a failed production
+attempt sidecar. It never converts the unaligned companion into a failure of the
+M6 gate.
+
+Every aligned publication carries this statement, without abbreviation:
+
+> This production scenario was reconciled to pinned external targets. The M6 gate
+> scored the separate unaligned projection. Alignment displacement is disclosed
+> for every applied margin and year, and this aligned output does not transfer or
+> strengthen certification.
+
+The machine-readable companion fields are
+`projection_mode = "aligned_production"`, `alignment_applied = true`,
+`gate_scored = false`, `certification_transfer = false`, and
+`unaligned_companion_sha256`. Removing the label or publishing the aligned panel
+without its displacement sidecar is an artifact-schema failure.
+
+## 6. Evaluation: floors first
+
+### 6.1 Pre-run feasibility floors
+
+The target bundle, candidate construction, weights, strata, pooling ladder, score,
+tie rule, and numeric rules are frozen before an aligned run. From that frozen
+candidate ledger, the producer enumerates the empty and every ordered prefix and
+records the minimum attainable absolute residual in target units. That value is
+the **feasibility floor** for the discrete margin-year-stratum. It also records
+the target's distance outside the total attainable range, if any.
+
+The floor comes first: the producer writes and hashes it before selecting the
+aligned prefix, and the aligned evaluator reads rather than rewrites it. It may
+not declare exact agreement when unequal panel weights make exact agreement
+impossible. A continuous covered-wage margin has a zero arithmetic floor only
+when its denominator is positive and all registered finite-value conditions hold;
+otherwise it is infeasible.
+
+Sparse cells follow only the target bundle's pre-registered pooling ladder. The
+producer may move from single age to the next named age band when the exact cell
+is infeasible, but it must publish both records and may not search for a favorable
+pool after seeing the result. A target outside the candidate range remains
+`structurally_infeasible`; pooling cannot manufacture eligible people.
+
+### 6.2 Alignment-fidelity check
+
+For every applied cell, the evaluator independently recomputes the aligned margin
+from the materialized panel using the declared measurement universe. The check
+passes only when:
+
+`abs(aligned_total - target) <= feasibility_floor + numeric_tolerance`.
+
+The bundle pins `numeric_tolerance` in target units; it cannot be a percentage
+chosen after execution. The evaluator also requires raw and aligned ledger totals
+to reproduce from their hashed audit views, selected units to reproduce from the
+registered ordering, and materialized events to reconcile to selected events.
+
+This is a production-integrity check, not a scientific gate. Failure withholds the
+aligned output and leaves the unaligned gate artifact and verdict unchanged.
+Passing says only that the disclosed reconciler produced the pinned scenario.
+
+### 6.3 Displacement-magnitude corridors
+
+Fidelity alone rewards a machinery that forces any target, however violently.
+Every applied cell therefore receives a report-only displacement corridor for:
+
+- displaced-person share of the eligible candidate universe;
+- gross displaced representation-weight share;
+- absolute target-contribution displacement relative to the target; and
+- for wages, the absolute log scalar and weighted absolute dollar displacement.
+
+Corridors are authored before release from pre-boundary historical backcasts,
+definition-matched target revisions, and registered synthetic target shocks. Their
+ceremony pins source vintages, years, horizons, strata, seeds, quantile rule,
+pooling ladder, and artifact hash. The labels are `within_reference`,
+`above_reference`, and `not_comparable`; they are not pass/fail labels. An
+`above_reference` result triggers model review and must appear beside the aligned
+series, but it neither invalidates nor rescues the unaligned M6 gate.
+
+No numerical corridor is ratified by this design document. Until a reviewed
+corridor artifact exists, every aligned run publishes the raw magnitude and
+`corridor_status = "not_available"`; it must not substitute zero, an informal
+percentage, or the fidelity floor. This preserves the floors-first order while
+keeping a missing research benchmark visibly missing.
+
+### 6.4 Validation panel
+
+The release comparison contains the unaligned, target, and aligned series on the
+same axes. It also compares untargeted distributions before and after alignment:
+age, sex, family structure, earnings quantiles, covered-work transitions, life
+expectancy, population stock, AWI, and taxable payroll where definition-matched.
+The evaluator reports changes in these diagnostics even when every target margin
+passes fidelity. This implements the target-fit and distribution-distortion split
+recommended by [Li and O'Donoghue (2014), §§5.3-5.8](https://www.jasss.org/17/1/15.html#5.3).
+
+A pre-boundary validation exercise turns alignment off for the module under test
+and compares its raw projection with observed/reference data. That follows the
+dynamic-microsimulation validation guidance to distinguish validation from a
+baseline that already imposes external controls ([Harding et al. 2010, pp. 12-13](https://www.researchgate.net/profile/Ann-Harding/publication/228846890_Issues_in_the_validation_of_dynamic_microsimulation_models/links/02e7e51e884cf87db4000000/Issues-in-the-validation-of-dynamic-microsimulation-models.pdf)).
+It is evidence about model behavior; the production fidelity check is evidence
+about reconciliation behavior. The report never collapses the two.
+
+## 7. External bindings and artifact identity
+
+### 7.1 Target manifest
+
+The target bundle is a content-addressed manifest. Each source series records:
+
+- bundle identifier and schema/algorithm revision;
+- publisher, report title, report date, Trustees alternative, table, row, column,
+  year range, and source URL;
+- retrieved-at timestamp, raw-file SHA-256, extraction-code commit, extracted-data
+  SHA-256, and any signed official-extract identifier;
+- unit, nominal/real basis, frequency, event timing, population universe, geography,
+  status/coverage definition, age/sex categories, and revision status;
+- transformation from source to annual target level, including the base level for
+  a growth series, rounding, and reconciliation identities;
+- bridge or pooling-ladder identifier and hash where the public table is not the
+  micro-event target; and
+- `available`, `not_available`, or `validation_only`, with a reason.
+
+The manifest pins the 2026 Alternative II vintage described in §3.1. Network
+access is forbidden during a production run; the runner accepts only the reviewed
+local content hashes. Redirects, revised spreadsheets at the same URL, or a new
+Trustees Report fail identity rather than updating a target in place.
+
+### 7.2 Production manifest
+
+The aligned sidecar binds the target manifest to the unaligned scientific object:
+repository commit, environment lock hash, initial-slice hash, draw index, ordinary
+module RNG registry hash, alignment RNG registry hash, algorithm revision,
+candidate-ledger hashes, feasibility-floor hash, corridor hash or explicit null
+reason, unaligned result hash, aligned result hash, and displacement-ledger hash.
+It also records the exact ordered margins and the seam after which each ran.
+
+Publishing a different target vintage, bridge, pooling ladder, candidate universe,
+or algorithm creates a different production identity. Comparison tooling may show
+two identities side by side, but it cannot call one a rerun of the other.
+
+## 8. Open decisions
+
+Implementation remains blocked on the following bounded choices. None authorizes
+a gate-path change.
+
+1. **Granular demographic target authority.** Obtain a reviewable official OCACT
+   age-sex mortality series and single-age maternal fertility series, or ratify a
+   public age-pattern bridge and sparse-cell pooling ladder. V.A1 summary rates
+   alone are insufficient.
+2. **Social Security area and migration units.** Ratify the bridge between the
+   production roster and the Social Security area, the donor microdata and vintage,
+   the atomic entrant unit, and whether the production target decomposes gross
+   immigration/emigration or only V.A2 net change.
+3. **Covered-work candidate state.** Define a lawful potential covered-earnings
+   value for a raw nonworker selected `0→1`, settle wage-and-salary versus
+   self-employment coverage, and bind the result to IV.B4's “paid at any time in
+   year” concept without altering the certified earnings domain.
+4. **Fertility measurement.** Choose maternal birth events, live births, or
+   children as the target unit; specify plurality and infant-death timing; and
+   bind the selected measure to the post-mortality live-roster materialization
+   rule without changing the frame-independent scoring schedule.
+5. **Displacement-corridor ceremony.** Pre-register the historical window,
+   horizon bands, strata, target-revision vintages, synthetic shocks, seeds,
+   quantiles, and response to `above_reference`. This design intentionally
+   ratifies no numerical corridor.
+6. **Policy-counterfactual semantics.** Decide whether an aligned reform run uses
+   the baseline Trustees levels, aligns only common exogenous margins, or carries
+   reform-specific external targets; specify common-random coupling and labels so
+   alignment cannot erase a modeled policy effect.
+7. **Release scope and economics phase.** Decide whether the first implementation
+   ships demographic margins alone and keeps employment/wages unavailable until
+   definition-matched inputs exist, or waits for the full ordered bundle. The
+   ordering and disclosure requirements do not change either way.
+
+## 9. What this does not change
+
+This design does not:
+
+- edit the eight-step engine loop, assembly law, current gate runner, gate
+  configuration, threshold, holdout floor, one-shot rule, or certification claim;
+- change the M6 decision that the gate scores the unaligned projection;
+- replace or alter `build_alignment_displacement`; it supplies the missing lawful
+  `after` producer and exact-key inputs around the existing function;
+- ratify a re-drawn-`T*` seed margin, build successor forward-seed machinery, or
+  convert any other null-with-reason surface to a numeric result;
+- redefine the roster, resurrect dead people, create a gated state for family-B
+  additions, or collapse the scoring/materialization universes in amendment 3h;
+- recalibrate panel weights, use target matching to certify a module, or align
+  validation-only derived totals; or
+- claim that citing an SSA aggregate supplies a missing granular target, bridge,
+  donor pool, corridor, or production implementation.
+
+The next implementation proposal must resolve the relevant open decisions, add
+code and tests in a separate change, and demonstrate the bit-exact replay,
+alignment-fidelity, materialization-reconciliation, artifact-label, and
+unaligned-gate-isolation checks. Until then, an alignment request remains explicit
+`not_available`; the certified projection remains unaligned.
