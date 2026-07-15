@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Employer–Firm Relationships in Populace — US Plan</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171e26; --panel2:#1d2630; --line:#2b3641;
+    --ink:#e8edf2; --muted:#9fb0bf; --accent:#4fc3f7; --accent2:#81c784;
+    --warn:#ffb74d; --danger:#e57373; --chip:#243141;
+    font-size:16px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f8fa; --panel:#ffffff; --panel2:#eef2f6; --line:#d7dee5;
+      --ink:#1a232c; --muted:#5a6b7a; --accent:#0277bd; --accent2:#2e7d32;
+      --warn:#ef6c00; --danger:#c62828; --chip:#e3ecf3;}
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;padding:0 0 80px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  header{padding:56px 0 28px;border-bottom:1px solid var(--line);margin-bottom:36px}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin-top:8px;max-width:70ch}
+  h2{font-size:21px;margin:48px 0 16px;letter-spacing:-.01em}
+  h3{font-size:15px;margin:0 0 6px}
+  p{margin:8px 0}
+  .kicker{color:var(--accent);text-transform:uppercase;font-size:11px;letter-spacing:.14em;font-weight:700}
+  .grid{display:grid;gap:14px}
+  .cols2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .cols3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+  .card .tag{display:inline-block;background:var(--chip);color:var(--accent);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:10px}
+  .card.p0 .tag{color:var(--accent2)} .card.p2 .tag{color:var(--warn)}
+  .muted{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+  th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  .tbl-scroll{overflow-x:auto;border-radius:10px}
+  code{background:var(--chip);padding:1px 6px;border-radius:4px;font-size:.88em;font-family:ui-monospace,Menlo,monospace}
+  .flow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto}
+  svg text{font-family:-apple-system,"Segoe UI",sans-serif}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 11px;font-size:12px;color:var(--muted);margin:2px 4px 2px 0}
+  .ok{color:var(--accent2)} .warn{color:var(--warn)} .bad{color:var(--danger)}
+  ul{padding-left:20px;margin:8px 0} li{margin:4px 0}
+  .footer{margin-top:56px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">Populace · planning document · 2026-07-14</div>
+  <h1>Employer–firm relationships in Populace</h1>
+  <p class="sub">A US-first plan for attaching <b>job spells with employer attributes</b> to the Populace dynamic person panel, following the ECPS recipe (impute from panel data → calibrate to administrative aggregates) and the populace-dynamics evaluation discipline (pre-registered gates, noise floors, one-shot candidate runs).</p>
+</header>
+
+<div class="kicker">Why</div>
+<h2 style="margin-top:8px">What this unlocks</h2>
+<div class="grid cols3">
+  <div class="card"><h3>Firm-size-keyed policy</h3><p class="muted">ESI/ACA employer mandates, state paid-leave and retirement-mandate thresholds, small-business exemptions — all keyed to employer size, which the CPS person record alone can't drive dynamically.</p></div>
+  <div class="card"><h3>Labor-market dynamics</h3><p class="muted">Separations, job-to-job moves, and tenure become modeled transitions, so earnings trajectories inherit realistic employer-attachment persistence instead of purely statistical noise.</p></div>
+  <div class="card"><h3>Incidence &amp; pass-through</h3><p class="muted">A firm side (industry × size × geography) is the hook for minimum-wage incidence, payroll-tax pass-through, and eventually coworker/firm spillovers.</p></div>
+</div>
+
+<h2>Architecture — how it plays with populace-dynamics</h2>
+<div class="flow">
+<svg viewBox="0 0 1020 400" width="1020" height="400" role="img" aria-label="Pipeline diagram, color-coded by workstream owner">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L8,4.5 L0,9" fill="none" stroke="#7a8fa3" stroke-width="1.5"/>
+    </marker>
+  </defs>
+  <g font-size="12" fill="currentColor">
+    <!-- legend -->
+    <rect x="20" y="10" width="12" height="12" rx="3" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="40" y="21">Workstream A — Daphne · person side (spells &amp; transitions)</text>
+    <rect x="380" y="10" width="12" height="12" rx="3" fill="none" stroke="#81c784" stroke-width="2"/>
+    <text x="400" y="21">Workstream B — Vahid · firm side (targets &amp; calibration)</text>
+    <rect x="740" y="10" width="12" height="12" rx="3" fill="none" stroke="#ffb74d" stroke-width="2"/>
+    <text x="760" y="21">Shared / interface</text>
+
+    <!-- A: training data -->
+    <rect x="20" y="44" width="205" height="76" rx="8" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="122" y="68" text-anchor="middle" font-weight="700">SIPP job-level panel</text>
+    <text x="122" y="86" text-anchor="middle" fill="#9fb0bf">job IDs, tenure, industry,</text>
+    <text x="122" y="101" text-anchor="middle" fill="#9fb0bf">establishment size (not firm)</text>
+
+    <rect x="20" y="134" width="205" height="72" rx="8" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="122" y="158" text-anchor="middle" font-weight="700">CPS ASEC + tenure supp.</text>
+    <text x="122" y="176" text-anchor="middle" fill="#9fb0bf">NOEMP: the true firm-size</text>
+    <text x="122" y="191" text-anchor="middle" fill="#9fb0bf">label; host cross-section</text>
+
+    <rect x="20" y="220" width="205" height="54" rx="8" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="122" y="242" text-anchor="middle" font-weight="700">PSID · NLSY</text>
+    <text x="122" y="260" text-anchor="middle" fill="#9fb0bf">long-horizon tenure labels</text>
+
+    <!-- B: aggregates -->
+    <rect x="20" y="288" width="205" height="52" rx="8" fill="none" stroke="#81c784" stroke-width="2"/>
+    <text x="122" y="309" text-anchor="middle" font-weight="700">SUSB · BDS · CBP · SynLBD</text>
+    <text x="122" y="326" text-anchor="middle" fill="#9fb0bf">firm-type margins &amp; dynamics</text>
+
+    <rect x="20" y="352" width="205" height="42" rx="8" fill="none" stroke="#81c784" stroke-width="2"/>
+    <text x="122" y="370" text-anchor="middle" font-weight="700">QWI · J2J · JOLTS · BED</text>
+    <text x="122" y="386" text-anchor="middle" fill="#9fb0bf">flow &amp; earnings aggregates</text>
+
+    <!-- middle -->
+    <rect x="305" y="64" width="210" height="92" rx="8" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="410" y="90" text-anchor="middle" font-weight="700">microimpute (QRF)</text>
+    <text x="410" y="110" text-anchor="middle" fill="#9fb0bf">job spells + employer attributes</text>
+    <text x="410" y="126" text-anchor="middle" fill="#9fb0bf">onto CPS persons; spell</text>
+    <text x="410" y="142" text-anchor="middle" fill="#9fb0bf">transition hazards (phase 1)</text>
+
+    <rect x="305" y="220" width="210" height="88" rx="8" fill="none" stroke="#81c784" stroke-width="2"/>
+    <text x="410" y="246" text-anchor="middle" font-weight="700">firm-type register (BLM)</text>
+    <text x="410" y="266" text-anchor="middle" fill="#9fb0bf">discrete firm types: industry ×</text>
+    <text x="410" y="282" text-anchor="middle" fill="#9fb0bf">size class × state, to SUSB/BDS</text>
+    <text x="410" y="298" text-anchor="middle" fill="#9fb0bf">margins (phase 2: types, not IDs)</text>
+
+    <!-- interface -->
+    <rect x="580" y="130" width="205" height="120" rx="8" fill="none" stroke="#ffb74d" stroke-width="2"/>
+    <text x="682" y="156" text-anchor="middle" font-weight="700">match layer (interface)</text>
+    <text x="682" y="176" text-anchor="middle" fill="#9fb0bf">job-spell schema = the contract:</text>
+    <text x="682" y="192" text-anchor="middle" fill="#9fb0bf">A emits spells with attributes,</text>
+    <text x="682" y="208" text-anchor="middle" fill="#9fb0bf">B assigns firm types + calibrates</text>
+    <text x="682" y="224" text-anchor="middle" fill="#9fb0bf">to QWI/J2J (disjoint from gates)</text>
+
+    <rect x="840" y="70" width="160" height="104" rx="8" fill="none" stroke="#ffb74d" stroke-width="2"/>
+    <text x="920" y="96" text-anchor="middle" font-weight="700">dynamics harness</text>
+    <text x="920" y="116" text-anchor="middle" fill="#9fb0bf">PanelView windows,</text>
+    <text x="920" y="132" text-anchor="middle" fill="#9fb0bf">E1–E12 battery,</text>
+    <text x="920" y="148" text-anchor="middle" fill="#9fb0bf">pre-registered gates,</text>
+    <text x="920" y="164" text-anchor="middle" fill="#9fb0bf">noise floors first</text>
+
+    <rect x="840" y="210" width="160" height="80" rx="8" fill="none" stroke="#7a8fa3"/>
+    <text x="920" y="238" text-anchor="middle" font-weight="700">PolicyEngine-US</text>
+    <text x="920" y="258" text-anchor="middle" fill="#9fb0bf">employer-keyed rules</text>
+    <text x="920" y="274" text-anchor="middle" fill="#9fb0bf">(ESI, mandates)</text>
+  </g>
+  <g stroke="#7a8fa3" stroke-width="1.5" fill="none" marker-end="url(#arr)">
+    <path d="M225,82 L301,98"/>
+    <path d="M225,170 L301,130"/>
+    <path d="M225,247 C265,247 275,160 301,146"/>
+    <path d="M225,314 L301,278"/>
+    <path d="M225,373 L640,373 L672,254"/>
+    <path d="M515,110 L640,140"/>
+    <path d="M515,264 L576,230"/>
+    <path d="M785,160 L836,135"/>
+    <path d="M785,220 L836,240"/>
+  </g>
+</svg>
+</div>
+<p class="muted" style="margin-top:10px">Same shape as the earnings pipeline: SIPP plays the role PSID plays for earnings (the label panel that trains and scores transitions), QWI/BDS play the role SSA aggregates play (calibration targets). No new evaluation machinery — job-spell views slot into the existing <code>harness/</code> PanelView + moment battery, and every scored model goes through candidate registration and a one-shot run, like the US earnings candidates.</p>
+
+<h2>US open-data landscape</h2>
+<div class="tbl-scroll"><table>
+  <tr><th>Source</th><th>What it gives us</th><th>Role</th><th>Caveats</th></tr>
+  <tr><td><b>SIPP</b> (2014+ panels)</td><td>Monthly job-level records: within-panel job IDs (<code>EJB(n)_JOBID</code>, dependent-interview-edited), start/end dates, industry, <b>location/establishment size</b> (<code>EJB1_EMPSIZE</code> — the redesign dropped the all-locations question), earnings per job, up to 7 jobs</td><td>Primary label panel — trains job-spell transitions and provides the holdout for gate scoring</td><td>IDs don't link across panels; seam effects; <b>heterogeneous 1–4-year windows</b> post-2018 (2018 panel is wave-1 only); measures establishment size, <i>not</i> firm size</td></tr>
+  <tr><td><b>CPS</b> (ASEC + tenure supplement)</td><td>Industry, class of worker, <b>firm size at all locations</b> (<code>NOEMP</code>/IPUMS <code>FIRMSIZE</code> — the only worker-reported <i>firm</i>-size label available), job tenure (biennial supplement)</td><td>Cross-sectional base the spells are imputed onto (the ECPS host); primary firm-size training label</td><td>Worker-reported; no employer ID; tenure only biennial; size bands changed 2011–2018 vs 2019+ — pooled years must harmonize</td></tr>
+  <tr><td><b>LEHD QWI &amp; J2J</b></td><td>Hires, separations, job-to-job flow rates by industry × firm size/age × geography × sex × age</td><td>Calibration targets for the match layer (microcalibrate)</td><td>Aggregates only — microdata is restricted; dimensions are <b>pairwise-restricted</b> (firm size XOR firm age; one demographic pair at a time; sub-sector industry × size at state level only; private ownership only); publishes <b>mean</b> earnings, never medians; extra release lag on size/age tabs; state coverage gaps</td></tr>
+  <tr><td><b>SUSB / BDS</b></td><td>Firm and establishment counts, employment by firm-size class × industry × state; firm entry/exit (BDS)</td><td>Margins for the synthetic firm register; firm birth/death rates for phase 2</td><td>Firm ≠ establishment distinction needs care; size classes are banded</td></tr>
+  <tr><td><b>QCEW</b></td><td>Quarterly employment and wages by county × industry</td><td>Geographic/industry employment margins</td><td>No firm-size dimension at fine geography</td></tr>
+  <tr><td><b>PSID</b></td><td>Employer tenure, job-change indicators over 50+ years</td><td>Long-horizon validation (does simulated tenure accumulate realistically over decades?)</td><td>Person-level only; biennial after 1997; tenure series has wording/bracket breaks — needs a harmonized series</td></tr>
+  <tr><td><b>JOLTS · BED · NLSY · CBP · SynLBD</b> <span class="muted">(added in review round 1)</span></td><td>JOLTS: monthly hires/quits/layoffs by industry &amp; establishment size. BED: quarterly job gains/losses by firm size. NLSY79/97: decades-long panels with true within-panel employer IDs. CBP: establishment size × county. SynLBD: public synthetic establishment panel with realistic firm dynamics</td><td>External cross-checks on flow rates (JOLTS/BED), long-horizon employer-attachment labels (NLSY), fine-geography register margins (CBP), phase-2 firm-dynamics shapes (SynLBD)</td><td>JOLTS/BED are establishment-based; NLSY cohorts aren't population-representative; SynLBD is itself synthetic — shapes, not truth</td></tr>
+</table></div>
+<p class="muted">The key constraint: the true matched employer–employee microdata (LEHD) is restricted. So we never observe a real firm's roster — we <i>construct</i> one that is consistent with every published margin. That's the same epistemic position ECPS is in with tax records, and the same answer applies: calibrate hard, validate against every aggregate that exists.</p>
+
+<h2>Phasing</h2>
+<div class="grid cols3">
+  <div class="card p0">
+    <span class="tag">PHASE 0 · static</span>
+    <h3>Employer attributes as person covariates</h3>
+    <ul class="muted">
+      <li>Impute industry, firm-size class, tenure onto CPS persons (QRF from SIPP/ASEC)</li>
+      <li>Calibrate employment-by-firm-size × industry to SUSB</li>
+      <li>Enough for firm-size-threshold policy in PolicyEngine-US, cross-sectionally</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag">PHASE 1 · dynamic</span>
+    <h3>Job-spell transitions</h3>
+    <ul class="muted">
+      <li>Hazard-style transitions: separation, hire from nonemployment, job-to-job, size/industry of destination</li>
+      <li>Trained on SIPP, scored in the harness against holdout SIPP windows</li>
+      <li>Calibrated to QWI/J2J flow rates by age × sex × industry</li>
+    </ul>
+  </div>
+  <div class="card p2">
+    <span class="tag">PHASE 2 · two-sided</span>
+    <h3>Firm-type register (BLM-style)</h3>
+    <ul class="muted">
+      <li>Model <b>firm types</b> (Bonhomme–Lamadon–Manresa discretization), not firm identities — margins can identify types; rosters are unidentified</li>
+      <li>Assignment mechanism must be named and gated: E12 targets the moments random assignment would get wrong (AKM variance shares, coworker correlation); firm entry/exit vs BDS, dynamics shapes from SynLBD</li>
+      <li>Go/no-go requires phase-1 gates <i>and</i> the E12 identification story; absent that, claims scope down to firm-size-keyed policy only — no coworker/spillover claims. Nobody has published a credible synthetic matched US employer-employee file; this would be first, and the paper must say so</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Evaluation criteria (gate-style, to be pre-registered before any model run)</h2>
+<p class="muted">Mirrors <code>gates.yaml</code> discipline: person-disjoint 20% holdout, paired splits across candidates, half-vs-half noise floors on SIPP, thresholds locked before the first run, amendments public. Proposed battery:</p>
+<div class="tbl-scroll"><table>
+  <tr><th>#</th><th>Moment / view</th><th>Reference</th><th>Pass criterion (to lock)</th></tr>
+  <tr><td>E1</td><td>Employment share by firm-size class × major industry (cross-section)</td><td>SUSB</td><td>within ±5% relative on every cell ≥1% of employment</td></tr>
+  <tr><td>E2</td><td>Separation, hire, and J2J rates by age band × sex</td><td>LEHD J2J</td><td>within noise floor × margin on each rate</td></tr>
+  <tr><td>E3</td><td>Tenure distribution by age band (P25/P50/P75)</td><td>CPS tenure supplement</td><td>quantile error vs floor</td></tr>
+  <tr><td>E4</td><td>2-window employer-retention persistence (PanelView pairs, window 2) — does a person keep the same employer attributes next period?</td><td>SIPP holdout</td><td>geometry blocks vs half-vs-half floor</td></tr>
+  <tr><td>E5</td><td>Multi-window attachment runs (window ≥3) — catches chained-model persistence understatement, the exact failure the earnings runs view exists for</td><td>SIPP holdout</td><td>runs-view geometry vs floor</td></tr>
+  <tr><td>E6</td><td>Industry mobility matrix (origin × destination major industry)</td><td>SIPP holdout + J2J</td><td>row-wise distance vs floor</td></tr>
+  <tr><td>E7</td><td>Earnings-by-firm-size gradient (<b>mean</b> monthly earnings across full firm-size × industry cells — QWI publishes means, not medians)</td><td>QWI earnings (EarnS)</td><td>cell-wise error vs floor (skew-sensitive; floor first)</td></tr>
+  <tr><td>E8</td><td>Nonemployment spell durations (zero-spell battery, reused from <code>moments.zero_spells</code>)</td><td>SIPP holdout</td><td>existing zero-spell criterion</td></tr>
+  <tr><td>E9</td><td>Earnings-change distribution conditional on transition type (stay / job-to-job / exit / entry) — the layering-coherence gate: does a simulated J2J move produce a realistic earnings change?</td><td>SIPP holdout</td><td>distributional distance vs floor, per transition type</td></tr>
+  <tr><td>E10</td><td><b>Regression gate</b>: the existing PSID earnings gates must still pass after the spell layer is attached — the employer extension may not silently degrade the ratified earnings model</td><td>existing <code>gates.yaml</code> views</td><td>unchanged pass on locked thresholds</td></tr>
+  <tr><td>E11</td><td>Job-to-job flows by <b>origin × destination firm-size class</b> (the size ladder — first-order for minimum-wage incidence)</td><td>LEHD J2JOD</td><td>row-wise distance vs floor</td></tr>
+  <tr><td>E12 <span class="muted">(phase 2 only)</span></td><td>Within-firm vs between-firm earnings variance decomposition + coworker-earnings correlation — the moments that would be <b>wrong under random worker-to-firm assignment</b>; plus firm growth-rate distribution and job creation/destruction vs BDS</td><td>published bias-corrected AKM/segregation estimates (Song et al.; KSS); BDS</td><td>variance shares within published CIs; BDS reallocation rates vs floor</td></tr>
+</table></div>
+<p style="margin-top:10px"><span class="pill">noise floors first</span><span class="pill">thresholds locked pre-run</span><span class="pill">candidates registered on issue #42 pattern</span><span class="pill">one-shot runs, committed artifacts in <code>runs/</code></span></p>
+<div class="card" style="margin-top:14px"><h3>Two pre-lock protocol rules (review round 1)</h3><ul class="muted">
+<li><b>Target/gate partition.</b> E1/E2/E3/E7 score against external aggregates that are also calibration targets — scoring on the training set. Cells used in microcalibrate must be pre-registered as disjoint from gate cells (e.g., calibrate on industry × age margins, gate on the held-out sex or firm-age dimension).</li>
+<li><b>Seam reconciliation before thresholds lock.</b> SIPP holdout transitions carry seam bias that the half-vs-half floor cannot see (both halves share it), and E2's LEHD reference has no seam — a model may be unable to pass E2 and E4 simultaneously. Commit a documented SIPP-vs-J2J rate-reconciliation run and decide ex ante which source is truth for rates (J2J) vs persistence structure (SIPP).</li>
+</ul></div>
+
+<h2>Risks &amp; open questions</h2>
+<div class="grid cols2">
+  <div class="card"><h3 class="warn">SIPP seam bias</h3><p class="muted">Transitions bunch at interview seams. Mitigation: estimate at wave frequency, treat within-wave months as interpolation; document in the floor-building run.</p></div>
+  <div class="card"><h3 class="warn">No public matched microdata</h3><p class="muted">Firm rosters are synthetic by construction. We can validate every margin but never a real roster; phase-2 claims must be framed accordingly in the paper.</p></div>
+  <div class="card"><h3 class="warn">Firm size measurement — decide what the variable <i>means</i></h3><p class="muted">SIPP measures <b>establishment</b> size; CPS ASEC measures firm size, worker-reported; SUSB is administrative enterprise size. Band reconciliation isn't enough: pre-register whether the imputed variable means administrative firm size (SUSB-coherent, but survey labels are error-laden training targets) or reported size (then SUSB is the wrong E1 reference). Multi-job holders (~5% of workers) also break one-person-one-firm accounting — decide primary-job-only in phase 0 and adjust job-count vs person-count targets.</p></div>
+  <div class="card"><h3 class="warn">Interaction with earnings gates</h3><p class="muted">Job spells and earnings trajectories must stay coherent (a J2J move should move earnings). Proposal: <b>earnings conditional on spell events</b> (the MINT/PENSIM layering precedent) — but coherence is gated by E9 (earnings-change by transition type) and E10 (existing PSID gates must not regress), not by a cross-sectional gradient. The conditioning DAG across phases must be specified: phase 0 imputes tenure from covariates including earnings, so the ordering is circular as drafted.</p></div>
+  <div class="card"><h3 class="warn">Short label windows vs long-horizon claims</h3><p class="muted">SIPP identifies hazards over ≤4 years and IDs don't cross panels; no E-item as originally drafted covered decadal tenure accumulation. Add a PSID/NLSY-referenced long-window tenure view (the runs-view machinery generalizes). PENSIM's "no job changes after 50" shortcut is the cautionary tale.</p></div>
+</div>
+
+<h2>Division of labor — two independent workstreams</h2>
+<p class="muted">Designed so two people can work in parallel with no blocking dependencies: everything meets at three frozen interface contracts, agreed in week 1 and versioned as code.</p>
+<div class="grid cols2">
+  <div class="card">
+    <span class="tag" style="color:#4fc3f7">WORKSTREAM A · PERSON SIDE · DAPHNE</span>
+    <h3>Job spells &amp; transitions</h3>
+    <ul class="muted">
+      <li><b>Data readers</b>: SIPP job-level reader in <code>data/</code> (label-verified, <code>family.py</code> pattern); CPS ASEC NOEMP + tenure-supplement loaders; harmonized PSID/NLSY tenure series</li>
+      <li><b>Imputation</b>: QRF job-spell + employer-attribute imputation onto CPS persons (phase 0); spell transition hazards — separation, hire, J2J, destination attributes (phase 1)</li>
+      <li><b>Evaluation it owns</b>: SIPP noise floors, E3, E4, E5, E8, E9, E10, long-window tenure view; the seam-vs-J2J reconciliation run</li>
+      <li><b>Deliverable to B</b>: person panel emitting spells in the frozen spell schema</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag" style="color:#81c784">WORKSTREAM B · FIRM SIDE · VAHID</span>
+    <h3>Targets, register &amp; calibration</h3>
+    <ul class="muted">
+      <li><b>Target pipeline</b>: fetch/version SUSB, BDS, CBP, QWI, J2J, JOLTS, BED extracts as committed reference tables (like <code>data/external/</code> in the UK work), each with a provenance note</li>
+      <li><b>Register</b>: canonical firm-size banding decision; BLM firm-type register drawn to SUSB/BDS margins; firm entry/exit dynamics from BDS/SynLBD (phase 2)</li>
+      <li><b>Calibration</b>: microcalibrate spell-carrying persons to the QWI/J2J target cells; owns the target/gate partition registration</li>
+      <li><b>Evaluation it owns</b>: E1, E2, E6, E7, E11, E12; aggregate-side floor studies</li>
+    </ul>
+  </div>
+</div>
+<div class="card" style="margin-top:14px">
+  <span class="tag" style="color:#ffb74d">INTERFACE CONTRACTS — frozen week 1, changed only by joint PR</span>
+  <ul class="muted">
+    <li><b>C1 · Spell schema.</b> One table: <code>person_id, spell_id, start_period, end_period, industry (major), firm_size_band, earnings_share, primary_job</code>. A writes it, B reads it. Firm-size bands use the canonical banding B defines (C2). Multi-job resolved primary-job-only in phase 0.</li>
+    <li><b>C2 · Canonical firm-size banding + semantics.</b> B proposes the band set reconcilable across NOEMP / SIPP-establishment / SUSB-enterprise, and the decision of what the variable <i>means</i> (administrative firm size, per review F5). A trains to it; documented in the ADR.</li>
+    <li><b>C3 · Gate pre-registration.</b> Jointly authored employer gate block (E1–E12 thresholds after floor runs), split ownership as above, one referee round, locked before any candidate runs. Neither side's model work may start a one-shot run until C3 locks.</li>
+  </ul>
+  <p class="muted" style="margin-top:6px"><b>Sync points</b>: week 1 (freeze C1/C2), week 4 (lock C3), week 10 (joint phase-2 go/no-go with Max). Everything else is asynchronous — A can build readers/imputation against fixture spells; B can build the target pipeline and register against a synthetic spell file conforming to C1.</p>
+</div>
+
+<h2>Precedents — what similar projects did</h2>
+<div class="tbl-scroll"><table>
+  <tr><th>Model</th><th>Employer representation</th><th>Lesson for this plan</th></tr>
+  <tr><td><b>PENSIM</b> (DOL/PSG)</td><td>Full job histories (start/stop, industry, firm size per job) from SIPP-estimated tenure models; <b>no firm register</b> — employers are attribute bundles on spells</td><td>Phases 0–1 are essentially PENSIM with a modern imputation stack plus pre-registration — proven territory. Its "no job changes after 50" shortcut shows what a too-short label panel forces</td></tr>
+  <tr><td><b>MINT</b> (SSA)</td><td>Imports PENSIM job-change sequences, attaches to administrative earnings histories</td><td>The conditional-layering precedent — but MINT's earnings are administrative, so coherence is anchored; here earnings are modeled too, making E9/E10 load-bearing</td></tr>
+  <tr><td><b>DYNASIM4</b> (Urban) &amp; <b>CBOLT</b> (CBO)</td><td>Job-change probabilities and industry/pension coverage as person-level states; no firms</td><td>40 years of US dynamic microsimulation never needed a firm register for benefit-rules work — firm-size-as-covariate suffices for threshold policies</td></tr>
+  <tr><td><b>Census SIPP Synthetic Beta</b></td><td>Synthetic person records from linked SIPP–IRS–SSA; never released person-firm links</td><td>Its validation study found margin-matching did not deliver joint-distribution validity — the direct empirical warning behind E12</td></tr>
+  <tr><td><b>Census SynLBD</b></td><td>Fully synthetic establishment panel with realistic growth/entry/exit; no workers in it</td><td>A synthetic firm register with credible <i>dynamics</i> is feasible; borrow its distributional shapes for phase 2. No one has published the matched worker-firm version</td></tr>
+  <tr><td><b>AKM / BLM literature</b></td><td>Measurement theory: firm effects, worker-firm sorting, firm-class discretization</td><td>Model firm <i>types</i> (BLM), not identities; target bias-corrected (KSS) variance shares — raw AKM estimates carry limited-mobility bias</td></tr>
+  <tr><td><b>MOSART</b> (Norway) · <b>Destinie</b> (France)</td><td>MOSART: real register links. Destinie: sector-as-covariate, no employers</td><td>Employer realism exists where the data has links, not because anyone solved synthesis. Note: the UK follow-on is <i>easier</i> for phase 2 (ASHE is employer-sampled; IDBR margins are rich)</td></tr>
+</table></div>
+
+<h2>Milestones</h2>
+<div class="tbl-scroll"><table>
+  <tr><th>Workstream A — Daphne (person side)</th><th>Workstream B — Vahid (firm side)</th></tr>
+  <tr><td>SIPP job-level reader (label-verified, <code>family.py</code> pattern); CPS NOEMP/tenure loaders; ADR drafted jointly · <b>freeze C1/C2</b></td><td>Target pipeline: SUSB/BDS/QWI/J2J/JOLTS extracts committed with provenance notes; canonical banding proposal (C2)</td></tr>
+  <tr><td>SIPP noise-floor runs; seam-vs-J2J reconciliation run; draft E3–E5/E8–E10 thresholds</td><td>Aggregate-side floor studies; target/gate partition; draft E1/E2/E6/E7/E11 thresholds · <b>joint: referee round, lock C3</b></td></tr>
+  <tr><td>Phase-0 QRF imputation of spells + attributes onto CPS</td><td>Calibration of the imputed file to partitioned QWI/SUSB cells; E1/E7 evidence artifacts</td></tr>
+  <tr><td>Phase-1 transition candidates registered; one-shot runs against locked gates</td><td>BLM firm-type register prototype; E12 feasibility study (are published AKM/coworker moments sufficient targets?)</td></tr>
+  <tr><td colspan="2"><b>Joint</b>: phase-2 go/no-go review with Max, based on committed gate evidence + the E12 identification story</td></tr>
+</table></div>
+
+<div class="footer">Populace dynamics · employer–firm extension plan · US-first per Max, UK (via UKHLS/ASHE/IDBR aggregates) follows the same template once the US gate block is ratified. Prepared 2026-07-14. <b>Rev 1 (same day):</b> incorporates two independent adversarial reviews — a data-claims audit (SIPP measures establishment not firm size; QWI publishes means not medians; QWI/J2J dimensions pairwise-restricted; post-2018 SIPP windows heterogeneous) and a modeling/precedents review (E9–E12 added; target/gate partition and seam-reconciliation protocol rules; phase 2 reframed as BLM firm types with scoped claims).</div>
+</div>
+</body>
+</html>
