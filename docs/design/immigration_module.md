@@ -3,7 +3,7 @@
 - **Design id**: `2026-07-15-immigration-module`
 - **Roadmap**: [#113](https://github.com/PolicyEngine/populace-dynamics/issues/113),
   M6 immigration entry cohorts and the versioned Trustees alignment layer.
-- **Status**: DESIGN DRAFT (revision 2; adversarial-referee adjudication pending).
+- **Status**: DESIGN DRAFT (revision 3; adversarial-referee adjudication pending).
   No immigration surface is certified by this document.
 - **Engine baseline**: `75d30dd57d71b91ee0929246b2f3cbb92263b350`.
   File:line pins refer to that tree unless a different source is named.
@@ -16,6 +16,12 @@
 
 ## Revision log (finding → section)
 
+- Revision 3 replaces invalid collection-year slicing of five-year ACS PUMS with
+  separately weighted annual 1-year files; freezes year-namespaced units, annual
+  replicate designs and cross-year normalization; adds component-aware timing,
+  conditional controls, a projection-origin/first-cohort decision, and explicit
+  module-native initializer blockers → §2.2, §3.2, §4.2–4.9, §5, §6,
+  O2/O3/O5/O6/O11–O15.
 - Revision 2 incorporates the pre-PR adversarial review: it distinguishes the
   ACS survivor/stayer stock proxy from state at arrival; treats prior U.S.
   covered earnings as censored for possible return entrants; adds fertility,
@@ -185,7 +191,7 @@ emigration cannot be ignored.
 
 | Source | Exact public support | V1 role | Binding limitation |
 |---|---|---|---|
-| ACS PUMS | Census annual 1-year person PUMS files for [2010](https://www2.census.gov/programs-surveys/acs/data/pums/2010/1-Year/csv_pus.zip), [2011](https://www2.census.gov/programs-surveys/acs/data/pums/2011/1-Year/csv_pus.zip), [2012](https://www2.census.gov/programs-surveys/acs/data/pums/2012/1-Year/csv_pus.zip), [2013](https://www2.census.gov/programs-surveys/acs/data/pums/2013/1-Year/csv_pus.zip), and [2014](https://www2.census.gov/programs-surveys/acs/data/pums/2014/1-Year/csv_pus.zip); annual dictionaries [2010](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict10.pdf), [2011](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict11.pdf), [2012](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict12.pdf), [2013](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict13.pdf), and [2014](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict14.pdf); and corresponding annual Accuracy statements ([2010](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010AccuracyPUMS.pdf), [2011](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2011AccuracyPUMS.pdf), [2012](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2012AccuracyPUMS.pdf), [2013](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2013AccuracyPUMS.pdf), [2014](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2014AccuracyPUMS.pdf)). The *[2010–2014 PUMS dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* is crosswalk evidence only. The *[2014 ACS Subject Definitions](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2014_ACSSubjectDefinitions.pdf)*, “Year of Entry,” pp. 128–129, documents response ambiguity. | Primary joint-stock donor and gate truth only for the named stock-proxy surface. Fit 2010–2013 with each annual file's `PWGTP` and replicate weights; hold the separately weighted 2014 file out in full. Bind annual `YOEP`, `POBP`, `AGEP`, `SEX`, `RELP`, education, disability, employment and earnings concepts. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. Interviewers request the most recent entry, but unclarified/mail answers can be first or most recent. `WAGP` covers the prior 12 months, possibly including pre-entry months. `RELP` identifies relationship to the reference person, not arbitrary relationship pointers. The gate never uses 5-year pooled weights. Current 2010/2011 bytes are corrected Mar. 4, 2013 re-releases ([erratum 87](https://www.census.gov/programs-surveys/acs/technical-documentation/errata/087.html)); the current 2013 person archive was reposted Feb. 12, 2015 alongside a housing-only `MV` correction ([erratum 97](https://www.census.gov/programs-surveys/acs/technical-documentation/errata/097.html)). Exact bytes/correction status and observation versus release date remain bound/O6 decisions. |
+| ACS PUMS | Census annual 1-year person PUMS files for [2010](https://www2.census.gov/programs-surveys/acs/data/pums/2010/1-Year/csv_pus.zip), [2011](https://www2.census.gov/programs-surveys/acs/data/pums/2011/1-Year/csv_pus.zip), [2012](https://www2.census.gov/programs-surveys/acs/data/pums/2012/1-Year/csv_pus.zip), [2013](https://www2.census.gov/programs-surveys/acs/data/pums/2013/1-Year/csv_pus.zip), and [2014](https://www2.census.gov/programs-surveys/acs/data/pums/2014/1-Year/csv_pus.zip); annual dictionaries [2010](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict10.pdf), [2011](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict11.pdf), [2012](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict12.pdf), [2013](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict13.pdf), and [2014](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict14.pdf); and corresponding annual Accuracy statements ([2010](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010AccuracyPUMS.pdf), [2011](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2011AccuracyPUMS.pdf), [2012](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2012AccuracyPUMS.pdf), [2013](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2013AccuracyPUMS.pdf), [2014](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2014AccuracyPUMS.pdf)). The *[2010–2014 PUMS dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* is crosswalk evidence only. The *[2014 ACS Subject Definitions](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2014_ACSSubjectDefinitions.pdf)*, “Year of Entry,” pp. 128–129, documents response ambiguity. | Primary joint-stock donor and gate truth only for the named stock-proxy surface. Fit 2010–2013 with each annual file's `PWGTP` and replicate weights; hold the separately weighted 2014 file out in full. Bind annual `YOEP`, `POBP`, `AGEP`, `SEX`, `RELP`, education, disability, employment and earnings concepts. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. Interviewers request the most recent entry, but unclarified/mail answers can be first or most recent. `WAGP` covers the prior 12 months, possibly including pre-entry months. `RELP` identifies relationship to the reference person, not arbitrary relationship pointers. The gate never uses 5-year pooled weights. Current 2010/2011 bytes are corrected Mar. 4, 2013 re-releases ([erratum 87](https://www.census.gov/programs-surveys/acs/technical-documentation/errata/087.html)); the current 2013 person archive was reposted Feb. 12, 2015 alongside a housing-only `MV` correction ([erratum 97](https://www.census.gov/programs-surveys/acs/technical-documentation/errata/097.html)). The [2013 same-sex married-couple user note](https://www.census.gov/programs-surveys/acs/technical-documentation/user-notes/2013-03.html) is a marital/family concept break. Exact bytes/correction status and observation versus release date remain bound/O6 decisions. |
 | CPS ASEC | Census, *[2014 Traditional ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14.pdf)* or *[2014 Redesigned ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14R.pdf)*: the cited Redesigned layout has demographics p. 65; six disability items pp. 68–69; `PENATVTY`, grouped `PEINUSYR`, `PRCITSHP`, `MARSUPWT` p. 69; wage/salary and earnings pp. 77, 83. | Report-only marginal and earnings triangulation. | Smaller civilian noninstitutional universe plus Armed Forces members living in civilian housing; grouped entry years; survey-date demographics versus prior-calendar-year income. Traditional and Redesign files must never be silently combined. |
 | SIPP | Census, *[2014 SIPP Metadata, all sections v2](https://www2.census.gov/programs-surveys/sipp/tech-documentation/data-dictionaries/2014/w1/2014SIPP_Metadata_AllSections_v2.pdf)*: `WPFINWGT` p. 9; marital status p. 23; age p. 30; nativity/citizenship pp. 35–37; grouped `TYRENTRY` and entry-status item `TIMSTAT` pp. 38–39; education p. 42; sex p. 43; disability p. 1368; monthly earnings p. 2766. | Report-only joint-state and initializer plausibility check. | Wave 1 covers the 2013 reference year and a civilian-noninstitutional universe. Later waves do not represent newly arrived immigrant-only households, although new co-residents of original sample people can enter. `TIMSTAT` is neither a legal-history panel nor authority to model status and is excluded from v1 state. |
 
@@ -848,6 +854,10 @@ the holdout, CPS/SIPP statistic, current Trustees assumption, or Census projecti
 may affect the fit. The 2010–2014 5-year PUMS is prohibited from both fitting and
 truth: its five-year weights represent/rerake to the pooled period, so slicing it
 by survey year would neither recover annual truth nor preserve the leakage fence.
+The 2013 same-sex married-couple edit change is frozen in the per-year concept
+map. Marital/family cells must harmonize to a definition stable across all five
+annual files or be demoted before the truth floor; a dictionary crosswalk alone is
+not evidence of longitudinal concept invariance.
 
 The annual files are observations at or before `T*`, but at least the 2014 file
 was released after its observation year. Decision O6 must ratify an observation-
@@ -1039,6 +1049,8 @@ group-quarters counts. It must hard-fail on a 5-year pooled input. It must use
 `reported_year_of_entry`: the intended interviewer concept is most recent entry,
 while unclarified/self responses may mean first or most recent entry.
 `first_entry_year` is prohibited without another source.
+The concept-map manifest must also name the 2013 same-sex married-couple edit
+break and its common-definition harmonization or explicit report-only demotion.
 
 The Census parser must preserve its July-to-June event year and resident-
 population universe. A calendar-year bridge to Trustees may be displayed only as
@@ -1082,7 +1094,8 @@ persons. The builder may not use age `-1` or a hidden donor-age shift.
 
 Ratify the proposed 0–4-year **reported-entry** window or a different duration;
 decide whether duration-zero/one donors receive priority; and freeze age/source/
-education/family matching cells and their fallback order. Repeat-entry
+education/family matching cells, annual pooling/replicate-block treatment,
+same-sex-marriage concept harmonization, and fallback order. Repeat-entry
 identification and prior U.S. coverage belong to O12.
 
 ### O4. Person versus co-arrival-family units and weights — hardest
@@ -1296,8 +1309,9 @@ excluded.
   evidence and 2014 ACS Subject Definitions “Year of Entry,” pp. 128–129; Census
   2014 Traditional and Redesigned ASEC technical documentation; Census 2014 SIPP
   Wave 1 metadata and source/accuracy statement. The five-year ACS file is
-  excluded from the gate; the exact SIPP raw file remains unbound at O8. Exact
-  variables and pages are pinned in §2.2 and §6.2.
+  excluded from the gate; ACS errata 87/97 and the 2013 same-sex married-couple
+  user note are manifest inputs; the exact SIPP raw file remains unbound at O8.
+  Exact variables and pages are pinned in §2.2 and §6.2.
 - **Projection corridors**: Census, *Methodology, Assumptions, and Inputs for the
   2023 National Population Projections* (November 2023), migration pp. 8–14, and
   Table 1 in the Main Series and each Alternative Scenario.
