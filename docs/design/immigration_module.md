@@ -44,6 +44,10 @@
   [PR #221](https://github.com/PolicyEngine/populace-dynamics/pull/221)
   §2.8.2i F2 law and assert entrant/domain disjointness before projection →
   §3.1–3.2, §3.5, §4.6–4.7, §4.11.
+- Runner-reporting invalidation finding: the closed-panel entrant report hardcodes
+  zero immigrants and counts the whole schedule as realized openers; require
+  row-level `entry_kind` classification in the open-run integration → §3.1,
+  §4.7, §5.6, §9.1.
 - Donor-support finding: MINT's sparse annual cohorts and the public surveys'
   different universes require floors before any accuracy threshold → §2.1–2.3,
   §5.3.
@@ -327,9 +331,12 @@ already publishes later PSID openers through the same key
 entry mechanism.
 
 The immigration builder must **compose with**, not replace, that existing mapping.
-For each shared year it schema-reconciles and concatenates the unchanged PSID
-opener frame with the immigrant frame, then validates one prior-year coordinate
-and global ID uniqueness.
+For each shared year it schema-reconciles and concatenates a value/ID-preserving
+copy of the PSID opener frame with the immigrant frame, then validates one prior-
+year coordinate and global ID uniqueness. The composed copy adds and validates
+the reporting discriminator `entry_kind = "psid_realized_opener"`; immigrant
+frames carry `entry_kind = "immigration"`. This annotation does not mutate the
+source opener mapping or alter any pre-existing opener value or ID.
 
 The current loop's maximum is run-local and is not a sufficient immigrant-ID
 floor. Pending M6 amendment
@@ -410,12 +417,14 @@ to master as
 forensic source is the
 [3h forensics/adjudication](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4984997277)
 and the merged M6 §2.8.2h text. This sibling design adopts that law as a
-dependency while retaining the stated baseline for every code pin:
+dependency while retaining the stated baseline for every code pin. The following
+is a faithful paraphrase, not a verbatim quotation:
 
-> A scheduled maternal birth may materialize a child only when the mother is
-> present in the live post-mortality roster. The frame-independent risk schedule
-> may remain the scoring universe; absent-mother events are dropped after the draw
-> and reconciled report-only so RNG addresses do not shift.
+> **Paraphrase of merged M6 §2.8.2h:** A scheduled maternal birth may materialize
+> a child only when the mother is present in the live post-mortality roster. The
+> frame-independent risk schedule may remain the scoring universe; absent-mother
+> events are dropped after the draw and reconciled report-only so RNG addresses
+> do not shift.
 
 Entrants are roster-present when their own rows are activated, and their later
 maternal births obey this exact 3h law. V1 separately proposes a broader
@@ -741,6 +750,14 @@ Every scheduled entry frame contains these conceptual groups:
 No `legal_status` field is inferred. A source-stock component from Table V.A2 may
 be retained only at aggregate manifest level; it is not assigned to a person.
 
+Every row in the **composed schedule copy** has an explicit `entry_kind` before
+reporting: `"immigration"` for this module and `"psid_realized_opener"` for the
+pre-existing opener frames. The open-run report partitions counts from that field.
+It counts materialized maternal births from their explicit birth provenance (or
+from the dynamic-allocation ledger after excluding every scheduled ID), never by
+assuming that every non-initial or synthetic ID is a birth. The three classes are
+mutually exclusive; total schedule size is not an opener counter.
+
 Before engine invocation the builder hard-checks:
 
 - mapping keys are integer entry years in the projection range;
@@ -1026,9 +1043,10 @@ died before interview, any post-entry transition, any interaction with the
 closed population, or any Social Security eligibility/benefit result.
 
 It also would not modify or extend the M6 certificate. Entrants remain family-B
-open additions under `harness/m6_reporting.py:71-73` and its explicit immigrant
-person-row bridge at `harness/m6_reporting.py:104-118` until a later ratified gate says
-otherwise.
+open additions under the limitation at `harness/m6_reporting.py:71-73`, the
+explicit immigrant person-row bridge at `harness/m6_reporting.py:104-118`, and
+the family-B ledger actually published by `build_entrant_diagnostics` at
+`harness/m6_reporting.py:285-301`, until a later ratified gate says otherwise.
 
 ## 6. External bindings
 
@@ -1309,6 +1327,28 @@ report-only O14 product and makes no closed-run byte-identity claim.
 
 ## 9. Candidate-blind implementation and certification order
 
+### 9.1 Required integration patch pointers
+
+The eventual open-run integration must update the M6 runner surfaces that encode
+closed-panel entrant assumptions. `harness/m6_runner.py:873-874,909-920` currently
+treats every non-initial synthetic ID as a maternal birth, hardcodes
+`"immigrant_cohorts": 0`, and sums every frame in the schedule mapping into
+`scheduled_realized_openers`. Its fallback and family-B consumer repeat the zero
+at `harness/m6_runner.py:1091-1106`. Those are mandatory patch surfaces when the
+module lands; the closed-panel path may retain its current result.
+
+The open-run report must derive mutually exclusive counters from explicit
+provenance: immigrant schedule rows where `entry_kind == "immigration"`, realized
+PSID opener rows where `entry_kind == "psid_realized_opener"`, and dynamically
+materialized births identified by birth provenance or the allocation ledger after
+all scheduled IDs are removed. It must never infer opener count from the size of
+the merged schedule, infer births from every non-initial ID, or inherit the
+hardcoded zero-immigrant fallback. The resulting immigrant count feeds the
+existing family-B publisher at `harness/m6_reporting.py:285-301` and remains
+report-only.
+
+### 9.2 Ordered ceremony
+
 A later implementation should proceed in this order:
 
 1. Referee resolves O1–O15 for the chosen implementation slice and ratifies the
@@ -1405,7 +1445,7 @@ excluded.
     "synthetic_allocator_start": "engine default is max(initial and all scheduled person_id) + 1 when caller metadata omits the allocator",
     "reserved_real_person_namespace": "freeze before any split as full anchor union every person-keyed fitted support, including both earnings maps, marital attrs, household person keys, and disability-panel person keys",
     "immigrant_id_floor": "1 + max(reserved_real_person_ids union every pre-existing scheduled person_id); preserve unchanged through subsets",
-    "existing_schedule_merge": "preserve and concatenate every PSID opener frame; allocate immigrants at or above the global immigrant_id_floor",
+    "existing_schedule_merge": "preserve every existing opener value and ID; tag the composed copy entry_kind=psid_realized_opener, concatenate immigration rows tagged entry_kind=immigration, and allocate immigrants at or above the global immigrant_id_floor",
     "domain_disjoint_assertion": "immigrant_ids intersect adapter.domain_person_ids is empty for every active earnings adapter before period 1",
     "byte_identity_precondition": "a full-population/original-person byte-identity claim requires checked run_real_person_ids superset fitted_support_person_ids; subset runs do not inherit the claim",
     "caller_allocator_guard": "omit caller allocator or assert next_id exceeds the reserved real-person namespace and every scheduled person_id"
@@ -1421,6 +1461,7 @@ excluded.
     "entrant_fertility": "excluded from fertility risk absent a bound parity/history bridge and entrant-aware kernel",
     "entrant_claiming": "excluded absent insured-status and prior-coverage evidence",
     "rng_isolation": "required composite partition before any closed-person byte-identity claim",
+    "entrant_reporting": "open-run m6_runner counters partition schedule rows by entry_kind and births by explicit materialization provenance; whole-schedule opener counts and hardcoded zero immigrants are prohibited",
     "runtime": "schedule built once per scenario and reused across K engine draws",
     "legal_status_dynamics": "out of scope",
     "current_entry_only_outputs": "report_only"
