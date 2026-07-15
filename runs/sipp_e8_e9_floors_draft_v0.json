@@ -1,0 +1,140 @@
+{
+  "artifact": "sipp_e8_e9_floors",
+  "version": "draft_v0",
+  "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
+  "issue": "192",
+  "source": "pu2023 (reference year 2022), persons observed all 12 reference months (censoring-free draft restriction, recorded)",
+  "method": "person-disjoint sha256 half-splits, seeds 0-4; rates floored on |log rate ratio|, earnings-change medians/IQRs on absolute gaps in log-points; weighted by WPFINWGT",
+  "seam_caveat": "identical to the E4/E5 floors: half-splits share SIPP's seam structure; #214 carries the seam measurement",
+  "stay_median_heaping_caveat": "within-job SIPP monthly earnings are mostly constant across a wave (dependent-interview reporting), so the stay-transition median log-change heaps at exactly 0 and its half-vs-half floor is degenerate (0.0) - the same failure class as the tenure quantile heaping; E9-stay thresholds should be stated on the IQR or a distributional distance, not the median",
+  "e8_nonemployment_by_age": {
+    "16_24": {
+      "any_nonemp_share": 0.4145,
+      "long_nonemp_share": 0.3422,
+      "persons_unweighted": 1781,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.08001,
+        "floor_abs_log_ratio_sd": 0.0466,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.10556,
+        "floor_abs_log_ratio_sd": 0.04714,
+        "thin": false
+      }
+    },
+    "25_34": {
+      "any_nonemp_share": 0.1401,
+      "long_nonemp_share": 0.0973,
+      "persons_unweighted": 3240,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.07301,
+        "floor_abs_log_ratio_sd": 0.04942,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.14005,
+        "floor_abs_log_ratio_sd": 0.06264,
+        "thin": false
+      }
+    },
+    "35_44": {
+      "any_nonemp_share": 0.1017,
+      "long_nonemp_share": 0.0663,
+      "persons_unweighted": 3543,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.1424,
+        "floor_abs_log_ratio_sd": 0.09863,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.20084,
+        "floor_abs_log_ratio_sd": 0.10088,
+        "thin": false
+      }
+    },
+    "45_54": {
+      "any_nonemp_share": 0.0852,
+      "long_nonemp_share": 0.0555,
+      "persons_unweighted": 3241,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.10559,
+        "floor_abs_log_ratio_sd": 0.11745,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.14665,
+        "floor_abs_log_ratio_sd": 0.07165,
+        "thin": false
+      }
+    },
+    "55_64": {
+      "any_nonemp_share": 0.1045,
+      "long_nonemp_share": 0.083,
+      "persons_unweighted": 3449,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.14077,
+        "floor_abs_log_ratio_sd": 0.05732,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.14983,
+        "floor_abs_log_ratio_sd": 0.05971,
+        "thin": false
+      }
+    },
+    "65_99": {
+      "any_nonemp_share": 0.1887,
+      "long_nonemp_share": 0.1546,
+      "persons_unweighted": 2286,
+      "any_nonemp": {
+        "floor_abs_log_ratio_mean": 0.05111,
+        "floor_abs_log_ratio_sd": 0.04105,
+        "thin": false
+      },
+      "long_nonemp": {
+        "floor_abs_log_ratio_mean": 0.09334,
+        "floor_abs_log_ratio_sd": 0.03649,
+        "thin": false
+      }
+    }
+  },
+  "e9_transitions": {
+    "transition_rates": {
+      "entry": 0.0101,
+      "exit": 0.0094,
+      "j2j": 0.0035,
+      "stay": 0.977
+    },
+    "earnings_change": {
+      "stay": {
+        "median_log_change": 0.0,
+        "iqr_log_change": 0.0656,
+        "pairs_unweighted": 163552,
+        "floor_abs_median_gap": {
+          "mean": 0.0,
+          "sd": 0.0
+        },
+        "floor_abs_iqr_gap": {
+          "mean": 0.0,
+          "sd": 0.0
+        },
+        "thin": false
+      },
+      "j2j": {
+        "median_log_change": 0.2264,
+        "iqr_log_change": 1.069,
+        "pairs_unweighted": 545,
+        "floor_abs_median_gap": {
+          "mean": 0.07658,
+          "sd": 0.03448
+        },
+        "floor_abs_iqr_gap": {
+          "mean": 0.08423,
+          "sd": 0.05215
+        },
+        "thin": false
+      }
+    }
+  }
+}
