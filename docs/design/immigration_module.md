@@ -3,7 +3,7 @@
 - **Design id**: `2026-07-15-immigration-module`
 - **Roadmap**: [#113](https://github.com/PolicyEngine/populace-dynamics/issues/113),
   M6 immigration entry cohorts and the versioned Trustees alignment layer.
-- **Status**: DESIGN DRAFT (revision 3; adversarial-referee adjudication pending).
+- **Status**: DESIGN DRAFT (revision 4; fixes applied, verification pending).
   No immigration surface is certified by this document.
 - **Engine baseline**: `75d30dd57d71b91ee0929246b2f3cbb92263b350`.
   File:line pins refer to that tree unless a different source is named.
@@ -16,6 +16,13 @@
 
 ## Revision log (finding → section)
 
+- Revision 4 applies all four SPEC-SOUND referee amendments: global fitted-
+  namespace IDs and a pinned domain-disjointness assertion; runner reporting
+  invalidations; corrected ACS archive headers; and a training-only gate cohort-
+  mix input. It also labels the 3h condensation as a paraphrase, marks the
+  Trustees glossary page pin confirm-at-fetch, pins the family-B publisher, and
+  exposes the remaining assignment choice as O16 → §2.2–2.4, §3.1–3.5,
+  §4.1–4.7, §4.11, §5, §6, O3/O6/O10/O16, §9.1.
 - Revision 3 replaces invalid collection-year slicing of five-year ACS PUMS with
   separately weighted annual 1-year files; freezes year-namespaced units, annual
   replicate designs and cross-year normalization; adds component-aware timing,
@@ -71,7 +78,7 @@ referee:
    status is a reclassification and not a new person. The temporary/unlawfully
    present inflow counts only people who remain to year-end, so it is not a count
    of every border arrival.
-2. Use recent-arrival ACS donor units for a joint **resident survivor/stayer
+2. Pending O16, use recent-arrival ACS donor units for a joint **resident survivor/stayer
    stock proxy**. A separately estimated stock-to-arrival bridge must backcast or
    otherwise map that proxy before it can be called entry-time state. The runtime
    schedule is deterministic conditional on the frozen artifacts, binding
@@ -237,9 +244,9 @@ change between reported entry and interview. Directly copying that state onto an
 entry-year row is only a named report-only initializer. A literal arrival-state
 claim requires the separately bound stock-to-arrival bridge in §6.2/O12.
 
-### 2.3 Donor-based versus model-based assignment
+### 2.3 Donor-based versus model-based assignment (pending O16)
 
-**Provisional adjudication: donor-based joint assignment, with model-based
+**Provisional adjudication pending O16: donor-based joint assignment, with model-based
 calibration and no cloned future.** This preserves observed covariance among age,
 sex, education, marital/family state, disability indicators, employment, and
 earnings. A purely parametric set of independent draws is rejected for v1 because
@@ -259,8 +266,10 @@ passing marginal cells would not establish a coherent person or family packet.
 - runtime realization is deterministic conditional on the frozen artifact,
   controls, and seed.
 
-A later parametric alternative may compete only on the same joint holdout
-surface and floors. Lower marginal error alone is insufficient.
+A genuinely joint parametric alternative may compete under O16 only on the same
+training/holdout boundary, unit-closure law, joint holdout surface, and floors.
+Independent marginal hot-decks remain inadmissible, and lower marginal error
+alone is insufficient.
 
 ### 2.4 Gross inflow, net change, and status adjustment
 
@@ -528,7 +537,9 @@ The conceptual products are:
 - **`ImmigrationBindingManifest`**: immutable source/vintage/schema/hash records,
   annual flow controls, universe labels, and scenario identity;
 - **`ImmigrationDonorArtifact`**: a fitted pool of recent-arrival person or family
-  units, matching cells, fallback hierarchy, concept mappings, and provenance;
+  units, matching cells, fallback hierarchy, concept mappings, and provenance,
+  including the frozen training-only gate duration masses `C[s,d]` and `q[d]`
+  defined in §5.2;
 - **`ArrivalStateBridge`**: an estimated duration/backcast and selection law, or
   an explicit `stock_proxy` identity label that prohibits an arrival-state claim;
 - **`EntrantStateBundle`**: the entry frame plus module-native initial state and
@@ -553,6 +564,8 @@ The campaign's estimation/determinism split is binding:
 - recent-arrival definition and survey concept map;
 - donor unit, matching variables, and fallback order;
 - sampling/calibration loss and weight trimming;
+- the training-only gate duration-mass construction, annual pooling branch,
+  support/demotion rules, and unit-mass convention in §5.2;
 - any ACS→SIPP joint-history imputation;
 - the stock-to-arrival duration/selection bridge, return-entry treatment, and
   fertility/parity and prior-coverage mappings;
@@ -566,16 +579,22 @@ The campaign's estimation/determinism split is binding:
 - schedule realization under an explicit schedule seed;
 - synthetic IDs and arrival-unit IDs;
 - conversion to the seam's prior-year frame coordinate;
-- cohort weight calibration to the bound control; and
+- cohort weight calibration to the mode-specific bound control (a production
+  flow control or the frozen unit-mass gate vector); and
 - serialization and audit calculations.
 
-The schedule is built **once per scenario before the K projection draws** and is
-reused across those draws. It does not consume any of the eight existing M6
-period-module streams. Sampling uncertainty is studied by separately named
-schedule seeds/artifacts; it is not accidentally mixed into the engine's
-process-error draws.
+**Design law U1 — uncertainty nesting.** A schedule is built once per scenario
+and schedule seed before the K projection draws, then reused across those draws.
+The K draws therefore represent engine process uncertainty conditional on one
+schedule; separately named schedule seeds/artifacts form an outer sampling-
+uncertainty dimension. The schedule consumes none of the eight existing M6
+period-module streams.
 
-### 4.3 Annual cohort sizing
+### 4.3 Annual cohort sizing for production/report-only scenarios
+
+Every `G_*` quantity in this subsection is a production or report-only scenario
+control. Trustees and Census controls are prohibited in `gate_imm`; gate mode
+uses only the training-derived unit-mass input in §5.2.
 
 For Trustees calendar year `y`, define the unbridged positive-inflow control
 
@@ -617,7 +636,8 @@ included in baseline stock or the run has an omission/double-count. No 2015–20
 gap or silently dropped first cohort is permitted.
 
 The schedule uses a manageable synthetic sample and positive calibration
-weights; it does not create 1.34 million physical rows in 2026. For each year:
+weights; it does not create 1.34 million physical rows in 2026. For each
+production/report-only schedule year:
 
 - the number of donor units is frozen from training-only support/power analysis
   before the truth floor, not by the external population count or candidate;
@@ -695,10 +715,11 @@ The precise cells are selected and frozen before candidate scoring. Fallbacks
 coarsen in a published order; they never cross a prohibited concept boundary
 merely to fill a cohort. Every fallback count appears in the audit.
 
-Long-run composition is held at the donor artifact's calibrated distribution
-unless a separately sourced, gate-reviewed composition trajectory is bound.
-Trustees aggregate totals cannot be used to manufacture one. Constant
-composition through 2100 is therefore a visible extrapolation limitation, not an
+**Design law C1 — no unbound composition drift.** Long-run composition is held at
+the donor artifact's calibrated distribution unless a separately sourced, gate-
+reviewed composition trajectory is bound. Trustees aggregate totals cannot be
+used to manufacture one. Constant composition through 2100 is the conservative
+absence-of-evidence fallback and a visible extrapolation limitation, not an
 empirical forecast claim.
 
 ### 4.6 Schedule seed, IDs, and reproducibility
@@ -887,7 +908,9 @@ schema versions, schedule seed, the reserved-real-ID-set digest, frozen immigran
 floor and allocated ID ranges, per-year physical rows and weighted totals,
 donor-cell effective sample sizes, fallback counts, calibration residuals,
 top-code/allocation shares, unit-size distribution, state-bundle completeness,
-and all report-only/certified labels.
+and all report-only/certified labels. A gate build additionally records the
+training years, `C[s,d]` table, selected `q[d]` pooling branch, support/demotion
+ledger, unit-mass check, and derived-artifact hash from §5.2.
 
 The builder refuses to run when a binding required by the selected run is missing
 or mutable, a raw or derived hash differs, a required year is absent, a unit
@@ -913,9 +936,11 @@ The candidate estimand is narrow:
 > recent-arrival stock-proxy marginals and named joint distributions at their empirical noise
 > floor?
 
-This is not a gate on literal arrival-time state or external cohort counts: exact agreement with a forced
-control is tautological. It is not truth for gross arrivals, people who left or
-died before interview, legal status, or post-entry trajectories.
+This is not a gate on literal arrival-time state or external cohort counts: exact
+agreement with a forced control is tautological. Gate mode instead uses the
+training-only, unit-mass reported-duration mix pinned in §5.2. It is not truth for
+gross arrivals, people who left or died before interview, legal status, or post-
+entry trajectories.
 
 ### 5.2 Temporal split and leakage fence
 
@@ -932,18 +957,52 @@ files:
 - score against the separately weighted annual 2014 file using the same recent-
   arrival predicate, concept map, universe, and annual-weight treatment.
 
+The gate-mode cohort-size/duration-mix input is pinned. Let training years
+`S = {2010, 2011, 2012, 2013}` and let O3 freeze the supported reported-entry-
+duration bins `D`. Using only each training file's own person weights, compute
+
+```text
+C[s,d] = sum_i PWGTP[s,i] * 1[
+    i satisfies the recent-arrival predicate and duration_bin(i) = d
+]
+
+q_equal[d] = mean_s(C[s,d] / sum_k C[s,k])
+q_population[d] = sum_s C[s,d] / sum_s,k C[s,k]
+q[d] = the O3-selected branch, with sum_d q[d] = 1
+```
+
+Before any 2014 access, store and hash `C`, `q`, the pooling branch, support, and
+demotions in `ImmigrationDonorArtifact`. For the sealed 2014 candidate, the gate
+pipeline uses the normalized reported-entry stock-cohort masses
+
+```text
+M_gate[reported_entry_year = 2014 - d] = q[d]
+gate_total_mass = 1
+```
+
+for exact one-year duration bins; any O3-pooled duration bin retains its explicit
+bin label rather than inventing a single entry year. These are reported-entry
+**stock-proxy** masses, not literal arrivals, engine `entry_year` values, or an O12
+arrival bridge. The gate invokes the complete donor-selection, calibration,
+fallback, seed-grid, and schedule-realization pipeline in this normalized stock-
+evaluation mode. O10 supplies its physical unit count, weight caps, and
+calibration constraints; no absolute population-count target exists in gate
+mode.
+
 Households/arrival units keyed by `(survey_year, SERIALNO)` are indivisible. The
-truth and candidate normalize to
-the same total before characteristic scoring; the total itself is not a gate
-cell. No 2014 characteristic, marginal, top-code treatment selected after seeing
-the holdout, CPS/SIPP statistic, current Trustees assumption, or Census projection
-may affect the fit. The 2010–2014 5-year PUMS is prohibited from both fitting and
-truth: its five-year weights represent/rerake to the pooled period, so slicing it
-by survey year would neither recover annual truth nor preserve the leakage fence.
-The 2013 same-sex married-couple edit change is frozen in the per-year concept
-map. Marital/family cells must harmonize to a definition stable across all five
-annual files or be demoted before the truth floor; a dictionary crosswalk alone is
-not evidence of longitudinal concept invariance.
+2014 truth and candidate each normalize to unit mass before characteristic
+scoring; absolute total is not a gate cell. Each training-era pseudo-holdout
+recomputes `C` and `q` from its fit side only. No 2014 record, weight, total,
+marginal, or holdout-informed top-code treatment; no CPS/SIPP statistic; and no
+current Trustees assumption or Census projection may construct the gate input.
+The 2014 weights enter only truth scoring after lock. The 2010–2014
+5-year PUMS is prohibited from both fitting and truth: its five-year weights
+represent/rerake to the pooled period, so slicing it by survey year would neither
+recover annual truth nor preserve the leakage fence. The 2013 same-sex married-
+couple edit change is frozen in the per-year concept map. Marital/family cells
+must harmonize to a definition stable across all five annual files or be demoted
+before the truth floor; a dictionary crosswalk alone is not evidence of
+longitudinal concept invariance.
 
 The annual files are observations at or before `T*`, but at least the 2014 file
 was released after its observation year. Decision O6 must ratify an observation-
@@ -962,17 +1021,19 @@ The ceremony order is mandatory:
 1. Using training-only power analysis, freeze the recent-arrival predicate,
    donor/simulation unit, physical annual sample size, weight caps, calibration
    constraints, fallback limits, schedule-seed grid and aggregation/conjunction
-   rule, concept map, matching ladder, gate cells, metrics, and weighting rules
-   without candidate holdout results.
+   rule, concept map, matching ladder, `C[s,d]` construction, O3-selected `q[d]`
+   pooling branch, duration support/demotion rules, unit-mass convention, gate
+   cells, metrics, and weighting rules without candidate holdout results.
 2. Construct a correlation-respecting real-vs-real floor from deterministic,
    household-disjoint splits or the annual 2014 replicate-weight design. Never
    split members of one `(survey_year, SERIALNO)` unit. Training uncertainty
    treats each year's replicate set as a separate block; replicate columns are
    never concatenated across years as one common design.
 3. On training-era pseudo-holdouts only, run the complete donor-selection,
-   calibration, fallback, and schedule pipeline across the registered seed grid.
-   Freeze how candidate-pipeline variability combines with the truth-side floor;
-   no favorable single schedule seed can define a PASS.
+   calibration, fallback, and schedule pipeline across the registered seed grid,
+   recomputing `C` and `q` from that pseudo-holdout's fit side only. Freeze how
+   candidate-pipeline variability combines with the truth-side floor; no
+   favorable single schedule seed can define a PASS.
 4. Publish, for every proposed cell, raw person count, raw unit count, person-
    weight Kish ESS, cluster/unit-weight ESS, replicate-design variance,
    denominator, allocation share, top-code share, and both truth-side and
@@ -1100,7 +1161,7 @@ until an acquisition PR records the actual bytes.
 | `ssa_area_to_census_resident_bridge` | **UNBOUND.** Must reconcile the 2026 report's Social Security-area glossary definition to the ACS/Census resident universe with an exact source and vintage; the exact PDF page pin is **CONFIRM_AT_FETCH**. | Annual inclusion/exclusion or factor by population category; preserve an auditable raw-SSA series beside the bridged series. Identity is not an admissible silent default. | **BLOCKING** for a schedule labeled resident-population aligned. A raw `ssa_area_proxy` may run report-only. |
 | `projection_origin_population` | Existing realized 2014 M6 initial slice for the recommended report-only integration path; a 2025/2026 resident baseline source and vintage are **UNBOUND** alternatives. | Bind `start_year`, population universe/artifact/hash, first schedule key, first-cohort disposition and continuous control interval. | **BLOCKING** for an origin other than the existing 2014 report-only open run; decision O15. |
 | `entry_timing_exposure_bridge` | **UNBOUND.** Must document each Table V.A2 inflow component's event/survival timing and the selected population-origin convention with exact report text and vintage. | Translate controls to opening/mid/end-period exposure without applying source-year survival twice; bind scheduled and target-year age meaning. No person-level status assignment. | **BLOCKING** for a production entry schedule; decision O2. |
-| `acs_pums_annual_2010_2014_recent_arrivals` | Census Bureau annual 1-year person PUMS `csv_pus.zip` files for survey years 2010–2014, with exact URLs, annual dictionaries and annual Accuracy statements in §2.2; 2014 Subject Definitions “Year of Entry,” pp. 128–129. The exact person-archive URLs currently return server `Last-Modified` dates of Mar. 4, 2013 for the corrected 2010/2011 bytes (erratum 87), Dec. 11, 2013 for 2012, Feb. 12, 2015 for the current 2013 bytes associated with housing-only erratum 97, and Oct. 6, 2015 for 2014; confirm those headers at acquisition and bind raw SHA-256 hashes. | Bind each file/hash/release/correction status separately. Set survey year only from its manifest; namespace units as `(survey_year, SERIALNO)` and validate `SERIALNO` within file. Bind annual `PWGTP`/replicate weights, `ADJINC`, `AGEP`, `SEX`, `YOEP`, `POBP`, `NATIVITY`, `RELP`, education, disability, employment, income/earnings and allocation flags. Fit 2010–2013; seal annual 2014. The 5-year PUMS and weights are prohibited. | Primary resident survivor/stayer stock donor and proposed `gate_imm` truth, conditional on O6; never literal arrival-state truth. |
+| `acs_pums_annual_2010_2014_recent_arrivals` | Census Bureau annual 1-year person PUMS `csv_pus.zip` files for survey years 2010–2014, with exact URLs, annual dictionaries and annual Accuracy statements in §2.2; 2014 Subject Definitions “Year of Entry,” pp. 128–129. The exact person-archive URLs currently return server `Last-Modified` dates of Mar. 4, 2013 for the corrected 2010/2011 bytes (erratum 87), Dec. 11, 2013 for 2012, Feb. 12, 2015 for the current 2013 bytes associated with housing-only erratum 97, and Oct. 6, 2015 for 2014; confirm those headers at acquisition and bind raw SHA-256 hashes. | Bind each file/hash/release/correction status separately. Set survey year only from its manifest; namespace units as `(survey_year, SERIALNO)` and validate `SERIALNO` within file. Bind annual `PWGTP`/replicate weights, `ADJINC`, `AGEP`, `SEX`, `YOEP`, `POBP`, `NATIVITY`, `RELP`, education, disability, employment, income/earnings and allocation flags. Fit 2010–2013 and derive/hash the §5.2 training-only `C[s,d]`/`q[d]` duration mix; seal annual 2014. The 2014 file may enter truth scoring only. The 5-year PUMS and weights are prohibited. | Primary resident survivor/stayer stock donor, sole unit-mass gate-mode cohort-mix input, and proposed `gate_imm` truth, conditional on O6; no absolute gate count and never literal arrival-state truth. |
 | `acs_stock_to_arrival_state_bridge` | **UNBOUND.** No cited ACS cross-section identifies state at the arrival instant or everyone who subsequently left/died. | Must pin a duration/backcast law, survivor/stayer selection adjustment, reported-entry ambiguity treatment, repeat-entry identification and source vintage. An identity mapping is labeled `stock_proxy` only. | **BLOCKING** for literal entry-time characteristics; decision O12. |
 | `entrant_marital_household_history_initializer` | **UNBOUND.** Candidate evidence is the annual ACS stock donor plus an exact O8 SIPP file or another named history source; source, universe and vintage are not selected. | Map entry marital history/status, spouse/relations outside roster, household seed, exposure start and later entrant-only law jointly. | **BLOCKING** for entrant marital/household domains and every mixed market; decisions O4/O5/O14. |
 | `entrant_disability_state_bridge` | **UNBOUND.** Candidate ACS disability questions and SIPP work-limit/benefit concepts have no selected module-native mapping source/vintage. | Estimate entry state and an entrant-specific forward law without relabeling survey concepts as M4 status. | **BLOCKING** for entrant disability outputs; decision O5 and a successor gate. |
@@ -1138,6 +1199,11 @@ while unclarified/self responses may mean first or most recent entry.
 `first_entry_year` is prohibited without another source.
 The concept-map manifest must also name the 2013 same-sex married-couple edit
 break and its common-definition harmonization or explicit report-only demotion.
+The gate-derived artifact must assert source years exactly `{2010, 2011, 2012,
+2013}`, finite nonnegative `C[s,d]` and `q[d]`, supported O3 duration bins, and
+`sum_d q[d] = 1` within a pinned numerical tolerance. Its provenance must contain
+no 2014 row, weight, total, or marginal; each pseudo-holdout repeats the same
+assertions with only its fit-side years.
 
 The Census parser must preserve its July-to-June event year and resident-
 population universe. A calendar-year bridge to Trustees may be displayed only as
@@ -1146,7 +1212,9 @@ be rewritten to zero net international migration.
 
 ## 7. Open decisions for the referee
 
-Nothing in this list is silently resolved by the provisional recommendation.
+Every unresolved choice is listed here. Fixed mechanics outside this list are
+explicitly labeled design laws: U1 nests schedule uncertainty outside K engine
+draws, and C1 prohibits an unbound composition trend.
 
 ### O1. Positive SSA inflow, exit scope, and net proxy — hardest
 
@@ -1182,8 +1250,9 @@ persons. The builder may not use age `-1` or a hidden donor-age shift.
 Ratify the proposed 0–4-year **reported-entry** window or a different duration;
 decide whether duration-zero/one donors receive priority; and freeze age/source/
 education/family matching cells, annual pooling/replicate-block treatment,
-same-sex-marriage concept harmonization, and fallback order. Repeat-entry
-identification and prior U.S. coverage belong to O12.
+same-sex-marriage concept harmonization, and fallback order. The pooling choice
+also selects `q_equal` or `q_population` in §5.2 before 2014 is opened. Repeat-
+entry identification and prior U.S. coverage belong to O12.
 
 ### O4. Person versus constructed same-reported-entry units — hardest
 
@@ -1249,7 +1318,8 @@ Freeze annual physical unit counts, weight caps, calibration margins and maximum
 fallback share through training-only power analysis **before** truth floors are
 constructed. The floor may prune an infeasible surface, but it may not
 candidate-adaptively choose the sample design. No arbitrary “one row per N
-people” constant is adopted here.
+people” constant is adopted here. In gate mode these choices realize the unit-
+mass `q[d]` target in §5.2; they do not introduce an absolute cohort-count input.
 
 ### O11. Social Security-area to Census-resident universe bridge
 
@@ -1300,6 +1370,16 @@ The seam requires `entry_year > start_year`. The decision must name the initial-
 population artifact/vintage, first schedule key, control range, and whether the
 first cohort is baseline stock or a seam flow. It may neither omit 2015–2025 under
 a 2014 start nor schedule an entry-year-equal-to-start-year frame.
+
+### O16. Joint assignment family
+
+Choose either the recommended donor-based joint assignment with model-based
+calibration or a predeclared genuinely joint parametric challenger. Both must use
+the same training/holdout boundary, donor/simulation-unit closure, gate registry,
+floors, and seed protocol; both must preserve or validate the named joint state.
+Independent marginal hot-decks and cloned donor futures are prohibited under
+either branch. A challenger cannot win on lower marginal error while failing the
+joint surface.
 
 ## 8. What this design does not change
 
@@ -1365,7 +1445,7 @@ report-only.
 
 A later implementation should proceed in this order:
 
-1. Referee resolves O1–O15 for the chosen implementation slice and ratifies the
+1. Referee resolves O1–O16 for the chosen implementation slice and ratifies the
    external-binding schema.
 2. Acquisition PR commits/hash-binds exact source bytes and parsers; the zero-
    argument binding factory passes independently of any candidate.
@@ -1435,8 +1515,8 @@ excluded.
 ```json immigration-design-parameters
 {
   "design_id": "2026-07-15-immigration-module",
-  "revision": 3,
-  "status": "design_draft_referee_pending",
+  "revision": 4,
+  "status": "design_draft_revision_4_verification_pending",
   "engine_baseline": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
   "roadmap_issue": 113,
   "docs_only": true,
@@ -1470,15 +1550,18 @@ excluded.
     "entry_timing": "component-aware exposure bridge required; year-end-stayer inflow may not receive a second unadjusted source-year mortality filter",
     "status_adjustment": "aggregate reclassification; not an entrant and not assigned to persons",
     "emigration": "outside entry-builder v1; mandatory successor before net-alignment claim",
-    "assignment": "annual 2010-2014 ACS 1-year joint resident-stock donor units plus model-based calibration; literal arrival state requires a separate bound bridge; no cloned future",
+    "assignment": "pending O16: annual ACS 1-year joint resident-stock donor units plus model-based calibration are recommended; a joint parametric challenger must clear the same boundary, closure, registry, and floors; literal arrival state requires a separate bound bridge; no cloned future",
     "prior_us_covered_earnings": "unknown/censored absent a first-or-return-entry and coverage bridge; never default zero",
     "entrant_fertility": "excluded from fertility risk absent a bound parity/history bridge and entrant-aware kernel",
     "entrant_claiming": "excluded absent insured-status and prior-coverage evidence",
     "rng_isolation": "required composite partition before any closed-person byte-identity claim",
     "entrant_reporting": "open-run m6_runner counters partition schedule rows by entry_kind and births by explicit materialization provenance; whole-schedule opener counts and hardcoded zero immigrants are prohibited",
-    "runtime": "schedule built once per scenario and reused across K engine draws",
     "legal_status_dynamics": "out of scope",
     "current_entry_only_outputs": "report_only"
+  },
+  "design_laws": {
+    "U1_uncertainty_nesting": "build one schedule per scenario and schedule seed, reuse it across K conditional engine draws, and vary schedule seeds only as an outer uncertainty dimension",
+    "C1_no_unbound_composition_drift": "hold long-run composition at the frozen donor distribution unless a separately sourced and gate-reviewed trajectory is bound; constant composition is a disclosed fallback, not a forecast claim"
   },
   "external_bindings": [
     {
@@ -1520,7 +1603,7 @@ excluded.
       "id": "acs_pums_annual_2010_2014_recent_arrivals",
       "source": "Census annual 1-year ACS PUMS person files, annual dictionaries and Accuracy statements for 2010-2014; 2014 Subject Definitions; errata 87/97; 2013 same-sex married-couple user note",
       "vintage": "current person-archive Last-Modified headers: 2010/2011 2013-03-04; 2012 2013-12-11; 2013 2015-02-12; 2014 2015-10-06; confirm headers and bind raw hashes at acquisition",
-      "role": "annual resident survivor/stayer stock donor; fit 2010-2013 and hold out separately weighted 2014",
+      "role": "annual resident survivor/stayer stock donor; fit 2010-2013, derive and hash training-only C[s,d]/q[d] as the sole unit-mass gate cohort mix, and hold out separately weighted 2014 for truth only",
       "status": "proposed_gate_binding_pending_O6_not_arrival_truth_five_year_input_prohibited"
     },
     {
@@ -1608,12 +1691,19 @@ excluded.
     "fit_collection_years": [2010, 2011, 2012, 2013],
     "holdout_collection_years": [2014],
     "unit_key": ["survey_year", "SERIALNO"],
-    "annual_pooling_rule": "freeze equal-year-mass versus population-mass treatment from training only",
+    "absolute_count_input": "none",
+    "gate_total_mass": 1,
+    "duration_mass_counts": "C[s,d] uses only annual PWGTP from fit years 2010-2013 for the O3-supported reported-entry-duration bins",
+    "duration_mix": "q[d] is O3-selected q_equal or q_population, finite and nonnegative, sums to one, and is hash-frozen before any 2014 access",
+    "reported_entry_cohort_proxy": "M_gate[reported_entry_year=2014-d]=q[d] for exact one-year bins; pooled bins retain their labels; never literal arrival or engine entry_year",
+    "annual_pooling_rule": "O3 freezes equal-year-mass versus population-mass treatment from training only",
     "replicate_design": "year-specific blocks; annual 2014 truth uses only its own replicate set",
     "cross_year_earnings_normalization": "ADJINC to survey-year dollars then I_bound[2014] / I_bound[survey_year], where I_bound is realized NAWI through 2014 and I_proj thereafter",
     "concept_breaks": "bind and harmonize or demote the 2013 same-sex married-couple edit change",
+    "control_leakage": "Trustees, Census, CPS, SIPP, and every 2014 record, weight, total, or marginal are prohibited from constructing C or q; 2014 weights enter truth scoring only",
     "count_alignment_gated": false,
     "physical_sample_design_frozen_from_training_power_analysis": true,
+    "physical_sample_design": "O10 freezes physical units, caps, margins, and fallback share from training-only power analysis for the unit-mass target",
     "schedule_seed_grid_and_aggregation_frozen_before_truth_floor": true,
     "floors_before_thresholds": true,
     "operating_characteristic_before_lock": true,
@@ -1623,7 +1713,7 @@ excluded.
   "hardest_open_decisions": [
     "O1/O2/O11/O15: literal flow versus net proxy, component timing, population-universe bridge, projection origin, and first cohort",
     "O5/O12/O13: atomic downstream packet, stock-to-arrival and repeat-coverage bridges, and fertility/claiming exclusions",
-    "O4/O14: person versus constructed same-reported-entry units, relationship and weight closure, and RNG-isolated cross-domain markets"
+    "O4/O14/O16: person versus constructed same-reported-entry units, joint assignment family, relationship and weight closure, and RNG-isolated cross-domain markets"
   ],
   "certified_surfaces_untouched": [
     "gate_m6 registry, thresholds, floors, hashes, and closed-panel support",
@@ -1681,6 +1771,20 @@ excluded.
         "add projection-origin decision O15 and require continuous controls from start_year plus one",
         "add blocking marital-household, disability, and earnings initializer bindings",
         "synchronize the machine-readable binding list and preserve mortality and claiming among untouched surfaces"
+      ]
+    },
+    {
+      "revision": 4,
+      "date": "2026-07-15",
+      "kind": "spec_sound_referee_fixes",
+      "changes": [
+        "adopt pending PR 221 section 2.8.2i F2 by reserving the global fitted real-person namespace before splits and asserting immigrant IDs are disjoint from every earnings adapter domain",
+        "name the m6_runner closed-panel entrant counters invalidated by integration and require row-level entry_kind classification for immigrants, realized PSID openers, and materialized births",
+        "correct the ACS 2012 and 2014 person-archive Last-Modified dates and require header confirmation plus raw-hash binding at acquisition",
+        "pin gate mode to a unit-mass reported-entry-duration mix C[s,d]/q[d] derived only from 2010-2013 ACS training weights, with O10 supplying physical sample design",
+        "add O16 for donor-versus-joint-parametric assignment and label uncertainty nesting U1 and no-unbound-composition-drift C1 as explicit design laws",
+        "mark the amendment 3h condensation as a paraphrase, the Trustees glossary PDF page pin confirm-at-fetch, and the actual family-B publisher line span",
+        "re-derive M6 wage-index design pins against merged master c6a3c78"
       ]
     }
   ]
