@@ -67,10 +67,10 @@ referee:
 The fourth choice is intentionally costly but honest. Substituting total net
 change for a positive entrant control would create a reduced-form residual cohort whose age,
 family, earnings, and nativity composition has no literal interpretation. In
-2026, it would also replace 1.340 million gross arrivals with 0.130 million
-residual persons. The 1.340 million itself is an SSA stock-accounting inflow,
-not all physical arrivals during the year. That alternative remains an explicit referee decision, not a
-silent implementation shortcut.
+2026, it would also replace a 1.340 million positive stock-accounting inflow proxy
+with 0.130 million residual persons. The 1.340 million itself is not all physical
+arrivals during the year. That alternative remains an explicit referee decision,
+not a silent implementation shortcut.
 
 ## 1. Scope and non-goals
 
@@ -1141,8 +1141,9 @@ authorizes surgery:
 - the §2.8.2g marital risk-set guard and seed-at-domain-entry law;
 - amendment 3h's schedule-versus-live-roster materialization distinction and
   absent-parent guard;
-- `SCHEDULED_ENTRIES_KEY`, its frame/year/ID contract, and the existing 2017/2019
-  PSID opener schedule;
+- `SCHEDULED_ENTRIES_KEY`, its frame/year/ID contract, and every existing
+  2017/2019 PSID opener row; the immigration builder merges that mapping and never
+  overwrites it;
 - the eight-member `PeriodModules` order, existing module RNG streams, original-
   person ordinals, synthetic-ID allocator semantics, and period trace;
 - M6's current statement that immigrant/open-panel additions are report-only;
@@ -1153,21 +1154,27 @@ authorizes surgery:
 An entrant adapter may call unchanged core code, but it must do so under an
 entrant-domain label and separate report/gate surface. It may not alter the
 closed-panel input or score and call the resulting difference “immigration.”
+The metadata adapter also must omit a caller allocator or enforce the combined-
+maximum guard in §4.6. Any mixed entrant/existing-person market remains the
+report-only O14 product and makes no closed-run byte-identity claim.
 
 ## 9. Candidate-blind implementation and certification order
 
 A later implementation should proceed in this order:
 
-1. Referee resolves O1–O6 and ratifies the external-binding schema.
+1. Referee resolves O1–O14 for the chosen implementation slice and ratifies the
+   external-binding schema.
 2. Acquisition PR commits/hash-binds exact source bytes and parsers; the zero-
    argument binding factory passes independently of any candidate.
-3. Donor-build PR constructs only training artifacts and synthetic fixtures;
+3. Donor/bridge PR constructs only training artifacts, the separately identified
+   arrival-state/fertility/prior-coverage bridges, and synthetic fixtures;
    holdout outcomes remain sealed.
-4. Floors PR freezes the surface, creates truth-vs-truth floors, prunes unsupported
+4. Floors PR freezes the physical sample design and seed-grid aggregation,
+   creates truth-vs-truth and pipeline-variability floors, prunes unsupported
    cells, and runs the operating-characteristic pause check.
-5. Schedule/state PR implements the deterministic builder, seam adapter, complete
-   state packet, failure guards, and report-only open-population run without
-   changing the M6 closed-panel score.
+5. Schedule/state PR implements the deterministic builder, seam adapter,
+   structurally complete state packet, failure guards, and report-only open-
+   population run without changing the M6 closed-panel score.
 6. A registered `gate_imm` candidate is scored once against the locked surface.
 7. If PASS is verified and ratified, the lock names exact source, derived, floor,
    code and schedule-protocol hashes.
@@ -1176,6 +1183,12 @@ A later implementation should proceed in this order:
 
 No stage reads a later stage's candidate outcomes to redesign an earlier frozen
 surface.
+
+A literal resident-entry schedule pauses while O11 and O12 remain unbound;
+entrant fertility and claiming/benefit outputs pause while O13 and the prior-
+coverage portion of O12 remain unbound. A `stock_proxy` diagnostic schedule may
+exercise seam structure only in a report-only run with those module domains
+excluded.
 
 ## 10. Referee citation ledger
 
@@ -1189,19 +1202,24 @@ surface.
   Institute, December 2010), ch. II §VI, pp. II-24–II-28, Tables 2-14–2-16; Smith
   and Favreault, *Modeling Income in the Near Term 8 and 2014: Primer* (Urban
   Institute, April 2019), pp. 15–16, note 21 p. 29, Table 3 pp. 39–40.
-- **PENSIM/PENSIM2**: Holmer, Janney, and Cohen, *PENSIM Overview* (2006),
-  §2.1.6 p. 8, Appendix B §§B.1.2–B.1.4 pp. 100–101 and §§B.7–B.8 pp. 106–107;
+- **PENSIM/PENSIM2**: Holmer, Janney, and Cohen, *PENSIM Overview* (Policy
+  Simulation Group for the U.S. Department of Labor, Employee Benefits Security
+  Administration, September 2006), §2.1.6 p. 8, Appendix B §§B.1.2–B.1.4
+  pp. 100–101 and §§B.7–B.8 pp. 106–107;
   O'Donoghue, Redway, and Lennon, “Simulating migration in the Pensim2 dynamic
   microsimulation model,” *International Journal of Microsimulation* 3(2), 2010,
   Table 2, §§5.1–5.2.
 - **SSA methods/current controls**: Duleep and Dowhan, “Adding Immigrants to
   Microsimulation Models” and “Incorporating Immigrant Flows into
-  Microsimulation Models,” *Social Security Bulletin* 68(1), 2008; *2026 OASDI
-  Trustees Report*, §V.A.3 and Table V.A2.
-- **Microdata**: Census 2010–2014 ACS 5-year PUMS dictionary/accuracy statement;
-  Census 2014 ASEC technical documentation; Census 2014 SIPP Wave 1 metadata and
-  source/accuracy statement. Exact variables and pages are pinned in §2.2 and
-  §6.2.
+  Microsimulation Models,” *Social Security Bulletin* 68(1), 2008; *The 2026
+  Annual Report of the Board of Trustees of the Federal Old-Age and Survivors
+  Insurance and Federal Disability Insurance Trust Funds*, §V.A.3, and
+  Supplemental Single-Year Table V.A2.
+- **Microdata**: Census 2010–2014 ACS 5-year PUMS dictionary, accuracy statement,
+  and 2014 ACS Subject Definitions “Year of Entry,” pp. 128–129; Census 2014
+  Traditional and Redesigned ASEC technical documentation; Census 2014 SIPP
+  Wave 1 metadata and source/accuracy statement. The exact SIPP raw file remains
+  unbound at O8. Exact variables and pages are pinned in §2.2 and §6.2.
 - **Projection corridors**: Census, *Methodology, Assumptions, and Inputs for the
   2023 National Population Projections* (November 2023), migration pp. 8–14, and
   Alternative Scenarios Table 1.
@@ -1211,7 +1229,7 @@ surface.
 ```json immigration-design-parameters
 {
   "design_id": "2026-07-15-immigration-module",
-  "revision": 1,
+  "revision": 2,
   "status": "design_draft_referee_pending",
   "engine_baseline": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
   "roadmap_issue": 113,
@@ -1230,13 +1248,19 @@ surface.
     "activation": "top of period before mortality",
     "new_period_module": false,
     "ids_preassigned": true,
-    "synthetic_allocator_start": "max(initial and all scheduled person_id) + 1"
+    "synthetic_allocator_start": "engine default is max(initial and all scheduled person_id) + 1 when caller metadata omits the allocator",
+    "existing_schedule_merge": "preserve and concatenate every PSID opener frame; allocate immigrants above max(initial plus all pre-existing scheduled ids)",
+    "caller_allocator_guard": "omit caller allocator or assert next_id exceeds the combined maximum"
   },
   "provisional_adjudications": {
-    "cohort_control": "gross new-person inflow after an explicit Social-Security-area-to-resident bridge",
+    "cohort_control": "positive SSA stock-accounting inflow proxy after an explicit Social-Security-area-to-Census-resident bridge",
     "status_adjustment": "aggregate reclassification; not an entrant and not assigned to persons",
     "emigration": "outside entry-builder v1; mandatory successor before net-alignment claim",
-    "assignment": "recent-arrival ACS joint donor units plus model-based calibration; no cloned future",
+    "assignment": "recent-arrival ACS joint resident-stock donor units plus model-based calibration; literal arrival state requires a separate bound bridge; no cloned future",
+    "prior_us_covered_earnings": "unknown/censored absent a first-or-return-entry and coverage bridge; never default zero",
+    "entrant_fertility": "excluded from fertility risk absent a bound parity/history bridge and entrant-aware kernel",
+    "entrant_claiming": "excluded absent insured-status and prior-coverage evidence",
+    "rng_isolation": "required composite partition before any closed-person byte-identity claim",
     "runtime": "schedule built once per scenario and reused across K engine draws",
     "legal_status_dynamics": "out of scope",
     "current_entry_only_outputs": "report_only"
@@ -1244,14 +1268,14 @@ surface.
   "external_bindings": [
     {
       "id": "ssa_tr2026_v_a2_intermediate",
-      "source": "2026 OASDI Trustees Report, section V.A.3, Table V.A2",
-      "vintage": "assumptions set February 2026; report released June 2026",
-      "role": "gross-entry control candidate and net reconciliation",
+      "source": "The 2026 Annual Report of the Board of Trustees of the Federal Old-Age and Survivors Insurance and Federal Disability Insurance Trust Funds, section V.A.3, and Supplemental Single-Year Table V.A2",
+      "vintage": "assumptions set February 2026; report released June 9, 2026",
+      "role": "positive stock-accounting inflow control candidate and net reconciliation",
       "status": "report_only_until_universe_bridge_and_exit_law"
     },
     {
       "id": "ssa_tr2026_v_a2_sensitivity",
-      "source": "2026 OASDI Trustees Report, Table V.A2 low-cost/high-cost",
+      "source": "2026 Trustees Supplemental Single-Year Table V.A2 low-cost/high-cost",
       "vintage": "2026",
       "role": "scenario sensitivity",
       "status": "report_only"
@@ -1265,10 +1289,17 @@ surface.
     },
     {
       "id": "acs_pums_2010_2014_recent_arrivals",
-      "source": "Census 2010-2014 ACS 5-year PUMS person file, dictionary, and accuracy statement",
+      "source": "Census 2010-2014 ACS 5-year PUMS person file, dictionary, accuracy statement, and 2014 Subject Definitions",
       "vintage": "observations 2010-2014; published January 2016",
-      "role": "fit 2010-2013; hold out 2014",
-      "status": "proposed_gate_binding_pending_O6"
+      "role": "resident survivor/stayer stock donor; fit 2010-2013 and hold out 2014",
+      "status": "proposed_gate_binding_pending_O6_not_arrival_truth"
+    },
+    {
+      "id": "acs_stock_to_arrival_state_bridge",
+      "source": "unbound",
+      "vintage": "unbound",
+      "role": "map interview-date stock proxy to literal arrival state, including duration, selection, reported-entry ambiguity, and repeat entry",
+      "status": "blocking_for_literal_entry_state_pending_O12"
     },
     {
       "id": "cps_asec_2014_foreign_born",
@@ -1279,10 +1310,24 @@ surface.
     },
     {
       "id": "sipp_2014_wave1_entry_state",
-      "source": "Census 2014 SIPP Wave 1 public-use file, metadata v2, and source/accuracy statement",
+      "source": "Census 2014 SIPP Wave 1 metadata v2, source/accuracy statement, and mutable raw-file directory; exact public-use file unbound",
       "vintage": "2013 reference year; 2014 interviews",
       "role": "joint-state and initializer diagnostics",
-      "status": "report_only"
+      "status": "report_only_pending_exact_file_and_correction_vintage_O8"
+    },
+    {
+      "id": "entrant_fertility_history_bridge",
+      "source": "unbound exact SIPP fertility-history or CPS fertility-supplement file",
+      "vintage": "unbound",
+      "role": "parity, prior-birth history, and entrant fertility exposure start",
+      "status": "blocking_for_entrant_fertility_pending_O13"
+    },
+    {
+      "id": "prior_us_covered_earnings_bridge",
+      "source": "unbound",
+      "vintage": "unbound",
+      "role": "first-versus-repeat entry, covered quarters, and prior indexed U.S. earnings",
+      "status": "blocking_for_claiming_aime_pia_and_benefits_pending_O12"
     },
     {
       "id": "census_np2023_nim_corridors",
@@ -1312,14 +1357,17 @@ surface.
     "fit_collection_years": [2010, 2011, 2012, 2013],
     "holdout_collection_years": [2014],
     "count_alignment_gated": false,
+    "physical_sample_design_frozen_from_training_power_analysis": true,
+    "schedule_seed_grid_and_aggregation_frozen_before_truth_floor": true,
     "floors_before_thresholds": true,
     "operating_characteristic_before_lock": true,
+    "packet_certification": "structural_schema_only",
     "downstream_life_course_certified": false
   },
   "hardest_open_decisions": [
-    "O1: gross entrants plus separate exits versus entry-only report-only v1 or a named net-entry proxy, including the SSA-area-to-resident bridge",
-    "O4: person versus co-arrival-family simulation units, relationship closure, and common versus person weights",
-    "O5: atomic downstream state/history packet and entrant-specific post-entry earnings, disability, marital, and household laws"
+    "O1: positive SSA stock-accounting inflow proxy plus separate exits versus an expanded entry-and-exit design or named net-entry proxy",
+    "O5/O12/O13: atomic downstream packet, stock-to-arrival and repeat-coverage bridges, and fertility/claiming exclusions",
+    "O4/O14: person versus co-arrival-family units, relationship and weight closure, and RNG-isolated cross-domain markets"
   ],
   "certified_surfaces_untouched": [
     "gate_m6 registry, thresholds, floors, hashes, and closed-panel support",
@@ -1330,7 +1378,8 @@ surface.
     "section 2.8.2g marital domain law",
     "amendment 3h live-roster materialization law",
     "PeriodModules order and ProjectionRNGRegistry",
-    "SCHEDULED_ENTRIES_KEY contract and existing PSID openers",
+    "SCHEDULED_ENTRIES_KEY contract and every existing PSID opener row",
+    "original closed-support generator order, RNG consumption, and outputs",
     "M7 trust-fund accounting and M8 rules execution"
   ],
   "amendment_history": [
@@ -1344,6 +1393,21 @@ surface.
         "select donor-based entry state provisionally while prohibiting cloned futures",
         "define the EntrantStateBundle and no-certificate-transfer boundary",
         "propose floors-first gate_imm and enumerate external bindings and open referee decisions"
+      ]
+    },
+    {
+      "revision": 2,
+      "date": "2026-07-15",
+      "kind": "pre_pr_adversarial_hardening",
+      "changes": [
+        "distinguish SSA positive stock-accounting inflows from all physical arrivals and separate the population-universe bridge",
+        "label ACS recent arrivals as a survivor/stayer stock proxy and make stock-to-arrival state an unbound bridge",
+        "treat possible prior U.S. covered earnings as censored and block unsupported claiming and benefit outputs",
+        "block entrant fertility until parity history and an entrant-aware kernel are bound",
+        "merge rather than overwrite existing PSID scheduled entries and guard caller-supplied synthetic allocators",
+        "require physical-sample and schedule-seed protocols before floors and limit packet PASS to structural/schema completeness",
+        "require RNG-isolated composite adapters before any original-person byte-identity claim",
+        "expand referee decisions through O14 and pin unresolved external bindings"
       ]
     }
   ]
