@@ -1,0 +1,139 @@
+{
+  "artifact": "sipp_spell_floors",
+  "version": "draft_v0",
+  "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
+  "issue": "192",
+  "source": "pu2023 (reference year 2022)",
+  "method": "person-disjoint sha256 half-splits, seeds 0-4; per-cell |log(rate_a/rate_b)| mean/sd across seeds; weighted by WPFINWGT",
+  "seam_caveat": "both halves share SIPP seam structure; the seam-vs-J2J reconciliation run is a separate required artifact before thresholds lock",
+  "e4_retention_by_age_sex": {
+    "16_24|sex1": {
+      "rate": 0.9897,
+      "pairs_unweighted": 8055,
+      "floor_abs_log_ratio_mean": 0.00182,
+      "floor_abs_log_ratio_sd": 0.00107,
+      "thin": false
+    },
+    "16_24|sex2": {
+      "rate": 0.9901,
+      "pairs_unweighted": 7093,
+      "floor_abs_log_ratio_mean": 0.00198,
+      "floor_abs_log_ratio_sd": 0.00232,
+      "thin": false
+    },
+    "25_34|sex1": {
+      "rate": 0.9948,
+      "pairs_unweighted": 17797,
+      "floor_abs_log_ratio_mean": 0.0008,
+      "floor_abs_log_ratio_sd": 0.00036,
+      "thin": false
+    },
+    "25_34|sex2": {
+      "rate": 0.9953,
+      "pairs_unweighted": 15555,
+      "floor_abs_log_ratio_mean": 0.00143,
+      "floor_abs_log_ratio_sd": 0.00114,
+      "thin": false
+    },
+    "35_44|sex1": {
+      "rate": 0.9968,
+      "pairs_unweighted": 19920,
+      "floor_abs_log_ratio_mean": 0.00097,
+      "floor_abs_log_ratio_sd": 0.00058,
+      "thin": false
+    },
+    "35_44|sex2": {
+      "rate": 0.9964,
+      "pairs_unweighted": 17203,
+      "floor_abs_log_ratio_mean": 0.00089,
+      "floor_abs_log_ratio_sd": 0.00065,
+      "thin": false
+    },
+    "45_54|sex1": {
+      "rate": 0.9978,
+      "pairs_unweighted": 17779,
+      "floor_abs_log_ratio_mean": 0.0003,
+      "floor_abs_log_ratio_sd": 0.00028,
+      "thin": false
+    },
+    "45_54|sex2": {
+      "rate": 0.998,
+      "pairs_unweighted": 16516,
+      "floor_abs_log_ratio_mean": 0.00051,
+      "floor_abs_log_ratio_sd": 0.00045,
+      "thin": false
+    },
+    "55_64|sex1": {
+      "rate": 0.9984,
+      "pairs_unweighted": 18342,
+      "floor_abs_log_ratio_mean": 0.00067,
+      "floor_abs_log_ratio_sd": 0.00058,
+      "thin": false
+    },
+    "55_64|sex2": {
+      "rate": 0.999,
+      "pairs_unweighted": 17410,
+      "floor_abs_log_ratio_mean": 0.0003,
+      "floor_abs_log_ratio_sd": 0.00014,
+      "thin": false
+    },
+    "65_99|sex1": {
+      "rate": 0.9992,
+      "pairs_unweighted": 12113,
+      "floor_abs_log_ratio_mean": 0.00058,
+      "floor_abs_log_ratio_sd": 0.00039,
+      "thin": false
+    },
+    "65_99|sex2": {
+      "rate": 0.9996,
+      "pairs_unweighted": 10437,
+      "floor_abs_log_ratio_mean": 0.00039,
+      "floor_abs_log_ratio_sd": 0.00032,
+      "thin": false
+    }
+  },
+  "e5_runs_by_age": {
+    "16_24": {
+      "full_year_run_share": 0.4669,
+      "persons_unweighted": 1830,
+      "floor_abs_log_ratio_mean": 0.04937,
+      "floor_abs_log_ratio_sd": 0.04904,
+      "thin": false
+    },
+    "25_34": {
+      "full_year_run_share": 0.7499,
+      "persons_unweighted": 3299,
+      "floor_abs_log_ratio_mean": 0.01944,
+      "floor_abs_log_ratio_sd": 0.01104,
+      "thin": false
+    },
+    "35_44": {
+      "full_year_run_share": 0.8245,
+      "persons_unweighted": 3555,
+      "floor_abs_log_ratio_mean": 0.01764,
+      "floor_abs_log_ratio_sd": 0.01639,
+      "thin": false
+    },
+    "45_54": {
+      "full_year_run_share": 0.8671,
+      "persons_unweighted": 3256,
+      "floor_abs_log_ratio_mean": 0.01096,
+      "floor_abs_log_ratio_sd": 0.00768,
+      "thin": false
+    },
+    "55_64": {
+      "full_year_run_share": 0.8673,
+      "persons_unweighted": 3458,
+      "floor_abs_log_ratio_mean": 0.01742,
+      "floor_abs_log_ratio_sd": 0.00998,
+      "thin": false
+    },
+    "65_99": {
+      "full_year_run_share": 0.7941,
+      "persons_unweighted": 2294,
+      "floor_abs_log_ratio_mean": 0.01327,
+      "floor_abs_log_ratio_sd": 0.01036,
+      "thin": false
+    }
+  }
+}
