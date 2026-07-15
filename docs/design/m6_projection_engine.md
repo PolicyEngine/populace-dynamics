@@ -1007,7 +1007,8 @@ whose `anchor_wave < birth_year + START_AGE` has **no** certified row at the anc
 and the builder **raises** (`panel_builders.py:209-214`) — the fifth-registration
 execution failure (`ValueError: certified marital panel has no entry row at
 anchor`; graded #42 comment 4979269487, forensics round-2 comment 4979437110). The
-raise reports `missing[:10]`, so reg-5 listed 10 person_ids, but on the realized
+raise reports `missing[:10]` — the 10 ids reg-5 listed are the lowest-id members of
+the crash's **seed-0 household-split side**, not the full class's lowest ids — but on the realized
 anchor the identical mechanism trips a **single uniform class of 2,850 persons**
 (verified read-only through the harness loaders: 2,568 anchored 2015 / 246 anchored
 2017 / 36 anchored 2019; ages 7–14 at anchor, mean 10.8; born 2001–2008; every one
@@ -1042,9 +1043,12 @@ the anchor wave**, not merely with `attrs`.
 enough: the 2,850 must be assigned a treatment, and the choice is a **modeling
 decision**, not a mechanical realignment, because the gap population is **not**
 gated-neutral. Of the 2,850, **281** (all born 2001; age 14 at the 2015 anchor,
-reaching 18 by 2019) sit in the truth-side gated `first_marriage.{18-29}` at-risk
-`person_years` at **2019** — 281 of the 3,224 at-risk person-years in that one cell
-(**8.7 %** of persons, **9.0 %** of F6 weight; verified read-only). **Zero** of the
+reaching 18 by 2019) carry truth-side 18-29 at-risk `person_years` at **2019** — 281
+of the 3,224 in that **sex-pooled 2019 slice** (8.7 % of persons, 9.0 % of F6
+weight). The actual gated floor cell is **female-only and pools the gated flow years
+2015–2019** — `first_marriage.18-29|female`, 7,832 at-risk person-years — which the
+class touches only at 2019, through its female half: **157 person-years = 2.0 % by
+rows, 2.25 % by weight** (all verified read-only). **Zero** of the
 2,850 appear in any gated *event*; the remaining 2,569 have no gated footprint at
 all (they reach a marital band only at the report-only shock years 2020+, or not
 within the window). Two candidate resolutions, both design amendments:
@@ -1056,17 +1060,20 @@ within the window). Two candidate resolutions, both design amendments:
 
 **B is adopted; A dies on the frozen-floor constraint.** The v3 floor
 (`runs/m6_holdout_floors_v3.json`, sha256 `e931c886…`) is ratified-frozen and its
-`first_marriage.{18-29}` tolerance was derived on the full 3,224-person 2019
-denominator. A's symmetric branch perturbs that denominator by 8.7 % and re-derives
-the tolerance — the floor is no longer byte-identical, which the ratified lock
-forbids. A's only floor-preserving branch is *asymmetric* exclusion (drop the 281
-from the projected side only), but that scores a 2,943-person projected denominator
-against a 3,224-person truth denominator for that cell — a like-vs-unlike comparison
-the §2.8.4 identity guard rejects (`support.py:311-315`) and which biases the
-`first_marriage` rate downward on the projection by construction. The §2.8.2 pin's
+`first_marriage.18-29|female` tolerance was derived on the full female,
+2015–2019-pooled at-risk denominator. A's symmetric branch removes the class's 157
+person-years (2.0 %) from it and re-derives the tolerance — the frozen tolerance
+moves `0.356 → 0.355`, so the floor is **not** byte-identical, which the ratified
+lock forbids. The magnitude is immaterial: **any** nonzero move breaks byte-identity.
+A's only floor-preserving branch is *asymmetric* exclusion (drop the class from the
+projected side only), but that scores a projected denominator missing the class
+person-years the truth side still carries — a like-vs-unlike comparison the §2.8.4
+identity guard rejects (`support.py:311-315`, which fires on real frames) and which
+biases the `first_marriage` rate **upward** on the projection by construction
+(dropping zero-event at-risk person-years raises the rate). The §2.8.2 pin's
 own rationale — "a builder that seeded them would project them as `never_married`
 at-risk … biasing the `first_marriage` denominator" — is the *mirror image* here:
-these 281 **do** carry truth-side `never_married`-at-risk exposure at 2019, so
+these class person-years **do** carry truth-side `never_married`-at-risk exposure at 2019, so
 *dropping* them from the projection alone biases the denominator the other way.
 Symmetry, which the gate requires, is exactly what B delivers at zero floor cost.
 
@@ -1076,17 +1083,23 @@ holdout window (2016–2022 for the seeded 2,638). Does that seed carry holdout
 information? It does not — it is the risk-set **entry** state, a structural
 constant. Verified read-only over all 2,850: the certified entry `person_years` row
 at `birth_year + START_AGE` is `never_married` for **every** one (0 exceptions),
-with `marriage_duration` and `years_since_dissolution` null/zero; the earliest
-`married` person-year anywhere in the class is age **19** — no one is at marital
-risk, let alone married, before `START_AGE`. The 11 who do marry within the panel
-(`n_marriages > 0`) marry at age ≥ 19, i.e. strictly *after* their seeded entry, so
-their realized marriage is scored out-of-sample from the age-15 seed exactly as the
-bulk's is. Because the entry state is identical (`never_married`) for every person
+with `marriage_duration` and `years_since_dissolution` null/zero. Of the 11 with
+`n_marriages > 0`, **9** have a dated first-marriage episode; the earliest
+first-marriage **event** in the class is age **18** (born-2004 `person_id 2852062`,
+first marriage 2022), and the earliest `married` *person-year* is age **19** (the
+year after, under `_assign_state`'s discrete-time `allow_exact_matches=False`
+convention). Every such event is **strictly after** the age-15 seed — no one is at
+marital risk, let alone married, before `START_AGE` — so each realized marriage is
+scored out-of-sample from the seed exactly as the bulk's is. Because the entry state is identical (`never_married`) for every person
 regardless of any downstream outcome, the seed encodes nothing about the holdout —
 **B leaks nothing.** This is not an *assumed* `never_married`: B reads the certified
 entry row, which the data confirm is uniformly `never_married` (the same
 `pd.isna → never_married` entry the certified core already applies,
-`marital.py:100-101`).
+`marital.py:100-101`). That B reads the *certified* row, not an assumed state, is
+load-bearing: the MH file *does* carry pre-`START_AGE` marriage episodes for other
+persons — 23 land in `attrs ∩ anchor` and enter `married` at their `birth+15` — but
+**none** is in this class (they are born 1928–1988); that MH data-quality point is
+**out of scope for 3g**.
 
 *Pins (B).*
 
