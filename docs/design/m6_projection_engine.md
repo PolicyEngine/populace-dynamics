@@ -986,6 +986,166 @@ call, `composition.py:532-539`) — identical to the certified injected simulato
 only the seed provenance (realized anchor state) and the whole-window caching are
 pinned here.
 
+**2.8.2g Amendment 3g — the marital projection domain law for
+sub-`START_AGE`-at-anchor persons (closes the reg-5 crash).** The closed-panel
+anchor universe (§2.8.3, `build_anchor_frame`, `m6_cells.py:122-140`) admits
+**every** person present in a gated start wave with positive weight — **no age
+filter** — so it carries minors. The marital builder then overrides
+`start_exposure_year := anchor_wave` (`panel_builders.py:187`) and demands the
+certified `person_years` **entry row at that anchor wave** (`:200-214`). But the
+certified marital `person_years` begin at the risk-set entry
+`birth_year + START_AGE` (`START_AGE = 15`, `transitions.py:111,260`), so a person
+whose `anchor_wave < birth_year + START_AGE` has **no** certified row at the anchor
+and the builder **raises** (`panel_builders.py:209-214`) — the fifth-registration
+execution failure (`ValueError: certified marital panel has no entry row at
+anchor`; graded #42 comment 4979269487, forensics round-2 comment 4979437110). The
+raise reports `missing[:10]`, so reg-5 listed 10 person_ids, but on the realized
+anchor the identical mechanism trips a **single uniform class of 2,850 persons**
+(verified read-only through the harness loaders: 2,568 anchored 2015 / 246 anchored
+2017 / 36 anchored 2019; ages 7–14 at anchor, mean 10.8; born 2001–2008; every one
+`py_year_min == birth_year + START_AGE` exactly, **none** with a certified row at
+its anchor wave): sub-`START_AGE`-at-anchor children who age into the marital risk
+set mid-window. This is the marital analogue of §2.8.3a's earnings-domain gap — the
+closed-panel universe contains persons for whom the certified generator has no
+year-0 (here, no anchor-wave) state — but the marital module had **no** domain law.
+This subsection is that law.
+
+*Step 1 (uncontested) — correct the universe pin.* The §2.8.2 marital-builder row
+(corrected in place above) claimed `_valid_persons` "resolves the missing-entry-row
+case by construction." It does not. `_valid_persons` (`transitions.py:265-277`)
+enforces `start_exposure_year ≤ censor_year` on the **certified**
+`start_exposure_year = birth_year + START_AGE` — a *lifetime at-risk existence* test
+(does the person ever reach marriageable age within observation) — and runs
+**before** the builder overrides `start_exposure_year := anchor_wave`. The entry-row
+invariant instead requires *person-years presence at the anchor*:
+`anchor_wave ≥ birth_year + START_AGE`. The two coincide for the bulk (anchored at
+or after age 15) and diverge for anchor-present minors; the pin's "drops … children
+absent from the marriage-history file" is real but incomplete, because the PSID
+Marriage-History file **carries** children (birth year, `n_marriages = 0`), so a
+child born early enough to reach 15 by censor **survives** `attrs ∩ anchor`. The
+corrected universe is
+
+> marital domain = `attrs ∩ anchor ∩ {anchor_wave ≥ birth_year + START_AGE}`
+
+equivalently: intersect the anchor with the certified marital `person_years` **at
+the anchor wave**, not merely with `attrs`.
+
+*Step 2 (the decision) — treat the gap population.* Correcting the test is not
+enough: the 2,850 must be assigned a treatment, and the choice is a **modeling
+decision**, not a mechanical realignment, because the gap population is **not**
+gated-neutral. Of the 2,850, **281** (all born 2001; age 14 at the 2015 anchor,
+reaching 18 by 2019) sit in the truth-side gated `first_marriage.{18-29}` at-risk
+`person_years` at **2019** — 281 of the 3,224 at-risk person-years in that one cell
+(**8.7 %** of persons, **9.0 %** of F6 weight; verified read-only). **Zero** of the
+2,850 appear in any gated *event*; the remaining 2,569 have no gated footprint at
+all (they reach a marital band only at the report-only shock years 2020+, or not
+within the window). Two candidate resolutions, both design amendments:
+
+| resolution | (i) frozen v3 floor file (`e931c886…`) | (ii) truth-side gated denominators | (iii) projected-side universe | (iv) report-only |
+|---|---|---|---|---|
+| **A — exclude-and-mark** (the §2.8.3a analogue): drop the gap class from the marital universe, mark non-scored | **moves → dies.** A *symmetric* exclusion must also drop the 281 from the truth-side `first_marriage.{18-29}@2019` denominator (8.7 % of persons / 9.0 % of weight) → its floor σ and derived tolerance recompute → **not byte-identical** | moves (symmetric) — disqualifying | 2,850 excluded | 2,850 |
+| **B — seed-at-marital-entry** (**adopted**): for `anchor_wave < birth+START_AGE`, set `start_exposure_year = birth_year + START_AGE`, read the certified entry row there | **zero.** The builder is **projected-side only**; the truth side scores through `build_marital_panel` directly and is untouched → byte-identical | **zero** — the 281 stay in the frozen denominator exactly | +2,638 seeded (the 212 born-2008, `birth+15 = 2023 > 2022`, are dropped by the existing `start_exposure ≤ censor` filter); the 281 now **also** enter the projected `first_marriage.{18-29}@2019` denominator, **symmetric** with truth | 2,357 |
+
+**B is adopted; A dies on the frozen-floor constraint.** The v3 floor
+(`runs/m6_holdout_floors_v3.json`, sha256 `e931c886…`) is ratified-frozen and its
+`first_marriage.{18-29}` tolerance was derived on the full 3,224-person 2019
+denominator. A's symmetric branch perturbs that denominator by 8.7 % and re-derives
+the tolerance — the floor is no longer byte-identical, which the ratified lock
+forbids. A's only floor-preserving branch is *asymmetric* exclusion (drop the 281
+from the projected side only), but that scores a 2,943-person projected denominator
+against a 3,224-person truth denominator for that cell — a like-vs-unlike comparison
+the §2.8.4 identity guard rejects (`support.py:311-315`) and which biases the
+`first_marriage` rate downward on the projection by construction. The §2.8.2 pin's
+own rationale — "a builder that seeded them would project them as `never_married`
+at-risk … biasing the `first_marriage` denominator" — is the *mirror image* here:
+these 281 **do** carry truth-side `never_married`-at-risk exposure at 2019, so
+*dropping* them from the projection alone biases the denominator the other way.
+Symmetry, which the gate requires, is exactly what B delivers at zero floor cost.
+
+*B's named leak, adjudicated empirically (not merely "structurally near-certain").*
+B seeds the gap class `never_married` at `birth_year + START_AGE`, a wave inside the
+holdout window (2016–2022 for the seeded 2,638). Does that seed carry holdout
+information? It does not — it is the risk-set **entry** state, a structural
+constant. Verified read-only over all 2,850: the certified entry `person_years` row
+at `birth_year + START_AGE` is `never_married` for **every** one (0 exceptions),
+with `marriage_duration` and `years_since_dissolution` null/zero; the earliest
+`married` person-year anywhere in the class is age **19** — no one is at marital
+risk, let alone married, before `START_AGE`. The 11 who do marry within the panel
+(`n_marriages > 0`) marry at age ≥ 19, i.e. strictly *after* their seeded entry, so
+their realized marriage is scored out-of-sample from the age-15 seed exactly as the
+bulk's is. Because the entry state is identical (`never_married`) for every person
+regardless of any downstream outcome, the seed encodes nothing about the holdout —
+**B leaks nothing.** This is not an *assumed* `never_married`: B reads the certified
+entry row, which the data confirm is uniformly `never_married` (the same
+`pd.isna → never_married` entry the certified core already applies,
+`marital.py:100-101`).
+
+*Pins (B).*
+
+- **The seed-wave clamp.** In `marital_panel_builder`, replace the unconditional
+  override `start_exposure_year := anchor_wave` (`panel_builders.py:187`) with
+  `start_exposure_year := max(anchor_wave, birth_year + START_AGE)`. For the bulk
+  (`anchor_wave ≥ birth+START_AGE`) this is `anchor_wave`, **byte-unchanged**; for
+  the gap class it is `birth_year + START_AGE`, the certified risk-set entry. The
+  subsequent entry-row read (`:200-205`) then finds the row that exists **by
+  construction** (the certified `person_years` start exactly there, and
+  `_valid_persons` already guarantees `birth+START_AGE ≤ censor`), and the existing
+  `start_exposure_year ≤ censor_year` filter (`:193`, censor clipped to 2022)
+  naturally drops the 212 who would first reach 15 after the horizon.
+- **Symmetric, floor-inert.** The clamp lives **only** in the projected-side
+  builder; the truth side (`marital_tables → build_marital_panel`,
+  `m6_cells.py:221-231`) is untouched, so the frozen v3 floor and every gated
+  denominator are byte-identical. The 281 born-2001 enter the projected
+  `first_marriage.{18-29}@2019` at-risk person-years, matching truth, so the §2.8.4
+  identity guard holds and the 281 are scored like-for-like.
+- **Carried inert like the bulk.** The clamped seed feeds the certified C16 core
+  exactly as the bulk seed does — `never_married` entry, `n_marriages` carried-inert
+  (§2.8.2), episode / change-point / duration rules unchanged (§2.8.2). The gap
+  class introduces no new state and no code path beyond the `max(…)` clamp.
+
+*What amendment 3g does NOT change.* The frozen floors are byte-identical
+(`runs/m6_holdout_floors_v{1,2,3}.json` untouched; the v3 sha `e931c886…` remains
+the gated contract, applied unchanged). No gated cell definition moves
+(`MARITAL_BANDS`, `MARITAL_AT_RISK`, `GATED_FLOW_YEARS`; the 5 marital + 6 earnings
+gated cells). The certified engine invariant is **preserved**: the raise
+(`panel_builders.py:209-214`) stays — a marital projection genuinely cannot be
+seeded for a person with no marital state at the seed wave; amendment 3g removes the
+*cause* (the sub-`START_AGE` anchor override) so the invariant is satisfied by
+construction, exactly as §2.8.3a satisfies `materialize_initial_frame` by
+construction rather than weakening it. The fix is harness/universe-side: no
+`gates.yaml` cell, no threshold, no floor, no certified-core edit.
+
+*Implementing patch (pinned; lands after ratification, not in this PR).*
+
+- **`engine/panel_builders.py` `marital_panel_builder`:** the one-line clamp above
+  (`start_exposure_year = max(anchor_wave, birth_year + START_AGE)` in the certified
+  dtype), replacing `:187`. `birth_year` is already on `attrs`
+  (`transitions.py:239-243`); `START_AGE` imports from `data.transitions`. No other
+  builder, and no certified-core file, changes.
+- **Callers/tests touched.** `assembly.marital_step` (`:279`) and the runner path
+  (`m6_runner.py` `_project_side → _projected_cells → _project_side`) are unchanged
+  (they call the builder, whose signature and return are identical).
+  `tests/test_m6_panel_builders.py` is extended, not rewritten.
+- **The discriminating test (the class the current fixtures lack).**
+  `test_m6_panel_builders.py`'s `_marital_source` fixture carries only born-1980–1982
+  persons (`start_exposure_year` 1995–1997), all anchored well after age 15, so **no
+  current fixture exercises the crash class**. Add a sub-`START_AGE`-at-anchor person
+  — e.g. `birth_year = 2001`, `anchor_wave = 2015` (`birth+15 = 2016 > 2015`),
+  certified `person_years` beginning 2016 `never_married` — and assert: (a) under the
+  pre-patch override the builder raises `certified marital panel has no entry row at
+  anchor`; (b) under the clamp the person is seeded at 2016 `never_married`, appears
+  in `holdout_ids`, and the returned panel's entry row sits at 2016; (c) a born-2008
+  anchor person (`birth+15 = 2023 > 2022`) is dropped by the censor filter, not
+  seeded. This is the fixture class the current builder tests lack.
+- **Schema-audit / manifest deltas: none.** The clamp reads only columns already on
+  `attrs` (`birth_year`, `anchor_wave`, `censor_year`); no new panel column, no
+  reader-schema change, so `m6_schema_audit` (§2.8.3f) needs no new contract row, and
+  no `runs/` artifact or `gates.yaml` block is written by this amendment.
+
+Docs-only design amendment (revision 13); the implementing patch above lands after
+the referee round, as amendments 3d/3e did. Edits no `gates.yaml` cell, moves no
+threshold, builds no floor, and writes no test in this PR.
+
 **2.8.3 The year-0 slice from the realized 2015-interview state.** The seed slice
 mirrors the floor's realized panel **exactly**, so projection and truth condition
 identically. `T* = 2014` realizes its state at the **2015 interview**
