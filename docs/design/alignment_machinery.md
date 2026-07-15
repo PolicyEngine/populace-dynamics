@@ -106,6 +106,7 @@ aggregate as model validation.
 |---|---|---|
 | DYNASIM4 | The 2024 fact sheet names fertility, mortality, disability, immigration, and labor-force participation as aligned to SSA Office of the Chief Actuary targets ([Urban 2024, p. 2](https://www.urban.org/sites/default/files/2024-09/Urban%E2%80%99s%20Dynamic%20Simulation%20of%20Income%20Model%204.pdf)). A DYNASIM4 application says the employment selection criterion moves until sex-by-age employment meets Trustees targets and separately says wages follow Trustees real-wage growth and worker earnings targets ([Johnson et al. 2017, appendix p. 47](https://crr.bc.edu/wp-content/uploads/2017/11/wp_2017-17-1.pdf)). | DYNASIM4 supplies a selection-threshold precedent for discrete employment and a value adjustment precedent for wages. Its public demographic summary does not disclose the demographic reconciliation algorithm, so this design does not attribute one to DYNASIM4. |
 | DYNASIM3 lineage | The predecessor multiplies fertility probabilities within five maternal-age groups by target/predicted ratios and applies analogous linear mortality adjustments in 12 age-sex groups ([Favreault and Smith 2004, printed pp. 7-8](https://www.urban.org/sites/default/files/publication/71226/410961-A-Primer-on-the-Dynamic-Simulation-of-Income-Model-DYNASIM-.PDF)). | Probability ratios can align expectations, but a realized weighted panel can still miss a count and can hit probability caps. This is evidence for the rejected discrete-event alternative, not evidence that DYNASIM4 still uses it. |
+| Logit scaling | Stephensen defines a mean correction that multiplies odds by common factors, hits expected state totals, minimizes relative entropy, retains structural zeros, and keeps probabilities in range ([Stephensen 2016, §§2-3.2](https://www.microsimulation.pub/articles/00144)). | This is the strongest probability-scaling alternative: it defeats the clipping objection to linear ratios and supplies a principled probability-space distortion criterion. It must be compared with realized selection on its own merits. |
 | MINT7 | MINT assigns multiple potential donors, projects, and swaps donors when mortality or DI prevalence misses an age-sex-year target. Unequal weights can cause overshoot or undershoot and require repeated swaps ([Smith and Favreault 2013, printed pp. 7-8 and footnote 24](https://www.urban.org/sites/default/files/publication/22116/413131%20-%20A-Primer-on-Modeling-Income-in-the-Near-Term-Version-MINT-.pdf)). The same source says employment assumptions inform MINT but are not directly calibrated (printed p. 2, footnote 7). | Donor swapping is a whole-record selection precedent. Its unequal-weight warning requires an explicit resolution rule; it does not justify pretending an arbitrary real-valued target is exactly attainable. |
 | POLISIM | SSA's public description says each major submodule is aligned to historical data. It reports fixed benefit take-up totals by age, sex, and year, with an equation choosing the recipients; it also warns that “the alignment step may hide the erroneous ‘raw’ projection” and calls for retaining intermediate output before and after alignment ([McKay 2003, pp. 2, 5-6](https://web.archive.org/web/20080807142659/https://guard.canberra.edu.au/natsem/conference2003/papers/pdf/mckay_steven-1.pdf)). MINT6 also uses POLISIM target records and statistical donor matching for later cohorts ([Smith et al. 2010, chapter VII, printed pp. VII-2 and VII-4](https://www.urban.org/sites/default/files/publication/24986/412479-Modeling-Income-in-the-Near-Term-Version-.PDF)). | POLISIM supports selection of people to satisfy fixed totals and preservation of raw output. The accessible public sources do not specify its exact general event-selection algorithm; this design does not invent one. |
 
@@ -136,11 +137,36 @@ much weight those people represent, and the closest registered threshold-prefix
 target. Whole-unit selection preserves key and atomic-unit integrity; it does not
 by itself repair spouse, parent-child, or household state after a roster change.
 
-Annual probability-ratio adjustment loses for discrete production margins. It
-matches an expected rate before the draw, not necessarily the realized weighted
-count; clipping at one breaks the claimed ratio; and it does not expose a unique
-set of displaced people. Independently changing person weights also loses because
-it can break the linked network and contaminate every downstream weighted outcome.
+Annual **linear** probability-ratio adjustment loses for discrete production
+margins. It matches an expected rate before the draw, not necessarily the realized
+weighted count; clipping at one breaks the claimed ratio; and the scaling rule
+alone does not expose a unique set of displaced people. Independently changing
+person weights also loses because it can break the linked network and contaminate
+every downstream weighted outcome.
+
+Logit scaling is the stronger probability-adjustment alternative. For a binary
+event it sets
+`q_i(c) = c p_i / (1 + (c - 1) p_i)` for a common positive odds factor `c` and
+solves `sum_i w_i q_i(c) = T`. Stephensen derives the unweighted
+relative-entropy-minimizing mean correction; placing the frozen production weights
+in both the constraint and entropy objective gives the direct weighted extension.
+Within attainable support it therefore matches the expected weighted margin
+exactly, is KL-minimal, and keeps every adjusted probability in `[0, 1]` without
+clipping ([Stephensen 2016, §§2-3.2](https://www.microsimulation.pub/articles/00144)).
+Reusing each module uniform with a pinned equality rule would also give a unique,
+deterministic, auditable flip set. Clipping and displaced-set uniqueness therefore
+do not decide against this strong alternative.
+
+Selection still wins for the production target defined here. The expectation
+equation `sum_i w_i q_i(c) = T` does not imply the realized weighted-count equation
+`sum_i w_i 1[u_i < q_i(c)] = T`. The latter is a discontinuous step function,
+especially with unequal target contributions. Choosing `c` against that function,
+or resolving a jump over `T`, is itself a selection rule with an ordering, tie rule,
+and closest-attainable residual. The registered threshold-prefix mechanism controls
+the realized whole-unit outcome directly, discloses the selected prefix and exact
+displaced set, and couples every change to the original module `(p_i, u_i)` without
+a second draw. Logit scaling remains a useful probability-space diagnostic; it is
+not a complete realized-count reconciler.
 
 For a continuous value such as average covered wage, a uniform, disclosed ratio
 remains admissible. It preserves positive-earner ranks, creates no fractional
@@ -273,6 +299,20 @@ is `p - u`. The raw Monte Carlo outcome is the zero-threshold selection
 draw-distance ordering. It does not claim to preserve probability-only risk
 ordering.
 
+**Flip-ordering decision -- additive draw distance.** A common-odds realization
+would instead rank candidates by `logit(p) - logit(u)`; for a `0→1` addition its
+crossing factor is `[u / (1 - u)] / [p / (1 - p)]`, with the smallest factor
+crossing first. The additive and odds-distance orders coincide when `p` is constant,
+including within a single age-sex mortality cell under the registered mortality
+model. They can select different people when fertility probabilities vary by parity
+or cohort and in a year-total covered-work pool with heterogeneous probabilities.
+This design chooses additive `p - u` because it measures distance from the engine's
+actual probability-scale uniform comparison; the target bundle does not identify a
+common logit-intercept shock, and additive distance needs no logit-link or
+boundary-infinity convention. The algorithm revision records this choice, and the
+validation panel reports its compositional effects. This is a methodological
+choice, not a claim that the two orderings are interchangeable.
+
 The reconciler:
 
 1. sorts candidates by descending `p - u`, then by a dedicated alignment-stream
@@ -368,6 +408,11 @@ tie stream from canonical integer words encoding the root draw index,
 `alignment_spec_sha256`, calendar year, margin identifier, stratum identifier, and
 algorithm revision. It uses a cryptographic digest, never Python's process-random
 `hash()`.
+
+Within that stream, each candidate's tie value uses a counter-based derivation keyed
+by the canonical typed `alignment_unit_id`; it is never consumed by candidate-frame
+position. Adding or suppressing another candidate therefore cannot change an
+unchanged unit's tie value.
 
 Candidate frames sort by canonical typed keys before scoring. The implementation
 pins float64 arithmetic, stable sorting, target units, missing-value behavior, and
@@ -498,6 +543,11 @@ Here `raw` means the raw module outcome conditional on all earlier aligned hooks
 it is never labeled as the gate-scored path. Each record contains:
 
 - target, raw, and aligned weighted totals in one declared unit;
+- `implied_alignment_factor = target_weighted_total / raw_weighted_total` for every
+  `computed` cell with a nonzero raw total; when the raw total is zero the field is
+  JSON `null`, never infinity or a fabricated zero or one, and
+  `implied_alignment_factor_reason` distinguishes `zero_raw_zero_target` from
+  `zero_raw_nonzero_target`;
 - raw residual, aligned residual, and the precomputed threshold-prefix resolution
   floor;
 - counts of `0→1` and `1→0` unit flips;
