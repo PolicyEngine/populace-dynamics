@@ -24,8 +24,9 @@ the week-1 review on issue #192.
    variable means **administrative enterprise size**: total
    employment of the legal enterprise across all locations, as SUSB
    counts it. Survey labels are noisy measures of that quantity —
-   CPS ASEC `NOEMP`/`FIRMSIZE` (worker-reported, all locations,
-   previous calendar year's longest job) is the primary training
+   CPS ASEC firm size (worker-reported, all locations, previous
+   calendar year's longest job — under either the raw Census `NOEMP`
+   or the IPUMS `FIRMSIZE` coding; see C2.5) is the primary training
    label; SIPP 2014+ `EJB1_EMPSIZE` (establishment size) is a proxy
    chain. SUSB is therefore the correct E1 reference.
 2. **Bands are headcount bands.** Five canonical bands with edges at

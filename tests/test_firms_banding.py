@@ -113,9 +113,15 @@ def _code_spans(name):
     excluded = VINTAGE_EXCLUSIVE_CODES.get(name, set())
     codes = [c for c in ALL_INTERVAL_TABLES[name] if c not in excluded]
     if name == "cps_2011_2018":
-        spans = [cps_firmsize_to_canonical(c, 2015) for c in codes]
+        spans = [
+            cps_firmsize_to_canonical(c, 2015, coding="ipums_firmsize")
+            for c in codes
+        ]
     elif name == "cps_standard":
-        spans = [cps_firmsize_to_canonical(c, 2020) for c in codes]
+        spans = [
+            cps_firmsize_to_canonical(c, 2020, coding="ipums_firmsize")
+            for c in codes
+        ]
     elif name == "sipp":
         spans = [sipp_empsize_to_canonical(c) for c in codes]
     elif name == "susb":
@@ -216,13 +222,16 @@ def test_susb_subtotals_return_none():
 
 def test_cps_2011_2018_nests_exactly():
     for code in CPS_FIRMSIZE_INTERVALS_2011_2018:
-        span = cps_firmsize_to_canonical(code, 2015)
+        span = cps_firmsize_to_canonical(code, 2015, coding="ipums_firmsize")
         assert span.exact, code
-    assert cps_firmsize_to_canonical(6, 2011).band is CanonicalBand.B50_99
+    assert (
+        cps_firmsize_to_canonical(6, 2011, coding="ipums_firmsize").band
+        is CanonicalBand.B50_99
+    )
 
 
 def test_cps_post2019_25_99_straddles_fifty():
-    span = cps_firmsize_to_canonical(5, 2023)
+    span = cps_firmsize_to_canonical(5, 2023, coding="ipums_firmsize")
     assert not span.exact
     assert span.bands == (CanonicalBand.B10_49, CanonicalBand.B50_99)
     with pytest.raises(ValueError):
@@ -230,18 +239,28 @@ def test_cps_post2019_25_99_straddles_fifty():
 
 
 def test_cps_vintage_switching():
+    ipums = {"coding": "ipums_firmsize"}
     # Code 4 (10-49) exists only in the 2011-2018 vintage.
-    assert cps_firmsize_to_canonical(4, 2015).bands == (CanonicalBand.B10_49,)
+    assert cps_firmsize_to_canonical(4, 2015, **ipums).bands == (
+        CanonicalBand.B10_49,
+    )
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(4, 2023)
+        cps_firmsize_to_canonical(4, 2023, **ipums)
     # Code 2 (10-24) exists only outside 2011-2018.
-    assert cps_firmsize_to_canonical(2, 2023).exact
+    assert cps_firmsize_to_canonical(2, 2023, **ipums).exact
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(2, 2015)
+        cps_firmsize_to_canonical(2, 2015, **ipums)
+
+
+def test_cps_coding_is_required():
+    """No default coding: the both-spaces footgun (code 4/6 in
+    2011-2018, code 5 in 2019+) cannot mis-band via an omitted arg."""
+    with pytest.raises(TypeError):
+        cps_firmsize_to_canonical(4, 2015)
 
 
 def test_cps_niu_returns_none():
-    assert cps_firmsize_to_canonical(0, 2023) is None
+    assert cps_firmsize_to_canonical(0, 2023, coding="ipums_firmsize") is None
 
 
 def test_sipp_missing_and_inclusive_bounds():
@@ -284,25 +303,26 @@ def test_unknown_codes_raise():
 
 
 def test_cps_firmsize_rejects_vintage_impossible_codes():
+    ipums = {"coding": "ipums_firmsize"}
     # Code 3 ("Under 25") exists only in the 1988-1991 vintage, which
     # this module does not dispatch; it must not borrow a 2019+ interval.
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(3, 2023)
+        cps_firmsize_to_canonical(3, 2023, **ipums)
     # Codes 4/6 are 2011-2018-only in IPUMS FIRMSIZE.
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(4, 2023)
+        cps_firmsize_to_canonical(4, 2023, **ipums)
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(6, 2023)
+        cps_firmsize_to_canonical(6, 2023, **ipums)
     # Codes 2/5 are standard-only.
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(2, 2015)
+        cps_firmsize_to_canonical(2, 2015, **ipums)
     with pytest.raises(KeyError):
-        cps_firmsize_to_canonical(5, 2015)
+        cps_firmsize_to_canonical(5, 2015, **ipums)
 
 
 def test_cps_firmsize_rejects_unserved_years():
     with pytest.raises(ValueError):
-        cps_firmsize_to_canonical(1, 1989)
+        cps_firmsize_to_canonical(1, 1989, coding="ipums_firmsize")
 
 
 def test_cps_firmsize_rejects_unknown_coding():
@@ -336,7 +356,10 @@ def test_noemp_and_firmsize_codings_disagree():
     collision the explicit `coding` argument exists to prevent."""
     # Code 4, 2011-2018: NOEMP -> 100-499, IPUMS FIRMSIZE -> 10-49.
     assert banding.noemp_to_canonical(4, 2015).band is CanonicalBand.B100_499
-    assert cps_firmsize_to_canonical(4, 2015).band is CanonicalBand.B10_49
+    assert (
+        cps_firmsize_to_canonical(4, 2015, coding="ipums_firmsize").band
+        is CanonicalBand.B10_49
+    )
     # Routing NOEMP through the explicit census_noemp coding agrees
     # with the direct entry point.
     assert (

@@ -12,10 +12,10 @@ measure* of that quantity, not an alternative definition of it:
   raw Census ASEC person file carries ``NOEMP`` (codes 1-6), while
   the IPUMS-CPS harmonised extract carries ``FIRMSIZE`` (a different,
   wider code set). The same integer means different bands in each —
-  e.g. code 2 is *10-49* in NOEMP (2011-2018) but *10-24* in IPUMS
-  ``FIRMSIZE`` — so the mapper takes an explicit ``coding`` argument
-  and refuses to guess (see :func:`cps_firmsize_to_canonical` and
-  :func:`noemp_to_canonical`);
+  e.g. in the *same* 2011-2018 vintage, code 4 is *100-499* under
+  NOEMP but *10-49* under IPUMS ``FIRMSIZE`` — so the mapper takes a
+  *required* ``coding`` argument and refuses to guess (see
+  :func:`cps_firmsize_to_canonical` and :func:`noemp_to_canonical`);
 * SIPP 2014+ ``EJB1_EMPSIZE`` is worker-reported size *at the
   worker's location* (establishment size — the redesign dropped the
   all-locations question), so it is a proxy-chain input, biased
@@ -253,18 +253,22 @@ def _cps_firmsize_span(code: int, year: int) -> BandSpan | None:
 
 
 def cps_firmsize_to_canonical(
-    code: int, year: int, *, coding: str = "ipums_firmsize"
+    code: int, year: int, *, coding: str
 ) -> BandSpan | None:
     """Map a CPS ASEC firm-size code to canonical bands.
 
-    ``coding`` selects the source code set and is **required to be
-    explicit about which one is in hand**, because the two codings
-    share integers with different meanings (module docstring):
+    ``coding`` selects the source code set and is a **required
+    keyword** — there is deliberately no default. The two codings
+    share integers with different meanings (module docstring), and
+    three of them (code 4/6 in 2011-2018, code 5 in 2019+) are valid
+    under *both* codings with different bands, so a default would let a
+    caller holding the wrong coding mis-band silently rather than
+    raise:
 
-    * ``"ipums_firmsize"`` (default) — IPUMS-CPS harmonised
-      ``FIRMSIZE``;
+    * ``"ipums_firmsize"`` — IPUMS-CPS harmonised ``FIRMSIZE``;
     * ``"census_noemp"`` — the raw Census ASEC person-file ``NOEMP``
-      (delegates to :func:`noemp_to_canonical`).
+      (delegates to :func:`noemp_to_canonical`; callers holding NOEMP
+      may also use that entry point directly).
 
     ``year`` is the ASEC survey year (the bands changed for the
     2011-2018 ASECs and reverted from 2019 on). Returns ``None`` for

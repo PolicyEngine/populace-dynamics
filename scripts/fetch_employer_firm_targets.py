@@ -26,7 +26,8 @@ Sources (all keyless HTTPS GETs of published aggregate files):
   public-use CSVs are the pinned keyless source instead.
 * **J2J R2026Q1 (us, no demographics x fs, sector)** -- national
   job-to-job hire/separation flows by firm size x NAICS sector,
-  2015Q2 on. Feeds E11's national margin.
+  2015Q1 on (the ``year >= 2015`` filter; matches the provenance
+  note). Feeds E11's national margin.
 
 Run from the repository root::
 
