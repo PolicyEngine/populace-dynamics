@@ -1324,7 +1324,7 @@ side-path that attaches records:
 | wave-loop path | code | attaches by | keys to a roster-removable person? | disposition |
 |---|---|---|---|---|
 | 1 mortality | `apply_mortality` (`steps.py:113`; `assembly.py:254`) | **removes** survivors | — (the removing step) | the guard's premise; unchanged |
-| 2 aging | `advance_age` (`steps.py:434`) | in-place age/calendar roll | no (no keying) | invariant N/A by construction |
+| 2 aging | `advance_age` (`steps.py:137`; `aging=advance_age`, `assembly.py:428`) | in-place age/calendar roll | no (no keying) | invariant N/A by construction |
 | 3 marital core | `marital_step` → `_merge_period_columns` (`assembly.py:271, 412`) | **left merge** on roster | drops absent by construction | holds by construction |
 | **4 fertility / roster** | `apply_fertility` → `materialize_maternal_births` (`steps.py:472, 381`) | **materialize** (concat + guard raise) | **yes — `parent_person_id` (mothers)** | **3h's law applies** |
 | 5 disability | `disability_step` → `_merge_period_columns` (`assembly.py:326, 372`) | left merge on roster | drops absent by construction | holds by construction |
@@ -1335,7 +1335,7 @@ side-path that attaches records:
 | candidate-9 conditioning fertility | `household_step` (`assembly.py:394`, `generator(0, FERTILITY)`) | feeds candidate-9 as conditioning; materializes **no** roster | — | holds by construction (separate draw, no roster attach) |
 | child-ordinal assignment | wave-end loop (`loop.py:329-331`) | **additive** ordinal keyed to the **post-materialization** roster | keyed to roster-**present** persons only; `if person_id not in person_ordinals` | holds by construction — **rules out the secondary KeyError** |
 | immigrant entry cohorts | §2.1 open additions | not wired in the current wave loop (`PeriodModules`, `assembly.py:426-436` has no entrant step); by design fresh-id rows | no — fresh ids, not keyed to removable persons | out of scope (not wired; the parent-guard shape cannot arise) |
-| synthetic id allocation | `SyntheticPersonIdAllocator.allocate` (`steps.py:418`) | fresh child ids | no | holds by construction |
+| synthetic id allocation | `synthetic_id_allocator.allocate` call (`steps.py:418`; allocator `loop.py:49`) | fresh child ids | no | holds by construction |
 
 The **child-ordinal** row is load-bearing and answers the forensics' explicit
 question of why the materialized children do **not** raise a *second* KeyError. RNG
