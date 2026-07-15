@@ -120,7 +120,7 @@ def floors_for_year(year: int) -> dict:
         }
         ks_gaps: list[float] = []
         thin = False
-        for i, seed in enumerate(SEEDS):
+        for i, _seed in enumerate(SEEDS):
             mask_a = halves.map(lambda h, i=i: h[i] == 0)
             a, b = cell[mask_a], cell[~mask_a]
             if min(len(a), len(b)) < THIN_CELL_PERSONS:
