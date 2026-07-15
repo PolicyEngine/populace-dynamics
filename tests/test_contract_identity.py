@@ -98,7 +98,7 @@ def test__given_checkout__then_contract_ref_binds_blob_head_and_path():
 
 def test__given_running_process__then_environment_block_pins_versions():
     # Given
-    expected = {
+    expected_versions = {
         "python": platform.python_version(),
         "numpy": np.__version__,
         "pandas": pd.__version__,
@@ -111,10 +111,25 @@ def test__given_running_process__then_environment_block_pins_versions():
     environment = environment_block()
 
     # Then
-    assert environment == expected
-    assert all(
-        isinstance(value, str) and value for value in environment.values()
-    )
+    for key, value in expected_versions.items():
+        assert environment[key] == value
+        assert isinstance(value, str) and value
+    # The fitting stack is recorded so a scored run's frame-stack vintage is
+    # reproducible: {version, git_rev} when importable, "absent" otherwise.
+    fitting = environment["fitting_stack"]
+    assert set(fitting) == {"populace_fit", "populace_frame"}
+    for entry in fitting.values():
+        assert entry == "absent" or (
+            isinstance(entry, dict) and set(entry) == {"version", "git_rev"}
+        )
+
+
+def test__package_git_revision_is_unknown_for_a_site_packages_wheel():
+    from populace_dynamics.contract import _package_git_revision
+
+    # numpy is a wheel under site-packages; even inside a repo-contained venv it
+    # must not inherit the enclosing repo's HEAD (referee S3).
+    assert _package_git_revision("numpy") == "unknown"
 
 
 def test__given_default_artifact_write__then_no_sidecar_is_created(tmp_path):
