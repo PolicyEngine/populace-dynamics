@@ -262,7 +262,7 @@ gate scorer.
 Each binary margin-year-stratum supplies a candidate ledger with:
 
 `alignment_unit_id`, `person_id` or linked-unit members, `year`, `stratum_id`,
-positive `unit_weight`, scalar `target_contribution`, raw outcome `e_raw`,
+positive `unit_weight`, positive scalar `target_contribution`, raw outcome `e_raw`,
 predicted probability `p`, and the module uniform `u`. `unit_weight` is the atomic
 unit's pre-reconciliation production year-`y` displacement weight, not the M6
 start-wave gate weight. `target_contribution` is the amount that selecting the unit
@@ -279,17 +279,19 @@ The reconciler:
    tie key, then by canonical `alignment_unit_id`;
 2. computes cumulative `target_contribution` for every prefix, including the empty
    prefix;
-3. chooses the prefix whose cumulative weight is closest to the registered target;
+3. chooses the prefix whose cumulative target contribution is closest to the
+   registered target;
 4. breaks equal absolute residuals by fewer flips from `e_raw`, then no overshoot,
    then the smaller prefix; and
 5. records every `0→1` and `1→0` flip before applying the selected whole-unit
    outcomes.
 
 This is a deterministic stratified-selection rule, not an iterative search whose
-stopping point can vary. With unequal positive weights it may not hit an arbitrary
-real target exactly. A non-prefix subset may be closer, but packing units by weight
-would abandon the registered threshold rule and model-relative ordering. The
-selected prefix and its residual are unique, auditable, and byte-reproducible.
+stopping point can vary. With unequal positive target contributions it may not hit
+an arbitrary real target exactly. A non-prefix subset may be closer, but packing
+units by contribution would abandon the registered threshold rule and
+model-relative ordering. The selected prefix and its residual are unique,
+auditable, and byte-reproducible.
 Section 6 freezes each registered threshold-prefix resolution floor at its seam,
 before that margin's selection.
 
@@ -413,11 +415,11 @@ universe.
   only when they enter the certified marital risk set
   (`docs/design/m6_projection_engine.md:997-1140`). Alignment cannot remove them
   merely because they were outside a module's year-0 domain.
-- Pending sibling amendment 3h, supplied as binding for this design in
+- Amendment 3h, merged into `master` by
   [PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216), separates
   the frame-independent fertility schedule used for scoring from the live
   post-mortality roster used for child materialization. Its law appears in
-  [§2.8.2h at commit `b162f9c`](https://github.com/PolicyEngine/populace-dynamics/blob/b162f9c/docs/design/m6_projection_engine.md#L1183-L1264): only roster-present mothers materialize children; a scheduled birth to a removed mother enters report-only reconciliation. That lawful `roster_absent_births` drop stays in its upstream roster-reconciliation ledger. It is not an external-alignment flip. Fertility candidates are constructed only after the live-mother filter, and alignment must not resurrect or replace a mother to satisfy a target.
+  [§2.8.2h at merge commit `0e27be2`](https://github.com/PolicyEngine/populace-dynamics/blob/0e27be2d857719b30e33b556580b4a360808b5e0/docs/design/m6_projection_engine.md#L1183-L1264): only roster-present mothers materialize children; a scheduled birth to a removed mother enters report-only reconciliation. That lawful `roster_absent_births` drop stays in its upstream roster-reconciliation ledger. It is not an external-alignment flip. Fertility candidates are constructed only after the live-mother filter, and alignment must not resurrect or replace a mother to satisfy a target.
 
 Every margin record therefore names `candidate_universe`, `materialization_universe`,
 `measurement_universe`, its corresponding module scoring domain,
@@ -730,7 +732,7 @@ a gate-path change.
    release waits for the full ordered bundle.
 8. **Dependent relational state.** Ratify how mortality and emigration update
    spouse, parent-child, household, marital-core, and household-composition state,
-   including the pending amendment-3h removed-spouse case, without rewriting a
+   including amendment 3h's flagged removed-spouse case, without rewriting a
    certified scoring schedule.
 
 ## 9. What this does not change
