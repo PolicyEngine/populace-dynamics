@@ -187,7 +187,7 @@ def _validate_codes(
     frame: pd.DataFrame,
     column: str,
     active: pd.Series,
-    allowed: frozenset[int] | None,
+    allowed: frozenset[int],
     *,
     allow_missing_code: int = _MISSING,
 ) -> pd.Series:
@@ -200,16 +200,11 @@ def _validate_codes(
     through as item nonresponse — they refuse the file, matching the
     person-column path in :func:`read_sipp_job_months`. (Otherwise a
     mistyped or corrupt code on an active job would silently map to
-    ``"missing"`` instead of being caught.) ``allowed=None`` accepts any
-    value >= 0.
+    ``"missing"`` instead of being caught.)
     """
     values = pd.to_numeric(frame[column], errors="coerce")
     sentinel = values.isin((allow_missing_code, _MISSING_ID))
-    if allowed is None:
-        domain_ok = values >= 0
-    else:
-        domain_ok = values.isin(sorted(allowed))
-    ok = sentinel | domain_ok
+    ok = sentinel | values.isin(sorted(allowed))
     bad = frame[column][active & ~ok]
     if len(bad):
         raise _domain_error(year, column, bad)
@@ -240,9 +235,17 @@ def read_sipp_job_months(
         ``wave``, ``job_slot``, ``job_id``, ``bmonth``/``emonth``,
         ``clwrk``/``class_of_worker``, ``jborse``/
         ``work_arrangement``, ``empsize_code`` (establishment
-        size), ``industry`` (string), ``earnings`` (monthly, NaN
-        when -999), ``earnings_share`` and ``top_earner`` within
-        the person-month, ``age``, ``sex``, ``weight``.
+        size — passed through **raw**: valid codes 1-8, the -9
+        sentinel for item nonresponse on employer jobs, and NaN for
+        self-employment/other arrangements whose establishment size
+        is structurally NIU; downstream consumers such as
+        ``firms/banding.py`` must expect that mix), ``industry``
+        (string, passed through **unvalidated** — a full
+        Census-industry allow-list is impractical, so sentinels can
+        appear here and flow into ``job_spells``'s modal logic),
+        ``earnings`` (monthly, NaN when -999), ``earnings_share``
+        and ``top_earner`` within the person-month, ``age``,
+        ``sex``, ``weight``.
 
     Raises:
         ValueError: On an unsupported year, path/year mismatch,
@@ -358,9 +361,33 @@ def read_sipp_job_months(
         jborse = _validate_codes(
             year, raw, f"EJB{n}_JBORSE", active, frozenset(JBORSE_LABELS)
         )
+        # EMPSIZE's universe is narrower than "active slot": the
+        # question is asked about an employer's location, so
+        # self-employment (JBORSE 2) and other work arrangements
+        # (JBORSE 3) carry a structurally blank EMPSIZE. Verified on
+        # the real 2023 file (188,268 active job-1 months): EMPSIZE
+        # is populated for every JBORSE 1 job and blank for every
+        # JBORSE 2 job (JBORSE 3 is mixed). A blank EMPSIZE on an
+        # employer-type job still refuses.
+        no_establishment = pd.to_numeric(
+            raw[f"EJB{n}_JBORSE"], errors="coerce"
+        ).isin((2, 3))
         empsize = _validate_codes(
-            year, raw, f"EJB{n}_EMPSIZE", active, _EMPSIZE_CODES
+            year,
+            raw,
+            f"EJB{n}_EMPSIZE",
+            active & ~no_establishment,
+            _EMPSIZE_CODES,
         )
+        bad_size = raw[f"EJB{n}_EMPSIZE"][
+            active
+            & no_establishment
+            & empsize.notna()
+            & ~empsize.isin((_MISSING, _MISSING_ID))
+            & ~empsize.isin(sorted(_EMPSIZE_CODES))
+        ]
+        if len(bad_size):
+            raise _domain_error(year, f"EJB{n}_EMPSIZE", bad_size)
         # TJB{n}_MSUM has API range 0-9999999 and its ONLY sentinel is
         # -999 (2022/2023 SIPP variable metadata); -9 is not a valid
         # value here, unlike the coded slot columns. So the asymmetry is

@@ -170,6 +170,36 @@ class TestReadSippJobMonths:
         assert list(out["class_of_worker"]) == ["missing"]
         assert list(out["empsize_code"]) == [-9]
 
+    def test_blank_empsize_on_self_employment_tolerated(self, tmp_path):
+        # EMPSIZE's universe is employer-location jobs: on the real
+        # 2023 file every self-employment job (JBORSE 2) carries a
+        # structurally blank EMPSIZE.
+        months = [
+            {
+                "month": 1,
+                "job1": {"JBORSE": 2, "CLWRK": 8, "EMPSIZE": ""},
+            }
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 1
+        assert out["empsize_code"].isna().all()
+        assert list(out["work_arrangement"]) == ["self_employed"]
+
+    def test_blank_empsize_on_employer_job_refuses(self, tmp_path):
+        months = [{"month": 1, "job1": {"JBORSE": 1, "EMPSIZE": ""}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        with pytest.raises(ValueError, match="EJB1_EMPSIZE"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_corrupt_empsize_on_self_employment_refuses(self, tmp_path):
+        months = [
+            {"month": 1, "job1": {"JBORSE": 2, "CLWRK": 8, "EMPSIZE": 42}}
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        with pytest.raises(ValueError, match="EJB1_EMPSIZE"):
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+
     def test_corrupt_code_on_active_slot_refuses(self, tmp_path):
         # Only the -9/-999 sentinels excuse a non-domain value on an
         # active slot; an unparseable string or a blank must refuse
@@ -201,6 +231,37 @@ class TestReadSippJobMonths:
         path = _write_pu_file(tmp_path, 2023, months)
         with pytest.raises(ValueError, match="PNUM"):
             sipp_jobs.read_sipp_job_months(2023, path=path)
+
+    def test_top_earner_tie_breaks_to_lowest_slot(self, tmp_path):
+        months = [
+            {
+                "month": 1,
+                "job1": {"MSUM": 2000},
+                "job2": {"JOBID": 202, "MSUM": 2000},
+            }
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert list(out["top_earner"]) == [True, False]
+        assert out["top_earner"].sum() == 1
+
+    def test_all_seven_job_slots_read(self, tmp_path):
+        spec = {"month": 1}
+        for n in range(1, 8):
+            spec[f"job{n}"] = {"JOBID": 100 + n, "MSUM": 100 * n}
+        path = _write_pu_file(tmp_path, 2023, [spec], slots=7)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert len(out) == 7
+        assert list(out["job_slot"]) == list(range(1, 8))
+        assert out["earnings_share"].sum() == pytest.approx(1.0)
+        assert list(out[out["top_earner"]]["job_slot"]) == [7]
+
+    def test_industry_sentinel_passes_through_raw(self, tmp_path):
+        # TJB{n}_IND is documented as unvalidated pass-through.
+        months = [{"month": 1, "job1": {"IND": "-9"}}]
+        path = _write_pu_file(tmp_path, 2023, months)
+        out = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert list(out["industry"]) == ["-9"]
 
     def test_known_zero_earnings_semantics(self, tmp_path):
         months = [{"month": 1, "job1": {"MSUM": 0}}]
@@ -252,6 +313,21 @@ class TestJobSpells:
         assert len(spells) == 1
         assert not spells.iloc[0]["attributes_constant"]
         assert spells.iloc[0]["empsize_code"] == 4  # modal
+
+    def test_modal_attribute_even_tie_takes_smallest(self, tmp_path):
+        # A 50/50 within-spell split: mode() sorts, so the smallest
+        # value wins, deterministically, and the change is surfaced.
+        months = [
+            {"month": 1, "job1": {"EMPSIZE": 5}},
+            {"month": 2, "job1": {"EMPSIZE": 3}},
+        ]
+        path = _write_pu_file(tmp_path, 2023, months)
+        spells = sipp_jobs.job_spells(
+            sipp_jobs.read_sipp_job_months(2023, path=path)
+        )
+        assert len(spells) == 1
+        assert spells.iloc[0]["empsize_code"] == 3
+        assert not spells.iloc[0]["attributes_constant"]
 
     def test_earnings_share_and_primary(self, tmp_path):
         months = [
@@ -324,7 +400,11 @@ class TestRealData:
         year = int(path.name[2:6])
         out = sipp_jobs.read_sipp_job_months(year, path=path)
         assert len(out) > 100_000
-        shares = out.groupby(["person_id", "month"])["earnings_share"].sum()
+        # min_count=1 keeps all-NaN person-months (fully missing
+        # earnings) as NaN instead of a spurious 0.0 sum.
+        shares = out.groupby(["person_id", "month"])["earnings_share"].sum(
+            min_count=1
+        )
         assert ((shares.dropna() - 1.0).abs() < 1e-9).all()
         spells = sipp_jobs.job_spells(out)
         assert (spells["n_months"].between(1, 12)).all()
