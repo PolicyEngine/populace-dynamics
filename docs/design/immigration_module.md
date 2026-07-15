@@ -39,6 +39,11 @@
 - Certificate-boundary finding: §2.8.3a, §2.8.2g, and amendment 3h prohibit
   repairing an unsupported universe by fabricating state or bypassing a live-
   roster guard → §3.3–3.5, §5.6.
+- Global-ID-namespace finding: the run-local engine allocator can alias an
+  omitted person retained by a global fitted surface; adopt the pending
+  [PR #221](https://github.com/PolicyEngine/populace-dynamics/pull/221)
+  §2.8.2i F2 law and assert entrant/domain disjointness before projection →
+  §3.1–3.2, §3.5, §4.6–4.7, §4.11.
 - Donor-support finding: MINT's sparse annual cohorts and the public surveys'
   different universes require floors before any accuracy threshold → §2.1–2.3,
   §5.3.
@@ -324,9 +329,34 @@ entry mechanism.
 The immigration builder must **compose with**, not replace, that existing mapping.
 For each shared year it schema-reconciles and concatenates the unchanged PSID
 opener frame with the immigrant frame, then validates one prior-year coordinate
-and global ID uniqueness. It allocates immigrant IDs above the maximum of the
-initial IDs **and every pre-existing scheduled ID**. Because all new IDs are above
-that union, existing-person and existing-opener sorted ordinals remain unchanged.
+and global ID uniqueness.
+
+The current loop's maximum is run-local and is not a sufficient immigrant-ID
+floor. Pending M6 amendment
+[PR #221](https://github.com/PolicyEngine/populace-dynamics/pull/221),
+§2.8.2i **F2**, proves that a synthetic ID can otherwise alias a real person
+omitted from a selected run but retained by a global fitted adapter. This design
+adopts that pending law as an implementation dependency even though PR #221 has
+not merged. Before any gate split or other subsetting, construct and freeze
+`reserved_real_person_ids` as the union of the full anchor and every person-keyed
+fitted support consumed by assembly. At minimum this includes the keys of both
+earnings fitted-state maps (and therefore every `adapter.domain_person_ids`
+member), marital attributes, household attributes/person waves, and disability-
+panel person keys. Let `preexisting_schedule_ids` contain every PSID opener ID and
+define
+
+```text
+immigrant_id_floor = 1 + max(
+    reserved_real_person_ids union preexisting_schedule_ids
+)
+```
+
+Freeze that floor unchanged through every subset operation and allocate immigrant
+IDs from it in deterministic order. Because the floor also exceeds every
+pre-existing scheduled ID, existing-person and existing-opener sorted ordinals
+remain unchanged. A different high namespace is admissible only if its manifest
+proves it disjoint from the same complete reserved union; a side-local maximum is
+never admissible.
 
 ### 3.2 Consequences for timing, IDs, and RNG
 
@@ -356,13 +386,20 @@ the cohort control/exposure convention, but it may not assign a Trustees stock o
 legal-status label to individual donor rows.
 
 IDs are assigned outside the loop in deterministic order. They must be finite
-integers, greater than every starting-population **or pre-existing scheduled** ID,
-collision-free across all years, and invariant to row order. These conditions
-preserve every original and PSID-opener sorted-ID ordinal. Projection metadata
-must omit a pre-supplied synthetic allocator, or assert its mutable `next_id` is
-strictly above the combined maximum before period 1; otherwise the loop does not
-protect births from collision. No existing M6 module stream is consumed to
-construct the schedule.
+integers, begin at the frozen global `immigrant_id_floor`, be collision-free
+across all years, and be invariant to row order. The floor, not a recomputed
+selected-side maximum, is carried into every subset/diagnostic run. Projection
+metadata must omit a pre-supplied synthetic allocator, or assert its mutable
+`next_id` is strictly above every reserved real-person and scheduled-person ID
+before period 1; otherwise the loop does not protect births from collision.
+
+Any run claiming full-population/original-person byte identity must additionally
+check the precondition
+`run_real_person_ids ⊇ fitted_support_person_ids`, where the
+run universe includes its initial real people and every real scheduled opener.
+A subset run normally fails that precondition and may not inherit the claim; the
+global namespace reservation still makes its synthetic IDs collision-safe. No
+existing M6 module stream is consumed to construct the schedule.
 
 ### 3.3 Amendment 3h / M6 §2.8.2h: live-roster materialization
 
@@ -418,9 +455,9 @@ Therefore the immigration generator must produce both an entry row and an
 explicit, module-native **EntrantStateBundle**. Merely adding more columns to the
 entry frame is rejected.
 
-### 3.5 The §2.8.3a / §2.8.2g / 3h domain-law family
+### 3.5 The §2.8.3a / §2.8.2g / 3h / pending-3i domain-law family
 
-The sibling M6 design's three laws bind this module:
+The sibling M6 domain laws bind this module:
 
 - **Earnings §2.8.3a**: the certified forward generator's domain is the
   intersection with realized 2014 earnings state. Missing/new rows are false in
@@ -436,6 +473,12 @@ The sibling M6 design's three laws bind this module:
   scoring schedule from live-roster materialization; a child may materialize
   only against a live mother. The broader relationship-closure rule in §3.3 is a
   new immigration invariant, not part of the 3h certificate.
+- **Synthetic IDs, pending §2.8.2i F2**: PR #221 reserves the global real-person
+  namespace before any gate split and requires every allocated ID to be disjoint
+  from it. This design applies the same law to immigrant cohorts and then places
+  the dynamic birth allocator above the complete real-plus-scheduled universe.
+  Until PR #221 lands, an integration must implement the equivalent explicit
+  floor; relying on the current run-local default is prohibited.
 
 No existing certificate transfers across these bridges. Reuse of unchanged core
 code may be plumbing at implementation time, but applying it to an entrant
@@ -651,12 +694,12 @@ any stochastic calibration use named `purpose_tag` values so adding one draw doe
 not shift another purpose's addresses.
 
 After the full schedule is realized, IDs are allocated in stable order
-`(entry_year, unit_slot, member_slot)` beginning above the maximum `person_id`
-across the initial population **and the full pre-existing schedule**. The builder
-stores the allocation ledger, merges same-year frames without changing their
-existing rows, and verifies global uniqueness before calling the engine.
-Arrival-unit and household IDs use their own namespaces and may not alias person
-IDs.
+`(entry_year, unit_slot, member_slot)` beginning at the pre-split global
+`immigrant_id_floor` from §3.1. The builder stores the reserved-set digest, floor,
+and allocation ledger, merges same-year frames without changing their existing
+rows, and verifies global uniqueness and reserved-set disjointness before calling
+the engine. Arrival-unit and household IDs use their own namespaces and may not
+alias person IDs.
 
 The metadata adapter omits `synthetic_id_allocator` so the loop creates it from
 the combined universe. If another caller requires a supplied allocator, the
@@ -665,11 +708,12 @@ the loop's type check alone is insufficient.
 
 Changing a source vintage, donor artifact, recent-arrival definition, or schedule
 seed creates a new schedule identity. The design does not promise entrant or
-newborn byte identity across such scenarios. It does promise that, within one
-schedule, pre-supplying entrant IDs above the initial maximum leaves every
-original person's sorted-ID ordinal unchanged and lets the engine place its
-dynamic allocator above every scheduled entrant only under the preceding
-metadata guard.
+newborn byte identity across such scenarios. Within one schedule, the global
+floor leaves every original and pre-existing-opener sorted-ID ordinal unchanged,
+and the metadata guard places the dynamic allocator above every scheduled
+entrant. A full-population byte-identity claim also requires the checked
+`run_real_person_ids ⊇ fitted_support_person_ids` precondition in §3.2; stable
+ordinals alone never confer that claim on a subset run.
 
 Downstream RNG needs a separate isolation law. C16, fertility, and candidate-9
 consume shared ordered generators, so merely adding entrants to their panels can
@@ -702,8 +746,15 @@ Before engine invocation the builder hard-checks:
 - mapping keys are integer entry years in the projection range;
 - each frame has exactly `year = entry_year - 1`;
 - pre/post-aging age identities match decision O2;
-- person IDs are finite integers, globally unique, and greater than the initial
-  and every pre-existing scheduled maximum;
+- person IDs are finite integers, globally unique, start no lower than the frozen
+  `immigrant_id_floor`, and are disjoint from `reserved_real_person_ids` and every
+  pre-existing scheduled ID;
+- for every active certified earnings adapter, the literal assertion
+  `immigrant_ids ∩ adapter.domain_person_ids == ∅` holds; the
+  `earnings_domain = false` marker is not a bypass for fitted membership;
+- the pre-split namespace floor is unchanged after every gate/subset operation,
+  and any full-population byte-identity claim separately satisfies
+  `run_real_person_ids ⊇ fitted_support_person_ids`;
 - all relation endpoints are either scheduled no later than the relation's
   materialization year or explicitly marked outside-roster;
 - weights are finite, positive, and reconcile at person and unit level;
@@ -803,17 +854,21 @@ characteristic claims, or M7 accounting.
 
 Every build writes a machine-readable audit before projection. The audit includes
 source and derived hashes, retrieval/publication/observation dates, parser and
-schema versions, schedule seed, ID ranges, per-year physical rows and weighted
-totals, donor-cell effective sample sizes, fallback counts, calibration residuals,
+schema versions, schedule seed, the reserved-real-ID-set digest, frozen immigrant
+floor and allocated ID ranges, per-year physical rows and weighted totals,
+donor-cell effective sample sizes, fallback counts, calibration residuals,
 top-code/allocation shares, unit-size distribution, state-bundle completeness,
 and all report-only/certified labels.
 
 The builder refuses to run when a binding required by the selected run is missing
 or mutable, a raw or derived hash differs, a required year is absent, a unit
-crosses an unsupported concept, an outside-roster relation is assigned an ID, an
-entry is accidentally admitted to the certified earnings domain, or the universe
-bridge is absent for a run claiming resident alignment. Network access and runtime
-redownload are prohibited on a scored or production run.
+crosses an unsupported concept, an outside-roster relation is assigned an ID, the
+namespace floor changes after a split, or either
+`immigrant_ids ∩ reserved_real_person_ids` or
+`immigrant_ids ∩ adapter.domain_person_ids` is nonempty. It also refuses a
+full-population byte-identity claim when the §3.2 run-universe precondition fails,
+or a resident-alignment claim when the universe bridge is absent. Network access
+and runtime redownload are prohibited on a scored or production run.
 
 ## 5. Evaluation and proposed `gate_imm`
 
@@ -1025,7 +1080,7 @@ until an acquisition PR records the actual bytes.
 | `entrant_fertility_history_bridge` | **UNBOUND.** Candidate evidence must name exact SIPP fertility-history or CPS fertility-supplement files, variables, universe, observation years and release vintage. | Map prior parity/birth history and exposure start jointly with entrant family state; never default parity to zero. | **BLOCKING** for entrant fertility risk; decision O13. |
 | `prior_us_covered_earnings_bridge` | **UNBOUND.** ACS reported year of entry and public survey earnings do not establish first entry or prior U.S. Social Security covered earnings. | Identify repeat-entry/first-entry status, covered quarters and prior indexed earnings with a source, universe and vintage; otherwise retain censored/unknown. | **BLOCKING** for entrant insured status, claiming, AIME/PIA and benefits; decision O12. |
 | `census_np2023_nim_corridors` | Census Bureau, *[Methodology, Assumptions, and Inputs for the 2023 National Population Projections](https://www2.census.gov/programs-surveys/popproj/technical-documentation/methodology/methodstatement23.pdf)* (Nov. 2023), migration pp. 8–14; Table 1 in the Main Series and each Alternative Scenario, “Projected Population and Components of Change for the United States, [Main Series/High Immigration Scenario/Low Immigration Scenario/Zero Immigration Scenario]: 2022–2100”: [main](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1.xlsx), [high](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-h.xlsx), [low](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-l.xlsx), and [zero](https://www2.census.gov/programs-surveys/popproj/tables/2023/2023-summary-tables/np2023-t1-z.xlsx) workbooks. | Annual net international migration in thousands for main/high/low/zero scenarios; July 1 prior year–June 30 current year. Preserve scenario definitions: alternatives change gross foreign-born immigration, not every migration component. | Report-only cross-model corridors; never gate truth or a positive entrant control. |
-| `m6_projected_wage_index` | Existing sibling design §2.7.6.3/§2.8.10: `I_bound[y]` is realized SSA NAWI through 2014 and `I_proj[y]` beyond, estimated only from `<=T*`; see `m6_projection_engine.md:666-708,1723-1756`. | Annual-file `ADJINC` first expresses income in that survey year's dollars. Before cross-year training/holdout comparison bind `earnings_2014 = earnings_y_after_ADJINC * I_bound[2014] / I_bound[y]`; projection-year entrant earnings reverse the ratio from the 2014 base. Never use realized post-2014 NAWI on a scored path. | Reused by a future entrant-earnings initializer. No new external fetch and no certificate transfer to entrant earnings. |
+| `m6_projected_wage_index` | Existing sibling design §2.7.6.3/§2.8.10: `I_bound[y]` is realized SSA NAWI through 2014 and `I_proj[y]` beyond, estimated only from `<=T*`; re-derived against merged master `c6a3c78` at `m6_projection_engine.md:694-725,2041-2103`. | Annual-file `ADJINC` first expresses income in that survey year's dollars. Before cross-year training/holdout comparison bind `earnings_2014 = earnings_y_after_ADJINC * I_bound[2014] / I_bound[y]`; projection-year entrant earnings reverse the ratio from the 2014 base. Never use realized post-2014 NAWI on a scored path. | Reused by a future entrant-earnings initializer. No new external fetch and no certificate transfer to entrant earnings. |
 | `emigration_duration_hazard` | **UNBOUND.** Table V.A2 supplies aggregate outflow counts only. The Duleep-Dowhan 2008 hazards and legacy model methods are research evidence, not a current operational binding. | Must identify age, sex, source grouping, time since entry, family/individual unit, re-entry treatment, universe and vintage. | **BLOCKING** for explicit exits and any Trustees net-alignment claim; outside entry-builder v1. |
 
 ### 6.3 Binding-specific guards
@@ -1236,7 +1291,9 @@ authorizes surgery:
   2017/2019 PSID opener row; the immigration builder merges that mapping and never
   overwrites it;
 - the eight-member `PeriodModules` order, existing module RNG streams, original-
-  person ordinals, synthetic-ID allocator semantics, and period trace;
+  person ordinals, and period trace; synthetic-ID allocation follows pending
+  PR #221 §2.8.2i F2, or an immigration-side equivalent, rather than the current
+  side-local default;
 - M6's current statement that immigrant/open-panel additions are report-only;
 - M7 trust-fund accounting, M8 rules execution, and any PolicyEngine-US legal
   eligibility rule; and
@@ -1245,8 +1302,9 @@ authorizes surgery:
 An entrant adapter may call unchanged core code, but it must do so under an
 entrant-domain label and separate report/gate surface. It may not alter the
 closed-panel input or score and call the resulting difference “immigration.”
-The metadata adapter also must omit a caller allocator or enforce the combined-
-maximum guard in §4.6. Any mixed entrant/existing-person market remains the
+The metadata adapter also must carry the pre-split global floor and omit a caller
+allocator or enforce the complete reserved-plus-scheduled guard in §4.6. Any
+mixed entrant/existing-person market remains the
 report-only O14 product and makes no closed-run byte-identity claim.
 
 ## 9. Candidate-blind implementation and certification order
@@ -1345,8 +1403,12 @@ excluded.
     "new_period_module": false,
     "ids_preassigned": true,
     "synthetic_allocator_start": "engine default is max(initial and all scheduled person_id) + 1 when caller metadata omits the allocator",
-    "existing_schedule_merge": "preserve and concatenate every PSID opener frame; allocate immigrants above max(initial plus all pre-existing scheduled ids)",
-    "caller_allocator_guard": "omit caller allocator or assert next_id exceeds the combined maximum"
+    "reserved_real_person_namespace": "freeze before any split as full anchor union every person-keyed fitted support, including both earnings maps, marital attrs, household person keys, and disability-panel person keys",
+    "immigrant_id_floor": "1 + max(reserved_real_person_ids union every pre-existing scheduled person_id); preserve unchanged through subsets",
+    "existing_schedule_merge": "preserve and concatenate every PSID opener frame; allocate immigrants at or above the global immigrant_id_floor",
+    "domain_disjoint_assertion": "immigrant_ids intersect adapter.domain_person_ids is empty for every active earnings adapter before period 1",
+    "byte_identity_precondition": "a full-population/original-person byte-identity claim requires checked run_real_person_ids superset fitted_support_person_ids; subset runs do not inherit the claim",
+    "caller_allocator_guard": "omit caller allocator or assert next_id exceeds the reserved real-person namespace and every scheduled person_id"
   },
   "provisional_adjudications": {
     "cohort_control": "G_resident_entry_proxy for a resident-labeled bound run; raw G_ssa_stock only for an explicitly report-only ssa_area_proxy",
