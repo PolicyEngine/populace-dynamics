@@ -1,0 +1,69 @@
+{
+  "artifact": "noemp_band_evidence",
+  "version": 1,
+  "issue": "192",
+  "finding": "The 2019+ ASEC data dictionaries relabel NOEMP codes 2/3 from 10-49/50-99 to 10-24/25-99, but the weighted code shares are continuous across the supposed 2018/2019 re-binning and match SUSB only under the 10-49/50-99 reading: the relabeling is documentary, not an instrument change. IPUMS FIRMSIZE inherits the mislabel for 2019+ samples.",
+  "dictionary_labels_by_year": {
+    "2017": {
+      "2": "10-49",
+      "3": "50-99"
+    },
+    "2019": {
+      "2": "10-24",
+      "3": "25-99"
+    },
+    "2024": {
+      "2": "10-24",
+      "3": "25-99"
+    }
+  },
+  "share_pct_by_year": {
+    "2017": {
+      "workers_unweighted": 92818,
+      "workers_weighted_millions": 164.8,
+      "share_pct_by_code": {
+        "1": 19.23,
+        "2": 14.87,
+        "3": 6.97,
+        "4": 12.13,
+        "5": 4.91,
+        "6": 41.89
+      }
+    },
+    "2019": {
+      "workers_unweighted": 90476,
+      "workers_weighted_millions": 167.7,
+      "share_pct_by_code": {
+        "1": 18.45,
+        "2": 14.44,
+        "3": 6.94,
+        "4": 12.34,
+        "5": 5.13,
+        "6": 42.7
+      }
+    },
+    "2024": {
+      "workers_unweighted": 73471,
+      "workers_weighted_millions": 173.2,
+      "share_pct_by_code": {
+        "1": 18.53,
+        "2": 14.14,
+        "3": 6.71,
+        "4": 11.72,
+        "5": 5.22,
+        "6": 43.68
+      }
+    }
+  },
+  "max_adjacent_delta_pct_codes_2_3": 0.43,
+  "expected_delta_if_rebinned_pct": "code 2 roughly halves (~7 pp drop) and code 3 roughly doubles (~7 pp rise)",
+  "susb_reference": {
+    "50_99_share_pct": 7.5,
+    "25_99_share_pct": 15.0,
+    "note": "SUSB annual tables, 2021 employment by enterprise employment size; 50-99 near 7.5% of employment, 25-99 near 15%. NOEMP code 3's observed ~7% share matches the 50-99 reading and excludes the 25-99 reading."
+  },
+  "sources": {
+    "asec_files": "www2.census.gov/programs-surveys/cps/datasets/{year}/march (2017 converted from asec2017_pubuse.dat at the dictionary positions; 2019/2024 from the published person CSVs)",
+    "first_reported": "PolicyEngine/populace-dynamics#192, 2026-07-15"
+  }
+}
