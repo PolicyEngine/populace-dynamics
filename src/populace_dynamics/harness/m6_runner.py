@@ -778,24 +778,34 @@ def _surface_pair(
 
 
 def _roster_absent_birth_reconciliation(
-    collector: Mapping[str, Any],
+    *collectors: Mapping[str, Any],
 ) -> dict[int, dict[str, Any]]:
-    records = collector.get("roster_absent_births")
-    if not isinstance(records, Mapping):
-        raise RuntimeError(
-            "M6 projection did not publish 'roster_absent_births'"
-        )
-    reconciliation = {}
-    for year, record in records.items():
-        if not isinstance(record, Mapping):
-            raise RuntimeError("roster-absent birth record must be a mapping")
-        reconciliation[int(year)] = {
-            "dropped_parent_ids": sorted(
+    combined: dict[int, dict[str, Any]] = {}
+    for collector in collectors:
+        records = collector.get("roster_absent_births")
+        if not isinstance(records, Mapping):
+            raise RuntimeError(
+                "M6 projection did not publish 'roster_absent_births'"
+            )
+        for year, record in records.items():
+            if not isinstance(record, Mapping):
+                raise RuntimeError(
+                    "roster-absent birth record must be a mapping"
+                )
+            aggregate = combined.setdefault(
+                int(year), {"dropped_parent_ids": set(), "dropped_count": 0}
+            )
+            aggregate["dropped_parent_ids"].update(
                 int(value) for value in record["dropped_parent_ids"]
-            ),
-            "dropped_count": int(record["dropped_count"]),
+            )
+            aggregate["dropped_count"] += int(record["dropped_count"])
+    return {
+        year: {
+            "dropped_parent_ids": sorted(record["dropped_parent_ids"]),
+            "dropped_count": record["dropped_count"],
         }
-    return reconciliation
+        for year, record in combined.items()
+    }
 
 
 def _draw_report(
@@ -943,7 +953,7 @@ def _draw_report(
                 for frame in household_population.scheduled_entries_by_year.values()
             ),
             "roster_absent_births": _roster_absent_birth_reconciliation(
-                household_collector
+                household_collector, person_collector
             ),
         },
         "trace": {

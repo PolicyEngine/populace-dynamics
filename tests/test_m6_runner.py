@@ -291,6 +291,24 @@ def test_report_only_lifts_roster_absent_birth_reconciliation():
             for module in ("mortality", "marital", "disability", "earnings")
         },
     }
+    reconciliation = runner_module._roster_absent_birth_reconciliation(
+        {
+            "roster_absent_births": {
+                2020: {
+                    "dropped_parent_ids": frozenset(),
+                    "dropped_count": 0,
+                }
+            }
+        },
+        {
+            "roster_absent_births": {
+                2020: {
+                    "dropped_parent_ids": frozenset({782173}),
+                    "dropped_count": 1,
+                }
+            }
+        },
+    )
     seed_run = M6SeedRun(
         seed=0,
         score=_FakeSeedScore(0),
@@ -307,12 +325,7 @@ def test_report_only_lifts_roster_absent_birth_reconciliation():
                     "immigrant_cohorts": 0,
                     "synthetic_persons": 3,
                     "scheduled_realized_openers": 2,
-                    "roster_absent_births": {
-                        2020: {
-                            "dropped_parent_ids": [782173],
-                            "dropped_count": 1,
-                        }
-                    },
+                    "roster_absent_births": reconciliation,
                 },
             },
         ),
