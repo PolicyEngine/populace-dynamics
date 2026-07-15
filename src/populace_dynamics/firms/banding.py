@@ -39,15 +39,19 @@ are out of C2 scope.
 Rationale: 50 must be a band edge (ACA/state-mandate thresholds; QWI's
 20-49/50-249 cut and the detailed SUSB classes support it), and these
 edges exactly nest the SUSB detailed enterprise-size classes and the
-2011-2018 ASEC bands — the only ASEC vintage whose bands resolve 50.
+ASEC firm-size bands. Every ASEC vintage resolves 50: 2011-2018 by its
+10-49/50-99 bands directly, and 2019+ because its "10-24"/"25-99"
+dictionary labels are a phantom relabeling of the same 10-49/50-99
+instrument (real-data evidence on #192; see
+:data:`CPS_NOEMP_INTERVALS_2019_PLUS`).
 
 **Mappings are total but not always exact.** Every raw source code
 maps to exactly one :class:`BandSpan` — a contiguous run of canonical
 bands. ``exact=True`` means the source band lies inside a single
-canonical band. Source bands that straddle a canonical edge (e.g. the
-2019+ ASEC "25 to 99", BDS "20 to 99", QWI "0-19", most SIPP bands)
-return a multi-band span: the ambiguity is carried explicitly rather
-than resolved by a hidden convention (issue #192 review, point 3).
+canonical band. Source bands that straddle a canonical edge (e.g. BDS
+"20 to 99", QWI "0-19", most SIPP bands) return a multi-band span: the
+ambiguity is carried explicitly rather than resolved by a hidden
+convention (issue #192 review, point 3).
 Down-stream code must either work at a coarseness where the span
 collapses to one band or model the within-span allocation.
 
@@ -59,7 +63,8 @@ straddle canonical edges by a single integer and are returned as
 
 Verified sources for every raw code set (retrieved 2026-07-14):
 
-* CPS/IPUMS ``FIRMSIZE`` codes and the 2011-2018 vs 2019+ band break:
+* CPS/IPUMS ``FIRMSIZE`` codes (the 2019+ dictionary "band break" is a
+  documentary relabeling only — the instrument is unchanged, #192):
   https://cps.ipums.org/cps-action/variables/FIRMSIZE
 * SIPP ``EJB1_EMPSIZE`` categories:
   https://api.census.gov/data/2023/sipp/variables/EJB1_EMPSIZE.json
@@ -74,6 +79,7 @@ Verified sources for every raw code set (retrieved 2026-07-14):
 from __future__ import annotations
 
 import math
+import numbers
 from dataclasses import dataclass
 from enum import Enum
 
@@ -153,14 +159,22 @@ def band_of_count(n: int) -> CanonicalBand:
 
     ``n`` must be a whole number (headcount); a non-integral value such
     as ``9.5`` is a caller error and raises ``ValueError`` rather than
-    falling through the partition.
+    falling through the partition. Accepts any :class:`numbers.Integral`
+    (so ``numpy`` integer dtypes from a ``Series.map`` survive) and any
+    whole-valued real; ``bool`` is rejected.
     """
-    if isinstance(n, bool) or not isinstance(n, int):
-        if not (isinstance(n, float) and n.is_integer()):
-            raise ValueError(
-                f"Employment count must be a whole number, got {n!r}."
-            )
+    if isinstance(n, bool):
+        raise ValueError(
+            f"Employment count must be a whole number, got {n!r}."
+        )
+    if isinstance(n, numbers.Integral):
         n = int(n)
+    elif isinstance(n, numbers.Real) and float(n).is_integer():
+        n = int(n)
+    else:
+        raise ValueError(
+            f"Employment count must be a whole number, got {n!r}."
+        )
     if n < 1:
         raise ValueError(f"Employment count must be >= 1, got {n}.")
     for band in CANONICAL_BANDS:
@@ -194,18 +208,24 @@ CPS_FIRMSIZE_INTERVALS_2011_2018: dict[int, tuple[int, float]] = {
     9: (1000, math.inf),  # 1000+
 }
 
-#: IPUMS FIRMSIZE code -> interval for 1992-2010 and 2019+ vintages
-#: (bands: under 10 / 10-24 / 25-99 / 100-499 / 500-999 / 1000+); the
-#: pre-2011 format returned in 2019. Code 3 ("Under 25") is the
-#: 1988-1991 grouping, kept for completeness.
+#: IPUMS FIRMSIZE code -> interval, 2019+ ASEC vintages. The IPUMS
+#: 2019+ dictionary *labels* codes 2/5 as "10 to 24" / "25 to 99", but
+#: that relabeling is phantom: it inherits the Census 2019+ NOEMP
+#: dictionary error, and the instrument has in fact collected 10-49 /
+#: 50-99 continuously since 2011 (real-data discontinuity + SUSB
+#: evidence on #192; the same correction #204 applied to the NOEMP
+#: loader). So codes 2/5 carry the 10-49 / 50-99 bands, and the 2019+
+#: IPUMS leg resolves the 50 edge exactly. Code 3 ("Under 25") is the
+#: 1988-1991 grouping, kept for completeness but not dispatchable
+#: (pre-2011 is refused, matching the NOEMP leg).
 CPS_FIRMSIZE_INTERVALS_STANDARD: dict[int, tuple[int, float]] = {
     1: (1, 9),  # Under 10
-    2: (10, 24),  # 10 to 24
+    2: (10, 49),  # labelled "10 to 24"; empirically 10-49 (see above)
     # Code 3 overlaps codes 1 and 2 by value but never co-occurs with
     # them: it is exclusive to the 1988-1991 vintage. The non-overlap
     # invariant is therefore checked on this table with code 3 removed.
     3: (1, 24),  # Under 25 (1988-1991)
-    5: (25, 99),  # 25 to 99 -- straddles the 50 edge
+    5: (50, 99),  # labelled "25 to 99"; empirically 50-99 (see above)
     7: (100, 499),
     8: (500, 999),
     9: (1000, math.inf),
@@ -220,9 +240,9 @@ CPS_FIRMSIZE_NIU = {0}
 #: rather than borrow an interval from another vintage: e.g. code 3
 #: ("Under 25") is exclusive to 1988-1991, and codes 2/4 flip meaning
 #: across the 2011-2018 break. Only the 2011+ ASEC firm-size era is
-#: served here (matching the loader side, #194); pre-2011 vintages
-#: and the 1988-1991 "Under 25" grouping are documented in the
-#: interval tables but are not dispatchable.
+#: dispatchable (matching the loader side, #194, and symmetric with
+#: the NOEMP leg); pre-2011 vintages and the 1988-1991 "Under 25"
+#: grouping are documented in the interval tables but are refused.
 CPS_FIRMSIZE_VALID_CODES: dict[str, frozenset[int]] = {
     "2011_2018": frozenset({1, 4, 6, 7, 8, 9}),
     "standard": frozenset({1, 2, 5, 7, 8, 9}),
@@ -235,13 +255,14 @@ def _cps_firmsize_span(code: int, year: int) -> BandSpan | None:
         return None
     if 2011 <= year <= 2018:
         table, valid = CPS_FIRMSIZE_INTERVALS_2011_2018, "2011_2018"
-    elif year >= 1992:
+    elif year >= 2019:
         table, valid = CPS_FIRMSIZE_INTERVALS_STANDARD, "standard"
     else:
         raise ValueError(
             f"No verified IPUMS FIRMSIZE code set for ASEC {year}; only "
-            "1992+ is served (the 1988-1991 'Under 25' vintage is "
-            "documented but not dispatchable)."
+            "the 2011+ ASEC firm-size era is dispatchable (symmetric "
+            "with the NOEMP leg; the 1992-2010 and 1988-1991 vintages "
+            "are documented but not served)."
         )
     if code not in CPS_FIRMSIZE_VALID_CODES[valid]:
         raise KeyError(
@@ -270,13 +291,13 @@ def cps_firmsize_to_canonical(
       (delegates to :func:`noemp_to_canonical`; callers holding NOEMP
       may also use that entry point directly).
 
-    ``year`` is the ASEC survey year (the bands changed for the
-    2011-2018 ASECs and reverted from 2019 on). Returns ``None`` for
-    NIU. Vintage-impossible codes raise ``KeyError`` rather than
-    silently borrowing another vintage's interval. Note the 2019+
-    code 5 ("25 to 99") straddles the canonical 50 edge and returns an
-    inexact two-band span; identification of the 50 cut from 2019+
-    ASEC alone is impossible (ADR 0003).
+    ``year`` is the ASEC survey year. The IPUMS 2019+ dictionary
+    relabels codes 2/5, but that relabeling is phantom (see
+    :data:`CPS_FIRMSIZE_INTERVALS_STANDARD`), so every dispatchable
+    vintage resolves the 50 edge exactly and no CPS firm-size code
+    returns an inexact span. Returns ``None`` for NIU. Pre-2011 and
+    vintage-impossible codes raise rather than borrowing another
+    vintage's interval.
     """
     if coding == "census_noemp":
         return noemp_to_canonical(code, year)
@@ -305,12 +326,19 @@ CPS_NOEMP_INTERVALS_2011_2018: dict[int, tuple[int, float]] = {
     6: (1000, math.inf),  # 1000_plus
 }
 
-#: NOEMP code -> interval, 2019+ ASEC (code 0 is NIU). Bands:
-#: under 10 / 10-24 / 25-99 / 100-499 / 500-999 / 1000+.
+#: NOEMP code -> interval, 2019+ ASEC (code 0 is NIU). The 2019-2025
+#: Census dictionaries relabel codes 2/3 as "10 to 24" / "25 to 99",
+#: but that relabeling is phantom — weighted code shares are continuous
+#: across the supposed 2018/2019 break and match SUSB only under the
+#: 10-49 / 50-99 reading (real-data evidence on #192; the same
+#: correction #204 baked into its single NOEMP_BANDS map). So the bands
+#: are identical to 2011-2018: under 10 / 10-49 / 50-99 / 100-499 /
+#: 500-999 / 1000+. Kept as a separate constant only to preserve the
+#: per-vintage code-validity seam; the intervals now coincide.
 CPS_NOEMP_INTERVALS_2019_PLUS: dict[int, tuple[int, float]] = {
     1: (1, 9),  # under_10
-    2: (10, 24),  # 10_24
-    3: (25, 99),  # 25_99 -- straddles the 50 edge
+    2: (10, 49),  # labelled "10_24"; empirically 10-49 (see above)
+    3: (50, 99),  # labelled "25_99"; empirically 50-99 (see above)
     4: (100, 499),  # 100_499
     5: (500, 999),  # 500_999
     6: (1000, math.inf),  # 1000_plus
@@ -325,10 +353,12 @@ def noemp_to_canonical(code: int, year: int) -> BandSpan | None:
 
     The counterpart to :func:`cps_firmsize_to_canonical` for the raw
     person-file coding used by the ASEC firm-size loader (#194).
-    ``year`` selects the 2011-2018 vs 2019+ band regime; only the 2011+
-    firm-size era is defined. Returns ``None`` for NIU (code 0). The
-    2019+ code 3 ("25 to 99") straddles the canonical 50 edge and
-    returns an inexact two-band span.
+    ``year`` selects the code-validity regime; only the 2011+ firm-size
+    era is defined. Returns ``None`` for NIU (code 0). The 2019+ code 3
+    is *labelled* "25 to 99" but empirically carries the 50-99 band (a
+    phantom dictionary relabeling; see
+    :data:`CPS_NOEMP_INTERVALS_2019_PLUS`), so every code maps to an
+    exact single band.
     """
     if code in CPS_NOEMP_NIU:
         return None

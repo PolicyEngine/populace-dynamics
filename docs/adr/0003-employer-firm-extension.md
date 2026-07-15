@@ -40,32 +40,40 @@ the week-1 review on issue #192.
 3. **Mappings are total but explicitly ambiguous where the source is
    coarse.** Every raw code from every source maps to exactly one
    `BandSpan` (a contiguous run of canonical bands with an `exact`
-   flag). Source bands that straddle a canonical edge — the
-   1992-2010/2019+ ASEC "25 to 99", BDS "20 to 99", QWI "0-19", most
-   SIPP bands — return multi-band spans rather than being silently
-   rounded. The 2011-2018 ASEC vintage (10-49 / 50-99) and the SUSB
-   detail classes nest exactly.
-4. **The 50 cut cannot be identified from the 2019+ ASEC label**
-   (its 25-99 band contains the edge). Two candidate identification
-   routes are recorded for the C3 round, not decided here:
-   (a) calibration-side — impute within-band position and let the
-   SUSB/QWI 50-edge margins pin the split; (b) pooling 2011-2018
-   ASEC years across the band break to estimate the within-25-99
-   split, transported to 2019+ vintages.
+   flag). Source bands that straddle a canonical edge — BDS "20 to
+   99", QWI "0-19", most SIPP bands — return multi-band spans rather
+   than being silently rounded. Every ASEC firm-size vintage nests
+   exactly (10-49 / 50-99), as do the SUSB detail classes.
+4. **The 50 cut is directly observed in every supported ASEC vintage
+   (corrected finding).** Earlier drafts held that the 2019+ ASEC
+   label ("25 to 99") could not resolve the 50 edge. Real-data
+   validation (issue #192) showed that relabeling is phantom — the
+   2019-2025 Census/IPUMS dictionaries mislabel codes 2/3 (NOEMP) /
+   2/5 (FIRMSIZE), but weighted code shares are continuous across the
+   supposed 2018/2019 break and match SUSB only under the 10-49 /
+   50-99 reading. Workstream A's loader (#204) and `banding.py` both
+   use that reading. So the 50 edge is observed directly in 2011-2025
+   and the two identification routes (within-band imputation; pooling
+   across the "break") are **no longer needed**. The supporting
+   replication (weighted code shares by year vs. SUSB) lands as an
+   evidence artifact under `data/external/` for the C3 record.
 5. **The person-side coding is explicit, not inferred (seam with
    #194).** The raw Census ASEC person file carries `NOEMP`
    (codes 1-6) and the IPUMS-CPS harmonised extract carries
    `FIRMSIZE` (a different, wider code set); the *same integer means
-   different bands* — e.g. code 2 is 10-49 in NOEMP (2011-2018) but
-   10-24 in IPUMS `FIRMSIZE`. `banding.cps_firmsize_to_canonical`
-   therefore takes an explicit `coding` argument (`"ipums_firmsize"`
-   default, `"census_noemp"`), with `noemp_to_canonical` as the raw
-   entry point, and both refuse vintage-impossible codes rather than
+   different bands* — e.g. in the same 2011-2018 vintage code 4 is
+   100-499 under `NOEMP` but 10-49 under IPUMS `FIRMSIZE`.
+   `banding.cps_firmsize_to_canonical` therefore takes a **required**
+   `coding` keyword (`"ipums_firmsize"` or `"census_noemp"`) with **no
+   default** — three codes are valid under both codings with different
+   bands, so a default would let a caller holding the wrong coding
+   mis-band silently. `noemp_to_canonical` is the raw entry point, and
+   both refuse vintage-impossible (and pre-2011) codes rather than
    silently borrowing another vintage's interval. Workstream A's
    loader (#194) emits `NOEMP`; whichever side owns the final
    `CanonicalBand` assignment must call the `census_noemp` route (or
    emit `CanonicalBand` directly), never feed `NOEMP` integers to the
-   IPUMS default.
+   `ipums_firmsize` route.
 
 ### C1 — job-spell schema
 
