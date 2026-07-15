@@ -26,7 +26,9 @@ def _write_person_file(
 
     Each row dict may override any raw column; defaults describe a
     private-sector worker with an unallocated NOEMP of 2 who worked
-    all year, so tests only state what they exercise.
+    all year at raw weight 100000 (MARSUPWT carries two implied
+    decimals, so that is 1000.00 persons). WORKYN defaults to match
+    the row's WKSWORK unless overridden.
     """
     directory.mkdir(parents=True, exist_ok=True)
     defaults = {
@@ -37,14 +39,16 @@ def _write_person_file(
         "INDUSTRY": 770,
         "WEIND": 4,
         "WKSWORK": 52,
-        "MARSUPWT": 1000.0,
+        "MARSUPWT": 100_000,
     }
-    frame = pd.DataFrame(
-        [
-            {**defaults, "PERIDNUM": 10_000 + i, **row}
-            for i, row in enumerate(rows)
-        ]
-    )
+    records = []
+    for i, row in enumerate(rows):
+        record = {**defaults, "PERIDNUM": 10_000 + i, **row}
+        record.setdefault(
+            "WORKYN", 1 if record["WKSWORK"] not in (0, "0") else 0
+        )
+        records.append(record)
+    frame = pd.DataFrame(records)
     path = directory / (filename or f"pppub{year % 100:02d}.csv")
     frame.to_csv(path, index=False)
     return path
@@ -211,9 +215,9 @@ class TestReadAsecFirmSize:
 class TestFirmSizeTabulation:
     def test_weighted_counts_and_allocated_share(self, tmp_path):
         rows = [
-            {"NOEMP": 2, "MARSUPWT": 1000.0, "I_NOEMP": 1},
-            {"NOEMP": 2, "MARSUPWT": 3000.0, "I_NOEMP": 0},
-            {"NOEMP": 5, "MARSUPWT": 500.0, "I_NOEMP": 0, "LJCW": 2},
+            {"NOEMP": 2, "MARSUPWT": 100_000, "I_NOEMP": 1},
+            {"NOEMP": 2, "MARSUPWT": 300_000, "I_NOEMP": 0},
+            {"NOEMP": 5, "MARSUPWT": 50_000, "I_NOEMP": 0, "LJCW": 2},
         ]
         path = _write_person_file(tmp_path, 2024, rows)
         records = asec_firm_size.read_asec_firm_size(2024, path=path)
@@ -257,6 +261,23 @@ class TestFirmSizeTabulation:
             asec_firm_size.firm_size_tabulation(pd.DataFrame({"x": [1]}))
 
 
+class TestWeightScaling:
+    def test_raw_weight_has_two_implied_decimals(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"MARSUPWT": "158007"}])
+        out = asec_firm_size.read_asec_firm_size(2024, path=path)
+        assert list(out["weight"]) == [1580.07]
+
+    def test_stray_allocation_flag_code_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"I_NOEMP": 5}])
+        with pytest.raises(ValueError, match="I_NOEMP"):
+            asec_firm_size.read_asec_firm_size(2024, path=path)
+
+    def test_workyn_wkswork_mismatch_raises(self, tmp_path):
+        path = _write_person_file(tmp_path, 2024, [{"WORKYN": 2}])
+        with pytest.raises(ValueError, match="WORKYN"):
+            asec_firm_size.read_asec_firm_size(2024, path=path)
+
+
 @needs_real_asec
 class TestRealData:
     def test_reads_any_staged_year(self):
@@ -270,3 +291,7 @@ class TestRealData:
         assert set(out["firm_size_band"]) <= set(
             asec_firm_size.noemp_band_map(year).values()
         )
+        # Magnitude tripwire for the two-implied-decimals weight
+        # convention: the worked-last-year universe is ~170 million
+        # persons; an unscaled read lands near 17 billion.
+        assert 1.0e8 < out["weight"].sum() < 3.0e8

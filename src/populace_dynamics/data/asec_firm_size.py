@@ -30,7 +30,10 @@ side needs to reason about universes: ``LJCW`` (longest-job class of
 worker — SUSB/QWI targets exclude government and self-employment),
 longest-job industry (detailed ``INDUSTRY`` and major-group
 ``WEIND``), ``WKSWORK``, the ``I_NOEMP`` allocation flag, and the
-ASEC supplement weight ``MARSUPWT``.
+ASEC supplement weight ``MARSUPWT`` — which carries **two implied
+decimals** (raw ``158007`` = 1580.07 persons) and is descaled to
+persons at read time, the same Census convention the tenure reader
+descales for ``PWTENWGT``.
 
 Staging: like the PSID readers, raw microdata stays out of the
 repository. Person files are staged as CSVs with original Census
@@ -106,6 +109,7 @@ _REQUIRED_COLUMNS = (
     "INDUSTRY",
     "WEIND",
     "WKSWORK",
+    "WORKYN",
     "MARSUPWT",
 )
 
@@ -183,7 +187,12 @@ def _check_path_year(path: Path, year: int) -> None:
 
 
 def _domain_error(year: int, column: str, bad: pd.Series) -> ValueError:
-    values = ", ".join(sorted(map(str, bad.unique()))[:8])
+    unique = list(bad.unique())
+    try:
+        unique = sorted(unique)
+    except TypeError:
+        unique = sorted(map(str, unique))
+    values = ", ".join(str(v) for v in unique[:8])
     return ValueError(
         f"ASEC {year} {column} contains out-of-dictionary value(s) "
         f"[{values}] on {len(bad)} row(s); refusing to band a file "
@@ -215,17 +224,20 @@ def read_asec_firm_size(
         ``firm_size_band``, ``noemp_allocated``, ``ljcw``,
         ``class_of_worker``, ``industry_major``,
         ``industry_detailed``, ``wkswork``, and ``weight``
-        (``MARSUPWT``, persons).
+        (``MARSUPWT / 100`` — the raw column carries two implied
+        decimals — in persons).
 
     Raises:
         ValueError: On an unsupported year, a path/year mismatch,
             missing required columns, any value outside the year's
             dictionary domain (NOEMP outside 0-6, LJCW outside 0-7,
-            a negative weight), or a universe violation: NOEMP and
-            LJCW share the longest-job universe in every dictionary
-            (stated as ``WORKYN = 1`` in 2011-2018 and
-            ``WKSWORK > 0`` in 2019+, which coincide), so each must
-            be nonzero exactly on the ``WKSWORK > 0`` rows.
+            I_NOEMP outside {0, 1, 9}, a negative weight), or a
+            universe violation: NOEMP and LJCW share the longest-job
+            universe in every dictionary (stated as ``WORKYN = 1``
+            in 2011-2018 and ``WKSWORK > 0`` in 2019+ — a
+            coincidence this reader asserts at read time rather than
+            assuming), so each must be nonzero exactly on the
+            ``WKSWORK > 0`` rows.
         FileNotFoundError: If no staged person file can be found.
     """
     bands = noemp_band_map(year)
@@ -282,19 +294,25 @@ def read_asec_firm_size(
             "corrupted person-id column."
         )
 
-    for column, low, high, cast in (
-        ("NOEMP", 0, 6, int),
-        ("LJCW", 0, 7, int),
-        ("WKSWORK", 0, 52, int),
-        ("I_NOEMP", 0, 9, int),
-        ("WEIND", 0, 23, int),
-        ("INDUSTRY", 0, 9999, int),
-        ("MARSUPWT", 0, None, float),
+    # I_NOEMP's dictionary domain is the exact set {0 no change,
+    # 1 allocated, 9 full imputation} — a stray 2-8 is corruption,
+    # not a flag state.
+    for column, low, high, allowed, cast in (
+        ("NOEMP", 0, 6, None, int),
+        ("LJCW", 0, 7, None, int),
+        ("WKSWORK", 0, 52, None, int),
+        ("WORKYN", 0, 2, None, int),
+        ("I_NOEMP", 0, 9, (0, 1, 9), int),
+        ("WEIND", 0, 23, None, int),
+        ("INDUSTRY", 0, 9999, None, int),
+        ("MARSUPWT", 0, None, None, float),
     ):
         values = pd.to_numeric(raw[column], errors="coerce")
         out_of_domain = values.isna() | (values < low) | ~np.isfinite(values)
         if high is not None:
             out_of_domain |= values > high
+        if allowed is not None:
+            out_of_domain |= ~values.isin(allowed)
         if cast is int:
             # Dictionary codes are integers; 2.9 is not a code and
             # must not silently truncate into one.
@@ -303,6 +321,19 @@ def read_asec_firm_size(
         if len(bad):
             raise _domain_error(year, column, bad)
         raw[column] = values.astype(cast)
+
+    # The 2011-2018 dictionaries state the longest-job universe as
+    # WORKYN = 1 and the 2019+ dictionaries as WKSWORK > 0; the code
+    # keys on WKSWORK, so their coincidence is asserted here rather
+    # than assumed in prose.
+    workyn_mismatch = raw[(raw["WORKYN"] == 1) != (raw["WKSWORK"] > 0)]
+    if len(workyn_mismatch):
+        raise ValueError(
+            f"ASEC {year}: {len(workyn_mismatch)} row(s) have "
+            "WORKYN = 1 without WKSWORK > 0 (or vice versa); the "
+            "two universe statements no longer coincide — "
+            "re-adjudicate against that year's dictionary."
+        )
 
     # NOEMP and LJCW share the longest-job universe in every
     # dictionary year, so a zero inside WKSWORK > 0 (or a nonzero
@@ -327,18 +358,19 @@ def read_asec_firm_size(
             "income_year": year - 1,
             "band_regime": band_regime(year),
             "noemp": universe["NOEMP"],
-            "firm_size_band": universe["NOEMP"].map(
-                lambda code: bands.get(int(code), "niu")
-            ),
+            # Total mappings: the domain + universe checks guarantee
+            # NOEMP in 1-6 and LJCW in 1-7 here, so no fallback.
+            "firm_size_band": universe["NOEMP"].map(bands),
             "noemp_allocated": universe["I_NOEMP"] > 0,
             "ljcw": universe["LJCW"],
-            "class_of_worker": universe["LJCW"].map(
-                lambda code: CLASS_OF_WORKER_LABELS.get(int(code), "niu")
-            ),
+            "class_of_worker": universe["LJCW"].map(CLASS_OF_WORKER_LABELS),
             "industry_major": universe["WEIND"],
             "industry_detailed": universe["INDUSTRY"],
             "wkswork": universe["WKSWORK"],
-            "weight": universe["MARSUPWT"],
+            # MARSUPWT carries two implied decimals (raw 158007 is
+            # 1580.07 persons), the same Census convention the
+            # tenure reader descales for PWTENWGT.
+            "weight": universe["MARSUPWT"] / 100.0,
         }
     )
 
