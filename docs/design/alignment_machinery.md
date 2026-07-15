@@ -214,9 +214,16 @@ seam; a separately registered emigration branch runs after addition and before
 mortality; mortality reconciles after raw step 1; fertility after raw step 4;
 covered employment after raw step 6; and covered wage after employment.
 
+The emigration seam precedes mortality to enforce one discrete roster-exit
+transition per person-year: a selected emigrant leaves before the mortality
+candidate ledger is formed and cannot also be counted as a death. It follows
+pre-wave additions because the year's roster must first be materialized. This
+timing does not decide whether same-year entrants are eligible for removal;
+§8 decision 2 must ratify that candidate-universe rule.
+
 | order | margin and target | production granularity | mechanism | binding and limitation |
 |---:|---|---|---|---|
-| 1 | net population entry | year, then age × sex × entrant-unit type when a granular bridge is pinned | separate whole-unit addition and removal branches | [Table V.A2, Immigration Assumptions](https://www.ssa.gov/oact/TR/2026/lr5a2.html), total net change in thousands. Adjustment-of-status flows cancel across categories and are not new people. The public table supplies neither age-sex cells nor a unique gross addition/removal decomposition, so a net-only series remains unavailable until decision 2 is resolved. |
+| 1 | population entry and exit | year × published V.A2 category, then age × sex × atomic unit when a granular bridge is pinned | separate whole-unit addition and removal branches | [Table V.A2, Immigration Assumptions](https://www.ssa.gov/oact/TR/2026/lr5a2.html) publishes projected inflow, outflow, adjustment-of-status, and net columns separately for the LPR and temporary-or-unlawfully-present categories, plus total net change, in thousands. Adjustment of status is an offsetting transfer between categories, not roster entry or exit. The table therefore binds annual gross addition and removal totals at its published-category granularity, but supplies neither age-sex cells nor a Social Security area-to-production-roster bridge. Its within-category semantics also require ratification because LPR outflow includes citizens and the temporary-or-unlawfully-present series is residual-method-based. The margin remains unavailable until §8 decision 2 pins those bridges and semantics. |
 | 2 | mortality | year × sex × single year of age, with a pre-registered pooling ladder for sparse cells | whole-person death selection | [Table V.A1, Fertility and Mortality Assumptions](https://www.ssa.gov/oact/TR/2026/lr5a1.html) supplies standardized summaries; [Table V.A4](https://www.ssa.gov/oact/TR/2026/lr5a4.html) and [V.A5](https://www.ssa.gov/oact/TR/2026/lr5a5.html) supply period and cohort life-expectancy checks. Selection requires a separately pinned official age-sex probability/count extract; summary life expectancy is validation-only. |
 | 3 | fertility | year × mother's single year of age, pooled only through the registered ladder; plurality reported separately | whole maternal-birth-event selection | V.A1 supplies annual total fertility rate. SSA's [2026 demographic assumptions memorandum](https://www.ssa.gov/oact/TR/2026/2026_Long-Range_Demographic_Assumptions.pdf), pp. 3 and 6, describes single-age birth-rate assumptions, but the public single-year table does not expose them. A granular extract or pinned age-pattern bridge is required. |
 | 4 | OASDI-covered work | year total; age × sex only when a definition-matched granular extract is pinned | whole-person covered-worker selection | [Table IV.B4, Covered Workers and Beneficiaries](https://www.ssa.gov/oact/TR/2026/lr4b4.html), workers paid at any time in the year for OASDI-covered employment. [Table V.B2](https://www.ssa.gov/oact/TR/2026/lr5b2.html) reports unemployment and total-employment growth; [the covered-employment methods](https://www.ssa.gov/OACT/TR/2026/V_C_prog.html) explain why its CPS average-week concepts differ from an annual covered-worker count. |
@@ -350,11 +357,14 @@ joint vector objective, optimizer, and deterministic tie rule. Decision 2 leaves
 that mechanism open, so the producer cannot activate family/household migration by
 running independent prefixes that would split or double-count the unit.
 
-The positive-prefix schema applies to one-sided events. Migration requires a
-separately targeted addition prefix and removal prefix. A signed V.A2 net target
-does not determine those two branches; the producer may not choose an arbitrary
-decomposition or apply `event_selected * weight` as though all contributions had
-one sign.
+The positive-prefix schema applies to one-sided events. Migration uses separately
+targeted addition and removal prefixes. V.A2 supplies the gross inflow and outflow
+columns needed to bind those branches at year × published category; its offsetting
+adjustments of status are category transfers, not roster events. The producer may
+not discard those source-bound gross targets and reconstruct branches from total
+net change alone. Activation remains blocked on §8 decision 2 because the age-sex
+and roster bridges, candidate-unit and donor rules, within-category flow semantics,
+and linked-unit vector objective are not ratified.
 
 The implementation must expose the complete eligible candidate ledger, not only
 raw positive events. Otherwise it could remove excess events but could not add a
@@ -751,11 +761,14 @@ a gate-path change.
    public age-pattern bridge and sparse-cell pooling ladder. V.A1 summary rates
    alone are insufficient.
 2. **Social Security area and migration units.** Ratify the bridge between the
-   production roster and the Social Security area, the donor microdata and vintage,
-   the atomic entrant unit, and the gross addition/removal targets or signed
-   optimizer needed to implement V.A2 net change without an arbitrary split. For
-   multi-person units, pin the joint vector objective and tie rule across age-sex
-   cells.
+   production roster and the Social Security area and the age-sex/unit allocation
+   from V.A2's published LPR and temporary-or-unlawfully-present inflow and outflow
+   columns. Treat adjustment of status as a category transfer; specify how LPR
+   outflow's included citizens and the residual-method temporary-or-unlawfully-
+   present series map to roster additions and removals. Pin donor microdata and
+   vintage, the atomic entrant/removal unit, and whether same-year entrants enter
+   the removal-candidate universe. For multi-person units, pin the joint vector
+   objective and tie rule across age-sex cells.
 3. **Covered-work candidate state.** Define a lawful potential covered-earnings
    value, participation probability/uniform or alternate registered selection
    score for a raw nonworker selected `0→1`, and coherent chain-state updates.
