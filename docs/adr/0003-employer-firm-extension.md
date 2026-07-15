@@ -55,8 +55,11 @@ the week-1 review on issue #192.
    use that reading. So the 50 edge is observed directly in 2011-2025
    and the two identification routes (within-band imputation; pooling
    across the "break") are **no longer needed**. The supporting
-   replication (weighted code shares by year vs. SUSB) lands as an
-   evidence artifact under `data/external/` for the C3 record.
+   replication (weighted code shares by year vs. SUSB) is committed
+   as `runs/noemp_band_evidence_v1.json` with its build script and
+   pinning tests (#211) — the reported-anchor convention, since it
+   is derived evidence rather than a source extract — for the C3
+   record.
 5. **The person-side coding is explicit, not inferred (seam with
    #194).** The raw Census ASEC person file carries `NOEMP`
    (codes 1-6) and the IPUMS-CPS harmonised extract carries
