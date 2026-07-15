@@ -379,12 +379,24 @@ def read_sipp_job_months(
             active & ~no_establishment,
             _EMPSIZE_CODES,
         )
-        bad_size = raw[f"EJB{n}_EMPSIZE"][
+        # A garbage *string* on a no-establishment slot would coerce
+        # to NaN and masquerade as the structural blank, so the raw
+        # cell is checked too: non-blank raw + NaN coercion refuses,
+        # keeping the loud-refusal posture symmetric with employer
+        # slots (review note on #206).
+        raw_size = raw[f"EJB{n}_EMPSIZE"]
+        raw_blank = raw_size.isna() | (raw_size.astype(str).str.strip() == "")
+        bad_size = raw_size[
             active
             & no_establishment
-            & empsize.notna()
-            & ~empsize.isin((_MISSING, _MISSING_ID))
-            & ~empsize.isin(sorted(_EMPSIZE_CODES))
+            & (
+                (
+                    empsize.notna()
+                    & ~empsize.isin((_MISSING, _MISSING_ID))
+                    & ~empsize.isin(sorted(_EMPSIZE_CODES))
+                )
+                | (empsize.isna() & ~raw_blank)
+            )
         ]
         if len(bad_size):
             raise _domain_error(year, f"EJB{n}_EMPSIZE", bad_size)
