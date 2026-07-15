@@ -7,6 +7,20 @@ and an explicit input factory are required.  The factory must return
 claiming, and mortality references required by ``load_m6_inputs``.  That keeps
 the runner from silently selecting a new external vintage.
 
+Environment prerequisites (the scored run, not the build/test lane).  The refit
+imports the **fitting stack** -- ``populace-fit`` (with ``populace-frame``),
+installed editable from ``~/PolicyEngine/populace/packages``.  ``populace-fit``
+pins scikit-learn ``<1.9`` and cannot coexist with the base ``.venv``, so the
+scored run uses a **dedicated** venv (the ``.venv-gate`` / W1 two-env split: a
+base env for build/test, a separate fitting env for the run).  The certified
+SSA-parameter vintage must also be importable: ``policyengine-us==1.752.2`` with
+``POPULACE_DYNAMICS_PE_US_DIR`` pointed at the directory containing
+``policyengine_us/``.  The first crash of the third registration was exactly a
+fitting-stack import miss (grading #42 comment 4972045579): its single-venv env
+named policyengine-us but not populace-fit.  ``build_realized_population`` runs
+before the QRF refit, so it needs only the base install; the fitting stack is
+required from the earnings/QRF phase onward.
+
 Example after fresh registration::
 
     .venv-wt/bin/python scripts/run_gate_m6_candidate1.py \

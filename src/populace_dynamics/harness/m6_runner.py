@@ -118,9 +118,21 @@ PHASE_ORDER = (
     "assemble_and_write",
 )
 
-# This is the pre-amendment design registration cited by section 2.8.  It is
-# useful lineage, but cannot authorize the first scored run built afterward.
-_KNOWN_STALE_REGISTRATIONS = frozenset({"4962640241"})
+# Superseded registrations, each publicly graded on issue #42 as unable to
+# authorize a scored run: the pre-amendment design registration cited by
+# section 2.8 (stop: no harness), the second registration (stop: no <= T*
+# external-reference binding; graded 4967433717), the third registration
+# (harness and certified inputs both existed, but the run FAILED TO EXECUTE with
+# two pre-scoring crashes -- the QRF-import env miss and the demographic-seed
+# sex integration defect; graded 4972045579), and the fourth registration (all
+# prior failure layers held -- provisioning, factory, realized population, and
+# refit all cleared -- but pre-flight 1 fired its designed abort because the
+# injected candidate-9 arm carried no maternal fertility line; graded
+# 4973798460, root-caused in forensics 4973982118 and fixed by the pre-flight-1
+# fertility-wiring patch).  Useful lineage, but none can authorize a scored run.
+_KNOWN_STALE_REGISTRATIONS = frozenset(
+    {"4962640241", "4967241464", "4971244215", "4973199058"}
+)
 _REGISTRATION = re.compile(
     r"^(?:[0-9]{7,}|https://github\.com/[^/]+/[^/]+/issues/42"
     r"#issuecomment-[0-9]+)$"
@@ -351,6 +363,7 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
     ) & frozenset(int(value) for value in inputs.truth.anchor["person_id"])
     population = build_realized_population(
         demographic_panel=inputs.demographic_panel,
+        death_records=inputs.death_records,
         earnings_panel=inputs.earnings_panel,
         disability_panel=inputs.disability_panel,
         panel_builder_inputs=inputs.panel_builder_inputs,

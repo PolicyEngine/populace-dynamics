@@ -18,9 +18,11 @@ is no argument and no environment-derived vintage selection beyond
 (§2.8.10.4), in order:
 
 1. Assert ``importlib.metadata.version("policyengine-us") ==
-   CERTIFIED_PIN["model_version"] == "1.752.2"`` and load ``params_full =
-   load_ssa_parameters()`` (its load-time cross-check runs on the realized
-   series and passes).
+   CERTIFIED_PIN["model_version"] == "1.752.2"``, assert the directory
+   ``load_ssa_parameters`` will read resolves to that same distribution's
+   on-disk install (``assert_pe_us_param_dir``, §2.8.10.5 F2), and load
+   ``params_full = load_ssa_parameters()`` (its load-time cross-check runs on
+   the realized series and passes).
 2. ``params = dataclasses.replace(params_full, nawi=…, wage_base=…)``:
    realized NAWI for years ``<= T*`` kept, every year ``> T*`` **replaced**
    (not truncated) with the §2.7.6.3 projection ``I_proj`` byte-identical to
@@ -34,7 +36,9 @@ is no argument and no environment-derived vintage selection beyond
    raw-source HTML's hash is build-time provenance, not this tamper gate.)
 4. ``mortality_external_rates`` from the committed NCHS 2010 life table (band
    collapse) and ``mortality_exposure`` from the ``<= T*`` PSID person-interval
-   slices via the §2.8.10.3 adapter.
+   slices via the §2.8.10.3 adapter, then the inert ``(0, 24)``
+   projection-coverage pad appended to **both** (§2.8.10.5 F1) so the fitted
+   model spans 0->120 with a ``<25`` hazard of exactly ``0``.
 5. ``return load_m6_inputs(ssa_params=params, ssa_params_vintage=2014,
    claiming_reference=…, mortality_exposure=…, mortality_external_rates=…,
    mortality_external_vintage=2010)`` (boundary_year=2014, earnings_seed=5200).
@@ -70,7 +74,11 @@ from populace_dynamics.harness.m6_inputs import (
     M6HarnessInputs,
     load_m6_inputs,
 )
-from populace_dynamics.ss.params import load_ssa_parameters
+from populace_dynamics.ss.params import (
+    _SSA,
+    _resolve_pe_us,
+    load_ssa_parameters,
+)
 
 # ``scripts/`` is sys.path[0] under the runner, but make the sibling
 # ``build_mortality_floors`` importable from anywhere (tests, ad-hoc use) so
@@ -133,6 +141,39 @@ def assert_pe_us_version(version: str | None = None) -> str:
             "the M6 factory requires the certified parameter vintage. Install "
             "policyengine-us==1.752.2 and point POPULACE_DYNAMICS_PE_US_DIR at "
             "it."
+        )
+    return resolved
+
+
+def assert_pe_us_param_dir(pe_us_dir: Path | None = None) -> Path:
+    """Assert the SSA parameter dir is the metadata-versioned install.
+
+    ``assert_pe_us_version`` reads ``importlib.metadata``, but
+    ``load_ssa_parameters`` reads YAML from ``_resolve_pe_us(None)`` --
+    ``POPULACE_DYNAMICS_PE_US_DIR`` or the default checkout -- **decoupled**
+    from the metadata, so a mismatched directory would pass the version gate
+    and silently load another parameter vintage (§2.8.10.5, F2). This binds
+    the directory the loader **will read** to the on-disk location of the
+    **same** distribution the version gate reads. ``pe_us_dir`` may be
+    supplied to exercise the guard against an injected root; it defaults to
+    the live resolution ``load_ssa_parameters`` itself uses.
+    """
+    resolved = (_resolve_pe_us(pe_us_dir) / _SSA).resolve()
+    versioned = (
+        Path(
+            importlib.metadata.distribution("policyengine-us").locate_file(
+                "policyengine_us"
+            )
+        ).resolve()
+        / "parameters"
+        / "gov"
+        / "ssa"
+    )
+    if resolved != versioned:
+        raise RuntimeError(
+            "POPULACE_DYNAMICS_PE_US_DIR resolves SSA parameters to a "
+            "directory that is not the metadata-versioned policyengine-us "
+            "install; point it at the 1.752.2 install."
         )
     return resolved
 
@@ -363,6 +404,85 @@ def mortality_exposure_adapter(
 
 
 # --------------------------------------------------------------------------
+# Step 4c -- the inert (0, 24) projection-coverage pad (§2.8.10.5)
+# --------------------------------------------------------------------------
+#: The pad band: ``AgeSexMortalityModel`` requires bands starting at age 0
+#: and contiguous through 120, while every estimation, truth, and scored
+#: mortality surface is 25+ only.
+PAD_BAND = (0, 24)
+
+
+def _pad_below_25_projection_coverage(
+    external_rates: pd.DataFrame,
+    exposure: pd.DataFrame,
+    *,
+    boundary_year: int = BOUNDARY_YEAR,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Append the inert ``(0, 24)`` pad to both mortality fit inputs.
+
+    The bridge between the 25+ estimation surface and the projection model's
+    total-population band invariant (§2.8.10.5, F1) -- one appended
+    ``(0, 24)`` band per sex on **both** fit inputs, the seven-band
+    construction untouched:
+
+    * **external pad**: the NCHS 2010 ``(l_0 - l_25) / (T_0 - T_25)`` central
+      rate, for provenance honesty only -- it is outcome-inert, because
+      ``aligned_rate = central_rate x (psid_rate / central_rate) =
+      psid_rate`` cancels it, so any positive value yields byte-identical
+      fitted probabilities;
+    * **exposure pad**: one slice per sex dated ``event_year =
+      required_interview_year = boundary_year`` (= ``T*``, so it survives the
+      ``<= T*`` flow truncation) with ``start_weight = exposure = 1.0`` and
+      ``death = 0.0``, so ``psid_rate = 0`` and the fitted ``<25`` hazard is
+      ``-expm1(0) = 0`` exactly: **no modeled mortality below the age-25 PSID
+      exposure floor.**
+
+    The 25+ fitted cells are byte-identical to the unpadded arithmetic and
+    invariant to the pad value and weight; the ``0-24`` band feeds only
+    ``apply_mortality`` (a zero hazard for materialized births and any
+    ``<25`` members) and appears in no scored or disclosed mortality cell.
+    """
+    import build_mortality_floors as mf
+
+    lo, hi = PAD_BAND
+    label = mf.band_label(lo, hi)
+    nchs = json.loads(NCHS_2010_PATH.read_text())
+    external_pad = []
+    exposure_pad = []
+    for sex in mf.SEXES:
+        rows = {r["age"]: r for r in nchs["tables"][sex]}
+        deaths_band = rows[lo]["lx"] - rows[hi + 1]["lx"]
+        person_years = rows[lo]["Tx"] - rows[hi + 1]["Tx"]
+        external_pad.append(
+            {
+                "lower_age": lo,
+                "upper_age": hi,
+                "age_band": label,
+                "sex": sex,
+                "central_rate": deaths_band / person_years,
+            }
+        )
+        exposure_pad.append(
+            {
+                "event_year": int(boundary_year),
+                "required_interview_year": int(boundary_year),
+                "age_band": label,
+                "sex": sex,
+                "start_weight": 1.0,
+                "exposure": 1.0,
+                "death": 0.0,
+            }
+        )
+    padded_external = pd.concat(
+        [external_rates, pd.DataFrame(external_pad)], ignore_index=True
+    )
+    padded_exposure = pd.concat(
+        [exposure, pd.DataFrame(exposure_pad)], ignore_index=True
+    )
+    return padded_external, padded_exposure
+
+
+# --------------------------------------------------------------------------
 # The factory contract -- zero-argument build_inputs()
 # --------------------------------------------------------------------------
 def build_inputs() -> M6HarnessInputs:
@@ -373,17 +493,25 @@ def build_inputs() -> M6HarnessInputs:
     earnings / disability inside ``load_m6_inputs``); intended to run only at
     the registered gate, never in the build/test lane.
     """
-    # (1) policyengine-us 1.752.2 gate + realized-series load.
+    # (1) policyengine-us 1.752.2 gate (version + param-dir binding) +
+    # realized-series load.
     assert_pe_us_version()
+    assert_pe_us_param_dir()
     # (2) leakage-safe NAWI / wage-base surface.
     params = boundary_ssa_parameters()
     # (3) claiming reference + sha256 tamper gate.
     claiming_reference = load_claiming_reference()
-    # (4) mortality external rates + <= T* exposure slices.
-    mortality_external_rates = nchs_2010_external_rates()
-    mortality_exposure = mortality_exposure_adapter(
-        panels.demographic_panel(),
-        deaths.read_death_records(),
+    # (4) mortality external rates + <= T* exposure slices + the inert
+    # (0, 24) projection-coverage pad on both (§2.8.10.5).
+    mortality_external_rates, mortality_exposure = (
+        _pad_below_25_projection_coverage(
+            nchs_2010_external_rates(),
+            mortality_exposure_adapter(
+                panels.demographic_panel(),
+                deaths.read_death_records(),
+            ),
+            boundary_year=BOUNDARY_YEAR,
+        )
     )
     # (5) assemble; load_m6_inputs re-validates every vintage at assembly.
     return load_m6_inputs(

@@ -1,9 +1,11 @@
 """Reader-free tests for the registered M6 input factory (§2.8.10.4).
 
-Always runnable: they exercise each factory step -- the pe-us version gate,
-the claiming sha256 tamper gate, the NAWI/wage-base replacement rule, the NCHS
-2010 band collapse, and the ``<= T*`` mortality-exposure adapter -- on
-synthetic frames and the committed references. They deliberately do **not**
+Always runnable: they exercise each factory step -- the pe-us version gate
+and its parameter-dir binding, the claiming sha256 tamper gate, the
+NAWI/wage-base replacement rule, the NCHS 2010 band collapse, the ``<= T*``
+mortality-exposure adapter, and the inert ``(0, 24)`` projection-coverage pad
+with its ``fit_mortality_model`` bridge (§2.8.10.5) -- on synthetic frames
+and the committed references. They deliberately do **not**
 run ``build_inputs()`` end-to-end (which reads staged PSID and is reserved for
 the registered gate), execute no scored run, compute no gate cell, and never
 touch ``gates.yaml``.
@@ -17,11 +19,13 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from populace_dynamics.engine.forward_earnings import fit_projected_wage_index
 from populace_dynamics.engine.refit import (
+    fit_mortality_model,
     prepare_mortality_refit_inputs,
     validate_external_vintage,
 )
@@ -70,6 +74,84 @@ def test__version_gate__pins_the_certified_frame_constant():
 
     assert CERTIFIED_PIN["model_version"] == factory.PINNED_PE_US_VERSION
     assert factory.PINNED_PE_US_VERSION == "1.752.2"
+
+
+# --------------------------------------------------------------------------
+# Step 1 -- the parameter-dir binding (§2.8.10.5, F2)
+# --------------------------------------------------------------------------
+class _FakeDistribution:
+    """Stand-in for ``importlib.metadata.distribution("policyengine-us")``."""
+
+    def __init__(self, site: Path):
+        self._site = site
+
+    def locate_file(self, name: str) -> Path:
+        return self._site / name
+
+
+def _fake_install(root: Path) -> Path:
+    (root / "policyengine_us" / "parameters" / "gov" / "ssa").mkdir(
+        parents=True
+    )
+    return root
+
+
+def test__param_dir_gate__passes_when_dir_is_the_versioned_install(
+    tmp_path, monkeypatch
+):
+    site = _fake_install(tmp_path / "site-packages")
+    monkeypatch.setattr(
+        importlib.metadata,
+        "distribution",
+        lambda name: _FakeDistribution(site),
+    )
+    resolved = factory.assert_pe_us_param_dir(site)
+    assert (
+        resolved
+        == (site / "policyengine_us" / "parameters" / "gov" / "ssa").resolve()
+    )
+
+
+def test__param_dir_gate__fires_on_a_mismatched_root(tmp_path, monkeypatch):
+    # A parallel checkout passes the version gate (metadata is env-wide) but
+    # must not pass the dir binding -- the silent-wrong-load seam.
+    site = _fake_install(tmp_path / "site-packages")
+    checkout = _fake_install(tmp_path / "checkout")
+    monkeypatch.setattr(
+        importlib.metadata,
+        "distribution",
+        lambda name: _FakeDistribution(site),
+    )
+    with pytest.raises(RuntimeError, match="metadata-versioned"):
+        factory.assert_pe_us_param_dir(checkout)
+
+
+def test__param_dir_gate__default_reads_the_loader_env_resolution(
+    tmp_path, monkeypatch
+):
+    # No injected root: the gate resolves exactly as load_ssa_parameters
+    # does (the loader's own env var when set; referenced through the
+    # loader's constant, since these fake-install tests need no real
+    # policyengine-us and stay in the always-run tier). Bound to the
+    # versioned install -> passes; re-pointed at a foreign checkout ->
+    # fires.
+    from populace_dynamics.ss import params as ss_params
+
+    site = _fake_install(tmp_path / "site-packages")
+    checkout = _fake_install(tmp_path / "checkout")
+    monkeypatch.setattr(
+        importlib.metadata,
+        "distribution",
+        lambda name: _FakeDistribution(site),
+    )
+    monkeypatch.setenv(ss_params._PE_US_ENV, str(site))
+    assert (
+        factory.assert_pe_us_param_dir()
+        == (site / "policyengine_us" / "parameters" / "gov" / "ssa").resolve()
+    )
+    monkeypatch.setenv(ss_params._PE_US_ENV, str(checkout))
+    with pytest.raises(RuntimeError, match="metadata-versioned"):
+        factory.assert_pe_us_param_dir()
 
 
 # --------------------------------------------------------------------------
@@ -288,6 +370,183 @@ def test__adapter__dates_event_year_by_true_start_wave_age():
     band_25 = adapted[adapted["age_band"] == "25-34"]
     assert set(band_25["event_year"]) == {2012}
     assert set(band_25["required_interview_year"]) == {2013}
+
+
+# --------------------------------------------------------------------------
+# Step 4c -- the (0, 24) projection-coverage pad + the fit_mortality_model
+# bridge (§2.8.10.5, F1)
+# --------------------------------------------------------------------------
+def _fourteen_cell_exposure() -> pd.DataFrame:
+    # One <= T* slice per band x sex with distinct death counts, so every
+    # fitted 25+ probability is distinct and hand-recomputable.
+    rows = []
+    for b, (lo, hi) in enumerate(mf.BANDS):
+        for s, sex in enumerate(mf.SEXES):
+            rows.append(
+                {
+                    "event_year": 2012,
+                    "required_interview_year": 2013,
+                    "age_band": mf.band_label(lo, hi),
+                    "sex": sex,
+                    "start_weight": 1.0 + 0.5 * s,
+                    "exposure": 100.0,
+                    "death": float(1 + 2 * b + s),
+                }
+            )
+    return pd.DataFrame(rows, columns=_MORTALITY_COLUMNS)
+
+
+def _fit(external: pd.DataFrame, exposure: pd.DataFrame):
+    # The run's exact route: prepare (<= T* truncation + vintage check) then
+    # fit -- the bridge no committed test previously exercised on
+    # factory-shaped rates.
+    return fit_mortality_model(
+        prepare_mortality_refit_inputs(
+            exposure,
+            external,
+            external_vintage_year=2010,
+            boundary_year=2014,
+        )
+    )
+
+
+def test__unpadded_seven_band_rates__fail_the_projection_model():
+    # Without the pad the registered run dies at its FIRST phase: the
+    # external rows yield bands starting at 25, and AgeSexMortalityModel
+    # requires coverage from age 0.
+    with pytest.raises(ValueError, match="start at age zero"):
+        _fit(factory.nchs_2010_external_rates(), _fourteen_cell_exposure())
+
+
+def test__pad__appends_two_rows_per_input_and_mutates_neither():
+    external = factory.nchs_2010_external_rates()
+    exposure = _fourteen_cell_exposure()
+    external_before = external.copy()
+    exposure_before = exposure.copy()
+    padded_external, padded_exposure = (
+        factory._pad_below_25_projection_coverage(
+            external, exposure, boundary_year=2014
+        )
+    )
+    pd.testing.assert_frame_equal(external, external_before)
+    pd.testing.assert_frame_equal(exposure, exposure_before)
+    assert len(padded_external) == len(external) + 2
+    assert len(padded_exposure) == len(exposure) + 2
+    pad = padded_external[padded_external["age_band"] == "0-24"]
+    assert set(pad["sex"]) == {"female", "male"}
+    assert (pad["lower_age"] == 0).all()
+    assert (pad["upper_age"] == 24).all()
+
+
+def test__pad__external_rate_is_the_nchs_0_24_central_rate():
+    padded_external, _ = factory._pad_below_25_projection_coverage(
+        factory.nchs_2010_external_rates(),
+        _fourteen_cell_exposure(),
+        boundary_year=2014,
+    )
+    nchs = json.loads(factory.NCHS_2010_PATH.read_text())
+    for sex in mf.SEXES:
+        rows = {r["age"]: r for r in nchs["tables"][sex]}
+        expected = (rows[0]["lx"] - rows[25]["lx"]) / (
+            rows[0]["Tx"] - rows[25]["Tx"]
+        )
+        got = padded_external[
+            (padded_external["age_band"] == "0-24")
+            & (padded_external["sex"] == sex)
+        ].iloc[0]["central_rate"]
+        assert got == expected
+        # provenance honesty: ~0.000766 male / ~0.000451 female.
+        assert 0.0003 < got < 0.001
+
+
+def test__pad__exposure_rows_dated_at_t_star_survive_the_truncation():
+    padded_external, padded_exposure = (
+        factory._pad_below_25_projection_coverage(
+            factory.nchs_2010_external_rates(),
+            _fourteen_cell_exposure(),
+            boundary_year=2014,
+        )
+    )
+    pad = padded_exposure[padded_exposure["age_band"] == "0-24"]
+    assert (pad["event_year"] == 2014).all()
+    assert (pad["required_interview_year"] == 2014).all()
+    assert (pad["start_weight"] == 1.0).all()
+    assert (pad["exposure"] == 1.0).all()
+    assert (pad["death"] == 0.0).all()
+    prepared = prepare_mortality_refit_inputs(
+        padded_exposure,
+        padded_external,
+        external_vintage_year=2010,
+        boundary_year=2014,
+    )
+    assert (prepared.exposure["age_band"] == "0-24").sum() == 2
+
+
+def test__bridge__padded_factory_rates_fit_an_eight_band_0_120_model():
+    padded_external, padded_exposure = (
+        factory._pad_below_25_projection_coverage(
+            factory.nchs_2010_external_rates(),
+            _fourteen_cell_exposure(),
+            boundary_year=2014,
+        )
+    )
+    model = _fit(padded_external, padded_exposure)
+    assert model.bands == (
+        (0, 24),
+        (25, 34),
+        (35, 44),
+        (45, 54),
+        (55, 64),
+        (65, 74),
+        (75, 84),
+        (85, 120),
+    )
+    # the pinned convention: no modeled mortality below the age-25 PSID
+    # exposure floor.
+    for sex in mf.SEXES:
+        assert model.probability[("0-24", sex)] == 0.0
+    # every 25+ cell carries the PSID rate exactly (aligned_rate =
+    # psid_rate), untouched by the pad: -expm1(-(deaths/exposure)).
+    for row in _fourteen_cell_exposure().itertuples(index=False):
+        expected = float(-np.expm1(-(row.death / row.exposure)))
+        assert model.probability[(row.age_band, row.sex)] == expected
+
+
+def test__bridge__25_plus_cells_invariant_to_pad_value_and_weight():
+    padded_external, padded_exposure = (
+        factory._pad_below_25_projection_coverage(
+            factory.nchs_2010_external_rates(),
+            _fourteen_cell_exposure(),
+            boundary_year=2014,
+        )
+    )
+    base = _fit(padded_external, padded_exposure)
+    perturbed_external = padded_external.copy()
+    perturbed_exposure = padded_exposure.copy()
+    perturbed_external.loc[
+        perturbed_external["age_band"] == "0-24", "central_rate"
+    ] = 0.5
+    perturbed_exposure.loc[
+        perturbed_exposure["age_band"] == "0-24", "start_weight"
+    ] = 17.3
+    perturbed = _fit(perturbed_external, perturbed_exposure)
+    for (band, sex), probability in base.probability.items():
+        if band == "0-24":
+            assert perturbed.probability[(band, sex)] == 0.0
+        else:
+            assert perturbed.probability[(band, sex)] == probability
+
+
+def test__pad__leaves_the_shared_seven_band_set_untouched():
+    # The pad is appended after the seven-band construction; the
+    # MORTALITY_BANDS == build_mortality_floors.BANDS guard still binds the
+    # committed floors artifacts.
+    from populace_dynamics.harness.m6_cells import MORTALITY_BANDS
+
+    assert factory.PAD_BAND == (0, 24)
+    assert factory.PAD_BAND not in tuple(MORTALITY_BANDS)
+    assert tuple(MORTALITY_BANDS) == tuple(mf.BANDS)
+    assert len(MORTALITY_BANDS) == 7
 
 
 # --------------------------------------------------------------------------
