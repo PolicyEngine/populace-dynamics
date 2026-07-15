@@ -287,7 +287,8 @@ stopping point can vary. With unequal positive weights it may not hit an arbitra
 real target exactly. A non-prefix subset may be closer, but packing units by weight
 would abandon the registered threshold rule and model-relative ordering. The
 selected prefix and its residual are unique, auditable, and byte-reproducible.
-Section 6 freezes the registered threshold-prefix resolution floor before the run.
+Section 6 freezes each registered threshold-prefix resolution floor at its seam,
+before that margin's selection.
 
 For a linked unit, `production_year_weight` is the registered unit weight and the
 outcome applies atomically to every required member. Net-entry candidates use a pinned donor-unit
@@ -555,25 +556,28 @@ without its displacement sidecar is an artifact-schema failure.
 
 ## 6. Evaluation: floors first
 
-### 6.1 Pre-run threshold-prefix resolution floors
+### 6.1 Pre-selection threshold-prefix resolution floors
 
-The target bundle, candidate construction, weights, strata, pooling ladder, score,
-tie rule, and numeric rules are frozen before an aligned run. From that frozen
-candidate ledger, the producer enumerates the empty and every ordered prefix and
-records the minimum prefix residual in target units. That value is the
+The target bundle, candidate-construction and weight rules, strata, pooling ladder,
+minimum-candidate rule, score, tie rule, and numeric rules are frozen before an
+aligned replay. The realized candidates for a later margin can depend on earlier
+aligned hooks, so the producer materializes and hashes that margin's ledger only at
+its named seam. Before selecting any prefix, it enumerates the empty and every
+ordered prefix and records the minimum prefix residual in target units. That is the
 **selection-resolution floor** for the discrete margin-year-stratum. It is not the
 minimum over every subset. The producer separately records whether the target lies
 outside the empty-to-total candidate range.
 
-The resolution floor comes first: the producer writes and hashes it before
-selecting the aligned prefix, and the aligned evaluator reads rather than rewrites
-it. It may not declare exact agreement when the registered threshold rule cannot
-achieve it. A continuous covered-wage margin has a zero arithmetic floor only
-when its denominator is positive and all registered finite-value conditions hold;
-otherwise it is infeasible.
+The floor still comes first at each seam: the producer writes and hashes the
+realized ledger and floor before selecting the aligned prefix, and the evaluator
+reads rather than rewrites them. It may not declare exact agreement when the
+registered threshold rule cannot achieve it. A continuous covered-wage margin has
+a zero arithmetic floor only when its denominator is positive and all registered
+finite-value conditions hold; otherwise it is infeasible.
 
 Sparse cells follow only the target bundle's pre-registered pooling ladder and
-pre-run minimum-candidate rule. The producer decides pooling before inspecting
+pre-registered minimum-candidate rule. At the seam, the producer decides pooling
+from the realized candidate count before inspecting
 prefix residuals, publishes both cell definitions, and may not pool merely because
 a non-prefix subset would fit better. A target outside the candidate range remains
 `structurally_infeasible`; pooling cannot manufacture eligible people.
