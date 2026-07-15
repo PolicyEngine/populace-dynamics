@@ -133,8 +133,11 @@ PHASE_ORDER = (
 # cleared, but the run FAILED TO EXECUTE in the seed-1 scoring projection -- the
 # marital builder found no certified entry row at anchor for the
 # sub-START_AGE-at-anchor class; graded 4979269487, root-caused in forensics
-# 4979437110 and closed by amendment 3g).  Useful lineage, but none can
-# authorize a scored run.
+# 4979437110 and closed by amendment 3g), and the sixth registration
+# (4981073550), which failed in fertility materialization after simulated
+# mortality removed a scheduled birth parent (graded 4984699959, forensics
+# 4984997277, closed by amendment 3h).  Useful lineage, but none can authorize
+# a scored run.
 _KNOWN_STALE_REGISTRATIONS = frozenset(
     {
         "4962640241",
@@ -142,6 +145,7 @@ _KNOWN_STALE_REGISTRATIONS = frozenset(
         "4971244215",
         "4973199058",
         "4976428384",
+        "4981073550",
     }
 )
 _REGISTRATION = re.compile(
