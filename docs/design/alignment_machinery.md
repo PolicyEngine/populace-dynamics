@@ -361,21 +361,30 @@ tie rules. It records the stream address and hashes of `before`, `after`, the ta
 bundle, and the displacement sidecar. A bit-exact replay check must reproduce all
 four hashes before the first production release.
 
-Adding or removing a production entrant must not shift the existing engine draws
-for an existing person. The current loop pre-registers scheduled-entry IDs and
-person ordinals before the wave loop (`src/populace_dynamics/engine/loop.py:192-237`)
-and uses person-specific mortality generators (`src/populace_dynamics/engine/steps.py:113-134`).
-Before calling the loop, the producer assigns entrant IDs above the initial maximum
-and registers the complete selected schedule.
+Adding or removing a production person must not shift any ordinary person's later
+draws. The current loop pre-registers scheduled-entry IDs before the wave loop but
+assigns newborn ordinals sequentially after each year
+(`src/populace_dynamics/engine/loop.py:192-237,323-331`); person streams use those
+ordinals, not person-ID values (`src/populace_dynamics/engine/loop.py:93-107`;
+`src/populace_dynamics/engine/rng.py:158-169`). Merely choosing stable IDs is
+therefore insufficient.
 
-Births require a stronger production seam than the current sequential allocator.
-The producer reserves a child identity from the stable maternal-event key and child
-slot and draws sex and other auxiliary values from per-event streams over the
-complete candidate schedule. It may not use the current length-dependent vector
-draw and sequential allocation (`src/populace_dynamics/engine/steps.py:381-437`),
-which would shift later identities and auxiliary outcomes when one birth flips.
-Until event-derived identity reservation is implemented and replay-tested, a
-fertility-aligned panel is unavailable.
+The producer completes `before` first and freezes a replay identity registry. Every
+ordinary person, including each raw-positive synthetic child, retains the exact
+`person_id`, person ordinal, and auxiliary values used by `before`. Suppressed raw
+events leave their identities and ordinals reserved but inactive. The complete
+candidate schedule assigns every counterfactual entrant or child a deterministic
+ID and ordinal in disjoint ranges above the corresponding maxima in `before`,
+ordered by stable event key; unused reservations remain holes. Common raw-positive
+births reuse the ordinary path's child sex and other auxiliary draws, while a
+counterfactual `0→1` birth uses per-event alignment streams.
+
+The aligned loop must accept that frozen ordinal registry instead of appending
+`len(person_ordinals)`, and child materialization must accept the reserved identity
+and auxiliary record instead of the current length-dependent vector draw and
+sequential allocator (`src/populace_dynamics/engine/steps.py:381-437`). Until this
+production seam passes a zero-flip identity test and an add/suppress isolation
+test, every roster-changing alignment margin is unavailable.
 
 ### 4.5 Roster and scoring universes remain separate
 
@@ -441,15 +450,19 @@ Each registered measure has one unit and a defined absence contribution:
 | `eligible` or `present` | binary; zero explicitly means the keyed unit is in the union but not eligible/present on that path |
 | `represented_presence` | production-year represented people; `present * reference_weight`, accompanied by `present` |
 | `event_selected` | binary event outcome; accompanied by path-specific `eligible` |
-| `target_contribution` | the event's signed or unsigned contribution in the declared target unit; zero for explicit ineligibility only |
+| `target_contribution` | the event's signed or unsigned contribution in the declared target unit; zero for an unselected event or explicit ineligibility, distinguished by `event_selected` and `eligible` |
 | `covered_wage_contribution` | current covered-wage contribution; zero for explicit absence/noncoverage, with those indicators retained |
 
 Undefined underlying state never becomes zero. The named contribution fields have
 zero as part of their definition, and their presence/eligibility indicators make
-the reason observable. The producer rejects null keys, null or non-finite numeric
-values, non-positive registered weights, duplicate keys, or an unmappable live
-row before calling the existing function. The function's own exact-key check then
-remains a second line of defense.
+the reason observable. `reference_weight` comes from the stable unit registry and
+is identical in both union views: an existing person uses the frozen year-`y`
+production weight, a prospective child uses the live mother's frozen year-`y`
+weight that it will inherit, and an entrant uses the registered donor-member
+weight. The producer rejects a cross-path mismatch, null keys, null or non-finite
+numeric values, non-positive registered weights, duplicate keys, or an unmappable
+live row before calling the existing function. The function's own exact-key check
+then remains a second line of defense.
 
 The producer invokes
 [`build_alignment_displacement`](../../src/populace_dynamics/harness/m6_reporting.py)
@@ -492,7 +505,9 @@ person; a fertility event names the mother as decision person and the child as a
 materialized addition; an entrant family names every entering member and one
 atomic donor unit. `displaced_person_count` is the distinct union of these affected
 people, never a rounded weight. `gross_displaced_person_weight` sums each affected
-person's frozen pre-reconciliation production-year weight once.
+person's frozen pre-reconciliation production-year weight once. For a not-yet-live
+addition, it uses the same pre-registered child or donor-member `reference_weight`
+defined for the canonical views.
 `gross_displaced_unit_weight` separately sums each changed atomic unit's registered
 unit weight once. Adds and removals are never netted. The ledger also reports
 decision-person and materialized-person subtotals so a maternal event does not
@@ -601,7 +616,7 @@ series, but it neither invalidates nor rescues the unaligned M6 gate.
 No numerical corridor is ratified by this design document. Until a reviewed
 corridor artifact exists, every aligned run publishes the raw magnitude and
 `corridor_status = "not_available"`; it must not substitute zero, an informal
-percentage, or the fidelity floor. This preserves the floors-first order while
+percentage, or the selection-resolution floor. This preserves the floors-first order while
 keeping a missing research benchmark visibly missing.
 
 ### 6.4 Validation panel
