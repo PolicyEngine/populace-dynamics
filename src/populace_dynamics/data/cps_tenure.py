@@ -301,6 +301,11 @@ def read_cps_tenure(
             )
 
     valid_tenure = set(PTST1TN_NONRESPONSE) | {*range(0, PTST1TN_TOPCODE + 1)}
+    # PULINENO/PRTAGE/GESTFIPS use fail-closed range supersets rather
+    # than exact dictionary sets — deliberate scope: they are
+    # descriptive pass-through fields, and a too-tight set would
+    # false-refuse a legitimate file (e.g. FIPS gaps like 3/7/14).
+    # The analytic columns get exact .isin() domains.
     for column, check, cast in (
         ("PTST1TN", lambda v: ~v.isin(sorted(valid_tenure)), int),
         ("PWTENWGT", lambda v: (v < 0) | ~np.isfinite(v), float),
