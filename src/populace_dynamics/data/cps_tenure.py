@@ -14,8 +14,8 @@ The primary variable is Census's edited recode ``PTST1TN`` —
 "recode for employer tenure, expressed in years, with two implied
 decimals", built from the raw items ``PEST1A``/``PEST1B``/``PEST3``
 with Census's own usability rules (amount 1-99, exact months 1-35,
-and **age minus tenure >= 14 years**), topcoded at 3100 (31.00
-years). Negative codes are nonresponse: -1 NIU, -2 don't know,
+and **age minus tenure >= 14 years**), topcoded per year (see
+``PTST1TN_TOPCODES``). Negative codes are nonresponse: -1 NIU, -2 don't know,
 -3 refused, -9 no response. Using the recode rather than
 reconstructing from the raw trio is deliberate: the edit rules live
 with Census, not with us. The supplement weight is ``PWTENWGT``
@@ -62,7 +62,7 @@ __all__ = [
     "DEFAULT_AGE_BANDS",
     "PEIO1COW_LABELS",
     "PTST1TN_NONRESPONSE",
-    "PTST1TN_TOPCODE",
+    "PTST1TN_TOPCODES",
     "read_cps_tenure",
     "tenure_tabulation",
 ]
@@ -80,8 +80,19 @@ PTST1TN_NONRESPONSE: dict[int, str] = {
     -9: "no_response",
 }
 
-#: PTST1TN topcode: 3100 = 31.00 years.
-PTST1TN_TOPCODE = 3100
+#: PTST1TN topcode by supplement year (hundredths of a year). The
+#: topcode moves: 2024's dictionary states 3100 and the file agrees;
+#: 2022's states 3200 and the file agrees (1,312 rows heaped at
+#: 3200); 2020's dictionary is internally inconsistent (prose says
+#: "Topcoded at 3900", valid entries say 0-3200) while the file
+#: itself tops out at 3300 with 1,433 rows heaped there — the
+#: classic topcode pile-up, so the data's own heap is adopted and
+#: the dictionary conflict is recorded here (verified 2026-07-15).
+PTST1TN_TOPCODES: dict[int, int] = {
+    2020: 3300,
+    2022: 3200,
+    2024: 3100,
+}
 
 #: Census's usability rule baked into the PTST1TN recode.
 _MIN_AGE_MINUS_TENURE = 14
@@ -231,7 +242,7 @@ def read_cps_tenure(
         One row per person with a usable tenure response (plus
         nonresponse rows when requested): ``person_id`` (string,
         HRHHID+HRHHID2+line), ``year``, ``tenure_years``
-        (``PTST1TN / 100``), ``tenure_topcoded`` (31.00-year
+        (``PTST1TN / 100``), ``tenure_topcoded`` (per-year
         topcode), ``response``, ``age``, ``sex``, ``state_fips``,
         ``pemlr``, ``class_of_worker_code``, ``class_of_worker``,
         and ``weight`` (``PWTENWGT / 10_000``, persons).
@@ -259,13 +270,25 @@ def read_cps_tenure(
     try:
         raw = pd.read_csv(
             person_path,
-            usecols=lambda column: column in required,
+            usecols=lambda column: column in required or column == "GCFIP",
             dtype=_STRING_COLUMNS,
         )
     except pd.errors.EmptyDataError:
         raise ValueError(
             f"{person_path.name} is empty; {_README_POINTER}."
         ) from None
+    # The January 2020 CSV names the dictionary's GESTFIPS column
+    # GCFIP (cpsjan20.pdf places GESTFIPS at positions 93-94; the
+    # published jan20pub.csv header carries GCFIP there, values
+    # 01-56 with 51 distinct states — verified 2026-07-15). Accept
+    # exactly one of the two names.
+    if "GCFIP" in raw.columns:
+        if "GESTFIPS" in raw.columns:
+            raise ValueError(
+                f"{person_path.name} carries both GESTFIPS and "
+                "GCFIP; refusing an ambiguous state-FIPS column."
+            )
+        raw = raw.rename(columns={"GCFIP": "GESTFIPS"})
     missing = sorted(required - set(raw.columns))
     if missing:
         raise ValueError(
@@ -300,7 +323,8 @@ def read_cps_tenure(
                 "person ids."
             )
 
-    valid_tenure = set(PTST1TN_NONRESPONSE) | {*range(0, PTST1TN_TOPCODE + 1)}
+    topcode = PTST1TN_TOPCODES[year]
+    valid_tenure = set(PTST1TN_NONRESPONSE) | {*range(0, topcode + 1)}
     # PULINENO/PRTAGE/GESTFIPS use fail-closed range supersets rather
     # than exact dictionary sets — deliberate scope: they are
     # descriptive pass-through fields, and a too-tight set would
@@ -370,7 +394,7 @@ def read_cps_tenure(
             ),
             "year": year,
             "tenure_years": keep["PTST1TN"].where(keep_usable) / 100.0,
-            "tenure_topcoded": keep["PTST1TN"] == PTST1TN_TOPCODE,
+            "tenure_topcoded": keep["PTST1TN"] == topcode,
             "response": np.where(
                 keep_usable,
                 "usable",

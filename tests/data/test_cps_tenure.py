@@ -60,14 +60,23 @@ class TestReadCpsTenure:
         assert list(out["person_id"]) == ["110011234567890-11011-1"]
         assert (out["year"] == 2024).all()
 
-    def test_topcode_flag(self, tmp_path):
-        rows = [
-            {"PTST1TN": 3100, "PRTAGE": 70},
-            {"PTST1TN": 3099, "PRTAGE": 70},
-        ]
-        path = _write_person_file(tmp_path, 2022, rows)
-        out = cps_tenure.read_cps_tenure(2022, path=path)
-        assert list(out["tenure_topcoded"]) == [True, False]
+    def test_topcode_flag_is_per_year(self, tmp_path):
+        # The topcode moves: 3300 (2020) / 3200 (2022) / 3100 (2024).
+        for year, top in ((2020, 3300), (2022, 3200), (2024, 3100)):
+            rows = [
+                {"PTST1TN": top, "PRTAGE": 70},
+                {"PTST1TN": top - 1, "PRTAGE": 70},
+            ]
+            path = _write_person_file(tmp_path / str(year), year, rows)
+            out = cps_tenure.read_cps_tenure(year, path=path)
+            assert list(out["tenure_topcoded"]) == [True, False]
+
+    def test_above_topcode_refuses(self, tmp_path):
+        path = _write_person_file(
+            tmp_path, 2024, [{"PTST1TN": 3200, "PRTAGE": 70}]
+        )
+        with pytest.raises(ValueError, match="out-of-dictionary"):
+            cps_tenure.read_cps_tenure(2024, path=path)
 
     def test_unsupported_year_raises(self, tmp_path):
         path = _write_person_file(tmp_path, 2018, [{}])
@@ -202,6 +211,23 @@ class TestReadCpsTenure:
             "state",
             "self_employed_unincorporated",
         ]
+
+    def test_gcfip_alias_for_2020_layout(self, tmp_path):
+        # The published jan20pub.csv names the dictionary's GESTFIPS
+        # column GCFIP; the loader accepts exactly one of the two.
+        path = _write_person_file(tmp_path, 2020, [{}])
+        frame = pd.read_csv(path).rename(columns={"GESTFIPS": "GCFIP"})
+        frame.to_csv(path, index=False)
+        out = cps_tenure.read_cps_tenure(2020, path=path)
+        assert list(out["state_fips"]) == [36]
+
+    def test_both_fips_names_refused(self, tmp_path):
+        path = _write_person_file(tmp_path, 2020, [{}])
+        frame = pd.read_csv(path)
+        frame["GCFIP"] = frame["GESTFIPS"]
+        frame.to_csv(path, index=False)
+        with pytest.raises(ValueError, match="ambiguous"):
+            cps_tenure.read_cps_tenure(2020, path=path)
 
 
 class TestTenureTabulation:

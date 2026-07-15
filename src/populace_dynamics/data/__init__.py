@@ -20,7 +20,7 @@ from populace_dynamics.data.cps_tenure import (
     DEFAULT_AGE_BANDS,
     PEIO1COW_LABELS,
     PTST1TN_NONRESPONSE,
-    PTST1TN_TOPCODE,
+    PTST1TN_TOPCODES,
     read_cps_tenure,
     tenure_tabulation,
 )
@@ -86,7 +86,7 @@ __all__ = [
     "DEFAULT_AGE_BANDS",
     "PEIO1COW_LABELS",
     "PTST1TN_NONRESPONSE",
-    "PTST1TN_TOPCODE",
+    "PTST1TN_TOPCODES",
     "read_cps_tenure",
     "tenure_tabulation",
     "relationship_map",
