@@ -66,13 +66,19 @@ SOURCES: dict[str, tuple[str, str]] = {
         "time-series/2022/bds2022_fz.csv",
         "61e0e624b00ef3876a503fdaf8c1550d9aaa14070c8962dbd76ec500" "560ae86b",
     ),
+    # Release-stamped directories, not `latest_release`: the sha256
+    # pins below are for the R2026Q1 bytes, and `latest_release` is a
+    # moving alias that will serve different bytes once LEHD rotates to
+    # R2026Q2 (the digest check would then misreport a re-issue and the
+    # committed extracts would be unrebuildable). LEHD keeps every
+    # release under its stamped path indefinitely.
     "qwi_us_sa_fs_gn_ns_op_u.csv.gz": (
-        "https://lehd.ces.census.gov/data/qwi/latest_release/us/"
+        "https://lehd.ces.census.gov/data/qwi/R2026Q1/us/"
         "qwi_us_sa_fs_gn_ns_op_u.csv.gz",
         "76f147615d796eb0ba93401107762e1c67667a25c468b2ee4ca07e07" "d9eabd85",
     ),
     "j2j_us_d_fs_gn_ns_oslp_u.csv.gz": (
-        "https://lehd.ces.census.gov/data/j2j/latest_release/us/j2j/"
+        "https://lehd.ces.census.gov/data/j2j/R2026Q1/us/j2j/"
         "j2j_us_d_fs_gn_ns_oslp_u.csv.gz",
         "abdd573d414d66f864828952501cee0a6ef6c8db88cb789da38af1a3" "c9d55c6f",
     ),
@@ -138,8 +144,13 @@ def fetch(name: str, cache_dir: Path) -> Path:
         req = urllib.request.Request(
             url, headers={"User-Agent": "populace-dynamics fetch script"}
         )
+        # Download to a temp file and rename into place only on success,
+        # so an interrupted download never leaves a partial file that
+        # the next run would misdiagnose as a re-issued source.
+        tmp = path.with_suffix(path.suffix + ".part")
         with urllib.request.urlopen(req, timeout=300) as resp:
-            path.write_bytes(resp.read())
+            tmp.write_bytes(resp.read())
+        tmp.replace(path)
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     if digest != expected:
         raise RuntimeError(
@@ -290,7 +301,11 @@ def main() -> None:
         OUT_DIR / "bds_us_firm_size_1978_2022.csv",
     ]:
         size = f.stat().st_size
-        assert size < 1_000_000, f"{f.name} is {size} bytes (>1 MB)"
+        if size >= 1_000_000:
+            raise RuntimeError(
+                f"{f.name} is {size} bytes (>1 MB); extracts must stay "
+                "small aggregate derivatives."
+            )
         print(f"{f.name}: {size} bytes")
 
 

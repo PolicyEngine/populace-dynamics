@@ -6,9 +6,16 @@ enterprise across all its locations, as the Census Bureau counts it in
 SUSB (March-12 payroll headcount). Every survey label is a *noisy
 measure* of that quantity, not an alternative definition of it:
 
-* CPS ASEC ``NOEMP``/IPUMS ``FIRMSIZE`` is worker-reported firm size
-  at all locations, for the longest job held in the *preceding
-  calendar year*;
+* CPS ASEC firm size is worker-reported firm size at all locations,
+  for the longest job held in the *preceding calendar year*. **Two
+  distinct codings measure it and they are not interchangeable:** the
+  raw Census ASEC person file carries ``NOEMP`` (codes 1-6), while
+  the IPUMS-CPS harmonised extract carries ``FIRMSIZE`` (a different,
+  wider code set). The same integer means different bands in each —
+  e.g. code 2 is *10-49* in NOEMP (2011-2018) but *10-24* in IPUMS
+  ``FIRMSIZE`` — so the mapper takes an explicit ``coding`` argument
+  and refuses to guess (see :func:`cps_firmsize_to_canonical` and
+  :func:`noemp_to_canonical`);
 * SIPP 2014+ ``EJB1_EMPSIZE`` is worker-reported size *at the
   worker's location* (establishment size — the redesign dropped the
   all-locations question), so it is a proxy-chain input, biased
@@ -76,12 +83,16 @@ __all__ = [
     "CANONICAL_BANDS",
     "band_of_count",
     "cps_firmsize_to_canonical",
+    "noemp_to_canonical",
     "sipp_empsize_to_canonical",
     "susb_entrsize_to_canonical",
     "lehd_firmsize_to_canonical",
     "bds_fsize_to_canonical",
     "CPS_FIRMSIZE_INTERVALS_2011_2018",
     "CPS_FIRMSIZE_INTERVALS_STANDARD",
+    "CPS_FIRMSIZE_VALID_CODES",
+    "CPS_NOEMP_INTERVALS_2011_2018",
+    "CPS_NOEMP_INTERVALS_2019_PLUS",
     "SIPP_EMPSIZE_INTERVALS",
     "SUSB_ENTRSIZE_INTERVALS",
     "SUSB_SUBTOTAL_CODES",
@@ -138,7 +149,18 @@ class BandSpan:
 
 
 def band_of_count(n: int) -> CanonicalBand:
-    """Canonical band containing an exact employment count ``n >= 1``."""
+    """Canonical band containing an exact employment count ``n >= 1``.
+
+    ``n`` must be a whole number (headcount); a non-integral value such
+    as ``9.5`` is a caller error and raises ``ValueError`` rather than
+    falling through the partition.
+    """
+    if isinstance(n, bool) or not isinstance(n, int):
+        if not (isinstance(n, float) and n.is_integer()):
+            raise ValueError(
+                f"Employment count must be a whole number, got {n!r}."
+            )
+        n = int(n)
     if n < 1:
         raise ValueError(f"Employment count must be >= 1, got {n}.")
     for band in CANONICAL_BANDS:
@@ -149,6 +171,8 @@ def band_of_count(n: int) -> CanonicalBand:
 
 def _span(lo: int, hi: float) -> BandSpan:
     """The (contiguous) canonical bands intersecting [lo, hi]."""
+    if hi < lo:
+        raise ValueError(f"Inverted interval [{lo}, {hi}].")
     bands = tuple(b for b in CANONICAL_BANDS if b.lo <= hi and b.hi >= lo)
     if not bands:
         raise ValueError(f"Empty interval [{lo}, {hi}].")
@@ -190,25 +214,134 @@ CPS_FIRMSIZE_INTERVALS_STANDARD: dict[int, tuple[int, float]] = {
 #: FIRMSIZE codes that are not firm-size reports (NIU).
 CPS_FIRMSIZE_NIU = {0}
 
+#: IPUMS ``FIRMSIZE`` codes that actually occur, per survey-year
+#: regime (verified against the IPUMS-CPS availability grid). A code
+#: outside its regime's set is vintage-impossible and must raise
+#: rather than borrow an interval from another vintage: e.g. code 3
+#: ("Under 25") is exclusive to 1988-1991, and codes 2/4 flip meaning
+#: across the 2011-2018 break. Only the 2011+ ASEC firm-size era is
+#: served here (matching the loader side, #194); pre-2011 vintages
+#: and the 1988-1991 "Under 25" grouping are documented in the
+#: interval tables but are not dispatchable.
+CPS_FIRMSIZE_VALID_CODES: dict[str, frozenset[int]] = {
+    "2011_2018": frozenset({1, 4, 6, 7, 8, 9}),
+    "standard": frozenset({1, 2, 5, 7, 8, 9}),
+}
 
-def cps_firmsize_to_canonical(code: int, year: int) -> BandSpan | None:
-    """Map an IPUMS ``FIRMSIZE`` code to canonical bands.
+
+def _cps_firmsize_span(code: int, year: int) -> BandSpan | None:
+    """IPUMS ``FIRMSIZE`` leg of :func:`cps_firmsize_to_canonical`."""
+    if code in CPS_FIRMSIZE_NIU:
+        return None
+    if 2011 <= year <= 2018:
+        table, valid = CPS_FIRMSIZE_INTERVALS_2011_2018, "2011_2018"
+    elif year >= 1992:
+        table, valid = CPS_FIRMSIZE_INTERVALS_STANDARD, "standard"
+    else:
+        raise ValueError(
+            f"No verified IPUMS FIRMSIZE code set for ASEC {year}; only "
+            "1992+ is served (the 1988-1991 'Under 25' vintage is "
+            "documented but not dispatchable)."
+        )
+    if code not in CPS_FIRMSIZE_VALID_CODES[valid]:
+        raise KeyError(
+            f"IPUMS FIRMSIZE code {code} does not occur in ASEC {year} "
+            f"(valid: {sorted(CPS_FIRMSIZE_VALID_CODES[valid])}). If this "
+            "is a raw Census NOEMP code, pass coding='census_noemp'."
+        )
+    return _span(*table[code])
+
+
+def cps_firmsize_to_canonical(
+    code: int, year: int, *, coding: str = "ipums_firmsize"
+) -> BandSpan | None:
+    """Map a CPS ASEC firm-size code to canonical bands.
+
+    ``coding`` selects the source code set and is **required to be
+    explicit about which one is in hand**, because the two codings
+    share integers with different meanings (module docstring):
+
+    * ``"ipums_firmsize"`` (default) — IPUMS-CPS harmonised
+      ``FIRMSIZE``;
+    * ``"census_noemp"`` — the raw Census ASEC person-file ``NOEMP``
+      (delegates to :func:`noemp_to_canonical`).
 
     ``year`` is the ASEC survey year (the bands changed for the
     2011-2018 ASECs and reverted from 2019 on). Returns ``None`` for
-    NIU. Note the 2019+ code 5 ("25 to 99") straddles the canonical
-    50 edge and returns an inexact two-band span; identification of
-    the 50 cut from 2019+ ASEC alone is impossible (ADR 0003).
+    NIU. Vintage-impossible codes raise ``KeyError`` rather than
+    silently borrowing another vintage's interval. Note the 2019+
+    code 5 ("25 to 99") straddles the canonical 50 edge and returns an
+    inexact two-band span; identification of the 50 cut from 2019+
+    ASEC alone is impossible (ADR 0003).
     """
-    if code in CPS_FIRMSIZE_NIU:
+    if coding == "census_noemp":
+        return noemp_to_canonical(code, year)
+    if coding != "ipums_firmsize":
+        raise ValueError(
+            f"Unknown coding {coding!r}; expected 'ipums_firmsize' or "
+            "'census_noemp'."
+        )
+    return _cps_firmsize_span(code, year)
+
+
+# ---------------------------------------------------------------------
+# Raw Census ASEC person-file NOEMP (distinct numbering from FIRMSIZE)
+# ---------------------------------------------------------------------
+
+#: NOEMP code -> interval, 2011-2018 ASEC (code 0 is NIU). Bands:
+#: under 10 / 10-49 / 50-99 / 100-499 / 500-999 / 1000+. This is the
+#: raw Census coding emitted by the ASEC firm-size loader (#194); the
+#: integers do **not** line up with IPUMS FIRMSIZE.
+CPS_NOEMP_INTERVALS_2011_2018: dict[int, tuple[int, float]] = {
+    1: (1, 9),  # under_10
+    2: (10, 49),  # 10_49
+    3: (50, 99),  # 50_99
+    4: (100, 499),  # 100_499
+    5: (500, 999),  # 500_999
+    6: (1000, math.inf),  # 1000_plus
+}
+
+#: NOEMP code -> interval, 2019+ ASEC (code 0 is NIU). Bands:
+#: under 10 / 10-24 / 25-99 / 100-499 / 500-999 / 1000+.
+CPS_NOEMP_INTERVALS_2019_PLUS: dict[int, tuple[int, float]] = {
+    1: (1, 9),  # under_10
+    2: (10, 24),  # 10_24
+    3: (25, 99),  # 25_99 -- straddles the 50 edge
+    4: (100, 499),  # 100_499
+    5: (500, 999),  # 500_999
+    6: (1000, math.inf),  # 1000_plus
+}
+
+#: NOEMP codes that are not firm-size reports (NIU).
+CPS_NOEMP_NIU = {0}
+
+
+def noemp_to_canonical(code: int, year: int) -> BandSpan | None:
+    """Map a raw Census ASEC ``NOEMP`` code to canonical bands.
+
+    The counterpart to :func:`cps_firmsize_to_canonical` for the raw
+    person-file coding used by the ASEC firm-size loader (#194).
+    ``year`` selects the 2011-2018 vs 2019+ band regime; only the 2011+
+    firm-size era is defined. Returns ``None`` for NIU (code 0). The
+    2019+ code 3 ("25 to 99") straddles the canonical 50 edge and
+    returns an inexact two-band span.
+    """
+    if code in CPS_NOEMP_NIU:
         return None
-    table = (
-        CPS_FIRMSIZE_INTERVALS_2011_2018
-        if 2011 <= year <= 2018
-        else CPS_FIRMSIZE_INTERVALS_STANDARD
-    )
+    if 2011 <= year <= 2018:
+        table = CPS_NOEMP_INTERVALS_2011_2018
+    elif year >= 2019:
+        table = CPS_NOEMP_INTERVALS_2019_PLUS
+    else:
+        raise ValueError(
+            f"No verified NOEMP band regime for ASEC {year}; the raw "
+            "ASEC firm-size series starts in 2011."
+        )
     if code not in table:
-        raise KeyError(f"FIRMSIZE code {code} is not valid for ASEC {year}.")
+        raise KeyError(
+            f"NOEMP code {code} is not valid for ASEC {year} "
+            f"(valid: {sorted(table)})."
+        )
     return _span(*table[code])
 
 
@@ -327,7 +460,10 @@ def lehd_firmsize_to_canonical(code: int | str) -> BandSpan | None:
     """
     if str(code) in LEHD_FIRMSIZE_NON_DETAIL:
         return None
-    key = int(code)
+    try:
+        key = int(code)
+    except (TypeError, ValueError):
+        raise KeyError(f"LEHD firmsize code {code!r} is not valid.") from None
     if key not in LEHD_FIRMSIZE_INTERVALS:
         raise KeyError(f"LEHD firmsize code {code!r} is not valid.")
     return _span(*LEHD_FIRMSIZE_INTERVALS[key])

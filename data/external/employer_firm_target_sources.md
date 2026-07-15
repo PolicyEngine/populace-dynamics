@@ -50,7 +50,9 @@ are keyless and authoritative.
 
 ## 3. `qwi_us_firmsize_sector_2015on.csv` — QWI flows by firm size x sector
 
-- **Source URL:** https://lehd.ces.census.gov/data/qwi/latest_release/us/qwi_us_sa_fs_gn_ns_op_u.csv.gz
+- **Source URL:** https://lehd.ces.census.gov/data/qwi/R2026Q1/us/qwi_us_sa_fs_gn_ns_op_u.csv.gz
+  (release-stamped, not `latest_release`, so the sha256 pin stays
+  valid after LEHD rotates to the next quarterly release)
 - **Release:** R2026Q1, V4.14.0 (`version_qwi.txt`: QWI_FS US
   1993:1-2024:4, `qwipu_us_20260311_1503`); not seasonally adjusted,
   private ownership (`op`)
@@ -73,7 +75,8 @@ are keyless and authoritative.
 
 ## 4. `j2j_us_firmsize_sector_2015on.csv` — J2J flows by firm size x sector
 
-- **Source URL:** https://lehd.ces.census.gov/data/j2j/latest_release/us/j2j/j2j_us_d_fs_gn_ns_oslp_u.csv.gz
+- **Source URL:** https://lehd.ces.census.gov/data/j2j/R2026Q1/us/j2j/j2j_us_d_fs_gn_ns_oslp_u.csv.gz
+  (release-stamped, not `latest_release`; see the QWI note above)
 - **Release:** R2026Q1, V4.14.0 (`version_j2j.txt`: J2J US
   2000:2-2025:1, `j2jpu_us_20260312_1118`); no demographic detail
   (`d`), not seasonally adjusted, state/local/private ownership

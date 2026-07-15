@@ -104,29 +104,32 @@ def test_source_intervals_non_overlapping(name):
         assert hi_a < lo_b, f"{name}: [{lo_a},{hi_a}] overlaps {lo_b}"
 
 
-def _spans(name):
+def _code_spans(name):
+    """(code, span) for every dispatchable code in the named table.
+
+    Vintage-exclusive codes (cps_standard code 3, dispatchable only in
+    the 1988-1991 regime this module does not serve) are skipped.
+    """
+    excluded = VINTAGE_EXCLUSIVE_CODES.get(name, set())
+    codes = [c for c in ALL_INTERVAL_TABLES[name] if c not in excluded]
     if name == "cps_2011_2018":
-        return [
-            cps_firmsize_to_canonical(c, 2015)
-            for c in CPS_FIRMSIZE_INTERVALS_2011_2018
-        ]
-    if name == "cps_standard":
-        return [
-            cps_firmsize_to_canonical(c, 2020)
-            for c in banding.CPS_FIRMSIZE_INTERVALS_STANDARD
-        ]
-    if name == "sipp":
-        return [sipp_empsize_to_canonical(c) for c in SIPP_EMPSIZE_INTERVALS]
-    if name == "susb":
-        return [susb_entrsize_to_canonical(c) for c in SUSB_ENTRSIZE_INTERVALS]
-    if name == "lehd":
-        return [lehd_firmsize_to_canonical(c) for c in LEHD_FIRMSIZE_INTERVALS]
-    return [bds_fsize_to_canonical(c) for c in BDS_FSIZE_INTERVALS]
+        spans = [cps_firmsize_to_canonical(c, 2015) for c in codes]
+    elif name == "cps_standard":
+        spans = [cps_firmsize_to_canonical(c, 2020) for c in codes]
+    elif name == "sipp":
+        spans = [sipp_empsize_to_canonical(c) for c in codes]
+    elif name == "susb":
+        spans = [susb_entrsize_to_canonical(c) for c in codes]
+    elif name == "lehd":
+        spans = [lehd_firmsize_to_canonical(c) for c in codes]
+    else:
+        spans = [bds_fsize_to_canonical(c) for c in codes]
+    return list(zip(codes, spans, strict=True))
 
 
 @pytest.mark.parametrize("name", sorted(ALL_INTERVAL_TABLES))
 def test_every_code_maps_to_one_contiguous_span(name):
-    for span in _spans(name):
+    for _code, span in _code_spans(name):
         assert span is not None
         assert len(span.bands) >= 1
         order = [CANONICAL_BANDS.index(b) for b in span.bands]
@@ -137,12 +140,55 @@ def test_every_code_maps_to_one_contiguous_span(name):
 def test_span_matches_interval_containment(name):
     """The span is exactly the canonical bands the interval touches."""
     table = ALL_INTERVAL_TABLES[name]
-    for code, span in zip(table, _spans(name), strict=True):
+    for code, span in _code_spans(name):
         lo, hi = table[code]
         expected = tuple(
             b for b in CANONICAL_BANDS if b.lo <= hi and b.hi >= lo
         )
         assert span.bands == expected, (name, code)
+
+
+#: The full code domain each source table must carry — a completeness
+#: pin so silently dropping (or adding) a source code fails, which the
+#: property tests above cannot catch (they only walk whatever is
+#: present). Verified against the primary sources (ADR 0003).
+EXPECTED_CODE_DOMAINS = {
+    "cps_2011_2018": {1, 4, 6, 7, 8, 9},
+    "cps_standard": {1, 2, 3, 5, 7, 8, 9},
+    "sipp": {1, 2, 3, 4, 5, 6, 7, 8},
+    "susb": {
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "31",
+        "22",
+        "23",
+        "24",
+        "25",
+    },
+    "lehd": {1, 2, 3, 4, 5},
+    "bds": set(BDS_FSIZE_INTERVALS),
+}
+
+
+@pytest.mark.parametrize("name", sorted(ALL_INTERVAL_TABLES))
+def test_source_code_domain_is_complete(name):
+    assert set(ALL_INTERVAL_TABLES[name]) == EXPECTED_CODE_DOMAINS[name]
 
 
 # ---------------------------------------------------------------
@@ -230,3 +276,97 @@ def test_unknown_codes_raise():
         bds_fsize_to_canonical("k) other")
     with pytest.raises(KeyError):
         lehd_firmsize_to_canonical(9)
+
+
+# ---------------------------------------------------------------
+# Vintage-impossible IPUMS FIRMSIZE codes must raise (ADR 0003 #5)
+# ---------------------------------------------------------------
+
+
+def test_cps_firmsize_rejects_vintage_impossible_codes():
+    # Code 3 ("Under 25") exists only in the 1988-1991 vintage, which
+    # this module does not dispatch; it must not borrow a 2019+ interval.
+    with pytest.raises(KeyError):
+        cps_firmsize_to_canonical(3, 2023)
+    # Codes 4/6 are 2011-2018-only in IPUMS FIRMSIZE.
+    with pytest.raises(KeyError):
+        cps_firmsize_to_canonical(4, 2023)
+    with pytest.raises(KeyError):
+        cps_firmsize_to_canonical(6, 2023)
+    # Codes 2/5 are standard-only.
+    with pytest.raises(KeyError):
+        cps_firmsize_to_canonical(2, 2015)
+    with pytest.raises(KeyError):
+        cps_firmsize_to_canonical(5, 2015)
+
+
+def test_cps_firmsize_rejects_unserved_years():
+    with pytest.raises(ValueError):
+        cps_firmsize_to_canonical(1, 1989)
+
+
+def test_cps_firmsize_rejects_unknown_coding():
+    with pytest.raises(ValueError):
+        cps_firmsize_to_canonical(1, 2015, coding="raw")
+
+
+# ---------------------------------------------------------------
+# NOEMP is a distinct coding from IPUMS FIRMSIZE (seam with #194)
+# ---------------------------------------------------------------
+
+
+def test_noemp_bands_2011_2018():
+    # NOEMP 2 is 10-49 (contrast: IPUMS FIRMSIZE 2 is 10-24).
+    assert banding.noemp_to_canonical(2, 2015).band is CanonicalBand.B10_49
+    assert banding.noemp_to_canonical(3, 2015).band is CanonicalBand.B50_99
+    assert banding.noemp_to_canonical(4, 2015).band is CanonicalBand.B100_499
+    assert banding.noemp_to_canonical(6, 2015).band is CanonicalBand.B500_PLUS
+    assert banding.noemp_to_canonical(0, 2015) is None
+
+
+def test_noemp_bands_2019_plus_straddle():
+    # NOEMP 3 ("25 to 99") straddles the 50 edge post-2019.
+    span = banding.noemp_to_canonical(3, 2023)
+    assert span.bands == (CanonicalBand.B10_49, CanonicalBand.B50_99)
+    assert banding.noemp_to_canonical(2, 2023).bands == (CanonicalBand.B10_49,)
+
+
+def test_noemp_and_firmsize_codings_disagree():
+    """The same integer is a different band under each coding — the
+    collision the explicit `coding` argument exists to prevent."""
+    # Code 4, 2011-2018: NOEMP -> 100-499, IPUMS FIRMSIZE -> 10-49.
+    assert banding.noemp_to_canonical(4, 2015).band is CanonicalBand.B100_499
+    assert cps_firmsize_to_canonical(4, 2015).band is CanonicalBand.B10_49
+    # Routing NOEMP through the explicit census_noemp coding agrees
+    # with the direct entry point.
+    assert (
+        cps_firmsize_to_canonical(4, 2015, coding="census_noemp").band
+        is CanonicalBand.B100_499
+    )
+
+
+def test_noemp_rejects_pre_2011():
+    with pytest.raises(ValueError):
+        banding.noemp_to_canonical(1, 2005)
+
+
+# ---------------------------------------------------------------
+# Helper edge cases (ADR 0003 review, green suggestions)
+# ---------------------------------------------------------------
+
+
+def test_span_rejects_inverted_interval():
+    with pytest.raises(ValueError):
+        banding._span(50, 40)
+
+
+def test_band_of_count_rejects_non_integer():
+    with pytest.raises(ValueError):
+        band_of_count(9.5)
+    # A whole-valued float is fine.
+    assert band_of_count(9.0) is CanonicalBand.LT10
+
+
+def test_lehd_non_numeric_raises_keyerror():
+    with pytest.raises(KeyError):
+        lehd_firmsize_to_canonical("abc")

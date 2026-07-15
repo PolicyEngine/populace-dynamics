@@ -71,6 +71,32 @@ _BDS_FSIZE_CATEGORIES = [
     "j) 10000+",
 ]
 
+#: Full BDS extract column list (verified against the committed
+#: extract). Pinned in full — not just the first few — so a corrupted
+#: or reordered tail column fails loudly instead of coercing to NaN
+#: that reads as expected suppression.
+_BDS_COLUMNS = [
+    "year",
+    "fsize",
+    "firms",
+    "estabs",
+    "emp",
+    "denom",
+    "estabs_entry",
+    "estabs_entry_rate",
+    "estabs_exit",
+    "estabs_exit_rate",
+    "job_creation",
+    "job_creation_rate",
+    "job_destruction",
+    "job_destruction_rate",
+    "net_job_creation",
+    "net_job_creation_rate",
+    "reallocation_rate",
+    "firmdeath_firms",
+    "firmdeath_emp",
+]
+
 
 def _read(path: Path) -> pd.DataFrame:
     if not path.exists():
@@ -81,7 +107,6 @@ def _read(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, dtype={"entrsize_code": str})
 
 
-@lru_cache(maxsize=1)
 def load_susb_sector_size(path: str | None = None) -> pd.DataFrame:
     """SUSB 2022 US enterprise-size x NAICS-sector table (tidy).
 
@@ -89,7 +114,16 @@ def load_susb_sector_size(path: str | None = None) -> pd.DataFrame:
     ``entrsize_code == "01"``) and the <20/<500 subtotal classes; use
     :data:`populace_dynamics.firms.banding.SUSB_SUBTOTAL_CODES` to
     drop non-detail rows.
+
+    Returns a fresh copy on each call: the parse/validate work is
+    cached, but callers get their own frame so an in-place edit cannot
+    leak into a later load.
     """
+    return _load_susb_sector_size(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_susb_sector_size(path: str | None = None) -> pd.DataFrame:
     df = _read(Path(path) if path is not None else SUSB_PATH)
     if list(df.columns) != _SUSB_COLUMNS:
         raise ValueError(f"SUSB extract columns changed: {list(df.columns)}")
@@ -109,20 +143,22 @@ def load_susb_sector_size(path: str | None = None) -> pd.DataFrame:
     return df
 
 
-@lru_cache(maxsize=1)
 def load_bds_firm_size(path: str | None = None) -> pd.DataFrame:
     """BDS economy-wide firm-size time series, 1978-2022.
 
     Rates (``*_rate`` columns) are DHS rates per 100 employees, as
     published. ``(D)``/``(X)``-style suppression markers, if any ever
-    appear, surface as NaN via coercion.
+    appear, surface as NaN via coercion. Returns a fresh copy on each
+    call (see :func:`load_susb_sector_size`).
     """
+    return _load_bds_firm_size(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_bds_firm_size(path: str | None = None) -> pd.DataFrame:
     df = _read(Path(path) if path is not None else BDS_PATH)
-    expected_head = ["year", "fsize", "firms", "estabs", "emp"]
-    if list(df.columns[:5]) != expected_head:
-        raise ValueError(
-            f"BDS extract columns changed: {list(df.columns[:5])}"
-        )
+    if list(df.columns) != _BDS_COLUMNS:
+        raise ValueError(f"BDS extract columns changed: {list(df.columns)}")
     if sorted(df["fsize"].unique()) != _BDS_FSIZE_CATEGORIES:
         raise ValueError(
             f"BDS fsize categories changed: {sorted(df['fsize'].unique())}"
@@ -153,14 +189,20 @@ def _load_lehd(path: Path, measures: list[str], name: str) -> pd.DataFrame:
     return df
 
 
-@lru_cache(maxsize=1)
 def load_qwi_firmsize_sector(path: str | None = None) -> pd.DataFrame:
     """National QWI by firm size x NAICS sector, 2015Q1 on (jobs).
 
     All-sex all-age margin only. Adds derived per-job quarterly rates
     ``hire_rate`` (HirA / EmpTotal) and ``separation_rate``
     (Sep / EmpTotal). ``industry == "00"`` is the all-industry margin.
+    Returns a fresh copy on each call (see
+    :func:`load_susb_sector_size`).
     """
+    return _load_qwi_firmsize_sector(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_qwi_firmsize_sector(path: str | None = None) -> pd.DataFrame:
     measures = ["Emp", "EmpEnd", "EmpS", "EmpTotal", "HirA", "Sep", "EarnS"]
     df = _load_lehd(
         Path(path) if path is not None else QWI_PATH, measures, "QWI"
@@ -178,8 +220,12 @@ def load_qwi_firmsize_sector(path: str | None = None) -> pd.DataFrame:
         if not df.loc[missing, f"s{m}"].isin([-1, 5]).all():
             raise ValueError(f"QWI {m} has unexplained missing cells.")
     df = df.copy()
-    df["hire_rate"] = df["HirA"] / df["EmpTotal"]
-    df["separation_rate"] = df["Sep"] / df["EmpTotal"]
+    # Guard the denominator (a firm-size x sector cell can have zero
+    # total employment); mirrors the J2J loader's ``.where`` convention
+    # so an empty cell yields NaN, not inf.
+    base = df["EmpTotal"].where(df["EmpTotal"] > 0)
+    df["hire_rate"] = df["HirA"] / base
+    df["separation_rate"] = df["Sep"] / base
     for col in ("hire_rate", "separation_rate"):
         observed = df[col].dropna()
         if not observed.between(0.0, 1.0).all():
@@ -187,14 +233,19 @@ def load_qwi_firmsize_sector(path: str | None = None) -> pd.DataFrame:
     return df
 
 
-@lru_cache(maxsize=1)
 def load_j2j_firmsize_sector(path: str | None = None) -> pd.DataFrame:
     """National J2J flows by firm size x NAICS sector, 2015Q1 on.
 
     No demographic detail. Adds derived per-job quarterly rates
     ``j2j_hire_rate`` (J2JHire / MainB) and ``j2j_separation_rate``
-    (J2JSep / MainB).
+    (J2JSep / MainB). Returns a fresh copy on each call (see
+    :func:`load_susb_sector_size`).
     """
+    return _load_j2j_firmsize_sector(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_j2j_firmsize_sector(path: str | None = None) -> pd.DataFrame:
     measures = [
         "MainB",
         "MainE",

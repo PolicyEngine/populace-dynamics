@@ -77,6 +77,19 @@ def test_susb_sector_totals_sum_to_us_total(susb):
     )
 
 
+def test_susb_per_sector_detail_sums_to_sector_total(susb):
+    """Each sector's detail size classes stack to that sector's own
+    ENTRSIZE 01 total (not just the US margin)."""
+    detail_codes = set(banding.SUSB_ENTRSIZE_INTERVALS)
+    sectors = susb[
+        (susb["naics_sector"] != "--") & (susb["naics_sector"] != "99")
+    ]
+    for sector, rows in sectors.groupby("naics_sector"):
+        total = rows.loc[rows["entrsize_code"] == "01", "employment"]
+        detail = rows[rows["entrsize_code"].isin(detail_codes)]
+        assert detail["employment"].sum() == total.iloc[0], sector
+
+
 def test_susb_canonical_band_shares(susb):
     """Detail classes roll up through the banding module exactly."""
     us = susb[
@@ -213,6 +226,26 @@ def test_j2j_flows_are_subsets_of_market_flows(j2j):
     ok = j2j.dropna(subset=["MSep", "J2JSep", "EESep"])
     assert (ok["J2JSep"] <= ok["MSep"]).all()
     assert (ok["EESep"] <= ok["J2JSep"]).all()
+
+
+@pytest.mark.parametrize(
+    "loader",
+    [
+        targets.load_susb_sector_size,
+        targets.load_bds_firm_size,
+        targets.load_qwi_firmsize_sector,
+        targets.load_j2j_firmsize_sector,
+    ],
+)
+def test_loaders_return_independent_copies(loader):
+    """A caller mutating a loaded frame must not corrupt a later load
+    (the cached frame is shared; the public loader returns a copy)."""
+    first = loader()
+    first.iloc[0, 0] = None
+    first["_scratch_col"] = 1
+    second = loader()
+    assert "_scratch_col" not in second.columns
+    assert second.iloc[0, 0] is not None
 
 
 def test_lehd_labels_match_banding_intervals(qwi, j2j):

@@ -51,6 +51,20 @@ the week-1 review on issue #192.
    SUSB/QWI 50-edge margins pin the split; (b) pooling 2011-2018
    ASEC years across the band break to estimate the within-25-99
    split, transported to 2019+ vintages.
+5. **The person-side coding is explicit, not inferred (seam with
+   #194).** The raw Census ASEC person file carries `NOEMP`
+   (codes 1-6) and the IPUMS-CPS harmonised extract carries
+   `FIRMSIZE` (a different, wider code set); the *same integer means
+   different bands* — e.g. code 2 is 10-49 in NOEMP (2011-2018) but
+   10-24 in IPUMS `FIRMSIZE`. `banding.cps_firmsize_to_canonical`
+   therefore takes an explicit `coding` argument (`"ipums_firmsize"`
+   default, `"census_noemp"`), with `noemp_to_canonical` as the raw
+   entry point, and both refuse vintage-impossible codes rather than
+   silently borrowing another vintage's interval. Workstream A's
+   loader (#194) emits `NOEMP`; whichever side owns the final
+   `CanonicalBand` assignment must call the `census_noemp` route (or
+   emit `CanonicalBand` directly), never feed `NOEMP` integers to the
+   IPUMS default.
 
 ### C1 — job-spell schema
 
@@ -58,7 +72,7 @@ One tidy table, written by workstream A, read by workstream B:
 
 | column | type | notes |
 |---|---|---|
-| `person_id` | int | host CPS person key |
+| `person_id` | str (opaque key) | host CPS person key — an opaque string, **not** a numeric id (the ASEC `PERIDNUM` is 22 digits: int64 overflows and float64 rounds distinct persons together, per the #194 review). Workstream A may instead expose the host frame's internal integer row key; either way the column is a join key, never arithmetic |
 | `spell_id` | int | unique within person |
 | `start_period` | period | first period of the spell |
 | `end_period` | period | last period; open spells use a sentinel |
