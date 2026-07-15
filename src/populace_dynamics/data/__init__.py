@@ -7,10 +7,22 @@ files) via :mod:`populace_dynamics.data.psid`: the earnings panel
 readers -- marriage (:mod:`~populace_dynamics.data.marriage`), childbirth
 and adoption (:mod:`~populace_dynamics.data.births`), and the family
 relationship matrix (:mod:`~populace_dynamics.data.relmap`).
+
+Also exposes the label-verified CPS ASEC firm-size (NOEMP) reader
+(:mod:`~populace_dynamics.data.asec_firm_size`).
 """
 
 from __future__ import annotations
 
+from populace_dynamics.data.asec_firm_size import (
+    ASEC_FIRM_SIZE_YEARS,
+    NOEMP_BANDS_2011_2018,
+    NOEMP_BANDS_2019_PLUS,
+    band_regime,
+    firm_size_tabulation,
+    noemp_band_map,
+    read_asec_firm_size,
+)
 from populace_dynamics.data.births import birth_events, birth_history
 from populace_dynamics.data.deaths import (
     decode_death_code,
@@ -48,6 +60,13 @@ from populace_dynamics.data.relmap import (
 )
 
 __all__ = [
+    "ASEC_FIRM_SIZE_YEARS",
+    "NOEMP_BANDS_2011_2018",
+    "NOEMP_BANDS_2019_PLUS",
+    "band_regime",
+    "firm_size_tabulation",
+    "noemp_band_map",
+    "read_asec_firm_size",
     "decode_death_code",
     "read_death_records",
     "FAMILY_WAVES",
