@@ -1321,7 +1321,7 @@ excluded.
 ```json immigration-design-parameters
 {
   "design_id": "2026-07-15-immigration-module",
-  "revision": 2,
+  "revision": 3,
   "status": "design_draft_referee_pending",
   "engine_baseline": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
   "roadmap_issue": 113,
@@ -1330,6 +1330,7 @@ excluded.
   "information_boundaries": {
     "inherited_m6_T_star": 2014,
     "trustees_2026_role": "versioned forward assumption and report-only alignment; never gate-estimation evidence",
+    "annual_acs_gate_role": "annual 1-year PUMS observations 2010-2014 only; post-observation release-date rule pending O6; five-year PUMS prohibited",
     "realized_post_T_star_nawi_on_scored_path": "prohibited"
   },
   "entry_seam": {
@@ -1337,6 +1338,7 @@ excluded.
     "definition_pin": "src/populace_dynamics/engine/loop.py:27",
     "contract_pin": "src/populace_dynamics/engine/loop.py:192-257",
     "frame_year": "entry_year - 1",
+    "first_entry_year": "strictly greater than start_year; origin and first cohort pending O15",
     "activation": "top of period before mortality",
     "new_period_module": false,
     "ids_preassigned": true,
@@ -1345,10 +1347,12 @@ excluded.
     "caller_allocator_guard": "omit caller allocator or assert next_id exceeds the combined maximum"
   },
   "provisional_adjudications": {
-    "cohort_control": "positive SSA stock-accounting inflow proxy after an explicit Social-Security-area-to-Census-resident bridge",
+    "cohort_control": "G_resident_entry_proxy for a resident-labeled bound run; raw G_ssa_stock only for an explicitly report-only ssa_area_proxy",
+    "projection_origin": "existing 2014 initial slice plus 2015-2100 Table V.A2 path is recommended only for the separate report-only M6 integration run; O15 remains open",
+    "entry_timing": "component-aware exposure bridge required; year-end-stayer inflow may not receive a second unadjusted source-year mortality filter",
     "status_adjustment": "aggregate reclassification; not an entrant and not assigned to persons",
     "emigration": "outside entry-builder v1; mandatory successor before net-alignment claim",
-    "assignment": "recent-arrival ACS joint resident-stock donor units plus model-based calibration; literal arrival state requires a separate bound bridge; no cloned future",
+    "assignment": "annual 2010-2014 ACS 1-year joint resident-stock donor units plus model-based calibration; literal arrival state requires a separate bound bridge; no cloned future",
     "prior_us_covered_earnings": "unknown/censored absent a first-or-return-entry and coverage bridge; never default zero",
     "entrant_fertility": "excluded from fertility risk absent a bound parity/history bridge and entrant-aware kernel",
     "entrant_claiming": "excluded absent insured-status and prior-coverage evidence",
@@ -1359,11 +1363,11 @@ excluded.
   },
   "external_bindings": [
     {
-      "id": "ssa_tr2026_v_a2_intermediate",
+      "id": "ssa_tr2026_v_a2_components",
       "source": "The 2026 Annual Report of the Board of Trustees of the Federal Old-Age and Survivors Insurance and Federal Disability Insurance Trust Funds, section V.A.3, and Supplemental Single-Year Table V.A2",
       "vintage": "assumptions set February 2026; report released June 9, 2026",
-      "role": "positive stock-accounting inflow control candidate and net reconciliation",
-      "status": "report_only_until_universe_bridge_and_exit_law"
+      "role": "historical/estimated 2015-2025 and intermediate 2026-2100 positive stock-accounting inflow control candidate plus net reconciliation",
+      "status": "report_only_until_origin_universe_timing_bridges_and_exit_law"
     },
     {
       "id": "ssa_tr2026_v_a2_sensitivity",
@@ -1380,11 +1384,25 @@ excluded.
       "status": "blocking_for_resident_alignment"
     },
     {
-      "id": "acs_pums_2010_2014_recent_arrivals",
-      "source": "Census 2010-2014 ACS 5-year PUMS person file, dictionary, accuracy statement, and 2014 Subject Definitions",
-      "vintage": "observations 2010-2014; published January 2016",
-      "role": "resident survivor/stayer stock donor; fit 2010-2013 and hold out 2014",
-      "status": "proposed_gate_binding_pending_O6_not_arrival_truth"
+      "id": "projection_origin_population",
+      "source": "existing realized M6 2014 initial slice; alternative 2025 or 2026 resident baseline unbound",
+      "vintage": "2014 for recommended report-only integration path; alternatives unbound",
+      "role": "start year, population universe, first schedule key, and first-cohort disposition",
+      "status": "blocking_for_any_alternative_origin_pending_O15"
+    },
+    {
+      "id": "entry_timing_exposure_bridge",
+      "source": "unbound component event/survival timing interpretation",
+      "vintage": "unbound",
+      "role": "translate source controls to entry-year mortality/aging exposure without duplicate survival filtering",
+      "status": "blocking_for_production_schedule_pending_O2"
+    },
+    {
+      "id": "acs_pums_annual_2010_2014_recent_arrivals",
+      "source": "Census annual 1-year ACS PUMS person files, annual dictionaries and Accuracy statements for 2010-2014; 2014 Subject Definitions; errata 87/97; 2013 same-sex married-couple user note",
+      "vintage": "current 2010/2011 bytes 2013-03-04; 2012 2013-12-17; current 2013 bytes 2015-02-12; 2014 2015-10-27",
+      "role": "annual resident survivor/stayer stock donor; fit 2010-2013 and hold out separately weighted 2014",
+      "status": "proposed_gate_binding_pending_O6_not_arrival_truth_five_year_input_prohibited"
     },
     {
       "id": "acs_stock_to_arrival_state_bridge",
@@ -1392,6 +1410,27 @@ excluded.
       "vintage": "unbound",
       "role": "map interview-date stock proxy to literal arrival state, including duration, selection, reported-entry ambiguity, and repeat entry",
       "status": "blocking_for_literal_entry_state_pending_O12"
+    },
+    {
+      "id": "entrant_marital_household_history_initializer",
+      "source": "unbound annual ACS plus exact SIPP or another named history source",
+      "vintage": "unbound",
+      "role": "entry marital/household history, roster-safe relations, exposure start, and entrant-only law",
+      "status": "blocking_for_marital_household_domains_pending_O4_O5_O14"
+    },
+    {
+      "id": "entrant_disability_state_bridge",
+      "source": "unbound ACS/SIPP concept-to-module mapping and forward law",
+      "vintage": "unbound",
+      "role": "entrant disability initialization and transitions",
+      "status": "blocking_for_entrant_disability_pending_O5_and_successor_gate"
+    },
+    {
+      "id": "entrant_earnings_initializer_forward_law",
+      "source": "unbound annual ACS and exact SIPP current-spell/history evidence",
+      "vintage": "unbound",
+      "role": "partial-year entry state, lags/persistence, and entrant-only future earnings",
+      "status": "blocking_for_entrant_earnings_and_downstream_benefits_pending_O5_O12"
     },
     {
       "id": "cps_asec_2014_foreign_born",
@@ -1423,7 +1462,7 @@ excluded.
     },
     {
       "id": "census_np2023_nim_corridors",
-      "source": "Census 2023 National Population Projections, Alternative Scenarios Table 1",
+      "source": "Census 2023 National Population Projections, Table 1 in the Main Series and each Alternative Scenario",
       "vintage": "November 2023",
       "role": "main/high/low/zero net-international-migration corridors",
       "status": "report_only"
@@ -1445,9 +1484,15 @@ excluded.
   ],
   "gate_imm": {
     "exists_now": false,
-    "estimand": "held-out ACS recent-arrival resident-stock characteristic reproduction",
+    "estimand": "held-out annual ACS 1-year recent-arrival resident-stock proxy characteristic reproduction",
+    "raw_input": "five separately bound annual 1-year PUMS files; five-year pooled PUMS prohibited",
     "fit_collection_years": [2010, 2011, 2012, 2013],
     "holdout_collection_years": [2014],
+    "unit_key": ["survey_year", "SERIALNO"],
+    "annual_pooling_rule": "freeze equal-year-mass versus population-mass treatment from training only",
+    "replicate_design": "year-specific blocks; annual 2014 truth uses only its own replicate set",
+    "cross_year_earnings_normalization": "ADJINC to survey-year dollars then I_proj[2014] / I_proj[survey_year]",
+    "concept_breaks": "bind and harmonize or demote the 2013 same-sex married-couple edit change",
     "count_alignment_gated": false,
     "physical_sample_design_frozen_from_training_power_analysis": true,
     "schedule_seed_grid_and_aggregation_frozen_before_truth_floor": true,
@@ -1457,7 +1502,7 @@ excluded.
     "downstream_life_course_certified": false
   },
   "hardest_open_decisions": [
-    "O1: positive SSA stock-accounting inflow proxy plus separate exits versus an expanded entry-and-exit design or named net-entry proxy",
+    "O1/O2/O11/O15: literal flow versus net proxy, component timing, population-universe bridge, projection origin, and first cohort",
     "O5/O12/O13: atomic downstream packet, stock-to-arrival and repeat-coverage bridges, and fertility/claiming exclusions",
     "O4/O14: person versus co-arrival-family units, relationship and weight closure, and RNG-isolated cross-domain markets"
   ],
@@ -1466,6 +1511,8 @@ excluded.
     "candidate-16 marital core",
     "candidate-9 household composition object",
     "M4 disability reproduction object",
+    "existing age-sex mortality fit",
+    "frozen claiming schedule estimated through 2014",
     "certified earnings specifications and section 2.8.3a domain",
     "section 2.8.2g marital domain law",
     "amendment 3h live-roster materialization law",
