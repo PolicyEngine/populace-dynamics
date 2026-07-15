@@ -7,11 +7,23 @@ files) via :mod:`populace_dynamics.data.psid`: the earnings panel
 readers -- marriage (:mod:`~populace_dynamics.data.marriage`), childbirth
 and adoption (:mod:`~populace_dynamics.data.births`), and the family
 relationship matrix (:mod:`~populace_dynamics.data.relmap`).
+
+Also exposes the label-verified CPS January employer-tenure reader
+(:mod:`~populace_dynamics.data.cps_tenure`).
 """
 
 from __future__ import annotations
 
 from populace_dynamics.data.births import birth_events, birth_history
+from populace_dynamics.data.cps_tenure import (
+    CPS_TENURE_YEARS,
+    DEFAULT_AGE_BANDS,
+    PEIO1COW_LABELS,
+    PTST1TN_NONRESPONSE,
+    PTST1TN_TOPCODE,
+    read_cps_tenure,
+    tenure_tabulation,
+)
 from populace_dynamics.data.deaths import (
     decode_death_code,
     read_death_records,
@@ -70,6 +82,13 @@ __all__ = [
     "marriage_episodes",
     "birth_history",
     "birth_events",
+    "CPS_TENURE_YEARS",
+    "DEFAULT_AGE_BANDS",
+    "PEIO1COW_LABELS",
+    "PTST1TN_NONRESPONSE",
+    "PTST1TN_TOPCODE",
+    "read_cps_tenure",
+    "tenure_tabulation",
     "relationship_map",
     "rel_to_reference_person",
 ]
