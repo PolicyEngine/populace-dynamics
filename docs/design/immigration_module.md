@@ -185,7 +185,7 @@ emigration cannot be ignored.
 
 | Source | Exact public support | V1 role | Binding limitation |
 |---|---|---|---|
-| ACS PUMS | Census, *[2010–2014 ACS 5-year PUMS Data Dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* (Jan. 14, 2016): `SERIALNO`, `PWGTP`, `AGEP`, `CIT`, disability items, `MAR`, `RELP`, `SCHL`, `SEX`, `WAGP`, dual `YOEP05`/`YOEP12`, `NATIVITY`, `PINCP`, and dual place-of-birth fields; the *[Accuracy of the Data](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010_2014AccuracyPUMS.pdf)*, §3 pp. 5–7 and §4 p. 8, defines the pooled sample and dual-variable rule. The *[2014 ACS Subject Definitions](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2014_ACSSubjectDefinitions.pdf)*, “Year of Entry,” pp. 128–129, documents the response concept and ambiguity. | Primary joint-stock donor and gate truth, weighted by `PWGTP` with replicate-weight uncertainty. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. Interviewers request the most recent entry, but unclarified/mail answers can be first or most recent. `WAGP` covers the prior 12 months, possibly including pre-entry months. `RELP` identifies relationship to the reference person, not arbitrary relationship pointers. The 2016 publication date versus `T*=2014` is decision O6. |
+| ACS PUMS | Census, *[2010–2014 ACS 5-year PUMS Data Dictionary](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2010-2014.pdf)* (Jan. 14, 2016): `SERIALNO`, `PWGTP`, `AGEP`, `CIT`, disability items, `MAR`, `RELP`, `SCHL`, `SEX`, `WAGP`, dual `YOEP05`/`YOEP12`, `NATIVITY`, `PINCP`, and dual place-of-birth fields; the *[Accuracy of the Data](https://www2.census.gov/programs-surveys/acs/tech_docs/pums/accuracy/2010_2014AccuracyPUMS.pdf)*, §3 pp. 5–7 and §4 p. 8, defines the pooled sample and dual-variable rule. The *[2014 ACS Subject Definitions](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2014_ACSSubjectDefinitions.pdf)*, “Year of Entry,” pp. 128–129, documents the response concept and ambiguity. | Primary joint-stock donor and gate truth only for the named stock-proxy surface, weighted by `PWGTP` with replicate-weight uncertainty. | A recent-arrival respondent is a resident survivor/stayer observed at interview, not a gross arrival. Interviewers request the most recent entry, but unclarified/mail answers can be first or most recent. `WAGP` covers the prior 12 months, possibly including pre-entry months. `RELP` identifies relationship to the reference person, not arbitrary relationship pointers. The 2016 publication date versus `T*=2014` is decision O6. |
 | CPS ASEC | Census, *[2014 Traditional ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14.pdf)* or *[2014 Redesigned ASEC technical documentation](https://www2.census.gov/programs-surveys/cps/techdocs/cpsmar14R.pdf)*: the cited Redesigned layout has demographics p. 65; six disability items pp. 68–69; `PENATVTY`, grouped `PEINUSYR`, `PRCITSHP`, `MARSUPWT` p. 69; wage/salary and earnings pp. 77, 83. | Report-only marginal and earnings triangulation. | Smaller civilian noninstitutional universe plus Armed Forces members living in civilian housing; grouped entry years; survey-date demographics versus prior-calendar-year income. Traditional and Redesign files must never be silently combined. |
 | SIPP | Census, *[2014 SIPP Metadata, all sections v2](https://www2.census.gov/programs-surveys/sipp/tech-documentation/data-dictionaries/2014/w1/2014SIPP_Metadata_AllSections_v2.pdf)*: `WPFINWGT` p. 9; marital status p. 23; age p. 30; nativity/citizenship pp. 35–37; grouped `TYRENTRY` and entry-status item `TIMSTAT` pp. 38–39; education p. 42; sex p. 43; disability p. 1368; monthly earnings p. 2766. | Report-only joint-state and initializer plausibility check. | Wave 1 covers the 2013 reference year and a civilian-noninstitutional universe. Later waves miss newly arrived immigrant-only households. `TIMSTAT` is neither a legal-history panel nor authority to model status and is excluded from v1 state. |
 
@@ -348,13 +348,16 @@ strictly above the combined maximum before period 1; otherwise the loop does not
 protect births from collision. No existing M6 module stream is consumed to
 construct the schedule.
 
-### 3.3 Amendment 3h: live-roster materialization
+### 3.3 Amendment 3h / M6 §2.8.2h: live-roster materialization
 
-Amendment 3h is not merged at the baseline commit. Its public source is the
+Amendment 3h is absent from the pinned engine baseline. It subsequently merged
+to master as
+[PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216), commit
+`0e27be2d857719b30e33b556580b4a360808b5e0`, after this branch point. Its public
+forensic source is the
 [3h forensics/adjudication](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4984997277)
-and draft [PR #216](https://github.com/PolicyEngine/populace-dynamics/pull/216).
-This sibling design adopts its domain law as a dependency while accurately
-describing its pending merge status:
+and the merged M6 §2.8.2h text. This sibling design adopts that law as a
+dependency while retaining the stated baseline for every code pin:
 
 > A scheduled maternal birth may materialize a child only when the mother is
 > present in the live post-mortality roster. The frame-independent risk schedule
@@ -519,8 +522,8 @@ and label the result resident-population aligned.
 The schedule uses a manageable synthetic sample and positive calibration
 weights; it does not create 1.34 million physical rows in 2026. For each year:
 
-- the number of donor units is set by support/precision requirements established
-  in the floor ceremony, not by the external population count;
+- the number of donor units is frozen from training-only support/power analysis
+  before the truth floor, not by the external population count or candidate;
 - unit sampling preserves all members selected together;
 - person weights are finite and positive;
 - the sum of person weights equals `G_resident_entry_proxy[y]` within a pinned numerical
@@ -770,12 +773,12 @@ totals, donor-cell effective sample sizes, fallback counts, calibration residual
 top-code/allocation shares, unit-size distribution, state-bundle completeness,
 and all report-only/certified labels.
 
-The builder refuses to run when a binding is missing or mutable, a raw or derived
-hash differs, a required year is absent, a unit crosses an unsupported concept,
-an outside-roster relation is assigned an ID, an entry is accidentally admitted
-to the certified earnings domain, or the universe bridge is absent for a run
-claiming resident alignment. Network access and runtime redownload are prohibited
-on a scored or production run.
+The builder refuses to run when a binding required by the selected run is missing
+or mutable, a raw or derived hash differs, a required year is absent, a unit
+crosses an unsupported concept, an outside-roster relation is assigned an ID, an
+entry is accidentally admitted to the certified earnings domain, or the universe
+bridge is absent for a run claiming resident alignment. Network access and runtime
+redownload are prohibited on a scored or production run.
 
 ## 5. Evaluation and proposed `gate_imm`
 
