@@ -4,26 +4,28 @@ NOEMP is the worker-reported count of employees "at all locations
 where this employer operates" for the **longest job held last
 calendar year** (universe ``WKSWORK > 0``), and is the plan's
 designated firm-size training label (issue #192; loader scope in
-issue #193). The variable keeps the identical code domain ``0:6`` in
-every year while codes 2 and 3 silently change meaning across two
-band regimes, so a year-blind read mis-bands those codes with no
-error. This reader hard-codes the dictionary-adjudicated map per
-year and refuses years it has not verified.
+issue #193). One band map covers every supported year: **1 under
+10, 2 = 10-49, 3 = 50-99, 4 = 100-499, 5 = 500-999, 6 = 1000+**.
 
-Band regimes, verified against every year's Census public-use data
-dictionary at www2.census.gov/programs-surveys/cps/datasets
-(read 2026-07-14):
-
-* 2011-2018 (``asec2011_pubuse.dd.txt`` ... ``08ASEC2018_Data_
-  Dict_Full.txt``): 1 under 10, **2 = 10-49, 3 = 50-99**,
-  4 = 100-499, 5 = 500-999, 6 = 1000+.
-* 2019-2025 (``06_ASEC_2019-Data_Dictionary_Full.pdf`` ...
-  ``asec2025_ddl_pub_full.pdf``): 1 under 10, **2 = 10-24,
-  3 = 25-99**, 4 = 100-499, 5 = 500-999, 6 = 1000+.
-
-Note the 2019+ regime cannot resolve a 50-employee cut (it falls
-inside 25-99), while 2011-2018 can — the C2 banding decision on
-issue #192 consumes the tabulations this module emits.
+**The phantom 2019 relabeling.** The published data dictionaries
+disagree across years: 2011-2018 label codes 2/3 as 10-49 / 50-99,
+while the 2019-2025 dictionaries (and IPUMS FIRMSIZE, which
+inherits them) relabel the same codes 10-24 / 25-99. The data show
+the relabeling never happened in the instrument. Weighted code
+shares among ``WKSWORK > 0`` workers are continuous across the
+supposed break (code 2: 14.9% in 2017, 14.4% in 2019, 14.1% in
+2024; code 3: 7.0% / 6.9% / 6.7% — measured from the published
+public-use files, 2026-07-15), where a genuine re-binning of a
+39-integer band into a 15-integer band would have roughly halved
+code 2 and doubled code 3. SUSB's administrative distribution
+corroborates: code 3's ~7% share matches SUSB's 50-99 employment
+share (~7.5%), while a true 25-99 band carries ~15%. This reader
+therefore uses the 10-49 / 50-99 reading for all years and records
+the dictionary conflict here rather than silently following the
+2019+ label text into a factor-two mis-band. Consequence for C2:
+the 50-employee edge (ACA and state mandates) is directly observed
+in every supported year — the "post-2019 label cannot resolve the
+50 cut" problem stated in earlier drafts dissolves.
 
 Alongside the band, each record carries the fields the calibration
 side needs to reason about universes: ``LJCW`` (longest-job class of
@@ -56,29 +58,20 @@ import pandas as pd
 __all__ = [
     "ASEC_FIRM_SIZE_YEARS",
     "CLASS_OF_WORKER_LABELS",
-    "NOEMP_BANDS_2011_2018",
-    "NOEMP_BANDS_2019_PLUS",
-    "band_regime",
+    "NOEMP_BANDS",
     "firm_size_tabulation",
     "noemp_band_map",
     "read_asec_firm_size",
 ]
 
-#: NOEMP code -> band label, 2011-2018 dictionaries (code 0 is NIU).
-NOEMP_BANDS_2011_2018: dict[int, str] = {
+#: NOEMP code -> band label for every supported year (code 0 is
+#: NIU). The 2019-2025 dictionaries relabel codes 2/3 as 10-24 /
+#: 25-99, but the instrument never changed — see "The phantom 2019
+#: relabeling" in the module docstring for the evidence.
+NOEMP_BANDS: dict[int, str] = {
     1: "under_10",
     2: "10_49",
     3: "50_99",
-    4: "100_499",
-    5: "500_999",
-    6: "1000_plus",
-}
-
-#: NOEMP code -> band label, 2019-2025 dictionaries (code 0 is NIU).
-NOEMP_BANDS_2019_PLUS: dict[int, str] = {
-    1: "under_10",
-    2: "10_24",
-    3: "25_99",
     4: "100_499",
     5: "500_999",
     6: "1000_plus",
@@ -126,27 +119,29 @@ _README_POINTER = (
 _PPPUB_YEAR_RE = re.compile(r"pppub(\d{2})\.csv(\.gz)?$", re.I)
 
 
-def band_regime(year: int) -> str:
-    """Return the band-regime key (``"2011_2018"``/``"2019_plus"``).
-
-    Raises:
-        ValueError: If ``year`` has no dictionary-verified band map.
-    """
+def _check_supported_year(year: int) -> None:
     if year not in ASEC_FIRM_SIZE_YEARS:
         raise ValueError(
             f"No dictionary-verified NOEMP band map for ASEC {year}; "
             f"supported years are {ASEC_FIRM_SIZE_YEARS[0]}-"
             f"{ASEC_FIRM_SIZE_YEARS[-1]}. Extend the module only "
-            "with that year's Census data dictionary in hand."
+            "with that year's Census data dictionary in hand — and "
+            "check the empirical code distribution before trusting "
+            "the dictionary's band labels (module docstring)."
         )
-    return "2011_2018" if year <= 2018 else "2019_plus"
 
 
 def noemp_band_map(year: int) -> dict[int, str]:
-    """Return the NOEMP code -> band label map for a survey year."""
-    if band_regime(year) == "2011_2018":
-        return dict(NOEMP_BANDS_2011_2018)
-    return dict(NOEMP_BANDS_2019_PLUS)
+    """Return the NOEMP code -> band label map for a survey year.
+
+    One map covers every supported year: the 2019+ dictionaries'
+    relabeling of codes 2/3 is documentary only (module docstring).
+
+    Raises:
+        ValueError: If ``year`` is outside the verified range.
+    """
+    _check_supported_year(year)
+    return dict(NOEMP_BANDS)
 
 
 def _resolve_data_dir(data_dir: Path | None) -> Path:
@@ -220,7 +215,7 @@ def read_asec_firm_size(
     Returns:
         One row per person in the NOEMP universe (``WKSWORK > 0``,
         i.e. worked last calendar year), with columns ``person_id``,
-        ``year``, ``income_year``, ``band_regime``, ``noemp``,
+        ``year``, ``income_year``, ``noemp``,
         ``firm_size_band``, ``noemp_allocated``, ``ljcw``,
         ``class_of_worker``, ``industry_major``,
         ``industry_detailed``, ``wkswork``, and ``weight``
@@ -332,7 +327,7 @@ def read_asec_firm_size(
     # LJCW track WKSWORK exactly (0 violations on 144,265 rows) —
     # so for 2019+ WORKYN is domain-checked but not required to
     # coincide.
-    if band_regime(year) == "2011_2018":
+    if year <= 2018:
         workyn_mismatch = raw[(raw["WORKYN"] == 1) != (raw["WKSWORK"] > 0)]
         if len(workyn_mismatch):
             raise ValueError(
@@ -364,7 +359,6 @@ def read_asec_firm_size(
             "person_id": universe["PERIDNUM"].astype(str),
             "year": year,
             "income_year": year - 1,
-            "band_regime": band_regime(year),
             "noemp": universe["NOEMP"],
             # Total mappings: the domain + universe checks guarantee
             # NOEMP in 1-6 and LJCW in 1-7 here, so no fallback.
@@ -387,7 +381,6 @@ def firm_size_tabulation(
     records: pd.DataFrame,
     by: tuple[str, ...] = (
         "year",
-        "band_regime",
         "firm_size_band",
         "class_of_worker",
     ),

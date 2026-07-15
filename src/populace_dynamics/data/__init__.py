@@ -16,9 +16,7 @@ from __future__ import annotations
 
 from populace_dynamics.data.asec_firm_size import (
     ASEC_FIRM_SIZE_YEARS,
-    NOEMP_BANDS_2011_2018,
-    NOEMP_BANDS_2019_PLUS,
-    band_regime,
+    NOEMP_BANDS,
     firm_size_tabulation,
     noemp_band_map,
     read_asec_firm_size,
@@ -61,9 +59,7 @@ from populace_dynamics.data.relmap import (
 
 __all__ = [
     "ASEC_FIRM_SIZE_YEARS",
-    "NOEMP_BANDS_2011_2018",
-    "NOEMP_BANDS_2019_PLUS",
-    "band_regime",
+    "NOEMP_BANDS",
     "firm_size_tabulation",
     "noemp_band_map",
     "read_asec_firm_size",

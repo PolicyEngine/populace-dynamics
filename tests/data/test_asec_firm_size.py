@@ -55,19 +55,16 @@ def _write_person_file(
 
 
 class TestBandMaps:
-    def test_2016_maps_code_2_to_10_49(self):
-        assert asec_firm_size.noemp_band_map(2016)[2] == "10_49"
-        assert asec_firm_size.noemp_band_map(2016)[3] == "50_99"
-
-    def test_2024_maps_code_2_to_10_24(self):
-        assert asec_firm_size.noemp_band_map(2024)[2] == "10_24"
-        assert asec_firm_size.noemp_band_map(2024)[3] == "25_99"
-
-    def test_regime_boundaries(self):
-        assert asec_firm_size.band_regime(2011) == "2011_2018"
-        assert asec_firm_size.band_regime(2018) == "2011_2018"
-        assert asec_firm_size.band_regime(2019) == "2019_plus"
-        assert asec_firm_size.band_regime(2025) == "2019_plus"
+    def test_one_map_for_all_years(self):
+        # The 2019+ dictionaries relabel codes 2/3 as 10-24/25-99,
+        # but the instrument never changed (weighted code shares are
+        # continuous 2017 -> 2019 -> 2024 and match SUSB only under
+        # the 10-49/50-99 reading — module docstring). One map.
+        for year in (2011, 2016, 2018, 2019, 2024, 2025):
+            bands = asec_firm_size.noemp_band_map(year)
+            assert bands[2] == "10_49"
+            assert bands[3] == "50_99"
+            assert bands == asec_firm_size.NOEMP_BANDS
 
     def test_unverified_year_raises(self):
         with pytest.raises(ValueError, match="dictionary-verified"):
@@ -77,18 +74,12 @@ class TestBandMaps:
 
 
 class TestReadAsecFirmSize:
-    def test_bands_by_regime(self, tmp_path):
+    def test_bands_stable_across_years(self, tmp_path):
         rows = [{"NOEMP": 2}, {"NOEMP": 3}]
-        for year, expected in (
-            (2016, ["10_49", "50_99"]),
-            (2024, ["10_24", "25_99"]),
-        ):
+        for year in (2016, 2024):
             path = _write_person_file(tmp_path / str(year), year, rows)
             out = asec_firm_size.read_asec_firm_size(year, path=path)
-            assert list(out["firm_size_band"]) == expected
-            assert (
-                out["band_regime"] == asec_firm_size.band_regime(year)
-            ).all()
+            assert list(out["firm_size_band"]) == ["10_49", "50_99"]
             assert (out["income_year"] == year - 1).all()
 
     def test_year_and_filename_must_agree(self, tmp_path):
@@ -99,7 +90,7 @@ class TestReadAsecFirmSize:
     def test_resolves_staged_directory(self, tmp_path):
         _write_person_file(tmp_path, 2021, [{"NOEMP": 3}])
         out = asec_firm_size.read_asec_firm_size(2021, data_dir=tmp_path)
-        assert list(out["firm_size_band"]) == ["25_99"]
+        assert list(out["firm_size_band"]) == ["50_99"]
 
     def test_missing_staged_file_raises(self, tmp_path):
         with pytest.raises(FileNotFoundError, match="pppub21"):
@@ -222,15 +213,18 @@ class TestFirmSizeTabulation:
         path = _write_person_file(tmp_path, 2024, rows)
         records = asec_firm_size.read_asec_firm_size(2024, path=path)
         out = asec_firm_size.firm_size_tabulation(records)
-        ten_24 = out[out["firm_size_band"] == "10_24"].iloc[0]
-        assert ten_24["weighted_persons"] == 4000.0
-        assert ten_24["unweighted_n"] == 2
-        assert ten_24["allocated_share"] == 0.25
+        band = out[out["firm_size_band"] == "10_49"].iloc[0]
+        assert band["weighted_persons"] == 4000.0
+        assert band["unweighted_n"] == 2
+        assert band["allocated_share"] == 0.25
         federal = out[out["class_of_worker"] == "federal"].iloc[0]
         assert federal["weighted_persons"] == 500.0
         assert federal["firm_size_band"] == "500_999"
 
-    def test_regime_break_is_visible_across_years(self, tmp_path):
+    def test_bands_pool_cleanly_across_years(self, tmp_path):
+        # Same code, same band on both sides of the documentary
+        # 2018/2019 dictionary relabeling — pooled years share one
+        # band vocabulary.
         code_2 = [{"NOEMP": 2}]
         frames = [
             asec_firm_size.read_asec_firm_size(
@@ -240,7 +234,8 @@ class TestFirmSizeTabulation:
             for year in (2018, 2019)
         ]
         out = asec_firm_size.firm_size_tabulation(pd.concat(frames))
-        assert set(out["firm_size_band"]) == {"10_49", "10_24"}
+        assert set(out["firm_size_band"]) == {"10_49"}
+        assert set(out["year"]) == {2018, 2019}
 
     def test_zero_weight_group_share_is_nan(self, tmp_path):
         path = _write_person_file(tmp_path, 2024, [{"MARSUPWT": 0.0}])
