@@ -16,5 +16,8 @@
 # Jupyter notebooks
 *.ipynb text eol=lf
 
+# Preserve byte-pinned external HTML response bodies exactly.
+data/external/*.source.html binary
+
 # Use bd merge for beads JSONL files
 .beads/issues.jsonl merge=beads
