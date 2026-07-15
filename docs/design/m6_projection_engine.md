@@ -1521,6 +1521,17 @@ the exact-support guard at `m6_runner.py:576`, which raises before cell reductio
 > only projected keys that truth already excludes are removed. The cached,
 > frame-independent reproduction panel remains intact.
 
+The scope is closed across all three gated consumers. Marital, disability, and
+earnings feed the same `prepare_gated_realized_support` guard
+(`m6_runner.py:558`, `:576`, `:604`), whose identical-key check raises at
+`support.py:311-315`. Marital already applies the truth-side gated-years window,
+opening-wave presence, anchor inner join, and shared band/sex predicate
+(`m6_projection.py:82-105`); projected earnings inner-joins onto truth-support
+keys and then applies the same domain restriction to both sides
+(`m6_projection.py:234-243`). Their universes are therefore identical by
+construction. Disability alone reaches the common guard without its truth
+age/sex transform, so the transform gap is genuinely disability-only.
+
 The discriminating regression must drive the real truth builder and projected
 preparer with one in-band 30/32 pair, the audit's below-band 18/20 pair, and the
 referee-hardened **above-band age-70/72 retiree pair**. Pre-patch, the real support
