@@ -28,7 +28,7 @@
   claiming, flow-to-stock, and stock-to-arrival blockers; composes immigrant IDs
   with the existing 2017/2019 schedule; guards caller-supplied allocators; and
   requires entrant RNG isolation before any byte-identity claim → §2.2–2.4,
-  §3.1–3.4, §4.1–4.11, §5, §6, O2/O5/O8–O15.
+  §3.1–3.4, §4.1–4.11, §5, §6, O2/O5/O8–O14.
 - Dormant-generator finding: the engine already owns an entrant seam, but there
   is no immigration schedule generator → §3.1, §4.
 - Net-is-not-entry finding: the 2026 Trustees component table distinguishes
@@ -1547,6 +1547,21 @@ excluded.
         "require physical-sample and schedule-seed protocols before floors and limit packet PASS to structural/schema completeness",
         "require RNG-isolated composite adapters before any original-person byte-identity claim",
         "expand referee decisions through O14 and pin unresolved external bindings"
+      ]
+    },
+    {
+      "revision": 3,
+      "date": "2026-07-15",
+      "kind": "annual_gate_and_origin_correction",
+      "changes": [
+        "replace invalid collection-year slicing of five-year ACS PUMS with separately bound annual 1-year files and weights",
+        "namespace donor units by survey year and SERIALNO and block annual replicate designs by year",
+        "bind annual archive corrections, the 2013 marital concept break, and explicit 2010-2014 earnings normalization",
+        "make raw SSA-area versus bridged resident calibration targets conditional and auditable",
+        "add component-aware entry timing so year-end-stayer controls cannot receive duplicate source-year survival filtering",
+        "add projection-origin decision O15 and require continuous controls from start_year plus one",
+        "add blocking marital-household, disability, and earnings initializer bindings",
+        "synchronize the machine-readable binding list and preserve mortality and claiming among untouched surfaces"
       ]
     }
   ]
