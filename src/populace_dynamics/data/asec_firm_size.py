@@ -317,26 +317,15 @@ def read_asec_firm_size(
             raise _domain_error(year, column, bad)
         raw[column] = values.astype(cast)
 
-    # The 2011-2018 dictionaries state the longest-job universe as
-    # WORKYN = 1; the code keys on WKSWORK, so for those years the
-    # coincidence is asserted rather than assumed. The 2019+
-    # dictionaries state the universe as WKSWORK > 0 directly, and
-    # the coincidence genuinely fails there on real data: the 2024
-    # file carries 572 rows (0.4%) with WORKYN = 2 beside a fully
-    # edited work block (most not even allocated) while NOEMP and
-    # LJCW track WKSWORK exactly (0 violations on 144,265 rows) —
-    # so for 2019+ WORKYN is domain-checked but not required to
-    # coincide.
-    if year <= 2018:
-        workyn_mismatch = raw[(raw["WORKYN"] == 1) != (raw["WKSWORK"] > 0)]
-        if len(workyn_mismatch):
-            raise ValueError(
-                f"ASEC {year}: {len(workyn_mismatch)} row(s) have "
-                "WORKYN = 1 without WKSWORK > 0 (or vice versa); "
-                "the stated WORKYN = 1 universe no longer matches "
-                "the WKSWORK key this reader uses — re-adjudicate "
-                "against that year's dictionary."
-            )
+    # The dictionaries state the longest-job universe as WORKYN = 1
+    # (2011-2018) or WKSWORK > 0 (2019+), but the two do NOT
+    # coincide exactly on real files in either regime: a stable
+    # ~0.4% of rows carry WORKYN = 2 beside a fully edited work
+    # block (2017: 821 of 185,914; 2024: 572 of 144,265 — never the
+    # reverse direction), while NOEMP and LJCW track WKSWORK with
+    # zero violations in both files. WKSWORK is therefore the
+    # operative universe key in every year; WORKYN stays
+    # domain-checked but is not required to coincide.
 
     # NOEMP and LJCW share the longest-job universe in every
     # dictionary year, so a zero inside WKSWORK > 0 (or a nonzero
