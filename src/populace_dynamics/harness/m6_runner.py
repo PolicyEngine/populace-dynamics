@@ -96,6 +96,7 @@ from populace_dynamics.harness.m6_scoring import (
     aggregate_gate,
     recompute_domain_earnings_floor,
     reduce_gated_cells,
+    reduce_projected_gated_cells,
     restrict_earnings_domain_support,
     score_gate_seed,
     side_a_person_ids,
@@ -376,6 +377,16 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
     domain = fitted_earnings_domain_person_ids(
         bundle.earnings.generator
     ) & frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+    reserved_real_ids = (
+        frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+        | frozenset(
+            int(value)
+            for value in bundle.earnings.generator.realized_earn_2014_by_person
+        )
+        | frozenset(
+            int(value) for value in bundle.earnings.generator.u_w_by_person
+        )
+    )
     population = build_realized_population(
         demographic_panel=inputs.demographic_panel,
         death_records=inputs.death_records,
@@ -383,6 +394,7 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
         disability_panel=inputs.disability_panel,
         panel_builder_inputs=inputs.panel_builder_inputs,
         earnings_domain_ids=domain,
+        reserved_real_ids=reserved_real_ids,
     )
     return M6RefitPhase(
         bundle=bundle,
@@ -506,6 +518,7 @@ def _project_side(
         population.initial_slice,
         end_year=PROJECTION_END_YEAR,
         draw_index=draw_index,
+        start_year=BOUNDARY_YEAR,
         metadata=metadata,
     )
     return result, collector
@@ -616,7 +629,7 @@ def _projected_cells(
         period_column="period",
     )
     projected_earnings = earnings_support.projection
-    cells = reduce_gated_cells(
+    cells = reduce_projected_gated_cells(
         projected_events,
         projected_person_years,
         projected_disability,

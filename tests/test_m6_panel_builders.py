@@ -9,9 +9,14 @@ import pandas as pd
 
 from populace_dynamics.data import household_composition as hc
 from populace_dynamics.data import transitions
-from populace_dynamics.engine.loop import PeriodContext
+from populace_dynamics.engine.composition import (
+    CompositionDiagnostics,
+    simulate_candidate9_injected,
+)
+from populace_dynamics.engine.loop import MaritalStepResult, PeriodContext
 from populace_dynamics.engine.marital import (
     _simulate_candidate16_with_generators,
+    simulate_marital_step,
 )
 from populace_dynamics.engine.panel_builders import (
     PANEL_BUILDER_INPUTS_KEY,
@@ -535,3 +540,83 @@ def test_from_realized_histories_uses_anchor_weight_reader(monkeypatch):
         captured["weights"],
         anchor.set_index("person_id")["weight"],
     )
+
+
+def test_empty_native_adapters_return_typed_zero_row_results():
+    source = _inputs()
+    empty_inputs = PanelBuilderInputs(
+        anchor=source.anchor.iloc[0:0].copy(),
+        marital=source.marital,
+        household=source.household,
+        cohabitation=source.cohabitation,
+    )
+    context = _context(empty_inputs)
+
+    marital_panel, marital_ids = marital_panel_builder(pd.DataFrame(), context)
+    marital_result = simulate_marital_step(
+        marital_panel,
+        marital_ids,
+        _components(set()),
+        SimpleNamespace(constraint_max_abs_dev=lambda: 0.0),
+        SimpleNamespace(earn={}, cuts=(0.0, 0.0)),
+        main_rng=np.random.default_rng(5200),
+        gap_rng=np.random.default_rng(6200),
+    )
+
+    assert marital_ids == set()
+    assert isinstance(marital_result, MaritalStepResult)
+    assert isinstance(marital_result.panel, transitions.MaritalPanel)
+    assert marital_result.panel.person_years.empty
+    assert marital_result.panel.events.empty
+    assert marital_result.panel.attrs.empty
+    assert marital_result.panel.person_years.dtypes.equals(
+        marital_panel.person_years.dtypes
+    )
+    assert marital_result.panel.events.dtypes.equals(
+        marital_panel.events.dtypes
+    )
+    assert marital_result.births.empty
+    assert marital_result.exposure.empty
+    assert marital_result.weighted_events.empty
+
+    household_panel, household_ids = household_panel_builder(
+        pd.DataFrame(), context
+    )
+    household_result, diagnostics = simulate_candidate9_injected(
+        household_panel,
+        SimpleNamespace(),
+        household_ids,
+        marital_result,
+        SimpleNamespace(),
+    )
+
+    assert household_ids == set()
+    assert isinstance(household_result, hc.HouseholdCompositionPanel)
+    assert household_result.person_waves.empty
+    assert household_result.attrs.empty
+    assert list(household_result.person_waves) == [
+        column
+        for column in household_panel.person_waves
+        if column != "cohabiting"
+    ]
+    assert isinstance(diagnostics, CompositionDiagnostics)
+    assert diagnostics.weight.dtype == np.float64
+    assert diagnostics.household_size.dtype == np.int64
+    boolean_diagnostics = (
+        diagnostics.legal_core,
+        diagnostics.cohabitation_state,
+        diagnostics.cohabitation_increment,
+        diagnostics.legal_residual_state,
+        diagnostics.legal_residual_increment,
+        diagnostics.final_spouse,
+        diagnostics.coresident_parent,
+        diagnostics.multigen,
+        diagnostics.coresident_child,
+        diagnostics.coresident_grandchild,
+    )
+    assert all(
+        values.dtype == bool and values.size == 0
+        for values in boolean_diagnostics
+    )
+    assert diagnostics.weight.size == diagnostics.household_size.size == 0
+    assert diagnostics.model_diagnostics == {}

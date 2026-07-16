@@ -179,6 +179,14 @@ def test_runner_orders_phases_and_commits_last(tmp_path):
         "household": 2,
         "person": 3,
     }
+    assert artifact["earnings_domain_floor_self_check"] == {
+        "truth_side_only": True,
+        "two_directional_escalation": {
+            "escalates_to_floors_ceremony_finding": False
+        },
+    }
+    assert "earnings_domain_floor_self_check" not in artifact["family_a"]
+    assert "domain_earnings_floor" not in artifact["family_a"]
 
 
 def test_runner_writes_nothing_when_an_earlier_phase_fails(tmp_path):

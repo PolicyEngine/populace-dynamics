@@ -26,7 +26,10 @@ from populace_dynamics.engine.loop import (
     ProjectionEngine,
 )
 from populace_dynamics.engine.panel_builders import PanelBuilderInputs
-from populace_dynamics.harness.m6_population import build_realized_population
+from populace_dynamics.harness.m6_population import (
+    build_realized_population,
+    subset_realized_population,
+)
 
 
 def _inputs():
@@ -142,6 +145,7 @@ def test_later_openers_enter_only_at_their_realized_anchor():
         disability_panel=dis,
         panel_builder_inputs=builders,
         earnings_domain_ids={1},
+        reserved_real_ids={1, 2, 3, 5, 6, 9},
     )
 
     assert population.initial_slice["person_id"].tolist() == [1]
@@ -157,6 +161,21 @@ def test_later_openers_enter_only_at_their_realized_anchor():
     ]
     assert population.scheduled_entries_by_year[2019]["age"].tolist() == [53]
     assert population.earnings_domain_ids == frozenset({1})
+    assert population.reserved_real_ids == frozenset({1, 2, 3, 5, 6, 9})
+    assert population.synthetic_id_start == 10
+    subset = subset_realized_population(population, {1})
+    assert subset.reserved_real_ids == population.reserved_real_ids
+    assert subset.synthetic_id_start == population.synthetic_id_start
+    first_metadata = subset.projection_metadata()
+    second_metadata = subset.projection_metadata()
+    assert first_metadata["synthetic_id_allocator"].next_id == 10
+    assert first_metadata["synthetic_id_allocator"].reserved_real_ids == (
+        population.reserved_real_ids
+    )
+    assert (
+        first_metadata["synthetic_id_allocator"]
+        is not second_metadata["synthetic_id_allocator"]
+    )
     assert not population.scheduled_entries_by_year[2017][
         "earnings_domain"
     ].item()

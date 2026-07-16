@@ -107,6 +107,8 @@ def _validate_initial_frame(frame: pd.DataFrame, generator: object) -> None:
         raise ValueError(
             f"earnings initial frame is missing columns {sorted(missing)}"
         )
+    if frame.empty:
+        return
     numeric_year = pd.to_numeric(frame["year"], errors="coerce")
     if (
         numeric_year.isna().any()
