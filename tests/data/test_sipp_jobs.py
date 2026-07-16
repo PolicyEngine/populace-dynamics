@@ -204,15 +204,21 @@ class TestReadSippJobMonths:
         # A non-numeric string coerces to NaN like a structural
         # blank; the raw-cell guard keeps it a loud refusal on
         # no-establishment slots too (post-merge review note).
-        months = [
-            {
-                "month": 1,
-                "job1": {"JBORSE": 2, "CLWRK": 8, "EMPSIZE": "GARBAGE"},
-            }
-        ]
-        path = _write_pu_file(tmp_path, 2023, months)
-        with pytest.raises(ValueError, match="EJB1_EMPSIZE"):
-            sipp_jobs.read_sipp_job_months(2023, path=path)
+        # JBORSE 2 and 3 take the same no-establishment code path.
+        for jborse in (2, 3):
+            months = [
+                {
+                    "month": 1,
+                    "job1": {
+                        "JBORSE": jborse,
+                        "CLWRK": 8,
+                        "EMPSIZE": "GARBAGE",
+                    },
+                }
+            ]
+            path = _write_pu_file(tmp_path / f"j{jborse}", 2023, months)
+            with pytest.raises(ValueError, match="EJB1_EMPSIZE"):
+                sipp_jobs.read_sipp_job_months(2023, path=path)
 
     def test_corrupt_code_on_active_slot_refuses(self, tmp_path):
         # Only the -9/-999 sentinels excuse a non-domain value on an
