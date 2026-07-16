@@ -45,6 +45,7 @@ class SyntheticPersonIdAllocator:
     """Projection-wide monotone allocator for synthetic roster entries."""
 
     next_id: int
+    reserved_real_ids: frozenset[int] = field(default_factory=frozenset)
 
     def allocate(self, count: int) -> np.ndarray:
         """Return ``count`` never-before-used integer person identifiers."""
@@ -53,6 +54,12 @@ class SyntheticPersonIdAllocator:
         allocated = np.arange(
             self.next_id, self.next_id + count, dtype=np.int64
         )
+        overlap = self.reserved_real_ids & set(allocated.tolist())
+        if overlap:
+            raise RuntimeError(
+                "synthetic person IDs overlap the reserved real-person "
+                f"namespace: {sorted(overlap)[:10]}"
+            )
         self.next_id += count
         return allocated
 

@@ -376,6 +376,16 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
     domain = fitted_earnings_domain_person_ids(
         bundle.earnings.generator
     ) & frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+    reserved_real_ids = (
+        frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+        | frozenset(
+            int(value)
+            for value in bundle.earnings.generator.realized_earn_2014_by_person
+        )
+        | frozenset(
+            int(value) for value in bundle.earnings.generator.u_w_by_person
+        )
+    )
     population = build_realized_population(
         demographic_panel=inputs.demographic_panel,
         death_records=inputs.death_records,
@@ -383,6 +393,7 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
         disability_panel=inputs.disability_panel,
         panel_builder_inputs=inputs.panel_builder_inputs,
         earnings_domain_ids=domain,
+        reserved_real_ids=reserved_real_ids,
     )
     return M6RefitPhase(
         bundle=bundle,
