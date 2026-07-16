@@ -1,0 +1,14 @@
+{
+  "schema_version": "external_source_provenance.v1",
+  "committed_source_file": "data/external/ssa_effective_interest_rates_2014.source.html",
+  "source_url": "https://www.ssa.gov/oact/ProgData/effectiveRates.html",
+  "document": "SSA Office of the Chief Actuary — Effective Interest Rates",
+  "table_of_record": "Effective Interest Rates Earned By the Assets of the OASI and DI Trust Funds [Percent]",
+  "retrieval_date": "2026-07-15T21:23:09Z",
+  "fetch_method": "Exact SSA HTTP 200 response body recovered from the Common Crawl CC-MAIN-2014-52 WARC capture dated 2014-12-20T03:49:23Z after direct browser-header curl to ssa.gov returned HTTP 403. WARC record crawl-data/CC-MAIN-2014-52/segments/1418802769373.55/warc/CC-MAIN-20141217075249-00008-ip-10-231-17-201.ec2.internal.warc.gz, offset 814511777, compressed record length 7684. The response-body SHA-1 matches WARC-Payload-Digest sha1:YJ2IJWUUVP6EPTXTSWJNZ4QI6P4ULVJL.",
+  "source_sha256": "867704b8e479adcee9a7047e762848fe9f50df22028f6a80657ad8bf683550f7",
+  "source_length_bytes_utf8": 28261,
+  "acquired_by": "Codex gpt-5.6-sol, populace-dynamics M7 campaign",
+  "consumed_by": "scripts/extract_ssa_effective_interest_rates_2014.py → data/external/ssa_effective_interest_rates_2014.json",
+  "note": "Build-time provenance for the exact SSA response body captured in December 2014. The source identifies the observations as estimated effective interest rates earned by trust-fund assets; they are distinct from the inflation-adjusted ultimate real-interest assumption in 2014 Trustees Report Table II.C1. The source stops at calendar year 2013; unlike today's live page, it contains no post-boundary observations. The extractor verifies this raw-source sha256 before parsing."
+}

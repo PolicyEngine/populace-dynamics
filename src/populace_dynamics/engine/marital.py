@@ -60,6 +60,15 @@ def _simulate_candidate16_with_generators(
     """Port candidate 16 exactly, replacing only RNG construction."""
     attrs = panel.attrs[panel.attrs["person_id"].isin(holdout_ids)].copy()
     attrs = attrs.sort_values("person_id").reset_index(drop=True)
+    if attrs.empty:
+        return (
+            transitions.MaritalPanel(
+                person_years=panel.person_years.iloc[0:0].copy(),
+                events=panel.events.iloc[0:0].copy(),
+                attrs=attrs,
+            ),
+            _empty_births(),
+        )
     n_people = len(attrs)
     person_id = attrs["person_id"].to_numpy(dtype=np.int64)
     birth_year = attrs["birth_year"].to_numpy(dtype=np.float64)

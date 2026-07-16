@@ -321,8 +321,7 @@ def disability_pairs(
     pairs = pairs.merge(
         anchor[["person_id", "weight"]], on="person_id", how="inner"
     )
-    pairs["band"] = pairs.age.map(lambda a: band_of(a, DISABILITY_BANDS))
-    pairs = pairs[pairs.band.notna() & pairs.sex.isin(SEXES)]
+    pairs = disability_scoring_universe(pairs)
     # gated: both endpoints in holdout (start 2015 or 2017 -> end 2017 / 2019);
     # start 2019 -> end 2021 shock (report-only).
     window = np.where(
@@ -332,6 +331,13 @@ def disability_pairs(
     )
     pairs["window"] = window
     return pairs[pairs.window != "out"].reset_index(drop=True)
+
+
+def disability_scoring_universe(pairs: pd.DataFrame) -> pd.DataFrame:
+    """Apply the shared coded-sex, hazard-band disability universe."""
+    out = pairs.copy()
+    out["band"] = out.age.map(lambda age: band_of(age, DISABILITY_BANDS))
+    return out[out.band.notna() & out.sex.isin(SEXES)]
 
 
 def earnings_frame(ep: pd.DataFrame, anchor: pd.DataFrame) -> pd.DataFrame:

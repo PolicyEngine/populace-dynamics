@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from populace_dynamics.data import disability, transitions
 from populace_dynamics.engine.support import (
@@ -11,6 +12,7 @@ from populace_dynamics.engine.support import (
     PresenceBasis,
     StartWaveWeightSnapshot,
 )
+from populace_dynamics.harness.m6_cells import disability_pairs
 from populace_dynamics.harness.m6_projection import (
     prepare_gated_realized_support,
     prepare_projected_disability,
@@ -167,3 +169,104 @@ def test_projected_flow_preparation_applies_gated_windows_and_presence():
 
     assert pairs["start_wave"].tolist() == [2015, 2017]
     assert pairs["weight"].tolist() == [1.0, 1.0]
+
+
+def test_disability_projection_and_truth_share_the_scored_universe():
+    rows = []
+    cases = (
+        (1, 18, "female", False),
+        (2, 30, "male", False),
+        (3, 70, "female", True),
+        (4, 40, "uncoded", False),
+    )
+    for person_id, age, sex, retired in cases:
+        rows.extend(
+            [
+                {
+                    "person_id": person_id,
+                    "period": period,
+                    "age": age + offset,
+                    "disabled": bool(offset),
+                    "retired": retired,
+                    "sex": sex,
+                }
+                for period, offset in ((2015, 0), (2017, 2))
+            ]
+        )
+    projected_panel = disability.DisabilityPanel(
+        person_years=pd.DataFrame(rows),
+        pairs=pd.DataFrame(),
+    )
+    status = projected_panel.person_years.drop(columns="sex")
+    death_records = pd.DataFrame(
+        {
+            "person_id": [case[0] for case in cases],
+            "sex": [case[2] for case in cases],
+        }
+    )
+    anchor = pd.DataFrame(
+        {
+            "person_id": [case[0] for case in cases],
+            "weight": [1.0, 2.0, 3.0, 4.0],
+        }
+    )
+
+    truth = disability_pairs(status, death_records, anchor)
+    projected = prepare_projected_disability(projected_panel, anchor)
+
+    assert truth[["person_id", "start_wave"]].values.tolist() == [[2, 2015]]
+    assert projected[["person_id", "start_wave"]].values.tolist() == [
+        [2, 2015]
+    ]
+    legacy_projected = pd.concat(
+        [
+            projected,
+            pd.DataFrame(
+                {
+                    "person_id": [1, 3, 4],
+                    "sex": ["female", "female", "uncoded"],
+                    "age": [18, 70, 40],
+                    "start_wave": [2015, 2015, 2015],
+                    "from_disabled": [False, False, False],
+                    "to_disabled": [True, True, True],
+                    "weight": [1.0, 3.0, 4.0],
+                    "band": [None, None, "40-49"],
+                }
+            ),
+        ],
+        ignore_index=True,
+    )
+    presence = pd.DataFrame(
+        {"person_id": [1, 2, 3, 4], "start_wave": [2015] * 4}
+    )
+    weights = StartWaveWeightSnapshot.from_frame(anchor, boundary_period=2014)
+    with pytest.raises(
+        ValueError,
+        match=(
+            "symmetric presence-conditioning requires identical projection "
+            "and truth person-period support"
+        ),
+    ):
+        prepare_gated_realized_support(
+            legacy_projected,
+            truth,
+            realized_presence=presence,
+            start_weights=weights,
+            presence_basis=PresenceBasis.START_OF_INTERVAL,
+            period_column="start_wave",
+        )
+    prepared = prepare_gated_realized_support(
+        projected,
+        truth,
+        realized_presence=presence,
+        start_weights=weights,
+        presence_basis=PresenceBasis.START_OF_INTERVAL,
+        period_column="start_wave",
+    )
+    assert prepared.projection[
+        ["person_id", "start_wave"]
+    ].values.tolist() == [[2, 2015]]
+    assert prepared.truth is not None
+    assert prepared.truth[["person_id", "start_wave"]].values.tolist() == [
+        [2, 2015]
+    ]

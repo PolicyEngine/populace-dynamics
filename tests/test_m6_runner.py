@@ -179,6 +179,14 @@ def test_runner_orders_phases_and_commits_last(tmp_path):
         "household": 2,
         "person": 3,
     }
+    assert artifact["earnings_domain_floor_self_check"] == {
+        "truth_side_only": True,
+        "two_directional_escalation": {
+            "escalates_to_floors_ceremony_finding": False
+        },
+    }
+    assert "earnings_domain_floor_self_check" not in artifact["family_a"]
+    assert "domain_earnings_floor" not in artifact["family_a"]
 
 
 def test_runner_writes_nothing_when_an_earlier_phase_fails(tmp_path):
@@ -266,6 +274,91 @@ def test_report_only_marks_unavailable_paths_without_fabricating_zero():
     assert redrawn["pass"] is None
 
 
+def test_report_only_lifts_roster_absent_birth_reconciliation():
+    phase = M6RefitPhase(
+        bundle=SimpleNamespace(mortality=None),
+        mortality=None,
+        population=SimpleNamespace(
+            holdout_ids=frozenset({1, 2}),
+            earnings_domain_ids=frozenset({1}),
+        ),
+        lineage={},
+    )
+    resolved = M6ResolvedContract(
+        contract=M6GateContract(
+            cells=(), gate_seeds=(), required_seed_passes=0
+        ),
+        floor_artifact={},
+        floor_path="synthetic",
+        floor_sha256="synthetic",
+    )
+    shock = {
+        "machine_reason": "synthetic",
+        **{
+            module: {"truth": {}, "projection": {}}
+            for module in ("mortality", "marital", "disability", "earnings")
+        },
+    }
+    reconciliation = runner_module._roster_absent_birth_reconciliation(
+        {
+            "roster_absent_births": {
+                2020: {
+                    "dropped_parent_ids": frozenset(),
+                    "dropped_count": 0,
+                }
+            }
+        },
+        {
+            "roster_absent_births": {
+                2020: {
+                    "dropped_parent_ids": frozenset({782173}),
+                    "dropped_count": 1,
+                }
+            }
+        },
+    )
+    seed_run = M6SeedRun(
+        seed=0,
+        score=_FakeSeedScore(0),
+        side_a_units={"household": 1, "person": 1},
+        draw_reports=(
+            {
+                "shock_window": shock,
+                "not_certified": {
+                    "mortality_drift": {},
+                    "widowhood": {},
+                },
+                "entrants": {
+                    "synthetic_births": 3,
+                    "immigrant_cohorts": 0,
+                    "synthetic_persons": 3,
+                    "scheduled_realized_openers": 2,
+                    "roster_absent_births": reconciliation,
+                },
+            },
+        ),
+    )
+
+    entrants = build_report_only(
+        SimpleNamespace(),
+        phase,
+        resolved,
+        (seed_run,),
+        {"truth_side_only": True},
+    )["family_b"]["entrants"]
+
+    assert entrants["roster_absent_births"] == {
+        "2020": {
+            "dropped_parent_ids": [782173],
+            "dropped_count": 1,
+        }
+    }
+    assert entrants["scheduled_realized_openers"] == {
+        "total": 2,
+        "by_year": None,
+    }
+
+
 @pytest.mark.parametrize(
     "registration",
     [
@@ -276,15 +369,18 @@ def test_report_only_marks_unavailable_paths_without_fabricating_zero():
         "4971244215",
         "4973199058",
         "4976428384",
+        "4981073550",
     ],
 )
 def test_registration_must_be_fresh_and_explicit(registration):
-    # All five graded pre-scoring terminations (registrations 1-5) are stale;
+    # All six graded pre-scoring terminations (registrations 1-6) are stale;
     # registration 3 (4971244215) crashed pre-scoring, graded 4972045579,
     # registration 4 (4973199058) fired the pre-flight-1 designed abort, graded
     # 4973798460 (root-caused in forensics 4973982118), and registration 5
     # (4976428384) crashed in the seed-1 scoring projection on the marital
-    # entry-row gap, graded 4979269487 (forensics 4979437110, closed by 3g).
+    # entry-row gap, graded 4979269487 (forensics 4979437110, closed by 3g),
+    # and registration 6 (4981073550) crashed in fertility materialization,
+    # graded 4984699959 (forensics 4984997277, closed by 3h).
     with pytest.raises(ValueError):
         validate_registration_id(registration)
 
