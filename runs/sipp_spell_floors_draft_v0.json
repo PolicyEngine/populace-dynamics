@@ -6,6 +6,12 @@
   "source": "pu2023 (reference year 2022)",
   "method": "person-disjoint sha256 half-splits, seeds 0-4; per-cell |log(rate_a/rate_b)| mean/sd across seeds; weighted by WPFINWGT",
   "seam_caveat": "both halves share SIPP seam structure; the seam-vs-J2J reconciliation run is a separate required artifact before thresholds lock",
+  "thin_flag_units": {
+    "e4_retention_by_age_sex": "distinct persons per half (person_id.nunique(); rows are person-month retention pairs) vs THIN_CELL_PERSONS=200",
+    "e5_runs_by_age": "rows per half, equal to persons (one row per person in the run-length frame) vs THIN_CELL_PERSONS=200"
+  },
+  "sipp_jobs_reader_commit": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
+  "metadata_edit_note": "metadata keys thin_flag_units and *_reader_commit were hand-added post hoc (staged microdata not available on the editing machine); no measured floor numbers were changed",
   "e4_retention_by_age_sex": {
     "16_24|sex1": {
       "rate": 0.9897,

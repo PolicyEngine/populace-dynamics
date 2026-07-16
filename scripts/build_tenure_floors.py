@@ -26,6 +26,12 @@ of the floors is itself informative about supplement-to-supplement
 stability. Cells with fewer than 200 unweighted persons per half
 are flagged thin.
 
+Thin-flag units: the thin flag counts **rows** per half, which
+equal persons because the CPS tenure frame has one record per
+person, against ``THIN_CELL_PERSONS = 200`` (the same constant the
+SIPP spell floors use, where E4 counts distinct persons and E9
+counts transition pairs — units are recorded per artifact).
+
 Usage::
 
     python scripts/build_tenure_floors.py
@@ -53,6 +59,29 @@ QUANTILES = (0.25, 0.50, 0.75)
 THIN_CELL_PERSONS = 200
 
 ARTIFACT = REPO / "runs/tenure_floors_draft_v0.json"
+
+
+def _reader_commit() -> str:
+    """Last commit touching the CPS tenure reader for this run."""
+    import subprocess
+
+    try:
+        return subprocess.run(
+            [
+                "git",
+                "log",
+                "-1",
+                "--format=%H",
+                "--",
+                "src/populace_dynamics/data/cps_tenure.py",
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 def _half(person_id: str, seed: int) -> int:
@@ -185,6 +214,11 @@ def build() -> dict:
             "ECDF max-gap floor is the heaping-robust alternative "
             "for the C3 round to choose between"
         ),
+        "thin_flag_units": (
+            "rows per half, equal to persons (one CPS record per "
+            "person) vs THIN_CELL_PERSONS=200"
+        ),
+        "cps_tenure_reader_commit": _reader_commit(),
         "by_year": {str(year): floors_for_year(year) for year in YEARS},
     }
 

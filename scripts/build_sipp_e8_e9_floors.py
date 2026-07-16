@@ -33,6 +33,15 @@ recorded, not hidden):
     the absolute gap in log-points; mean/sd across seeds. Cells
     under 200 unweighted persons per half are flagged thin.
 
+Thin-flag units (recorded for honesty across the floor battery):
+the E8 thin flag counts **rows** per half, which equal persons
+because the E8 frame has one row per person; the E9
+earnings-change thin flag counts **rows** per half, which are
+consecutive-month transition *pairs* (a person can contribute up
+to 11), not persons — unlike the E4 spell floor, which counts
+distinct persons. All compare against the same
+``THIN_CELL_PERSONS = 200``.
+
 Seam caveat: identical to the E4/E5 floors — both halves share
 SIPP's seam structure, so these floors cannot see seam bias; the
 reconciliation artifact (#214) carries that measurement.
@@ -66,6 +75,29 @@ AGE_BANDS = ((16, 24), (25, 34), (35, 44), (45, 54), (55, 64), (65, 99))
 THIN_CELL_PERSONS = 200
 
 ARTIFACT = REPO / "runs/sipp_e8_e9_floors_draft_v0.json"
+
+
+def _reader_commit() -> str:
+    """Last commit touching the SIPP reader in effect for this run."""
+    import subprocess
+
+    try:
+        return subprocess.run(
+            [
+                "git",
+                "log",
+                "-1",
+                "--format=%H",
+                "--",
+                "src/populace_dynamics/data/sipp_jobs.py",
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 def _age_band(age: pd.Series) -> pd.Series:
@@ -314,6 +346,18 @@ def build() -> dict:
             "E9-stay thresholds should be stated on the IQR or a "
             "distributional distance, not the median"
         ),
+        "thin_flag_units": {
+            "e8_nonemployment_by_age": (
+                "rows per half, equal to persons (one row per "
+                "person in the E8 frame) vs THIN_CELL_PERSONS=200"
+            ),
+            "e9_transitions.earnings_change": (
+                "rows per half = consecutive-month transition "
+                "pairs, not persons (a person can contribute up to "
+                "11) vs THIN_CELL_PERSONS=200"
+            ),
+        },
+        "sipp_jobs_reader_commit": _reader_commit(),
         "e8_nonemployment_by_age": e8_floors(persons),
         "e9_transitions": e9_floors(pairs),
     }

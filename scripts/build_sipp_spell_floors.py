@@ -31,6 +31,14 @@ the pu2023 file):
     disability-floor convention. Cells with fewer than 200
     unweighted persons per half are reported but flagged thin.
 
+Thin-flag units (recorded for honesty across the floor battery):
+the E4 retention thin flag counts **distinct persons** per half
+(``person_id.nunique()``; the underlying rows are person-month
+retention pairs, so a person can contribute many rows), while the
+E5 runs thin flag counts **rows**, which here equal persons because
+the run-length frame has exactly one row per person. Both compare
+against the same ``THIN_CELL_PERSONS = 200``.
+
 Seam caveat (pre-registered on #192): SIPP transitions bunch at
 interview seams, and both halves share the seam structure, so this
 floor cannot see seam bias — the seam-vs-J2J reconciliation run is
@@ -65,6 +73,30 @@ THIN_CELL_PERSONS = 200
 ARTIFACT = Path(__file__).resolve().parents[1] / (
     "runs/sipp_spell_floors_draft_v0.json"
 )
+
+
+def _reader_commit() -> str:
+    """Last commit touching the SIPP reader in effect for this run."""
+    import subprocess
+
+    repo = Path(__file__).resolve().parents[1]
+    try:
+        return subprocess.run(
+            [
+                "git",
+                "log",
+                "-1",
+                "--format=%H",
+                "--",
+                "src/populace_dynamics/data/sipp_jobs.py",
+            ],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 def _age_band(age: pd.Series) -> pd.Series:
@@ -196,6 +228,19 @@ def build() -> dict:
             "reconciliation run is a separate required artifact "
             "before thresholds lock"
         ),
+        "thin_flag_units": {
+            "e4_retention_by_age_sex": (
+                "distinct persons per half (person_id.nunique(); "
+                "rows are person-month retention pairs) vs "
+                "THIN_CELL_PERSONS=200"
+            ),
+            "e5_runs_by_age": (
+                "rows per half, equal to persons (one row per "
+                "person in the run-length frame) vs "
+                "THIN_CELL_PERSONS=200"
+            ),
+        },
+        "sipp_jobs_reader_commit": _reader_commit(),
         "e4_retention_by_age_sex": floors_for_retention(pairs),
         "e5_runs_by_age": floors_for_runs(runs),
     }

@@ -7,6 +7,12 @@
   "method": "person-disjoint sha256 half-splits, seeds 0-4; rates floored on |log rate ratio|, earnings-change medians/IQRs on absolute gaps in log-points; weighted by WPFINWGT",
   "seam_caveat": "identical to the E4/E5 floors: half-splits share SIPP's seam structure; #214 carries the seam measurement",
   "stay_median_heaping_caveat": "within-job SIPP monthly earnings are mostly constant across a wave (dependent-interview reporting), so the stay-transition median log-change heaps at exactly 0 and its half-vs-half floor is degenerate (0.0) - the same failure class as the tenure quantile heaping; E9-stay thresholds should be stated on the IQR or a distributional distance, not the median",
+  "thin_flag_units": {
+    "e8_nonemployment_by_age": "rows per half, equal to persons (one row per person in the E8 frame) vs THIN_CELL_PERSONS=200",
+    "e9_transitions.earnings_change": "rows per half = consecutive-month transition pairs, not persons (a person can contribute up to 11) vs THIN_CELL_PERSONS=200"
+  },
+  "sipp_jobs_reader_commit": "75d30dd57d71b91ee0929246b2f3cbb92263b350",
+  "metadata_edit_note": "metadata keys thin_flag_units and *_reader_commit were hand-added post hoc (staged microdata not available on the editing machine); no measured floor numbers were changed",
   "e8_nonemployment_by_age": {
     "16_24": {
       "any_nonemp_share": 0.4145,
