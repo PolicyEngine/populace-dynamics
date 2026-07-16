@@ -32,6 +32,19 @@ pairs) in UI-covered non-federal employment and separations of the
 "quarterly separation" is not literally three independent monthly
 draws, so the monthly equivalent is an approximation stated as such.
 
+UNVERIFIED ASSUMPTION (job-ID linkage): the across-wave Dec->Jan
+seam rate assumes SIPP ``EJB`` job ids are longitudinally consistent
+across the pu2022->pu2023 file boundary. If ids are reassigned at
+wave boundaries, spurious separations inflate the seam rate, so part
+of the seam-vs-within-wave contrast could be a linkage artifact
+rather than seam recall bias. This must be checked before C3 rules
+on it.
+
+Year-label convention: JSON keys under
+``within_wave_monthly_separation`` are SIPP FILE years
+(pu2022/pu2023), not reference years (file year = reference year
++ 1); PR #212's artifacts use reference years.
+
 Usage::
 
     python scripts/build_seam_reconciliation.py
@@ -189,6 +202,24 @@ def build() -> dict:
         "version": "draft_v0",
         "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
         "issue": "192",
+        "year_label_convention": (
+            "Keys under within_wave_monthly_separation and "
+            "within_wave_means are SIPP FILE years (pu2022/pu2023), "
+            "not reference years; file year = reference year + 1. "
+            "PR #212's artifacts use reference years, so pu2022 "
+            "here pairs with #212's 2021 and pu2023 with #212's "
+            "2022."
+        ),
+        "notes": (
+            "Naming collision: the SIPP 'j2j' transition measure "
+            "from #212 (~0.35% person-level direct employer change "
+            "per month) and the Census J2J data source's ~4.1% "
+            "monthly-equivalent main-job separation rate benchmark "
+            "used here are different universes and definitions "
+            "(person-level direct employer-to-employer moves vs "
+            "all main-job separations in UI-covered employment); "
+            "the ~10x gap is not a contradiction."
+        ),
         "first_reported": (
             "PolicyEngine/populace-dynamics#192 comment 4982442068 "
             "(groundwork conditioned on employed-both-months; this "
@@ -209,6 +240,14 @@ def build() -> dict:
             "as three independent monthly draws — an approximation",
             "persons leaving the SIPP sample are excluded from the "
             "denominator, not counted as separations",
+            "UNVERIFIED ASSUMPTION (job-ID linkage): the 9.45% "
+            "Dec->Jan seam rate assumes SIPP EJB job ids are "
+            "longitudinally consistent across the pu2022->pu2023 "
+            "file boundary; if ids are reassigned at wave "
+            "boundaries, spurious separations inflate the seam "
+            "rate, so part of the seam-vs-within-wave contrast "
+            "could be a linkage artifact rather than seam recall "
+            "bias. This must be checked before C3 rules on it.",
         ],
         "proposed_ruling_note": (
             "NOT RATIFIED: as the plan proposed ex ante, J2J is "
