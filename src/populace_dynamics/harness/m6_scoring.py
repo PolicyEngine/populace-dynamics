@@ -754,11 +754,12 @@ def recompute_domain_earnings_floor(
         raise ValueError("earnings domain is empty")
 
     def compute(person_ids: set[object]) -> dict[str, Any]:
+        domain_ids = set(person_ids) & domain
         return earnings_cells(
-            domain_earnings[domain_earnings.person_id.isin(person_ids)]
+            domain_earnings[domain_earnings.person_id.isin(domain_ids)]
         )
 
-    floor, _ = run_floor(domain_anchor, compute, "person_id")
+    floor, _ = run_floor(anchor, compute, "person_id")
     missing_cells = set(names) - set(floor)
     if missing_cells:
         raise ValueError(

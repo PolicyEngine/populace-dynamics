@@ -8,6 +8,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from populace_dynamics.harness.m6_cells import (
+    earnings_cells,
+    oc_4of5,
+    run_floor,
+)
 from populace_dynamics.harness.m6_scoring import (
     DRAW_SEED_BASE,
     EARNINGS_CELL_NAMES,
@@ -22,6 +27,7 @@ from populace_dynamics.harness.m6_scoring import (
     restrict_earnings_domain_support,
     score_gate_seed,
 )
+from populace_dynamics.harness.panel import split_panel_by_person
 
 
 def _contract() -> M6GateContract:
@@ -307,15 +313,60 @@ def test_domain_floor_recompute_publishes_both_escalation_directions():
             "household_id": np.arange(80),
         }
     )
+    tripwire_anchor = pd.DataFrame(
+        {"person_id": [1, 2, 3], "household_id": [1, 2, 3]}
+    )
+    tripwire_domain = {1, 3}
+    full_left, _ = split_panel_by_person(tripwire_anchor, "person_id", seed=1)
+    domain_left, _ = split_panel_by_person(
+        tripwire_anchor[tripwire_anchor.person_id.isin(tripwire_domain)],
+        "person_id",
+        seed=1,
+    )
+    assert set(full_left.person_id) & tripwire_domain == {3}
+    assert set(domain_left.person_id) == set()
+
+    domain = set(range(80)) - {1}
+    domain_earnings = earnings[earnings.person_id.isin(domain)].copy()
+
+    def compute(person_ids):
+        selected = set(person_ids) & domain
+        return earnings_cells(
+            domain_earnings[domain_earnings.person_id.isin(selected)]
+        )
+
+    manual_floor, _ = run_floor(anchor, compute, "person_id")
+    legacy_floor, _ = run_floor(
+        anchor[anchor.person_id.isin(domain)], compute, "person_id"
+    )
+    assert any(
+        manual_floor[cell][statistic] != legacy_floor[cell][statistic]
+        for cell in EARNINGS_CELL_NAMES
+        for statistic in ("mean", "sd")
+    )
     result = recompute_domain_earnings_floor(
         anchor,
         earnings,
-        set(range(70)),
+        domain,
         contract,
     )
     assert result["truth_side_only"] is True
     assert result["frozen_tolerances_remain_gated_contract"] is True
     assert set(result["per_cell"]) == set(EARNINGS_CELL_NAMES)
+    for cell in EARNINGS_CELL_NAMES:
+        published = result["per_cell"][cell]["domain_floor"]
+        assert published["mean"] == pytest.approx(manual_floor[cell]["mean"])
+        assert published["sd"] == pytest.approx(manual_floor[cell]["sd"])
+    locked_tolerances = {
+        rule.cell: rule.tolerance
+        for rule in contract.cells
+        if rule.family == "earnings"
+    }
+    assert result["oc"]["locked_tolerances_on_domain"] == oc_4of5(
+        manual_floor,
+        locked_tolerances,
+        EARNINGS_CELL_NAMES,
+    )
     escalation = result["two_directional_escalation"]
     assert set(escalation) >= {
         "near_unpassable",
