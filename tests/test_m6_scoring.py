@@ -24,6 +24,7 @@ from populace_dynamics.harness.m6_scoring import (
     earnings_domain_person_ids,
     recompute_domain_earnings_floor,
     reduce_gated_cells,
+    reduce_projected_gated_cells,
     restrict_earnings_domain_support,
     score_gate_seed,
 )
@@ -188,6 +189,86 @@ def test_reduce_gated_cells_composes_the_frozen_v3_surface():
     assert cells["remarriage.18-64"]["rate"] == 1.0
     assert cells["incidence.20-66"]["rate"] == 1.0
     assert cells["recovery.20-66"]["rate"] == 1.0
+
+
+def test_projected_empty_cells_are_undefined_while_truth_remains_strict():
+    empty_events = pd.DataFrame(columns=["transition", "age", "sex", "weight"])
+    empty_person_years = pd.DataFrame(
+        columns=["marital_state", "age", "sex", "weight"]
+    )
+    empty_disability = pd.DataFrame(
+        {
+            "from_disabled": pd.Series(dtype=bool),
+            "to_disabled": pd.Series(dtype=bool),
+            "age": pd.Series(dtype="int64"),
+            "sex": pd.Series(dtype="string"),
+            "weight": pd.Series(dtype="float64"),
+        }
+    )
+    earnings = _earnings_panel()
+
+    with pytest.raises(ValueError, match="left gated cells undefined"):
+        reduce_gated_cells(
+            empty_events,
+            empty_person_years,
+            empty_disability,
+            earnings,
+        )
+    projected = reduce_projected_gated_cells(
+        empty_events,
+        empty_person_years,
+        empty_disability,
+        earnings,
+    )
+
+    assert tuple(projected) == GATED_CELL_NAMES
+    undefined_names = {
+        "divorce.18-44",
+        "first_marriage.18-29|female",
+        "incidence.20-66",
+        "recovery.20-66",
+        "remarriage.18-64",
+    }
+    assert {
+        name for name, record in projected.items() if record.get("undefined")
+    } == undefined_names
+    assert projected["incidence.20-66"] == {
+        "rate": None,
+        "metric": "log_ratio",
+        "undefined": True,
+    }
+
+    contract = _contract()
+    truth = _truth_cells(contract)
+    invalid = score_gate_seed(
+        contract,
+        seed=0,
+        truth_cells=truth,
+        projected_draw_cells=[projected] * contract.n_draws,
+    )
+    assert invalid.valid is False
+    assert set(invalid.undefined_draw_cells) == undefined_names
+
+    missing_truth = dict(truth)
+    missing_truth.pop("incidence.20-66")
+    with pytest.raises(ValueError, match="truth cells do not match"):
+        score_gate_seed(
+            contract,
+            seed=0,
+            truth_cells=missing_truth,
+            projected_draw_cells=_draws(contract, truth),
+        )
+    undefined_truth = {name: dict(record) for name, record in truth.items()}
+    undefined_truth["incidence.20-66"] = {"rate": None}
+    with pytest.raises(
+        ValueError, match="truth cell 'incidence.20-66' is undefined"
+    ):
+        score_gate_seed(
+            contract,
+            seed=0,
+            truth_cells=undefined_truth,
+            projected_draw_cells=_draws(contract, truth),
+        )
 
 
 def test_score_seed_means_draws_once_and_applies_both_conformance_guards():

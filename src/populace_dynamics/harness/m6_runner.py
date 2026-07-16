@@ -96,6 +96,7 @@ from populace_dynamics.harness.m6_scoring import (
     aggregate_gate,
     recompute_domain_earnings_floor,
     reduce_gated_cells,
+    reduce_projected_gated_cells,
     restrict_earnings_domain_support,
     score_gate_seed,
     side_a_person_ids,
@@ -517,6 +518,7 @@ def _project_side(
         population.initial_slice,
         end_year=PROJECTION_END_YEAR,
         draw_index=draw_index,
+        start_year=BOUNDARY_YEAR,
         metadata=metadata,
     )
     return result, collector
@@ -627,7 +629,7 @@ def _projected_cells(
         period_column="period",
     )
     projected_earnings = earnings_support.projection
-    cells = reduce_gated_cells(
+    cells = reduce_projected_gated_cells(
         projected_events,
         projected_person_years,
         projected_disability,

@@ -8,6 +8,7 @@ import pytest
 
 from populace_dynamics.engine.earnings_domain import wrap_earnings_domain
 from populace_dynamics.engine.loop import (
+    SCHEDULED_ENTRIES_KEY,
     MaritalStepResult,
     PeriodModules,
     ProjectionEngine,
@@ -335,3 +336,126 @@ def test_global_real_namespace_prevents_newborn_alias_without_shifting_rng():
         rng_bytes=global_rng_bytes,
     )
     assert b"".join(global_rng_bytes) == b"".join(local_rng_bytes)
+
+
+def test_empty_initial_side_uses_explicit_year_and_admits_later_opener():
+    model = wrap_earnings_domain(_NamespaceEarnings(set(), set()))
+
+    def passthrough(frame, context, rng):
+        del context, rng
+        return frame.copy()
+
+    def marital(frame, context, rng):
+        del frame, context, rng
+        return MaritalStepResult(pd.DataFrame(), pd.DataFrame())
+
+    modules = PeriodModules(
+        mortality=passthrough,
+        aging=advance_age,
+        marital_core=marital,
+        fertility=lambda frame, context, marital_result, rng: frame.copy(),
+        disability=passthrough,
+        earnings=lambda frame, context, rng: apply_earnings(
+            frame, context, rng, model=model
+        ),
+        claiming=passthrough,
+        household_composition=lambda frame, context, marital_result, rng: frame.copy(),
+        initialize=model.materialize_initial_frame,
+    )
+    initial = pd.DataFrame(
+        {
+            "person_id": pd.Series(dtype="int64"),
+            "year": pd.Series(dtype="int64"),
+            "age": pd.Series(dtype="int64"),
+            "sex": pd.Series(dtype="string"),
+            "weight": pd.Series(dtype="float64"),
+        }
+    )
+    opener = pd.DataFrame(
+        {
+            "person_id": [8],
+            "year": [2016],
+            "age": [20],
+            "sex": ["female"],
+            "weight": [1.0],
+            "earnings_domain": [False],
+        }
+    )
+    engine = ProjectionEngine(modules)
+
+    with pytest.raises(ValueError, match="requires an explicit start_year"):
+        engine.project(initial, end_year=2017, draw_index=0)
+    result = engine.project(
+        initial,
+        end_year=2017,
+        draw_index=0,
+        start_year=2014,
+        metadata={SCHEDULED_ENTRIES_KEY: {2017: opener}},
+    )
+
+    assert [len(frame) for frame in result.slices] == [0, 0, 0, 1]
+    assert "earnings_domain" in result.slices[0]
+    assert result.slices[-1]["person_id"].tolist() == [8]
+    assert result.slices[-1]["year"].tolist() == [2017]
+    assert result.slices[-1]["earnings"].tolist() == [0.0]
+
+
+def test_all_dead_interval_remains_typed_until_later_opener():
+    def mortality(frame, context, rng):
+        del rng
+        return frame.iloc[0:0].copy() if context.year == 2015 else frame.copy()
+
+    def passthrough(frame, context, rng):
+        del context, rng
+        return frame.copy()
+
+    def marital(frame, context, rng):
+        del frame, context, rng
+        return MaritalStepResult(pd.DataFrame(), pd.DataFrame())
+
+    modules = PeriodModules(
+        mortality=mortality,
+        aging=advance_age,
+        marital_core=marital,
+        fertility=lambda frame, context, marital_result, rng: frame.copy(),
+        disability=passthrough,
+        earnings=passthrough,
+        claiming=passthrough,
+        household_composition=lambda frame, context, marital_result, rng: frame.copy(),
+    )
+    engine = ProjectionEngine(modules)
+    initial = pd.DataFrame(
+        {
+            "person_id": [1],
+            "year": [2014],
+            "age": [30],
+            "sex": ["female"],
+        }
+    )
+    opener = pd.DataFrame(
+        {
+            "person_id": [2],
+            "year": [2016],
+            "age": [40],
+            "sex": ["male"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="does not match the explicit"):
+        engine.project(
+            initial,
+            end_year=2014,
+            draw_index=0,
+            start_year=2013,
+        )
+    result = engine.project(
+        initial,
+        end_year=2017,
+        draw_index=0,
+        start_year=2014,
+        metadata={SCHEDULED_ENTRIES_KEY: {2017: opener}},
+    )
+
+    assert [len(frame) for frame in result.slices] == [1, 0, 0, 1]
+    assert result.slices[-1]["person_id"].tolist() == [2]
+    assert result.slices[-1]["year"].tolist() == [2017]

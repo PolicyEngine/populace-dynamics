@@ -481,13 +481,13 @@ def restrict_earnings_domain_support(
     )
 
 
-def reduce_gated_cells(
+def _reduce_gated_cells(
     marital_events: pd.DataFrame,
     marital_person_years: pd.DataFrame,
     disability_transition_pairs: pd.DataFrame,
     earnings: pd.DataFrame,
 ) -> dict[str, dict[str, Any]]:
-    """Reduce prepared long frames to the 11 locked v3 cells."""
+    """Reduce prepared long frames without choosing an empty disposition."""
     cells: dict[str, dict[str, Any]] = {}
     cells.update(
         coarsened_marital_cells(
@@ -533,11 +533,55 @@ def reduce_gated_cells(
         )
     )
     cells.update(earnings_cells(earnings))
+    return cells
+
+
+def reduce_gated_cells(
+    marital_events: pd.DataFrame,
+    marital_person_years: pd.DataFrame,
+    disability_transition_pairs: pd.DataFrame,
+    earnings: pd.DataFrame,
+) -> dict[str, dict[str, Any]]:
+    """Strictly reduce a truth surface to the 11 locked v3 cells."""
+    cells = _reduce_gated_cells(
+        marital_events,
+        marital_person_years,
+        disability_transition_pairs,
+        earnings,
+    )
     missing = set(GATED_CELL_NAMES) - set(cells)
     if missing:
         raise ValueError(
             f"M6 reduction left gated cells undefined: {sorted(missing)}"
         )
+    return {cell: dict(cells[cell]) for cell in GATED_CELL_NAMES}
+
+
+def _undefined_projected_cell(name: str) -> dict[str, Any]:
+    if not name.startswith("earn_"):
+        return {"rate": None, "metric": "log_ratio", "undefined": True}
+    metric = {
+        "earn_autocorr_lag2": "abs_gap_corr",
+        "earn_dlog_mean.prime": "abs_gap_log",
+    }.get(name, "log_ratio")
+    return {"value": None, "metric": metric, "undefined": True}
+
+
+def reduce_projected_gated_cells(
+    marital_events: pd.DataFrame,
+    marital_person_years: pd.DataFrame,
+    disability_transition_pairs: pd.DataFrame,
+    earnings: pd.DataFrame,
+) -> dict[str, dict[str, Any]]:
+    """Reduce projection rows, typing omitted locked cells as undefined."""
+    cells = _reduce_gated_cells(
+        marital_events,
+        marital_person_years,
+        disability_transition_pairs,
+        earnings,
+    )
+    for name in set(GATED_CELL_NAMES) - set(cells):
+        cells[name] = _undefined_projected_cell(name)
     return {cell: dict(cells[cell]) for cell in GATED_CELL_NAMES}
 
 

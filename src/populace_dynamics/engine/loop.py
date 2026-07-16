@@ -173,14 +173,30 @@ class ProjectionEngine:
         *,
         end_year: int,
         draw_index: int,
+        start_year: int | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> ProjectionResult:
         """Project ``initial_slice`` through ``end_year`` inclusively."""
         self._validate_slice(initial_slice, "initial_slice")
         start_years = initial_slice["year"].unique()
-        if len(start_years) != 1:
-            raise ValueError("initial_slice must contain exactly one year")
-        start_year = int(start_years[0])
+        if initial_slice.empty:
+            if start_year is None:
+                raise ValueError(
+                    "an empty initial_slice requires an explicit start_year"
+                )
+            start_year = int(start_year)
+        else:
+            if len(start_years) != 1:
+                raise ValueError("initial_slice must contain exactly one year")
+            observed_start_year = int(start_years[0])
+            if (
+                start_year is not None
+                and int(start_year) != observed_start_year
+            ):
+                raise ValueError(
+                    "initial_slice year does not match the explicit start_year"
+                )
+            start_year = observed_start_year
         if end_year < start_year:
             raise ValueError("end_year precedes the initial slice")
 
@@ -188,7 +204,13 @@ class ProjectionEngine:
         if self.modules.initialize is not None:
             current = self.modules.initialize(current)
             self._validate_slice(current, "initialized initial_slice")
-            if set(current["year"].unique()) != {start_year}:
+            if current.empty != initial_slice.empty:
+                raise ValueError(
+                    "initialization changed the empty-universe disposition"
+                )
+            if not current.empty and set(current["year"].unique()) != {
+                start_year
+            }:
                 raise ValueError("initialization changed the starting year")
 
         n_periods = end_year - start_year
@@ -328,7 +350,7 @@ class ProjectionEngine:
             steps.append(ProjectionModule.HOUSEHOLD_COMPOSITION.value)
 
             self._validate_slice(current, f"projected slice {year}")
-            if set(current["year"].unique()) != {year}:
+            if not current.empty and set(current["year"].unique()) != {year}:
                 raise ValueError(
                     f"projected slice {year} does not carry its target year"
                 )
