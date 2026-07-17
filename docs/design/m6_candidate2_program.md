@@ -27,8 +27,8 @@ Candidate 1 is a valid, published **FAIL**: 6 of 11 gated cells failed, no gate
 seed passed, and every failed cell failed on all five seeds. Candidate 2 is a
 prospective successor, never a reinterpretation of that record.
 
-The proposed candidate-2 package has two model deltas and one conformance
-prerequisite:
+The proposed candidate-2 package has two model deltas and one landed conformance
+foundation with outstanding pre-score proof:
 
 1. replace the unbounded first-marriage age-by-cohort extrapolation with a
    regularized, support-aware interaction whose cohort deviation is flat beyond
@@ -39,8 +39,10 @@ prerequisite:
    while preserving the fitted `CellMarginal` object, its §2.7.6 rank-to-level
    map and inverse, the participation-gate architecture and coefficients, and
    `I_proj`; and
-3. merge and verify the separate entry-dissolved remarriage conformance repair
-   before candidate 2 is registered or scored.
+3. bind candidate 2 to the entry-dissolved remarriage conformance repair landed
+   as [#226][repair-pr] at
+   `c16cb9d563bd573ce2b537b19e403fbddec3cba6`, while closing the remaining
+   fixture audit and pre-score reconciliation before registration or score.
 
 The §2.8.3a power finding is orthogonal to model quality. The referee must choose
 whether registration 8 keeps the conservative frozen tolerances with the power
@@ -52,8 +54,9 @@ recommends the ceremony.
 `docs/design/m6_projection_engine.md` is ratified domain law. Its §2.8 harness
 already requires the realized entry state and dissolution duration to survive
 projection assembly (`docs/design/m6_projection_engine.md:943-994`); the
-remarriage defect violates that existing law. Repairing it without changing
-support, events, cells, or tolerances is conformance, not a new harness design.
+pre-#226 remarriage defect violated that existing law. #226 repaired it without
+changing support, events, cells, or tolerances, so it is landed conformance, not
+a new harness design.
 The first-marriage proposal is a new candidate-family spec. The earnings proposal
 does require a prospective amendment, but to §2.7's stochastic law, not §2.8's
 harness.
@@ -67,9 +70,9 @@ proposal explicitly moved no threshold
 a separate ratifying flip
 (`docs/amendments/gate_w1_amendment_1_family_b_di_bands.md:362-368` and
 `docs/amendments/gate_w1_amendment_1_family_b_di_bands.md:518-531`). If the
-referee finds that the remarriage repair cannot be implemented while preserving
-the current event/support law, a **narrow §2.8 amendment must be proposed in a
-different PR before implementation**; this document does not pre-authorize one.
+remaining fixture audit or reconciliation finds that #226 changed the current
+event/support law, a **narrow §2.8 amendment must be proposed in a different PR
+before candidate-2 registration**; this document does not pre-authorize one.
 Independently, selecting floors resolution B necessarily triggers its own narrow
 prospective §2.8.4/gate-contract amendment because §2.8.4 pins v3; this sibling
 program names that ceremony but does not perform it.
@@ -721,55 +724,69 @@ referee selects resolution A, both the six-cell 11.91% finding and the fresh
 combined-OC disclosure become mandatory registration/artifact fields, not a
 footnote.
 
-## 7. Remarriage §2.8 conformance repair — separate prerequisite
+## 7. Remarriage §2.8 conformance repair — landed foundation and live proof
 
-The remarriage failure cannot be used to tune a hazard until the assembly path
-conforms to existing law. Forensics finds a smaller direct-standardized hazard
-overshoot (`0.05110–0.05457` versus truth `0.03562–0.03927`), but the dominant
-current defect is lost history: projected dissolved exposure is only
-12.37–13.29% of truth while the event numerator is 33.58–39.95%.
-
-The code reads entry-divorced/widowed state and computes `dissolution_year` from
-`years_since_dissolution` (`src/populace_dynamics/engine/marital.py:82-128`), but
-only serializes open/in-window emitted episodes before reassembly
-(`src/populace_dynamics/engine/marital.py:145-267`). A widow-only
-post-assembly patch changes person-years but explicitly creates no episode/event
+Forensics on the pre-repair candidate-1 source at
+`8ff7b14fa89f021c4951ddfbd2102f795ff4de21` found lost history: projected
+dissolved exposure was only 12.37–13.29% of truth while the event numerator was
+33.58–39.95%. The following defect reconstruction is historical, and every code
+citation in this paragraph is pinned to that pre-repair tree. The adapter read
+entry-divorced/widowed state and computed `dissolution_year` from
+`years_since_dissolution` (`src/populace_dynamics/engine/marital.py:82-128`) but
+serialized only open/in-window emitted episodes before reassembly
+(`src/populace_dynamics/engine/marital.py:145-267`). A widow-only post-assembly
+patch changed person-years but explicitly created no episode/event
 (`src/populace_dynamics/models/family_transitions/components/initial_states.py:206-242`).
-Reassembly defaults a person with no prior emitted
-change-point to `never_married`
-(`src/populace_dynamics/data/transitions.py:377-420`), recomputes episode order by
-`cumcount` (`src/populace_dynamics/data/transitions.py:426-440`), calls emitted
-rank 0 a first marriage (`src/populace_dynamics/data/transitions.py:453-470`),
-and requires rank ≥1 plus a prior emitted dissolution for remarriage
+Reassembly defaulted a person with no prior emitted change-point to
+`never_married` (`src/populace_dynamics/data/transitions.py:377-420`), recomputed
+episode order by `cumcount` (`src/populace_dynamics/data/transitions.py:426-440`),
+called emitted rank 0 a first marriage
+(`src/populace_dynamics/data/transitions.py:453-470`), and required rank ≥1 plus a
+prior emitted dissolution for remarriage
 (`src/populace_dynamics/data/transitions.py:473-509`).
 
-That contradicts the existing seed/duration/change-point pins at
-`docs/design/m6_projection_engine.md:943-994`. The separate conformance lane must,
-before registration 8:
+That pre-repair behavior contradicted the existing seed/duration/change-point
+pins at `docs/design/m6_projection_engine.md:943-994`. #226 landed the conformance
+repair at `c16cb9d563bd573ce2b537b19e403fbddec3cba6`. On the merged tree, the
+carrier-episode implementation now occupies
+`src/populace_dynamics/engine/marital.py:260-302`; it passes realized dissolved
+history through `_assemble_panel` rather than exhibiting the historical omission.
+The five original proof conditions now map to the landed [#226 referee
+record][repair-referee] as follows:
 
-1. preserve every entry-divorced and entry-widowed person's realized entry state,
-   dissolution year, and prior-order information through `_assemble_panel`;
-2. preserve the existing `allow_exact_matches=False` dating and event law, so the
-   first in-window marriage of an entry-dissolved person is a remarriage;
-3. reproduce unchanged support, F6 weights, cells, truth rates, tolerances, RNG
-   addresses, and non-remarriage histories;
-4. add discriminating synthetic fixtures for entry-divorced, entry-widowed,
-   in-window remarriage, no-remarriage exposure, and same-year boundary cases; and
-5. publish a pre-score conformance reconciliation on the exact forensic classes.
+1. **Discharged:** carrier episodes preserve every entry-divorced and
+   entry-widowed person's realized entry state, dissolution year, and prior-order
+   information through `_assemble_panel`; the person-year test is at
+   `tests/test_m6_panel_builders.py:363-394`.
+2. **Discharged:** the existing `allow_exact_matches=False` dating/event law is
+   unchanged, and the first in-window marriage of an entry-dissolved person is
+   proved to remain a remarriage at
+   `tests/test_m6_panel_builders.py:397-421`.
+3. **Discharged on #226's record:** its real-frame reproduction and draw-identity
+   witnesses preserved support, F6 weights, cells, truth rates, tolerances, RNG
+   addresses, non-remarriage histories, and the pooled marriage-event count and
+   weight; the truth side and all gate/floor/run bytes were untouched.
+4. **Partially discharged:** the merged fixtures discriminate entry-divorced,
+   entry-widowed, in-window remarriage, and sustained no-remarriage exposure. A
+   fixture-by-fixture registration audit must confirm that coverage and add or
+   identify a discriminating same-year-boundary case.
+5. **Outstanding registration precondition:** publish a candidate-2 pre-score
+   conformance reconciliation on the exact forensic classes.
 
-That reconciliation must separately publish the count and F6 weight of emitted
-marriages relabeled from projected first marriage to remarriage by restored prior
-history, by gated year/sex/age cell. The authority did not quantify that numerator
-transfer. Candidate 2 therefore cannot attribute any first-marriage score movement
-solely to the new hazard law; the artifact must decompose the conformance relabel
-from the estimator delta.
+The live reconciliation must separately publish the count and F6 weight of
+emitted marriages relabeled from projected first marriage to remarriage by
+restored prior history, by gated year/sex/age cell. #226's referee record measured
+the aggregate assembly/relabel effect, but it did not supply that candidate-2
+gated-cell ledger. Candidate 2 therefore cannot attribute any first-marriage
+score movement solely to the new hazard law; the artifact must decompose the
+landed conformance relabel from the estimator delta.
 
-This document implements none of it. The referee should classify a repair meeting
-those conditions as current-law conformance. If a proposed patch changes event
-semantics, support, a truth reducer, or a cell, it leaves that classification and
-requires a narrow prospective §2.8 amendment in its own ceremony. Only after the
-repair lands may the residual remarriage hazard be measured; candidate 2 does not
-pre-tune it from the contaminated score.
+This docs-only proposal does not modify #226. If the remaining audit or
+reconciliation reveals changed event semantics, support, a truth reducer, or a
+cell, the repair leaves its conformance classification and requires a narrow
+prospective §2.8 amendment before registration. With assembly conformance landed,
+the residual remarriage hazard may be measured, but it must never be tuned from
+the 2015–2019 holdout result.
 
 ## 8. Candidate-2 must-not-regress constraints
 
@@ -835,7 +852,7 @@ that already exists remain immutable.
 |---|---|
 | Support-aware first-marriage estimator/new candidate spec | Referee ratifies this candidate-family law; add a new immutable registry spec; register selected train-only fit strength and support behavior before score. No §2.8 edit. |
 | Stable-coordinate refresh law and substreams | Prospective §2.7 amendment first ratifies the generic mechanism/selector and authorizes a train-only prototype; a reviewed lock addendum then freezes nonzero `q*` and the ledger before registration 8. Keep §2.7.6.2/.3/.4 unchanged. |
-| Entry-dissolved remarriage repair preserving current event/support law | Separate conformance implementation and proof, merged before registration 8; no threshold/floor change. If semantics move, stop for a narrow §2.8 amendment. |
+| Entry-dissolved remarriage repair preserving current event/support law | **Landed** as #226 at `c16cb9d`. Bind the candidate source to that commit; finish §7 condition 4's fixture audit and condition 5's exact-class/gated-cell reconciliation before registration. No threshold/floor change. If semantics moved, stop for a narrow §2.8 amendment. |
 | Retain frozen tolerances | Referee records resolution A and mandates the earnings-only `0.8809` / 11.91% plus fresh combined-OC disclosure; no floor or lock edit. |
 | Re-derive closed-domain floors | Separate truth-only v4 derivation, adversarial reproduction, narrow prospective §2.8.4/gate-contract amendment, and full lock ceremony; then registration 8 against the new locked SHA. |
 | Add the must-not-regress acceptance block | Program/registration ratification; artifact reports live-gate, original-threshold block, and conjunction. Moving its five thresholds or 4-of-5 rule requires a new gate amendment. |
@@ -855,8 +872,9 @@ Registration 8 may be posted only when all applicable boxes are satisfied:
    formula/coefficients, `CellMarginal`, inverse rank, `I_proj`, odd-year behavior,
    and old substreams remain unchanged; the tests must also expose changed later
    participation when a refreshed carried level crosses the unchanged gate;
-4. the separate remarriage conformance repair is merged and its entry-dissolved
-   reconciliation passes without changing gate/floor bytes;
+4. the bound source contains landed #226 (`c16cb9d`), §7 condition 4's remaining
+   fixture audit is closed, and condition 5's entry-dissolved reconciliation
+   passes without changing gate/floor bytes;
 5. resolution A's earnings-only and combined disclosure is frozen **or**
    resolution B's new floor artifact and prospective §2.8.4 amendment have
    completed their full ceremony and the live lock points to its verified SHA;
@@ -883,7 +901,7 @@ completed run writes and publishes the fresh artifact once.
 
 1. **Design home/classification:** approve this sibling program, the
    first-marriage change as a new candidate spec, the earnings change as a
-   prospective §2.7 amendment, and a support/event-preserving remarriage patch as
+   prospective §2.7 amendment, and landed #226 as support/event-preserving
    current-§2.8 conformance.
 2. **First-marriage transport:** adopt the global smooth + boundary-flat cohort
    deviation and the stated train-only `C` selection, or name a different
@@ -905,10 +923,10 @@ completed run writes and publishes the fresh artifact once.
    approve the proposed v4 path only after the combined OC is freshly derived;
    `0.9575` is earnings-only and `≈0.9019` is provisional arithmetic, not a
    ratified combined result.
-6. **Remarriage prerequisite:** confirm the separate lane's proof standard and
-   whether any implementation detail crosses from conformance into a narrow §2.8
-   amendment. Do not adjudicate the residual hazard until the assembly repair is
-   measured.
+6. **Landed remarriage record:** confirm that #226 is current-§2.8 conformance,
+   adjudicate the remaining fixture-by-fixture proof under §7 condition 4, and
+   retain condition 5's candidate-2 reconciliation. If either reveals a semantic
+   change, require a narrow §2.8 amendment.
 7. **Regression block:** approve the additional all-five-on-≥4-of-5 constraint at
    the original candidate-1 tolerances even if a v4 floor loosens the two older
    earnings tolerances.
@@ -929,8 +947,10 @@ This proposal does **not**:
   either formation cell;
 - authorize realized post-2014 NAWI, change the pooled `CellMarginal`, its inverse,
   or the current projected-index formula;
-- implement or silently absorb the remarriage conformance repair;
-- tune the remarriage hazard on an assembly-contaminated result;
+- alter, revert, or claim the landed #226 conformance repair as a candidate-2
+  model delta;
+- tune the remarriage hazard from the pre-repair assembly-contaminated result or
+  the 2015–2019 holdout residual;
 - weaken disability, divorce, or older-worker regression obligations; or
 - claim that a candidate-2 PASS certifies mortality drift, widowhood, the
   2020–2022 shock window, entrants/open-panel dynamics, lag-5 autocorrelation,
@@ -1064,7 +1084,16 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
     "earnings": "prospective section-2.7 stable-coordinate rank-refresh mixture with train-only nonzero q; fitted section-2.7.6 rank-level/index objects unchanged"
   },
   "prerequisite": {
-    "remarriage": "entry-dissolved history/episode/event conformance under existing section 2.8; separate lane merged before registration"
+    "remarriage": {
+      "status": "LANDED_CONFORMANCE_WITH_LIVE_PRE_SCORE_PROOF",
+      "pr": 226,
+      "commit": "c16cb9d563bd573ce2b537b19e403fbddec3cba6",
+      "condition_1_entry_history": "DISCHARGED",
+      "condition_2_event_label": "DISCHARGED",
+      "condition_3_invariance": "DISCHARGED_ON_226_REFEREE_RECORD",
+      "condition_4_fixture_matrix": "PARTIAL_SAME_YEAR_BOUNDARY_CHECK_LIVE",
+      "condition_5_candidate2_reconciliation": "LIVE_PRECONDITION"
+    }
   },
   "floors_resolution": "OPEN_REFEREE_DECISION",
   "recommended_floors_resolution": "new_closed_domain_floor_plus_section_2_8_4_and_full_lock_ceremony",
@@ -1120,6 +1149,8 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
 [grading]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997458179
 [candidate1-pr]: https://github.com/PolicyEngine/populace-dynamics/pull/225
 [candidate1-artifact]: https://github.com/PolicyEngine/populace-dynamics/blob/8ff7b14fa89f021c4951ddfbd2102f795ff4de21/runs/gate_m6_candidate1_v1.json
+[repair-pr]: https://github.com/PolicyEngine/populace-dynamics/pull/226
+[repair-referee]: https://github.com/PolicyEngine/populace-dynamics/issues/226#issuecomment-4998474459
 [search-rule]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4948637741
 [w1-c2-reg]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4952253568
 [w1-c2-grade]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4953064479
