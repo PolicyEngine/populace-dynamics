@@ -43,7 +43,7 @@ ARTIFACT_BLOB = "d944ed2270a2c46c36ed3d0cd7e3328f1c8dbe88"
 CONTRACT_BLOB = "1efbf0958b722d8172697ac3f9a48c043de09bcf"
 # The LIVE contract blob moves only at ratified flips; the scored-against pin
 # above is frozen forever. Updated at the amendment-4 design_commit flip (#233).
-CONTRACT_BLOB_LIVE = "d0bec44a03bdd9ccc5b0cf441382c94c55f82e21"
+CONTRACT_BLOB_LIVE = "64a6235a0b7959fee3ce9e40a6c32f3129538670"
 FRAME_SHA_PREFIX = "c2065b64"
 GATED_CELLS = 43
 CUBE_SHAPE = [20, GATED_CELLS, 5]

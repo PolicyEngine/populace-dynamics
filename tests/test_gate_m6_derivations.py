@@ -49,11 +49,13 @@ GATES = ROOT / "gates.yaml"
 V1_PATH = ROOT / "runs" / "m6_holdout_floors_v1.json"
 V2_PATH = ROOT / "runs" / "m6_holdout_floors_v2.json"
 V3_PATH = ROOT / "runs" / "m6_holdout_floors_v3.json"
+V4_PATH = ROOT / "runs" / "m6_holdout_floors_v4.json"
 
 # v1 / v2 are FROZEN lineage; v3 is the ratified frozen floor the lock binds.
 V1_SHA = "16c28d8cd9095e5233ab224c659c8d5b9eb1621099e2524455a3a8ff8e88d318"
 V2_SHA = "3f273d474692917b01055f85830cb982dfbe9e63070581c99975aa799759b9a0"
 V3_SHA = "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
+V4_SHA = "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
 LN_1_5 = math.log(1.5)
 METRIC_CAP = {"log_ratio": LN_1_5, "abs_gap_log": LN_1_5, "abs_gap_corr": 0.15}
 
@@ -112,6 +114,10 @@ def _v3() -> dict[str, Any]:
     return json.loads(V3_PATH.read_text(encoding="utf-8"))
 
 
+def _v4() -> dict[str, Any]:
+    return json.loads(V4_PATH.read_text(encoding="utf-8"))
+
+
 def _block_tolerances(block: dict[str, Any]) -> dict[str, float]:
     tolerances: dict[str, float] = {}
     for view in block["views"].values():
@@ -164,7 +170,7 @@ def check_lock_deltas(block: dict[str, Any]) -> None:
     assert block["id"] == "m6_temporal_holdout_projection_drift"
     assert block["kind"] == "temporal_holdout"
     # the flip READS the frozen floor and rewrites nothing.
-    assert block["floor_run"] == "runs/m6_holdout_floors_v3.json"
+    assert block["floor_run"] == "runs/m6_holdout_floors_v4.json"
     # PR #175: design_pr re-pinned to 175, design_commit FINALIZED to the #175
     # squash-merge (not the stale 1d83a221 nor PR #175's own design commit).
     assert block["design_pr"] == DESIGN_PR
@@ -173,8 +179,8 @@ def check_lock_deltas(block: dict[str, Any]) -> None:
 
 
 def check_floor_run_sha(block: dict[str, Any]) -> None:
-    committed = hashlib.sha256(V3_PATH.read_bytes()).hexdigest()
-    assert block["floor_run_sha256"] == committed == V3_SHA
+    committed = hashlib.sha256(V4_PATH.read_bytes()).hexdigest()
+    assert block["floor_run_sha256"] == committed == V4_SHA
 
 
 def check_gated_cells(block: dict[str, Any], v3: dict[str, Any]) -> None:
@@ -333,7 +339,7 @@ def check_lineage_shas(block: dict[str, Any]) -> None:
     assert v2["combined_p_gate"] == 0.9067
     assert v2["n_gated_flow_cells"] == 4
     assert v2["frozen"] is True
-    assert block["floor_run_sha256"] == V3_SHA
+    assert block["floor_run_sha256"] == V4_SHA
 
 
 def check_ssa_nchs_anchor(block: dict[str, Any]) -> None:
@@ -439,7 +445,7 @@ def test_gate_m6_gated_registry_11_cells():
 
 
 def test_gate_m6_tolerances_recompute_capped():
-    check_tolerances(_gate(), _v3())
+    check_tolerances(_gate(), _v4())
 
 
 def test_gate_m6_partition_rollups_bind():
@@ -503,12 +509,13 @@ def test_gate_m6_remarriage_asymmetric_rung_and_zero_mortality_widowhood():
 
 
 def test_gate_m6_zero_threshold_movement_vs_frozen_floor():
-    """Every gated tolerance in the locked block equals the frozen floor's own
-    recorded tolerance -- the flip moved no threshold."""
+    """Every gated tolerance in the locked block equals the ratified v4
+    floor's own recorded tolerance -- the lock applied the artifact
+    verbatim and moved no threshold beyond it."""
     block = _gate()
-    v3 = _v3()
+    v4 = _v4()
     for cell, tol in _block_tolerances(block).items():
-        assert tol == v3["tolerances"][cell], cell
+        assert tol == v4["tolerances"][cell], cell
     assert block["oc_before_lock"]["ceremony_may_proceed"] is True
     assert block["oc_before_lock"]["n_gated_tolerances_at_cap"] == 0
 
@@ -522,12 +529,13 @@ def _deep(obj: Any) -> Any:
 
 def test_mutations_are_caught():
     v3 = _v3()
+    v4 = _v4()
 
     # 1. tolerance DIGIT: bump one gated tolerance by a least-significant digit
     m1 = _deep(_gate())
     m1["views"]["marital_flows"]["tolerances"]["remarriage.18-64"] = 0.404
     with pytest.raises(AssertionError):
-        check_tolerances(m1, v3)
+        check_tolerances(m1, v4)
 
     # 2. cell ADD/DROP: drop a gated earnings cell -> registry mismatch
     m2 = _deep(_gate())
