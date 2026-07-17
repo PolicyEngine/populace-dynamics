@@ -31,6 +31,12 @@ V3_PATH = ROOT / "runs" / "m6_holdout_floors_v3.json"
 V4_PATH = ROOT / "runs" / "m6_holdout_floors_v4.json"
 V4_SIDECAR_PATH = ROOT / "runs" / "m6_holdout_floors_v4.json.env.json"
 BUILDER_PATH = ROOT / "scripts" / "build_m6_holdout_floors_v4.py"
+AMENDMENT_PATH = (
+    ROOT
+    / "docs"
+    / "amendments"
+    / "gate_m6_amendment_1_closed_domain_floors.md"
+)
 
 V3_SHA256 = "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
 V4_SHA256 = "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
@@ -448,3 +454,32 @@ def test_sidecar_binds_builder_source_commit_and_clean_fitting_stack():
         },
     }
     assert v4["fitting_stack_source"]["package_sources_clean"] is True
+
+
+def test_prospective_amendment_binds_lock_and_s2_disclosures():
+    text = AMENDMENT_PATH.read_text(encoding="utf-8")
+    compact = " ".join(text.split())
+    required_bindings = (
+        "DRAFT_NOT_OPERATIVE",
+        V4_SOURCE_COMMIT,
+        V4_SHA256,
+        V4_SIDECAR_SHA256,
+        "b34ab1943f7793e41641819ff3482187e8f0acf492ea2cce7f0e694f9fd01cc0",
+        "0.8373",
+        "0.8114",
+        "0.8889",
+        "0.9018",
+        "[0.251827, 0.308309, 0.271703, 0.327174, 0.356735]",
+        "0.221 → 0.284",
+        "0.052 → 0.054",
+        "0.087 → 0.087",
+        "0.043 → 0.043",
+        "earn_dlog_sd.older=0.269",
+        "earn_zero_rate.older=0.163",
+    )
+    for binding in required_bindings:
+        assert binding in text
+    assert (
+        "Applying v4 retrospectively to candidate 1 is prohibited" in compact
+    )
+    assert "this lane makes no `gates.yaml` edit" in compact
