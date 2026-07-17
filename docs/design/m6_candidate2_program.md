@@ -788,6 +788,36 @@ prospective §2.8 amendment before registration. With assembly conformance lande
 the residual remarriage hazard may be measured, but it must never be tuned from
 the 2015–2019 holdout result.
 
+### 7.1 Measured post-repair residual and disposition
+
+The residual is now measured, not hypothetical. Direct-standardizing the fitted
+remarriage law on truth dissolved support gives projected hazards
+`0.05110–0.05457` against truth `0.03562–0.03927`: a `1.30–1.53` ratio and
+`|ln|=0.263–0.427` against the `0.403` tolerance, or 65.3–105.8% of the bar.
+Independently, #226's repaired real-frame reconciliation puts exposure at
+97.4020–100.9204% of truth and the event numerator at 129.8756–149.9906%, whose
+numerator-only log band is `0.262–0.405`. These agree on a directional overshoot
+that straddles the gate threshold. The pre-repair candidate-1 result was a 2.75×
+FAIL; after conformance, `remarriage.18-64` is a known coin-flip cell.
+
+The referee must choose among three honest dispositions:
+
+| Disposition | Honest case | Honest cost |
+|---|---|---|
+| **Train-only delta through a follow-up proposal amendment** | Define and select a remarriage transport delta solely on `≤2014` expanding pseudo-holdouts, then ratify and lock it before registration 8. This addresses a systematic miss without reading the scored residual as a tuning target. | Adds a third model delta, another search ledger, and another amendment/review surface; the training evidence may select no change. |
+| **Register with a candid modal-failure forecast** | Keep this program's two model deltas and make the registration forecast explicitly name `remarriage.18-64`, its measured band, and modal FAIL posture. | Knowingly spends the candidate-2 one-shot with a cell whose evidence reaches 105.8% of tolerance and provides no mechanism for it. |
+| **Designed pause** | Do not post registration 8 until a separately ratified learning plan resolves the residual. | Avoids a knowingly fragile run but delays all candidate-2 evidence and, without a train-only work item, learns nothing new. |
+
+**Recommendation: the train-only delta through a follow-up proposal amendment.**
+The overshoot is same-direction across the repaired real-frame seeds and agrees
+with the assembly-independent direct standardization, so a forecast-only run
+would knowingly accept nearly zero remarriage margin. A pause alone has no
+learning mechanism. The follow-up must pre-register its law, pseudo-boundaries,
+search size, no-op rule, and acceptance diagnostics before fitting; it may use no
+2015–2019 row, score, residual, or truth moment numerically. If admissible
+train-only evidence selects a no-op or cannot support a ratifiable law, the
+required disposition is pause, not a forced delta.
+
 ## 8. Candidate-2 must-not-regress constraints
 
 The five clean candidate-1 passes become an additional candidate-2 acceptance
@@ -874,17 +904,22 @@ Registration 8 may be posted only when all applicable boxes are satisfied:
    participation when a refreshed carried level crosses the unchanged gate;
 4. the bound source contains landed #226 (`c16cb9d`), §7 condition 4's remaining
    fixture audit is closed, and condition 5's entry-dissolved reconciliation
-   passes without changing gate/floor bytes;
+   passes without changing gate/floor bytes; that reconciliation publishes the
+   post-repair residual transport measurement, and §10 decision 9 is adjudicated.
+   If the train-only-delta disposition is chosen, its follow-up proposal
+   amendment and lock must also be complete; a chosen pause forbids registration;
 5. resolution A's earnings-only and combined disclosure is frozen **or**
    resolution B's new floor artifact and prospective §2.8.4 amendment have
    completed their full ceremony and the live lock points to its verified SHA;
 6. the runner identifies candidate number 2, refuses the candidate-1 output path,
    writes `runs/gate_m6_candidate2_v1.json` exclusively, and binds exact source,
    design, floor, spec, dependency, and environment hashes;
-7. the registration enumerates exactly the two model deltas, the conformance
-   prerequisite, everything byte-carried, the five regression constraints, the
-   effective train-side search sizes, a candid result forecast/modal failure
-   shape, the one-shot rule, and “publish regardless”; and
+7. the registration enumerates the two model deltas proposed here plus any
+   separately ratified remarriage delta selected under §10 decision 9, the landed
+   conformance proof, everything byte-carried, the five regression constraints,
+   the effective train-side search sizes, a candid result forecast/modal failure
+   shape naming `remarriage.18-64`, the one-shot rule, and “publish regardless”;
+   and
 8. the published candidate-1 artifact/forensic summaries are disclosed as the
    structural-design evidence, but no unpublished or row-level post-2014 holdout
    value, candidate-2 result, or realized post-2014 macro value enters estimator
@@ -934,6 +969,15 @@ completed run writes and publishes the fresh artifact once.
    outcome consumes no registration; decide whether a registered exact-byte abort
    consumes the registration number. It cannot be silently retried under changed
    bytes.
+9. **Remarriage residual disposition:** choose (a) a train-only-estimated
+   remarriage transport delta through a follow-up proposal amendment, (b)
+   registration with a candid modal-failure forecast explicitly naming
+   `remarriage.18-64` and its `0.263–0.427` score band against `0.403`, or (c) a
+   designed pause. The recommendation is (a): two independent post-repair
+   measurements show a systematic same-direction overshoot, while (b) knowingly
+   spends the one-shot with almost no margin and (c) supplies no learning plan.
+   Any delta is selected only on `≤2014` pseudo-holdouts; a train-only no-op or
+   unratifiable law resolves to (c), never tuning against the 2015–2019 residual.
 
 ## 11. What this proposal does not change or certify
 
@@ -949,6 +993,8 @@ This proposal does **not**:
   or the current projected-index formula;
 - alter, revert, or claim the landed #226 conformance repair as a candidate-2
   model delta;
+- authorize a remarriage model delta in this document; the recommended delta
+  requires its own follow-up proposal amendment and referee review;
 - tune the remarriage hazard from the pre-repair assembly-contaminated result or
   the 2015–2019 holdout residual;
 - weaken disability, divorce, or older-worker regression obligations; or
@@ -970,9 +1016,10 @@ ratifies the program and the required amendment/ceremonies land. In this docs-on
 lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
 
 <!-- m6-candidate2-consistency-ledger: derive evidence fields only from issue
-     comment 4997635883, the immutable candidate-1 artifact at 8ff7b14, and the
-     frozen v3 floor. Do not hand-edit a value without re-running the read-only
-     consistency check recorded in the PR. -->
+     comment 4997635883, the immutable candidate-1 artifact at 8ff7b14, the
+     #226 referee record at comment 4998474459, and the frozen v3 floor. Do not
+     hand-edit a value without re-running the read-only consistency check
+     recorded in the PR. -->
 
 ```json m6-candidate2-consistency-ledger
 {
@@ -1044,7 +1091,14 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
       "projected_over_truth_dissolved_exposure_range": [0.1237, 0.1329],
       "projected_over_truth_event_numerator_range": [0.3358, 0.3995],
       "direct_projected_hazard_range": [0.05110, 0.05457],
-      "direct_truth_hazard_range": [0.03562, 0.03927]
+      "direct_truth_hazard_range": [0.03562, 0.03927],
+      "direct_projected_over_truth_ratio_range": [1.30, 1.53],
+      "postrepair_projected_over_truth_exposure_range": [0.974020, 1.009204],
+      "postrepair_projected_over_truth_event_numerator_range": [1.298756, 1.499906],
+      "residual_log_ratio_score_range": [0.263, 0.427],
+      "tolerance": 0.403,
+      "max_score_over_tolerance": 1.058,
+      "postrepair_posture": "KNOWN_COIN_FLIP"
     },
     "floors": {
       "v3_artifact": "runs/m6_holdout_floors_v3.json",
@@ -1095,6 +1149,17 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
       "condition_5_candidate2_reconciliation": "LIVE_PRECONDITION"
     }
   },
+  "remarriage_residual_disposition": {
+    "status": "OPEN_REFEREE_DECISION_BEFORE_REGISTRATION_8",
+    "options": [
+      "TRAIN_ONLY_DELTA_VIA_FOLLOW_UP_PROPOSAL_AMENDMENT",
+      "CANDID_MODAL_FAILURE_FORECAST_NAMING_REMARRIAGE_18_64",
+      "DESIGNED_PAUSE"
+    ],
+    "recommended": "TRAIN_ONLY_DELTA_VIA_FOLLOW_UP_PROPOSAL_AMENDMENT",
+    "train_only_noop_fallback": "DESIGNED_PAUSE",
+    "post2014_residual_tuning_prohibited": true
+  },
   "floors_resolution": "OPEN_REFEREE_DECISION",
   "recommended_floors_resolution": "new_closed_domain_floor_plus_section_2_8_4_and_full_lock_ceremony",
   "regression_cells": {
@@ -1110,6 +1175,7 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
   "immutability_guards": [
     "no candidate-1 rescore or overwrite",
     "no realized post-2014 NAWI on scored path",
+    "no 2015-2019 remarriage residual in model selection or tuning",
     "no candidate output in train-only selection or truth-only floors derivation",
     "no truth/support/cell change outside a ratified ceremony",
     "no score before registration 8",
