@@ -1,14 +1,16 @@
 # M6 remarriage learning plan, round 2: the per-origin steepening family
 
 - **Plan:** candidate-2 Lane B, pause-resolution learning plan round 2
-- **Status:** **REVISED PROPOSAL — UNRATIFIED.** Docs only; no round-2
-  pseudo-holdout outcome or projection has run. PR #234 remains draft pending a
-  full second plan-referee round.
+- **Status:** **SPEC-SOUND FIXES APPLIED — UNRATIFIED.** Docs only; no round-2
+  pseudo-holdout outcome or projection has run. The full second referee found
+  zero blocking defects and returned SPEC SOUND subject to two should-fixes.
+  PR #234 remains draft pending fix verification and ratification.
 - **Authority:** the ratified candidate-2 program's designed pause and follow-up
   requirements (`docs/design/m6_candidate2_program.md:842-872,956-994,1038-1046`)
 - **Prior learning:** round-1 [findings PR #231][round1-pr] and the
   [VERIFIED adversarial referee record][round1-referee]
 - **Revision authority:** the round-2 [REVISE referee record][round2-referee]
+- **Second-round verdict:** the [SPEC SOUND referee record][round2-sound-referee]
 - **Fit-side validation:** [round-2 validation ledger][round2-validation],
   SHA-256 `26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b`
 - **Frozen evidence domain:** information dated no later than 2014 under the
@@ -384,7 +386,10 @@ R_D75_W05 = R1(0.75,0.05) divorced target -0.75; widowed +0.05.
 
 The frozen simplicity order is the displayed order. Leaving widowed at R0 is
 simpler than spending its separate budget; within a widowed option, the
-smaller divorced move is simpler.
+smaller divorced move is simpler. Consequently `R_D75_W00` precedes
+`R_D50_W05`: avoiding any widowed movement outranks choosing the smaller
+divorced shift. This is a deliberate governance preference, not an accidental
+ordering, and no outcome may reorder it.
 
 The fit-side roots are already published:
 
@@ -650,6 +655,18 @@ only if all seven rules pass:
    `working_age_widow_exposure_error_Lb` is `<=*` the same-seed R0 at
    **every** boundary in both branches.
 
+Rule 5 is intentionally load-bearing: it is the sole genuinely binding
+exposure constraint after the reference-area construction. That construction
+preserves a full working-age path through age 64, whereas the selector scores a
+three- or four-year window. The round-1 windows contained 690 / 581 / 419
+entry-dissolved carriers but only 46 / 37 / 20 truth remarriage rows
+(`docs/analysis/m6_remarriage_train_only_delta.md:283-287`). Carriers already
+at middle or late YSD receive the lowered side of the tilt, which can raise
+windowed exposure; new dissolutions receive the front-loaded side and pull the
+other way. The sign is therefore carrier-composition- and magnitude-dependent,
+not a new foreclosure. A rule-5-driven no-op is the designed result of this
+outer guard, not a protocol surprise.
+
 The zero-event branch is not a likelihood exemption chosen after seeing a law.
 It is a frozen, truth-defined response to a cell in which Bernoulli deviance is
 strictly monotone in hazard and cannot measure improvement toward zero without
@@ -659,6 +676,15 @@ protects exactly the raw-age domain this family can move. An all-age widowed
 guard is intentionally not used: its 65+ baseline would be nearly invariant to
 the candidate and could turn Monte Carlo noise on an immovable stock into a
 nominal selector decision.
+
+For every correctly constructed frozen law, the `g/B_W` leg is a conformance
+assertion and a restatement of the a-priori level cap, not a data-dependent
+selection discriminator. The grid already fixes `omega` to `0` or `0.05`,
+`0.05<B_W`, and the uniform logit move mechanically gives
+`0<=g_Lwb<=omega`. The assertion detects implementation drift and documents
+evidence-boundedness; active outcome protection comes from the positive-event
+deviance branch and the working-age stock guard. It must not be credited as an
+additional empirical selection filter.
 
 These rules are conjunctions. A law cannot trade a failed exposure, widowed,
 or construction guard for a lower `J`.
@@ -754,6 +780,11 @@ remains forbidden under
 `docs/design/m6_candidate2_program.md:971-976,1038-1046`; no nonzero law may be
 forced and the holdout may not break a tie.
 
+In particular, a carrier-composition failure of rule 5 returns
+`NO_OP_DESIGNED_PAUSE` and proceeds down this ladder. That disposition records
+that the load-bearing exposure guard worked as designed; it does not license a
+post-outcome relaxation or a reordered family.
+
 The next rung remains fixed: publish a separate W1-style, candidate-blind
 surface-question proposal for `remarriage.18-64`. It asks whether one pooled
 working-age flow can certify an origin-heterogeneous formation process while
@@ -771,20 +802,23 @@ without post-2014 outcomes. The pause continues throughout.
 
 The governance sequence is:
 
-1. **Revised proposal:** this docs-only draft and fit-side ledger name the
-   redesigned family, selector, freeze discipline, and ladder; no candidate
-   outcome has run.
-2. **Full second plan referee:** review the per-origin targets, strength
-   calibration, widowed budget, zero-event guard, arithmetic, and all preserved
-   scope fences. This is a full rereview, not verification of the old plan.
-3. **Rebase, ratify, and freeze:** rebase onto `master` so round-1 evidence is
-   in-tree, merge only the accepted plan, and record both file hashes. PR #234
-   remains draft until this step is authorized.
-4. **Round-2 lane:** implement mechanically, pass synthetic and pre-execution
+1. **Revised proposal — complete:** this docs-only draft and fit-side ledger
+   name the redesigned family, selector, freeze discipline, and ladder; no
+   candidate outcome has run.
+2. **Full second plan referee — SPEC SOUND:** issue comment 5004566775 found
+   zero blocking defects, requested the two should-fixes applied here, and
+   identified the three explicit tradeoffs now recorded above.
+3. **Fix verification:** independently confirm the working-age stock guard,
+   root acceptance margin, numeric runtime identity, and note clarifications.
+   PR #234 remains draft throughout this round.
+4. **Rebase, ratify, and freeze:** only after authorization, rebase onto
+   `master` so round-1 evidence is in-tree, merge only the accepted plan, and
+   record both file hashes. PR #234 remains draft until this step is authorized.
+5. **Round-2 lane:** implement mechanically, pass synthetic and pre-execution
    audits, run once, and publish all findings regardless of result.
-5. **Findings referee:** independently reproduce the ledger, information
+6. **Findings referee:** independently reproduce the ledger, information
    boundary, freeze history, eligibility, and selection.
-6. **Disposition:** a verified nonzero law requires a separate prospective
+7. **Disposition:** a verified nonzero law requires a separate prospective
    amendment, implementation, tests, immutable registry spec, and candidate-2
    lock before registration. R0 or an unratifiable law continues the pause and
    triggers section 7.
@@ -812,22 +846,23 @@ The program's candidate-1 and surface boundaries remain at
 `docs/design/m6_candidate2_program.md:1048-1069`. This proposal changes only
 the pre-outcome round-2 learning protocol and its docs validation ledger.
 
-## 10. Decisions for the full second plan referee
+## 10. Decisions for verification and ratification
 
-The referee must explicitly decide whether to:
+The verification referee and ratifier must explicitly confirm whether to:
 
 1. accept both published foreclosure proofs as the reason the revised family
    removes global transfer and fitted flattening;
 2. ratify the fixed YSD front-loading contrast, independent origin targets,
-   exact `Delta_D` strengths, widowed options, four-law grid, and order;
+   exact `Delta_D` strengths, widowed options, four-law grid, and the deliberate
+   priority of widowed thrift over divorced magnitude in the simplicity order;
 3. accept the fit-side ledger's source match, exclusions, support, root
    feasibility, cell-shift disclosure, acceptance margin, and numeric runtime
    identity;
 4. approve exact pseudo-windows, fresh seed bank, and pinned period counts
    `{4,4,3}`;
-5. ratify the seven conjunctive rules, including positive-matchable-event
-   widowed deviance, the zero-event expected-rate guard, and working-age
-   widowed stock guard;
+5. ratify the seven conjunctive rules, including rule 5's carrier-composition
+   risk, positive-matchable-event widowed deviance, the `g/B_W` conformance
+   role, and the working-age widowed stock guard;
 6. retain standalone numerator/timing edits outside the family and preserve
    state-consistent event semantics;
 7. require rebase-before-ratification, two-file lock, pre-execution audit,
@@ -842,12 +877,13 @@ This review aid is not executable configuration and not a gate edit:
 ```json
 {
   "schema": "m6.remarriage.learning_plan.round2.proposal.v2",
-  "status": "revised_proposal_unratified_no_candidate_outcome",
+  "status": "spec_sound_fixes_applied_unratified_pending_verification",
   "authority": {
     "program": "docs/design/m6_candidate2_program.md:842-872,956-994,1038-1046",
     "round1_pr": 231,
     "round1_referee_issue_comment": 5003093793,
     "round2_revise_issue_comment": 5003846811,
+    "round2_spec_sound_issue_comment": 5004566775,
     "validation_file": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
     "validation_sha256": "26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b"
   },
@@ -889,6 +925,9 @@ This review aid is not executable configuration and not a gate edit:
     "widowed_positive_matchable_event_rule": "direct_deviance_no_worse_than_R0",
     "widowed_zero_matchable_event_rule": "no_deviance_comparison_and_direct_expected_rate_log_move_within_omega_and_budget",
     "widowed_exposure_guard": "working_age_no_worse_than_same_seed_R0_every_boundary",
+    "rule5_role": "load_bearing_exposure_constraint_carrier_composition_can_produce_designed_no_op",
+    "g_BW_role": "construction_conformance_and_apriori_level_cap_not_empirical_selection_filter",
+    "simplicity_priority": "widowed_thrift_before_divorced_magnitude",
     "no_op_rule": "select_R0_if_no_eligible_nonzero_or_J_R0_le_best_plus_SE",
     "selected_outcome_if_no_op": "NO_OP_DESIGNED_PAUSE"
   },
@@ -916,6 +955,8 @@ This review aid is not executable configuration and not a gate edit:
 - Round-1 findings: [PR #231][round1-pr].
 - Round-1 VERIFIED referee: [issue-comment 5003093793][round1-referee].
 - Round-2 REVISE referee: [issue-comment 5003846811][round2-referee].
+- Round-2 SPEC SOUND referee:
+  [issue-comment 5004566775][round2-sound-referee].
 - Round-2 fit-side validation: [JSON ledger][round2-validation].
 - Pre-repair transport mechanism, motivation only:
   [issue #42 comment 4997635883][forensics4].
@@ -923,5 +964,6 @@ This review aid is not executable configuration and not a gate edit:
 [round1-pr]: https://github.com/PolicyEngine/populace-dynamics/pull/231
 [round1-referee]: https://github.com/PolicyEngine/populace-dynamics/pull/231#issuecomment-5003093793
 [round2-referee]: https://github.com/PolicyEngine/populace-dynamics/pull/234#issuecomment-5003846811
+[round2-sound-referee]: https://github.com/PolicyEngine/populace-dynamics/pull/234#issuecomment-5004566775
 [round2-validation]: m6_remarriage_learning_plan_round2_validation.json
 [forensics4]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997635883
