@@ -143,8 +143,69 @@ the live 11-cell gate and the original-threshold regression block.
 > `K=20`, and the at-least-4-of-5 conjunction are unchanged. The v3 artifact and
 > every candidate-1 conclusion remain immutable and historical; v4 has no
 > retrospective effect. Candidate-2's must-not-regress thresholds remain 0.269
-> for `earn_dlog_sd.older` and 0.163 for `earn_zero_rate.older`. No other gate
-> contract byte is authorized by this amendment.
+> for `earn_dlog_sd.older` and 0.163 for `earn_zero_rate.older`. The ratifying
+> lock may change only the gate path/hash and six earnings-tolerance positions,
+> every nested copy of that gate path, the two runtime path/hash constant pairs,
+> and the guard-test dispositions enumerated below. No other gate-contract,
+> runtime-source, or test byte is authorized by this amendment.
+
+### Complete authorized lock-flip edit surface
+
+The orchestrator executes this edit set only at ratification. The positions and
+their lock-time dispositions are exhaustive:
+
+1. **`gates.yaml` — 16 scalar positions, 14 changed values.**
+   `gates.gate_m6.floor_run` and `floor_run_sha256` at `gates.yaml:5459-5460`
+   re-point to the v4 path and primary SHA above. All eight nested path strings
+   also re-point to v4; none remains on v3: each `floor_run` and
+   `derivations.floor_run` under `marital_flows` (`gates.yaml:5622,5628`),
+   `disability_flows` (`gates.yaml:5638,5643`), `earnings_log_ratio`
+   (`gates.yaml:5652,5659`), and `earnings_abs_gap`
+   (`gates.yaml:5670,5675`). This includes the flow views even though their
+   floor records are byte-carried, because `M6GateContract.from_block` requires
+   both nested strings in every view to equal the top-level path
+   (`src/populace_dynamics/harness/m6_scoring.py:136-140`). The six tolerance
+   positions are `gates.yaml:5654-5657` and `gates.yaml:5672-5673`, with the
+   values listed in §2.8.4a. Four values change; `earn_autocorr_lag2=0.087` and
+   `earn_dlog_mean.prime=0.043` are verified in place and remain byte-identical.
+2. **The two runtime constant pairs.** Set `FROZEN_FLOOR_RUN` and
+   `FROZEN_FLOOR_SHA256` to the same v4 path and SHA in
+   `src/populace_dynamics/harness/m6_scoring.py:39-42` and
+   `src/populace_dynamics/harness/m6_runner.py:108-111`. The scoring contract
+   checks its pair at `src/populace_dynamics/harness/m6_scoring.py:113-117`;
+   the runner enforces its pair at
+   `src/populace_dynamics/harness/m6_runner.py:292-293` and its resolved path at
+   `src/populace_dynamics/harness/m6_runner.py:318-319`.
+3. **Pre-lock and live-binding guard tests.** Invert
+   `tests/test_gate_m6_floors_v4.py::test_live_gate_remains_bound_to_frozen_v3_before_ratification`
+   (`tests/test_gate_m6_floors_v4.py:172-183`) to bind the ratified v4 path,
+   SHA, and all nested path copies. In the v3 historical suite, retain the
+   draft-only v3 byte lock at `tests/test_gate_m6_floors.py:134`, but invert the
+   live-gate pin at `tests/test_gate_m6_floors.py:562` and admit exactly the
+   authorized v4 live-versus-draft deltas in the equality guard at
+   `tests/test_gate_m6_floors.py:575-582`. Update the hard-coded resolved path in
+   `tests/test_m6_runner.py::test_frozen_floor_is_byte_verified`
+   (`tests/test_m6_runner.py:242-245`). Rebind the live path, SHA, six
+   tolerances, and corresponding mutation guards in
+   `tests/test_gate_m6_derivations.py::test_gate_m6_locked_added_as_temporal_holdout_top_level_gate`,
+   `::test_gate_m6_floor_run_sha_binds`,
+   `::test_gate_m6_tolerances_recompute_capped`,
+   `::test_gate_m6_v1_v2_v3_lineage_shas`, and
+   `::test_gate_m6_zero_threshold_movement_vs_frozen_floor`
+   (`tests/test_gate_m6_derivations.py:418-445,465-466,505-513`) and their path,
+   SHA, tolerance, and lineage helpers
+   (`tests/test_gate_m6_derivations.py:158-202,317-336`) to v4. Carry those
+   dispositions through `::test_mutations_are_caught`
+   (`tests/test_gate_m6_derivations.py:523-530,571-581`), while preserving the
+   frozen v1/v2/v3 lineage assertions and unchanged flow records.
+
+A `gates.yaml`-only flip with stale source constants cannot false-PASS: it fails
+loudly during `resolve_m6_contract`. The current call order rejects the stale
+binding at `src/populace_dynamics/harness/m6_scoring.py:113-117`; the runner's
+independent resolved-path guard at
+`src/populace_dynamics/harness/m6_runner.py:318-319` rejects a stale pairing as
+`gate_m6 floor path is not the frozen v3 artifact`. Nothing outside the exact
+surface above is authorized.
 
 ## Ratification and lock checklist
 
@@ -158,9 +219,9 @@ the live 11-cell gate and the original-threshold regression block.
   two-directional power, and vacuity checks published.
 - [x] S2 tolerance-movement table and candidate-blind separation published.
 - [ ] Referee ratifies this prospective amendment and the fresh thin-margin OC.
-- [ ] A later ratifying floor-lock PR updates only the authorized v4 artifact
-  reference/hash and six earnings tolerance fields in `gates.yaml`; until that
-  lock lands, v3 remains operative.
+- [ ] At ratification, the orchestrator applies exactly the 16-position
+  `gates.yaml`, two-source-pair, and named guard-test edit surface enumerated
+  above; until that lock lands, v3 remains operative.
 - [ ] Registration 8 occurs only after the prospective floor lock is final.
 - [ ] The separate §2.7 amendment lane re-finalizes its design pin independently;
   it is not bundled into this floor amendment.
