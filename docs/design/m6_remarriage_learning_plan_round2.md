@@ -1,35 +1,64 @@
-# M6 remarriage learning plan, round 2: the exposure-neutral family
+# M6 remarriage learning plan, round 2: the per-origin steepening family
 
 - **Plan:** candidate-2 Lane B, pause-resolution learning plan round 2
-- **Status:** **PROPOSAL — UNRATIFIED.** Docs only; no investigation has run and
-  this document authorizes no model, registry, gate, floor, or run change.
+- **Status:** **REVISED PROPOSAL — UNRATIFIED.** Docs only; no round-2
+  pseudo-holdout outcome or projection has run. PR #234 remains draft pending a
+  full second plan-referee round.
 - **Authority:** the ratified candidate-2 program's designed pause and follow-up
   requirements (`docs/design/m6_candidate2_program.md:842-872,956-994,1038-1046`)
 - **Prior learning:** round-1 [findings PR #231][round1-pr] and the
   [VERIFIED adversarial referee record][round1-referee]
+- **Revision authority:** the round-2 [REVISE referee record][round2-referee]
+- **Fit-side validation:** [round-2 validation ledger][round2-validation],
+  SHA-256 `efab49e212e7199cad87e62d1cf9e0b32d3933d3f6386567fda4fc818e4d13b8`
 - **Frozen evidence domain:** information dated no later than 2014 under the
-  field-aware rules in section 4; synthetic computation
+  field-aware rules in section 4; deterministic fit-side validation and
+  synthetic computation
 - **Prohibited selection evidence:** every 2015+ row, truth moment, candidate
   output, gate score, tolerance comparison, and realized post-2014 macro value
 
-## 1. Structural opening and the bright line
+## 1. Structural opening, revision, and the bright line
 
 Round 1 did not show that no train-supported remarriage correction exists. It
-showed that its entire candidate family was mechanically incompatible with its
-exposure safeguard. L1-L3 lowered the hazard in every cell. With common random
-numbers, uniform lowering weakly delayed remarriage draw by draw and therefore
-raised dissolved exposure. Because L0's train-only projected exposure already
-exceeded truth at all three boundaries, frozen selector rule 4 then excluded
-every nonzero law. The referee verified that structural entailment and the
-no-op; it is the opening fact for this plan, not a reason to repeat a uniformly
-hazard-lowering family.
+showed that its whole nonzero family was mechanically incompatible with its
+exposure safeguard. L1-L3 lowered every cell. Under common random numbers that
+could only delay remarriage draw by draw and raise dissolved exposure. Because
+L0's train-only projected exposure already exceeded truth at all three
+boundaries, frozen selector rule 4 excluded every nonzero law. The referee
+verified the structural entailment and resulting no-op. That remains the
+opening fact for round 2.
 
-Round 2 asks a narrower question: can a small, sign-balanced reshaping of the
-working-age remarriage hazard improve the reproduced pre-2015 numerator and
-rate transport while preserving a weighted expected dissolved-exposure
-functional and protecting realized projected exposure? It tests an exact
-no-op, an origin transfer, an origin-by-dissolution-recency reshape, and an
-origin-by-age-by-recency reshape. It does not test a global downward shift.
+The first round-2 draft escaped that entailment but created its mirror image. A
+single global intercept restored total reference-spell area after lowering the
+divorced stratum and raising the widowed stratum. Divorced spells dominated the
+area functional, so the intercept returned most of the divorced move and
+dumped it into every widowed cell. The merged round-1 ledger makes the failure
+visible without running a candidate: widowed truth-exposure shares were only
+9.4222%, 7.1972%, and 6.4320%, while the 2010 widowed pseudo-window had 40 risk
+rows, 306,537 F6 exposure, and zero events. Its R0 projected widowed rate was
+0.0669567. Increasing every hazard therefore strictly worsened zero-event
+deviance, while draft rule 7 required that deviance not worsen. The first
+round-2 family was provably empty.
+
+This revision removes the global transfer rather than exempting one bad
+boundary. It makes the origin strata independent:
+
+- divorced hazards receive a frozen early-to-late YSD steepening tilt whose
+  intercept and tilt jointly preserve **divorced** reference-spell survivor
+  area while delivering an exact post-neutralization mean logit shift of
+  `-0.50` or `-0.75`;
+- working-age widowed hazards receive either the exact R0 table or a uniform
+  `+0.05` logit shift, never any part of the divorced neutralizer; and
+- widowed movement is capped by its own positive-event train defect, while a
+  separate expected-rate guard replaces deviance comparison where matchable
+  widowed events are zero.
+
+The question is now narrow and honest: can divorced timing be front-loaded
+enough to correct the reproduced pre-2015 rate overshoot without changing its
+origin-specific expected survivor area, while an independently bounded
+widowed option protects that origin and its dissolved stock? This is not
+described as globally exposure-neutral. The outer projected-exposure guard
+remains load-bearing.
 
 The campaign bright line is literal:
 
@@ -37,61 +66,98 @@ The campaign bright line is literal:
 > overshoot is legitimate selection evidence — including the round-1
 > train-only rate ratios 1.5674 / 1.6577 / 2.1742. The 2015-2019 holdout
 > residual (score band 0.263-0.427 vs tol 0.403) may be CITED as motivation
-> ONLY, never as a selection criterion. Replicate round 1's freeze discipline
-> verbatim: freeze commit before any outcome; runtime asserts.
+> ONLY, never as a selection criterion. Replicate round 1's freeze discipline:
+> freeze commit before any candidate outcome; runtime asserts.
 
-Accordingly, the published holdout band may explain why the ratified program
-paused (`docs/design/m6_candidate2_program.md:842-872`). It sets no direction,
-target, grid point, loss, eligibility cutoff, tie-break, or disposition in this
-plan. No round-2 helper may read it or any row used to compute it.
+The holdout band may explain why the ratified program paused
+(`docs/design/m6_candidate2_program.md:842-872`). It sets no direction, target,
+grid point, loss, eligibility cutoff, tie-break, budget, or disposition here.
+No round-2 helper may read it or any row used to compute it.
 
 ## 2. What the admissible evidence establishes
 
-The incumbent is a 60-cell table: five age bands by three years-since-
-dissolution (YSD) bands by two origins by two sexes. It uses
+The incumbent is a 60-cell table: five age bands by three
+years-since-dissolution (YSD) bands by two origins by two sexes. It fits
 `(N_c + wbar) / (E_c + 2 wbar)` in every cell
 (`src/populace_dynamics/models/family_transitions/components/remarriage.py:26-93`)
-and projects the resulting lookup by age, YSD, origin, and sex
+and projects the lookup by age, YSD, origin, and sex
 (`src/populace_dynamics/models/family_transitions/components/remarriage.py:96-132`).
-The simulator compares the same common uniform draw with each applicable
-marital hazard and updates dissolved state on remarriage
+The simulator compares common uniform draws with the applicable marital
+hazards and updates dissolved state on remarriage
 (`src/populace_dynamics/models/family_transitions/simulator.py:285-323`).
 
-Round 1 supplied the following selection-legitimate facts, all reproduced on
-the `≤2014` pseudo-holdouts:
+Round 1 published these selection-legitimate L0 facts on the `≤2014`
+pseudo-holdouts:
 
-| Boundary | Direct L0 expected / actual numerator | Pooled rate ratio | Divorced-origin rate ratio | Widowed-origin rate ratio | Pooled exposure ratio | Widowed exposure ratio |
+| Boundary | Direct expected / actual numerator | Pooled rate ratio | Divorced rate ratio | Widowed rate ratio | Pooled exposure ratio | Widowed exposure ratio |
 |---:|---:|---:|---:|---:|---:|---:|
 | 2006 | 1.5260 | 1.5674 | 1.6712 | 0.9718 | 1.0307 | 1.1024 |
 | 2008 | 1.6189 | 1.6577 | 1.7329 | 0.9143 | 1.0303 | 1.2017 |
 | 2010 | 2.0385 | 2.1742 | 2.0420 | undefined: zero truth events | 1.0583 | 1.1650 |
 
-The direct-standardized numerator overshoot on realized dissolved rows proves
-that the train-only miss is not solely dynamic risk-set feedback. The origin
-ledger localizes the demonstrated over-formation to divorced-origin transport:
-widowed rates were near or below truth in the first two windows, while widowed
-exposure was already 10.2-20.2% high. This supports a divorced-down,
-widowed-up transfer with a separate widowed protection rule.
+The exact projected origin log-rate errors retained by the merged ledger are:
 
-That is the full defensible localization. Round 1 published no outcome residual
-by age or YSD cell; its aggregate ledger retained probability ranges but removed
-the detailed cell records. All 60 cells had exposure and four were thin, but
-those are support facts, not evidence that a named age-YSD cell over-formed.
-Round 2 therefore freezes a deterministic, fit-side regularizing basis before
-it observes any new age/YSD outcome. It may not invent, merge, drop, or reverse a
-cell after seeing round-2 pseudo-holdout results.
+| Boundary | Divorced `log(rbar_R0/r_truth)` | Widowed `log(rbar_R0/r_truth)` |
+|---:|---:|---:|
+| 2006 | +0.5135367879020232 | -0.028644764693506932 |
+| 2008 | +0.5497870186488467 | -0.08956860182931886 |
+| 2010 | +0.7139462881951797 | undefined: zero truth events |
 
-The three windows overlap and remain recent-history stress tests, not three
-independent samples. The family has six nonzero laws after round 1 already
-tested three; the findings and any later registration must disclose the
-accumulated adaptive search as nine nonzero laws across two rounds, not describe
-round 2 as an isolated first search.
+The direct-standardized overshoot proves that the miss is not solely dynamic
+risk-set feedback. The origin ledger localizes the demonstrated excess to
+divorced transport. It supports a large divorced correction. It does not
+support treating widowed as a balancing reservoir: the two defined widowed
+errors are small and opposite the divorced error, and the third window has no
+widowed event.
+
+Define the evidence budget
+
+```text
+B_W = max(abs(-0.028644764693506932),
+          abs(-0.08956860182931886))
+    = 0.08956860182931886.
+```
+
+This is an aggregate projected log-rate budget, not a fitted widowed cell
+residual. The family spends either zero or `0.05` logit. For a uniform positive
+logit move `omega`, each fixed-risk hazard obeys
+
+```text
+h_omega / h0 = exp(omega) / (1 + h0*(exp(omega)-1)),
+```
+
+so the log change in any positive weighted mean hazard lies in `[0, omega]`.
+Thus `omega=0.05 < B_W` is evidence-bounded in the ledger's log-rate currency.
+It cannot reproduce the old `+0.45` to `+0.94` widowed dump.
+
+Round 1 published no outcome residual by age or YSD cell. Its aggregate ledger
+removed the detailed cell records. The revision therefore uses only the fixed
+ordinal contrast early / middle / late = `+1 / 0 / -1`. The direction is a
+mechanical timing hypothesis: at fixed survivor area, raising earlier hazards
+and lowering later hazards can reduce expected event mass because an early exit
+removes more later dissolved years. It is not a claim that any named YSD cell
+was observed to miss.
+
+The [fit-side validation ledger][round2-validation] is deliberately incapable
+of constructing pseudo-holdout truth, projecting a candidate, computing a
+candidate outcome diagnostic, or running the selector. It recomputes only R0
+fit tables, fit support, reference paths, roots, and construction guards from
+the already-admissible sources. Its source checksums match the merged round-1
+ledger. All 24 origin-by-YSD support groups across the three boundaries and
+final fit have positive exposure; unweighted event counts range from 47 to
+1,536. No named law is support-struck.
+
+Round 1 tested three nonzero laws and this revision names four. The findings
+and any later registration must disclose seven accumulated nonzero laws across
+the two rounds. Every named law counts even if a later pre-outcome structural
+guard strikes it. The overlapping windows are recent-history stress tests, not
+three independent samples.
 
 ## 3. Frozen candidate family
 
-### 3.1 Cells, inputs, and exact no-op
+### 3.1 Cells, inputs, no-op, and the steepening contrast
 
-At each pseudo-boundary `b`, let a working-age cell be
+At boundary `b`, a working-age cell is
 
 ```text
 c = (a, d, o, s)
@@ -103,94 +169,80 @@ s in {female, male}.
 
 These are the incumbent bands at
 `src/populace_dynamics/models/family_transitions/components/remarriage.py:26-35`
-and `src/populace_dynamics/data/transitions.py:137-142`. For each boundary,
-`h0_c` is the exact incumbent add-one fit on that boundary's admissible rows:
+and `src/populace_dynamics/data/transitions.py:137-142`. On admissible fit rows,
 
 ```text
 h0_c = (N_c + wbar) / (E_c + 2*wbar).
 ```
 
-`R0` returns that table byte for byte. The investigation must assert R0 table,
-lookup, random uniforms, projected transitions, and aggregate output are
-bit-identical to the incumbent under the same field-aware truncation at every
-boundary. Every basis numerator/exposure and every round-2 delta is restricted
-by raw age `18 <= age <= 64` before band indexing. For raw ages outside that
-range, including 15-17 and 65+, the applied probability is `h0`. This raw-age
-guard is load-bearing because the incumbent band helper clips ages 15-17 into
-the first `(18,34)` lookup cell
+`N_c` is F6-weighted remarriage numerator, `E_c` is F6-weighted dissolved
+exposure, and `wbar` is the mean positive dissolved-row weight. `R0` returns
+that table byte for byte. The investigation must assert R0 table, lookup,
+uniforms, transitions, and aggregate output are bit-identical to the incumbent
+under the same field-aware boundary construction.
+
+Every basis exposure and delta is restricted by raw age `18 <= age <= 64`
+before band indexing. At raw ages outside that range, including 15-17 and 65+,
+the applied probability is `h0`. This is load-bearing because the incumbent
+band helper clips ages 15-17 into the first `(18,34)` cell
 (`src/populace_dynamics/data/transitions.py:110-111`;
 `src/populace_dynamics/models/family_transitions/common.py:13-26`). The helper
-must branch on raw age before applying a delta and assert conditional
-probabilities are bit-identical to R0 outside 18-64.
+must branch on raw age first and assert bit-identical R0 probabilities outside
+18-64.
 
-Every non-remarriage component law and parameter, entry-dissolved carrier
-history, event-label rule, support rule, F6 weight, and RNG address function
-remains exactly R0. Endogenous downstream states and outputs need not be equal:
-a changed working-age remarriage may lawfully change later marriage,
-dissolution, widowhood, or age-65+ risk-set composition, and those differences
-must be published rather than suppressed.
+Every non-remarriage law and parameter, entry-dissolved carrier history,
+event-label rule, truth support, F6 weight, and RNG address remains R0.
+Endogenous downstream states may differ and must be published rather than
+suppressed.
 
-The nonzero laws pool sex only when constructing their shape basis; the
-incumbent sex-specific `h0_c` remains the offset. On boundary-admissible fit rows
-define, for origin `o`, YSD band `d`, and working-age band `a`:
+Define the fixed YSD front-loading contrast
 
 ```text
-q_od  = (N_od  + wbar) / (E_od  + 2*wbar)
-q_oad = (N_oad + wbar) / (E_oad + 2*wbar).
+p_(0-4)   = +1
+p_(5-9)   =  0
+p_(10-120)= -1.
 ```
 
-`N_g` is F6-weighted remarriage numerator, `E_g` is F6-weighted dissolved
-exposure, and `wbar` is the same mean positive dissolved-row weight as R0. The
-group sums pool sex; `q_od` also pools working ages. No pseudo-future row enters
-these quantities. A group requires positive weighted exposure and at least 20
-unweighted remarriage events. A law using any group that misses the requirement
-is ineligible; no after-the-fact pooling or fallback group is allowed.
-
-Define a fixed origin transfer
+For divorced working-age fit exposure at boundary `b`, define
 
 ```text
-u_divorced = -1
-u_widowed  = +1.
+pbar_bD = sum_{c:o=D} E_c*p_d / sum_{c:o=D} E_c
+x_bd    = p_d - pbar_bD.
 ```
 
-Define the exposure-centered dissolution-recency flattening basis:
+The same `E_c`, raw-age domain, origin restriction, and fixed-adjacent pairwise
+sum are used here and in the direction statistic
 
 ```text
-m_o       = sum_d E_od * logit(q_od) / sum_d E_od
-r_od      = m_o - logit(q_od)
-v_od      = r_od / max(1, max_d abs(r_od)).
+Delta_bo = sum_{c:o} E_c * (logit(h_c)-logit(h0_c)) / sum_{c:o} E_c.
 ```
 
-Define the exposure-centered age-within-recency flattening basis:
+Consequently `sum E_c*x_bd / sum E_c` is zero to the frozen arithmetic check.
+Positive tilt raises the early band relative to the late band. There is no
+fitted `q_od`, `q_oad`, minimum-event hyperparameter, age shape, data-chosen
+sign, or post-outcome regrouping.
 
-```text
-m_od      = sum_a E_oad * logit(q_oad) / sum_a E_oad
-r_oad     = m_od - logit(q_oad)
-w_oad     = r_oad / max(1, max_a abs(r_oad)).
-```
+### 3.2 Per-origin reference paths and arithmetic
 
-Both bases have exposure-weighted mean zero in their stated parent and absolute
-value no greater than one. Their sign lowers a locally high fitted logit and
-raises a locally low fitted logit. This is a predeclared regularizing reshape,
-not a claim that round 1 identified the high or low member as an outcome miss.
-All group sums and maxima use ascending origin, YSD, age, and sex order with
-IEEE-754 float64 arithmetic.
+Construct separate reference-spell sets `S_bo` for each boundary and origin.
+Start with every information-admissible dissolution event with known person,
+dissolution year, origin, sex, birth year, administrative censor, and positive
+F6 weight. Apply exclusions in this exact order:
 
-### 3.2 Reference-spell exposure neutrality
+1. exclude every spell in an ambiguous duplicate
+   `(person_id, dissolution_year, origin)` group;
+2. exclude a retained spell whose observed next remarriage is in the same
+   calendar year as dissolution because it has no entering-year dissolved row;
+3. exclude a spell with an empty potential path after the age/censor boundary.
 
-Merely constraining `sum_c E_c h_c` would preserve expected event mass on a
-fixed risk set, not dissolved exposure. Round 2 instead neutralizes a weighted
-expected survivor-area functional.
+Publish counts, total excluded F6 weight, and checksums for every category.
+Duplicates do not abort the investigation and none of these exclusions removes
+an event from the realized truth numerator or rate. The validation found one
+divorced duplicate group (two spells, total F6 weight 29.896) and none in the
+widowed stratum at every fit. It also publishes the same-year and no-path
+counts for every boundary and final fit.
 
-For boundary `b`, construct `S_b` from every unique, information-admissible
-dissolution spell with known person, dissolution year, origin, sex, birth year,
-positive F6 weight, and administrative censor no later than the sanitized
-information boundary. Entry-dissolved carrier spells are included. Duplicate
-`(person_id, dissolution_year, origin)` keys abort. A spell whose observed next
-marriage occurs in the same calendar year as its dissolution is explicitly
-excluded from `S_b` because it has no entering-year dissolved row; its count and
-F6 weight are published. For retained spell `j`, define its potential path and
-working-age exposure years as
+For retained spell `j`, define
 
 ```text
 U_j = {dissolution_year_j + 1, ...,
@@ -198,544 +250,598 @@ U_j = {dissolution_year_j + 1, ...,
 W_j = {t in U_j: t >= birth_year_j + 18}.
 ```
 
-The `+1` implements the frozen entering-year convention: a dissolution in year
-`t` is an event while the dissolved state begins in the next person-year
-(`src/populace_dynamics/data/transitions.py:30-42,377-420`). The reference path
-uses the fixed dissolution entry and administrative endpoint and deliberately
-does not censor on the observed remarriage whose exit the hazard models. It is a
-standardization functional, not a second population projection. Ages 15-17 may
-appear in `U_j` only to carry their unchanged R0 survival into age 18; they do
-not enter the working-age exposure sum. A valid same-year dissolve-remarry
-(`YSD=0`) remains in the realized event numerator and rate but has neither a
-row-indexed expected contribution nor a term in this functional or deviance.
+The `+1` is the frozen entering-year convention: dissolution in year `t` is an
+event and dissolved state begins in the next person-year
+(`src/populace_dynamics/data/transitions.py:30-42,377-420`). The path uses the
+fixed dissolution and administrative endpoint and deliberately does not censor
+on a later observed remarriage. It is a standardization functional, not a
+second population projection. Ages 15-17 may carry unchanged R0 survival into
+age 18 but do not enter the working-age sum.
 
-For any table `h`, define
+For table `h`, define the origin-specific survivor area
 
 ```text
-A_b(h) = sum_{j in S_b} weight_j *
-         sum_{t in W_j} product_{r in U_j: r < t} (1 - h_{j,r}).
+A_bo(h) = sum_{j in S_bo} weight_j *
+          sum_{t in W_j} product_{r in U_j:r<t} (1-h_jr).
 ```
 
-The survival product is updated recursively in ascending year order; an empty
-product is one. For raw ages outside 18-64, `h_jr=h0_jr`. Accumulation order is
-ascending `(person_id, dissolution_year, origin, year)` in float64. Publish the
-spell count, same-year exclusion count/weight, total included F6 weight,
-potential-path count, working-age path-year count, checksum, `A_b(h0)`, and
-every candidate value.
+Within each path, update survival in ascending year order; an empty product is
+one. Build contributions in ascending
+`(origin, person_id, dissolution_year, year)` order. Sum them with this exact
+binary64 algorithm: add adjacent pairs, carry an odd final term unchanged, and
+repeat until one number remains. The same algorithm governs `E`-weighted
+centering and direction sums. A library reduction with an unspecified tree is
+forbidden.
 
-For a raw candidate score `z_c`, set
+The validation's largest per-origin area sum has 55,773 terms, so the pairwise
+tree has 16 levels. Including ratio and subtraction, its same-sign summation
+bound is `2.2204460492503182e-15`. The ledger additionally reserves
+`1.2e-14` for sequential survival products and elementwise arithmetic. The
+area/root tolerance
 
 ```text
-h_jt(alpha) = expit(logit(h0_c(j,t)) + z_c(j,t) + alpha), raw age 18-64
-h_jt(alpha) = h0_c(j,t),                                  otherwise.
+tau_A = 1e-10
 ```
 
-Let `F(alpha) = A_b(h(alpha))/A_b(h0) - 1`. Require finite `A_b(h0)>0` and at
-least one positive-weight reference spell with two working-age risk years;
-otherwise the law is ineligible. Evaluate `F(-16)` and `F(+16)` in the frozen
-arithmetic order. If exactly one endpoint has `abs(F)<=1e-12`, return it; if both
-do, declare a flat/nonunique-root failure. Otherwise require
-`F(-16)>0>F(+16)`, set `lo=-16` and `hi=+16`, and run this exact float64
-bisection for iterations 1 through 200:
+therefore has more than 8,300-fold headroom over the total reserve. This
+tolerance is separate from the selector comparison tolerance of `1e-12`.
 
-1. set `mid = lo + (hi-lo)/2`; midpoint equality with either endpoint is a
-   stagnation failure;
-2. evaluate `F(mid)`; return the first midpoint with `abs(F(mid))<=1e-12`;
-3. if `F(mid)>0`, set `lo=mid`; otherwise set `hi=mid`.
+### 3.3 Origin targets, root, and exact laws
 
-No accepted midpoint by iteration 200, a non-finite value, a failed bracket, or
-a flat/nonunique path makes the law ineligible. There is no library-default root
-behavior. For the accepted table, define the origin-direction statistic using
-R0 fit exposure on working-age cells:
+For divorced origin and strength `k`, define
 
 ```text
-Delta_o = sum_{c: origin=o} E_c * (logit(h_c) - logit(h0_c))
-          / sum_{c: origin=o} E_c.
+h_D,c(k,beta) = expit(logit(h0_c) - k + beta*x_bd), raw age 18-64
+h_D,c(k,beta) = h0_c,                            otherwise.
 ```
 
-The investigation must assert that at least one positive-exposure working-age
-cell rises and one falls, `Delta_divorced < -1e-12`, and
-`Delta_widowed > +1e-12`.
-
-This constraint preserves weighted expected dissolved exposure on the frozen
-reference spells, so the uniform-lowering entailment cannot recur. It does not
-guarantee equality of endogenous projected exposure after remarriage,
-re-dissolution, death, and risk-set composition feedback. Section 5 therefore
-retains the round-1 outer projected-exposure safeguard; the family is no longer
-mechanically foreclosed, but no law receives an automatic pass.
-
-### 3.3 The seven laws and frozen order
-
-The strength grid is exactly `k in {0.25, 0.50}`. Those magnitudes bracket a
-half-step and a full-step relative to the round-1 divorced-origin train log
-errors (approximately 0.51-0.71); they use no holdout quantity. Before the
-neutralizing intercept, the laws are:
+This is equivalently an origin intercept `alpha_bD=-k` plus steepening tilt
+`beta_bD*x_bd`. The two construction targets are
 
 ```text
-R0:       z_c = 0                                           exact no-op
-R1(k):    z_c = k * u_o                                     origin transfer
-R2(k):    z_c = k * (u_o + 0.5*v_od)                        + YSD reshape
-R3(k):    z_c = k * (u_o + 0.5*v_od + 0.5*w_oad)            + age/YSD reshape.
+Delta_bD = -k
+A_bD(h_D) / A_bD(h0) - 1 = 0 within tau_A.
 ```
 
-Thus the closed family has seven laws including R0, six nonzero laws, two fixed
-strengths, and no fitted hyperparameter beyond the deterministic fit-side basis
-and exposure-neutralizing root. There is no continuous grid and no post-outcome
-subgroup, sign, centering, normalization, minimum-count, root bracket, or cap
-choice.
-
-The frozen simplicity order is
+Exposure-centering makes the first equality algebraic. For the second, define
 
 ```text
-R1(0.25) < R1(0.50) < R2(0.25) < R2(0.50)
-         < R3(0.25) < R3(0.50).
+G_bk(beta) = A_bD(h_D(k,beta))/A_bD(h0) - 1.
 ```
 
-Within a structural form, the smaller move is simpler. An origin-only law is
-simpler than adding a fitted recency basis, and the recency law is simpler than
-adding age-by-recency structure. Exact numeric ties use this order.
+Evaluate `G_bk(0)` and `G_bk(16)` and require `G_bk(0)>0>G_bk(16)`. Set
+`lo=0`, `hi=16`, then for iterations 1 through 200:
 
-### 3.4 Numerator-side timing laws: only through the hazard
+1. set `mid = lo + (hi-lo)/2`; equality with either endpoint is
+   `ROOT_STAGNATION`;
+2. evaluate `G_bk(mid)` and return the first midpoint with
+   `abs(G_bk(mid)) <= tau_A`;
+3. if `G_bk(mid)>0`, set `lo=mid`; otherwise set `hi=mid`.
+
+A non-finite evaluation is `ROOT_NONFINITE`; a failed sign bracket is
+`ROOT_NO_BRACKET`; midpoint equality is `ROOT_STAGNATION`; and no accepted
+midpoint after iteration 200 is `ROOT_ITERATION_LIMIT`. A disagreement with the
+fit-side ledger is `ROOT_VALIDATION_MISMATCH`. Because that ledger already
+validates every root on frozen source hashes, any such runtime status aborts the
+investigation before selection. It does **not** mark one law ineligible, feed
+the no-op, or masquerade as substantive evidence.
+
+For widowed origin, choose `omega in {0.00, 0.05}` independently and define
+
+```text
+h_W,c(omega) = expit(logit(h0_c) + omega), raw age 18-64
+h_W,c(omega) = h0_c,                       otherwise
+alpha_bW     = omega
+T_bW(omega)  = A_bW(h_W(omega)).
+```
+
+The widowed target is its own table's area, not the divorced residual. Runtime
+must reproduce `A_bW(h_W)/T_bW-1` within `tau_A`. `omega=0` is byte-identical
+to R0 in every widowed cell. `omega=0.05` moves every working-age widowed logit
+by exactly 0.05, below `B_W`; it lowers the validated widowed reference area by
+only 1.62-1.67%. No divorced score or root can enter a widowed cell.
+
+The strength grid is exactly `k in {0.50,0.75}`. Because the post-root
+`Delta_bD` is exactly `-k`, these endpoints genuinely bracket the round-1
+divorced log-rate defects `0.5135368` through `0.7139463`. There is no global
+alpha give-back.
+
+The complete family has five laws:
+
+```text
+R0                         exact no-op
+R_D50_W00 = R1(0.50,0.00) divorced target -0.50; widowed exact R0
+R_D75_W00 = R1(0.75,0.00) divorced target -0.75; widowed exact R0
+R_D50_W05 = R1(0.50,0.05) divorced target -0.50; widowed +0.05
+R_D75_W05 = R1(0.75,0.05) divorced target -0.75; widowed +0.05.
+```
+
+The frozen simplicity order is the displayed order. Leaving widowed at R0 is
+simpler than spending its separate budget; within a widowed option, the
+smaller divorced move is simpler.
+
+The fit-side roots are already published:
+
+| Fit boundary | `beta_D`, k=0.50 | `Delta_D` | residual | `beta_D`, k=0.75 | `Delta_D` | residual |
+|---:|---:|---:|---:|---:|---:|---:|
+| 2006 | 0.9365218054 | -0.5000000000 | -8.29e-11 | 1.2937688879 | -0.7500000000 | +5.91e-11 |
+| 2008 | 0.9253702560 | -0.5000000000 | +8.10e-11 | 1.2791157849 | -0.7500000000 | +2.43e-11 |
+| 2010 | 0.9710831894 | -0.5000000000 | -9.57e-11 | 1.3322750581 | -0.7500000000 | +3.46e-12 |
+| final 2014 information | 0.9303924022 | -0.5000000000 | +2.89e-11 | 1.2817100482 | -0.7500000000 | -9.27e-11 |
+
+All bracket endpoints have the required signs and all roots converge within
+the frozen tolerance. The calibrated divorced cell shifts range from
+`-2.2198057` to `+0.4447444` logit, and divorced candidate probabilities remain
+between `0.0018317` and `0.2673588`; across the complete family, including the
+independent widowed option, the range is `0.0018317` to `0.3800683`. The large
+late-cell reduction is disclosed as a
+mechanical consequence of preserving area while achieving the mean divorced
+target, not as cell-outcome evidence. No post-outcome cap may be invented.
+
+### 3.4 Numerator timing only through the state-consistent hazard
 
 Standalone numerator thinning, relabeling, event-year shifting, censor/window
-movement, and count-only calibration are outside this family. A valid
-remarriage event must coincide with leaving dissolved state and opening the next
-marriage; changing its numerator without changing the corresponding state path
-would violate the landed carrier/event conformance law and contaminate downstream
-family and auxiliary-benefit histories. Event construction is already pinned by
-the dissolve-before-marry tie order and entering-year convention
-(`src/populace_dynamics/data/transitions.py:307-315,377-420,473-509`). Any change
-to those semantics would leave this learning plan and require the separate
-narrow §2.8 ceremony named at
+movement, and count-only calibration remain outside this family. A remarriage
+event must coincide with leaving dissolved state and opening the next marriage;
+severing numerator and state path would violate carrier/event conformance and
+contaminate downstream family histories. Event construction is pinned by the
+dissolve-before-marry order and entering-year convention
+(`src/populace_dynamics/data/transitions.py:307-315,377-420,473-509`). Any
+change to those semantics requires the separate §2.8 ceremony at
 `docs/design/m6_candidate2_program.md:835-840,946-954`.
 
-Timing is in scope only in the state-consistent sense embodied by R2/R3: changing
-the YSD hazard can move a remarriage and its dissolved-state exit together while
-the survivor-area constraint holds. The pre-repair [transport forensics][forensics4]
-show why severing event labels from state/history is not harmless. Same-year
-`YSD=0` events remain in every realized/truth numerator and rate, have no
-row-indexed expected contribution, and remain excluded from survivor-area and
-deviance calculations because no entering-year dissolved row exists. Their
-count and F6 weight are always published.
+Timing is in scope only through the frozen YSD hazard. The candidate may move a
+remarriage and its dissolved-state exit together. Valid same-year `YSD=0`
+events remain in every realized/truth numerator and rate, have no row-indexed
+expected contribution, and stay outside survivor-area and deviance sums. Their
+counts and F6 weights are always published.
 
 ## 4. Frozen pseudo-holdouts and information dating
 
-Round 2 copies round 1's field-aware `≤T*` construction verbatim. The only
-intentional Monte Carlo change is the fresh, predeclared seed bank below; no new
-window, anchor, support, or dating convention is introduced.
+Round 2 copies round 1's field-aware `≤T*` construction. The only intentional
+Monte Carlo change is the fresh seed bank below.
 
-The expanding boundaries are exactly `{2006, 2008, 2010}`. At boundary `b`:
+The expanding boundaries are exactly `{2006,2008,2010}`. At boundary `b`:
 
-1. Apply the existing conservative refit truncation. A fit row is admissible
-   only if its state/event year is `<=b`; annual marital flows additionally
-   require the interview that establishes the row to be `<=b`.
-2. Fit all unchanged family components on admissible rows. Only the remarriage
-   table varies across R0-R3.
+1. Apply conservative refit truncation. A fit row is admissible only if its
+   state/event year is `<=b`; annual marital flows also require the establishing
+   interview to be `<=b`.
+2. Fit all unchanged family components. Only the remarriage table differs.
 3. Form the shifted §2.8 anchor from the earliest positive-weight interview in
-   `{b+1,b+3}`. Hold its household and F6 weight fixed.
-4. Seed the realized marital state at that anchor, including the landed
-   entry-dissolved carrier history, and project through `b+4`.
-5. Evaluate `{b+1,...,b+4}` only when the interview required to establish the
-   annual row is also no later than 2014, on symmetric opening-wave presence
-   support pooled over sex and ages 18-64.
+   `{b+1,b+3}` and hold household and F6 weight fixed.
+4. Seed realized marital state, including entry-dissolved carrier history, and
+   project only through `max(evaluation_years)`.
+5. Evaluate exactly `[2007,2008,2009,2010]`, `[2009,2010,2011,2012]`, or
+   `[2011,2012,2013]`, respectively, on symmetric opening-wave presence support
+   pooled over sex and ages 18-64.
 
-The effective windows remain 2007-2010, 2009-2012, and 2011-2013. Calendar 2014
-is excluded because its establishing PSID interview is in 2015. The field-aware
-refit machinery and its marriage-event/person-year dating live at
-`src/populace_dynamics/engine/refit.py:262-296,351-406,507-544`; this plan changes
-neither their law nor the incumbent-spec refit rule at
+Calendar 2014 is excluded because its establishing PSID interview is in 2015.
+The field-aware refit machinery and dating rules are at
+`src/populace_dynamics/engine/refit.py:262-296,351-406,507-544`; the incumbent
+refit rule remains
 `src/populace_dynamics/engine/refit.py:599-613`.
 
-The retrospective sources are read-only and sanitized by exclusion before any
-panel, fit, reference-spell functional, truth reduction, or projection can see
-them:
+Retrospective sources are read-only and sanitized by exclusion before any fit,
+reference path, truth reduction, or projection:
 
 - demographic rows are limited to interviews no later than 2013;
-- a marriage or birth event survives only if both its event year and its
-  establishing-report year are no later than 2014;
-- surviving report years are clipped, post-2014 marriage end/separation fields
-  are nulled, and `n_marriages` is recomputed from the surviving records; and
+- a marriage or birth survives only if event year and establishing-report year
+  are no later than 2014;
+- post-2014 end/separation fields are nulled and `n_marriages` recomputed; and
 - deaths after 2014 are nulled.
 
-At each boundary, the same operations are tightened to `b`. The helper must
-disclose that this is not a contemporaneous pre-2015 snapshot: whether a
-pre-2015 marriage survives can be correlated with later panel continuation
-because a record last established after 2014 is excluded. The convention is
-still internally valid because it is exclusion-only and R0 is required to be
-bit-equivalent under that same sanitized composition.
+At each boundary the same rules tighten to `b`. The helper must disclose that
+this is not a contemporaneous snapshot: retention of a pre-2015 marriage can
+correlate with later panel continuation because a record last established after
+2014 is excluded. The convention remains symmetric because it is
+exclusion-only and R0 must be bit-equivalent on the same sanitized composition.
 
-The round-2 analysis seeds are exactly `{7240,...,7279}`. All seven laws use
-common random numbers. The fixed stability blocks are `{7240,...,7259}` and
-`{7260,...,7279}`. This fresh contiguous bank avoids selecting new laws on the
-same Monte Carlo realizations whose round-1 summaries informed this proposal.
-The old `{7200,...,7239}` outcomes remain admissible published motivation, but
-no round-2 law may be previewed on them before selection. For seed label `s`,
-instantiate `ProjectionRNGRegistry(draw_index=s-5200,
-n_periods=max(evaluation_years)-b)`, use
+The analysis seeds are exactly `{7240,...,7279}`. All five laws use common
+random numbers. Blocks are `{7240,...,7259}` and `{7260,...,7279}`. The old
+`{7200,...,7239}` outcomes are published motivation only; no round-2 law may be
+previewed on them.
+
+The RNG period counts are frozen, not inferred from loose prose:
+
+```text
+n_periods(2006) = 4
+n_periods(2008) = 4
+n_periods(2010) = 3.
+```
+
+For seed `s`, instantiate
+`ProjectionRNGRegistry(draw_index=s-5200, n_periods=n_periods(b))`, use
 `generator(0, ProjectionModule.MARITAL_CORE)` for transition uniforms, and use
 `child_generator(0, ProjectionModule.MARITAL_CORE, 1)` for spouse-gap draws.
-This is the exact round-1 address mapping and the inherited root is therefore
-`s` (`src/populace_dynamics/engine/rng.py:16-17,37-99`).
+The root is `s` and `n_periods` is RNG-material because the registry spawns
+`n_periods+1` period children
+(`src/populace_dynamics/engine/rng.py:16-17,37-99`, especially 61-67).
 
-Candidate enumeration/order may not alter those addresses or insert a
-variant-specific RNG call. The transition-uniform generator starts from the
-same state for every law. Changed transitions can lawfully change which people
-consume spouse-gap draws and can change downstream active sets and outputs; the
-findings publish those differences while asserting the registry code,
-component-child addresses, and raw transition-uniform checksum are unchanged.
+Candidate order may not alter addresses or insert a law-specific RNG call.
+Changed transitions may lawfully change spouse-gap consumption and downstream
+active sets; findings publish those differences while asserting registry code,
+child addresses, and the raw transition-uniform checksum are unchanged.
 
 ## 5. Frozen diagnostics, objective, and selector
 
-### 5.1 Publication record
+### 5.1 Publication record and direct quantities
 
-For each boundary and law, the findings must publish, regardless of disposition:
+For every boundary and law, findings publish regardless of disposition:
 
-- every fit/support maximum, group count, weighted exposure/numerator, `wbar`,
-  `q`, basis value, cell probability, thin/ineligible group, checksum,
-  neutralizer `alpha`, and reference-spell `A_b` equality;
+- fit/support rows, events, exposure, `wbar`, every cell probability, table
+  checksum, `pbar`, centered contrast, origin intercepts, divorced root ledger,
+  `Delta`, min/max shift, probability range, and both origin area targets;
+- reference-spell inclusion and every exclusion count/weight/checksum, path
+  counts, pairwise term count, R0 area, target, candidate area, and residual;
 - pseudo-future truth dissolved exposure, event numerator, and rate;
-- direct-standardized expected numerator and rate from applying the law to the
-  realized dissolved rows, plus F6-weighted Bernoulli deviance;
-- each of the 40 projected exposure, numerator, and rate records, their mean,
-  both fixed-block means, and projected/truth ratios and natural logs;
-- the same direct and projected records by origin and by the frozen
-  origin-by-working-age-by-YSD groups, including zero-event groups as explicit
-  zeroes/null ratios rather than silently removing them; and
-- exact support, entry-carrier state/YSD survival, event-label, common-random-
-  number, and R0-equivalence checks.
+- direct expected numerator/rate and F6-weighted Bernoulli deviance;
+- all 40 projected exposure, numerator, and rate records, their mean, both
+  blocks, ratios, and natural logs;
+- the same records by origin and frozen origin-by-age-by-YSD publication groups,
+  retaining zero-event groups as explicit zeroes/null ratios; and
+- support, carrier, event-label, CRN, input-hash, validation-ledger, and
+  R0-equivalence checks.
 
-A valid unmatched same-year dissolve-remarry event enters the pseudo-truth
-event numerator and rate but has no row-indexed expected contribution. For law
-`L` at boundary `b`, freeze the direct quantities as
+For law `L` and boundary `b`, direct risk rows `i` use
 
 ```text
-expected_numerator_Lb = sum_i weight_i * h_L,c(i)
-actual_numerator_b = sum_i weight_i * event_i
+expected_numerator_Lb = sum_i weight_i*h_L,c(i)
+actual_numerator_b = sum_i weight_i*event_i
                      + unmatched_same_year_event_weight_b
 expected_rate_Lb = expected_numerator_Lb / sum_i weight_i
-actual_rate_b = actual_numerator_b / sum_i weight_i,
+actual_rate_b = actual_numerator_b / sum_i weight_i.
 ```
 
-where `i` indexes entering-year dissolved risk rows and matched events. A valid
-same-year event is excluded from row-indexed deviance and `A_b`, with its count
-and F6 weight published. Any unmatched nonzero-YSD event aborts. Boundary
-F6-weighted Bernoulli deviance is
+Same-year events remain in actual numerator/rate but outside row-indexed
+deviance. Any unmatched nonzero-YSD event aborts. Deviance is
 
 ```text
 D_Lb = -2 * sum_i weight_i *
-        (event_i*log(h_L,c(i)) + (1-event_i)*log(1-h_L,c(i)))
-        / sum_i weight_i.
+       (event_i*log(h_L,c(i)) + (1-event_i)*log(1-h_L,c(i)))
+       / sum_i weight_i.
 ```
 
-Origin deviances use the identical restriction and normalization. Pooled
-deviance is the sum of the three pre-normalization weighted deviance numerators
-divided by the sum of their three weight denominators, not an equal-boundary
-mean. These definitions are frozen before helper contact; round 2 permits no
-post-contact "outcome-neutral" diagnostic amendment.
+Origin deviances use the same restriction and normalization. Pooled deviance
+is the sum of the three pre-normalization numerators divided by the sum of the
+three denominators, not an equal-boundary mean.
 
-The committed findings ledger may remove person identifiers and repetitive
-per-seed rows only through a committed deterministic reducer. It must retain
-the complete aggregate cell ledger, every selector input, the SHA-256 of full
-JSON stdout, the reducer version/hash, and enough information for a referee to
-recompute every eligibility bit and the selected law without rerunning the
-model.
+For widowed origin additionally define, on its row-indexed risk rows,
 
-### 5.2 Primary loss and Monte Carlo uncertainty
+```text
+m_wb = number of positive-weight rows with event_i=1
+qdir_Lwb = sum_i weight_i*h_L,c(i) / sum_i weight_i
+g_Lwb = log(qdir_Lwb/qdir_R0wb).
+```
 
-No diagnostic is compared with a gate tolerance. For law `L`, boundary `b`, and
-seed `s`, let `r_Lbs` be the projected pooled remarriage rate and `r_truth,b` the
-field-aware pseudo-holdout truth rate. Define
+The truth-defined branch `m_wb>0` versus `m_wb=0` is computed once per boundary
+and is law-independent. A same-year-only event does not make row-indexed
+deviance informative.
+
+The committed findings may reduce repetitive per-seed records only with a
+committed deterministic reducer. It must retain every selector input, the
+SHA-256 of full JSON stdout, reducer hash, and enough data to recompute every
+eligibility bit and selection without rerunning the model.
+
+### 5.2 Projected quantities, loss, and Monte Carlo uncertainty
+
+Let `K_b` be the boundary's frozen truth-support person-year keys over its exact
+effective evaluation years. For seed `s`, define rather than inherit:
+
+```text
+e_Lbs = F6-weighted dissolved exposure of law L summed on K_b
+n_Lbs = F6-weighted projected remarriage-event numerator of L summed on K_b
+r_Lbs = n_Lbs / e_Lbs.
+```
+
+Origin versions restrict dissolved rows and remarriage events to that origin.
+Truth `e_truth,b`, `n_truth,b`, and `r_truth,b` use the identical keys, years,
+weights, and restrictions. This is exactly the round-1 transport aggregation.
+
+Define
 
 ```text
 rbar_Lb = mean_s r_Lbs
-J(L)    = (1/3) * sum_b log(rbar_Lb / r_truth,b)^2.
-```
+J(L)    = (1/3) * sum_b log(rbar_Lb/r_truth,b)^2
 
-For projected exposure, define before any eligibility comparison
-
-```text
-ebar_Lb  = mean_s e_Lbs
+ebar_Lb = mean_s e_Lbs
 ebar_Lob = mean_s e_Lobs
 
-rate_error_Lb = abs(log(rbar_Lb / r_truth,b))
-exposure_error_Lb = abs(log(ebar_Lb / e_truth,b))
+rate_error_Lb = abs(log(rbar_Lb/r_truth,b))
+exposure_error_Lb = abs(log(ebar_Lb/e_truth,b))
 widow_exposure_error_Lb =
-    abs(log(ebar_L,widowed,b / e_truth,widowed,b)).
+    abs(log(ebar_L,widowed,b/e_truth,widowed,b)).
 ```
 
-Rules 4, 5, and 7 use these full-40-seed quantities. They do not average
-per-seed ratios or per-seed log errors.
+Exposure and rate guards use ratios of full-40-seed means, never mean per-seed
+ratios or log errors. Each fixed block uses the identical `J` formula on its
+20-seed means.
 
-Each fixed-block loss uses the identical formula with its 20-seed mean. For a
-Monte Carlo standard error on the same statistic, delete the same seed label
-`s` from all three boundaries, recompute all three 39-seed rate means and
-`J_(-s)(L)`, and never re-select within a replicate. Let `Jjack_bar` be the mean
-of those 40 values and define the frozen delete-one jackknife
+For Monte Carlo uncertainty, delete the same seed `s` from all boundaries,
+recompute all three 39-seed rate means and `J_(-s)(L)`, and never re-select
+inside a replicate. With `Jjack_bar` their mean,
 
 ```text
-SE_J(L) = sqrt((39/40) * sum_s (J_(-s)(L) - Jjack_bar)^2).
+SE_J(L) = sqrt((39/40) * sum_s (J_(-s)(L)-Jjack_bar)^2).
 ```
 
-This one-SE quantity measures Monte Carlo uncertainty only. The overlapping
-calendar windows do not supply three independent sampling units, and the
-findings may not describe `SE_J` as data-sampling uncertainty.
+This is Monte Carlo uncertainty only, not data-sampling uncertainty.
 
-For every selector comparison define `x <* y` as `x < y - 1e-12` and `x <=* y`
-as `x <= y + 1e-12`. This single absolute comparison tolerance applies to all
-loss, deviance, and absolute-log-error comparisons below. It is not a gate
-tolerance and never references the 2015-2019 band. These conventions govern
-eligibility and one-SE cutoff membership, not the `Lbest` argmin: `Lbest` is the
-exact float64 minimum, and only bit-equal `J` values are ties resolved by the
-frozen simplicity order.
+For selector comparisons, `x <* y` means `x < y-1e-12` and `x <=* y` means
+`x <= y+1e-12`. This tolerance governs loss, deviance, log-error, and budget
+comparisons only. It is distinct from `tau_A=1e-10` and from every gate
+tolerance. `Lbest` is the exact binary64 minimum; only bit-equal `J` values use
+the simplicity order.
 
-### 5.3 Eligibility rules
+### 5.3 Eligibility rules and zero-event handling
 
-R0 is the baseline only if all information, support, conformance, checksum, and
-bit-equivalence assertions pass; otherwise the investigation aborts rather
-than manufacturing a no-op result. A nonzero law is eligible only if all seven
-rules pass:
+R0 is a baseline only if every information, conformance, checksum, and
+bit-equivalence assertion passes. Otherwise abort. A nonzero law is eligible
+only if all seven rules pass:
 
-1. **Defined and conformant.** Every quantity consumed by the objective or
-   rules 2-7 is finite at all three boundaries, and every argument to a
-   logarithm is strictly positive; the pooled truth rates used by `J`,
-   minimum-event rules, exact person-year support, carrier, event-label, RNG,
-   and R0-equivalence checks pass. A predeclared publication-only subgroup ratio
-   may be null when its truth numerator is zero; no selector rule may read that
-   null, and it does not cause ineligibility.
-2. **Exposure-neutral and sign-balanced by construction.** At every boundary,
-   `abs(A_b(h)/A_b(h0)-1) <= 1e-12`; at least one positive-exposure cell rises
-   and one falls; `Delta_divorced < -1e-12` and
-   `Delta_widowed > +1e-12`.
-3. **Full and block loss.** Full-draw `J` and both fixed-block `J` values are
-   `<*` R0.
-4. **Boundary rate transport.** Absolute projected/truth pooled log-rate error
-   (`rate_error_Lb`) is `<*` R0 at least two boundaries and `<=*` R0 at the
-   remaining boundary.
+1. **Defined and conformant.** Every selector quantity is finite at all three
+   boundaries, logarithm arguments are positive, pooled truth rates are
+   defined, exact support/carrier/event/RNG checks pass, and candidate tables
+   match the fit-side validation. Publication-only ratios may be null when
+   truth numerator is zero.
+2. **Per-origin construction and budget.** At every boundary,
+   `abs(A_bD(h)/A_bD(h0)-1)<=tau_A`,
+   `abs(A_bW(h)/T_bW(omega)-1)<=tau_A`,
+   `abs(Delta_bD+k)<=1e-12`, and
+   `abs(Delta_bW-omega)<=1e-12`. `beta_bD>0`; at least one positive-exposure
+   divorced cell rises and one falls. Every widowed working-age cell shift is
+   exactly `omega in {0,0.05}`, and `0 <=* g_Lwb <=* omega <=* B_W` on every
+   boundary. No mandatory `Delta_widowed>0` rule strikes the `omega=0` control.
+3. **Full and block loss.** Full-draw `J` and both block `J` values are `<*` R0.
+4. **Boundary rate transport.** `rate_error_Lb` is `<*` R0 at least two
+   boundaries and `<=*` R0 at the remaining boundary.
 5. **Endogenous exposure protection.** `exposure_error_Lb` is `<=*` R0 at every
-   boundary. Reference-spell neutrality does not waive this outer safeguard.
-6. **Direct fit.** Pooled direct-standardized deviance is `<*` R0, and boundary
-   deviance is `<*` R0 at least two boundaries and `<=*` R0 at the third.
-7. **Origin protection.** Divorced-origin direct deviance is `<*` R0 at least
-   two boundaries and `<=*` R0 at the third; widowed-origin direct deviance and
-   `widow_exposure_error_Lb` are `<=*` R0 at every boundary. Deviance, rather
-   than a widowed log-rate, makes the predeclared rule defined when the 2010
-   pseudo-window has zero widowed truth events.
+   boundary. Origin-specific reference targets do not waive this outer guard.
+6. **Direct fit.** Pooled direct deviance is `<*` R0; boundary deviance is `<*`
+   R0 at least two boundaries and `<=*` R0 at the third.
+7. **Origin protection.** Divorced direct deviance is `<*` R0 at least two
+   boundaries and `<=*` R0 at the third. For widowed origin:
+   - if `m_wb>0`, direct widowed deviance is `<=*` R0;
+   - if `m_wb=0`, widowed deviance is published but not compared, risk exposure
+     must be positive, and the separate guard
+     `0 <=* g_Lwb <=* omega <=* B_W` must pass.
+   `widow_exposure_error_Lb` is `<=*` R0 at **every** boundary in both branches.
 
-These are conjunctions, not a menu. No law can trade a failed exposure or
-widowed check for a lower pooled `J`, and no failed group can be removed after
-the fact.
+The zero-event branch is not a likelihood exemption chosen after seeing a law.
+It is a frozen, truth-defined response to a cell in which Bernoulli deviance is
+strictly monotone in hazard and cannot measure improvement toward zero without
+re-imposing an R0 veto. The expected-rate guard caps the movement using the
+widowed origin's own evidence, while the projected stock guard remains active.
+
+These rules are conjunctions. A law cannot trade a failed exposure, widowed,
+or construction guard for a lower `J`.
 
 ### 5.4 One-SE/no-op selector and final information fit
 
-If there is no eligible nonzero law, select R0 and return
+If no nonzero law is eligible, select R0 and return
 `NO_OP_DESIGNED_PAUSE`. Otherwise:
 
-1. Let `Lbest` be the eligible nonzero law with minimum full-draw `J`; exact
+1. `Lbest` is the eligible nonzero law with minimum full-draw `J`; bit-equal
    ties use the frozen simplicity order.
-2. Set `cutoff = J(Lbest) + SE_J(Lbest)`.
-3. If `J(R0) <= cutoff + 1e-12`, select R0. This is the explicit
-   no-op-favoring one-SE rule.
-4. Otherwise select the first eligible law in the frozen simplicity order with
-   `J(L) <= cutoff + 1e-12`.
+2. Set `cutoff=J(Lbest)+SE_J(Lbest)`.
+3. If `J(R0)<=cutoff+1e-12`, select R0.
+4. Otherwise select the first eligible law in simplicity order with
+   `J(L)<=cutoff+1e-12`.
 
-This wording replaces round 1's unexercised ambiguous phrase: R0 wins whenever
-it is within one Monte Carlo standard error of the best eligible nonzero law,
-not only when it has the absolute minimum.
+R0 therefore wins whenever it is within one Monte Carlo standard error of the
+best eligible law, not only when it has the absolute minimum.
 
-If a nonzero structure and strength are selected, fit that exact law once on
-all information admissible at the 2014 boundary. The field-aware effective
-maximum remains 2013 because calendar-2014 marital flow requires the forbidden
-2015 interview. Recompute `h0`, the selected fit-side bases, `S_2014`, and its
-neutralizing `alpha` by the identical rules; do not re-select. Publish the final
-60 probabilities, basis inputs, root ledger, hashes, and exact no-op comparison.
-Reapply every law-definition, group-support, probability, root, neutrality, and
-direction guard. If any guard fails, do not substitute another law, change a
-strength, or rerun selection: record the pseudo-holdout selection, publish the
-final-fit failure, and continue the designed pause under section 7. A passing
-final estimate is still a finding, not authority to edit the registry.
+If a nonzero law is selected, fit exactly its `(k,omega)` once on all
+information admissible at the 2014 boundary. The effective fit maximum remains
+2013. Recompute h0, divorced exposure center, both origin reference sets,
+`beta_D`, and the widowed target; do not re-select. The values must reproduce
+the final-2014 validation row within frozen arithmetic. Publish all 60
+probabilities, roots, targets, guards, and hashes.
+
+If final construction or budget checks fail, do not substitute another law,
+change a strength, or rerun selection. Publish the selected pseudo-holdout law
+and final-fit failure, then continue the designed pause under section 7. A
+passing final estimate is still a finding, not authority to edit the registry.
 
 ## 6. Freeze commit and runtime enforcement
 
-This proposal is not itself ratified. The fable referee may require prospective
-edits while no round-2 outcome exists. Once the plan is accepted, its ratifying
-merge commit is the selector-freeze commit. That commit must precede any helper
-that reads a real remarriage outcome, fits a round-2 law, or projects a
-pseudo-holdout.
+This revised proposal is unratified. The full second plan referee may require
+prospective edits while no round-2 candidate outcome exists. The fit-side
+validation commits precede this revision and are narrowly scoped: they can read
+admissible fit/reference inputs but cannot construct pseudo-holdout truth,
+project a candidate, compute a direct/projected candidate outcome diagnostic,
+or run the selector. Their source hashes and all calculations are disclosed.
+They do not weaken the outcome freeze.
 
-The investigation lane must reproduce round 1's commit discipline exactly:
+Before ratification, this branch must be rebased onto current `master` so the
+round-1 report and ledger inherited by the validation are present in the same
+tree. Do not merge `master` into the draft lane. After the second referee
+accepts the complete design, the ratifying merge commit is the selector-freeze
+commit. It must precede any helper contact with a round-2 pseudo-holdout truth,
+candidate direct outcome, candidate projection, or selector output.
 
-1. record the ratified design commit and SHA-256 of this complete Markdown file
-   in a protocol-lock commit;
-2. implement the helper mechanically in a later commit, exercising only
-   synthetic fixtures before committing it;
-3. obtain a pre-execution freeze audit confirming that laws, constants,
-   pseudo-boundaries, dating, seeds, diagnostics, selector, tie-breaks, and
-   no-op disposition still match the ratified file; and only then
-4. run the helper on the read-only staged sources and publish full stdout plus
-   the deterministic aggregate ledger regardless of outcome.
+The investigation lane must:
 
-Runtime must assert, before selection:
+1. record the ratified design commit and SHA-256 of this Markdown file **and**
+   the validation JSON in a protocol-lock commit;
+2. implement mechanically later, exercising only synthetic fixtures;
+3. obtain a pre-execution audit confirming laws, inputs, roots, periods, seeds,
+   diagnostics, selector, and dispositions match both frozen files; and
+4. run once on read-only staged sources and publish full JSON stdout and the
+   deterministic reduced ledger regardless of result.
 
-- embedded `design_commit` and protocol-file SHA-256 equal the ratified lock;
-- fit state/event and required-interview maxima are `<=b` (normally `b-1`),
-  every evaluation year is `<=2013`, and every evaluation required interview
-  is `<=2014`;
-- the sanitized source maxima, exclusion counts, clipped/null field counts,
-  recomputed-marriage counts, and source hashes equal the published input audit;
-- no 2015+ row, truth moment, candidate output, macro value, score, or tolerance
-  is reachable by any fit, basis, root, diagnostic, objective, eligibility bit,
-  or tie-break;
-- the boundary list, law list/order, strengths, minimum counts, root bracket,
-  arithmetic tolerance, seed set, blocks, and CRN checksums equal this plan;
-- R0 is bit-equivalent; raw-age-outside-18-64 conditional probabilities,
-  non-remarriage component laws/parameters, carrier/event semantics, and RNG
-  address functions are unchanged; endogenous downstream differences are
-  published; exact support/carrier/YSD/event-label assertions pass; and the
-  selected law is a pure function of the frozen ledger; and
-- the helper never imports or calls the M6 scorer, never reads `gates.yaml`,
-  never reads a `runs/` artifact, writes no file, and emits JSON only to stdout.
+Runtime must assert before selection:
 
-The helper's dependency/import audit and file-open audit must be included in the
-findings. If any protocol, diagnostic, or selector definition proves defective
-after first real-outcome contact, stop and disclose the contact and defect. The
-existing output is not silently repurposed: amend the proposal, obtain a new
-referee decision and freeze commit, and begin a new investigation. Calling an
-edit outcome-neutral is not an exemption.
+- embedded design commit and both file SHA-256 values equal the lock;
+- fit years/interviews are `<=b`, evaluation years are `<=2013`, and required
+  evaluation interviews are `<=2014`;
+- sanitized maxima, exclusion counts, field-null/recompute counts, and source
+  hashes match the input audit and validation ledger;
+- no 2015+ row, outcome, macro value, score, or tolerance is reachable by any
+  fit, root, diagnostic, eligibility bit, or tie-break;
+- boundary list, exact evaluation lists, `n_periods={2006:4,2008:4,2010:3}`,
+  law order, `k`, `omega`, `B_W`, contrast, origin targets, root bracket,
+  summation algorithm, both tolerances, seeds, and blocks match this plan;
+- every fit-support, reference-spell exclusion, path checksum, center, bracket
+  endpoint, root, direction, area residual, probability range, and support
+  strike matches the validation ledger before candidate outcome computation;
+- R0 bit-equivalence, raw-age guards, unchanged component laws, carrier/event
+  semantics, RNG addresses, exact support, and selected-law pure-function checks
+  pass; and
+- the helper never imports or calls the M6 scorer, reads `gates.yaml`, reads a
+  `runs/` artifact, writes a file, or emits anything but JSON to stdout.
+
+Dependency/import and file-open audits belong in the findings. If a protocol,
+diagnostic, or selector defect appears after first candidate-outcome contact,
+stop and disclose the contact and defect. Do not repurpose output: amend,
+obtain a new referee decision and freeze, and begin a new investigation.
 
 ## 7. Frozen no-op ladder
 
-A round-2 R0 selection, an empty eligible set, an undefined required input, or a
-law the findings referee declines to ratify leaves the designed pause active.
-Registration 8 remains forbidden under
+An R0 selection, empty eligible set, undefined required input, final-fit
+failure, or unratifiable finding leaves the pause active. Registration 8
+remains forbidden under
 `docs/design/m6_candidate2_program.md:971-976,1038-1046`; no nonzero law may be
-forced and the holdout may not break the tie.
+forced and the holdout may not break a tie.
 
-The next rung is fixed now rather than chosen after seeing round 2: publish a
-separate W1-style, candidate-blind surface-question proposal for
-`remarriage.18-64`. It must ask whether one pooled working-age flow can honestly
-certify an origin-heterogeneous formation process while protecting divorced and
-widowed dissolved stocks. The question uses truth-only power, vacuity, and
-adjacent-pooling ladders; accumulated candidate-1 conformance forensics and both
-train-only no-ops may motivate it but cannot set a cell, reducer, tolerance, or
-floor. Any origin/stock surface change requires its own prospective §2.8 and
-floor derivation/reproduction/lock ceremony and cannot rescue candidate 1 or
-retroactively change either learning result.
+The next rung remains fixed: publish a separate W1-style, candidate-blind
+surface-question proposal for `remarriage.18-64`. It asks whether one pooled
+working-age flow can certify an origin-heterogeneous formation process while
+protecting divorced and widowed stocks. It uses truth-only power, vacuity, and
+adjacent-pooling ladders. Candidate conformance forensics and both train-only
+rounds may motivate the question but cannot set a cell, reducer, tolerance, or
+floor. Any surface change needs its own prospective §2.8 and floor ceremony and
+cannot retroactively change either learning result.
 
-There is no automatic third hazard family. A later family can exist only if the
-surface referee explicitly returns the question to model-law learning and a
-new, separately frozen proposal names that family without reading a post-2014
-outcome. Until either route is independently ratified and completed, the pause
-continues.
+There is no automatic third hazard family. A later family requires the surface
+referee to return the question to model-law learning and a new proposal frozen
+without post-2014 outcomes. The pause continues throughout.
 
 ## 8. Ceremony and possible disposition
 
 The governance sequence is:
 
-1. **Proposal:** this docs-only draft names the family, selector, freeze
-   discipline, and no-op ladder; it runs nothing.
-2. **Plan referee:** the fable referee reviews the structural opening,
-   bright-line isolation, complete parameterization, exposure functional,
-   selector, and scope. Required edits occur before outcome contact.
-3. **Ratify and freeze:** merge the accepted plan and record its commit/file
-   hash. No investigation starts earlier.
-4. **Round-2 lane:** mechanically implement under the frozen selector, pass the
-   synthetic/pre-execution audit, execute once on the train-only domain, and
-   publish full findings and reducer-derived ledger regardless of result.
-5. **Findings referee:** independently reproduce or recompute the ledger,
-   verify the information boundary and freeze history, and adjudicate the
-   selector's disposition.
-6. **Disposition:** a verified nonzero law returns through a separate
-   prospective amendment, implementation, tests, immutable registry spec, and
-   candidate-2 lock before registration. R0 or an unratifiable law continues
-   the pause and triggers section 7's surface-question rung.
+1. **Revised proposal:** this docs-only draft and fit-side ledger name the
+   redesigned family, selector, freeze discipline, and ladder; no candidate
+   outcome has run.
+2. **Full second plan referee:** review the per-origin targets, strength
+   calibration, widowed budget, zero-event guard, arithmetic, and all preserved
+   scope fences. This is a full rereview, not verification of the old plan.
+3. **Rebase, ratify, and freeze:** rebase onto `master` so round-1 evidence is
+   in-tree, merge only the accepted plan, and record both file hashes. PR #234
+   remains draft until this step is authorized.
+4. **Round-2 lane:** implement mechanically, pass synthetic and pre-execution
+   audits, run once, and publish all findings regardless of result.
+5. **Findings referee:** independently reproduce the ledger, information
+   boundary, freeze history, eligibility, and selection.
+6. **Disposition:** a verified nonzero law requires a separate prospective
+   amendment, implementation, tests, immutable registry spec, and candidate-2
+   lock before registration. R0 or an unratifiable law continues the pause and
+   triggers section 7.
 
-Selection is learning, not self-executing authorization. Even a verified
-nonzero winner cannot enter candidate 2 directly from the findings branch.
+Selection is learning, not self-executing authorization.
 
 ## 9. What this proposal does not change
 
 This proposal does **not**:
 
-- alter candidate 1's frozen, valid FAIL, its artifact, its 0/5 result, or any
-  historical claim;
-- edit candidate 2, its current remarriage law or immutable registry spec, or
-  authorize registration 8;
-- edit `gates.yaml`, `runs/`, a model/test/source file, any truth support,
-  reducer, F6 weight, cell, tolerance, seed, draw count, conjunction, floor, or
-  artifact;
+- alter candidate 1's frozen valid FAIL, artifact, 0/5 result, or history;
+- edit candidate 2, its registry spec, current remarriage law, or authorize
+  registration 8;
+- edit `gates.yaml`, `runs/`, source/model/test code, truth support, F6 weight,
+  a gate/floor tolerance, a registered cell, or an artifact;
 - change `remarriage.18-64`, its `0.403` tolerance, or use that tolerance in
   selection;
-- alter the landed #226 entry-dissolved conformance repair, event labels,
-  same-year convention, first marriage, divorce, widowhood, or the conditional
-  remarriage probability at raw ages outside 18-64;
-- change or delay candidate-2 amendment 4 or the floors-v4 lane; both proceed
-  independently under their own ratification and lock ceremonies; or
-- authorize a third family or a W1-style surface change without the separate
-  proposal and governance in section 7.
+- alter #226 entry-dissolved conformance, event labels, same-year convention,
+  first marriage, divorce, widowhood, or raw-age-outside-18-64 probabilities;
+- change or delay candidate-2 amendment 4 or floors-v4, which proceed under
+  independent ceremonies; or
+- authorize a third family or W1 surface change without section 7 governance.
 
-The program's candidate-1 and surface boundaries remain those at
-`docs/design/m6_candidate2_program.md:1048-1069`. Round 2 supplies only a
-pre-outcome learning protocol for resolving the active remarriage pause.
+The program's candidate-1 and surface boundaries remain at
+`docs/design/m6_candidate2_program.md:1048-1069`. This proposal changes only
+the pre-outcome round-2 learning protocol and its docs validation ledger.
 
-## 10. Decisions for the fable referee
+## 10. Decisions for the full second plan referee
 
-The plan referee must explicitly decide whether to:
+The referee must explicitly decide whether to:
 
-1. accept the VERIFIED round-1 structural entailment as the reason an
-   exposure-neutral/sign-balanced successor is a distinct family;
-2. ratify R0-R3, both strengths, group guards, basis/centering rules, survivor-
-   area functional, root algorithm, direction checks, and frozen simplicity
-   order without adding an after-the-fact branch;
-3. approve the exact round-1 field-aware pseudo-holdouts with the fresh pinned
-   `{7240,...,7279}` CRN bank and two fixed blocks;
-4. ratify the seven eligibility rules, delete-one jackknife, explicit R0-favoring
-   one-SE rule, direct/origin protections, and comparison arithmetic;
-5. keep standalone numerator/timing edits outside the family while retaining
-   state-consistent YSD reshaping and the exact `YSD=0` diagnostic convention;
-6. require the ratified merge/file hash, pre-execution freeze audit, runtime
-   assertions, full-output/reducer ledger, and stop/re-freeze rule; and
-7. ratify the deterministic no-op ladder to the separate W1-style surface
-   question, with the candidate-2 pause active throughout.
+1. accept both published foreclosure proofs as the reason the revised family
+   removes global transfer and fitted flattening;
+2. ratify the fixed YSD front-loading contrast, independent origin targets,
+   exact `Delta_D` strengths, widowed options, four-law grid, and order;
+3. accept the fit-side ledger's source match, exclusions, support, root
+   feasibility, cell-shift disclosure, and numerical bound;
+4. approve exact pseudo-windows, fresh seed bank, and pinned period counts
+   `{4,4,3}`;
+5. ratify the seven conjunctive rules, including positive-matchable-event
+   widowed deviance, the zero-event expected-rate guard, and widowed stock guard;
+6. retain standalone numerator/timing edits outside the family and preserve
+   state-consistent event semantics;
+7. require rebase-before-ratification, two-file lock, pre-execution audit,
+   runtime asserts, full-output reducer ledger, and stop/re-freeze rule; and
+8. preserve the deterministic ladder to the candidate-blind W1 surface
+   question with the pause active throughout.
 
 ## 11. Non-operative consistency ledger
 
-This block is a review aid, not executable configuration and not a gate edit:
+This review aid is not executable configuration and not a gate edit:
 
 ```json
 {
-  "schema": "m6.remarriage.learning_plan.round2.proposal.v1",
-  "status": "proposal_unratified_no_execution",
+  "schema": "m6.remarriage.learning_plan.round2.proposal.v2",
+  "status": "revised_proposal_unratified_no_candidate_outcome",
   "authority": {
     "program": "docs/design/m6_candidate2_program.md:842-872,956-994,1038-1046",
     "round1_pr": 231,
-    "round1_referee_issue_comment": 5003093793
+    "round1_referee_issue_comment": 5003093793,
+    "round2_revise_issue_comment": 5003846811,
+    "validation_file": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
+    "validation_sha256": "efab49e212e7199cad87e62d1cf9e0b32d3933d3f6386567fda4fc818e4d13b8"
   },
   "evidence_cutoff": 2014,
   "pseudo_boundaries": [2006, 2008, 2010],
-  "effective_windows": [[2007, 2010], [2009, 2012], [2011, 2013]],
+  "evaluation_years": {
+    "2006": [2007, 2008, 2009, 2010],
+    "2008": [2009, 2010, 2011, 2012],
+    "2010": [2011, 2012, 2013]
+  },
+  "n_periods": {"2006": 4, "2008": 4, "2010": 3},
   "selection_seeds": {"inclusive_start": 7240, "inclusive_end": 7279},
   "selection_seed_blocks": [[7240, 7259], [7260, 7279]],
   "family": {
     "no_op": "R0",
-    "forms": ["R1_origin", "R2_origin_ysd", "R3_origin_age_ysd"],
-    "strengths": [0.25, 0.5],
-    "nonzero_laws": 6,
+    "form": "divorced_area_preserving_ysd_frontload_plus_bounded_widowed_level",
+    "divorced_effective_shifts": [-0.5, -0.75],
+    "widowed_logit_options": [0.0, 0.05],
+    "widowed_log_rate_budget": 0.08956860182931886,
+    "laws": ["R_D50_W00", "R_D75_W00", "R_D50_W05", "R_D75_W05"],
+    "nonzero_laws": 4,
+    "cumulative_nonzero_laws_two_rounds": 7,
     "raw_age_delta_domain": [18, 64],
     "outside_raw_age_domain": "exact_R0_probability",
-    "reference_exposure_relative_tolerance": 1e-12,
-    "root_bracket": [-16, 16],
+    "ysd_frontload_contrast": [1.0, 0.0, -1.0],
+    "divorced_area_target": "R0_per_origin_area",
+    "widowed_area_target": "own_uniform_shift_table_area",
+    "area_relative_tolerance": 1e-10,
+    "sum_algorithm": "fixed_adjacent_pairwise_float64",
+    "root_bracket": [0.0, 16.0],
+    "root_failure_codes": ["ROOT_NONFINITE", "ROOT_NO_BRACKET", "ROOT_STAGNATION", "ROOT_ITERATION_LIMIT", "ROOT_VALIDATION_MISMATCH"],
     "root_max_iterations": 200,
-    "group_min_unweighted_events": 20
+    "support_struck_named_laws": []
   },
   "selector": {
     "objective": "mean_boundary_squared_log_pooled_rate_error",
-    "uncertainty": "40-seed_delete-one_jackknife",
+    "uncertainty": "40_seed_delete_one_jackknife",
     "comparison_tolerance": 1e-12,
+    "widowed_positive_matchable_event_rule": "direct_deviance_no_worse_than_R0",
+    "widowed_zero_matchable_event_rule": "no_deviance_comparison_and_direct_expected_rate_log_move_within_omega_and_budget",
+    "widowed_exposure_guard": "no_worse_than_R0_every_boundary",
     "no_op_rule": "select_R0_if_no_eligible_nonzero_or_J_R0_le_best_plus_SE",
     "selected_outcome_if_no_op": "NO_OP_DESIGNED_PAUSE"
   },
   "bright_line": "no_2015_2019_data_in_selection",
-  "freeze": "ratified_commit_and_file_sha256_before_any_round2_outcome",
+  "freeze": "ratified_commit_and_both_file_sha256_before_any_candidate_outcome",
+  "required_integration": "rebase_onto_master_before_ratifying_merge",
   "no_op_next_rung": "separate_candidate_blind_W1_style_remarriage_surface_question",
   "scope": "docs_only_no_candidate_gate_floor_run_or_code_change"
 }
@@ -745,12 +851,18 @@ This block is a review aid, not executable configuration and not a gate edit:
 
 - Ratified candidate-2 program:
   `docs/design/m6_candidate2_program.md`.
+- Merged round-1 report and ledger on `origin/master`:
+  `docs/analysis/m6_remarriage_train_only_delta.md` and
+  `docs/analysis/m6_remarriage_train_only_delta_results.json`.
 - Round-1 findings: [PR #231][round1-pr].
-- Round-1 VERIFIED referee record: issue-comment
-  [5003093793][round1-referee].
-- Pre-repair transport mechanism, motivation only: issue #42 issue-comment
-  [4997635883][forensics4].
+- Round-1 VERIFIED referee: [issue-comment 5003093793][round1-referee].
+- Round-2 REVISE referee: [issue-comment 5003846811][round2-referee].
+- Round-2 fit-side validation: [JSON ledger][round2-validation].
+- Pre-repair transport mechanism, motivation only:
+  [issue #42 comment 4997635883][forensics4].
 
 [round1-pr]: https://github.com/PolicyEngine/populace-dynamics/pull/231
 [round1-referee]: https://github.com/PolicyEngine/populace-dynamics/pull/231#issuecomment-5003093793
+[round2-referee]: https://github.com/PolicyEngine/populace-dynamics/pull/234#issuecomment-5003846811
+[round2-validation]: m6_remarriage_learning_plan_round2_validation.json
 [forensics4]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997635883

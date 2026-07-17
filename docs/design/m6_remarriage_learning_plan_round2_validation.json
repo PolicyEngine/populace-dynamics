@@ -591,14 +591,21 @@
       -0.75
     ],
     "named_nonzero_laws": [
-      "R1(k=0.50,omega=0.00)",
-      "R1(k=0.75,omega=0.00)",
-      "R1(k=0.50,omega=0.05)",
-      "R1(k=0.75,omega=0.05)"
+      "R_D50_W00",
+      "R_D75_W00",
+      "R_D50_W05",
+      "R_D75_W05"
     ],
     "root_bracket": [
       0.0,
       16.0
+    ],
+    "root_failure_codes": [
+      "ROOT_NONFINITE",
+      "ROOT_NO_BRACKET",
+      "ROOT_STAGNATION",
+      "ROOT_ITERATION_LIMIT",
+      "ROOT_VALIDATION_MISMATCH"
     ],
     "root_max_iterations": 200,
     "root_relative_tolerance": 1e-10,
@@ -618,10 +625,13 @@
   "floating_point_bound": {
     "binary64_unit_roundoff": 1.1102230246251565e-16,
     "conservative_levels_including_ratio_and_subtraction": 20,
+    "conservative_total_relative_rounding_reserve": 1.2e-14,
     "maximum_terms_in_any_per_origin_area_sum": 55773,
     "pairwise_tree_levels": 16,
     "relative_error_bound_gamma": 2.2204460492503182e-15,
-    "root_tolerance_over_error_bound": 45035.996273704855
+    "root_tolerance_over_error_bound": 45035.996273704855,
+    "root_tolerance_over_total_rounding_reserve": 8333.333333333334,
+    "survival_product_max_multiplications_bound": 65
   },
   "round1_ledger_evidence": {
     "divorced_projected_log_rate_errors": [
