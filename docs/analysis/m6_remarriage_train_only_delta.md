@@ -225,6 +225,43 @@ retains source and support checksums, aggregate fit diagnostics, probability
 ranges, direct diagnostics, draw means, both fixed blocks, origin results,
 final parameters, and the selector record.
 
+The committed reducer below makes that ledger derivable from the exact JSON
+stdout. The helper attaches detailed cells at
+`scripts/analyze_m6_remarriage_train_delta.py:545`, per-seed records at
+`scripts/analyze_m6_remarriage_train_delta.py:1170`, and the retained summaries
+at `scripts/analyze_m6_remarriage_train_delta.py:1171-1178`; it serializes the
+raw payload at `scripts/analyze_m6_remarriage_train_delta.py:1456-1458`.
+
+```python
+import hashlib, json, sys
+
+raw = sys.stdin.buffer.read()
+ledger = json.loads(raw)
+assert ledger["schema"] == "m6_remarriage_train_only_delta.v1"
+for result in (*ledger["boundaries"].values(), ledger["final_2014_information_fit"]):
+    cells = result["fit"].pop("cells")
+    result["fit"]["law_probability_range"] = {
+        law: {"min": min(c[law] for c in cells), "max": max(c[law] for c in cells)}
+        for law in ledger["protocol"]["laws"]
+    }
+    for law in result.get("laws", {}).values():
+        law.pop("per_seed")
+ledger["schema"] = "m6_remarriage_train_only_delta.findings.v1"
+ledger["full_stdout_sha256"] = hashlib.sha256(raw).hexdigest()
+print(json.dumps(ledger, indent=2, sort_keys=True, allow_nan=False))
+```
+
+Supplying the saved full stdout on standard input drops exactly those 12
+per-seed arrays and four cell arrays, derives each fit's L0-L3 probability
+range, injects the exact-byte hash, and leaves every other value unchanged.
+Because JSON object order is immaterial, its output verifies against the
+committed ledger in canonical form:
+
+```sh
+diff -u <(jq -S . reduced.json) \
+  <(jq -S . docs/analysis/m6_remarriage_train_only_delta_results.json)
+```
+
 The staged marriage source is a retrospective product rather than a historical
 pre-2015 snapshot. The helper loaded it read-only, severed every post-2014 field
 before panel construction, and passed only the sanitized copy to fitting and
