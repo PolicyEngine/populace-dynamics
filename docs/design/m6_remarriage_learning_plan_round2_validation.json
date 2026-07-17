@@ -627,10 +627,12 @@
     "conservative_levels_including_ratio_and_subtraction": 20,
     "conservative_total_relative_rounding_reserve": 1.2e-14,
     "maximum_terms_in_any_per_origin_area_sum": 55773,
+    "maximum_accepted_absolute_root_residual": 9.570999548458303e-11,
+    "maximum_accepted_root_residual_over_tolerance": 0.9570999548458303,
+    "minimum_root_acceptance_absolute_margin": 4.290004515416971e-12,
+    "minimum_root_acceptance_margin_over_tolerance": 0.04290004515416971,
     "pairwise_tree_levels": 16,
     "relative_error_bound_gamma": 2.2204460492503182e-15,
-    "root_tolerance_over_error_bound": 45035.996273704855,
-    "root_tolerance_over_total_rounding_reserve": 8333.333333333334,
     "survival_product_max_multiplications_bound": 65
   },
   "round1_ledger_evidence": {
@@ -687,8 +689,10 @@
     "gate_scorer_called": false,
     "gate_tolerance_read": false,
     "maximum_information_year": 2014,
+    "numpy_version": "2.4.2",
     "projection_run": false,
     "pseudo_holdout_truth_constructed": false,
+    "python_implementation": "CPython",
     "python_version": "3.13.12",
     "runs_artifact_written": false,
     "selector_run": false

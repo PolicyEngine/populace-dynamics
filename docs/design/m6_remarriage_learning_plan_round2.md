@@ -10,7 +10,7 @@
   [VERIFIED adversarial referee record][round1-referee]
 - **Revision authority:** the round-2 [REVISE referee record][round2-referee]
 - **Fit-side validation:** [round-2 validation ledger][round2-validation],
-  SHA-256 `1d7460c5de935c8217db023a5a1cea638b507d683a7fa65b21338319072f3053`
+  SHA-256 `26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b`
 - **Frozen evidence domain:** information dated no later than 2014 under the
   field-aware rules in section 4; deterministic fit-side validation and
   synthetic computation
@@ -285,14 +285,20 @@ The validation's largest per-origin area sum has 55,773 terms, so the pairwise
 tree has 16 levels. Including ratio and subtraction, its same-sign summation
 bound is `2.2204460492503182e-15`. The ledger additionally reserves
 `1.2e-14` for sequential survival products and elementwise arithmetic. The
-area/root tolerance
+area/root tolerance is
 
 ```text
-tau_A = 1e-10
+tau_A = 1e-10.
 ```
 
-therefore has more than 8,300-fold headroom over the total reserve. This
-tolerance is separate from the selector comparison tolerance of `1e-12`.
+The reserve explains why `tau_A` is separated from ordinary rounding error; it
+is not root-acceptance headroom. The worst accepted divorced root is the 2010
+`k=0.50` root:
+`abs(G)=9.570999548458303e-11=0.9570999548458303*tau_A`. It leaves only
+`4.290004515416971e-12`, or `0.04290004515416971*tau_A` (4.29%), before the
+acceptance boundary. Root reproduction therefore depends on the exact frozen
+arithmetic and runtime identity below, not on the rounding-reserve ratio. This
+tolerance remains separate from the selector comparison tolerance of `1e-12`.
 
 ### 3.3 Origin targets, root, and exact laws
 
@@ -333,6 +339,18 @@ fit-side ledger is `ROOT_VALIDATION_MISMATCH`. Because that ledger already
 validates every root on frozen source hashes, any such runtime status aborts the
 investigation before selection. It does **not** mark one law ineligible, feed
 the no-op, or masquerade as substantive evidence.
+
+The validation ledger also freezes `python_implementation="CPython"`,
+`python_version="3.13.12"`, and `numpy_version="2.4.2"`. This follows the
+repository's existing exact-string environment identity convention
+(`src/populace_dynamics/contract.py:186-200` and
+`src/populace_dynamics/models/family_transitions/compatibility.py:368-374`).
+Before re-evaluating a root or computing any candidate outcome, the runner must
+assert the interpreter implementation/version and `np.__version__` match those
+three frozen values exactly. Any mismatch is `ROOT_VALIDATION_MISMATCH` and
+aborts the whole investigation before selection; it is never law ineligibility
+or a substantive no-op. This identity pin strengthens the freeze and does not
+relax `tau_A`, change the first-accepted-midpoint rule, or permit a new root.
 
 For widowed origin, choose `omega in {0.00, 0.05}` independently and define
 
@@ -692,7 +710,8 @@ candidate direct outcome, candidate projection, or selector output.
 The investigation lane must:
 
 1. record the ratified design commit and SHA-256 of this Markdown file **and**
-   the validation JSON in a protocol-lock commit;
+   the validation JSON in a protocol-lock commit, retaining the validation
+   ledger's exact interpreter and NumPy identity;
 2. implement mechanically later, exercising only synthetic fixtures;
 3. obtain a pre-execution audit confirming laws, inputs, roots, periods, seeds,
    diagnostics, selector, and dispositions match both frozen files; and
@@ -702,6 +721,8 @@ The investigation lane must:
 Runtime must assert before selection:
 
 - embedded design commit and both file SHA-256 values equal the lock;
+- the interpreter is CPython `3.13.12` and NumPy is exactly `2.4.2`, matching
+  the validation ledger, before any root or candidate-outcome computation;
 - fit years/interviews are `<=b`, evaluation years are `<=2013`, and required
   evaluation interviews are `<=2014`;
 - sanitized maxima, exclusion counts, field-null/recompute counts, and source
@@ -800,7 +821,8 @@ The referee must explicitly decide whether to:
 2. ratify the fixed YSD front-loading contrast, independent origin targets,
    exact `Delta_D` strengths, widowed options, four-law grid, and order;
 3. accept the fit-side ledger's source match, exclusions, support, root
-   feasibility, cell-shift disclosure, and numerical bound;
+   feasibility, cell-shift disclosure, acceptance margin, and numeric runtime
+   identity;
 4. approve exact pseudo-windows, fresh seed bank, and pinned period counts
    `{4,4,3}`;
 5. ratify the seven conjunctive rules, including positive-matchable-event
@@ -827,7 +849,7 @@ This review aid is not executable configuration and not a gate edit:
     "round1_referee_issue_comment": 5003093793,
     "round2_revise_issue_comment": 5003846811,
     "validation_file": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
-    "validation_sha256": "1d7460c5de935c8217db023a5a1cea638b507d683a7fa65b21338319072f3053"
+    "validation_sha256": "26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b"
   },
   "evidence_cutoff": 2014,
   "pseudo_boundaries": [2006, 2008, 2010],
@@ -870,8 +892,14 @@ This review aid is not executable configuration and not a gate edit:
     "no_op_rule": "select_R0_if_no_eligible_nonzero_or_J_R0_le_best_plus_SE",
     "selected_outcome_if_no_op": "NO_OP_DESIGNED_PAUSE"
   },
+  "runtime_numeric_identity": {
+    "python_implementation": "CPython",
+    "python_version": "3.13.12",
+    "numpy_version": "2.4.2",
+    "mismatch_status": "ROOT_VALIDATION_MISMATCH"
+  },
   "bright_line": "no_2015_2019_data_in_selection",
-  "freeze": "ratified_commit_and_both_file_sha256_before_any_candidate_outcome",
+  "freeze": "ratified_commit_both_file_sha256_and_numeric_runtime_identity_before_any_candidate_outcome",
   "required_integration": "rebase_onto_master_before_ratifying_merge",
   "no_op_next_rung": "separate_candidate_blind_W1_style_remarriage_surface_question",
   "scope": "docs_only_no_candidate_gate_floor_run_or_code_change"
