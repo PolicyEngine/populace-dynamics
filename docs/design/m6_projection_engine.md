@@ -167,7 +167,7 @@
   perturbation whose prose is non-operative for candidate 2 under the `q=0`
   bit-equivalence preflight—and the prose-only correction is routed to a separate
   erratum lane without changing §2.7.6.4 here; leaves the
-  separately ratified first-marriage candidate-family spec outside §2.7.7 and
+  separately routed first-marriage candidate-family spec outside §2.7.7 and
   changes no §2.8 surface, floor, or gate threshold).
 
 ## 1. Summary
@@ -177,7 +177,7 @@ simulation on the unified person-period panel (#113: populace persons × years,
 future births and immigrant entrants as synthetic persons entering the panel).
 Original M6/candidate 1 fits nothing new except a versioned alignment layer.
 The ratified candidate-2 program's two immediate model deltas are the separately
-ratified first-marriage candidate-family spec and §2.7.7's train-only
+routed first-marriage candidate-family spec and §2.7.7's train-only
 earnings-refresh selector; this document carries only the latter amendment. Any
 remarriage delta remains on the program's separate follow-up-amendment route. The
 certification move remains a **temporal holdout** — fit the dynamics through year
@@ -3133,7 +3133,7 @@ locked before registration 8; no 2015+ row or candidate score enters the selecto
 This exception authorizes no other earnings spec selection: participation
 coefficients/features, incumbent weights and `λ`, rank↔level objects, and age
 support remain governed by the existing refit/spec rules. The candidate-2
-program's separately ratified first-marriage candidate spec remains on its
+program's separately routed first-marriage candidate spec remains on its
 candidate-family/registry route outside this §2.7 amendment.
 
 **Spec-selection-on-full-sample (finding 1, the residual second-order leak).** The
@@ -3552,7 +3552,7 @@ closed frame, and M7 lifts it onto the open panel.
   prospective exception is the §2.7.7 global refresh share, selected on the
   pinned train-only pseudo-holdouts and locked before registration 8. No other
   earnings spec, participation recoupling, weight/`λ` search, age-specific
-  refresh, or holdout-informed estimation is authorized. The separately ratified
+  refresh, or holdout-informed estimation is authorized. The separately routed
   first-marriage candidate-family spec remains governed by the candidate-2
   program, not this exception. `gate_m6` certifies only the registered
   composition/projection law, not an unregistered spec search.
@@ -3689,7 +3689,7 @@ lock ceremony.
   "fit_holdout": {
     "boundary_T_star": 2014,
     "prohibited_reestimation_includes_gate1_earnings_qrf": true,
-    "spec_vs_fit": "original M6 and every byte-carried candidate-2 module keep the same CandidateSpec.sha256 (params/impl) with a different truncated-panel fitted artifact; candidate 2's separately ratified first-marriage candidate spec stays on its family-registry route, while section 2.7.7 alone authorizes the prospective earnings q selector; certified full-window artifacts are neither read nor written",
+    "spec_vs_fit": "original M6 and every byte-carried candidate-2 module keep the same CandidateSpec.sha256 (params/impl) with a different truncated-panel fitted artifact; candidate 2's separately routed first-marriage candidate spec stays on its family-registry route, while section 2.7.7 alone authorizes the prospective earnings q selector; certified full-window artifacts are neither read nor written",
     "spec_selection_on_full_sample_disclosed": true,
     "biennial_boundary_rule": "exclude any flow event whose dating needs a post-T* (2015+) interview from the fit",
     "person_overlap_intended": true,
