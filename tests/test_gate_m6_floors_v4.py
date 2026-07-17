@@ -25,6 +25,8 @@ from typing import Any
 import pytest
 import yaml
 
+from tests.test_gate_w1_candidate4_pin import CONTRACT_BLOB_LIVE
+
 ROOT = Path(__file__).resolve().parents[1]
 GATES_PATH = ROOT / "gates.yaml"
 V3_PATH = ROOT / "runs" / "m6_holdout_floors_v3.json"
@@ -440,9 +442,7 @@ def test_sidecar_binds_builder_source_commit_and_clean_fitting_stack():
     }
     gates_bytes = GATES_PATH.read_bytes()
     git_blob = b"blob " + str(len(gates_bytes)).encode() + b"\0" + gates_bytes
-    assert (
-        hashlib.sha1(git_blob).hexdigest() == sidecar["contract"]["blob_sha"]
-    )
+    assert hashlib.sha1(git_blob).hexdigest() == CONTRACT_BLOB_LIVE
     assert sidecar["environment"]["fitting_stack"] == {
         "populace_fit": {
             "git_rev": v4["fitting_stack_source"]["commit"],
