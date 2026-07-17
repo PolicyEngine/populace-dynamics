@@ -674,8 +674,20 @@ value, effective search size, and checksums of fit rows, pools, support IDs, and
 RNG registry. Governance is two-stage: first a prospective §2.7 amendment ratifies
 the generic mechanism and authorizes this **train-only, non-scoring prototype**;
 then a reviewed lock addendum freezes `q*`, its ledger SHA, pool law, and substream
-codes before registration 8. No 2015+ row, realized post-2014 macro value,
+codes before registration 8 and re-finalizes the locked `gate_m6.design_commit`
+to the §2.7 amendment's squash-merge commit. No 2015+ row, realized post-2014 macro value,
 candidate-1 seed score, or candidate-2 score may enter numerical estimation.
+
+That design-pin edit is mandatory and narrow. The locked block currently pins
+`4c6a0f69f5637c6832659ab4dc8599b2c1a928b2`; its governing
+`design_commit_note` says (`gates.yaml:5353-5361`):
+
+> The concrete hash is set to this PR's design commit; it is finalized to the
+> squash-merge commit at the lock flip.
+
+The §2.7 ceremony follows that #175/#178 pattern: the lock addendum changes the
+design pin to the ratified amendment merge and changes no cell, reducer,
+tolerance, floor, seed, K, or conjunction byte.
 
 ### 5.5 What a result would mean
 
@@ -695,7 +707,7 @@ transfer gate-1 certification or validate a 2100 earnings projection.
 
 | Resolution | What stays/moves | Honest benefit | Honest cost |
 |---|---|---|---|
-| **A. Retain frozen v3 tolerances** | Keep `runs/m6_holdout_floors_v3.json`, SHA-256 `e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77`, all six tolerances, §2.8.4, and `gates.yaml` byte-identical. Registration 8 and every candidate-2 report disclose earnings-only `p_seed=0.8760`, `p_gate=0.8809`, the 1.91pp floor deficit, and the independence-OC's 11.91% subfamily false-fail probability, plus a freshly computed combined OC. | Preserves the ratified artifact and is conservative: harder to pass, no false-PASS direction. | Knowingly scores the closed domain with a floor derived on a larger domain; fails the ratified 0.90 weak-power floor. The same registered approximation provisionally puts the combined gate at only `≈0.8115`, worse than the six-cell “about 12%” headline. |
+| **A. Retain frozen v3 tolerances** | Keep `runs/m6_holdout_floors_v3.json`, SHA-256 `e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77`, all six tolerances, and §2.8.4 byte-identical. Make no floor-related `gates.yaml` edit; the separate §2.7 `design_commit` re-finalization still applies. Registration 8 and every candidate-2 report disclose earnings-only `p_seed=0.8760`, `p_gate=0.8809`, the 1.91pp floor deficit, and the independence-OC's 11.91% subfamily false-fail probability, plus a freshly computed combined OC. | Preserves the ratified artifact and is conservative: harder to pass, no false-PASS direction. | Knowingly scores the closed domain with a floor derived on a larger domain; fails the ratified 0.90 weak-power floor. The same registered approximation provisionally puts the combined gate at only `≈0.8115`, worse than the six-cell “about 12%” headline. |
 | **B. Registered closed-domain floors ceremony** | Build a new, never-overwritten truth-only artifact (proposed `runs/m6_holdout_floors_v4.json`) on exactly `realized support ∩ 2014 earnings domain`; rederive the six earnings tolerances, recompute earnings and combined OC/vacuity, adversarially reproduce it, SHA-pin it, then ratify a narrow prospective §2.8.4/gate-contract amendment and full lock before registration 8. The v3 artifact remains immutable and historical. Flows/cell definitions/reducers remain unchanged. | Prices noise on the population actually scored; the self-check's provisional earnings OC is `0.9575`, the same-method combined arithmetic is `≈0.9019`, and no vacuity flag fires. | Moves tolerances after candidate 1 has been observed, so governance must prove truth-only/candidate-blind derivation and preserve candidate 1's historical contract. The provisional combined margin is thin; a fresh ceremony can still pause. |
 
 Neither resolution is authorized by this proposal. Silent threshold movement,
@@ -719,10 +731,12 @@ unchanged flow floors, re-run both power directions and caps, and stop if any
 existing floor invariant fails. Because §2.8.4 explicitly pins v3
 (`docs/design/m6_projection_engine.md:1905-1908`), resolution B necessarily
 includes a separate narrow prospective §2.8.4/gate-contract amendment; only its
-later ratifying lock PR may edit `gates.yaml` or add the new floor artifact. If the
-referee selects resolution A, both the six-cell 11.91% finding and the fresh
-combined-OC disclosure become mandatory registration/artifact fields, not a
-footnote.
+later ratifying floor-lock PR may edit floor/tolerance fields or add the new floor
+artifact. Separately under either floors resolution, §5.4's earnings-amendment
+lock addendum must make the one-field `gate_m6.design_commit` re-finalization.
+No other gate byte is authorized here. If the referee selects resolution A, both
+the six-cell 11.91% finding and the fresh combined-OC disclosure become mandatory
+registration/artifact fields, not a footnote.
 
 ## 7. Remarriage §2.8 conformance repair — landed foundation and live proof
 
@@ -881,9 +895,9 @@ that already exists remain immutable.
 | Proposed change | Required governance before implementation/run |
 |---|---|
 | Support-aware first-marriage estimator/new candidate spec | Referee ratifies this candidate-family law; add a new immutable registry spec; register selected train-only fit strength and support behavior before score. No §2.8 edit. |
-| Stable-coordinate refresh law and substreams | Prospective §2.7 amendment first ratifies the generic mechanism/selector and authorizes a train-only prototype; a reviewed lock addendum then freezes nonzero `q*` and the ledger before registration 8. Keep §2.7.6.2/.3/.4 unchanged. |
+| Stable-coordinate refresh law and substreams | Prospective §2.7 amendment first ratifies the generic mechanism/selector and authorizes a train-only prototype; a reviewed lock addendum then freezes nonzero `q*` and the ledger **and re-finalizes `gate_m6.design_commit` to the amendment's squash-merge commit** before registration 8, per `gates.yaml:5353-5361`. Keep §2.7.6.2/.3/.4 and every non-pin gate byte unchanged. |
 | Entry-dissolved remarriage repair preserving current event/support law | **Landed** as #226 at `c16cb9d`. Bind the candidate source to that commit; finish §7 condition 4's fixture audit and condition 5's exact-class/gated-cell reconciliation before registration. No threshold/floor change. If semantics moved, stop for a narrow §2.8 amendment. |
-| Retain frozen tolerances | Referee records resolution A and mandates the earnings-only `0.8809` / 11.91% plus fresh combined-OC disclosure; no floor or lock edit. |
+| Retain frozen tolerances | Referee records resolution A and mandates the earnings-only `0.8809` / 11.91% plus fresh combined-OC disclosure; no floor edit. The independent §2.7 design-pin lock edit still applies. |
 | Re-derive closed-domain floors | Separate truth-only v4 derivation, adversarial reproduction, narrow prospective §2.8.4/gate-contract amendment, and full lock ceremony; then registration 8 against the new locked SHA. |
 | Add the must-not-regress acceptance block | Program/registration ratification; artifact reports live-gate, original-threshold block, and conjunction. Moving its five thresholds or 4-of-5 rule requires a new gate amendment. |
 | Any cell, reducer, truth support, tolerance outside the selected floors resolution, seed, K, or 4-of-5 change | New gate amendment/lock ceremony; prohibited in the candidate implementation lane. |
@@ -897,8 +911,9 @@ Registration 8 may be posted only when all applicable boxes are satisfied:
 2. the new first-marriage spec is immutable, its train-only selection ledger is
    public, its full fit converges, and the support/convergence preflight abort is
    exercised on a failing synthetic case;
-3. the §2.7 amendment is merged, `q*` and the full Q-grid ledger are frozen, and
-   tests prove `q=0` generator-level bit equivalence and that participation
+3. the §2.7 amendment is merged, the live `gate_m6.design_commit` is re-finalized
+   to that amendment's squash-merge commit, `q*` and the full Q-grid ledger are
+   frozen, and tests prove `q=0` generator-level bit equivalence and that participation
    formula/coefficients, `CellMarginal`, inverse rank, `I_proj`, odd-year behavior,
    and old substreams remain unchanged; the tests must also expose changed later
    participation when a refreshed carried level crosses the unchanged gate;
@@ -1136,6 +1151,14 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
   "proposed_deltas": {
     "first_marriage": "regularized age/sex spline plus boundary-flat cohort deviation; train-only C; convergence certificate",
     "earnings": "prospective section-2.7 stable-coordinate rank-refresh mixture with train-only nonzero q; fitted section-2.7.6 rank-level/index objects unchanged"
+  },
+  "governance": {
+    "section_2_7_amendment": {
+      "gate_m6_design_commit_refinalization_required": true,
+      "current_design_commit": "4c6a0f69f5637c6832659ab4dc8599b2c1a928b2",
+      "required_final_pin": "SECTION_2_7_AMENDMENT_SQUASH_MERGE_COMMIT",
+      "lock_edit_scope": "gate_m6.design_commit only; every non-pin gate byte unchanged"
+    }
   },
   "prerequisite": {
     "remarriage": {
