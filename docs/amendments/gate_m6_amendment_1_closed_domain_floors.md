@@ -4,7 +4,8 @@
 prospective §2.8.4 amendment required by Resolution B. It does not amend the
 live gate contract, and this lane makes no `gates.yaml` edit. Candidate 1 remains
 a historical 0/5-seed FAIL under the immutable v3 contract. The separate §2.7
-stable-coordinate design pin and its `gate_m6.design_commit` re-finalization are
+stable-coordinate design pin—including the `gate_m6.design_commit` field, its
+amendment-history narrative, and its two design-commit guard-test pins—remains
 out of scope here.
 
 ## Authority and reproducibility lock
@@ -174,8 +175,12 @@ the live 11-cell gate and the original-threshold regression block.
 > for `earn_dlog_sd.older` and 0.163 for `earn_zero_rate.older`. The ratifying
 > lock may change only the gate path/hash and six earnings-tolerance positions,
 > every nested copy of that gate path, the two runtime path/hash constant pairs,
-> and the guard-test dispositions enumerated below. No other gate-contract,
-> runtime-source, or test byte is authorized by this amendment.
+> the named guard-test dispositions, the `CONTRACT_BLOB_LIVE` pin in
+> `tests/test_gate_w1_candidate4_pin.py`, and the transition-generated
+> `contract_revision` plus `gates.yaml` entry `sha256` and `n_bytes` in
+> `runs/legacy_manifest_v1.json`, all as enumerated below. No other
+> gate-contract, runtime-source, test, or `runs/` byte is authorized by this
+> amendment.
 
 ### Complete authorized lock-flip edit surface
 
@@ -226,14 +231,47 @@ their lock-time dispositions are exhaustive:
    dispositions through `::test_mutations_are_caught`
    (`tests/test_gate_m6_derivations.py:523-530,571-581`), while preserving the
    frozen v1/v2/v3 lineage assertions and unchanged flow records.
+4. **The current-live contract-blob pin.** On the post-#233 lock target, after
+   fixing the final post-flip `gates.yaml` bytes, repin only
+   `CONTRACT_BLOB_LIVE` at
+   `tests/test_gate_w1_candidate4_pin.py:46` to their Git blob SHA. The guard
+   `tests/test_gate_w1_candidate4_pin.py::test_contract_blob_pinned_and_live`
+   at `tests/test_gate_w1_candidate4_pin.py:207` enforces that live binding.
+   Preserve the frozen scored-against `CONTRACT_BLOB` at
+   `tests/test_gate_w1_candidate4_pin.py:43` and its sidecar assertion at
+   `tests/test_gate_w1_candidate4_pin.py:203` unchanged.
+5. **The legacy-manifest ratified transition.** With the changed `gates.yaml`
+   already committed at `HEAD` and `HEAD^` still holding the pre-flip contract,
+   run
+   `python scripts/build_legacy_manifest.py --transition`
+   (`scripts/build_legacy_manifest.py:332-343`) and commit the regenerated
+   `runs/legacy_manifest_v1.json`. This order is mandatory: the script refuses
+   dirty legacy bytes (`scripts/build_legacy_manifest.py:58-70`), derives
+   `contract_revision` from `HEAD:gates.yaml`
+   (`scripts/build_legacy_manifest.py:315`), and in transition mode permits no
+   non-`gates.yaml` legacy-entry movement
+   (`scripts/build_legacy_manifest.py:260-305`). The regeneration refreshes
+   `contract_revision` and the `gates.yaml` entry's `sha256` and `n_bytes`.
+   `tests/test_legacy_manifest.py::test_legacy_manifest_matches_working_tree`
+   (`tests/test_legacy_manifest.py:146`) guards the revision at
+   `tests/test_legacy_manifest.py:157-158` and those byte fields at
+   `tests/test_legacy_manifest.py:176-177`.
 
-A `gates.yaml`-only flip with stale source constants cannot false-PASS: it fails
-loudly during `resolve_m6_contract`. The current call order rejects the stale
-binding at `src/populace_dynamics/harness/m6_scoring.py:113-117`; the runner's
-independent resolved-path guard at
-`src/populace_dynamics/harness/m6_runner.py:318-319` rejects a stale pairing as
-`gate_m6 floor path is not the frozen v3 artifact`. Nothing outside the exact
-surface above is authorized.
+The `gate_m6.design_commit` field (`gates.yaml:5353`), its #233 history
+dispositions (`gates.yaml:5766,5768-5775,5867-5869`), and its two live test
+pins (`tests/test_gate_m6_derivations.py:70` and
+`tests/test_gate_m6_floors.py:573`) remain exclusively in the separate §2.7
+lane and are not authorized here. Only the two byte-change-generic companions
+in steps 4 and 5 transfer from the #233 flip convention.
+
+A `gates.yaml`-only flip with stale source constants, a stale current-live blob
+pin, or a stale legacy manifest cannot false-PASS. The current call order rejects
+the stale source binding at
+`src/populace_dynamics/harness/m6_scoring.py:113-117`; the runner's independent
+resolved-path guard at `src/populace_dynamics/harness/m6_runner.py:318-319`
+rejects a stale pairing as `gate_m6 floor path is not the frozen v3 artifact`.
+The step-4 and step-5 guards independently fail loudly on either omitted
+companion edit. Nothing outside the exact five-step surface above is authorized.
 
 ## Ratification and lock checklist
 
@@ -248,8 +286,9 @@ surface above is authorized.
 - [x] S2 tolerance-movement table and candidate-blind separation published.
 - [ ] Referee ratifies this prospective amendment and the fresh thin-margin OC.
 - [ ] At ratification, the orchestrator applies exactly the 16-position
-  `gates.yaml`, two-source-pair, and named guard-test edit surface enumerated
-  above; until that lock lands, v3 remains operative.
+  `gates.yaml`, two-source-pair, named guard-test, `CONTRACT_BLOB_LIVE` repin, and
+  legacy-manifest transition edit surface enumerated above; until that lock lands,
+  v3 remains operative.
 - [ ] Registration 8 occurs only after the prospective floor lock is final.
 - [ ] The separate §2.7 amendment lane re-finalizes its design pin independently;
   it is not bundled into this floor amendment.
