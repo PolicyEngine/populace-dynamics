@@ -447,6 +447,7 @@ def apply_fertility(
     holdout_ids: set[int] | None = None,
     male_gap: float = -2.0,
     birth_store: dict[int, FertilityDraws] | None = None,
+    roster_absent_births: dict[int, dict[str, object]] | None = None,
 ) -> pd.DataFrame:
     """Run step-4 fertility, materializing only maternal child rows.
 
@@ -469,4 +470,22 @@ def apply_fertility(
         draws = simulate_fertility(marital, components, ids, male_gap, rng)
     if birth_store is not None:
         birth_store[context.year] = draws
-    return materialize_maternal_births(frame, draws.maternal, context, rng)
+    maternal = draws.maternal
+    if "parent_person_id" in maternal and "birth_year" in maternal:
+        roster_ids = set(frame["person_id"])
+        current_year = maternal["birth_year"].astype("Int64") == context.year
+        absent = current_year & ~maternal["parent_person_id"].isin(roster_ids)
+        dropped = maternal.loc[absent]
+        maternal = maternal.loc[~absent].reset_index(drop=True)
+    else:
+        dropped = maternal.iloc[0:0]
+    if roster_absent_births is not None:
+        roster_absent_births[context.year] = {
+            "dropped_parent_ids": (
+                frozenset(int(value) for value in dropped["parent_person_id"])
+                if "parent_person_id" in dropped
+                else frozenset()
+            ),
+            "dropped_count": int(len(dropped)),
+        }
+    return materialize_maternal_births(frame, maternal, context, rng)

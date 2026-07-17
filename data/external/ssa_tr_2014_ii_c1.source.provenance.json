@@ -1,0 +1,14 @@
+{
+  "schema_version": "external_source_provenance.v1",
+  "committed_source_file": "data/external/ssa_tr_2014_ii_c1.source.html",
+  "source_url": "https://www.ssa.gov/oact/tr/2014/II_C_assump.html",
+  "document": "The 2014 Annual Report of the Board of Trustees of the Federal Old-Age and Survivors Insurance and Federal Disability Insurance Trust Funds",
+  "table_of_record": "II.C1 — Long-Range Values of Key Assumptions for the 75-year Projection Period",
+  "retrieval_date": "2026-07-15T21:25:16Z",
+  "fetch_method": "Browser network-response capture after browser-header curl returned HTTP 403. Headless Google Chrome fetched the authoritative SSA URL; Fetch API arrayBuffer() exposed the content-decoded HTTP 200 response body, which was committed directly and sha256-pinned. Akamai adds request-specific delivery markup, so the hash identifies this one reviewed acquisition.",
+  "source_sha256": "737ece58d16e4290702c0c48832d1fa3995d052d4211d87713ad7910bc2e4e60",
+  "source_length_bytes_utf8": 48603,
+  "acquired_by": "Codex gpt-5.6-sol, populace-dynamics M7 campaign",
+  "consumed_by": "scripts/extract_ssa_tr_ultimate_assumptions_2014.py → data/external/ssa_tr_ultimate_assumptions_2014.json",
+  "note": "Build-time provenance for the raw browser response body. Table II.C1 and the page footer identify the 2014 report and July 28, 2014 publication date. Although the M7 design cites Table V.B1 for three carried TR constants, II.C1 is the smallest authoritative 2014 table containing and label-binding the complete requested five-assumption bundle, including the same 2.9 percent real-interest, 2.70 percent CPI-W, and 1.13 percentage-point real-wage values. The extractor verifies this source sha256 and exact table labels before selecting the Intermediate column."
+}

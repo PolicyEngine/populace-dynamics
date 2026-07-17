@@ -552,6 +552,33 @@ def simulate_candidate9_injected(
     fertility: FertilityDraws | None = None,
 ) -> tuple[hc.HouseholdCompositionPanel, CompositionDiagnostics]:
     """Simulate candidate 9 using step-3 state and engine generators."""
+    empty_person_waves = hh.person_waves[
+        hh.person_waves["person_id"].isin(holdout_ids)
+    ].copy()
+    if empty_person_waves.empty:
+        empty_person_waves = empty_person_waves.drop(
+            columns="cohabiting", errors="ignore"
+        )
+        empty_bool = np.asarray([], dtype=bool)
+        panel = hc.HouseholdCompositionPanel(
+            person_waves=empty_person_waves,
+            attrs=empty_person_waves[["person_id"]].drop_duplicates(),
+        )
+        return panel, CompositionDiagnostics(
+            weight=np.asarray([], dtype=np.float64),
+            legal_core=empty_bool.copy(),
+            cohabitation_state=empty_bool.copy(),
+            cohabitation_increment=empty_bool.copy(),
+            legal_residual_state=empty_bool.copy(),
+            legal_residual_increment=empty_bool.copy(),
+            final_spouse=empty_bool.copy(),
+            coresident_parent=empty_bool.copy(),
+            multigen=empty_bool.copy(),
+            coresident_child=empty_bool.copy(),
+            coresident_grandchild=empty_bool.copy(),
+            household_size=np.asarray([], dtype=np.int64),
+            model_diagnostics={},
+        )
     composition = _compose_base_injected(
         hh, fitted, holdout_ids, marital, rngs, fertility
     )

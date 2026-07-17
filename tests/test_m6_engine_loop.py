@@ -6,16 +6,127 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from populace_dynamics.engine.earnings_domain import wrap_earnings_domain
 from populace_dynamics.engine.loop import (
+    SCHEDULED_ENTRIES_KEY,
     MaritalStepResult,
     PeriodModules,
     ProjectionEngine,
+    SyntheticPersonIdAllocator,
 )
 from populace_dynamics.engine.rng import (
     MODULE_ORDER,
     ProjectionModule,
     ProjectionRNGRegistry,
 )
+from populace_dynamics.engine.steps import (
+    advance_age,
+    apply_earnings,
+    materialize_maternal_births,
+)
+
+
+class _NamespaceEarnings:
+    boundary_year = 2014
+
+    def __init__(self, realized_ids, permanent_ids):
+        self.realized_earn_2014_by_person = {
+            int(person_id): 100.0 for person_id in realized_ids
+        }
+        self.realized_earn_2012_by_person = {
+            int(person_id): 90.0 for person_id in realized_ids
+        }
+        self.u_w_by_person = {
+            int(person_id): 0.5 for person_id in permanent_ids
+        }
+
+    def materialize_initial_frame(self, frame):
+        out = frame.copy()
+        out["u_w"] = 0.5
+        out["realized_earn_2014"] = 100.0
+        out["realized_earn_2012"] = 90.0
+        out["earnings"] = 100.0
+        out["gen_earn_w2"] = 100.0
+        out["gen_earn_w4"] = 90.0
+        return out
+
+    def generate(self, frame, year, rng):
+        del year, rng
+        return np.full(len(frame), 100.0)
+
+
+def _project_one_birth(
+    earnings,
+    *,
+    end_year=2015,
+    allocator=None,
+    rng_bytes=None,
+):
+    model = wrap_earnings_domain(earnings)
+    births = pd.DataFrame(
+        {
+            "parent_person_id": [5],
+            "birth_year": pd.array([2015], dtype="Int64"),
+        }
+    )
+
+    def mortality(frame, context, rng):
+        del rng
+        if rng_bytes is not None:
+            rng_bytes.append(
+                b"".join(
+                    context.person_generator(
+                        ProjectionModule.MORTALITY, person_id
+                    ).bytes(32)
+                    for person_id in sorted(frame["person_id"])
+                )
+            )
+        return frame.copy()
+
+    def marital(frame, context, rng):
+        del frame, context, rng
+        return MaritalStepResult(pd.DataFrame(), births)
+
+    def fertility(frame, context, marital_result, rng):
+        return materialize_maternal_births(
+            frame, marital_result.births, context, rng
+        )
+
+    def passthrough(frame, context, rng):
+        del context, rng
+        return frame.copy()
+
+    modules = PeriodModules(
+        mortality=mortality,
+        aging=advance_age,
+        marital_core=marital,
+        fertility=fertility,
+        disability=passthrough,
+        earnings=lambda frame, context, rng: apply_earnings(
+            frame, context, rng, model=model
+        ),
+        claiming=passthrough,
+        household_composition=lambda frame, context, marital_result, rng: frame.copy(),
+        initialize=model.materialize_initial_frame,
+    )
+    metadata = (
+        {} if allocator is None else {"synthetic_id_allocator": allocator}
+    )
+    initial = pd.DataFrame(
+        {
+            "person_id": [5],
+            "year": [2014],
+            "age": [30],
+            "sex": ["female"],
+            "weight": [1.0],
+        }
+    )
+    return ProjectionEngine(modules).project(
+        initial,
+        end_year=end_year,
+        draw_index=0,
+        metadata=metadata,
+    )
 
 
 def test_rng_streams_replay_and_are_disjoint_by_period_module_and_person():
@@ -156,3 +267,195 @@ def test_loop_rejects_a_second_year_or_duplicate_person_in_a_slice():
             end_year=2014,
             draw_index=0,
         )
+
+
+def test_global_real_namespace_prevents_newborn_alias_without_shifting_rng():
+    with pytest.raises(RuntimeError, match="reserved real-person namespace"):
+        SyntheticPersonIdAllocator(6, frozenset({6})).allocate(1)
+
+    control = _NamespaceEarnings({5}, {5})
+    local_control = _project_one_birth(control)
+    reserved_control = _project_one_birth(
+        control,
+        allocator=SyntheticPersonIdAllocator(6, frozenset({5})),
+    )
+    assert local_control.panel.to_csv(index=False).encode() == (
+        reserved_control.panel.to_csv(index=False).encode()
+    )
+
+    aliased = _NamespaceEarnings({5, 6}, {5, 6})
+    with pytest.raises(
+        ValueError,
+        match="earnings_domain marker disagrees with fitted 2014 state",
+    ):
+        _project_one_birth(aliased)
+
+    reserved = frozenset({5, 6})
+    protected = _project_one_birth(
+        aliased,
+        allocator=SyntheticPersonIdAllocator(7, reserved),
+    )
+    newborn = protected.slices[-1].loc[protected.slices[-1]["person_id"] != 5]
+    assert newborn["person_id"].tolist() == [7]
+    assert newborn["earnings_domain"].tolist() == [False]
+    assert newborn["earnings"].tolist() == [0.0]
+
+    union_generator = _NamespaceEarnings({5, 6, 9}, {5, 6})
+    global_reserved = frozenset({5, 6, 9})
+    first_allocator = SyntheticPersonIdAllocator(10, global_reserved)
+    second_allocator = SyntheticPersonIdAllocator(10, global_reserved)
+    first = _project_one_birth(
+        union_generator,
+        allocator=first_allocator,
+    )
+    replay = _project_one_birth(
+        union_generator,
+        allocator=second_allocator,
+    )
+    assert first_allocator is not second_allocator
+    for result in (first, replay):
+        child_ids = set(result.slices[-1]["person_id"]) - {5}
+        assert child_ids == {10}
+        assert child_ids.isdisjoint(global_reserved)
+        assert all(
+            not frame["person_id"].duplicated().any()
+            for frame in result.slices
+        )
+
+    local_rng_bytes = []
+    global_rng_bytes = []
+    _project_one_birth(
+        control,
+        end_year=2016,
+        rng_bytes=local_rng_bytes,
+    )
+    _project_one_birth(
+        control,
+        end_year=2016,
+        allocator=SyntheticPersonIdAllocator(10, frozenset({5, 9})),
+        rng_bytes=global_rng_bytes,
+    )
+    assert b"".join(global_rng_bytes) == b"".join(local_rng_bytes)
+
+
+def test_empty_initial_side_uses_explicit_year_and_admits_later_opener():
+    model = wrap_earnings_domain(_NamespaceEarnings(set(), set()))
+
+    def passthrough(frame, context, rng):
+        del context, rng
+        return frame.copy()
+
+    def marital(frame, context, rng):
+        del frame, context, rng
+        return MaritalStepResult(pd.DataFrame(), pd.DataFrame())
+
+    modules = PeriodModules(
+        mortality=passthrough,
+        aging=advance_age,
+        marital_core=marital,
+        fertility=lambda frame, context, marital_result, rng: frame.copy(),
+        disability=passthrough,
+        earnings=lambda frame, context, rng: apply_earnings(
+            frame, context, rng, model=model
+        ),
+        claiming=passthrough,
+        household_composition=lambda frame, context, marital_result, rng: frame.copy(),
+        initialize=model.materialize_initial_frame,
+    )
+    initial = pd.DataFrame(
+        {
+            "person_id": pd.Series(dtype="int64"),
+            "year": pd.Series(dtype="int64"),
+            "age": pd.Series(dtype="int64"),
+            "sex": pd.Series(dtype="string"),
+            "weight": pd.Series(dtype="float64"),
+        }
+    )
+    opener = pd.DataFrame(
+        {
+            "person_id": [8],
+            "year": [2016],
+            "age": [20],
+            "sex": ["female"],
+            "weight": [1.0],
+            "earnings_domain": [False],
+        }
+    )
+    engine = ProjectionEngine(modules)
+
+    with pytest.raises(ValueError, match="requires an explicit start_year"):
+        engine.project(initial, end_year=2017, draw_index=0)
+    result = engine.project(
+        initial,
+        end_year=2017,
+        draw_index=0,
+        start_year=2014,
+        metadata={SCHEDULED_ENTRIES_KEY: {2017: opener}},
+    )
+
+    assert [len(frame) for frame in result.slices] == [0, 0, 0, 1]
+    assert "earnings_domain" in result.slices[0]
+    assert result.slices[-1]["person_id"].tolist() == [8]
+    assert result.slices[-1]["year"].tolist() == [2017]
+    assert result.slices[-1]["earnings"].tolist() == [0.0]
+
+
+def test_all_dead_interval_remains_typed_until_later_opener():
+    def mortality(frame, context, rng):
+        del rng
+        return frame.iloc[0:0].copy() if context.year == 2015 else frame.copy()
+
+    def passthrough(frame, context, rng):
+        del context, rng
+        return frame.copy()
+
+    def marital(frame, context, rng):
+        del frame, context, rng
+        return MaritalStepResult(pd.DataFrame(), pd.DataFrame())
+
+    modules = PeriodModules(
+        mortality=mortality,
+        aging=advance_age,
+        marital_core=marital,
+        fertility=lambda frame, context, marital_result, rng: frame.copy(),
+        disability=passthrough,
+        earnings=passthrough,
+        claiming=passthrough,
+        household_composition=lambda frame, context, marital_result, rng: frame.copy(),
+    )
+    engine = ProjectionEngine(modules)
+    initial = pd.DataFrame(
+        {
+            "person_id": [1],
+            "year": [2014],
+            "age": [30],
+            "sex": ["female"],
+        }
+    )
+    opener = pd.DataFrame(
+        {
+            "person_id": [2],
+            "year": [2016],
+            "age": [40],
+            "sex": ["male"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="does not match the explicit"):
+        engine.project(
+            initial,
+            end_year=2014,
+            draw_index=0,
+            start_year=2013,
+        )
+    result = engine.project(
+        initial,
+        end_year=2017,
+        draw_index=0,
+        start_year=2014,
+        metadata={SCHEDULED_ENTRIES_KEY: {2017: opener}},
+    )
+
+    assert [len(frame) for frame in result.slices] == [1, 0, 0, 1]
+    assert result.slices[-1]["person_id"].tolist() == [2]
+    assert result.slices[-1]["year"].tolist() == [2017]

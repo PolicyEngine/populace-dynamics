@@ -96,6 +96,7 @@ from populace_dynamics.harness.m6_scoring import (
     aggregate_gate,
     recompute_domain_earnings_floor,
     reduce_gated_cells,
+    reduce_projected_gated_cells,
     restrict_earnings_domain_support,
     score_gate_seed,
     side_a_person_ids,
@@ -133,8 +134,11 @@ PHASE_ORDER = (
 # cleared, but the run FAILED TO EXECUTE in the seed-1 scoring projection -- the
 # marital builder found no certified entry row at anchor for the
 # sub-START_AGE-at-anchor class; graded 4979269487, root-caused in forensics
-# 4979437110 and closed by amendment 3g).  Useful lineage, but none can
-# authorize a scored run.
+# 4979437110 and closed by amendment 3g), and the sixth registration
+# (4981073550), which failed in fertility materialization after simulated
+# mortality removed a scheduled birth parent (graded 4984699959, forensics
+# 4984997277, closed by amendment 3h).  Useful lineage, but none can authorize
+# a scored run.
 _KNOWN_STALE_REGISTRATIONS = frozenset(
     {
         "4962640241",
@@ -142,6 +146,7 @@ _KNOWN_STALE_REGISTRATIONS = frozenset(
         "4971244215",
         "4973199058",
         "4976428384",
+        "4981073550",
     }
 )
 _REGISTRATION = re.compile(
@@ -372,6 +377,16 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
     domain = fitted_earnings_domain_person_ids(
         bundle.earnings.generator
     ) & frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+    reserved_real_ids = (
+        frozenset(int(value) for value in inputs.truth.anchor["person_id"])
+        | frozenset(
+            int(value)
+            for value in bundle.earnings.generator.realized_earn_2014_by_person
+        )
+        | frozenset(
+            int(value) for value in bundle.earnings.generator.u_w_by_person
+        )
+    )
     population = build_realized_population(
         demographic_panel=inputs.demographic_panel,
         death_records=inputs.death_records,
@@ -379,6 +394,7 @@ def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
         disability_panel=inputs.disability_panel,
         panel_builder_inputs=inputs.panel_builder_inputs,
         earnings_domain_ids=domain,
+        reserved_real_ids=reserved_real_ids,
     )
     return M6RefitPhase(
         bundle=bundle,
@@ -502,6 +518,7 @@ def _project_side(
         population.initial_slice,
         end_year=PROJECTION_END_YEAR,
         draw_index=draw_index,
+        start_year=BOUNDARY_YEAR,
         metadata=metadata,
     )
     return result, collector
@@ -612,7 +629,7 @@ def _projected_cells(
         period_column="period",
     )
     projected_earnings = earnings_support.projection
-    cells = reduce_gated_cells(
+    cells = reduce_projected_gated_cells(
         projected_events,
         projected_person_years,
         projected_disability,
@@ -773,6 +790,37 @@ def _surface_pair(
     return {"truth": dict(truth), "projection": dict(projection)}
 
 
+def _roster_absent_birth_reconciliation(
+    *collectors: Mapping[str, Any],
+) -> dict[int, dict[str, Any]]:
+    combined: dict[int, dict[str, Any]] = {}
+    for collector in collectors:
+        records = collector.get("roster_absent_births")
+        if not isinstance(records, Mapping):
+            raise RuntimeError(
+                "M6 projection did not publish 'roster_absent_births'"
+            )
+        for year, record in records.items():
+            if not isinstance(record, Mapping):
+                raise RuntimeError(
+                    "roster-absent birth record must be a mapping"
+                )
+            aggregate = combined.setdefault(
+                int(year), {"dropped_parent_ids": set(), "dropped_count": 0}
+            )
+            aggregate["dropped_parent_ids"].update(
+                int(value) for value in record["dropped_parent_ids"]
+            )
+            aggregate["dropped_count"] += int(record["dropped_count"])
+    return {
+        year: {
+            "dropped_parent_ids": sorted(record["dropped_parent_ids"]),
+            "dropped_count": record["dropped_count"],
+        }
+        for year, record in combined.items()
+    }
+
+
 def _draw_report(
     inputs: M6HarnessInputs,
     household_population: M6RealizedPopulation,
@@ -916,6 +964,9 @@ def _draw_report(
             "scheduled_realized_openers": sum(
                 len(frame)
                 for frame in household_population.scheduled_entries_by_year.values()
+            ),
+            "roster_absent_births": _roster_absent_birth_reconciliation(
+                household_collector, person_collector
             ),
         },
         "trace": {
@@ -1095,6 +1146,8 @@ def build_report_only(
             "synthetic_births": 0,
             "immigrant_cohorts": 0,
             "synthetic_persons": 0,
+            "scheduled_realized_openers": 0,
+            "roster_absent_births": {},
         }
     )
     entrant_counts = build_entrant_diagnostics(
@@ -1107,6 +1160,13 @@ def build_report_only(
     entrant_counts["reference_draw"] = {
         "seed": seed_runs[0].seed if seed_runs else None,
         "draw_index": 0 if seed_runs and seed_runs[0].draw_reports else None,
+    }
+    entrant_counts["roster_absent_births"] = dict(
+        reference_entrants["roster_absent_births"]
+    )
+    entrant_counts["scheduled_realized_openers"] = {
+        "total": int(reference_entrants["scheduled_realized_openers"]),
+        "by_year": None,
     }
     entrant_counts["ensemble_draw_counts"] = entrant_draws
     realized_seed_cells = {

@@ -57,9 +57,18 @@ def _simulate_candidate16_with_generators(
     main_rng: np.random.Generator,
     gap_rng: np.random.Generator,
 ) -> tuple[transitions.MaritalPanel, pd.DataFrame]:
-    """Port candidate 16 exactly, replacing only RNG construction."""
+    """Port candidate 16 with M6's injected RNG and realized entry seed."""
     attrs = panel.attrs[panel.attrs["person_id"].isin(holdout_ids)].copy()
     attrs = attrs.sort_values("person_id").reset_index(drop=True)
+    if attrs.empty:
+        return (
+            transitions.MaritalPanel(
+                person_years=panel.person_years.iloc[0:0].copy(),
+                events=panel.events.iloc[0:0].copy(),
+                attrs=attrs,
+            ),
+            _empty_births(),
+        )
     n_people = len(attrs)
     person_id = attrs["person_id"].to_numpy(dtype=np.int64)
     birth_year = attrs["birth_year"].to_numpy(dtype=np.float64)
@@ -248,6 +257,41 @@ def _simulate_candidate16_with_generators(
         episode_end.append(pd.NA)
         episode_how.append("intact")
 
+    # The certified assembler reconstructs person-years and events solely
+    # from episodes.  Carry each realized entry-dissolved state through that
+    # interface with a structural, strictly pre-exposure episode ending at
+    # the realized dissolution year.  Its one-year start is inert: both of
+    # its events are clipped before scored support, while the standard
+    # dissolve change-point and prior-episode context preserve respectively
+    # the entry state/duration and the next episode's remarriage label.
+    #
+    # Keep the count of actual seed/simulated episodes before adding these
+    # carriers.  Section 2.8.2 pins n_marriages as carried-inert, so the
+    # structural rows must not change the assembler's count output.
+    emitted_marriage_count = pd.Series(
+        episode_person, dtype="int64"
+    ).value_counts()
+    for index, observed_state in enumerate(entry_state):
+        if pd.isna(observed_state) or observed_state not in (
+            "divorced",
+            "widowed",
+        ):
+            continue
+        years_since = entry_years_since.iloc[index]
+        if pd.isna(years_since) or int(years_since) < 1:
+            raise ValueError(
+                "entry-dissolved marital seed requires a positive "
+                "years_since_dissolution"
+            )
+        dissolution_year_value = int(start_year[index]) - int(years_since)
+        episode_person.append(int(person_id[index]))
+        episode_order.append(1)
+        episode_start.append(dissolution_year_value - 1)
+        episode_end.append(dissolution_year_value)
+        episode_how.append(
+            "divorce" if observed_state == "divorced" else "widowhood"
+        )
+
     simulated_panel = ft_sim._assemble_panel(
         attrs,
         episode_person,
@@ -255,6 +299,12 @@ def _simulate_candidate16_with_generators(
         episode_start,
         episode_end,
         episode_how,
+    )
+    simulated_panel.attrs["n_marriages"] = (
+        simulated_panel.attrs["person_id"]
+        .map(emitted_marriage_count)
+        .fillna(0)
+        .astype("float64")
     )
     apply_entry_widowed(
         simulated_panel, components.initial_states.entry_widowed
