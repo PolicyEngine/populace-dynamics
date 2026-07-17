@@ -201,9 +201,10 @@ Its full JSON stdout has SHA-256
 An independent replay of the same frozen command was byte-identical and
 returned the same hash and disposition.
 The committed [aggregate result ledger](m6_remarriage_train_only_delta_results.json)
-removes only the 480 repetitive per-seed records; it retains source and support
-checksums, fit diagnostics, probability ranges, direct diagnostics, draw means,
-both fixed blocks, origin results, final parameters, and the selector record.
+removes the 480 repetitive per-seed records and 240 detailed cell records. It
+retains source and support checksums, aggregate fit diagnostics, probability
+ranges, direct diagnostics, draw means, both fixed blocks, origin results,
+final parameters, and the selector record.
 
 The staged marriage source is a retrospective product rather than a historical
 pre-2015 snapshot. The helper loaded it read-only, severed every post-2014 field
