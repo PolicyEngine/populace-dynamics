@@ -176,12 +176,13 @@ A nonzero law is eligible for selection only if all of the following hold:
 5. pooled direct-standardized deviance is below L0 and boundary deviance is
    below L0 at least two of three boundaries without worsening the third.
 
-Among eligible nonzero laws, minimize full-draw `J`. Estimate the Monte Carlo
-standard error of the minimum law's `J` from the 40 per-seed losses. Choose the
-simplest law within one standard error of that minimum, ordered
-`L1 < L2 < L3`. Exact ties use that order. If no nonzero law is eligible, or if
-L0 has the lowest loss outside the one-standard-error set, select no-op and
-recommend the designed pause.
+Among eligible nonzero laws, minimize full-draw `J` and define the cutoff as
+that minimum plus its Monte Carlo standard error from the 40 per-seed losses.
+If no nonzero law is eligible, select L0. Otherwise, select L0 whenever its `J`
+is within that cutoff; if it is not, select the simplest eligible nonzero law
+within the cutoff, ordered `L1 < L2 < L3`, with exact ties in that order. An L0
+selection recommends the designed pause. This is implemented at
+`scripts/analyze_m6_remarriage_train_delta.py:1355-1383`.
 
 ## 6. Findings
 
@@ -284,11 +285,25 @@ rule. None passed the frozen exposure protection:
 | L2 | 1.031647 | 1.031067 | 1.058713 | exposure boundaries |
 | L3 | 1.046868 | 1.045541 | 1.070651 | exposure boundaries |
 
-All three candidate deltas made absolute log-exposure error worse than L0 at
-all three boundaries. The strict comparison was fixed before outcomes were
-read and did not use a gate tolerance. Consequently, all nonzero laws are
-ineligible, the one-standard-error step is not invoked, and the selector
-returns L0.
+L1 and L2 replace L0's `0.5` prior mean with training hazards below `0.5`, and
+L3 applies a negative shift to L1. Thus every tested nonzero law lowers the
+remarriage hazard relative to L0 in every cell; see
+`scripts/analyze_m6_remarriage_train_delta.py:364-415` and
+`scripts/analyze_m6_remarriage_train_delta.py:457-478`. Under the common-random-
+number coupling (`scripts/analyze_m6_remarriage_train_delta.py:1077-1121`), the
+shared uniform threshold can only delay an affected remarriage when its hazard
+is lowered (`src/populace_dynamics/engine/marital.py:161-168` and
+`src/populace_dynamics/engine/marital.py:223-240`). Dissolved exposure therefore
+rose draw by draw with deterministic sign, not Monte Carlo sign uncertainty.
+
+Because L0's train exposure ratio already exceeds one at every boundary
+(`1.030674`, `1.030281`, and `1.058255`), each further increase necessarily
+worsens absolute log-exposure error. Frozen rule 4 therefore forecloses this
+whole hazard-lowering family mechanically; its implementation is at
+`scripts/analyze_m6_remarriage_train_delta.py:1330-1344`. The worsening appears
+at all three boundaries and in both fixed seed blocks. Consequently, every
+nonzero law is ineligible, the one-standard-error step is not invoked, and the
+selector returns L0.
 
 L3's fitted recent-window shifts also become much stronger as the information
 boundary advances: -0.3001 from 92 events at 2006, -0.3323 from 65 events at
@@ -316,6 +331,10 @@ seeing the results; they do not change the frozen selector's no-op result.
 This report establishes that the overshoot mechanism reproduces before 2015.
 It does not establish an admissible corrective law. Choosing one by consulting
 the published 2015-2019 residual would cross the campaign bright line.
+
+The no-op means **no law in the tested hazard-lowering family survives**, not
+that no train-supported correction exists. Exposure-neutral or exposure-
+reshaping families were outside the tested candidate set.
 
 ## 7. Recommendation
 
