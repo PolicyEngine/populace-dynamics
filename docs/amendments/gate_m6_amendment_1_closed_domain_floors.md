@@ -14,6 +14,10 @@ program merged at
 [`051b449`](https://github.com/PolicyEngine/populace-dynamics/commit/051b4494ecce9345da14d68488bb2833ed476d22)
 and accepted as verified-ratifiable in
 [issue comment 5001901052](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5001901052).
+That comment verifies and authorizes the **program** that defined this disclosure
+duty; it is not a verification of the later v4 artifact. The independent v4
+byte reproduction and adversarial ceremony review are recorded separately in
+[referee comment 5003284911](https://github.com/PolicyEngine/populace-dynamics/pull/232#issuecomment-5003284911).
 The proposed lock binds all of the following:
 
 | Item | Locked value |
@@ -45,8 +49,10 @@ with that domain. The artifact records:
 - 29,792 persons in the full truth anchor;
 - 13,561 domain persons and 45,606 domain earnings person-period rows;
 - 10,441 domain gated-earnings persons, versus 13,163 on full gated support; and
-- 2,722 excluded later entrants: 2,199 prime and 590 older persons (cohort counts
-  can overlap outside the gated-person total's decomposition).
+- 2,722 unique excluded later entrants. The period-specific cohort tallies are
+  2,199 prime plus 590 older, or 2,789 appearances; they exceed 2,722 because a
+  person can occupy both cohorts across periods, so they are overlapping counts
+  rather than a decomposition of the unique-person total.
 
 The F7 order is binding: for each seed `0..99`, split the **full** anchor 50/50 by
 person first, then intersect each half with the domain inside the unchanged
@@ -90,11 +96,33 @@ rule for `p_gate`.
 | v4 tolerances on the closed-domain combined surface | 11 | 0.8889 | 0.9018 |
 
 The program's provisional combined values, approximately `0.8115` and `0.9019`,
-multiplied rounded subfamily `p_seed` values. The fresh ceremony instead combines
-the exact individual-cell probabilities before rounding, yielding `0.8114` and
-`0.9018`; this reconciles the one-basis-point differences without changing the
-registered OC method. The v4 combined `p_gate=0.9018` clears the `0.90` weak-power
-floor by only 0.0018, so the margin is explicitly thin.
+multiplied rounded subfamily `p_seed` values. The artifact's `oc_comparison`
+correctly records that rounded-subfamily calculation as `operative: false`. The
+fresh ceremony instead combines the exact individual-cell probabilities before
+rounding, yielding `0.8114` and `0.9018`; this independently reproduced
+one-basis-point reconciliation does not change the registered OC method.
+
+### Required lock disclosure: thin clearance
+
+At full precision the combined v4 values are
+`p_seed=0.8889341210928279` and `p_gate=0.9018301422467547` (unrounded
+`p_gate=0.9018301…`). The latter clears `0.90` by
+`0.0018301422467547`, with no rounding assist. The earnings-subfamily value is
+`0.9574884…`, displayed as `0.9575` under the same convention.
+
+A delete-one-seed jackknife over the 100 floor seeds gives SE(`p_gate`) about
+`0.0186` when tolerances are held at their locked values and about `0.0129` when
+tolerances are co-derived in each replicate: approximately `0.013–0.019` across
+the two conventions. Four of the 100 co-derived delete-one replicates fall below
+`0.90`, and the full-sample clearance is only about `0.1 SE`. Co-derivation
+partly self-stabilizes the result because an over-estimated sigma also inflates
+its tolerance, which explains the smaller co-derived SE.
+
+Accordingly, the weak-power floor is met under the registered point-estimate
+arithmetic convention—the same convention used for the ratified v3 value
+`0.9087`—but the clearance is **not statistically resolved at the 100-seed
+design**. Ratification knowingly adopts that registered arithmetic convention;
+it does not claim that this design statistically resolves the margin.
 
 ## S2 candidate-blindness disclosure
 
