@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import populace_dynamics.engine.steps as steps_module
 from populace_dynamics.engine.loop import (
     MaritalStepResult,
     PeriodContext,
@@ -15,6 +16,7 @@ from populace_dynamics.engine.rng import ProjectionRNGRegistry
 from populace_dynamics.engine.steps import (
     AgeSexMortalityModel,
     ClaimingSchedule,
+    FertilityDraws,
     advance_age,
     apply_claiming,
     apply_earnings,
@@ -236,6 +238,114 @@ def test_birth_rows_inherit_maternal_household_and_fixed_weight():
         np.random.default_rng(0),
     )
     pd.testing.assert_frame_equal(result, via_step)
+
+
+def test_dead_mother_scheduled_birth_drops_with_reconciliation():
+    frame = pd.DataFrame(
+        {
+            "person_id": [10],
+            "year": [2015],
+            "age": [30],
+            "sex": ["female"],
+            "birth_year": [1985],
+            "household_id": [55],
+            "weight": [123.0],
+            "start_weight": [123.0],
+            "synthetic_entry": [False],
+        }
+    )
+    births = pd.DataFrame(
+        {"parent_person_id": [10, 20], "birth_year": [2015, 2015]}
+    )
+    with pytest.raises(ValueError, match="birth parents are absent"):
+        materialize_maternal_births(
+            frame, births, _context(), np.random.default_rng(0)
+        )
+
+    reconciliation = {}
+    birth_store = {}
+    reconciled_rng = np.random.default_rng(7)
+    reconciled = apply_fertility(
+        frame,
+        _context(),
+        MaritalStepResult(pd.DataFrame(), births),
+        reconciled_rng,
+        birth_store=birth_store,
+        roster_absent_births=reconciliation,
+    )
+    baseline_rng = np.random.default_rng(7)
+    baseline = apply_fertility(
+        frame,
+        _context(),
+        MaritalStepResult(pd.DataFrame(), births.iloc[[0]].copy()),
+        baseline_rng,
+    )
+
+    pd.testing.assert_frame_equal(reconciled, baseline)
+    assert reconciled_rng.bytes(32) == baseline_rng.bytes(32)
+    pd.testing.assert_frame_equal(birth_store[2015].maternal, births)
+    assert reconciliation == {
+        2015: {
+            "dropped_parent_ids": frozenset({20}),
+            "dropped_count": 1,
+        }
+    }
+
+
+def test_fertility_post_draw_filter_is_a_rewiring_tripwire(monkeypatch):
+    frame = pd.DataFrame(
+        {
+            "person_id": [10],
+            "year": [2015],
+            "age": [30],
+            "sex": ["female"],
+            "weight": [123.0],
+        }
+    )
+    roster_with_dead_mother = pd.concat(
+        [
+            frame,
+            pd.DataFrame(
+                {
+                    "person_id": [20],
+                    "year": [2015],
+                    "age": [29],
+                    "sex": ["female"],
+                    "weight": [100.0],
+                }
+            ),
+        ],
+        ignore_index=True,
+    )
+    births = pd.DataFrame(
+        {"parent_person_id": [10, 20], "birth_year": [2015, 2015]}
+    )
+    draw_ids = []
+    draw_bytes = []
+
+    def fake_simulate_fertility(
+        marital, components, holdout_ids, male_gap, rng
+    ):
+        del marital, components, male_gap
+        draw_ids.append(set(holdout_ids))
+        draw_bytes.append(rng.bytes(32))
+        return FertilityDraws(maternal=births, paternal=pd.DataFrame())
+
+    monkeypatch.setattr(
+        steps_module, "simulate_fertility", fake_simulate_fertility
+    )
+    for roster in (frame, roster_with_dead_mother):
+        apply_fertility(
+            roster,
+            _context(),
+            MaritalStepResult(pd.DataFrame(), pd.DataFrame()),
+            np.random.default_rng(11),
+            components=object(),
+            holdout_ids={10, 20},
+        )
+
+    assert draw_ids == [{10, 20}, {10, 20}]
+    assert draw_bytes[0] == draw_bytes[1]
 
 
 def test_birth_ids_are_never_reused_after_a_synthetic_child_exits():

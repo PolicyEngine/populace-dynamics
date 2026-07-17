@@ -29,6 +29,7 @@ from populace_dynamics.harness.m6_cells import (
     MARITAL_BANDS,
     SEXES,
     band_of,
+    disability_scoring_universe,
 )
 from populace_dynamics.harness.m6_scoring import (
     restrict_earnings_domain_support,
@@ -138,12 +139,13 @@ def prepare_projected_disability(
             "to_disabled": next_disabled.loc[keep].to_numpy(dtype=bool),
         }
     )
-    return pairs.merge(
+    pairs = pairs.merge(
         anchor[["person_id", "weight"]],
         on="person_id",
         how="inner",
         validate="many_to_one",
-    ).reset_index(drop=True)
+    )
+    return disability_scoring_universe(pairs).reset_index(drop=True)
 
 
 def _earnings_state_frame(initial_slice: pd.DataFrame) -> pd.DataFrame:

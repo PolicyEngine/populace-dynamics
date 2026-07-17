@@ -1,0 +1,14 @@
+{
+  "schema_version": "external_source_provenance.v1",
+  "committed_source_file": "data/external/ssa_tr_2014_vi_g8.source.html",
+  "source_url": "https://www.ssa.gov/oact/TR/2014/lr6f8.html",
+  "document": "The 2014 Annual Report of the Board of Trustees of the Federal Old-Age and Survivors Insurance and Federal Disability Insurance Trust Funds",
+  "table_of_record": "VI.G8 — Operations of the Combined OASI and DI Trust Funds, in Current Dollars, Calendar Years 1970-2090",
+  "retrieval_date": "2026-07-15T21:25:41Z",
+  "fetch_method": "Browser network-response capture after browser-header curl returned HTTP 403. Headless Google Chrome fetched the authoritative SSA URL; Fetch API arrayBuffer() exposed the content-decoded HTTP 200 response body, which was committed directly and sha256-pinned. Akamai adds request-specific delivery markup, so the hash identifies this one reviewed acquisition.",
+  "source_sha256": "0cebeb4774112932f43432a8f9e60e1981a5506459340cb31ad2144121f6bc26",
+  "source_length_bytes_utf8": 78120,
+  "acquired_by": "Codex gpt-5.6-sol, populace-dynamics M7 campaign",
+  "consumed_by": "scripts/extract_ssa_trust_fund_opening_reserve_2014.py → data/external/ssa_trust_fund_opening_reserve_2014.json",
+  "note": "Build-time provenance for the raw browser response body. The selected Table VI.G8 cell is the Intermediate 2014 estimate of combined OASI+DI assets at year end. It is explicitly projected, because actual end-of-2014 reserves first appear in the vintage-forbidden 2015 report."
+}

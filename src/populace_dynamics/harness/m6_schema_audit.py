@@ -264,7 +264,13 @@ PHASE_FRAME_COLUMN_READS: dict[str, dict[str, frozenset[str]]] = {
     # certified marital attrs + person_years -- never yet run on real frames).
     "marital_panel_builder": {
         "marital.attrs": frozenset(
-            {"person_id", "censor_year", "start_exposure_year", "weight"}
+            {
+                "person_id",
+                "birth_year",
+                "censor_year",
+                "start_exposure_year",
+                "weight",
+            }
         ),
         "marital.person_years": frozenset({"person_id", "year"}),
     },

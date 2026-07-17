@@ -181,7 +181,16 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
             panel=native_marital,
         )
 
-    def fake_fertility(frame, context, marital, rng, *, birth_store, **kwargs):
+    def fake_fertility(
+        frame,
+        context,
+        marital,
+        rng,
+        *,
+        birth_store,
+        roster_absent_births,
+        **kwargs,
+    ):
         del marital, rng, kwargs
         calls.append("fertility")
         birth_store[context.year] = FertilityDraws(
@@ -190,6 +199,10 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
                 {"parent_person_id": [1], "birth_year": [2015]}
             ),
         )
+        roster_absent_births[context.year] = {
+            "dropped_parent_ids": frozenset({100 + context.draw_index}),
+            "dropped_count": 1,
+        }
         return frame
 
     def fake_household_fertility(marital, components, ids, male_gap, rng):
@@ -378,5 +391,19 @@ def test_assembly_wires_refitted_objects_and_step4_births(monkeypatch):
         * 2
     )
     assert draw0_outputs["marital"] is not draw1_outputs["marital"]
+    assert draw0_outputs["roster_absent_births"] == {
+        2015: {
+            "dropped_parent_ids": frozenset({100}),
+            "dropped_count": 1,
+        },
+        2016: {
+            "dropped_parent_ids": frozenset({100}),
+            "dropped_count": 1,
+        },
+    }
+    assert draw1_outputs["roster_absent_births"][2015] == {
+        "dropped_parent_ids": frozenset({101}),
+        "dropped_count": 1,
+    }
     assert draw0_outputs["disability"] is not draw1_outputs["disability"]
     assert draw0_outputs["household"] is not draw1_outputs["household"]

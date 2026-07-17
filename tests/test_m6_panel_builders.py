@@ -9,9 +9,14 @@ import pandas as pd
 
 from populace_dynamics.data import household_composition as hc
 from populace_dynamics.data import transitions
-from populace_dynamics.engine.loop import PeriodContext
+from populace_dynamics.engine.composition import (
+    CompositionDiagnostics,
+    simulate_candidate9_injected,
+)
+from populace_dynamics.engine.loop import MaritalStepResult, PeriodContext
 from populace_dynamics.engine.marital import (
     _simulate_candidate16_with_generators,
+    simulate_marital_step,
 )
 from populace_dynamics.engine.panel_builders import (
     PANEL_BUILDER_INPUTS_KEY,
@@ -315,6 +320,107 @@ def test_marital_core_appends_certified_change_points_and_durations():
     assert events.loc[2016, "years_since_dissolution"] == 1
 
 
+def _entry_state_panel(
+    states: list[str],
+    years_since: list[object],
+    durations: list[object],
+    *,
+    censor_year: int,
+) -> tuple[transitions.MaritalPanel, set[int]]:
+    """A builder-shaped panel containing only each person's entry row."""
+    n_people = len(states)
+    person_ids = np.arange(101, 101 + n_people, dtype=np.int64)
+    attrs = pd.DataFrame(
+        {
+            "person_id": person_ids,
+            "sex": [
+                "female" if i % 2 == 0 else "male" for i in range(n_people)
+            ],
+            "birth_year": np.arange(1971.0, 1971.0 + n_people),
+            "most_recent_report_year": np.full(n_people, float(censor_year)),
+            "n_marriages": np.ones(n_people),
+            "death_year": pd.array([pd.NA] * n_people, dtype="Int64"),
+            "censor_year": np.full(n_people, float(censor_year)),
+            "weight": np.ones(n_people),
+            "start_exposure_year": np.full(n_people, 2015.0),
+        }
+    )
+    person_years = transitions._person_years_frame(attrs)
+    person_years = person_years[person_years["year"] == 2015].copy()
+    person_years["marital_state"] = states
+    person_years["marriage_duration"] = pd.array(durations, dtype="Int64")
+    person_years["years_since_dissolution"] = pd.array(
+        years_since, dtype="Int64"
+    )
+    panel = transitions.MaritalPanel(
+        person_years=person_years,
+        events=_events_schema(),
+        attrs=attrs,
+    )
+    return panel, set(person_ids.tolist())
+
+
+def test_entry_dissolved_person_year_history_survives_assembly():
+    panel, holdout_ids = _entry_state_panel(
+        ["divorced"] * 6 + ["married"],
+        [4] * 6 + [pd.NA],
+        [pd.NA] * 6 + [10],
+        censor_year=2022,
+    )
+
+    simulated, _ = _simulate_candidate16_with_generators(
+        panel,
+        holdout_ids,
+        _components(
+            holdout_ids,
+            divorce_probability=1.0,
+        ),
+        np.random.default_rng(5200),
+        np.random.default_rng(6200),
+    )
+
+    dissolved = simulated.person_years[
+        simulated.person_years["marital_state"] == "divorced"
+    ]
+    # Six entry-divorced people contribute 6 * 8 rows; the married control
+    # dissolves in 2015 and contributes seven more.  Before the repair only
+    # the control survives assembly: 7 / 55 = 12.73%, the real-frame class.
+    assert len(dissolved) / 55 == 1.0
+    entry_dissolved = dissolved[dissolved["person_id"] == 101].sort_values(
+        "year"
+    )
+    assert entry_dissolved["years_since_dissolution"].tolist() == list(
+        range(4, 12)
+    )
+
+
+def test_entry_dissolved_remarriages_keep_event_history_through_assembly():
+    panel, holdout_ids = _entry_state_panel(
+        ["divorced", "widowed"],
+        [4, 7],
+        [pd.NA, pd.NA],
+        censor_year=2015,
+    )
+
+    simulated, _ = _simulate_candidate16_with_generators(
+        panel,
+        holdout_ids,
+        _components(
+            holdout_ids,
+            remarriage_probability=1.0,
+        ),
+        np.random.default_rng(5200),
+        np.random.default_rng(6200),
+    )
+
+    events = simulated.events.sort_values("person_id")
+    assert events["transition"].tolist() == ["remarriage"] * 2
+    assert events["years_since_dissolution"].tolist() == [4, 7]
+    assert events["origin"].tolist() == ["divorced", "widowed"]
+    # Structural entry-history carriers remain inert in lifetime counts.
+    assert simulated.attrs["n_marriages"].tolist() == [1.0, 1.0]
+
+
 def _minor_marital_inputs(
     *,
     birth_year: float,
@@ -535,3 +641,83 @@ def test_from_realized_histories_uses_anchor_weight_reader(monkeypatch):
         captured["weights"],
         anchor.set_index("person_id")["weight"],
     )
+
+
+def test_empty_native_adapters_return_typed_zero_row_results():
+    source = _inputs()
+    empty_inputs = PanelBuilderInputs(
+        anchor=source.anchor.iloc[0:0].copy(),
+        marital=source.marital,
+        household=source.household,
+        cohabitation=source.cohabitation,
+    )
+    context = _context(empty_inputs)
+
+    marital_panel, marital_ids = marital_panel_builder(pd.DataFrame(), context)
+    marital_result = simulate_marital_step(
+        marital_panel,
+        marital_ids,
+        _components(set()),
+        SimpleNamespace(constraint_max_abs_dev=lambda: 0.0),
+        SimpleNamespace(earn={}, cuts=(0.0, 0.0)),
+        main_rng=np.random.default_rng(5200),
+        gap_rng=np.random.default_rng(6200),
+    )
+
+    assert marital_ids == set()
+    assert isinstance(marital_result, MaritalStepResult)
+    assert isinstance(marital_result.panel, transitions.MaritalPanel)
+    assert marital_result.panel.person_years.empty
+    assert marital_result.panel.events.empty
+    assert marital_result.panel.attrs.empty
+    assert marital_result.panel.person_years.dtypes.equals(
+        marital_panel.person_years.dtypes
+    )
+    assert marital_result.panel.events.dtypes.equals(
+        marital_panel.events.dtypes
+    )
+    assert marital_result.births.empty
+    assert marital_result.exposure.empty
+    assert marital_result.weighted_events.empty
+
+    household_panel, household_ids = household_panel_builder(
+        pd.DataFrame(), context
+    )
+    household_result, diagnostics = simulate_candidate9_injected(
+        household_panel,
+        SimpleNamespace(),
+        household_ids,
+        marital_result,
+        SimpleNamespace(),
+    )
+
+    assert household_ids == set()
+    assert isinstance(household_result, hc.HouseholdCompositionPanel)
+    assert household_result.person_waves.empty
+    assert household_result.attrs.empty
+    assert list(household_result.person_waves) == [
+        column
+        for column in household_panel.person_waves
+        if column != "cohabiting"
+    ]
+    assert isinstance(diagnostics, CompositionDiagnostics)
+    assert diagnostics.weight.dtype == np.float64
+    assert diagnostics.household_size.dtype == np.int64
+    boolean_diagnostics = (
+        diagnostics.legal_core,
+        diagnostics.cohabitation_state,
+        diagnostics.cohabitation_increment,
+        diagnostics.legal_residual_state,
+        diagnostics.legal_residual_increment,
+        diagnostics.final_spouse,
+        diagnostics.coresident_parent,
+        diagnostics.multigen,
+        diagnostics.coresident_child,
+        diagnostics.coresident_grandchild,
+    )
+    assert all(
+        values.dtype == bool and values.size == 0
+        for values in boolean_diagnostics
+    )
+    assert diagnostics.weight.size == diagnostics.household_size.size == 0
+    assert diagnostics.model_diagnostics == {}

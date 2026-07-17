@@ -14,7 +14,10 @@ import numpy as np
 import pandas as pd
 
 from populace_dynamics.data import disability
-from populace_dynamics.engine.loop import SCHEDULED_ENTRIES_KEY
+from populace_dynamics.engine.loop import (
+    SCHEDULED_ENTRIES_KEY,
+    SyntheticPersonIdAllocator,
+)
 from populace_dynamics.engine.panel_builders import PanelBuilderInputs
 from populace_dynamics.engine.support import StartWaveWeightSnapshot
 from populace_dynamics.harness.m6_cells import (
@@ -54,6 +57,8 @@ class M6RealizedPopulation:
     initial_slice: pd.DataFrame
     scheduled_entries_by_year: dict[int, pd.DataFrame]
     holdout_ids: frozenset[int]
+    reserved_real_ids: frozenset[int]
+    synthetic_id_start: int
     earnings_domain_ids: frozenset[int]
     earnings_support: pd.DataFrame
     presence: dict[int, set[int]]
@@ -69,6 +74,10 @@ class M6RealizedPopulation:
                 year: frame.copy()
                 for year, frame in self.scheduled_entries_by_year.items()
             },
+            "synthetic_id_allocator": SyntheticPersonIdAllocator(
+                self.synthetic_id_start,
+                self.reserved_real_ids,
+            ),
             "m6_panel_builder_inputs": self.panel_builder_inputs,
         }
 
@@ -108,6 +117,8 @@ def subset_realized_population(
         ].copy(),
         scheduled_entries_by_year=scheduled,
         holdout_ids=selected,
+        reserved_real_ids=population.reserved_real_ids,
+        synthetic_id_start=population.synthetic_id_start,
         earnings_domain_ids=population.earnings_domain_ids & selected,
         earnings_support=population.earnings_support[
             population.earnings_support["person_id"].isin(selected)
@@ -192,6 +203,7 @@ def build_realized_population(
     disability_panel: disability.DisabilityPanel,
     panel_builder_inputs: PanelBuilderInputs,
     earnings_domain_ids: set[int] | frozenset[int],
+    reserved_real_ids: set[int] | frozenset[int] | None = None,
 ) -> M6RealizedPopulation:
     """Build the closed-panel seed and support bases fixed by section 2.8.3.
 
@@ -211,6 +223,10 @@ def build_realized_population(
         obj="panel-builder anchor",
     )
     holdout_ids = frozenset(int(value) for value in anchor["person_id"])
+    reserved = holdout_ids | frozenset(
+        int(value) for value in (reserved_real_ids or ())
+    )
+    synthetic_id_start = int(max(reserved)) + 1 if reserved else 1
     domain = frozenset(int(value) for value in earnings_domain_ids)
     unknown_domain = domain - holdout_ids
     if unknown_domain:
@@ -346,6 +362,8 @@ def build_realized_population(
         initial_slice=initial,
         scheduled_entries_by_year=scheduled,
         holdout_ids=holdout_ids,
+        reserved_real_ids=reserved,
+        synthetic_id_start=synthetic_id_start,
         earnings_domain_ids=domain,
         earnings_support=earnings_frame(earnings_panel, anchor),
         presence=presence_by_wave(demographic_panel),
