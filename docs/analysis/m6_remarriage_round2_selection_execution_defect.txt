@@ -1,0 +1,82 @@
+loading staged PSID sources (read-only)
+fit-side preflight: boundary 2006
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+fit-side preflight: boundary 2008
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+fit-side preflight: boundary 2010
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+candidate outcome: boundary 2006, R0, 40 CRN draws
+Traceback (most recent call last):
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'weight'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/select_m6_remarriage_round2.py", line 3973, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/select_m6_remarriage_round2.py", line 3920, in main
+    str(boundary): _evaluate_boundary(
+                   ~~~~~~~~~~~~~~~~~~^
+        full_context,
+        ^^^^^^^^^^^^^
+    ...<2 lines>...
+        int(boundary),
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/select_m6_remarriage_round2.py", line 2729, in _evaluate_boundary
+    direct = _direct_standardization(
+        table,
+    ...<2 lines>...
+        truth_person_years,
+    )
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/select_m6_remarriage_round2.py", line 2255, in _direct_standardization
+    **record(
+      ~~~~~~^
+        risk[
+        ^^^^^
+    ...<12 lines>...
+        ],
+        ^^
+    ),
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/select_m6_remarriage_round2.py", line 2179, in record
+    unmatched_weight = float(selected_unmatched["weight"].sum())
+                             ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'weight'
