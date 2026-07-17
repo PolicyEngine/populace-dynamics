@@ -8,11 +8,13 @@
 - **Forensic authority:** issue #42 [forensics round 4, comment
   4997635883][forensics-4], registered in [comment 4997460916][forensics-reg]
   after the [candidate-1 grading, comment 4997458179][grading].
-- **Frozen evidence:** candidate 1's published artifact at commit
-  `8ff7b14fa89f021c4951ddfbd2102f795ff4de21`, SHA-256
+- **Frozen evidence:** candidate 1's published artifact from immutable run head
+  `8ff7b14fa89f021c4951ddfbd2102f795ff4de21`, now landed on master through
+  [PR #225][candidate1-pr] at squash commit
+  `96222186c5b4cdd5372ad6df78c155db7307807e`, SHA-256
   `546a9739f8d1c7d21a91a07eb902c8af9bda92cdaa8f7917f312894f6a861b24`
-  ([immutable artifact][candidate1-artifact], [PR #225][candidate1-pr]). It is
-  read-only evidence and is not run, re-scored, or rewritten here.
+  ([immutable artifact][candidate1-artifact]). It is read-only evidence and is
+  not run, re-scored, or rewritten here.
 - **Scope:** DOCS ONLY. This proposal changes no code, test, `gates.yaml` cell,
   floor, tolerance, run artifact, truth-side reducer, support rule, or verdict.
 - **Candidate-ladder precedent:** W1 left candidate 1's FAIL intact, measured
@@ -180,7 +182,9 @@ earnings rows. It finds:
 | `earn_p10.prime` | 0.221 | 0.284 |
 | `earn_zero_rate.older` | 0.163 | 0.168 |
 
-The frozen-v3 **six-cell earnings-subfamily** OC is `p_seed=0.9347`,
+The ratified full-support v3 **combined 11-cell** baseline is `p_seed=0.8934`,
+`p_gate=0.9087` (`gates.yaml:5686-5698`). The frozen-v3 **six-cell
+earnings-subfamily** OC is `p_seed=0.9347`,
 `p_gate=0.9626`; applying its locked tolerances on the actual closed domain yields
 earnings-only `p_seed=0.8760`, `p_gate(≥4/5)=0.8809`. That is 1.91 percentage
 points below the ratified 0.90 weak-power floor. Under the artifact's registered
@@ -189,7 +193,8 @@ faithful-candidate false-fail probability—the disclosed “about 12% under-pow
 finding. It is **not** the full 11-cell false-fail rate.
 
 The frozen flow subfamily has `p_seed=0.9559`. Extending the same registered
-independence approximation gives an informative, non-operative combined estimate:
+independence approximation gives an informative, non-operative combined estimate
+that degrades from the ratified `0.9087` baseline:
 `0.9559 × 0.8760 = 0.8374` per seed and `p_gate≈0.8115` (about 18.85% false-fail).
 That arithmetic is an inference from the two subfamily OCs, not a field in the
 candidate-1 self-check; either floors resolution must freshly publish the combined
@@ -411,12 +416,15 @@ logit h(a,s,c) = α + standardize(X_raw; μ_fit, σ_fit) θ.
 ```
 
 The sex-specific global curve uses the actual target age inside that sex's pooled
-training support. Only the cohort-specific deviation uses `a_c*`.
-Thus a female in the 1990 cohort at age 24 receives the supported global
-female-age-24 curve plus the 1990 deviation evaluated at its age-23 boundary; the
-1990 interaction cannot extrapolate from `0.0538753` to nearly 1. If target age is
-outside sex-specific pooled support, the global sex curve uses its nearest
-boundary. If a
+training support. Only the cohort-specific deviation uses `a_c*`. Forensics
+establishes that female-1990 support ends at age 23; it does not yet establish the
+pooled-sex 1990 endpoint used by the shared deviation. Thus a female in the 1990
+cohort at age 24 receives the supported global female-age-24 curve plus the 1990
+deviation evaluated at the pooled endpoint disclosed by the train-only selection
+ledger. If that endpoint is 23, the deviation is evaluated at age 23 and cannot
+extrapolate from `0.0538753` to nearly 1; otherwise the registered rule uses the
+disclosed `a_1990^+`. If target age is outside sex-specific pooled support, the
+global sex curve uses its nearest boundary. If a
 target birth decade is newer or older than every fitted decade, its cohort main
 effect, support interval, and deviation come from the nearest fitted decade. No
 row is excluded and no truth-side value enters this rule.
@@ -441,8 +449,9 @@ then evaluate raw-F6-weighted Bernoulli deviance on dated rows in `b+1…b+4`,
 applying the same support-extension rule. Average first within each boundary,
 then give the three boundary deviances equal weight. The windows overlap by
 design—2009–2012 receive repeated stress as recent pseudo-holdout evidence; they
-are not described as independent. Publish each calendar year's multiplicity and
-each sex×cohort support/event count. Choose the eligible `C` with the lowest mean
+are not described as independent. Publish each calendar year's multiplicity,
+each sex×cohort support/event count and endpoint, and each pooled-cohort endpoint
+actually used by the shared deviation. Choose the eligible `C` with the lowest mean
 pseudo-holdout deviance; ties within `1e-12` choose the smaller `C` (stronger
 regularization). Publish every rung, convergence certificate, support count,
 deviance, and selected value before registration 8. No 2015+ row or
@@ -488,8 +497,9 @@ law. Any repaired byte or changed environment lock requires a fresh registration
 Before score assembly the runner must verify and retain for the eventual fresh
 artifact, for each sex, cohort, and target age:
 
-- fitted support endpoints, in-support count/event weight, and whether the global
-  or cohort term was boundary-evaluated;
+- sex-specific, pooled-cohort, and sex×cohort fitted support endpoints,
+  in-support count/event weight, and whether the global or cohort term was
+  boundary-evaluated;
 - convergence status, iterations, warning count, selected `C`, all grid results,
   and deterministic design-matrix checksum;
 - the age-18–29 predicted hazard table, including female-1990 ages 23–29; and
@@ -629,8 +639,9 @@ existing `run_floor`/`earnings_cells` machinery. The standardizer `σ_{j,b}` is
 that machinery's `realized_sigma`, not its folded-score SD or tolerance. For each
 `q`, common random numbers bind all 20 selection draws: identical person/period
 addresses and identical streams 1–5 across every grid rung. Average each projected
-moment across the 20 draws, compare it with the full-support truth moment using
-the gated cell's exact log-ratio/absolute-gap metric, and set
+moment across the 20 draws, compare it with the truth moment on that same support
+(full, i.e., not half-split) using the gated cell's exact log-ratio/absolute-gap
+metric, and set
 
 ```text
 J(q) = Σ_b Σ_j∈{p10, mean, mobility, autocorr} [score(j,b,q)/σ(j,b)]².
@@ -712,6 +723,12 @@ transfer gate-1 certification or validate a 2100 earnings projection.
 
 Neither resolution is authorized by this proposal. Silent threshold movement,
 editing v3 in place, or applying v4 retrospectively to candidate 1 is prohibited.
+
+Both options compare against the ratified full-support combined
+`p_gate=0.9087`. The provisional locked-domain `≈0.8115` is a 9.72-point
+degradation from that baseline; the provisional rederived-domain `≈0.9019`
+nearly restores it but remains non-operative until the full ceremony reproduces
+and ratifies the combined OC.
 
 Resolution B's provisional failing-cell margins are:
 
@@ -911,7 +928,13 @@ registered candidate-1 protocol:
 The fresh primary path is exactly `runs/gate_m6_candidate2_v1.json`, accompanied
 by its normal environment sidecar and written through the exclusive new-file
 guard. `runs/gate_m6_candidate1_v1.json`, its sidecar, and every floor artifact
-that already exists remain immutable.
+that already exists remain immutable. At referee-review time the candidate-1
+artifact lived only at `8ff7b14` on then-unmerged #225, so the reviewer correctly
+flagged the orchestrator to merge it and forbade rebasing or rewriting that run
+branch. That merge flag is now discharged: #225 landed at `9622218`, and master
+carries the same SHA-pinned artifact and sidecar. The `8ff7b14` run head must
+still never be rebased or rewritten; the distinct candidate-2 path and exclusive
+guard prevent any collision or overwrite.
 
 ### 9.2 Ceremony matrix
 
@@ -1071,6 +1094,10 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
     "candidate1": {
       "artifact": "runs/gate_m6_candidate1_v1.json",
       "commit": "8ff7b14fa89f021c4951ddfbd2102f795ff4de21",
+      "publication_pr": 225,
+      "master_squash_commit": "96222186c5b4cdd5372ad6df78c155db7307807e",
+      "master_publication_status": "LANDED",
+      "run_head_rewrite_prohibited": true,
       "sha256": "546a9739f8d1c7d21a91a07eb902c8af9bda92cdaa8f7917f312894f6a861b24",
       "verdict": "FAIL",
       "n_gated_cells": 11,
@@ -1096,6 +1123,7 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
     },
     "first_marriage": {
       "female_1990_max_fit_age": 23,
+      "pooled_1990_max_fit_age": "TO_BE_DISCLOSED_BY_TRAIN_ONLY_LEDGER",
       "hazard_age23": 0.0538753,
       "hazard_age24": 0.999999928,
       "hazard_age25_plus": 1.0,
@@ -1163,6 +1191,10 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
         "p_gate_4_of_5": 0.9575
       },
       "flow_subfamily_p_seed": 0.9559,
+      "ratified_full_support_combined": {
+        "p_seed": 0.8934,
+        "p_gate_4_of_5": 0.9087
+      },
       "combined_same_method_inference": {
         "operative": false,
         "locked_domain_p_seed": 0.8373684,
