@@ -1,0 +1,701 @@
+{
+  "authority": {
+    "round1_full_stdout_sha256": "fe914611c1e0f2e96db15e62e49b69907af428379bc6cc5f3d1f3dbb782a540c",
+    "round1_ledger_git_object": "3099182ef94d2c814c4cd8e82dba804c684bada1",
+    "round1_ledger_sha256": "aabec7cc1254d1be9bcf57518632a04f4bbf42d842d30b1991b58a832206c05f",
+    "round1_report_git_object": "73ea8eae127a811456412acc387e9ee2a55e46c1",
+    "round1_report_sha256": "cf20d2e181ab5b39738d20ed254b6a47f630f8dbe363928df73ba8e3a5650a6a",
+    "source_checksums": {
+      "demographic": "12ad56720f2435f4e738e4cfdfb02a4e6910cdc511f16be21a9108e6f848e81e",
+      "marital_events": "b3451caa2a8be172d0b76a90461b470efbc87a42cd1c51ff60adee4be1504f71",
+      "marital_person_years": "0c1f31c22ecfab97efca6e21be0aa270da4c317fb0a11e0fe4a80bc62d76ad03",
+      "marriage_records": "ed3d89b41fb09858d608534e3f73575bc1f4d2c404d7e7e9fb99963f811361f3"
+    }
+  },
+  "boundaries": {
+    "2006": {
+      "divorced_calibration": {
+        "0.50": {
+          "alpha_divorced": -0.5,
+          "area_relative_residual": -8.288147945734181e-11,
+          "beta_frontload": 0.936521805357188,
+          "bracket_residual_high": -0.8599893202289843,
+          "bracket_residual_low": 0.3218604226639117,
+          "candidate_probability_max": 0.2536228266441194,
+          "candidate_probability_min": 0.003865187270904773,
+          "centered_contrast": [
+            0.8994289628006331,
+            -0.10057103719936686,
+            -1.1005710371993669
+          ],
+          "effective_divorced_shift": -0.5000000000000001,
+          "fit_exposure_center": 0.10057103719936686,
+          "maximum_cell_logit_shift": 0.34233483603259196,
+          "minimum_cell_logit_shift": -1.530708774681784,
+          "root_iterations": 35
+        },
+        "0.75": {
+          "alpha_divorced": -0.75,
+          "area_relative_residual": 5.912537126562256e-11,
+          "beta_frontload": 1.293768887873739,
+          "bracket_residual_high": -0.8599890770286234,
+          "bracket_residual_low": 0.4771524094119677,
+          "candidate_probability_max": 0.26735880889252295,
+          "candidate_probability_min": 0.00203535365563445,
+          "centered_contrast": [
+            0.8994289628006331,
+            -0.10057103719936686,
+            -1.1005710371993669
+          ],
+          "effective_divorced_shift": -0.75,
+          "fit_exposure_center": 0.10057103719936686,
+          "maximum_cell_logit_shift": 0.4136532089240057,
+          "minimum_cell_logit_shift": -2.1738845668234723,
+          "root_iterations": 35
+        }
+      },
+      "fit_max_year": 2005,
+      "fit_support_by_origin_ysd": {
+        "divorced": {
+          "0-4": {
+            "risk_rows": 10781,
+            "unweighted_events": 1457,
+            "weighted_exposure": 91180772.019
+          },
+          "10-120": {
+            "risk_rows": 7803,
+            "unweighted_events": 264,
+            "weighted_exposure": 68977738.146
+          },
+          "5-9": {
+            "risk_rows": 7029,
+            "unweighted_events": 489,
+            "weighted_exposure": 60611151.671000004
+          }
+        },
+        "widowed": {
+          "0-4": {
+            "risk_rows": 2936,
+            "unweighted_events": 159,
+            "weighted_exposure": 24728615.137000002
+          },
+          "10-120": {
+            "risk_rows": 2976,
+            "unweighted_events": 47,
+            "weighted_exposure": 21678549.181
+          },
+          "5-9": {
+            "risk_rows": 2253,
+            "unweighted_events": 56,
+            "weighted_exposure": 18362914.904
+          }
+        }
+      },
+      "incumbent_table_sha256": "82d59184b6fa81dbebb304546e2c1311c0a2e1b1eb5deee96384bd7bbaeaafc2",
+      "reference_spells": {
+        "divorced": {
+          "R0_area": 202244898.02596286,
+          "duplicate_key_groups": 1,
+          "duplicate_spells_excluded": 2,
+          "duplicate_spells_excluded_weight": 29.896,
+          "eligible_spells_before_exclusions": 3742,
+          "included_spell_weight": 28316311.544,
+          "included_spells": 3333,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 84,
+          "path_checksum_sha256": "bd82bf482b441c795ce372497a0628225fb7fdc45beae494804c8f45e7506b43",
+          "potential_path_years": 51453,
+          "same_year_remarriage_spells_excluded": 323,
+          "same_year_remarriage_spells_excluded_weight": 2630171.269,
+          "working_age_path_year_terms": 51441
+        },
+        "widowed": {
+          "R0_area": 62101368.831232406,
+          "duplicate_key_groups": 0,
+          "duplicate_spells_excluded": 0,
+          "duplicate_spells_excluded_weight": 0.0,
+          "eligible_spells_before_exclusions": 1526,
+          "included_spell_weight": 7175149.597,
+          "included_spells": 865,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 640,
+          "path_checksum_sha256": "272c37dce7ad26d1e4b052044963caaf2c7d6958ba56f41257297011228bf044",
+          "potential_path_years": 11827,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 272688.131,
+          "working_age_path_year_terms": 11827
+        }
+      },
+      "support_struck_named_laws": [],
+      "widowed_targets": {
+        "0.00": {
+          "alpha_widowed": 0.0,
+          "candidate_probability_max": 0.3475101905266418,
+          "candidate_probability_min": 0.005221519802467739,
+          "effective_widowed_shift": 0.0,
+          "maximum_cell_logit_shift": 0.0,
+          "minimum_cell_logit_shift": 0.0,
+          "target_area": 62101368.831232406,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 1.0,
+          "within_log_rate_budget": true
+        },
+        "0.05": {
+          "alpha_widowed": 0.05,
+          "candidate_probability_max": 0.3589322412491476,
+          "candidate_probability_min": 0.005487763701558476,
+          "effective_widowed_shift": 0.05,
+          "maximum_cell_logit_shift": 0.05,
+          "minimum_cell_logit_shift": 0.05,
+          "target_area": 61095623.53133961,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 0.9838047804932283,
+          "within_log_rate_budget": true
+        }
+      }
+    },
+    "2008": {
+      "divorced_calibration": {
+        "0.50": {
+          "alpha_divorced": -0.5,
+          "area_relative_residual": 8.095990544632059e-11,
+          "beta_frontload": 0.9253702559508383,
+          "bracket_residual_high": -0.8625112185165265,
+          "bracket_residual_low": 0.3199021520396157,
+          "candidate_probability_max": 0.24817818842097789,
+          "candidate_probability_min": 0.003845769870932803,
+          "centered_contrast": [
+            0.9095663089131167,
+            -0.09043369108688322,
+            -1.0904336910868833
+          ],
+          "effective_divorced_shift": -0.5000000000000001,
+          "fit_exposure_center": 0.09043369108688322,
+          "maximum_cell_logit_shift": 0.34168560808319015,
+          "minimum_cell_logit_shift": -1.5090549038184866,
+          "root_iterations": 35
+        },
+        "0.75": {
+          "alpha_divorced": -0.75,
+          "area_relative_residual": 2.4341417770301632e-11,
+          "beta_frontload": 1.2791157849133015,
+          "bracket_residual_high": -0.8625110136378215,
+          "bracket_residual_low": 0.4734591408439033,
+          "candidate_probability_max": 0.26180707318749197,
+          "candidate_probability_min": 0.002040201677944807,
+          "centered_contrast": [
+            0.9095663089131167,
+            -0.09043369108688322,
+            -1.0904336910868833
+          ],
+          "effective_divorced_shift": -0.7500000000000001,
+          "fit_exposure_center": 0.09043369108688322,
+          "maximum_cell_logit_shift": 0.41344062315609564,
+          "minimum_cell_logit_shift": -2.1447909466705073,
+          "root_iterations": 32
+        }
+      },
+      "fit_max_year": 2007,
+      "fit_support_by_origin_ysd": {
+        "divorced": {
+          "0-4": {
+            "risk_rows": 11084,
+            "unweighted_events": 1487,
+            "weighted_exposure": 95064196.083
+          },
+          "10-120": {
+            "risk_rows": 8120,
+            "unweighted_events": 274,
+            "weighted_exposure": 73999973.24599999
+          },
+          "5-9": {
+            "risk_rows": 7271,
+            "unweighted_events": 498,
+            "weighted_exposure": 63860336.83499999
+          }
+        },
+        "widowed": {
+          "0-4": {
+            "risk_rows": 2987,
+            "unweighted_events": 163,
+            "weighted_exposure": 25353728.137000002
+          },
+          "10-120": {
+            "risk_rows": 3021,
+            "unweighted_events": 47,
+            "weighted_exposure": 22355435.181
+          },
+          "5-9": {
+            "risk_rows": 2280,
+            "unweighted_events": 57,
+            "weighted_exposure": 18825328.904
+          }
+        }
+      },
+      "incumbent_table_sha256": "fa69127856302fd974e214ce481572199f37338bc78b52f472ce1bc28c31af08",
+      "reference_spells": {
+        "divorced": {
+          "R0_area": 213531669.60878956,
+          "duplicate_key_groups": 1,
+          "duplicate_spells_excluded": 2,
+          "duplicate_spells_excluded_weight": 29.896,
+          "eligible_spells_before_exclusions": 3826,
+          "included_spell_weight": 29358093.31,
+          "included_spells": 3412,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 86,
+          "path_checksum_sha256": "21de4b1f0011853929783446944b4990a8a3c79971b87260938935b9256d5865",
+          "potential_path_years": 53042,
+          "same_year_remarriage_spells_excluded": 326,
+          "same_year_remarriage_spells_excluded_weight": 2646956.269,
+          "working_age_path_year_terms": 53030
+        },
+        "widowed": {
+          "R0_area": 63268570.85596978,
+          "duplicate_key_groups": 0,
+          "duplicate_spells_excluded": 0,
+          "duplicate_spells_excluded_weight": 0.0,
+          "eligible_spells_before_exclusions": 1570,
+          "included_spell_weight": 7398478.596999999,
+          "included_spells": 881,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 668,
+          "path_checksum_sha256": "1470c57c1329cdb8ab7d8ff17f4e3cb889729498934e6632d5a5b62c946909c7",
+          "potential_path_years": 11970,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 296844.131,
+          "working_age_path_year_terms": 11970
+        }
+      },
+      "support_struck_named_laws": [],
+      "widowed_targets": {
+        "0.00": {
+          "alpha_widowed": 0.0,
+          "candidate_probability_max": 0.3575214374339314,
+          "candidate_probability_min": 0.00536910189863704,
+          "effective_widowed_shift": 0.0,
+          "maximum_cell_logit_shift": 0.0,
+          "minimum_cell_logit_shift": 0.0,
+          "target_area": 63268570.85596978,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 1.0,
+          "within_log_rate_budget": true
+        },
+        "0.05": {
+          "alpha_widowed": 0.05,
+          "candidate_probability_max": 0.36908640915299545,
+          "candidate_probability_min": 0.005642828283227015,
+          "effective_widowed_shift": 0.05,
+          "maximum_cell_logit_shift": 0.05,
+          "minimum_cell_logit_shift": 0.05,
+          "target_area": 62237347.55428187,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 0.9837008598781932,
+          "within_log_rate_budget": true
+        }
+      }
+    },
+    "2010": {
+      "divorced_calibration": {
+        "0.50": {
+          "alpha_divorced": -0.5,
+          "area_relative_residual": -9.570999548458303e-11,
+          "beta_frontload": 0.9710831893607974,
+          "bracket_residual_high": -0.8604730420977594,
+          "bracket_residual_low": 0.32565540097620094,
+          "candidate_probability_max": 0.2485981582654288,
+          "candidate_probability_min": 0.0037050529212885102,
+          "centered_contrast": [
+            0.8967700884357775,
+            -0.10322991156422241,
+            -1.1032299115642223
+          ],
+          "effective_divorced_shift": -0.49999999999999994,
+          "fit_exposure_center": 0.10322991156422241,
+          "maximum_cell_logit_shift": 0.37083835760157924,
+          "minimum_cell_logit_shift": -1.5713280211200156,
+          "root_iterations": 34
+        },
+        "0.75": {
+          "alpha_divorced": -0.75,
+          "area_relative_residual": 3.460787212361538e-12,
+          "beta_frontload": 1.3322750581428409,
+          "bracket_residual_high": -0.8604727898355916,
+          "bracket_residual_low": 0.4830698662582016,
+          "candidate_probability_max": 0.26265844016641055,
+          "candidate_probability_min": 0.0019405847253311317,
+          "centered_contrast": [
+            0.8967700884357775,
+            -0.10322991156422241,
+            -1.1032299115642223
+          ],
+          "effective_divorced_shift": -0.75,
+          "fit_exposure_center": 0.10322991156422241,
+          "maximum_cell_logit_shift": 0.44474442171153616,
+          "minimum_cell_logit_shift": -2.219805694574146,
+          "root_iterations": 34
+        }
+      },
+      "fit_max_year": 2009,
+      "fit_support_by_origin_ysd": {
+        "divorced": {
+          "0-4": {
+            "risk_rows": 11373,
+            "unweighted_events": 1511,
+            "weighted_exposure": 101635683.45199999
+          },
+          "10-120": {
+            "risk_rows": 8397,
+            "unweighted_events": 287,
+            "weighted_exposure": 76277310.74599999
+          },
+          "5-9": {
+            "risk_rows": 7487,
+            "unweighted_events": 508,
+            "weighted_exposure": 67736472.33500001
+          }
+        },
+        "widowed": {
+          "0-4": {
+            "risk_rows": 3016,
+            "unweighted_events": 163,
+            "weighted_exposure": 25521154.137000002
+          },
+          "10-120": {
+            "risk_rows": 3041,
+            "unweighted_events": 47,
+            "weighted_exposure": 21576843.181
+          },
+          "5-9": {
+            "risk_rows": 2295,
+            "unweighted_events": 58,
+            "weighted_exposure": 18631710.904
+          }
+        }
+      },
+      "incumbent_table_sha256": "506235b6cbd8295a005cbead1c58ccbbdf4cd997a238d647c86ca2c236551db5",
+      "reference_spells": {
+        "divorced": {
+          "R0_area": 224717928.3400443,
+          "duplicate_key_groups": 1,
+          "duplicate_spells_excluded": 2,
+          "duplicate_spells_excluded_weight": 29.896,
+          "eligible_spells_before_exclusions": 3921,
+          "included_spell_weight": 31354046.832999997,
+          "included_spells": 3494,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 92,
+          "path_checksum_sha256": "a2c401906cf05ecc02eb1bf548e3d08881e36a57c6531663a8fa8f709ddb6e55",
+          "potential_path_years": 54383,
+          "same_year_remarriage_spells_excluded": 333,
+          "same_year_remarriage_spells_excluded_weight": 2902765.269,
+          "working_age_path_year_terms": 54371
+        },
+        "widowed": {
+          "R0_area": 62925279.75433855,
+          "duplicate_key_groups": 0,
+          "duplicate_spells_excluded": 0,
+          "duplicate_spells_excluded_weight": 0.0,
+          "eligible_spells_before_exclusions": 1595,
+          "included_spell_weight": 7475111.597,
+          "included_spells": 888,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 686,
+          "path_checksum_sha256": "a9ef3e2d4775ffb1f0a68072d141cca663c38b6fb407eda00b3aab56bec3981e",
+          "potential_path_years": 12047,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 293349.131,
+          "working_age_path_year_terms": 12047
+        }
+      },
+      "support_struck_named_laws": [],
+      "widowed_targets": {
+        "0.00": {
+          "alpha_widowed": 0.0,
+          "candidate_probability_max": 0.368360085385093,
+          "candidate_probability_min": 0.0056411463365915755,
+          "effective_widowed_shift": 0.0,
+          "maximum_cell_logit_shift": 0.0,
+          "minimum_cell_logit_shift": 0.0,
+          "target_area": 62925279.75433855,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 1.0,
+          "within_log_rate_budget": true
+        },
+        "0.05": {
+          "alpha_widowed": 0.05,
+          "candidate_probability_max": 0.3800682560578891,
+          "candidate_probability_min": 0.005928659361234216,
+          "effective_widowed_shift": 0.05,
+          "maximum_cell_logit_shift": 0.05,
+          "minimum_cell_logit_shift": 0.05,
+          "target_area": 61871664.76554824,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 0.9832560936891557,
+          "within_log_rate_budget": true
+        }
+      }
+    },
+    "2014": {
+      "divorced_calibration": {
+        "0.50": {
+          "alpha_divorced": -0.5,
+          "area_relative_residual": 2.8926416817398604e-11,
+          "beta_frontload": 0.9303924022242427,
+          "bracket_residual_high": -0.865735154365039,
+          "bracket_residual_low": 0.31731809283096224,
+          "candidate_probability_max": 0.244654014329522,
+          "candidate_probability_min": 0.0034296331835791363,
+          "centered_contrast": [
+            0.9216909476810372,
+            -0.07830905231896279,
+            -1.078309052318963
+          ],
+          "effective_divorced_shift": -0.5,
+          "fit_exposure_center": 0.07830905231896279,
+          "maximum_cell_logit_shift": 0.357534254921299,
+          "minimum_cell_logit_shift": -1.5032505495271864,
+          "root_iterations": 34
+        },
+        "0.75": {
+          "alpha_divorced": -0.75,
+          "area_relative_residual": -9.26887455676706e-11,
+          "beta_frontload": 1.2817100482061505,
+          "bracket_residual_high": -0.8657349820563133,
+          "bracket_residual_low": 0.46904028984434554,
+          "candidate_probability_max": 0.2585488586572459,
+          "candidate_probability_min": 0.0018316670258287221,
+          "centered_contrast": [
+            0.9216909476810372,
+            -0.07830905231896279,
+            -1.078309052318963
+          ],
+          "effective_divorced_shift": -0.75,
+          "fit_exposure_center": 0.07830905231896279,
+          "maximum_cell_logit_shift": 0.43134054898343477,
+          "minimum_cell_logit_shift": -2.1320795474288667,
+          "root_iterations": 34
+        }
+      },
+      "fit_max_year": 2013,
+      "fit_support_by_origin_ysd": {
+        "divorced": {
+          "0-4": {
+            "risk_rows": 11679,
+            "unweighted_events": 1536,
+            "weighted_exposure": 104295453.04100001
+          },
+          "10-120": {
+            "risk_rows": 8766,
+            "unweighted_events": 302,
+            "weighted_exposure": 83985031.703
+          },
+          "5-9": {
+            "risk_rows": 7753,
+            "unweighted_events": 520,
+            "weighted_exposure": 71081884.44
+          }
+        },
+        "widowed": {
+          "0-4": {
+            "risk_rows": 3063,
+            "unweighted_events": 167,
+            "weighted_exposure": 26433216.137000002
+          },
+          "10-120": {
+            "risk_rows": 3069,
+            "unweighted_events": 47,
+            "weighted_exposure": 22411692.181
+          },
+          "5-9": {
+            "risk_rows": 2320,
+            "unweighted_events": 59,
+            "weighted_exposure": 19180895.904
+          }
+        }
+      },
+      "incumbent_table_sha256": "fe09c685ef827890e4ccc96d805b3d5da8a1d45b5f1209073b2668d378673e34",
+      "reference_spells": {
+        "divorced": {
+          "R0_area": 237009705.16685024,
+          "duplicate_key_groups": 1,
+          "duplicate_spells_excluded": 2,
+          "duplicate_spells_excluded_weight": 29.896,
+          "eligible_spells_before_exclusions": 4009,
+          "included_spell_weight": 31821964.839,
+          "included_spells": 3568,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 100,
+          "path_checksum_sha256": "ffab96beeda0279fc115ce08b4a879306d1fed06bfe996d6ee29714578b747c9",
+          "potential_path_years": 55785,
+          "same_year_remarriage_spells_excluded": 339,
+          "same_year_remarriage_spells_excluded_weight": 2881532.2690000003,
+          "working_age_path_year_terms": 55773
+        },
+        "widowed": {
+          "R0_area": 65004466.67043962,
+          "duplicate_key_groups": 0,
+          "duplicate_spells_excluded": 0,
+          "duplicate_spells_excluded_weight": 0.0,
+          "eligible_spells_before_exclusions": 1621,
+          "included_spell_weight": 7669654.597,
+          "included_spells": 897,
+          "missing_required_or_nonpositive_weight_spells_excluded": 0,
+          "no_potential_path_spells_excluded": 703,
+          "path_checksum_sha256": "82d4ffdd7dc09faccaca1ec186998f19d255c00be8bd003c4bf0dec26371b688",
+          "potential_path_years": 12151,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 300306.131,
+          "working_age_path_year_terms": 12151
+        }
+      },
+      "support_struck_named_laws": [],
+      "widowed_targets": {
+        "0.00": {
+          "alpha_widowed": 0.0,
+          "candidate_probability_max": 0.3431070830982274,
+          "candidate_probability_min": 0.005333958432681374,
+          "effective_widowed_shift": 0.0,
+          "maximum_cell_logit_shift": 0.0,
+          "minimum_cell_logit_shift": 0.0,
+          "target_area": 65004466.67043962,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 1.0,
+          "within_log_rate_budget": true
+        },
+        "0.05": {
+          "alpha_widowed": 0.05,
+          "candidate_probability_max": 0.354463031398186,
+          "candidate_probability_min": 0.005605903238921262,
+          "effective_widowed_shift": 0.05,
+          "maximum_cell_logit_shift": 0.05,
+          "minimum_cell_logit_shift": 0.05,
+          "target_area": 63921174.19698463,
+          "target_area_relative_residual": 0.0,
+          "target_over_R0_area": 0.9833351071250674,
+          "within_log_rate_budget": true
+        }
+      }
+    }
+  },
+  "constants": {
+    "boundaries_including_final_fit": [
+      2006,
+      2008,
+      2010,
+      2014
+    ],
+    "divorced_area_target": "R0_per_origin_reference_survivor_area",
+    "divorced_effective_shift_targets": [
+      -0.5,
+      -0.75
+    ],
+    "named_nonzero_laws": [
+      "R_D50_W00",
+      "R_D75_W00",
+      "R_D50_W05",
+      "R_D75_W05"
+    ],
+    "root_bracket": [
+      0.0,
+      16.0
+    ],
+    "root_failure_codes": [
+      "ROOT_NONFINITE",
+      "ROOT_NO_BRACKET",
+      "ROOT_STAGNATION",
+      "ROOT_ITERATION_LIMIT",
+      "ROOT_VALIDATION_MISMATCH"
+    ],
+    "root_max_iterations": 200,
+    "root_relative_tolerance": 1e-10,
+    "sum_algorithm": "fixed_adjacent_pairwise_float64",
+    "widowed_area_target": "uniform_level_shift_table_per_origin_reference_survivor_area",
+    "widowed_log_rate_budget": 0.08956860182931886,
+    "widowed_uniform_logit_options": [
+      0.0,
+      0.05
+    ],
+    "ysd_frontload_contrast": {
+      "0-4": 1.0,
+      "10-120": -1.0,
+      "5-9": 0.0
+    }
+  },
+  "floating_point_bound": {
+    "binary64_unit_roundoff": 1.1102230246251565e-16,
+    "conservative_levels_including_ratio_and_subtraction": 20,
+    "conservative_total_relative_rounding_reserve": 1.2e-14,
+    "maximum_terms_in_any_per_origin_area_sum": 55773,
+    "maximum_accepted_absolute_root_residual": 9.570999548458303e-11,
+    "maximum_accepted_root_residual_over_tolerance": 0.9570999548458303,
+    "minimum_root_acceptance_absolute_margin": 4.290004515416971e-12,
+    "minimum_root_acceptance_margin_over_tolerance": 0.04290004515416971,
+    "pairwise_tree_levels": 16,
+    "relative_error_bound_gamma": 2.2204460492503182e-15,
+    "survival_product_max_multiplications_bound": 65
+  },
+  "round1_ledger_evidence": {
+    "divorced_projected_log_rate_errors": [
+      0.5135367879020232,
+      0.5497870186488467,
+      0.7139462881951797
+    ],
+    "working_age_widowed_projected_exposure_R0": {
+      "by_boundary": {
+        "2006": {
+          "absolute_log_exposure_error": 0.09746736052770962,
+          "mean_exposure": 1300319.1,
+          "mean_exposure_ratio": 1.102375460022839,
+          "truth_exposure": 1179561.0
+        },
+        "2008": {
+          "absolute_log_exposure_error": 0.18375046620867447,
+          "mean_exposure": 761001.025,
+          "mean_exposure_ratio": 1.201715916950646,
+          "truth_exposure": 633262.0
+        },
+        "2010": {
+          "absolute_log_exposure_error": 0.1527426344297312,
+          "mean_exposure": 357123.3,
+          "mean_exposure_ratio": 1.1650251030055099,
+          "truth_exposure": 306537.0
+        }
+      },
+      "round2_comparator": "same_seed_R0_not_round1_numeric_cutoff",
+      "round1_seed_bank": {
+        "inclusive_end": 7239,
+        "inclusive_start": 7200
+      },
+      "scope": "raw_age_18_64"
+    },
+    "widowed_projected_log_rate_errors_positive_truth_boundaries": [
+      -0.028644764693506932,
+      -0.08956860182931886
+    ],
+    "widowed_zero_truth_event_boundary": {
+      "R0_projected_rate": 0.06695667962306193,
+      "boundary": 2010,
+      "event_rows": 0,
+      "exposure": 306537.0,
+      "numerator": 0.0,
+      "risk_rows": 40
+    }
+  },
+  "schema": "m6.remarriage.learning_plan.round2.fit_side_validation.v1",
+  "scope": {
+    "candidate_outcome_diagnostic_computed": false,
+    "fit_and_reference_spell_inputs_only": true,
+    "gate_scorer_called": false,
+    "gate_tolerance_read": false,
+    "maximum_information_year": 2014,
+    "numpy_version": "2.4.2",
+    "projection_run": false,
+    "pseudo_holdout_truth_constructed": false,
+    "python_implementation": "CPython",
+    "python_version": "3.13.12",
+    "runs_artifact_written": false,
+    "selector_run": false
+  },
+  "status": "pre_candidate_outcome_structural_validation_only"
+}
