@@ -144,11 +144,16 @@ For each law and boundary, publish:
   cell probability range, and checksums;
 - pseudo-future truth dissolved exposure, event numerator, and rate;
 - the direct-standardized expected numerator and rate obtained by applying the
-  fitted law to the realized dissolved rows, plus weighted Bernoulli deviance;
+  fitted law to the realized dissolved rows, plus weighted Bernoulli deviance.
+  A valid same-year dissolve-remarry event (`ysd=0`) is retained in every
+  numerator/rate diagnostic but has no entering-year dissolved row under
+  `allow_exact_matches=False`; it is therefore excluded only from the
+  row-indexed deviance, with its count and F6 weight published. Any unmatched
+  event with nonzero YSD is an abort;
 - the 40-draw mean projected dissolved exposure, event numerator, and rate;
 - projected/truth exposure, numerator, and rate ratios and their natural logs;
 - the same transport quantities for each 20-seed block and separately by
-  origin, plus carrier-episode and exact-support checks.
+  origin, plus carrier-episode state/YSD survival and exact-support checks.
 
 No quantity is compared with a gate tolerance. Define the primary transport
 loss only for train selection:

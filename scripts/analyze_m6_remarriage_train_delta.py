@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.13
 """Train-only M6 remarriage transport-delta investigation.
 
 This is an analysis helper, not a gate runner. It deliberately does not import
@@ -641,6 +641,57 @@ def _seed_panel(
     return panel, valid_ids, entry_dissolved
 
 
+def _assert_carrier_conformance(
+    seed_panel: transitions.MaritalPanel,
+    projected_panel: transitions.MaritalPanel,
+) -> int:
+    carriers = seed_panel.person_years[
+        seed_panel.person_years["marital_state"].isin(("divorced", "widowed"))
+    ][
+        [
+            "person_id",
+            "year",
+            "marital_state",
+            "years_since_dissolution",
+        ]
+    ].copy()
+    observed = carriers[["person_id", "year"]].merge(
+        projected_panel.person_years[
+            [
+                "person_id",
+                "year",
+                "marital_state",
+                "years_since_dissolution",
+            ]
+        ],
+        on=["person_id", "year"],
+        how="left",
+        validate="one_to_one",
+        suffixes=("_seed", "_projected"),
+    )
+    if len(observed) != len(carriers):
+        raise AssertionError("carrier conformance changed entry-row count")
+    if observed["marital_state_projected"].isna().any():
+        raise AssertionError("projected panel dropped an entry carrier")
+    state_matches = (
+        observed["marital_state_seed"] == observed["marital_state_projected"]
+    )
+    seed_ysd = pd.to_numeric(
+        observed["years_since_dissolution_seed"], errors="coerce"
+    )
+    projected_ysd = pd.to_numeric(
+        observed["years_since_dissolution_projected"], errors="coerce"
+    )
+    ysd_matches = (
+        seed_ysd.notna() & projected_ysd.notna() & (seed_ysd == projected_ysd)
+    )
+    if not state_matches.all() or not ysd_matches.all():
+        raise AssertionError(
+            "projected entry carrier failed dissolved-state/YSD survival"
+        )
+    return len(observed)
+
+
 def _opening_wave(year: int) -> int:
     return year if year % 2 else year - 1
 
@@ -656,6 +707,12 @@ def _weighted_support(
     event_parts: list[pd.DataFrame] = []
     anchor_weight = anchor.set_index("person_id")["weight"]
     for year in years:
+        required_interview_year = year if year % 2 else year + 1
+        if required_interview_year > MAX_INFORMATION_YEAR:
+            raise AssertionError(
+                f"calendar-{year} support requires forbidden "
+                f"interview {required_interview_year}"
+            )
         wave = _opening_wave(year)
         year_ids = present.get(wave, set()) & valid_ids
         py = panel.person_years[
@@ -672,12 +729,26 @@ def _weighted_support(
         ].copy()
         py["weight"] = py["person_id"].map(anchor_weight).astype("float64")
         ev["weight"] = ev["person_id"].map(anchor_weight).astype("float64")
+        py["required_interview_year"] = required_interview_year
+        ev["required_interview_year"] = required_interview_year
         person_year_parts.append(py)
         event_parts.append(ev)
     person_years = pd.concat(person_year_parts, ignore_index=True)
     events = pd.concat(event_parts, ignore_index=True)
     if person_years.duplicated(["person_id", "year"]).any():
         raise ValueError("duplicate pseudo-support person-year")
+    _assert_at_most(
+        person_years,
+        "required_interview_year",
+        MAX_INFORMATION_YEAR,
+        "pseudo_person_years",
+    )
+    _assert_at_most(
+        events,
+        "required_interview_year",
+        MAX_INFORMATION_YEAR,
+        "pseudo_events",
+    )
     return events, person_years
 
 
@@ -772,10 +843,21 @@ def _direct_standardization(
             risk["person_id"], risk["year"], strict=True
         )
     }
-    if not event_keys.issubset(risk_keys):
-        raise ValueError(
-            "pseudo-truth remarriage event lacks dissolved risk row"
-        )
+    unmatched_keys = event_keys - risk_keys
+    if unmatched_keys:
+        event_index = event_frame.set_index(["person_id", "year"])
+        unmatched = event_index.loc[sorted(unmatched_keys)].reset_index()
+        invalid = unmatched[
+            unmatched["years_since_dissolution"].isna()
+            | (unmatched["years_since_dissolution"] != 0)
+        ]
+        if len(invalid):
+            raise ValueError(
+                "pseudo-truth remarriage event lacks dissolved risk row "
+                "and is not a same-year ysd=0 event"
+            )
+    else:
+        unmatched = event_frame.iloc[0:0].copy()
     event = np.array(
         [
             int((int(person_id), int(year)) in event_keys)
@@ -787,16 +869,20 @@ def _direct_standardization(
     )
     weight = risk["weight"].to_numpy(dtype=np.float64)
     exposure = float(weight.sum())
-    actual_numerator = float(np.sum(weight * event))
+    matchable_numerator = float(np.sum(weight * event))
     expected_numerator = float(np.sum(weight * probability))
-    source_numerator = float(event_frame["weight"].sum())
+    actual_numerator = float(event_frame["weight"].sum())
+    unmatched_weight = float(unmatched["weight"].sum())
     if not math.isclose(
-        actual_numerator, source_numerator, rel_tol=0.0, abs_tol=1e-8
+        matchable_numerator + unmatched_weight,
+        actual_numerator,
+        rel_tol=0.0,
+        abs_tol=1e-8,
     ):
         raise AssertionError(
-            "truth event weights disagree with risk indicators"
+            "truth event weights disagree with matchable plus same-year events"
         )
-    deviance = float(
+    deviance_numerator = float(
         -2.0
         * np.sum(
             weight
@@ -805,13 +891,18 @@ def _direct_standardization(
                 + (1.0 - event) * np.log1p(-probability)
             )
         )
-        / exposure
     )
+    deviance = deviance_numerator / exposure
     return {
         "risk_rows": len(risk),
-        "event_rows": int(event.sum()),
+        "event_rows": len(event_frame),
+        "matchable_event_rows": int(event.sum()),
+        "unmatched_same_year_event_rows": len(unmatched),
+        "unmatched_same_year_event_weight": unmatched_weight,
         "exposure": exposure,
+        "deviance_exposure": exposure,
         "actual_numerator": actual_numerator,
+        "matchable_numerator": matchable_numerator,
         "actual_rate": actual_numerator / exposure,
         "expected_numerator": expected_numerator,
         "expected_rate": expected_numerator / exposure,
@@ -819,6 +910,7 @@ def _direct_standardization(
         "log_expected_over_actual": math.log(
             expected_numerator / actual_numerator
         ),
+        "weighted_deviance_numerator": deviance_numerator,
         "weighted_bernoulli_deviance": deviance,
     }
 
@@ -866,6 +958,51 @@ def _block_projection(
         rows = [by_seed[seed] for seed in block]
         out[f"block_{index}"] = _mean_projection(rows, truth)
     return out
+
+
+def _origin_projection(
+    projected: dict[str, dict[str, Any]],
+    truth: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    return {
+        origin: {
+            **projected[origin],
+            **_transport_ratios(projected[origin], truth[origin]),
+        }
+        for origin in ("divorced", "widowed")
+    }
+
+
+def _mean_origin_projection(
+    per_seed: list[dict[str, Any]],
+    truth: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for origin in ("divorced", "widowed"):
+        projected = {
+            quantity: float(
+                np.mean([row["origin"][origin][quantity] for row in per_seed])
+            )
+            for quantity in ("exposure", "numerator", "rate")
+        }
+        out[origin] = {
+            **projected,
+            **_transport_ratios(projected, truth[origin]),
+        }
+    return out
+
+
+def _block_origin_projection(
+    per_seed: list[dict[str, Any]],
+    truth: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, dict[str, Any]]]:
+    by_seed = {int(row["seed"]): row for row in per_seed}
+    return {
+        f"block_{index}": _mean_origin_projection(
+            [by_seed[seed] for seed in block], truth
+        )
+        for index, block in enumerate(DRAW_BLOCKS, start=1)
+    }
 
 
 def _evaluate_boundary(
@@ -935,6 +1072,9 @@ def _evaluate_boundary(
                 "per_seed": [],
                 "mean": None,
                 "blocks": None,
+                "origin_mean": None,
+                "origin_blocks": None,
+                "carrier_conformance_all_draws": None,
             }
             continue
         assert isinstance(table, dict)
@@ -958,6 +1098,13 @@ def _evaluate_boundary(
                 registry.generator(0, ProjectionModule.MARITAL_CORE),
                 registry.child_generator(0, ProjectionModule.MARITAL_CORE, 1),
             )
+            carrier_rows_verified = _assert_carrier_conformance(
+                seed_panel, projected_panel
+            )
+            if carrier_rows_verified != carrier_count:
+                raise AssertionError(
+                    "carrier conformance disagrees with seed carrier count"
+                )
             projected_events, projected_person_years = _weighted_support(
                 projected_panel,
                 anchor,
@@ -980,14 +1127,18 @@ def _evaluate_boundary(
                     f"missing={missing}, extra={extra}"
                 )
             projected = _rate_summary(projected_events, projected_person_years)
+            projected_origin = _origin_summary(
+                projected_events, projected_person_years
+            )
             per_seed.append(
                 {
                     "seed": seed,
                     "projected": projected,
                     "ratios": _transport_ratios(projected, truth),
-                    "origin": _origin_summary(
-                        projected_events, projected_person_years
+                    "origin": _origin_projection(
+                        projected_origin, truth_origin
                     ),
+                    "carrier_rows_verified": carrier_rows_verified,
                 }
             )
             if offset % 10 == 0:
@@ -998,8 +1149,18 @@ def _evaluate_boundary(
             "per_seed": per_seed,
             "mean": _mean_projection(per_seed, truth),
             "blocks": _block_projection(per_seed, truth),
+            "origin_mean": _mean_origin_projection(per_seed, truth_origin),
+            "origin_blocks": _block_origin_projection(per_seed, truth_origin),
+            "carrier_conformance_all_draws": all(
+                row["carrier_rows_verified"] == carrier_count
+                for row in per_seed
+            ),
         }
 
+    same_year_truth_events = truth_events[
+        (truth_events["transition"] == "remarriage")
+        & truth_events["years_since_dissolution"].eq(0).fillna(False)
+    ]
     return {
         "boundary": boundary,
         "anchor_waves": anchor_waves,
@@ -1015,15 +1176,23 @@ def _evaluate_boundary(
         "truth": truth,
         "truth_origin": truth_origin,
         "truth_support_rows": len(truth_person_years),
-        "truth_same_year_ysd0_events": int(
-            (
-                (truth_events["transition"] == "remarriage")
-                & (truth_events["years_since_dissolution"] == 0)
-            ).sum()
+        "truth_required_interview_year_max": _max_year(
+            truth_person_years, "required_interview_year"
+        ),
+        "truth_same_year_ysd0_events": len(same_year_truth_events),
+        "truth_same_year_ysd0_event_weight": float(
+            same_year_truth_events["weight"].sum()
         ),
         "support_checksum": _frame_checksum(
             truth_person_years,
-            ("person_id", "year", "age", "sex", "weight"),
+            (
+                "person_id",
+                "year",
+                "required_interview_year",
+                "age",
+                "sex",
+                "weight",
+            ),
         ),
         "fit": fit_diagnostics,
         "laws": laws,
@@ -1086,15 +1255,16 @@ def _selector(
             )
             for seed in DRAW_SEEDS
         }
+        pooled_deviance_numerator = sum(
+            boundary["laws"][law]["direct"]["weighted_deviance_numerator"]
+            for boundary in ordered
+        )
+        pooled_deviance_exposure = sum(
+            boundary["laws"][law]["direct"]["deviance_exposure"]
+            for boundary in ordered
+        )
         direct_deviance[law] = float(
-            np.mean(
-                [
-                    boundary["laws"][law]["direct"][
-                        "weighted_bernoulli_deviance"
-                    ]
-                    for boundary in ordered
-                ]
-            )
+            pooled_deviance_numerator / pooled_deviance_exposure
         )
 
     if loss["L0"] is None or block_loss["L0"] is None:
@@ -1195,7 +1365,7 @@ def _selector(
         "parameter_eligible": parameter_eligible,
         "J": loss,
         "block_J": block_loss,
-        "direct_deviance_equal_boundary_mean": direct_deviance,
+        "direct_deviance_pooled": direct_deviance,
         "nonzero_eligibility": eligibility,
         "one_standard_error": one_se,
         "selected_law": selected,
