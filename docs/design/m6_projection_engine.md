@@ -156,6 +156,7 @@
   `docs/design/m6_candidate2_program.md` at merge `051b449`, whose referee fixes
   were [verified in issue #42 comment
   5001901052](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5001901052);
+  re-syncs the status line from stale revision 7 to revision 16;
   adds the stable-coordinate positive-continuation refresh, isolated substreams
   `{4,5}`, train-only Q-grid / one-SE selector, `q=0` bit-equivalence preflight,
   and the one-field `gate_m6.design_commit` re-finalization ceremony; records the
@@ -1066,10 +1067,12 @@ splitting is prohibited. The current full-anchor-then-domain implementation is a
 `σ_{j,b}` as that `realized_sigma`, never the folded-score SD or a gated
 tolerance.
 
-For each `q`, use identical person/period addresses and streams 1–5 for all 20
-selection draws. Average the projected moment over seeds `6200…6219` and compare
-it with the truth moment on the **same full support** (full means not half-split)
-using that gated cell's exact log-ratio or absolute-gap metric
+At each selection-draw seed, use identical person/period addresses and streams
+1–5 across all 21 Q-grid rungs. The common-random-number identity is across rungs
+at that fixed seed, not shared state among the 20 distinct draw seeds. Average
+the projected moment over seeds `6200…6219` and compare it with the truth moment
+on the **same full support** (full means not half-split) using that gated cell's
+exact log-ratio or absolute-gap metric
 (`src/populace_dynamics/harness/m6_cells.py:592-610`). The objective deliberately
 targets the four failed level/growth/persistence cells only:
 
@@ -1159,6 +1162,16 @@ sequence is mandatory:
    live `gate_m6.design_commit` from
    `4c6a0f69f5637c6832659ab4dc8599b2c1a928b2` to this amendment's exact
    squash-merge commit before registration 8.
+
+The lock addendum must make two accepted notes explicit. First, the one-field
+flip intentionally leaves the unchanged gate narrative stale:
+`gates.yaml:5324-5346` will still describe re-finalization to the pre-amendment
+`4c6a0f6…` pin, while `gates.yaml:5354-5361` remains the pre-amendment
+`design_commit_note`; neither narrative byte is an authorized edit. Second, its
+equivalence notes must record that strict versus weak “improve on `q=0`” cannot
+change a selected outcome: if `J(0) ≤ J(q)` for a nonzero rung, then whenever
+that rung satisfies the one-SE cutoff, retained `q=0` does too, and the
+smallest-`q` rule returns `q=0` (the designed pause).
 
 The governing live note is quoted exactly from `gates.yaml:5354-5361`:
 
