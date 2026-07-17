@@ -708,10 +708,27 @@ transfer gate-1 certification or validate a 2100 earnings projection.
 | Resolution | What stays/moves | Honest benefit | Honest cost |
 |---|---|---|---|
 | **A. Retain frozen v3 tolerances** | Keep `runs/m6_holdout_floors_v3.json`, SHA-256 `e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77`, all six tolerances, and §2.8.4 byte-identical. Make no floor-related `gates.yaml` edit; the separate §2.7 `design_commit` re-finalization still applies. Registration 8 and every candidate-2 report disclose earnings-only `p_seed=0.8760`, `p_gate=0.8809`, the 1.91pp floor deficit, and the independence-OC's 11.91% subfamily false-fail probability, plus a freshly computed combined OC. | Preserves the ratified artifact and is conservative: harder to pass, no false-PASS direction. | Knowingly scores the closed domain with a floor derived on a larger domain; fails the ratified 0.90 weak-power floor. The same registered approximation provisionally puts the combined gate at only `≈0.8115`, worse than the six-cell “about 12%” headline. |
-| **B. Registered closed-domain floors ceremony** | Build a new, never-overwritten truth-only artifact (proposed `runs/m6_holdout_floors_v4.json`) on exactly `realized support ∩ 2014 earnings domain`; rederive the six earnings tolerances, recompute earnings and combined OC/vacuity, adversarially reproduce it, SHA-pin it, then ratify a narrow prospective §2.8.4/gate-contract amendment and full lock before registration 8. The v3 artifact remains immutable and historical. Flows/cell definitions/reducers remain unchanged. | Prices noise on the population actually scored; the self-check's provisional earnings OC is `0.9575`, the same-method combined arithmetic is `≈0.9019`, and no vacuity flag fires. | Moves tolerances after candidate 1 has been observed, so governance must prove truth-only/candidate-blind derivation and preserve candidate 1's historical contract. The provisional combined margin is thin; a fresh ceremony can still pause. |
+| **B. Registered closed-domain floors ceremony** | Build a new, never-overwritten truth-only artifact (proposed `runs/m6_holdout_floors_v4.json`) on exactly `realized support ∩ 2014 earnings domain`; rederive the six earnings tolerances, recompute earnings and combined OC/vacuity, adversarially reproduce it, SHA-pin it, then ratify a narrow prospective §2.8.4/gate-contract amendment and full lock before registration 8. The v3 artifact remains immutable and historical. Flows/cell definitions/reducers remain unchanged. | Prices noise on the population actually scored; the self-check's provisional earnings OC is `0.9575`, the same-method combined arithmetic is `≈0.9019`, and no vacuity flag fires. | Moves tolerances after candidate 1 has been observed, including `earn_p10.prime` from `0.221` to `0.284`; that would flip candidate-1 seeds 0 and 2 on p10. The full failed-cell margin table below is part of this cost. Governance must prove truth-only/candidate-blind derivation and preserve candidate 1's historical contract. The provisional combined margin is thin; a fresh ceremony can still pause. |
 
 Neither resolution is authorized by this proposal. Silent threshold movement,
 editing v3 in place, or applying v4 retrospectively to candidate 1 is prohibited.
+
+Resolution B's provisional failing-cell margins are:
+
+| Failed earnings cell | Candidate-1 seed-score range | v3 → provisional v4 tolerance | Non-operative seed-cell effect |
+|---|---:|---:|---|
+| `earn_p10.prime` | 0.2518–0.3567 | 0.221 → 0.284 | Seeds 0 (`0.251827`) and 2 (`0.271703`) would flip to pass; seeds 1, 3, and 4 remain FAIL. |
+| `earn_mob_h1_diag` | 0.155–0.180 | 0.052 → 0.054 | All five remain FAIL. |
+| `earn_autocorr_lag2` | 0.151–0.185 | 0.087 → 0.087 | All five remain FAIL. |
+| `earn_dlog_mean.prime` | 0.053–0.076 | 0.043 → 0.043 | All five remain FAIL. |
+
+This table rescues nothing: each seed still fails the other persistence/growth
+cells, candidate 1 remains a 0/5-seed FAIL under its immutable v3 contract, and
+retrospective v4 application is prohibited. A v4 ceremony must cite these
+directions and margins in its candidate-blindness proof: §2.8.3a pre-registered
+the exact-domain trigger and truth-only derivation, and the unchanged
+mobility/autocorrelation bars show that the movement cannot manufacture a
+candidate-2 persistence pass.
 
 ### 6.2 Recommendation
 
@@ -857,6 +874,12 @@ The artifact therefore records `gate_contract_result`,
 `must_not_regress_result`, and their conjunction. A live gate-PASS plus
 regression-FAIL is published as `GATE_PASS_REGRESSION_FAIL`, never advertised as
 an accepted candidate-2 PASS.
+
+Resolution B also moves bars on already-failed cells as disclosed in §6.1. The
+must-not-regress block does not conceal those movements: p10's provisional seed
+flips remain a mandatory governance disclosure, while the three other failed
+earnings cells remain 5/5 FAIL in the non-operative candidate-1 comparison. No
+acceptance or historical claim may describe v4 as a candidate-1 rescue.
 
 The first-marriage implementation must not mutate the separate divorce estimator
 (`src/populace_dynamics/models/family_transitions/components/divorce.py:67-124`).
@@ -1145,6 +1168,23 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
         "locked_domain_p_seed": 0.8373684,
         "locked_domain_p_gate_4_of_5": 0.8115004,
         "domain_rederived_p_gate_4_of_5": 0.9019126
+      },
+      "candidate1_provisional_v4_counterfactual": {
+        "operative": false,
+        "retrospective_application_prohibited": true,
+        "earn_p10_prime_scores_by_seed": [
+          0.251827,
+          0.308309,
+          0.271703,
+          0.327174,
+          0.356735
+        ],
+        "earn_p10_prime_seed_flips_at_0_284": [0, 2],
+        "earn_mob_h1_diag_score_range": [0.155, 0.180],
+        "earn_autocorr_lag2_score_range": [0.151, 0.185],
+        "earn_dlog_mean_prime_score_range": [0.053, 0.076],
+        "all_seeds_still_fail_other_earnings_cells": true,
+        "candidate1_rescued": false
       }
     }
   },
