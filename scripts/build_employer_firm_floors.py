@@ -249,7 +249,9 @@ def e1_block() -> dict:
         gaps = [
             (int(year), abs(math.log(shares.loc[year, group] / prev)))
             for year, prev in zip(
-                shares.index[1:], shares[group].to_numpy()[:-1]
+                shares.index[1:],
+                shares[group].to_numpy()[:-1],
+                strict=True,
             )
         ]
         bds_margin[group] = {

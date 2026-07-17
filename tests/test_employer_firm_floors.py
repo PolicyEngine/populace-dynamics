@@ -58,7 +58,7 @@ def test_unit_rules_are_carried(artifact):
 def test_e1_susb_cells(artifact):
     by_sector = artifact["e1"]["susb_2022_share_by_sector_band"]
     assert len(by_sector) == 20  # 19 NAICS sectors + 99 unclassified
-    for sector, bands in by_sector.items():
+    for bands in by_sector.values():
         assert set(bands) <= CANONICAL_NAMES
         total = sum(cell["share"] for cell in bands.values())
         assert total == pytest.approx(1.0, abs=1e-3)
