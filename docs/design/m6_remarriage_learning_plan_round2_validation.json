@@ -639,6 +639,34 @@
       0.5497870186488467,
       0.7139462881951797
     ],
+    "working_age_widowed_projected_exposure_R0": {
+      "by_boundary": {
+        "2006": {
+          "absolute_log_exposure_error": 0.09746736052770962,
+          "mean_exposure": 1300319.1,
+          "mean_exposure_ratio": 1.102375460022839,
+          "truth_exposure": 1179561.0
+        },
+        "2008": {
+          "absolute_log_exposure_error": 0.18375046620867447,
+          "mean_exposure": 761001.025,
+          "mean_exposure_ratio": 1.201715916950646,
+          "truth_exposure": 633262.0
+        },
+        "2010": {
+          "absolute_log_exposure_error": 0.1527426344297312,
+          "mean_exposure": 357123.3,
+          "mean_exposure_ratio": 1.1650251030055099,
+          "truth_exposure": 306537.0
+        }
+      },
+      "round2_comparator": "same_seed_R0_not_round1_numeric_cutoff",
+      "round1_seed_bank": [
+        7200,
+        7239
+      ],
+      "scope": "raw_age_18_64"
+    },
     "widowed_projected_log_rate_errors_positive_truth_boundaries": [
       -0.028644764693506932,
       -0.08956860182931886

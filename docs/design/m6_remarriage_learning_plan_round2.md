@@ -10,7 +10,7 @@
   [VERIFIED adversarial referee record][round1-referee]
 - **Revision authority:** the round-2 [REVISE referee record][round2-referee]
 - **Fit-side validation:** [round-2 validation ledger][round2-validation],
-  SHA-256 `efab49e212e7199cad87e62d1cf9e0b32d3933d3f6386567fda4fc818e4d13b8`
+  SHA-256 `1d7460c5de935c8217db023a5a1cea638b507d683a7fa65b21338319072f3053`
 - **Frozen evidence domain:** information dated no later than 2014 under the
   field-aware rules in section 4; deterministic fit-side validation and
   synthetic computation
@@ -89,11 +89,19 @@ hazards and updates dissolved state on remarriage
 Round 1 published these selection-legitimate L0 facts on the `≤2014`
 pseudo-holdouts:
 
-| Boundary | Direct expected / actual numerator | Pooled rate ratio | Divorced rate ratio | Widowed rate ratio | Pooled exposure ratio | Widowed exposure ratio |
+| Boundary | Direct expected / actual numerator | Pooled rate ratio | Divorced rate ratio | Widowed rate ratio | Pooled exposure ratio | Working-age widowed exposure ratio |
 |---:|---:|---:|---:|---:|---:|---:|
 | 2006 | 1.5260 | 1.5674 | 1.6712 | 0.9718 | 1.0307 | 1.1024 |
 | 2008 | 1.6189 | 1.6577 | 1.7329 | 0.9143 | 1.0303 | 1.2017 |
 | 2010 | 2.0385 | 2.1742 | 2.0420 | undefined: zero truth events | 1.0583 | 1.1650 |
+
+The round-1 target and every ratio in this table are explicitly raw-age 18-64,
+not all-age quantities. The ledger therefore supplies admissible R0
+working-age widowed-stock reference errors
+`abs(log(ebar_R0,widowed,b/e_truth,widowed,b))` of
+`0.09746736052770962`, `0.18375046620867447`, and
+`0.1527426344297312`. Round 2 uses the contemporaneous same-seed R0 as each
+boundary's comparator, not these old-seed numeric values as cutoffs.
 
 The exact projected origin log-rate errors retained by the merged ledger are:
 
@@ -525,12 +533,23 @@ eligibility bit and selection without rerunning the model.
 ### 5.2 Projected quantities, loss, and Monte Carlo uncertainty
 
 Let `K_b` be the boundary's frozen truth-support person-year keys over its exact
-effective evaluation years. For seed `s`, define rather than inherit:
+effective evaluation years, and define the intervention-aligned subset
+
+```text
+K_WA,b = {i in K_b: 18 <= raw_age_i <= 64}.
+```
+
+Section 4 already restricts the frozen pseudo-holdout support to raw age 18-64,
+so `K_WA,b=K_b`; naming the predicate here prevents an origin restriction from
+being read as an all-age stock. For seed `s`, define rather than inherit:
 
 ```text
 e_Lbs = F6-weighted dissolved exposure of law L summed on K_b
 n_Lbs = F6-weighted projected remarriage-event numerator of L summed on K_b
 r_Lbs = n_Lbs / e_Lbs.
+
+e_WA,L,widowed,b,s = F6-weighted widowed dissolved exposure of law L
+                     summed on K_WA,b
 ```
 
 Origin versions restrict dissolved rows and remarriage events to that origin.
@@ -548,9 +567,15 @@ ebar_Lob = mean_s e_Lobs
 
 rate_error_Lb = abs(log(rbar_Lb/r_truth,b))
 exposure_error_Lb = abs(log(ebar_Lb/e_truth,b))
-widow_exposure_error_Lb =
-    abs(log(ebar_L,widowed,b/e_truth,widowed,b)).
+working_age_widow_exposure_error_Lb =
+    abs(log(mean_s(e_WA,L,widowed,b,s)/e_WA,truth,widowed,b)).
 ```
+
+The round-1 ledger re-derives the three R0 working-age reference errors as
+`0.09746736052770962`, `0.18375046620867447`, and
+`0.1527426344297312`. They document that the scoped guard is material. Because
+round 2 uses fresh seeds, eligibility compares each law with round 2's
+same-seed R0 rather than importing a cross-bank Monte Carlo cutoff.
 
 Exposure and rate guards use ratios of full-40-seed means, never mean per-seed
 ratios or log errors. Each fixed block uses the identical `J` formula on its
@@ -604,13 +629,18 @@ only if all seven rules pass:
    - if `m_wb=0`, widowed deviance is published but not compared, risk exposure
      must be positive, and the separate guard
      `0 <=* g_Lwb <=* omega <=* B_W` must pass.
-   `widow_exposure_error_Lb` is `<=*` R0 at **every** boundary in both branches.
+   `working_age_widow_exposure_error_Lb` is `<=*` the same-seed R0 at
+   **every** boundary in both branches.
 
 The zero-event branch is not a likelihood exemption chosen after seeing a law.
 It is a frozen, truth-defined response to a cell in which Bernoulli deviance is
 strictly monotone in hazard and cannot measure improvement toward zero without
 re-imposing an R0 veto. The expected-rate guard caps the movement using the
-widowed origin's own evidence, while the projected stock guard remains active.
+widowed origin's own evidence, while the projected working-age stock guard
+protects exactly the raw-age domain this family can move. An all-age widowed
+guard is intentionally not used: its 65+ baseline would be nearly invariant to
+the candidate and could turn Monte Carlo noise on an immovable stock into a
+nominal selector decision.
 
 These rules are conjunctions. A law cannot trade a failed exposure, widowed,
 or construction guard for a lower `J`.
@@ -774,7 +804,8 @@ The referee must explicitly decide whether to:
 4. approve exact pseudo-windows, fresh seed bank, and pinned period counts
    `{4,4,3}`;
 5. ratify the seven conjunctive rules, including positive-matchable-event
-   widowed deviance, the zero-event expected-rate guard, and widowed stock guard;
+   widowed deviance, the zero-event expected-rate guard, and working-age
+   widowed stock guard;
 6. retain standalone numerator/timing edits outside the family and preserve
    state-consistent event semantics;
 7. require rebase-before-ratification, two-file lock, pre-execution audit,
@@ -796,7 +827,7 @@ This review aid is not executable configuration and not a gate edit:
     "round1_referee_issue_comment": 5003093793,
     "round2_revise_issue_comment": 5003846811,
     "validation_file": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
-    "validation_sha256": "efab49e212e7199cad87e62d1cf9e0b32d3933d3f6386567fda4fc818e4d13b8"
+    "validation_sha256": "1d7460c5de935c8217db023a5a1cea638b507d683a7fa65b21338319072f3053"
   },
   "evidence_cutoff": 2014,
   "pseudo_boundaries": [2006, 2008, 2010],
@@ -835,7 +866,7 @@ This review aid is not executable configuration and not a gate edit:
     "comparison_tolerance": 1e-12,
     "widowed_positive_matchable_event_rule": "direct_deviance_no_worse_than_R0",
     "widowed_zero_matchable_event_rule": "no_deviance_comparison_and_direct_expected_rate_log_move_within_omega_and_budget",
-    "widowed_exposure_guard": "no_worse_than_R0_every_boundary",
+    "widowed_exposure_guard": "working_age_no_worse_than_same_seed_R0_every_boundary",
     "no_op_rule": "select_R0_if_no_eligible_nonzero_or_J_R0_le_best_plus_SE",
     "selected_outcome_if_no_op": "NO_OP_DESIGNED_PAUSE"
   },
