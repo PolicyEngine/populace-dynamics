@@ -12,7 +12,7 @@
 - **Revision authority:** the round-2 [REVISE referee record][round2-referee]
 - **Second-round verdict:** the [SPEC SOUND referee record][round2-sound-referee]
 - **Fit-side validation:** [round-2 validation ledger][round2-validation],
-  SHA-256 `26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b`
+  SHA-256 `6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947`
 - **Frozen evidence domain:** information dated no later than 2014 under the
   field-aware rules in section 4; deterministic fit-side validation and
   synthetic computation
@@ -290,7 +290,7 @@ bound is `2.2204460492503182e-15`. The ledger additionally reserves
 area/root tolerance is
 
 ```text
-tau_A = 1e-10.
+tau_A = 1e-10
 ```
 
 The reserve explains why `tau_A` is separated from ordinary rounding error; it
@@ -885,7 +885,7 @@ This review aid is not executable configuration and not a gate edit:
     "round2_revise_issue_comment": 5003846811,
     "round2_spec_sound_issue_comment": 5004566775,
     "validation_file": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
-    "validation_sha256": "26f0fcd3cb026f9811b3560970da6a4967b52c0a952c83545985fe03796cde6b"
+    "validation_sha256": "6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947"
   },
   "evidence_cutoff": 2014,
   "pseudo_boundaries": [2006, 2008, 2010],

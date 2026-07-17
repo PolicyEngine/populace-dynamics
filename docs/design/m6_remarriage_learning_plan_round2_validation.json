@@ -663,10 +663,10 @@
         }
       },
       "round2_comparator": "same_seed_R0_not_round1_numeric_cutoff",
-      "round1_seed_bank": [
-        7200,
-        7239
-      ],
+      "round1_seed_bank": {
+        "inclusive_end": 7239,
+        "inclusive_start": 7200
+      },
       "scope": "raw_age_18_64"
     },
     "widowed_projected_log_rate_errors_positive_truth_boundaries": [
