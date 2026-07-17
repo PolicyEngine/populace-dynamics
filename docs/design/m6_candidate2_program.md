@@ -743,8 +743,8 @@ This table rescues nothing: each seed still fails the other persistence/growth
 cells, candidate 1 remains a 0/5-seed FAIL under its immutable v3 contract, and
 retrospective v4 application is prohibited. A v4 ceremony must cite these
 directions and margins in its candidate-blindness proof: §2.8.3a pre-registered
-the exact-domain trigger and truth-only derivation, and the unchanged
-mobility/autocorrelation bars show that the movement cannot manufacture a
+the exact-domain trigger and truth-only derivation, and the still-wide
+mobility/autocorrelation margins show that the movement cannot manufacture a
 candidate-2 persistence pass.
 
 ### 6.2 Recommendation
@@ -811,9 +811,12 @@ record][repair-referee] as follows:
    proved to remain a remarriage at
    `tests/test_m6_panel_builders.py:397-421`.
 3. **Discharged on #226's record:** its real-frame reproduction and draw-identity
-   witnesses preserved support, F6 weights, cells, truth rates, tolerances, RNG
+   witnesses preserved the registered support/event law, F6 row-weight
+   construction, cell definitions, truth support/rates, tolerances, RNG
    addresses, non-remarriage histories, and the pooled marriage-event count and
-   weight; the truth side and all gate/floor/run bytes were untouched.
+   weight. The intended projected dissolved exposure changed when the missing
+   history was restored; the truth side and all gate/floor/run bytes were
+   untouched.
 4. **Partially discharged:** the merged fixtures discriminate entry-divorced,
    entry-widowed, in-window remarriage, and sustained no-remarriage exposure. A
    fixture-by-fixture registration audit must confirm that coverage and add or
@@ -1156,8 +1159,8 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
       "realized_post2014_nawi_prohibited": true
     },
     "remarriage": {
-      "projected_over_truth_dissolved_exposure_range": [0.1237, 0.1329],
-      "projected_over_truth_event_numerator_range": [0.3358, 0.3995],
+      "pre_repair_projected_over_truth_dissolved_exposure_range": [0.1237, 0.1329],
+      "pre_repair_projected_over_truth_event_numerator_range": [0.3358, 0.3995],
       "direct_projected_hazard_range": [0.05110, 0.05457],
       "direct_truth_hazard_range": [0.03562, 0.03927],
       "direct_projected_over_truth_ratio_range": [1.30, 1.53],
@@ -1242,7 +1245,7 @@ lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
       "condition_1_entry_history": "DISCHARGED",
       "condition_2_event_label": "DISCHARGED",
       "condition_3_invariance": "DISCHARGED_ON_226_REFEREE_RECORD",
-      "condition_4_fixture_matrix": "PARTIAL_SAME_YEAR_BOUNDARY_CHECK_LIVE",
+      "condition_4_fixture_matrix": "PARTIAL_FIXTURE_AUDIT_NO_REMARRIAGE_AND_SAME_YEAR_CHECKS_LIVE",
       "condition_5_candidate2_reconciliation": "LIVE_PRECONDITION"
     }
   },
