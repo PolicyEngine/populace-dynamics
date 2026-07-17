@@ -1,0 +1,2211 @@
+{
+  "schema": "m6_remarriage_train_only_delta.findings.v1",
+  "full_stdout_sha256": "fe914611c1e0f2e96db15e62e49b69907af428379bc6cc5f3d1f3dbb782a540c",
+  "authority": {
+    "program_merge": "051b4494ecce9345da14d68488bb2833ed476d22",
+    "verification_comment": 5001901052
+  },
+  "protocol": {
+    "draw_blocks": [
+      [
+        7200,
+        7201,
+        7202,
+        7203,
+        7204,
+        7205,
+        7206,
+        7207,
+        7208,
+        7209,
+        7210,
+        7211,
+        7212,
+        7213,
+        7214,
+        7215,
+        7216,
+        7217,
+        7218,
+        7219
+      ],
+      [
+        7220,
+        7221,
+        7222,
+        7223,
+        7224,
+        7225,
+        7226,
+        7227,
+        7228,
+        7229,
+        7230,
+        7231,
+        7232,
+        7233,
+        7234,
+        7235,
+        7236,
+        7237,
+        7238,
+        7239
+      ]
+    ],
+    "draw_seeds": [
+      7200,
+      7201,
+      7202,
+      7203,
+      7204,
+      7205,
+      7206,
+      7207,
+      7208,
+      7209,
+      7210,
+      7211,
+      7212,
+      7213,
+      7214,
+      7215,
+      7216,
+      7217,
+      7218,
+      7219,
+      7220,
+      7221,
+      7222,
+      7223,
+      7224,
+      7225,
+      7226,
+      7227,
+      7228,
+      7229,
+      7230,
+      7231,
+      7232,
+      7233,
+      7234,
+      7235,
+      7236,
+      7237,
+      7238,
+      7239
+    ],
+    "gate_scorer_called": false,
+    "gate_tolerance_read": false,
+    "laws": [
+      "L0",
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "max_information_year": 2014,
+    "pseudo_boundaries": [
+      2006,
+      2008,
+      2010
+    ],
+    "runs_artifact_written": false,
+    "target": "sex-pooled remarriage ages 18-64"
+  },
+  "source_audit": {
+    "calendar_2014_flow_excluded": true,
+    "candidate_input_max_information_year": 2014,
+    "checksums": {
+      "demographic": "12ad56720f2435f4e738e4cfdfb02a4e6910cdc511f16be21a9108e6f848e81e",
+      "marital_events": "b3451caa2a8be172d0b76a90461b470efbc87a42cd1c51ff60adee4be1504f71",
+      "marital_person_years": "0c1f31c22ecfab97efca6e21be0aa270da4c317fb0a11e0fe4a80bc62d76ad03",
+      "marriage_records": "ed3d89b41fb09858d608534e3f73575bc1f4d2c404d7e7e9fb99963f811361f3"
+    },
+    "raw_rows": {
+      "birth_records": 148739,
+      "deaths": 85536,
+      "demographic": 892639,
+      "marriage_records": 65226
+    },
+    "raw_source_is_retrospective_product": true,
+    "sanitized_max_year": {
+      "actual_birth": 2013,
+      "actual_birth_report": 2013,
+      "actual_marriage_report": 2013,
+      "actual_marriage_start": 2013,
+      "death": 2014,
+      "demographic_period": 2013,
+      "marital_event": 2013,
+      "marital_person_year": 2014
+    },
+    "sanitized_rows": {
+      "actual_births": 69188,
+      "actual_marriages": 22133,
+      "birth_records": 127862,
+      "deaths": 85536,
+      "demographic": 773205,
+      "marital_events": 18583,
+      "marital_person_years": 531199,
+      "marriage_records": 44693
+    }
+  },
+  "boundaries": {
+    "2006": {
+      "boundary": 2006,
+      "anchor_waves": [
+        2007,
+        2009
+      ],
+      "evaluation_years": [
+        2007,
+        2008,
+        2009,
+        2010
+      ],
+      "anchor_persons_before_marital_intersection": 24911,
+      "anchor_households_before_marital_intersection": 8478,
+      "projected_persons": 8057,
+      "entry_dissolved_carriers": 690,
+      "truth": {
+        "event_rows": 46,
+        "exposure": 12518941.0,
+        "numerator": 514477.0,
+        "rate": 0.04109588822249422,
+        "risk_rows": 1056
+      },
+      "truth_origin": {
+        "divorced": {
+          "event_rows": 40,
+          "exposure": 11339380.0,
+          "numerator": 439186.0,
+          "rate": 0.0387310417324404,
+          "risk_rows": 931
+        },
+        "widowed": {
+          "event_rows": 6,
+          "exposure": 1179561.0,
+          "numerator": 75291.0,
+          "rate": 0.06382967900769863,
+          "risk_rows": 125
+        }
+      },
+      "truth_support_rows": 18358,
+      "truth_required_interview_year_max": 2011,
+      "truth_same_year_ysd0_events": 1,
+      "truth_same_year_ysd0_event_weight": 3250.0,
+      "support_checksum": "725494b1b4bcf3faebf06fcb22176041e6e66e23de70cc8d10f6d4c473320c6e",
+      "fit": {
+        "L2_parameter_eligible": true,
+        "L3_delta": -0.3000858552820832,
+        "L3_parameter_eligible": true,
+        "boundary": 2006,
+        "checksums": {
+          "dissolved": "0fb2c6fd312b2f5a263c9cc7af1be5570cb8471fc60612d23576be7a5fc51485",
+          "remarriages": "966b1577f1214639d1979644e64dedfce5e210e171b10b24a388cd083a3f1bb9"
+        },
+        "dissolved_rows": 47124,
+        "empty_cells": 0,
+        "fit_event_rows": 17374,
+        "fit_max_year": {
+          "demographic_interview": 2005,
+          "event": 2005,
+          "person_year": 2005
+        },
+        "fit_person_year_rows": 454210,
+        "global_training_hazard": 0.051195903438408116,
+        "mean_weight": 9558.746311370003,
+        "parent_event_counts": {
+          "divorced|female": 1150,
+          "divorced|male": 1091,
+          "widowed|female": 190,
+          "widowed|male": 140
+        },
+        "parent_hazards": {
+          "divorced|female": 0.07011221148085951,
+          "divorced|male": 0.09558252529260863,
+          "widowed|female": 0.010675676927013482,
+          "widowed|male": 0.0428662658311015
+        },
+        "recent_effective_years": [
+          2003,
+          2004,
+          2005
+        ],
+        "recent_events": 92,
+        "recent_rows": 2489,
+        "remarriage_events": 2571,
+        "thin_cells_lt20_mean_weights": 4,
+        "weighted_dissolved_exposure": 450446361.17700005,
+        "weighted_remarriage_events": 23061008.411000002,
+        "law_probability_range": {
+          "L0": {
+            "min": 0.00019878681040055396,
+            "max": 0.3475101905266418
+          },
+          "L1": {
+            "min": 0.000021186445032566547,
+            "max": 0.32714097400229175
+          },
+          "L2": {
+            "min": 0.000005151816364176723,
+            "max": 0.3267629288968828
+          },
+          "L3": {
+            "min": 0.000015694043243989172,
+            "max": 0.2647877832052563
+          }
+        }
+      },
+      "laws": {
+        "L0": {
+          "blocks": {
+            "block_1": {
+              "exposure": 12834192.8,
+              "exposure_ratio": 1.0251819862398905,
+              "log_exposure_ratio": 0.02487014438178314,
+              "log_numerator_ratio": 0.5234282889224698,
+              "log_rate_ratio": 0.5003418406687598,
+              "numerator": 868336.35,
+              "numerator_ratio": 1.6878040223372472,
+              "rate": 0.06777883065184101,
+              "rate_ratio": 1.6492849670235776
+            },
+            "block_2": {
+              "exposure": 12971692.55,
+              "exposure_ratio": 1.0361653234087453,
+              "log_exposure_ratio": 0.035526709685854176,
+              "log_numerator_ratio": 0.43095361858024955,
+              "log_rate_ratio": 0.39575312348760705,
+              "numerator": 791638.2,
+              "numerator_ratio": 1.5387241800896831,
+              "rate": 0.06104804619806026,
+              "rate_ratio": 1.4855025365930656
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 514477.0,
+            "actual_rate": 0.04109588822249422,
+            "deviance_exposure": 12518941.0,
+            "event_rows": 46,
+            "expected_numerator": 785099.7882210532,
+            "expected_over_actual": 1.5260153286173206,
+            "expected_rate": 0.06271295537067019,
+            "exposure": 12518941.0,
+            "log_expected_over_actual": 0.4226599777772937,
+            "matchable_event_rows": 45,
+            "matchable_numerator": 511227.0,
+            "risk_rows": 1056,
+            "unmatched_same_year_event_rows": 1,
+            "unmatched_same_year_event_weight": 3250.0,
+            "weighted_bernoulli_deviance": 0.32908328301480994,
+            "weighted_deviance_numerator": 4119774.2041487074
+          },
+          "mean": {
+            "exposure": 12902942.675,
+            "exposure_ratio": 1.0306736548243178,
+            "log_exposure_ratio": 0.03021262226466022,
+            "log_numerator_ratio": 0.4782595186686717,
+            "log_rate_ratio": 0.4494142092871745,
+            "numerator": 829987.275,
+            "numerator_ratio": 1.6132641012134654,
+            "rate": 0.06441343842495063,
+            "rate_ratio": 1.5673937518083216
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 11537384.5,
+                "exposure_ratio": 1.0174616689801383,
+                "log_exposure_ratio": 0.01731096586102248,
+                "log_numerator_ratio": 0.5786872822938197,
+                "log_rate_ratio": 0.5628963025910994,
+                "numerator": 783374.05,
+                "numerator_ratio": 1.7836954046804772,
+                "rate": 0.06800203920643068,
+                "rate_ratio": 1.755750327507288
+              },
+              "widowed": {
+                "exposure": 1296808.3,
+                "exposure_ratio": 1.0993990984781628,
+                "log_exposure_ratio": 0.09476375643150053,
+                "log_numerator_ratio": 0.12084702294010481,
+                "log_rate_ratio": 0.044092816021715484,
+                "numerator": 84962.3,
+                "numerator_ratio": 1.1284522718518815,
+                "rate": 0.0667070794796503,
+                "rate_ratio": 1.045079350494691
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 11667862.65,
+                "exposure_ratio": 1.0289683077910785,
+                "log_exposure_ratio": 0.028556657340759718,
+                "log_numerator_ratio": 0.4902698355467284,
+                "log_rate_ratio": 0.4616138339921623,
+                "numerator": 717083.9,
+                "numerator_ratio": 1.6327567363258393,
+                "rate": 0.06145192885023827,
+                "rate_ratio": 1.5866324813764892
+              },
+              "widowed": {
+                "exposure": 1303829.9,
+                "exposure_ratio": 1.1053518215675153,
+                "log_exposure_ratio": 0.10016367485303568,
+                "log_numerator_ratio": -0.009832886793038002,
+                "log_rate_ratio": -0.10709105229617637,
+                "numerator": 74554.3,
+                "numerator_ratio": 0.9902152979771819,
+                "rate": 0.05734738343847876,
+                "rate_ratio": 0.8984438638891161
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 11602623.575,
+              "exposure_ratio": 1.0232149883856083,
+              "log_exposure_ratio": 0.022949619714699172,
+              "log_numerator_ratio": 0.5354554463869619,
+              "log_rate_ratio": 0.5135367879020232,
+              "numerator": 750228.975,
+              "numerator_ratio": 1.708226070503158,
+              "rate": 0.06472698402833446,
+              "rate_ratio": 1.6711914044418883
+            },
+            "widowed": {
+              "exposure": 1300319.1,
+              "exposure_ratio": 1.102375460022839,
+              "log_exposure_ratio": 0.09746736052770962,
+              "log_numerator_ratio": 0.057640205734427845,
+              "log_rate_ratio": -0.028644764693506932,
+              "numerator": 79758.3,
+              "numerator_ratio": 1.0593337849145317,
+              "rate": 0.062027231459064525,
+              "rate_ratio": 0.9717616071919034
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L1": {
+          "blocks": {
+            "block_1": {
+              "exposure": 12844523.25,
+              "exposure_ratio": 1.0260071718526351,
+              "log_exposure_ratio": 0.025674736833927913,
+              "log_numerator_ratio": 0.5070453548291245,
+              "log_rate_ratio": 0.48323809406487084,
+              "numerator": 854226.35,
+              "numerator_ratio": 1.6603781121410675,
+              "rate": 0.0666294163730382,
+              "rate_ratio": 1.6213158847499483
+            },
+            "block_2": {
+              "exposure": 12987023.7,
+              "exposure_ratio": 1.0373899597418024,
+              "log_exposure_ratio": 0.03670790459818165,
+              "log_numerator_ratio": 0.4133046213437656,
+              "log_rate_ratio": 0.3768103688639586,
+              "numerator": 777789.15,
+              "numerator_ratio": 1.5118054840158064,
+              "rate": 0.059902512078481074,
+              "rate_ratio": 1.4576278715322393
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 514477.0,
+            "actual_rate": 0.04109588822249422,
+            "deviance_exposure": 12518941.0,
+            "event_rows": 46,
+            "expected_numerator": 773275.6407531387,
+            "expected_over_actual": 1.5030324791062355,
+            "expected_rate": 0.06176845475612823,
+            "exposure": 12518941.0,
+            "log_expected_over_actual": 0.4074847200558086,
+            "matchable_event_rows": 45,
+            "matchable_numerator": 511227.0,
+            "risk_rows": 1056,
+            "unmatched_same_year_event_rows": 1,
+            "unmatched_same_year_event_weight": 3250.0,
+            "weighted_bernoulli_deviance": 0.32844656801404243,
+            "weighted_deviance_numerator": 4111803.2066202844
+          },
+          "mean": {
+            "exposure": 12915773.475,
+            "exposure_ratio": 1.0316985657972189,
+            "log_exposure_ratio": 0.031206536987740695,
+            "log_numerator_ratio": 0.4612730017888805,
+            "log_rate_ratio": 0.4314394213374302,
+            "numerator": 816007.75,
+            "numerator_ratio": 1.586091798078437,
+            "rate": 0.06326596422575963,
+            "rate_ratio": 1.5394718781410937
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 11546427.4,
+                "exposure_ratio": 1.0182591464436328,
+                "log_exposure_ratio": 0.018094450018817047,
+                "log_numerator_ratio": 0.5645276195521944,
+                "log_rate_ratio": 0.5479984728018238,
+                "numerator": 772359.9,
+                "numerator_ratio": 1.7586168502638972,
+                "rate": 0.06699646543293368,
+                "rate_ratio": 1.7297873342977679
+              },
+              "widowed": {
+                "exposure": 1298095.85,
+                "exposure_ratio": 1.100490648639621,
+                "log_exposure_ratio": 0.09575612457401117,
+                "log_numerator_ratio": 0.08372865527138657,
+                "log_rate_ratio": 0.006771071123066787,
+                "numerator": 81866.45,
+                "numerator_ratio": 1.0873338114781315,
+                "rate": 0.06426334082467088,
+                "rate_ratio": 1.006794046652184
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 11679878.45,
+                "exposure_ratio": 1.0300279600824735,
+                "log_exposure_ratio": 0.029585947584245622,
+                "log_numerator_ratio": 0.47728362257553913,
+                "log_rate_ratio": 0.4474878932142928,
+                "numerator": 707831.9,
+                "numerator_ratio": 1.6116904910447967,
+                "rate": 0.060589964901593976,
+                "rate_ratio": 1.5643773622242891
+              },
+              "widowed": {
+                "exposure": 1307145.25,
+                "exposure_ratio": 1.108162485873982,
+                "log_exposure_ratio": 0.10270322547404562,
+                "log_numerator_ratio": -0.07347626454847021,
+                "log_rate_ratio": -0.17554337572607603,
+                "numerator": 69957.25,
+                "numerator_ratio": 0.9291581995191989,
+                "rate": 0.05355316477925155,
+                "rate_ratio": 0.8390010041064501
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 11613152.925,
+              "exposure_ratio": 1.0241435532630532,
+              "log_exposure_ratio": 0.023856705525244187,
+              "log_numerator_ratio": 0.5218567588473236,
+              "log_rate_ratio": 0.49900544888975584,
+              "numerator": 740095.9,
+              "numerator_ratio": 1.685153670654347,
+              "rate": 0.06379321516726383,
+              "rate_ratio": 1.6470823482610284
+            },
+            "widowed": {
+              "exposure": 1302620.55,
+              "exposure_ratio": 1.1043265672568015,
+              "log_exposure_ratio": 0.09923570778826127,
+              "log_numerator_ratio": 0.008212192947142621,
+              "log_rate_ratio": -0.08023707406719995,
+              "numerator": 75911.85,
+              "numerator_ratio": 1.0082460054986653,
+              "rate": 0.058908252801961214,
+              "rate_ratio": 0.9228975253793171
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L2": {
+          "blocks": {
+            "block_1": {
+              "exposure": 12844523.25,
+              "exposure_ratio": 1.0260071718526351,
+              "log_exposure_ratio": 0.025674736833927913,
+              "log_numerator_ratio": 0.5076939771409666,
+              "log_rate_ratio": 0.4838950972477627,
+              "numerator": 854780.6,
+              "numerator_ratio": 1.6614554197758111,
+              "rate": 0.06667320649521916,
+              "rate_ratio": 1.6223814444464288
+            },
+            "block_2": {
+              "exposure": 12985726.95,
+              "exposure_ratio": 1.0372863766991154,
+              "log_exposure_ratio": 0.03660804994523781,
+              "log_numerator_ratio": 0.4146816811844717,
+              "log_rate_ratio": 0.37836935142192923,
+              "numerator": 778860.95,
+              "numerator_ratio": 1.5138887647066825,
+              "rate": 0.059995971882163025,
+              "rate_ratio": 1.4599020602096067
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 514477.0,
+            "actual_rate": 0.04109588822249422,
+            "deviance_exposure": 12518941.0,
+            "event_rows": 46,
+            "expected_numerator": 773753.3950193569,
+            "expected_over_actual": 1.5039611003394844,
+            "expected_rate": 0.061806617270530856,
+            "exposure": 12518941.0,
+            "log_expected_over_actual": 0.4081023610571844,
+            "matchable_event_rows": 45,
+            "matchable_numerator": 511227.0,
+            "risk_rows": 1056,
+            "unmatched_same_year_event_rows": 1,
+            "unmatched_same_year_event_weight": 3250.0,
+            "weighted_bernoulli_deviance": 0.3284887700703326,
+            "weighted_deviance_numerator": 4112331.53167306
+          },
+          "mean": {
+            "exposure": 12915125.1,
+            "exposure_ratio": 1.0316467742758753,
+            "log_exposure_ratio": 0.03115633548210941,
+            "log_numerator_ratio": 0.46226885047077526,
+            "log_rate_ratio": 0.43252353934168747,
+            "numerator": 816820.775,
+            "numerator_ratio": 1.587672092241247,
+            "rate": 0.06333458918869109,
+            "rate_ratio": 1.5411417523280178
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 11546427.4,
+                "exposure_ratio": 1.0182591464436328,
+                "log_exposure_ratio": 0.018094450018817047,
+                "log_numerator_ratio": 0.5652449680688122,
+                "log_rate_ratio": 0.5487241170279409,
+                "numerator": 772914.15,
+                "numerator_ratio": 1.7598788440432984,
+                "rate": 0.06704509867432672,
+                "rate_ratio": 1.7310430000175026
+              },
+              "widowed": {
+                "exposure": 1298095.85,
+                "exposure_ratio": 1.100490648639621,
+                "log_exposure_ratio": 0.09575612457401117,
+                "log_numerator_ratio": 0.08372865527138657,
+                "log_rate_ratio": 0.006771071123066787,
+                "numerator": 81866.45,
+                "numerator_ratio": 1.0873338114781315,
+                "rate": 0.06426334082467088,
+                "rate_ratio": 1.006794046652184
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 11676041.15,
+                "exposure_ratio": 1.0296895553372407,
+                "log_exposure_ratio": 0.02925735422545314,
+                "log_numerator_ratio": 0.4799905567246947,
+                "log_rate_ratio": 0.4506081107247585,
+                "numerator": 709750.55,
+                "numerator_ratio": 1.6160591412294565,
+                "rate": 0.06077931402263857,
+                "rate_ratio": 1.569266182988591
+              },
+              "widowed": {
+                "exposure": 1309685.8,
+                "exposure_ratio": 1.1103162956388013,
+                "log_exposure_ratio": 0.10464492575935704,
+                "log_numerator_ratio": -0.08565537978922799,
+                "log_rate_ratio": -0.19122684974665177,
+                "numerator": 69110.4,
+                "numerator_ratio": 0.91791050723194,
+                "rate": 0.05271981708573581,
+                "rate_ratio": 0.8259452014379888
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 11611234.275,
+              "exposure_ratio": 1.0239743508904366,
+              "log_exposure_ratio": 0.023691478345052728,
+              "log_numerator_ratio": 0.5235260267138021,
+              "log_rate_ratio": 0.5008689753437131,
+              "numerator": 741332.35,
+              "numerator_ratio": 1.6879689926363772,
+              "rate": 0.06391220634848264,
+              "rate_ratio": 1.6501545915030467
+            },
+            "widowed": {
+              "exposure": 1303890.825,
+              "exposure_ratio": 1.105403472139211,
+              "log_exposure_ratio": 0.10021040148248407,
+              "log_numerator_ratio": 0.0026187274931442233,
+              "log_rate_ratio": -0.0873354760003101,
+              "numerator": 75488.425,
+              "numerator_ratio": 1.0026221593550357,
+              "rate": 0.058491578955203335,
+              "rate_ratio": 0.9163696240450864
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L3": {
+          "blocks": {
+            "block_1": {
+              "exposure": 13016992.0,
+              "exposure_ratio": 1.0397837964089773,
+              "log_exposure_ratio": 0.03901280347327054,
+              "log_numerator_ratio": 0.26696819442856307,
+              "log_rate_ratio": 0.2286521538347259,
+              "numerator": 671906.4,
+              "numerator_ratio": 1.3059989076285237,
+              "rate": 0.05165361725457922,
+              "rate_ratio": 1.2569047534615914
+            },
+            "block_2": {
+              "exposure": 13194370.95,
+              "exposure_ratio": 1.0539526426396608,
+              "log_exposure_ratio": 0.05254751802782356,
+              "log_numerator_ratio": 0.16173647479243566,
+              "log_rate_ratio": 0.11010866641334309,
+              "numerator": 604793.65,
+              "numerator_ratio": 1.1755504133323744,
+              "rate": 0.04587942409039021,
+              "rate_ratio": 1.1163993789840434
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 514477.0,
+            "actual_rate": 0.04109588822249422,
+            "deviance_exposure": 12518941.0,
+            "event_rows": 46,
+            "expected_numerator": 587595.6302432045,
+            "expected_over_actual": 1.1421222527794332,
+            "expected_rate": 0.046936528436646884,
+            "exposure": 12518941.0,
+            "log_expected_over_actual": 0.13288815697482576,
+            "matchable_event_rows": 45,
+            "matchable_numerator": 511227.0,
+            "risk_rows": 1056,
+            "unmatched_same_year_event_rows": 1,
+            "unmatched_same_year_event_weight": 3250.0,
+            "weighted_bernoulli_deviance": 0.3205200988100509,
+            "weighted_deviance_numerator": 4012572.2063171975
+          },
+          "mean": {
+            "exposure": 13105681.475,
+            "exposure_ratio": 1.046868219524319,
+            "log_exposure_ratio": 0.04580305913802695,
+            "log_numerator_ratio": 0.21573591075068257,
+            "log_rate_ratio": 0.17113595237532117,
+            "numerator": 638350.025,
+            "numerator_ratio": 1.240774660480449,
+            "rate": 0.04876652067248473,
+            "rate_ratio": 1.1866520662228177
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 11696829.8,
+                "exposure_ratio": 1.0315228698570822,
+                "log_exposure_ratio": 0.031036224739597888,
+                "log_numerator_ratio": 0.3175906884840979,
+                "log_rate_ratio": 0.2872954684952439,
+                "numerator": 603359.8,
+                "numerator_ratio": 1.3738138283096457,
+                "rate": 0.051621428070019126,
+                "rate_ratio": 1.3328179610201907
+              },
+              "widowed": {
+                "exposure": 1320162.2,
+                "exposure_ratio": 1.1191979049832945,
+                "log_exposure_ratio": 0.11261227247968986,
+                "log_numerator_ratio": -0.09384679980489222,
+                "log_rate_ratio": -0.1925564854936405,
+                "numerator": 68546.6,
+                "numerator_ratio": 0.9104222284203957,
+                "rate": 0.05264976551422125,
+                "rate_ratio": 0.824847724956772
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 11855895.8,
+                "exposure_ratio": 1.0455506209334198,
+                "log_exposure_ratio": 0.04454365663258586,
+                "log_numerator_ratio": 0.22774964969230896,
+                "log_rate_ratio": 0.18361261396482165,
+                "numerator": 551517.0,
+                "numerator_ratio": 1.255770903444099,
+                "rate": 0.04653729361740533,
+                "rate_ratio": 1.2015502691327447
+              },
+              "widowed": {
+                "exposure": 1338475.15,
+                "exposure_ratio": 1.134723130045839,
+                "log_exposure_ratio": 0.12638868288997845,
+                "log_numerator_ratio": -0.3458624568701652,
+                "log_rate_ratio": -0.47858762391102133,
+                "numerator": 53276.65,
+                "numerator_ratio": 0.7076098072810828,
+                "rate": 0.039552568945628384,
+                "rate_ratio": 0.6196579641401277
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 11776362.8,
+              "exposure_ratio": 1.038536745395251,
+              "log_exposure_ratio": 0.03781274685226057,
+              "log_numerator_ratio": 0.2736787564911561,
+              "log_rate_ratio": 0.236797206548435,
+              "numerator": 577438.4,
+              "numerator_ratio": 1.3147923658768723,
+              "rate": 0.04907936084371223,
+              "rate_ratio": 1.2671841150764676
+            },
+            "widowed": {
+              "exposure": 1329318.675,
+              "exposure_ratio": 1.126960517514567,
+              "log_exposure_ratio": 0.11952420118270639,
+              "log_numerator_ratio": -0.21193656255137341,
+              "log_rate_ratio": -0.3253800011894812,
+              "numerator": 60911.625,
+              "numerator_ratio": 0.8090160178507392,
+              "rate": 0.046101167229924814,
+              "rate_ratio": 0.7222528445484498
+            }
+          },
+          "parameter_eligible": true
+        }
+      }
+    },
+    "2008": {
+      "boundary": 2008,
+      "anchor_waves": [
+        2009,
+        2011
+      ],
+      "evaluation_years": [
+        2009,
+        2010,
+        2011,
+        2012
+      ],
+      "anchor_persons_before_marital_intersection": 25516,
+      "anchor_households_before_marital_intersection": 8781,
+      "projected_persons": 7987,
+      "entry_dissolved_carriers": 581,
+      "truth": {
+        "event_rows": 37,
+        "exposure": 8798740.0,
+        "numerator": 349758.0,
+        "rate": 0.039750918881567135,
+        "risk_rows": 781
+      },
+      "truth_origin": {
+        "divorced": {
+          "event_rows": 34,
+          "exposure": 8165478.0,
+          "numerator": 320346.0,
+          "rate": 0.03923175103772247,
+          "risk_rows": 701
+        },
+        "widowed": {
+          "event_rows": 3,
+          "exposure": 633262.0,
+          "numerator": 29412.0,
+          "rate": 0.0464452311997246,
+          "risk_rows": 80
+        }
+      },
+      "truth_support_rows": 17997,
+      "truth_required_interview_year_max": 2013,
+      "truth_same_year_ysd0_events": 4,
+      "truth_same_year_ysd0_event_weight": 28971.0,
+      "support_checksum": "fd63f8272607938a4b57b01459c4e4fcf4d436bd3b3fb12566d1f0e8038e177c",
+      "fit": {
+        "L2_parameter_eligible": true,
+        "L3_delta": -0.33233737427047433,
+        "L3_parameter_eligible": true,
+        "boundary": 2008,
+        "checksums": {
+          "dissolved": "51c0f388f9094c1f399ab17bfd17f749536b9514fdd3f56cf698b414b3cc69e0",
+          "remarriages": "63083cd929f78fb3b0f81d675f1b47a77e4741eb4810795da59eb6fbb7941d38"
+        },
+        "dissolved_rows": 48672,
+        "empty_cells": 0,
+        "fit_event_rows": 17788,
+        "fit_max_year": {
+          "demographic_interview": 2007,
+          "event": 2007,
+          "person_year": 2007
+        },
+        "fit_person_year_rows": 473363,
+        "global_training_hazard": 0.04970562224306538,
+        "mean_weight": 9859.996296104537,
+        "parent_event_counts": {
+          "divorced|female": 1170,
+          "divorced|male": 1120,
+          "widowed|female": 195,
+          "widowed|male": 142
+        },
+        "parent_hazards": {
+          "divorced|female": 0.06823954429006572,
+          "divorced|male": 0.0922524282360472,
+          "widowed|female": 0.010424438581589814,
+          "widowed|male": 0.0417716771777349
+        },
+        "recent_effective_years": [
+          2005,
+          2006,
+          2007
+        ],
+        "recent_events": 65,
+        "recent_rows": 2098,
+        "remarriage_events": 2627,
+        "thin_cells_lt20_mean_weights": 4,
+        "weighted_dissolved_exposure": 479905739.724,
+        "weighted_remarriage_events": 23854013.411,
+        "law_probability_range": {
+          "L0": {
+            "min": 0.00018396851842831773,
+            "max": 0.3575214374339314
+          },
+          "L1": {
+            "min": 0.00001903785344476871,
+            "max": 0.33678667791425515
+          },
+          "L2": {
+            "min": 0.000004650217128054091,
+            "max": 0.3364213425889699
+          },
+          "L3": {
+            "min": 0.00001365488444673345,
+            "max": 0.2669829156993888
+          }
+        }
+      },
+      "laws": {
+        "L0": {
+          "blocks": {
+            "block_1": {
+              "exposure": 9071449.55,
+              "exposure_ratio": 1.0309941593910037,
+              "log_exposure_ratio": 0.03052354002459991,
+              "log_numerator_ratio": 0.5185323710330412,
+              "log_rate_ratio": 0.4895481351061374,
+              "numerator": 587439.85,
+              "numerator_ratio": 1.6795608678000216,
+              "rate": 0.06485675653481995,
+              "rate_ratio": 1.6315788001795004
+            },
+            "block_2": {
+              "exposure": 9058901.2,
+              "exposure_ratio": 1.0295680063281787,
+              "log_exposure_ratio": 0.02913930293214636,
+              "log_numerator_ratio": 0.5491373011181693,
+              "log_rate_ratio": 0.5210174416570658,
+              "numerator": 605696.35,
+              "numerator_ratio": 1.7317583872277402,
+              "rate": 0.06693020761016007,
+              "rate_ratio": 1.6837398856003858
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 349758.0,
+            "actual_rate": 0.039750918881567135,
+            "deviance_exposure": 8798740.0,
+            "event_rows": 37,
+            "expected_numerator": 566228.4395398452,
+            "expected_over_actual": 1.6189149055628327,
+            "expected_rate": 0.06435335508718808,
+            "exposure": 8798740.0,
+            "log_expected_over_actual": 0.4817561134394622,
+            "matchable_event_rows": 33,
+            "matchable_numerator": 320787.0,
+            "risk_rows": 781,
+            "unmatched_same_year_event_rows": 4,
+            "unmatched_same_year_event_weight": 28971.0,
+            "weighted_bernoulli_deviance": 0.33105576774277107,
+            "weighted_deviance_numerator": 2912873.6258690297
+          },
+          "mean": {
+            "exposure": 9065175.375,
+            "exposure_ratio": 1.0302810828595912,
+            "log_exposure_ratio": 0.029831660992395027,
+            "log_numerator_ratio": 0.5339519142246257,
+            "log_rate_ratio": 0.5054065729308285,
+            "numerator": 596568.1,
+            "numerator_ratio": 1.705659627513881,
+            "rate": 0.06589348207249,
+            "rate_ratio": 1.6576593428899429
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 8319195.95,
+                "exposure_ratio": 1.0188253461707937,
+                "log_exposure_ratio": 0.018650342269525423,
+                "log_numerator_ratio": 0.5528920871938748,
+                "log_rate_ratio": 0.5360873686981957,
+                "numerator": 556848.8,
+                "numerator_ratio": 1.7382729923270466,
+                "rate": 0.06705906264559573,
+                "rate_ratio": 1.7093058778109722
+              },
+              "widowed": {
+                "exposure": 752253.6,
+                "exposure_ratio": 1.1879026374549555,
+                "log_exposure_ratio": 0.1721892625777121,
+                "log_numerator_ratio": 0.03930472818254057,
+                "log_rate_ratio": -0.12882109979443984,
+                "numerator": 30591.05,
+                "numerator_ratio": 1.0400873793009655,
+                "rate": 0.04083145315029313,
+                "rate_ratio": 0.8791312282354456
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 8289152.75,
+                "exposure_ratio": 1.015146051462021,
+                "log_exposure_ratio": 0.015032495208166947,
+                "log_numerator_ratio": 0.5778326323154249,
+                "log_rate_ratio": 0.5633015217807916,
+                "numerator": 570911.55,
+                "numerator_ratio": 1.7821716206851344,
+                "rate": 0.06890907735689418,
+                "rate_ratio": 1.7564619354011524
+              },
+              "widowed": {
+                "exposure": 769748.45,
+                "exposure_ratio": 1.2155291964463366,
+                "log_exposure_ratio": 0.19517953459772777,
+                "log_numerator_ratio": 0.16777775542038517,
+                "log_rate_ratio": -0.05179884436590482,
+                "numerator": 34784.8,
+                "numerator_ratio": 1.1826737386100912,
+                "rate": 0.044100668910933526,
+                "rate_ratio": 0.9495198489009787
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 8304174.35,
+              "exposure_ratio": 1.0169856988164072,
+              "log_exposure_ratio": 0.016843054840123724,
+              "log_numerator_ratio": 0.5654401115883831,
+              "log_rate_ratio": 0.5497870186488467,
+              "numerator": 563880.175,
+              "numerator_ratio": 1.7602223065060905,
+              "rate": 0.06798407000124496,
+              "rate_ratio": 1.7328839066060622
+            },
+            "widowed": {
+              "exposure": 761001.025,
+              "exposure_ratio": 1.201715916950646,
+              "log_exposure_ratio": 0.18375046620867447,
+              "log_numerator_ratio": 0.10560298931868758,
+              "log_rate_ratio": -0.08956860182931886,
+              "numerator": 32687.925,
+              "numerator_ratio": 1.1113805589555283,
+              "rate": 0.04246606103061333,
+              "rate_ratio": 0.9143255385682122
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L1": {
+          "blocks": {
+            "block_1": {
+              "exposure": 9072499.45,
+              "exposure_ratio": 1.0311134832941988,
+              "log_exposure_ratio": 0.03063927006784143,
+              "log_numerator_ratio": 0.5088488199934361,
+              "log_rate_ratio": 0.4797953298928237,
+              "numerator": 581778.8,
+              "numerator_ratio": 1.663375248028637,
+              "rate": 0.06422729571532135,
+              "rate_ratio": 1.615743673918042
+            },
+            "block_2": {
+              "exposure": 9071687.4,
+              "exposure_ratio": 1.0310211916706256,
+              "log_exposure_ratio": 0.03054975930527548,
+              "log_numerator_ratio": 0.5327473029442734,
+              "log_rate_ratio": 0.5033249324177143,
+              "numerator": 595849.9,
+              "numerator_ratio": 1.703606207720767,
+              "rate": 0.06575645819736223,
+              "rate_ratio": 1.6542122810613593
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 349758.0,
+            "actual_rate": 0.039750918881567135,
+            "deviance_exposure": 8798740.0,
+            "event_rows": 37,
+            "expected_numerator": 558654.760702455,
+            "expected_over_actual": 1.5972608509382342,
+            "expected_rate": 0.06349258651834865,
+            "exposure": 8798740.0,
+            "log_expected_over_actual": 0.4682901939899862,
+            "matchable_event_rows": 33,
+            "matchable_numerator": 320787.0,
+            "risk_rows": 781,
+            "unmatched_same_year_event_rows": 4,
+            "unmatched_same_year_event_weight": 28971.0,
+            "weighted_bernoulli_deviance": 0.33035171917052225,
+            "weighted_deviance_numerator": 2906678.885534441
+          },
+          "mean": {
+            "exposure": 9072093.425,
+            "exposure_ratio": 1.0310673374824124,
+            "log_exposure_ratio": 0.030594515688080748,
+            "log_numerator_ratio": 0.5208694519558902,
+            "log_rate_ratio": 0.49162933483324367,
+            "numerator": 588814.35,
+            "numerator_ratio": 1.6834907278747018,
+            "rate": 0.06499187695634179,
+            "rate_ratio": 1.6349779774897006
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 8320022.25,
+                "exposure_ratio": 1.018926540491567,
+                "log_exposure_ratio": 0.018749661839801774,
+                "log_numerator_ratio": 0.5428766476787974,
+                "log_rate_ratio": 0.5260258457318574,
+                "numerator": 551299.55,
+                "numerator_ratio": 1.7209503162205866,
+                "rate": 0.06638772932796652,
+                "rate_ratio": 1.692193888163003
+              },
+              "widowed": {
+                "exposure": 752477.2,
+                "exposure_ratio": 1.188255729855889,
+                "log_exposure_ratio": 0.17248645859662218,
+                "log_numerator_ratio": 0.03564336988251709,
+                "log_rate_ratio": -0.13220053044833363,
+                "numerator": 30479.25,
+                "numerator_ratio": 1.0362862097103223,
+                "rate": 0.040693698982305355,
+                "rate_ratio": 0.8761652796454731
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 8301883.05,
+                "exposure_ratio": 1.0167050906266601,
+                "log_exposure_ratio": 0.01656709529604309,
+                "log_numerator_ratio": 0.5620895120161036,
+                "log_rate_ratio": 0.5460003018929471,
+                "numerator": 561994.0,
+                "numerator_ratio": 1.7543343759559975,
+                "rate": 0.06772712038897619,
+                "rate_ratio": 1.726334374518603
+              },
+              "widowed": {
+                "exposure": 769804.35,
+                "exposure_ratio": 1.21561746954657,
+                "log_exposure_ratio": 0.1952521530880122,
+                "log_numerator_ratio": 0.14071052821129582,
+                "log_rate_ratio": -0.07890803061892522,
+                "numerator": 33855.9,
+                "numerator_ratio": 1.1510913912688698,
+                "rate": 0.04292119518286802,
+                "rate_ratio": 0.9241249117330806
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 8310952.65,
+              "exposure_ratio": 1.0178158155591137,
+              "log_exposure_ratio": 0.017658974017394097,
+              "log_numerator_ratio": 0.5525292209072858,
+              "log_rate_ratio": 0.5360629453457065,
+              "numerator": 556646.775,
+              "numerator_ratio": 1.7376423460882922,
+              "rate": 0.06705742485847135,
+              "rate_ratio": 1.709264131340803
+            },
+            "widowed": {
+              "exposure": 761140.775,
+              "exposure_ratio": 1.2019365997012295,
+              "log_exposure_ratio": 0.1839340890490599,
+              "log_numerator_ratio": 0.08955620328612922,
+              "log_rate_ratio": -0.1051993112194301,
+              "numerator": 32167.575,
+              "numerator_ratio": 1.0936888004895962,
+              "rate": 0.04180744708258669,
+              "rate_ratio": 0.9001450956892769
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L2": {
+          "blocks": {
+            "block_1": {
+              "exposure": 9072499.45,
+              "exposure_ratio": 1.0311134832941988,
+              "log_exposure_ratio": 0.03063927006784143,
+              "log_numerator_ratio": 0.5103160846099154,
+              "log_rate_ratio": 0.48128236392723855,
+              "numerator": 582633.05,
+              "numerator_ratio": 1.6658176510615912,
+              "rate": 0.06432287493715376,
+              "rate_ratio": 1.6181481270608027
+            },
+            "block_2": {
+              "exposure": 9071687.4,
+              "exposure_ratio": 1.0310211916706256,
+              "log_exposure_ratio": 0.03054975930527548,
+              "log_numerator_ratio": 0.5327473029442734,
+              "log_rate_ratio": 0.5033249324177143,
+              "numerator": 595849.9,
+              "numerator_ratio": 1.703606207720767,
+              "rate": 0.06575645819736223,
+              "rate_ratio": 1.6542122810613593
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 349758.0,
+            "actual_rate": 0.039750918881567135,
+            "deviance_exposure": 8798740.0,
+            "event_rows": 37,
+            "expected_numerator": 558990.794315108,
+            "expected_over_actual": 1.5982216112715306,
+            "expected_rate": 0.06353077762442214,
+            "exposure": 8798740.0,
+            "log_expected_over_actual": 0.4688915181240465,
+            "matchable_event_rows": 33,
+            "matchable_numerator": 320787.0,
+            "risk_rows": 781,
+            "unmatched_same_year_event_rows": 4,
+            "unmatched_same_year_event_weight": 28971.0,
+            "weighted_bernoulli_deviance": 0.3303800844361879,
+            "weighted_deviance_numerator": 2906928.4641320636
+          },
+          "mean": {
+            "exposure": 9072093.425,
+            "exposure_ratio": 1.0310673374824124,
+            "log_exposure_ratio": 0.030594515688080748,
+            "log_numerator_ratio": 0.5215945874030427,
+            "log_rate_ratio": 0.49236438129616944,
+            "numerator": 589241.475,
+            "numerator_ratio": 1.684711929391179,
+            "rate": 0.06503966656725799,
+            "rate_ratio": 1.636180204061081
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 8320022.25,
+                "exposure_ratio": 1.018926540491567,
+                "log_exposure_ratio": 0.018749661839801774,
+                "log_numerator_ratio": 0.5444249689932558,
+                "log_rate_ratio": 0.5275788641626545,
+                "numerator": 552153.8,
+                "numerator_ratio": 1.7236169641575048,
+                "rate": 0.06649091079581394,
+                "rate_ratio": 1.694823938189274
+              },
+              "widowed": {
+                "exposure": 752477.2,
+                "exposure_ratio": 1.188255729855889,
+                "log_exposure_ratio": 0.17248645859662218,
+                "log_numerator_ratio": 0.03564336988251709,
+                "log_rate_ratio": -0.13220053044833363,
+                "numerator": 30479.25,
+                "numerator_ratio": 1.0362862097103223,
+                "rate": 0.040693698982305355,
+                "rate_ratio": 0.8761652796454731
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 8301883.05,
+                "exposure_ratio": 1.0167050906266601,
+                "log_exposure_ratio": 0.01656709529604309,
+                "log_numerator_ratio": 0.5620895120161036,
+                "log_rate_ratio": 0.5460003018929471,
+                "numerator": 561994.0,
+                "numerator_ratio": 1.7543343759559975,
+                "rate": 0.06772712038897619,
+                "rate_ratio": 1.726334374518603
+              },
+              "widowed": {
+                "exposure": 769804.35,
+                "exposure_ratio": 1.21561746954657,
+                "log_exposure_ratio": 0.1952521530880122,
+                "log_numerator_ratio": 0.14071052821129582,
+                "log_rate_ratio": -0.07890803061892522,
+                "numerator": 33855.9,
+                "numerator_ratio": 1.1510913912688698,
+                "rate": 0.04292119518286802,
+                "rate_ratio": 0.9241249117330806
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 8310952.65,
+              "exposure_ratio": 1.0178158155591137,
+              "log_exposure_ratio": 0.017658974017394097,
+              "log_numerator_ratio": 0.5532962445075987,
+              "log_rate_ratio": 0.5368320010990396,
+              "numerator": 557073.9,
+              "numerator_ratio": 1.7389756700567511,
+              "rate": 0.06710901559239506,
+              "rate_ratio": 1.7105791563539385
+            },
+            "widowed": {
+              "exposure": 761140.775,
+              "exposure_ratio": 1.2019365997012295,
+              "log_exposure_ratio": 0.1839340890490599,
+              "log_numerator_ratio": 0.08955620328612922,
+              "log_rate_ratio": -0.1051993112194301,
+              "numerator": 32167.575,
+              "numerator_ratio": 1.0936888004895962,
+              "rate": 0.04180744708258669,
+              "rate_ratio": 0.9001450956892769
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L3": {
+          "blocks": {
+            "block_1": {
+              "exposure": 9187198.35,
+              "exposure_ratio": 1.0441493156974748,
+              "log_exposure_ratio": 0.043202501932406566,
+              "log_numerator_ratio": 0.24710890207347272,
+              "log_rate_ratio": 0.20573356497767714,
+              "numerator": 447801.65,
+              "numerator_ratio": 1.280318534529589,
+              "rate": 0.048831056900393834,
+              "rate_ratio": 1.2284258647172366
+            },
+            "block_2": {
+              "exposure": 9211683.25,
+              "exposure_ratio": 1.046932089140036,
+              "log_exposure_ratio": 0.045864067454314254,
+              "log_numerator_ratio": 0.2671230349150217,
+              "log_rate_ratio": 0.22260313332545267,
+              "numerator": 456854.3,
+              "numerator_ratio": 1.3062011447915416,
+              "rate": 0.04966180321693524,
+              "rate_ratio": 1.2493246600134285
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 349758.0,
+            "actual_rate": 0.039750918881567135,
+            "deviance_exposure": 8798740.0,
+            "event_rows": 37,
+            "expected_numerator": 412307.92520813434,
+            "expected_over_actual": 1.178837725536326,
+            "expected_rate": 0.0468598828023256,
+            "exposure": 8798740.0,
+            "log_expected_over_actual": 0.16452897470857206,
+            "matchable_event_rows": 33,
+            "matchable_numerator": 320787.0,
+            "risk_rows": 781,
+            "unmatched_same_year_event_rows": 4,
+            "unmatched_same_year_event_weight": 28971.0,
+            "weighted_bernoulli_deviance": 0.31816509166058443,
+            "weighted_deviance_numerator": 2799451.9185976507
+          },
+          "mean": {
+            "exposure": 9199440.8,
+            "exposure_ratio": 1.0455407024187555,
+            "log_exposure_ratio": 0.04453417018447758,
+            "log_numerator_ratio": 0.25716603834775303,
+            "log_rate_ratio": 0.21420392152179527,
+            "numerator": 452327.975,
+            "numerator_ratio": 1.2932598396605652,
+            "rate": 0.04924643005866454,
+            "rate_ratio": 1.2388752623653327
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 8432058.1,
+                "exposure_ratio": 1.032647213059664,
+                "log_exposure_ratio": 0.03212561492413917,
+                "log_numerator_ratio": 0.27339731023565256,
+                "log_rate_ratio": 0.2432977089659707,
+                "numerator": 421069.95,
+                "numerator_ratio": 1.3144223745575097,
+                "rate": 0.05003806938208892,
+                "rate_ratio": 1.275448279990762
+              },
+              "widowed": {
+                "exposure": 755140.25,
+                "exposure_ratio": 1.192461019293752,
+                "log_exposure_ratio": 0.1760192550228188,
+                "log_numerator_ratio": -0.095552627252988,
+                "log_rate_ratio": -0.26083836157634416,
+                "numerator": 26731.7,
+                "numerator_ratio": 0.9088705290357677,
+                "rate": 0.03578165862374641,
+                "rate_ratio": 0.7704054366717972
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 8434224.7,
+                "exposure_ratio": 1.0329125496388576,
+                "log_exposure_ratio": 0.03238252986356112,
+                "log_numerator_ratio": 0.29836850350397776,
+                "log_rate_ratio": 0.2666631274955409,
+                "numerator": 431716.95,
+                "numerator_ratio": 1.3476583131988538,
+                "rate": 0.051220995783824906,
+                "rate_ratio": 1.3056005513130022
+              },
+              "widowed": {
+                "exposure": 777458.55,
+                "exposure_ratio": 1.227704409865111,
+                "log_exposure_ratio": 0.2051460921710912,
+                "log_numerator_ratio": -0.15704796643351634,
+                "log_rate_ratio": -0.3899882108559741,
+                "numerator": 25137.35,
+                "numerator_ratio": 0.8546630626954984,
+                "rate": 0.03144643379578203,
+                "rate_ratio": 0.677064856466222
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 8433141.4,
+              "exposure_ratio": 1.032779881349261,
+              "log_exposure_ratio": 0.0322540806445111,
+              "log_numerator_ratio": 0.28596084990641063,
+              "log_rate_ratio": 0.255048659526333,
+              "numerator": 426393.45,
+              "numerator_ratio": 1.3310403438781817,
+              "rate": 0.050629532582956924,
+              "rate_ratio": 1.2905244156518823
+            },
+            "widowed": {
+              "exposure": 766299.4,
+              "exposure_ratio": 1.2100827145794315,
+              "log_exposure_ratio": 0.190688716428824,
+              "log_numerator_ratio": -0.1258276617166493,
+              "log_rate_ratio": -0.3233297731808184,
+              "numerator": 25934.525,
+              "numerator_ratio": 0.8817667958656331,
+              "rate": 0.033614046209764215,
+              "rate_ratio": 0.7237351465690094
+            }
+          },
+          "parameter_eligible": true
+        }
+      }
+    },
+    "2010": {
+      "boundary": 2010,
+      "anchor_waves": [
+        2011,
+        2013
+      ],
+      "evaluation_years": [
+        2011,
+        2012,
+        2013
+      ],
+      "anchor_persons_before_marital_intersection": 25973,
+      "anchor_households_before_marital_intersection": 8994,
+      "projected_persons": 7389,
+      "entry_dissolved_carriers": 419,
+      "truth": {
+        "event_rows": 20,
+        "exposure": 4765776.0,
+        "numerator": 153680.0,
+        "rate": 0.03224658481640765,
+        "risk_rows": 428
+      },
+      "truth_origin": {
+        "divorced": {
+          "event_rows": 20,
+          "exposure": 4459239.0,
+          "numerator": 153680.0,
+          "rate": 0.034463279496793064,
+          "risk_rows": 388
+        },
+        "widowed": {
+          "event_rows": 0,
+          "exposure": 306537.0,
+          "numerator": 0.0,
+          "rate": 0.0,
+          "risk_rows": 40
+        }
+      },
+      "truth_support_rows": 13458,
+      "truth_required_interview_year_max": 2013,
+      "truth_same_year_ysd0_events": 3,
+      "truth_same_year_ysd0_event_weight": 15869.0,
+      "support_checksum": "6bc35061cbd7dbb30a22984b8cb198091afde5c778e0492dd82aa789b1d08b6e",
+      "fit": {
+        "L2_parameter_eligible": true,
+        "L3_delta": -0.44998866781503877,
+        "L3_parameter_eligible": true,
+        "boundary": 2010,
+        "checksums": {
+          "dissolved": "90c42315c206def2e2cf652a5c27bb0c79845a28527a2daa3fd4a82282f25fb3",
+          "remarriages": "aae0f9164c7803f6e2b9d6f391539e9f39594319af53bde425d9683b7a8e2245"
+        },
+        "dissolved_rows": 50010,
+        "empty_cells": 0,
+        "fit_event_rows": 18177,
+        "fit_max_year": {
+          "demographic_interview": 2009,
+          "event": 2009,
+          "person_year": 2009
+        },
+        "fit_person_year_rows": 492394,
+        "global_training_hazard": 0.05204763686561678,
+        "mean_weight": 9976.80482089582,
+        "parent_event_counts": {
+          "divorced|female": 1198,
+          "divorced|male": 1139,
+          "widowed|female": 195,
+          "widowed|male": 143
+        },
+        "parent_hazards": {
+          "divorced|female": 0.07096320570811494,
+          "divorced|male": 0.09583734385484516,
+          "widowed|female": 0.010556393595368778,
+          "widowed|male": 0.04238581262567487
+        },
+        "recent_effective_years": [
+          2007,
+          2008,
+          2009
+        ],
+        "recent_events": 49,
+        "recent_rows": 1791,
+        "remarriage_events": 2675,
+        "thin_cells_lt20_mean_weights": 4,
+        "weighted_dissolved_exposure": 498940009.093,
+        "weighted_remarriage_events": 25968648.411,
+        "law_probability_range": {
+          "L0": {
+            "min": 0.00017664119199591407,
+            "max": 0.368360085385093
+          },
+          "L1": {
+            "min": 0.00001909489840237754,
+            "max": 0.3478496147328032
+          },
+          "L2": {
+            "min": 0.000004502294072585584,
+            "max": 0.34740722715137756
+          },
+          "L3": {
+            "min": 0.000012175666996170722,
+            "max": 0.25379119270887945
+          }
+        }
+      },
+      "laws": {
+        "L0": {
+          "blocks": {
+            "block_1": {
+              "exposure": 5075724.75,
+              "exposure_ratio": 1.0650363655362736,
+              "log_exposure_ratio": 0.06300894462187492,
+              "log_numerator_ratio": 0.7858284701128831,
+              "log_rate_ratio": 0.7251315698604486,
+              "numerator": 337208.35,
+              "numerator_ratio": 2.1942240369599166,
+              "rate": 0.06658928710502984,
+              "rate_ratio": 2.065002774220853
+            },
+            "block_2": {
+              "exposure": 5011088.55,
+              "exposure_ratio": 1.0514737893681951,
+              "log_exposure_ratio": 0.05019278895330867,
+              "log_numerator_ratio": 0.8742473818774724,
+              "log_rate_ratio": 0.8256951675821528,
+              "numerator": 368381.8,
+              "numerator_ratio": 2.3970705361790734,
+              "rate": 0.0736340318440076,
+              "rate_ratio": 2.2834676063600154
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 153680.0,
+            "actual_rate": 0.03224658481640765,
+            "deviance_exposure": 4765776.0,
+            "event_rows": 20,
+            "expected_numerator": 313277.5458139884,
+            "expected_over_actual": 2.0385056338755105,
+            "expected_rate": 0.06573484482149149,
+            "exposure": 4765776.0,
+            "log_expected_over_actual": 0.7122170070091923,
+            "matchable_event_rows": 17,
+            "matchable_numerator": 137811.0,
+            "risk_rows": 428,
+            "unmatched_same_year_event_rows": 3,
+            "unmatched_same_year_event_weight": 15869.0,
+            "weighted_bernoulli_deviance": 0.27765761045538995,
+            "weighted_deviance_numerator": 1323253.9761256464
+          },
+          "mean": {
+            "exposure": 5043406.65,
+            "exposure_ratio": 1.0582550774522346,
+            "log_exposure_ratio": 0.05662139837784134,
+            "log_numerator_ratio": 0.8310148458243299,
+            "log_rate_ratio": 0.7766769660539082,
+            "numerator": 352795.075,
+            "numerator_ratio": 2.295647286569495,
+            "rate": 0.07011165947451872,
+            "rate_ratio": 2.1742351902904344
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 4702445.15,
+                "exposure_ratio": 1.0545398329176796,
+                "log_exposure_ratio": 0.05310449444581486,
+                "log_numerator_ratio": 0.7078896146568074,
+                "log_rate_ratio": 0.6581285123738267,
+                "numerator": 311924.8,
+                "numerator_ratio": 2.029703279541905,
+                "rate": 0.0665546162226435,
+                "rate_ratio": 1.9311747806483899
+              },
+              "widowed": {
+                "exposure": 373279.6,
+                "exposure_ratio": 1.2177309753798073,
+                "log_exposure_ratio": 0.19698927081902717,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 25283.55,
+                "numerator_ratio": null,
+                "rate": 0.06716645202284613,
+                "rate_ratio": null
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 4670121.55,
+                "exposure_ratio": 1.0472911521450183,
+                "log_exposure_ratio": 0.04620697550864414,
+                "log_numerator_ratio": 0.8123873067267355,
+                "log_rate_ratio": 0.7668124658547716,
+                "numerator": 346284.2,
+                "numerator_ratio": 2.2532808433107756,
+                "rate": 0.07419574923871405,
+                "rate_ratio": 2.152892885473022
+              },
+              "widowed": {
+                "exposure": 340967.0,
+                "exposure_ratio": 1.1123192306312126,
+                "log_exposure_ratio": 0.10644723253518008,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 22097.6,
+                "numerator_ratio": null,
+                "rate": 0.06674690722327772,
+                "rate_ratio": null
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 4686283.35,
+              "exposure_ratio": 1.0509154925313489,
+              "log_exposure_ratio": 0.049661681936376684,
+              "log_numerator_ratio": 0.7615028110509333,
+              "log_rate_ratio": 0.7139462881951797,
+              "numerator": 329104.5,
+              "numerator_ratio": 2.1414920614263404,
+              "rate": 0.07037518273067876,
+              "rate_ratio": 2.0420338330607053
+            },
+            "widowed": {
+              "exposure": 357123.3,
+              "exposure_ratio": 1.1650251030055099,
+              "log_exposure_ratio": 0.1527426344297312,
+              "log_numerator_ratio": null,
+              "log_rate_ratio": null,
+              "numerator": 23690.575,
+              "numerator_ratio": null,
+              "rate": 0.06695667962306193,
+              "rate_ratio": null
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L1": {
+          "blocks": {
+            "block_1": {
+              "exposure": 5080771.15,
+              "exposure_ratio": 1.0660952487066115,
+              "log_exposure_ratio": 0.06400267325918493,
+              "log_numerator_ratio": 0.77597426956572,
+              "log_rate_ratio": 0.7144825853893594,
+              "numerator": 333901.75,
+              "numerator_ratio": 2.172707899531494,
+              "rate": 0.06588394109561631,
+              "rate_ratio": 2.0431292637877534
+            },
+            "block_2": {
+              "exposure": 5011946.5,
+              "exposure_ratio": 1.0516538125165764,
+              "log_exposure_ratio": 0.050363984603691105,
+              "log_numerator_ratio": 0.8647911091802734,
+              "log_rate_ratio": 0.8159759607236884,
+              "numerator": 364914.7,
+              "numerator_ratio": 2.3745100208224885,
+              "rate": 0.0729218340618292,
+              "rate_ratio": 2.261381615355597
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 153680.0,
+            "actual_rate": 0.03224658481640765,
+            "deviance_exposure": 4765776.0,
+            "event_rows": 20,
+            "expected_numerator": 309427.39956096315,
+            "expected_over_actual": 2.0134526259823216,
+            "expected_rate": 0.06492697087755764,
+            "exposure": 4765776.0,
+            "log_expected_over_actual": 0.6998509728390466,
+            "matchable_event_rows": 17,
+            "matchable_numerator": 137811.0,
+            "risk_rows": 428,
+            "unmatched_same_year_event_rows": 3,
+            "unmatched_same_year_event_weight": 15869.0,
+            "weighted_bernoulli_deviance": 0.2766453498033291,
+            "weighted_deviance_numerator": 1318429.7686043107
+          },
+          "mean": {
+            "exposure": 5046358.825,
+            "exposure_ratio": 1.058874530611594,
+            "log_exposure_ratio": 0.057206580479756255,
+            "log_numerator_ratio": 0.8213684193174793,
+            "log_rate_ratio": 0.766516333941129,
+            "numerator": 349408.225,
+            "numerator_ratio": 2.273608960176991,
+            "rate": 0.06940288757872275,
+            "rate_ratio": 2.152255439571675
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 4705318.65,
+                "exposure_ratio": 1.0551842253801602,
+                "log_exposure_ratio": 0.053715372896942386,
+                "log_numerator_ratio": 0.7043038049533169,
+                "log_rate_ratio": 0.6538697495773,
+                "numerator": 310808.3,
+                "numerator_ratio": 2.022438183237897,
+                "rate": 0.0662717785958055,
+                "rate_ratio": 1.9229678534212724
+              },
+              "widowed": {
+                "exposure": 375452.5,
+                "exposure_ratio": 1.2248195160779938,
+                "log_exposure_ratio": 0.20279349932811513,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 23093.45,
+                "numerator_ratio": null,
+                "rate": 0.060018225345160714,
+                "rate_ratio": null
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 4670979.5,
+                "exposure_ratio": 1.0474835504443696,
+                "log_exposure_ratio": 0.04639066905779234,
+                "log_numerator_ratio": 0.8032029129235182,
+                "log_rate_ratio": 0.757353883471818,
+                "numerator": 343118.35,
+                "numerator_ratio": 2.2326805700156167,
+                "rate": 0.0734972711457917,
+                "rate_ratio": 2.1326255718824116
+              },
+              "widowed": {
+                "exposure": 340967.0,
+                "exposure_ratio": 1.1123192306312126,
+                "log_exposure_ratio": 0.10644723253518008,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 21796.35,
+                "numerator_ratio": null,
+                "rate": 0.06589799738925496,
+                "rate_ratio": null
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 4688149.075,
+              "exposure_ratio": 1.051333887912265,
+              "log_exposure_ratio": 0.05005972737316684,
+              "log_numerator_ratio": 0.7549754901836991,
+              "log_rate_ratio": 0.7069498403947985,
+              "numerator": 326963.325,
+              "numerator_ratio": 2.127559376626757,
+              "rate": 0.0698845248707986,
+              "rate_ratio": 2.027796712651842
+            },
+            "widowed": {
+              "exposure": 358209.75,
+              "exposure_ratio": 1.1685693733546032,
+              "log_exposure_ratio": 0.1557802428147912,
+              "log_numerator_ratio": null,
+              "log_rate_ratio": null,
+              "numerator": 22444.9,
+              "numerator_ratio": null,
+              "rate": 0.06295811136720783,
+              "rate_ratio": null
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L2": {
+          "blocks": {
+            "block_1": {
+              "exposure": 5079380.75,
+              "exposure_ratio": 1.0658035018851075,
+              "log_exposure_ratio": 0.0637289765620559,
+              "log_numerator_ratio": 0.7780541546892515,
+              "log_rate_ratio": 0.7169189361449775,
+              "numerator": 334596.95,
+              "numerator_ratio": 2.177231585111921,
+              "rate": 0.06604465318129711,
+              "rate_ratio": 2.0481131120493847
+            },
+            "block_2": {
+              "exposure": 5011796.35,
+              "exposure_ratio": 1.0516223066296022,
+              "log_exposure_ratio": 0.05033402573458233,
+              "log_numerator_ratio": 0.8660708631864943,
+              "log_rate_ratio": 0.8172707590340611,
+              "numerator": 365382.0,
+              "numerator_ratio": 2.3775507548152004,
+              "rate": 0.07301631428257713,
+              "rate_ratio": 2.2643115448748263
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 153680.0,
+            "actual_rate": 0.03224658481640765,
+            "deviance_exposure": 4765776.0,
+            "event_rows": 20,
+            "expected_numerator": 309608.9092041757,
+            "expected_over_actual": 2.01463371423852,
+            "expected_rate": 0.0649650569401868,
+            "exposure": 4765776.0,
+            "log_expected_over_actual": 0.7004373993405109,
+            "matchable_event_rows": 17,
+            "matchable_numerator": 137811.0,
+            "risk_rows": 428,
+            "unmatched_same_year_event_rows": 3,
+            "unmatched_same_year_event_weight": 15869.0,
+            "weighted_bernoulli_deviance": 0.27666526465441416,
+            "weighted_deviance_numerator": 1318524.6783236552
+          },
+          "mean": {
+            "exposure": 5045588.55,
+            "exposure_ratio": 1.0587129042573549,
+            "log_exposure_ratio": 0.05705392906910687,
+            "log_numerator_ratio": 0.8230305641424321,
+            "log_rate_ratio": 0.7683531307867617,
+            "numerator": 349989.475,
+            "numerator_ratio": 2.2773911699635603,
+            "rate": 0.06953048373193713,
+            "rate_ratio": 2.1562123284621055
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 4703928.25,
+                "exposure_ratio": 1.0548724232991324,
+                "log_exposure_ratio": 0.05341983383310501,
+                "log_numerator_ratio": 0.7065380556591401,
+                "log_rate_ratio": 0.6564950242417522,
+                "numerator": 311503.5,
+                "numerator_ratio": 2.026961868818324,
+                "rate": 0.06644598879187259,
+                "rate_ratio": 1.9280228046218189
+              },
+              "widowed": {
+                "exposure": 375452.5,
+                "exposure_ratio": 1.2248195160779938,
+                "log_exposure_ratio": 0.20279349932811513,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 23093.45,
+                "numerator_ratio": null,
+                "rate": 0.060018225345160714,
+                "rate_ratio": null
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 4670829.35,
+                "exposure_ratio": 1.0474498787797648,
+                "log_exposure_ratio": 0.04635852324911131,
+                "log_numerator_ratio": 0.8045639070989763,
+                "log_rate_ratio": 0.7587326559367927,
+                "numerator": 343585.65,
+                "numerator_ratio": 2.235721304008329,
+                "rate": 0.07359867705126892,
+                "rate_ratio": 2.1355680053059825
+              },
+              "widowed": {
+                "exposure": 340967.0,
+                "exposure_ratio": 1.1123192306312126,
+                "log_exposure_ratio": 0.10644723253518008,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 21796.35,
+                "numerator_ratio": null,
+                "rate": 0.06589799738925496,
+                "rate_ratio": null
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 4687378.8,
+              "exposure_ratio": 1.0511611510394485,
+              "log_exposure_ratio": 0.049895411291554434,
+              "log_numerator_ratio": 0.7567516342235346,
+              "log_rate_ratio": 0.7089198381134926,
+              "numerator": 327544.575,
+              "numerator_ratio": 2.1313415864133263,
+              "rate": 0.07002233292157076,
+              "rate_ratio": 2.0317954049639004
+            },
+            "widowed": {
+              "exposure": 358209.75,
+              "exposure_ratio": 1.1685693733546032,
+              "log_exposure_ratio": 0.1557802428147912,
+              "log_numerator_ratio": null,
+              "log_rate_ratio": null,
+              "numerator": 22444.9,
+              "numerator_ratio": null,
+              "rate": 0.06295811136720783,
+              "rate_ratio": null
+            }
+          },
+          "parameter_eligible": true
+        },
+        "L3": {
+          "blocks": {
+            "block_1": {
+              "exposure": 5128517.1,
+              "exposure_ratio": 1.0761137535629035,
+              "log_exposure_ratio": 0.0733561750763725,
+              "log_numerator_ratio": 0.4866451977888864,
+              "log_rate_ratio": 0.41404053177596206,
+              "numerator": 250014.2,
+              "numerator_ratio": 1.6268492972410205,
+              "rate": 0.0487864530186949,
+              "rate_ratio": 1.5129184469132204
+            },
+            "block_2": {
+              "exposure": 5076444.1,
+              "exposure_ratio": 1.065187306327448,
+              "log_exposure_ratio": 0.06315065818315081,
+              "log_numerator_ratio": 0.4853704580123513,
+              "log_rate_ratio": 0.42387381061961255,
+              "numerator": 249695.7,
+              "numerator_ratio": 1.62477680895367,
+              "rate": 0.049268550228539945,
+              "rate_ratio": 1.5278687808040747
+            }
+          },
+          "carrier_conformance_all_draws": true,
+          "direct": {
+            "actual_numerator": 153680.0,
+            "actual_rate": 0.03224658481640765,
+            "deviance_exposure": 4765776.0,
+            "event_rows": 20,
+            "expected_numerator": 204599.66320245346,
+            "expected_over_actual": 1.3313356533215348,
+            "expected_rate": 0.04293102806394036,
+            "exposure": 4765776.0,
+            "log_expected_over_actual": 0.28618268892905413,
+            "matchable_event_rows": 17,
+            "matchable_numerator": 137811.0,
+            "risk_rows": 428,
+            "unmatched_same_year_event_rows": 3,
+            "unmatched_same_year_event_weight": 15869.0,
+            "weighted_bernoulli_deviance": 0.2547592716368146,
+            "weighted_deviance_numerator": 1214125.6225442118
+          },
+          "mean": {
+            "exposure": 5102480.6,
+            "exposure_ratio": 1.0706505299451756,
+            "log_exposure_ratio": 0.06826643564514542,
+            "log_numerator_ratio": 0.48600803102079226,
+            "log_rate_ratio": 0.41896925782069383,
+            "numerator": 249854.95,
+            "numerator_ratio": 1.6258130530973451,
+            "rate": 0.04902750162361742,
+            "rate_ratio": 1.5203936138586476
+          },
+          "origin_blocks": {
+            "block_1": {
+              "divorced": {
+                "exposure": 4749673.95,
+                "exposure_ratio": 1.065131057115351,
+                "log_exposure_ratio": 0.06309784991460715,
+                "log_numerator_ratio": 0.4146474007412313,
+                "log_rate_ratio": 0.3523209963816,
+                "numerator": 232646.45,
+                "numerator_ratio": 1.513836868818324,
+                "rate": 0.049019363384885654,
+                "rate_ratio": 1.4223650244732828
+              },
+              "widowed": {
+                "exposure": 378843.15,
+                "exposure_ratio": 1.2358806604096733,
+                "log_exposure_ratio": 0.21178380130734423,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 17367.75,
+                "numerator_ratio": null,
+                "rate": 0.044325301813051575,
+                "rate_ratio": null
+              }
+            },
+            "block_2": {
+              "divorced": {
+                "exposure": 4730923.25,
+                "exposure_ratio": 1.0609261468156337,
+                "log_exposure_ratio": 0.059142250060837245,
+                "log_numerator_ratio": 0.4173737890470337,
+                "log_rate_ratio": 0.35905316942655285,
+                "numerator": 233281.6,
+                "numerator_ratio": 1.5179698073919834,
+                "rate": 0.049350483550283215,
+                "rate_ratio": 1.4319729367274945
+              },
+              "widowed": {
+                "exposure": 345520.85,
+                "exposure_ratio": 1.1271750229172985,
+                "log_exposure_ratio": 0.11971452283775469,
+                "log_numerator_ratio": null,
+                "log_rate_ratio": null,
+                "numerator": 16414.1,
+                "numerator_ratio": null,
+                "rate": 0.04862864751180548,
+                "rate_ratio": null
+              }
+            }
+          },
+          "origin_mean": {
+            "divorced": {
+              "exposure": 4740298.6,
+              "exposure_ratio": 1.0630286019654922,
+              "log_exposure_ratio": 0.06112200583272238,
+              "log_numerator_ratio": 0.41601152404299385,
+              "log_rate_ratio": 0.3556927481626163,
+              "numerator": 232964.025,
+              "numerator_ratio": 1.5159033381051534,
+              "rate": 0.04918492346758443,
+              "rate_ratio": 1.4271689806003884
+            },
+            "widowed": {
+              "exposure": 362182.0,
+              "exposure_ratio": 1.181527841663486,
+              "log_exposure_ratio": 0.16680838204216047,
+              "log_numerator_ratio": null,
+              "log_rate_ratio": null,
+              "numerator": 16890.925,
+              "numerator_ratio": null,
+              "rate": 0.046476974662428526,
+              "rate_ratio": null
+            }
+          },
+          "parameter_eligible": true
+        }
+      }
+    }
+  },
+  "final_2014_information_fit": {
+    "L0": {
+      "eligible": true,
+      "probability_max": 0.3431070830982274,
+      "probability_min": 0.00016262190355208268
+    },
+    "L1": {
+      "eligible": true,
+      "probability_max": 0.32184431332706603,
+      "probability_min": 0.000016286102671394867
+    },
+    "L2": {
+      "eligible": true,
+      "probability_max": 0.3212932188436468,
+      "probability_min": 0.000004014297143066538
+    },
+    "L3": {
+      "eligible": true,
+      "probability_max": 0.16588214064694892,
+      "probability_min": 0.000006824597716941816
+    },
+    "fit": {
+      "L2_parameter_eligible": true,
+      "L3_delta": -0.8697882121514335,
+      "L3_parameter_eligible": true,
+      "boundary": 2014,
+      "checksums": {
+        "dissolved": "d3dee31ae6427c8d705a236cbe9aa51934504515c9d1b3fd69a9027b7801199d",
+        "remarriages": "1eed304a3ca1f4df0503f55e13e7b6f835cdf1c5ade0d7237b801aa3e2ef9a3c"
+      },
+      "dissolved_rows": 51625,
+      "empty_cells": 0,
+      "fit_event_rows": 18583,
+      "fit_max_year": {
+        "demographic_interview": 2013,
+        "event": 2013,
+        "person_year": 2013
+      },
+      "fit_person_year_rows": 526192,
+      "global_training_hazard": 0.04813500337856539,
+      "mean_weight": 10397.070526295398,
+      "parent_event_counts": {
+        "divorced|female": 1214,
+        "divorced|male": 1176,
+        "widowed|female": 198,
+        "widowed|male": 145
+      },
+      "parent_hazards": {
+        "divorced|female": 0.06603117045743932,
+        "divorced|male": 0.0887547437135069,
+        "widowed|female": 0.010241341470648826,
+        "widowed|male": 0.03642343853690078
+      },
+      "recent_effective_years": [
+        2011,
+        2012,
+        2013
+      ],
+      "recent_events": 28,
+      "recent_rows": 881,
+      "remarriage_events": 2733,
+      "thin_cells_lt20_mean_weights": 4,
+      "weighted_dissolved_exposure": 536748765.91999996,
+      "weighted_remarriage_events": 25836403.661000002,
+      "law_probability_range": {
+        "L0": {
+          "min": 0.00016262190355208268,
+          "max": 0.3431070830982274
+        },
+        "L1": {
+          "min": 0.000016286102671394867,
+          "max": 0.32184431332706603
+        },
+        "L2": {
+          "min": 0.000004014297143066538,
+          "max": 0.3212932188436468
+        },
+        "L3": {
+          "min": 0.000006824597716941816,
+          "max": 0.16588214064694892
+        }
+      }
+    }
+  },
+  "selection": {
+    "J": {
+      "L0": 0.35354534835653495,
+      "L1": 0.3384622224503675,
+      "L2": 0.3399552765478795,
+      "L3": 0.08356869106318221
+    },
+    "block_J": {
+      "L0": {
+        "block_1": 0.3386050425726594,
+        "block_2": 0.3699507396765302
+      },
+      "L1": {
+        "block_1": 0.3247359929890252,
+        "block_2": 0.35371293671854515
+      },
+      "L2": {
+        "block_1": 0.32658664665701964,
+        "block_2": 0.3548102824202861
+      },
+      "L3": {
+        "block_1": 0.08867922305500157,
+        "block_2": 0.0804483602382751
+      }
+    },
+    "direct_deviance_pooled": {
+      "L0": 0.32035254399535246,
+      "L1": 0.31962449842285234,
+      "L2": 0.3196579607576089,
+      "L3": 0.30771035248353235
+    },
+    "disposition": "NO_OP_DESIGNED_PAUSE",
+    "nonzero_eligibility": {
+      "L1": {
+        "checks": {
+          "both_block_J": true,
+          "direct_deviance": true,
+          "exposure_boundaries": false,
+          "full_J": true,
+          "parameters": true,
+          "rate_boundaries": true
+        },
+        "eligible": false
+      },
+      "L2": {
+        "checks": {
+          "both_block_J": true,
+          "direct_deviance": true,
+          "exposure_boundaries": false,
+          "full_J": true,
+          "parameters": true,
+          "rate_boundaries": true
+        },
+        "eligible": false
+      },
+      "L3": {
+        "checks": {
+          "both_block_J": true,
+          "direct_deviance": true,
+          "exposure_boundaries": false,
+          "full_J": true,
+          "parameters": true,
+          "rate_boundaries": true
+        },
+        "eligible": false
+      }
+    },
+    "one_standard_error": null,
+    "parameter_eligible": {
+      "L0": true,
+      "L1": true,
+      "L2": true,
+      "L3": true
+    },
+    "selected_law": "L0"
+  }
+}
