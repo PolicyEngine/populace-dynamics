@@ -931,6 +931,27 @@ def _transport_ratios(
     }
 
 
+def _origin_transport_ratios(
+    projected: dict[str, Any], truth: dict[str, Any]
+) -> dict[str, float | None]:
+    out: dict[str, float | None] = {}
+    for quantity in ("exposure", "numerator", "rate"):
+        projected_value = projected[quantity]
+        truth_value = truth[quantity]
+        ratio = (
+            float(projected_value / truth_value)
+            if projected_value is not None
+            and truth_value is not None
+            and truth_value > 0
+            else None
+        )
+        out[f"{quantity}_ratio"] = ratio
+        out[f"log_{quantity}_ratio"] = (
+            math.log(ratio) if ratio is not None and ratio > 0 else None
+        )
+    return out
+
+
 def _mean_projection(
     per_seed: list[dict[str, Any]], truth: dict[str, Any]
 ) -> dict[str, Any]:
@@ -967,7 +988,7 @@ def _origin_projection(
     return {
         origin: {
             **projected[origin],
-            **_transport_ratios(projected[origin], truth[origin]),
+            **_origin_transport_ratios(projected[origin], truth[origin]),
         }
         for origin in ("divorced", "widowed")
     }
@@ -987,7 +1008,7 @@ def _mean_origin_projection(
         }
         out[origin] = {
             **projected,
-            **_transport_ratios(projected, truth[origin]),
+            **_origin_transport_ratios(projected, truth[origin]),
         }
     return out
 
