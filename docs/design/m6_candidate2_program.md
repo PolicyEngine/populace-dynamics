@@ -57,8 +57,8 @@ recommends the ceremony.
 already requires the realized entry state and dissolution duration to survive
 projection assembly (`docs/design/m6_projection_engine.md:943-994`); the
 pre-#226 remarriage defect violated that existing law. #226 repaired it without
-changing support, events, cells, or tolerances, so it is landed conformance, not
-a new harness design.
+changing the support/event law, gated cells, or tolerances, so it is landed
+conformance, not a new harness design.
 The first-marriage proposal is a new candidate-family spec. The earnings proposal
 does require a prospective amendment, but to §2.7's stochastic law, not §2.8's
 harness.
@@ -841,12 +841,14 @@ the 2015–2019 holdout result.
 The residual is now measured, not hypothetical. Direct-standardizing the fitted
 remarriage law on truth dissolved support gives projected hazards
 `0.05110–0.05457` against truth `0.03562–0.03927`: a `1.30–1.53` ratio and
-`|ln|=0.263–0.427` against the `0.403` tolerance, or 65.3–105.8% of the bar.
+`|ln|=0.263–0.427` against the `0.403` tolerance, or approximately
+65.3–105.8% of the bar.
 Independently, #226's repaired real-frame reconciliation puts exposure at
 97.4020–100.9204% of truth and the event numerator at 129.8756–149.9906%, whose
-numerator-only log band is `0.262–0.405`. These agree on a directional overshoot
-that straddles the gate threshold. The pre-repair candidate-1 result was a 2.75×
-FAIL; after conformance, `remarriage.18-64` is a known coin-flip cell.
+numerator-only log band is approximately `0.262–0.405` on the referee's rounded
+ratio. These agree on a directional overshoot that straddles the gate threshold.
+The pre-repair candidate-1 result was a 2.75× FAIL; after conformance,
+`remarriage.18-64` is a known coin-flip cell.
 
 The referee must choose among three honest dispositions:
 
