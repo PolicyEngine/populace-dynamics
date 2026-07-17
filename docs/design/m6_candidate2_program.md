@@ -33,10 +33,12 @@ prerequisite:
 1. replace the unbounded first-marriage age-by-cohort extrapolation with a
    regularized, support-aware interaction whose cohort deviation is flat beyond
    observed cohort-age support; make non-convergence a hard pre-scoring abort;
-2. amend §2.7 prospectively to add a train-selected rank-refresh mixture to
+2. amend §2.7 prospectively to add a train-selected stable-coordinate
+   rank-refresh mixture to
    positive-to-positive earnings transitions, damping conditional-rank memory
-   while preserving participation, the §2.7.6 rank-to-level marginal, its inverse,
-   and `I_proj`; and
+   while preserving the fitted `CellMarginal` object, its §2.7.6 rank-to-level
+   map and inverse, the participation-gate architecture and coefficients, and
+   `I_proj`; and
 3. merge and verify the separate entry-dissolved remarriage conformance repair
    before candidate 2 is registered or scored.
 
@@ -68,6 +70,9 @@ a separate ratifying flip
 referee finds that the remarriage repair cannot be implemented while preserving
 the current event/support law, a **narrow §2.8 amendment must be proposed in a
 different PR before implementation**; this document does not pre-authorize one.
+Independently, selecting floors resolution B necessarily triggers its own narrow
+prospective §2.8.4/gate-contract amendment because §2.8.4 pins v3; this sibling
+program names that ceremony but does not perform it.
 
 ## 2. Frozen evidence and the no-self-rescue boundary
 
@@ -118,7 +123,7 @@ cohort dummies, and spline-by-cohort columns and predicts without a support guar
 (`src/populace_dynamics/models/family_transitions/components/first_marriage.py:77-110`).
 Its fitter caps LBFGS at 1,000 iterations but merely
 records the failed convergence state and returns the model
-(`src/populace_dynamics/models/family_transitions/components/first_marriage.py:113-162`);
+(`src/populace_dynamics/models/family_transitions/components/first_marriage.py:113-163`);
 projection
 then supplies future age and birth decade directly
 (`src/populace_dynamics/engine/marital.py:159-178`).
@@ -172,13 +177,23 @@ earnings rows. It finds:
 | `earn_p10.prime` | 0.221 | 0.284 |
 | `earn_zero_rate.older` | 0.163 | 0.168 |
 
-The frozen-v3 earnings OC is `p_seed=0.9347`, `p_gate=0.9626`; applying its locked
-tolerances on the actual closed domain yields `p_seed=0.8760`,
-`p_gate(≥4/5)=0.8809`. That is 1.91 percentage points below the 0.90 floor and a
-faithful-candidate false-fail probability of 11.91%—the disclosed “about 12%
-under-power” finding. Closed-domain-derived tolerances yield an earnings-only
-`p_seed=0.9300`, `p_gate=0.9575`. No tolerance reaches a metric cap and neither
-vacuity nor near-tautology fires. The §2.8.3a near-unpassable trigger does.
+The frozen-v3 **six-cell earnings-subfamily** OC is `p_seed=0.9347`,
+`p_gate=0.9626`; applying its locked tolerances on the actual closed domain yields
+earnings-only `p_seed=0.8760`, `p_gate(≥4/5)=0.8809`. That is 1.91 percentage
+points below the ratified 0.90 weak-power floor. Under the artifact's registered
+independence-approximation OC, its complement is an 11.91% earnings-subfamily
+faithful-candidate false-fail probability—the disclosed “about 12% under-power”
+finding. It is **not** the full 11-cell false-fail rate.
+
+The frozen flow subfamily has `p_seed=0.9559`. Extending the same registered
+independence approximation gives an informative, non-operative combined estimate:
+`0.9559 × 0.8760 = 0.8374` per seed and `p_gate≈0.8115` (about 18.85% false-fail).
+That arithmetic is an inference from the two subfamily OCs, not a field in the
+candidate-1 self-check; either floors resolution must freshly publish the combined
+11-cell OC. Closed-domain-derived tolerances yield earnings-only
+`p_seed=0.9300`, `p_gate=0.9575`; carrying the same flow approximation would yield
+combined `p_gate≈0.9019`. No domain-derived tolerance reaches a metric cap and
+neither vacuity nor near-tautology fires. The §2.8.3a near-unpassable trigger does.
 
 ## 3. Controlling law, quoted verbatim
 
@@ -353,9 +368,10 @@ The complete floor-consistency and two-directional rule at
 
 | Option | Disposition | Reason |
 |---|---|---|
+| Clamp the final fitted hazard into the minimum/maximum hazard observed on a sex×cohort training envelope | reject | The envelope depends on an arbitrary aggregation and can hide separation or non-convergence. It treats the symptom after estimation instead of defining how the unsupported interaction transports. |
 | Clamp the **whole hazard** to the nearest cohort-age boundary | reject as the primary law | It prevents the explosion but freezes the global age profile too; supported information from older cohorts at ages 24–29 would be discarded. |
 | Penalized smooth global age/sex curve plus a regularized cohort deviation, with the cohort deviation held flat beyond that cohort's support | **adopt** | It borrows the age pattern from supported cohorts while preventing an unsupported age×cohort interaction from running away. |
-| Global monotonicity over all ages | reject | First-marriage hazards rise and then fall; a global sign restriction is substantively wrong. The adopted zero-slope boundary on only the unsupported cohort deviation is the narrow shape constraint. |
+| Global monotonicity over all ages | reject | First-marriage hazards rise and then fall; a global sign restriction is substantively wrong. The adopted boundary-flat evaluation applies only to the unsupported cohort deviation; it does not force the derivative inside support to zero. |
 | Exclude out-of-support people from projection or scoring | reject | The cell is reachable, 3g is not causal, and exclusion would change truth support/floors after seeing a candidate failure. §2.7.6.5's principle applies by analogy: the model must cover the scored surface. |
 
 This choice follows the campaign's estimation-versus-determinism norm. Novel
@@ -363,9 +379,11 @@ age×cohort combinations are explicitly diagnosed rather than mistaken for
 interpolation ([Bartley et al. 2019][bartley]; [NIST extrapolation
 guidance][nist]). Penalized multidimensional hazard surfaces are an established
 way to borrow strength while controlling unstable interactions ([Dantony et al.
-2024][dantony]; [Eilers and Marx 1996][eilers-marx]). Shape-constrained additive
-models support the narrower boundary-slope constraint, but do not justify a
-globally monotone marriage hazard ([Pya and Wood 2015][pya-wood]).
+2024][dantony]); [Eilers and Marx 1996][eilers-marx] motivates smoothness
+penalties generally, not this exact fixed-RCS ridge. [Pya and Wood
+2015][pya-wood] show that derivative constraints can be imposed on smooth terms;
+candidate 2 instead uses the narrower deterministic boundary-flat rule and does
+not impose global monotonicity.
 
 ### 4.2 Proposed fitted law
 
@@ -374,27 +392,40 @@ knots `{20,22,25,30,40}`, sex definition, birth-decade definition, and `≤2014`
 truncation. It replaces only the unguarded cohort interaction and its fit-strength
 selection.
 
-For cohort `c`, let `[a_c^-, a_c^+]` be the minimum and maximum ages with positive
-fit weight. Let `B(a)` be the current standardized restricted-cubic-spline basis,
-and define
+Let `s=0` denote female and `s=1` male. Let `[a_s^-,a_s^+]` be the positive-fit-
+weight age support for sex `s`, and `[a_c^-,a_c^+]` the support for fitted birth
+decade `c`, pooled over sex because the fitted cohort deviation is shared. Let
+`B_raw(a)` be the current restricted-cubic-spline basis. With the sorted oldest
+birth decade as the reference (`γ_c=b_c=0` there), one dummy and one spline block
+are included for each later fitted decade, exactly preserving the current
+reference-cell coding. Define
 
 ```text
+a_s* = clip(a, a_s^-, a_s^+)
 a_c* = clip(a, a_c^-, a_c^+)
-logit h(a, s, c) = α + B(a)β + sδ + s B(a)β_s + γ_c + B(a_c*)b_c.
+X_raw(a,s,c) = [B_raw(a_s*), s, s B_raw(a_s*), D_c, D_c B_raw(a_c*)]
+logit h(a,s,c) = α + standardize(X_raw; μ_fit, σ_fit) θ.
 ```
 
-The global age and age-by-sex terms use the actual target age when that age lies
-inside pooled training support. Only the cohort-specific deviation uses `a_c*`.
+The sex-specific global curve uses the actual target age inside that sex's pooled
+training support. Only the cohort-specific deviation uses `a_c*`.
 Thus a female in the 1990 cohort at age 24 receives the supported global
 female-age-24 curve plus the 1990 deviation evaluated at its age-23 boundary; the
 1990 interaction cannot extrapolate from `0.0538753` to nearly 1. If target age is
-outside pooled age support, every age term uses the nearest pooled boundary. If a
+outside sex-specific pooled support, the global sex curve uses its nearest
+boundary. If a
 target birth decade is newer or older than every fitted decade, its cohort main
 effect, support interval, and deviation come from the nearest fitted decade. No
 row is excluded and no truth-side value enters this rule.
 
-All non-intercept coefficients retain an L2 penalty. Its strength is selected
-before registration from
+For every fit, compute `μ_fit` and population `σ_fit` (`ddof=0`) unweighted on the
+fit rows' raw columns, in canonical `(person_id,year)` order; replace a zero SD by
+1.0. The intercept is unpenalized and every other coefficient has the same L2
+penalty. Normalize positive F6 sample weights to mean 1 within the fit,
+`w_i*=n w_i/Σw_i`, so `C` has the same scale at each expanding pseudo-boundary.
+The explicit objective is the normalized weighted Bernoulli loss plus
+`||θ||²/(2 C n)`; reported pseudo-holdout deviance is the raw-F6-weighted mean
+Bernoulli deviance. Penalty strength is selected before registration from
 
 ```text
 C_GRID = {0.0001, 0.0003, 0.001, 0.003, 0.01,
@@ -402,40 +433,57 @@ C_GRID = {0.0001, 0.0003, 0.001, 0.003, 0.01,
 PSEUDO_BOUNDARIES = {2006, 2008, 2010}
 ```
 
-At pseudo-boundary `b`, fit only rows whose dating information is available by
-`b`, then evaluate weighted Bernoulli deviance at `b+1…b+4`, applying the same
-support-extension rule. Choose the `C` with the lowest mean pseudo-holdout
-deviance; ties within `1e-12` choose the smaller `C` (stronger regularization).
-Publish every rung, convergence state, support count, deviance, and the selected
-value before registration 8. No 2015+ outcome or candidate-1 cell score may enter
-selection.
+At pseudo-boundary `b`, fit only never-married risk rows and events dated `≤b`,
+then evaluate raw-F6-weighted Bernoulli deviance on dated rows in `b+1…b+4`,
+applying the same support-extension rule. Average first within each boundary,
+then give the three boundary deviances equal weight. The windows overlap by
+design—2009–2012 receive repeated stress as recent pseudo-holdout evidence; they
+are not described as independent. Publish each calendar year's multiplicity and
+each sex×cohort support/event count. Choose the eligible `C` with the lowest mean
+pseudo-holdout deviance; ties within `1e-12` choose the smaller `C` (stronger
+regularization). Publish every rung, convergence certificate, support count,
+deviance, and selected value before registration 8. No 2015+ row or
+candidate-1 cell score may enter numerical selection.
 
 ### 4.3 Convergence is a hard designed abort
 
 Every candidate-grid fit and the final `≤2014` fit uses LBFGS with
 `max_iter=10_000`, `tol=1e-8`, deterministic row ordering, and the registered
-standardization. A grid rung that reaches the ceiling or emits a convergence
-warning is ineligible and remains in the published selection ledger. The run
-**must abort before any projection, truth read, score, or candidate-artifact
-write** if the selected full fit:
+standardization/weight normalization. Eligibility requires successful solver
+termination, no convergence warning, and an independently recomputed infinity
+norm of the explicit penalized-objective gradient `≤1e-6`. A grid rung failing
+one condition is ineligible and remains in the published selection ledger.
+
+If every `C` is ineligible, or the selected `C` cannot produce an eligible final
+`≤2014` fit, selection ends `NO_REGISTERABLE_FIRST_MARRIAGE_FIT`: publish the
+train-only ledger and do not post registration 8. That pre-registration outcome
+is not a run abort and cannot consume a registration or score.
+
+After registration, the locked runner refits and **must abort before any
+projection, holdout-truth read, score, or candidate-artifact write** if the
+selected full fit:
 
 - reaches `max_iter`, reports unsuccessful termination, or emits a convergence
   warning;
-- has a non-finite coefficient, linear predictor, or probability; or
-- cannot reproduce its registered support ledger and selected-`C` checksum.
+- has a non-finite coefficient, linear predictor, or probability, or emits a
+  probability outside the strict floating-point interval `(0,1)`;
+- exceeds the gradient threshold; or
+- cannot reproduce its registered support, standardization, weight, coefficient,
+  and selected-`C` checksums.
 
 An iteration ceiling is not evidence of successful termination; the optimizer
 reports those separately ([scikit-learn `LogisticRegression`][sklearn-logit];
 [SciPy optimization contract][scipy-minimize]). The current `converged=False`
 state therefore becomes a designed abort, not metadata attached to a model that
-is allowed to score. An abort is recorded publicly and requires a new registration
-after a reviewed fix; it is not converted to a FAIL or silently refit with a new
-law.
+is allowed to score. A registered-run abort is recorded publicly, writes no
+candidate artifact, and is not converted to a FAIL or silently refit with a new
+law. Any repaired byte or changed environment lock requires a fresh registration;
+§10 leaves the exact-byte retry/accounting question to the referee.
 
 ### 4.4 Required disclosures and acceptance
 
-Before score assembly the fresh artifact/sidecar must publish, for each sex,
-cohort, and target age:
+Before score assembly the runner must verify and retain for the eventual fresh
+artifact, for each sex, cohort, and target age:
 
 - fitted support endpoints, in-support count/event weight, and whether the global
   or cohort term was boundary-evaluated;
@@ -445,7 +493,10 @@ cohort, and target age:
 - counts and F6 weight of in-support, age-out-of-support, and unseen-cohort rows in
   each gated first-marriage cell.
 
-These are transport diagnostics, not alternate scores. Candidate 2 still clears
+The public train-selection ledger exists before registration; a completed run
+publishes the retained pre-score diagnostics in its fresh artifact, while a
+designed abort publishes them in the abort record. They are transport diagnostics,
+not alternate scores. Candidate 2 still clears
 `first_marriage.18-29|female` only by the locked scoring rule on the unchanged
 truth support. The current candidate-16 spec and its historical registry remain
 immutable; implementation must add a new candidate spec rather than mutate the
@@ -469,9 +520,12 @@ refitting a frozen spec from selecting a new one
 The amendment can be narrow. Candidate 2 leaves §2.7.6.2's pooled
 NAWI-normalized `CellMarginal`, §2.7.6.3's projected `I_proj` and leakage fence,
 §2.7.6.4's inverse CDF, age support, biennial timing, frame state, and
-participation gate unchanged. It amends the positive-continuation rank transition
-and RNG registry only. Realized post-2014 NAWI stays **PROHIBITED**; the static
-decomposition shows it would not solve persistence anyway.
+participation-gate formula/fit and its RNG address unchanged. It amends the
+positive-continuation rank transition and RNG registry only. A changed 2016 level
+can nevertheless change the unchanged gate's 2018 participation probability;
+unchanged architecture is not bit-identical downstream participation. Realized
+post-2014 NAWI stays **PROHIBITED**; the static decomposition shows it would not
+solve persistence anyway.
 
 ### 5.2 Options adjudicated
 
@@ -479,9 +533,11 @@ decomposition shows it would not solve persistence anyway.
 |---|---|---|
 | Substitute realized 2016/2018 NAWI | prohibited | It leaks the holdout, explains at most 12.3% of p10, and cannot move the static persistence measures. |
 | Change `CellMarginal` rank↔level mapping | reject | The inverse is interior-exact and forensics found no implementation error; this would disturb a pinned mechanism without targeting the dominant channel. |
-| Refit or recouple the participation gate in candidate 2 | defer | Participation can contribute to level/growth, but the hard localization is conditional-rank memory and the older zero-rate cell passed. Do not spend two structural degrees of freedom at once. |
+| Re-estimate `W_CURRENT/W_PRIOR/W_ANCHOR` and `λ` jointly | reject for candidate 2 | A four-dimensional search changes short-run, prior, anchor, and permanent-coordinate memory at once. The forensic record localizes excessive persistence but does not identify four parameters; use one train-selected damping degree first. |
+| Refit or recouple participation and rank in candidate 2 | defer | Participation can contribute to level/growth, but the hard localization is conditional-rank memory and the older zero-rate cell passed. The refresh's endogenous 2018 participation effect is measured; coefficients/features are not another search dimension. |
 | Remove all prior/anchor conditioning | reject | It is a large uncalibrated discontinuity and would discard useful persistence rather than estimate how much to retain. |
-| Train-selected refresh mixture for positive continuers | **adopt** | It directly attenuates rank memory, preserves the existing conditional draw when not refreshed, and keeps the positive marginal/rank-to-level law unchanged. |
+| Fully unconditional positive-rank refresh | reject | It would erase `u_A`/`u_w` association as well as recent-rank memory, although forensics did not isolate the permanent coordinate as the defect. |
+| Train-selected stable-coordinate refresh mixture for positive continuers | **adopt** | It directly attenuates current/prior-rank memory while retaining the anchor/permanent coordinate, the existing conditional draw when not refreshed, and the fitted rank-to-level object. |
 
 Longitudinal microsimulation commonly separates persistent and transitory earnings
 components and estimates them from observed histories ([CBO 2006, Appendix
@@ -492,24 +548,36 @@ pre-2014 pseudo-holdouts should estimate one new degree of freedom first.
 
 ### 5.3 Proposed rank-refresh mechanism
 
-Participation is drawn exactly as now. Re-entry from zero is drawn exactly as
-now. For a person who is positive at `t`, participates at `t+2`, and would receive
-the current conditional donor rank `u_cond`, candidate 2 adds:
+The same-step participation draw and re-entry draw are exactly as now. For a
+person who is positive at `t`, participates at `t+2`, and would receive the
+current conditional donor rank `u_cond`, candidate 2 adds:
 
 ```text
 B_refresh ~ Bernoulli(q*)
-u_out = u_fresh  if B_refresh = 1
-        u_cond   otherwise.
+u_out = u_stable  if B_refresh = 1
+        u_cond    otherwise.
 ```
 
-`u_fresh` is a weighted one-record draw from all positive `u_tp2` ranks in the
-same target five-year age bin among `≤2014` positive-to-positive forward pairs.
-The pool is sorted by `(person_id, period_tp2)` and uses `weight_tp2`; it is
-unconditioned on current rank, prior rank, `u_A`, and `u_w`. It therefore adds a
-transitory rank innovation while drawing from the same fitted positive-rank
-population that the existing conditional donors use. The unchanged
+`u_stable` is a weighted `k=25` single-record draw from positive-to-positive
+forward-pair donors in the same target five-year age bin. The age-bin restriction
+is a fixed **new** conditioning choice in the amendment—not incumbent pool
+behavior—so damping recent-rank memory cannot also change target-age composition.
+The pool is sorted by `(person_id,period_tp2)` and uses `weight_tp2`. Distance
+drops `u_t` and `u_tm2` but retains the pinned asymmetric stable-coordinate branch:
+`|u_A(d)-u_A(i)|` for Q0, and
+`|0.1u_w(d)+0.9u_A(d)-u_A(i)|` otherwise. In particular, target `u_w(i)` remains
+omitted, exactly as current law; weighted neighbor and record selection otherwise
+use the current no-jitter donor law. The refresh thus removes recent-rank
+conditioning without erasing donor anchor/permanent-rank association. As in the
+current helper, use `min(25,n_pool)` donors with its stable tie-break; an empty
+target-age pool is a non-registerable fit, not an unregistered adjacent-bin
+fallback.
+
+The unchanged
 `rank_to_level` then maps `u_out` through the same age-bin `CellMarginal` and
-`I_proj`; the next step re-ranks that level through the unchanged inverse.
+`I_proj`; the next step re-ranks that level through the unchanged inverse. This
+preserves those fitted objects, **not** the realized positive output marginal:
+changing the output-rank mixture intentionally changes projected moments.
 
 The §2.7 amendment must add two isolated per-person/per-period substreams:
 
@@ -519,8 +587,14 @@ The §2.7 amendment must add two isolated per-person/per-period substreams:
 ```
 
 The existing gate/donor/re-entry streams `{1,2,3}` and their draw order remain
-unchanged. A refresh therefore cannot perturb participation or the incumbent
-conditional donor draw. Odd years still consume no RNG.
+unchanged. A refresh therefore cannot perturb the same-step participation uniform
+or incumbent conditional donor draw. It can change a later participation
+probability through the carried level, so that feedback is scored and constrained.
+For every eligible positive continuer, code 4 draws one refresh uniform and code 5
+draws one stable-donor uniform in canonical person order regardless of `q` or the
+refresh outcome; `q` only thresholds the code-4 uniform and switches the selected
+rank. This nests all grid rungs under common random numbers. Odd years still
+consume no RNG.
 
 ### 5.4 Train-only estimation of `q*`
 
@@ -529,33 +603,85 @@ Estimate, disclose, and freeze `q*` before registration 8:
 ```text
 Q_GRID = {0.00, 0.05, ..., 0.95, 1.00}
 PSEUDO_BOUNDARIES = {2006, 2008, 2010}
+FIT_SEED = 5200
 SELECTION_DRAW_SEEDS = {6200, ..., 6219}
 ```
 
-For each pseudo-boundary, refit using data available by that boundary, project
-two biennial steps, and calculate train-analogue versions of all six gated
-earnings concepts. Derive standardizers from person-disjoint half-splits within
-that pseudo-holdout. A `q` is feasible only if its older-worker dlog-SD deviation
-is no more than one pseudo-floor sigma worse than `q=0` at every boundary;
-participation and therefore older zero-rate must be bit-identical by construction.
-Among feasible values, minimize the sum of squared standardized errors for
-`p10.prime`, `dlog_mean.prime`, `mob_h1_diag`, and `autocorr_lag2` across the three
-boundaries. Ties within `1e-12` choose the smaller `q` (least departure from the
-current law).
+For pseudo-boundary `b`, use only earnings rows dated `≤b` to refit the complete
+forward law and construct the `b`-anchored domain. Refit `I_proj` by shifting the
+pinned trailing-decade rule to `[b-9,b]`; realized `NAWI_{b+2}` and
+`NAWI_{b+4}` are forbidden. Project `b→b+2→b+4`. The scored support is realized
+positive-weight row support at `{b+2,b+4}` intersected with persons carrying the
+required `b` anchor and `u_w`, symmetrically for truth and projection, ages
+25–64. Call the existing `earnings_cells` reducer with
+`level_years=(b+2,b+4)` and `change_years=(b,b+2,b+4)` and retain exactly:
+`earn_p10.prime`, `earn_dlog_mean.prime`, `earn_dlog_sd.older`,
+`earn_mob_h1_diag`, `earn_autocorr_lag2`, and `earn_zero_rate.older`.
+Those parameterized reducers are at
+`src/populace_dynamics/harness/m6_cells.py:476-586`.
 
-The selection ledger must publish every `q`, cutoff, simulated moment,
-standardizer, feasibility result, objective, selected value, effective search
-size, and checksum. The chosen `q*`, pool construction, and new substream codes
-then enter the prospective §2.7 amendment and candidate-2 registration. No
-post-2014 row, realized post-2014 macro value, candidate-1 seed score, or
-candidate-2 score may enter this estimation.
+For each boundary, split the full `b` anchor by person at the exact floor seeds
+`0…99`, then intersect each half with the `b` domain—the F7 order—and run the
+existing `run_floor`/`earnings_cells` machinery. The standardizer `σ_{j,b}` is
+that machinery's `realized_sigma`, not its folded-score SD or tolerance. For each
+`q`, common random numbers bind all 20 selection draws: identical person/period
+addresses and identical streams 1–5 across every grid rung. Average each projected
+moment across the 20 draws, compare it with the full-support truth moment using
+the gated cell's exact log-ratio/absolute-gap metric, and set
+
+```text
+J(q) = Σ_b Σ_j∈{p10, mean, mobility, autocorr} [score(j,b,q)/σ(j,b)]².
+```
+
+The exact 100-seed split and `realized_sigma` construction are at
+`src/populace_dynamics/harness/m6_cells.py:42` and
+`src/populace_dynamics/harness/m6_cells.py:613-674`.
+
+The three overlapping boundary windows receive equal weight; this is deliberate
+recent-history stress, not three independent samples. Any undefined truth cell,
+non-positive standardizer, undefined projected draw, support mismatch, or
+non-regenerated surface makes that `q` ineligible; the same defect at `q=0`
+invalidates the entire selector. A `q` is feasible only if, at every boundary,
+both older-worker standardized scores satisfy
+
+```text
+score(dlog_sd,b,q)/σ(dlog_sd,b) <= score(dlog_sd,b,0)/σ(dlog_sd,b) + 1
+score(zero_rate,b,q)/σ(zero_rate,b) <= score(zero_rate,b,0)/σ(zero_rate,b) + 1.
+```
+
+Simulation-noise protection is deterministic. Compute `J(q)` on all 20 draws,
+on the fixed halves `6200…6209` and `6210…6219`, and in 20 delete-one-draw
+replicates. A nonzero `q` must improve on `q=0` in the all-draw and both half-draw
+objectives. Among feasible values, let `q_min` minimize all-draw `J`; use the
+delete-one jackknife
+`SE=sqrt[(19/20)Σ_r(J_{-r}-mean_r J_{-r})²]` for `J(q_min)` and select the
+**smallest** `q` with `J(q)≤J(q_min)+SE[J(q_min)]`. Exact ties choose the smaller
+`q`. This one-SE rule, not a `1e-12` comparison alone, limits departure under
+Monte Carlo noise.
+
+As a hard equivalence preflight, `q=0` must reproduce the current generator
+bit-for-bit at every generated person-period level and participation state for all
+pseudo-boundaries and all 20 draws; the six reduced moments must therefore also
+match, and streams 1–3 must retain their exact states. Failure invalidates the
+mechanism rather than selecting around it.
+
+The selection ledger must publish every `q`, cutoff, support, simulated/truth
+moment, standardizer, feasibility result, full/half/jackknife objective, selected
+value, effective search size, and checksums of fit rows, pools, support IDs, and
+RNG registry. Governance is two-stage: first a prospective §2.7 amendment ratifies
+the generic mechanism and authorizes this **train-only, non-scoring prototype**;
+then a reviewed lock addendum freezes `q*`, its ledger SHA, pool law, and substream
+codes before registration 8. No 2015+ row, realized post-2014 macro value,
+candidate-1 seed score, or candidate-2 score may enter numerical estimation.
 
 ### 5.5 What a result would mean
 
 This is not a guarantee that candidate 2 passes. If the train-only rule selects
 `q*=0`, the honest conclusion is that pre-2014 pseudo-holdouts do not support the
-proposed damping; the referee should not force a nonzero value from the 2016/2018
-failure. If a nonzero value is selected and candidate 2 still fails, the fresh
+proposed damping; the program recommends pausing registration 8 and returning to
+the referee rather than forcing a nonzero value or registering a knowingly no-op
+earnings delta. The referee must ratify that disposition in §10. If a nonzero
+value is selected and candidate 2 still fails, the fresh
 artifact becomes the next forensic record. A candidate-2 pass first-certifies
 this amended forward law only on the registered 2016/2018 cells; it does not
 transfer gate-1 certification or validate a 2100 earnings projection.
@@ -566,8 +692,8 @@ transfer gate-1 certification or validate a 2100 earnings projection.
 
 | Resolution | What stays/moves | Honest benefit | Honest cost |
 |---|---|---|---|
-| **A. Retain frozen v3 tolerances** | Keep `runs/m6_holdout_floors_v3.json`, its SHA, all six tolerances, and `gates.yaml` byte-identical. Registration 8 and every candidate-2 report disclose `p_seed=0.8760`, `p_gate=0.8809`, the 1.91pp floor deficit, and 11.91% faithful false-fail probability. | Preserves the ratified artifact and is conservative: harder to pass, no false-PASS direction. | Knowingly scores the closed domain with a floor derived on a larger domain; violates the campaign's stated 0.90 power aspiration and accepts about 12% under-power. |
-| **B. Registered closed-domain floors ceremony** | Build a new, never-overwritten truth-only artifact (proposed `runs/m6_holdout_floors_v4.json`) on exactly `realized support ∩ 2014 earnings domain`; rederive the six earnings tolerances, recompute earnings and combined OC/vacuity, adversarially reproduce it, SHA-pin it, and conduct a separate full lock ceremony before registration 8. Flows/cell definitions/reducers remain unchanged. | Prices noise on the population actually scored; the self-check's provisional earnings OC is `0.9575` and no vacuity flag fires. | Moves tolerances after candidate 1 has been observed, so governance must prove truth-only/candidate-blind derivation and preserve candidate 1's historical contract. It costs a full ceremony and may delay candidate 2. |
+| **A. Retain frozen v3 tolerances** | Keep `runs/m6_holdout_floors_v3.json`, SHA-256 `e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77`, all six tolerances, §2.8.4, and `gates.yaml` byte-identical. Registration 8 and every candidate-2 report disclose earnings-only `p_seed=0.8760`, `p_gate=0.8809`, the 1.91pp floor deficit, and the independence-OC's 11.91% subfamily false-fail probability, plus a freshly computed combined OC. | Preserves the ratified artifact and is conservative: harder to pass, no false-PASS direction. | Knowingly scores the closed domain with a floor derived on a larger domain; fails the ratified 0.90 weak-power floor. The same registered approximation provisionally puts the combined gate at only `≈0.8115`, worse than the six-cell “about 12%” headline. |
+| **B. Registered closed-domain floors ceremony** | Build a new, never-overwritten truth-only artifact (proposed `runs/m6_holdout_floors_v4.json`) on exactly `realized support ∩ 2014 earnings domain`; rederive the six earnings tolerances, recompute earnings and combined OC/vacuity, adversarially reproduce it, SHA-pin it, then ratify a narrow prospective §2.8.4/gate-contract amendment and full lock before registration 8. The v3 artifact remains immutable and historical. Flows/cell definitions/reducers remain unchanged. | Prices noise on the population actually scored; the self-check's provisional earnings OC is `0.9575`, the same-method combined arithmetic is `≈0.9019`, and no vacuity flag fires. | Moves tolerances after candidate 1 has been observed, so governance must prove truth-only/candidate-blind derivation and preserve candidate 1's historical contract. The provisional combined margin is thin; a fresh ceremony can still pause. |
 
 Neither resolution is authorized by this proposal. Silent threshold movement,
 editing v3 in place, or applying v4 retrospectively to candidate 1 is prohibited.
@@ -575,8 +701,9 @@ editing v3 in place, or applying v4 retrospectively to candidate 1 is prohibited
 ### 6.2 Recommendation
 
 **Recommend resolution B, the registered closed-domain floors ceremony.** The
-scorer's domain is now empirically known and §2.8.3a expressly routes the `0.8809
-< 0.90` result to a ceremony finding. Re-deriving on that exact truth domain is
+scorer's domain is now empirically known and §2.8.3a expressly routes the
+earnings-subfamily `0.8809 < 0.90` result to a ceremony finding. Re-deriving on
+that exact truth domain is
 more coherent than knowingly carrying a lineage mismatch into a new candidate,
 provided the change is candidate-blind, independently reproduced, and locked
 before registration 8. Candidate 1 remains a published FAIL under v3; there is no
@@ -586,10 +713,13 @@ The ceremony must not simply copy the six provisional tolerances. It must rebuil
 the closed-domain half-splits from the registered truth-only derivation, publish
 all seeds and support counts, recompute the **combined** 11-cell OC with the
 unchanged flow floors, re-run both power directions and caps, and stop if any
-existing floor invariant fails. Only the later ratifying lock PR may edit
-`gates.yaml` or add the new floor artifact. If the referee selects resolution A,
-the 11.91% under-power disclosure becomes a mandatory registration/artifact field,
-not a footnote.
+existing floor invariant fails. Because §2.8.4 explicitly pins v3
+(`docs/design/m6_projection_engine.md:1905-1908`), resolution B necessarily
+includes a separate narrow prospective §2.8.4/gate-contract amendment; only its
+later ratifying lock PR may edit `gates.yaml` or add the new floor artifact. If the
+referee selects resolution A, both the six-cell 11.91% finding and the fresh
+combined-OC disclosure become mandatory registration/artifact fields, not a
+footnote.
 
 ## 7. Remarriage §2.8 conformance repair — separate prerequisite
 
@@ -599,11 +729,10 @@ overshoot (`0.05110–0.05457` versus truth `0.03562–0.03927`), but the domina
 current defect is lost history: projected dissolved exposure is only
 12.37–13.29% of truth while the event numerator is 33.58–39.95%.
 
-The code reads entry-divorced/widowed state and `dissolution_year`
-(`src/populace_dynamics/engine/marital.py:82-128`) but serializes only open or
-in-window emitted episodes before reassembly
-(`src/populace_dynamics/engine/marital.py:133-149` and
-`src/populace_dynamics/engine/marital.py:252-267`). A widow-only
+The code reads entry-divorced/widowed state and computes `dissolution_year` from
+`years_since_dissolution` (`src/populace_dynamics/engine/marital.py:82-128`), but
+only serializes open/in-window emitted episodes before reassembly
+(`src/populace_dynamics/engine/marital.py:145-267`). A widow-only
 post-assembly patch changes person-years but explicitly creates no episode/event
 (`src/populace_dynamics/models/family_transitions/components/initial_states.py:206-242`).
 Reassembly defaults a person with no prior emitted
@@ -627,6 +756,13 @@ before registration 8:
 4. add discriminating synthetic fixtures for entry-divorced, entry-widowed,
    in-window remarriage, no-remarriage exposure, and same-year boundary cases; and
 5. publish a pre-score conformance reconciliation on the exact forensic classes.
+
+That reconciliation must separately publish the count and F6 weight of emitted
+marriages relabeled from projected first marriage to remarriage by restored prior
+history, by gated year/sex/age cell. The authority did not quantify that numerator
+transfer. Candidate 2 therefore cannot attribute any first-marriage score movement
+solely to the new hazard law; the artifact must decompose the conformance relabel
+from the estimator delta.
 
 This document implements none of it. The referee should classify a repair meeting
 those conditions as current-law conformance. If a proposed patch changes event
@@ -652,14 +788,21 @@ closed-domain earnings floor:
 The regression block passes iff, on at least 4 of the 5 fresh gate seeds, **all
 five** cells clear those thresholds. This is the same seed-level conjunction used
 by the gate (`src/populace_dynamics/harness/m6_scoring.py:624-751`), applied to
-fresh candidate-2 values. A valid overall gate pass implies the block, but the
-artifact reports it separately so a candidate-2 FAIL cannot hide a regression in
-an otherwise passed component.
+fresh candidate-2 values. Candidate-2 acceptance requires **both** the live
+11-cell gate result and this original-threshold regression block to pass. Under
+resolution A a gate pass implies the block; under resolution B it does not,
+because live v4 could use `0.279/0.168` while the block retains `0.269/0.163`.
+The artifact therefore records `gate_contract_result`,
+`must_not_regress_result`, and their conjunction. A live gate-PASS plus
+regression-FAIL is published as `GATE_PASS_REGRESSION_FAIL`, never advertised as
+an accepted candidate-2 PASS.
 
 The first-marriage implementation must not mutate the separate divorce estimator
 (`src/populace_dynamics/models/family_transitions/components/divorce.py:67-124`).
-The earnings refresh leaves participation unchanged by construction; the older
-dlog-SD threshold remains binding on any rank-dispersion side effect.
+The earnings refresh leaves the participation formula, coefficients, and RNG
+address unchanged, but carried earnings can change later gate outcomes. Both
+older-worker thresholds therefore remain binding on rank-dispersion and
+participation feedback.
 
 ## 9. Candidate-2 protocol
 
@@ -684,17 +827,18 @@ registered candidate-1 protocol:
 The fresh primary path is exactly `runs/gate_m6_candidate2_v1.json`, accompanied
 by its normal environment sidecar and written through the exclusive new-file
 guard. `runs/gate_m6_candidate1_v1.json`, its sidecar, and every floor artifact
-remain immutable.
+that already exists remain immutable.
 
 ### 9.2 Ceremony matrix
 
 | Proposed change | Required governance before implementation/run |
 |---|---|
 | Support-aware first-marriage estimator/new candidate spec | Referee ratifies this candidate-family law; add a new immutable registry spec; register selected train-only fit strength and support behavior before score. No §2.8 edit. |
-| Rank-refresh persistence law and substreams | Prospective §2.7 amendment, adversarial review, verification, and ratification before candidate-2 code or registration. Keep §2.7.6.2/.3/.4 unchanged. |
+| Stable-coordinate refresh law and substreams | Prospective §2.7 amendment first ratifies the generic mechanism/selector and authorizes a train-only prototype; a reviewed lock addendum then freezes nonzero `q*` and the ledger before registration 8. Keep §2.7.6.2/.3/.4 unchanged. |
 | Entry-dissolved remarriage repair preserving current event/support law | Separate conformance implementation and proof, merged before registration 8; no threshold/floor change. If semantics move, stop for a narrow §2.8 amendment. |
-| Retain frozen tolerances | Referee records resolution A and mandates the `0.8809` / 11.91% disclosure; no floor or lock edit. |
-| Re-derive closed-domain floors | Separate truth-only v4 derivation, adversarial reproduction, full floors/lock ceremony, then registration 8 against the new locked SHA. |
+| Retain frozen tolerances | Referee records resolution A and mandates the earnings-only `0.8809` / 11.91% plus fresh combined-OC disclosure; no floor or lock edit. |
+| Re-derive closed-domain floors | Separate truth-only v4 derivation, adversarial reproduction, narrow prospective §2.8.4/gate-contract amendment, and full lock ceremony; then registration 8 against the new locked SHA. |
+| Add the must-not-regress acceptance block | Program/registration ratification; artifact reports live-gate, original-threshold block, and conjunction. Moving its five thresholds or 4-of-5 rule requires a new gate amendment. |
 | Any cell, reducer, truth support, tolerance outside the selected floors resolution, seed, K, or 4-of-5 change | New gate amendment/lock ceremony; prohibited in the candidate implementation lane. |
 
 ### 9.3 Registration-8 preconditions
@@ -707,12 +851,15 @@ Registration 8 may be posted only when all applicable boxes are satisfied:
    public, its full fit converges, and the support/convergence preflight abort is
    exercised on a failing synthetic case;
 3. the §2.7 amendment is merged, `q*` and the full Q-grid ledger are frozen, and
-   tests prove participation, `CellMarginal`, inverse rank, `I_proj`, odd-year
-   behavior, and old substreams remain unchanged;
+   tests prove `q=0` generator-level bit equivalence and that participation
+   formula/coefficients, `CellMarginal`, inverse rank, `I_proj`, odd-year behavior,
+   and old substreams remain unchanged; the tests must also expose changed later
+   participation when a refreshed carried level crosses the unchanged gate;
 4. the separate remarriage conformance repair is merged and its entry-dissolved
    reconciliation passes without changing gate/floor bytes;
-5. resolution A's disclosure is frozen **or** resolution B's new floor artifact
-   has completed its full ceremony and the live lock points to its verified SHA;
+5. resolution A's earnings-only and combined disclosure is frozen **or**
+   resolution B's new floor artifact and prospective §2.8.4 amendment have
+   completed their full ceremony and the live lock points to its verified SHA;
 6. the runner identifies candidate number 2, refuses the candidate-1 output path,
    writes `runs/gate_m6_candidate2_v1.json` exclusively, and binds exact source,
    design, floor, spec, dependency, and environment hashes;
@@ -720,12 +867,17 @@ Registration 8 may be posted only when all applicable boxes are satisfied:
    prerequisite, everything byte-carried, the five regression constraints, the
    effective train-side search sizes, a candid result forecast/modal failure
    shape, the one-shot rule, and “publish regardless”; and
-8. no candidate-2 score, post-2014 outcome, or realized post-2014 macro value has
-   been read during build, fit selection, amendment, or registration.
+8. the published candidate-1 artifact/forensic summaries are disclosed as the
+   structural-design evidence, but no unpublished or row-level post-2014 holdout
+   value, candidate-2 result, or realized post-2014 macro value enters estimator
+   fitting, pseudo-selection, implementation choices, or registration. Resolution
+   B's separately authorized truth-only floors lane may read the exact scoring
+   domain solely to derive/reproduce floors; it cannot read a candidate output.
 
 After registration, no parameter, support rule, floor, or implementation byte may
-move. A pre-score designed abort is reported and requires a reviewed fix plus a
-fresh registration; a completed run writes and publishes the fresh artifact once.
+move. A registered-run pre-score designed abort is reported and writes no candidate
+artifact; any changed byte requires a reviewed fix plus a fresh registration. A
+completed run writes and publishes the fresh artifact once.
 
 ## 10. Open decisions for the fable referee
 
@@ -737,18 +889,22 @@ fresh registration; a completed run writes and publishes the fresh artifact once
    deviation and the stated train-only `C` selection, or name a different
    support-preserving rule before any fit. In particular, decide whether nearest
    fitted-cohort behavior for unseen decades is sufficiently conservative.
-3. **Fit abort:** ratify `max_iter=10_000`, `tol=1e-8`, the warning/success checks,
-   and the rule that a nonconverged full fit consumes no score and requires a new
-   registration after repair.
+3. **Fit abort:** ratify `max_iter=10_000`, `tol=1e-8`, gradient threshold,
+   warning/success checks, `NO_REGISTERABLE_FIRST_MARRIAGE_FIT` before
+   registration, and the registered-run abort rule. Decide whether an exact-byte
+   retry after a registered abort needs a new registration number.
 4. **Earnings mechanism:** approve the single global positive-continuation
-   refresh share, its fresh-rank pool, train-only objective, and new substream
-   codes; or require age-specific persistence at the cost of a larger registered
-   search. Participation-rank recoupling is not in candidate 2.
+   stable-coordinate refresh share, train-only objective/one-SE rule, and new
+   substream codes; or require age-specific persistence at the cost of a larger
+   registered search. Participation-rank recoupling and joint weight/`λ`
+   re-estimation are not in candidate 2. Confirm that a train-selected `q*=0`
+   pauses registration 8 and returns for a new proposal, as recommended.
 5. **Mandatory floors:** choose resolution A (frozen conservative tolerances with
-   explicit 11.91% faithful false-fail risk) or resolution B (recommended full
-   closed-domain floors ceremony). If B, approve the proposed v4 path only after
-   the combined OC is freshly derived; `0.9575` is the provisional earnings-only
-   result, not a fabricated combined result.
+   explicit 11.91% earnings-subfamily false-fail risk and fresh combined OC) or
+   resolution B (recommended full closed-domain floors/§2.8.4 ceremony). If B,
+   approve the proposed v4 path only after the combined OC is freshly derived;
+   `0.9575` is earnings-only and `≈0.9019` is provisional arithmetic, not a
+   ratified combined result.
 6. **Remarriage prerequisite:** confirm the separate lane's proof standard and
    whether any implementation detail crosses from conformance into a narrow §2.8
    amendment. Do not adjudicate the residual hazard until the assembly repair is
@@ -756,9 +912,10 @@ fresh registration; a completed run writes and publishes the fresh artifact once
 7. **Regression block:** approve the additional all-five-on-≥4-of-5 constraint at
    the original candidate-1 tolerances even if a v4 floor loosens the two older
    earnings tolerances.
-8. **Abort/registration accounting:** decide whether a train-fit designed abort
-   consumes registration 8 or is recorded as a registration error; either way it
-   cannot be silently retried under changed bytes.
+8. **Abort/registration accounting:** confirm that a pre-registration no-fit
+   outcome consumes no registration; decide whether a registered exact-byte abort
+   consumes the registration number. It cannot be silently retried under changed
+   bytes.
 
 ## 11. What this proposal does not change or certify
 
@@ -779,41 +936,140 @@ This proposal does **not**:
   2020–2022 shock window, entrants/open-panel dynamics, lag-5 autocorrelation,
   stocks, report-only AIME/PIA/claiming levels, or projection to 2100.
 
-A candidate-2 PASS would certify only the unchanged locked family-A statement on
-the registered temporal-holdout surface, under the selected and publicly locked
-floors resolution, after an audited iterative search whose structural choices
-have now observed candidate 1. That search-size limitation must accompany every
-PASS claim.
+An **accepted** candidate-2 PASS—live gate plus must-not-regress block—would
+certify only the registered family-A statement on the temporal-holdout surface,
+under the selected and publicly locked floors resolution, after an audited
+iterative search whose structural choices have now observed candidate 1. That
+search-size limitation must accompany every PASS claim.
 
-## 12. Proposed registration ledger (non-operative)
+## 12. Machine-readable consistency ledger (non-operative)
 
-The following block is a review aid. It becomes operative only if the referee
-ratifies it and the required amendment/ceremonies land.
+The following tagged ledger binds the proposal's evidence and immutability claims
+to the frozen artifact and authority. It becomes operative only if the referee
+ratifies the program and the required amendment/ceremonies land. In this docs-only
+lane it is validated read-only; no `tests/`, `runs/`, or gate file is changed.
 
-```json
+<!-- m6-candidate2-consistency-ledger: derive evidence fields only from issue
+     comment 4997635883, the immutable candidate-1 artifact at 8ff7b14, and the
+     frozen v3 floor. Do not hand-edit a value without re-running the read-only
+     consistency check recorded in the PR. -->
+
+```json m6-candidate2-consistency-ledger
 {
   "program_id": "2026-07-16-m6-candidate2",
   "status": "PROPOSAL_NOT_REGISTERED",
   "candidate": 2,
-  "artifact": "runs/gate_m6_candidate2_v1.json",
-  "authority_comment": "4997635883",
-  "deltas": {
-    "first_marriage": "regularized global age/sex spline plus boundary-flat cohort deviation; train-only C selection; nonconvergence hard-aborts",
-    "earnings": "prospective section-2.7 positive-continuation rank-refresh mixture with train-only q; participation and section-2.7.6 rank-level/index laws unchanged"
+  "fresh_artifact": "runs/gate_m6_candidate2_v1.json",
+  "evidence_binding": {
+    "authority_comment": "4997635883",
+    "grading_comment": "4997458179",
+    "candidate1": {
+      "artifact": "runs/gate_m6_candidate1_v1.json",
+      "commit": "8ff7b14fa89f021c4951ddfbd2102f795ff4de21",
+      "sha256": "546a9739f8d1c7d21a91a07eb902c8af9bda92cdaa8f7917f312894f6a861b24",
+      "verdict": "FAIL",
+      "n_gated_cells": 11,
+      "n_failed_cells": 6,
+      "n_seed_pass": 0,
+      "n_gate_seeds": 5,
+      "all_failed_cells_fail_all_five_seeds": true,
+      "worst_score_over_tolerance": {
+        "first_marriage.18-29|female": 4.18,
+        "earn_mob_h1_diag": 3.47,
+        "remarriage.18-64": 2.75,
+        "earn_autocorr_lag2": 2.13,
+        "earn_dlog_mean.prime": 1.77,
+        "earn_p10.prime": 1.61
+      },
+      "passed_cells": [
+        "divorce.18-44",
+        "incidence.20-66",
+        "recovery.20-66",
+        "earn_dlog_sd.older",
+        "earn_zero_rate.older"
+      ]
+    },
+    "first_marriage": {
+      "female_1990_max_fit_age": 23,
+      "hazard_age23": 0.0538753,
+      "hazard_age24": 0.999999928,
+      "hazard_age25_plus": 1.0,
+      "fit_max_iter": 1000,
+      "fit_converged": false,
+      "truth_direct_standardized_range": [0.0451, 0.0543],
+      "projection_direct_standardized_range": [0.359, 0.372],
+      "scored_projection_range": [0.184, 0.200],
+      "amendment_3g_gated_weight_share": 0.0225,
+      "score_change_if_3g_removed": 0.025142780
+    },
+    "earnings": {
+      "beyond_tolerance_of_100": {
+        "earn_p10.prime": 92,
+        "earn_dlog_mean.prime": 95,
+        "earn_mob_h1_diag": 100,
+        "earn_autocorr_lag2": 100
+      },
+      "projected_over_truth_ratio": {
+        "earn_p10.prime": 0.739,
+        "earn_dlog_mean.prime": 0.557,
+        "earn_mob_h1_diag": 1.181,
+        "earn_autocorr_lag2": 1.246
+      },
+      "I_proj_log_slope": 0.0225137847,
+      "realized_nawi_max_p10_gap_share": 0.123,
+      "realized_nawi_static_persistence_effect": 0.0,
+      "realized_post2014_nawi_prohibited": true
+    },
+    "remarriage": {
+      "projected_over_truth_dissolved_exposure_range": [0.1237, 0.1329],
+      "projected_over_truth_event_numerator_range": [0.3358, 0.3995],
+      "direct_projected_hazard_range": [0.05110, 0.05457],
+      "direct_truth_hazard_range": [0.03562, 0.03927]
+    },
+    "floors": {
+      "v3_artifact": "runs/m6_holdout_floors_v3.json",
+      "v3_sha256": "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77",
+      "n_closed_domain_persons": 13561,
+      "n_closed_domain_earnings_rows": 45606,
+      "per_cell_tolerance_locked_to_domain_rederived": {
+        "earn_autocorr_lag2": [0.087, 0.087],
+        "earn_dlog_mean.prime": [0.043, 0.043],
+        "earn_dlog_sd.older": [0.269, 0.279],
+        "earn_mob_h1_diag": [0.052, 0.054],
+        "earn_p10.prime": [0.221, 0.284],
+        "earn_zero_rate.older": [0.163, 0.168]
+      },
+      "locked_tolerances_on_closed_domain": {
+        "scope": "six_cell_earnings_subfamily",
+        "p_seed": 0.8760,
+        "p_gate_4_of_5": 0.8809,
+        "weak_power_floor": 0.90,
+        "independence_oc_false_fail": 0.1191
+      },
+      "domain_rederived_earnings": {
+        "p_seed": 0.9300,
+        "p_gate_4_of_5": 0.9575
+      },
+      "flow_subfamily_p_seed": 0.9559,
+      "combined_same_method_inference": {
+        "operative": false,
+        "locked_domain_p_seed": 0.8373684,
+        "locked_domain_p_gate_4_of_5": 0.8115004,
+        "domain_rederived_p_gate_4_of_5": 0.9019126
+      }
+    }
+  },
+  "proposed_deltas": {
+    "first_marriage": "regularized age/sex spline plus boundary-flat cohort deviation; train-only C; convergence certificate",
+    "earnings": "prospective section-2.7 stable-coordinate rank-refresh mixture with train-only nonzero q; fitted section-2.7.6 rank-level/index objects unchanged"
   },
   "prerequisite": {
     "remarriage": "entry-dissolved history/episode/event conformance under existing section 2.8; separate lane merged before registration"
   },
   "floors_resolution": "OPEN_REFEREE_DECISION",
-  "recommended_floors_resolution": "new_closed_domain_floor_and_full_lock_ceremony",
-  "frozen_locked_domain_earnings_oc": {
-    "p_seed": 0.8760,
-    "p_gate_4_of_5": 0.8809,
-    "weak_power_floor": 0.90,
-    "faithful_false_fail_probability": 0.1191
-  },
+  "recommended_floors_resolution": "new_closed_domain_floor_plus_section_2_8_4_and_full_lock_ceremony",
   "regression_cells": {
-    "rule": "all five clear original thresholds on at least 4 of 5 fresh gate seeds",
+    "rule": "all five clear original thresholds on at least 4 of 5 fresh gate seeds; acceptance also requires live gate pass",
     "tolerances": {
       "divorce.18-44": 0.379,
       "incidence.20-66": 0.404,
@@ -822,15 +1078,42 @@ ratifies it and the required amendment/ceremonies land.
       "earn_zero_rate.older": 0.163
     }
   },
-  "prohibitions": [
+  "immutability_guards": [
     "no candidate-1 rescore or overwrite",
     "no realized post-2014 NAWI on scored path",
-    "no truth/support/cell change",
+    "no candidate output in train-only selection or truth-only floors derivation",
+    "no truth/support/cell change outside a ratified ceremony",
     "no score before registration 8",
     "no silent retry after a designed abort"
   ]
 }
 ```
+
+## 13. Methodological references
+
+- Meridith L. Bartley et al. (2019), “Identifying and characterizing
+  extrapolation in multivariate response data,” *PLOS ONE* 14(12), e0225715
+  ([DOI][bartley]); and NIST/SEMATECH, “Motivation: How do we Use the Model
+  Beyond the Data Domain?”, §5.5.9.9.8 of the *e-Handbook of Statistical
+  Methods* ([NIST][nist]).
+- Emmanuelle Dantony et al. (2024), “Multidimensional penalized splines for
+  survival models: illustration for net survival trend analyses,”
+  *International Journal of Epidemiology* 53(2) ([DOI][dantony]); Paul H. C.
+  Eilers and Brian D. Marx (1996), “Flexible smoothing with B-splines and
+  penalties,” *Statistical Science* 11(2) ([DOI][eilers-marx]); and Natalya Pya
+  and Simon N. Wood (2015), “Shape constrained additive models,” *Statistics
+  and Computing* 25(3), 543–559 ([DOI][pya-wood]). These support the general
+  estimation tools; §4 states where candidate 2 deliberately uses a different,
+  narrower deterministic transport rule.
+- Congressional Budget Office (2006), *Projecting Labor Force Participation and
+  Earnings in CBO's Long-Term Microsimulation Model*, especially Appendix D,
+  “Permanent and Transitory Earnings Shocks” ([public PDF][cbo-earnings]); and
+  Fatih Karahan and Serdar Ozkan (2013), “On the persistence of income shocks
+  over the life cycle: Evidence, theory, and implications,” *Review of Economic
+  Dynamics* 16(3), 452–476 ([DOI][karahan-ozkan]).
+- Official optimizer contracts: scikit-learn's `LogisticRegression` API
+  ([documentation][sklearn-logit]) and SciPy's `minimize` API
+  ([documentation][scipy-minimize]).
 
 [forensics-4]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997635883
 [forensics-reg]: https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997460916
