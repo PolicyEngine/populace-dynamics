@@ -17,12 +17,12 @@
       "divorced_calibration": {
         "0.50": {
           "alpha_divorced": -0.5,
-          "area_relative_residual": 3.7765346405649325e-11,
-          "beta_frontload": 0.9386453307233751,
-          "bracket_residual_high": -0.8609697065955957,
-          "bracket_residual_low": 0.3245745799448716,
-          "candidate_probability_max": 0.2539845489502358,
-          "candidate_probability_min": 0.00385619931949151,
+          "area_relative_residual": -8.288147945734181e-11,
+          "beta_frontload": 0.936521805357188,
+          "bracket_residual_high": -0.8599893202289843,
+          "bracket_residual_low": 0.3218604226639117,
+          "candidate_probability_max": 0.2536228266441194,
+          "candidate_probability_min": 0.003865187270904773,
           "centered_contrast": [
             0.8994289628006331,
             -0.10057103719936686,
@@ -30,28 +30,28 @@
           ],
           "effective_divorced_shift": -0.5000000000000001,
           "fit_exposure_center": 0.10057103719936686,
-          "maximum_cell_logit_shift": 0.34424479625018245,
-          "minimum_cell_logit_shift": -1.5330458651965677,
+          "maximum_cell_logit_shift": 0.34233483603259196,
+          "minimum_cell_logit_shift": -1.530708774681784,
           "root_iterations": 35
         },
         "0.75": {
           "alpha_divorced": -0.75,
-          "area_relative_residual": 2.8580915412135255e-11,
-          "beta_frontload": 1.2959407148882747,
-          "bracket_residual_high": -0.8609694664564731,
-          "bracket_residual_low": 0.481237483777875,
-          "candidate_probability_max": 0.26774161177348915,
-          "candidate_probability_min": 0.0020305043280149566,
+          "area_relative_residual": 5.912537126562256e-11,
+          "beta_frontload": 1.293768887873739,
+          "bracket_residual_high": -0.8599890770286234,
+          "bracket_residual_low": 0.4771524094119677,
+          "candidate_probability_max": 0.26735880889252295,
+          "candidate_probability_min": 0.00203535365563445,
           "centered_contrast": [
             0.8994289628006331,
             -0.10057103719936686,
             -1.1005710371993669
           ],
-          "effective_divorced_shift": -0.7500000000000002,
+          "effective_divorced_shift": -0.75,
           "fit_exposure_center": 0.10057103719936686,
-          "maximum_cell_logit_shift": 0.4156066130430718,
-          "minimum_cell_logit_shift": -2.1762748167334776,
-          "root_iterations": 34
+          "maximum_cell_logit_shift": 0.4136532089240057,
+          "minimum_cell_logit_shift": -2.1738845668234723,
+          "root_iterations": 35
         }
       },
       "fit_max_year": 2005,
@@ -94,32 +94,36 @@
       "incumbent_table_sha256": "82d59184b6fa81dbebb304546e2c1311c0a2e1b1eb5deee96384bd7bbaeaafc2",
       "reference_spells": {
         "divorced": {
-          "R0_area": 222371952.19908157,
+          "R0_area": 202244898.02596286,
           "duplicate_key_groups": 1,
           "duplicate_spells_excluded": 2,
           "duplicate_spells_excluded_weight": 29.896,
-          "eligible_spells_before_duplicate_exclusion": 3742,
-          "included_spell_weight": 30916288.812999997,
-          "included_spells": 3653,
+          "eligible_spells_before_exclusions": 3742,
+          "included_spell_weight": 28316311.544,
+          "included_spells": 3333,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 87,
-          "path_checksum_sha256": "7d9dc9c528deef3e8639c34eaa2b4908ad7d7c0c37b86dabd1c7cccd095d3c85",
-          "potential_path_years": 56769,
-          "working_age_path_year_terms": 56757
+          "no_potential_path_spells_excluded": 84,
+          "path_checksum_sha256": "bd82bf482b441c795ce372497a0628225fb7fdc45beae494804c8f45e7506b43",
+          "potential_path_years": 51453,
+          "same_year_remarriage_spells_excluded": 323,
+          "same_year_remarriage_spells_excluded_weight": 2630171.269,
+          "working_age_path_year_terms": 51441
         },
         "widowed": {
-          "R0_area": 64658847.021303795,
+          "R0_area": 62101368.831232406,
           "duplicate_key_groups": 0,
           "duplicate_spells_excluded": 0,
           "duplicate_spells_excluded_weight": 0.0,
-          "eligible_spells_before_duplicate_exclusion": 1526,
-          "included_spell_weight": 7390639.728,
-          "included_spells": 884,
+          "eligible_spells_before_exclusions": 1526,
+          "included_spell_weight": 7175149.597,
+          "included_spells": 865,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 642,
-          "path_checksum_sha256": "ef7584cafbb0ac8aeb53c04ce00f126a6711f2d20f39198aafdca48b55159ff9",
-          "potential_path_years": 12162,
-          "working_age_path_year_terms": 12162
+          "no_potential_path_spells_excluded": 640,
+          "path_checksum_sha256": "272c37dce7ad26d1e4b052044963caaf2c7d6958ba56f41257297011228bf044",
+          "potential_path_years": 11827,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 272688.131,
+          "working_age_path_year_terms": 11827
         }
       },
       "support_struck_named_laws": [],
@@ -131,7 +135,7 @@
           "effective_widowed_shift": 0.0,
           "maximum_cell_logit_shift": 0.0,
           "minimum_cell_logit_shift": 0.0,
-          "target_area": 64658847.021303795,
+          "target_area": 62101368.831232406,
           "target_area_relative_residual": 0.0,
           "target_over_R0_area": 1.0,
           "within_log_rate_budget": true
@@ -143,9 +147,9 @@
           "effective_widowed_shift": 0.05,
           "maximum_cell_logit_shift": 0.05,
           "minimum_cell_logit_shift": 0.05,
-          "target_area": 63584791.01542477,
+          "target_area": 61095623.53133961,
           "target_area_relative_residual": 0.0,
-          "target_over_R0_area": 0.9833888778510829,
+          "target_over_R0_area": 0.9838047804932283,
           "within_log_rate_budget": true
         }
       }
@@ -154,12 +158,12 @@
       "divorced_calibration": {
         "0.50": {
           "alpha_divorced": -0.5,
-          "area_relative_residual": 5.0396131712204806e-11,
-          "beta_frontload": 0.9273377005010843,
-          "bracket_residual_high": -0.8633428376879957,
-          "bracket_residual_low": 0.3222512033886715,
-          "candidate_probability_max": 0.24851223808296843,
-          "candidate_probability_min": 0.0038375597521443307,
+          "area_relative_residual": 8.095990544632059e-11,
+          "beta_frontload": 0.9253702559508383,
+          "bracket_residual_high": -0.8625112185165265,
+          "bracket_residual_low": 0.3199021520396157,
+          "candidate_probability_max": 0.24817818842097789,
+          "candidate_probability_min": 0.003845769870932803,
           "centered_contrast": [
             0.9095663089131167,
             -0.09043369108688322,
@@ -167,18 +171,18 @@
           ],
           "effective_divorced_shift": -0.5000000000000001,
           "fit_exposure_center": 0.09043369108688322,
-          "maximum_cell_logit_shift": 0.34347512936074864,
-          "minimum_cell_logit_shift": -1.5112002716414201,
-          "root_iterations": 33
+          "maximum_cell_logit_shift": 0.34168560808319015,
+          "minimum_cell_logit_shift": -1.5090549038184866,
+          "root_iterations": 35
         },
         "0.75": {
           "alpha_divorced": -0.75,
-          "area_relative_residual": -1.0571321595875816e-11,
-          "beta_frontload": 1.2811353409197181,
-          "bracket_residual_high": -0.8633426351564585,
-          "bracket_residual_low": 0.4769808277968899,
-          "candidate_probability_max": 0.2621622392522368,
-          "candidate_probability_min": 0.002035722842083077,
+          "area_relative_residual": 2.4341417770301632e-11,
+          "beta_frontload": 1.2791157849133015,
+          "bracket_residual_high": -0.8625110136378215,
+          "bracket_residual_low": 0.4734591408439033,
+          "candidate_probability_max": 0.26180707318749197,
+          "candidate_probability_min": 0.002040201677944807,
           "centered_contrast": [
             0.9095663089131167,
             -0.09043369108688322,
@@ -186,9 +190,9 @@
           ],
           "effective_divorced_shift": -0.7500000000000001,
           "fit_exposure_center": 0.09043369108688322,
-          "maximum_cell_logit_shift": 0.4152775432584954,
-          "minimum_cell_logit_shift": -2.1469931385809407,
-          "root_iterations": 36
+          "maximum_cell_logit_shift": 0.41344062315609564,
+          "minimum_cell_logit_shift": -2.1447909466705073,
+          "root_iterations": 32
         }
       },
       "fit_max_year": 2007,
@@ -231,32 +235,36 @@
       "incumbent_table_sha256": "fa69127856302fd974e214ce481572199f37338bc78b52f472ce1bc28c31af08",
       "reference_spells": {
         "divorced": {
-          "R0_area": 233979570.5323285,
+          "R0_area": 213531669.60878956,
           "duplicate_key_groups": 1,
           "duplicate_spells_excluded": 2,
           "duplicate_spells_excluded_weight": 29.896,
-          "eligible_spells_before_duplicate_exclusion": 3826,
-          "included_spell_weight": 31974855.578999996,
-          "included_spells": 3735,
+          "eligible_spells_before_exclusions": 3826,
+          "included_spell_weight": 29358093.31,
+          "included_spells": 3412,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 89,
-          "path_checksum_sha256": "e7f32a4d72f7c2f0e4cd1606ced9d96898181e984e9df971641c12d0789d9892",
-          "potential_path_years": 58421,
-          "working_age_path_year_terms": 58409
+          "no_potential_path_spells_excluded": 86,
+          "path_checksum_sha256": "21de4b1f0011853929783446944b4990a8a3c79971b87260938935b9256d5865",
+          "potential_path_years": 53042,
+          "same_year_remarriage_spells_excluded": 326,
+          "same_year_remarriage_spells_excluded_weight": 2646956.269,
+          "working_age_path_year_terms": 53030
         },
         "widowed": {
-          "R0_area": 66007789.85138923,
+          "R0_area": 63268570.85596978,
           "duplicate_key_groups": 0,
           "duplicate_spells_excluded": 0,
           "duplicate_spells_excluded_weight": 0.0,
-          "eligible_spells_before_duplicate_exclusion": 1570,
-          "included_spell_weight": 7636499.728,
-          "included_spells": 900,
+          "eligible_spells_before_exclusions": 1570,
+          "included_spell_weight": 7398478.596999999,
+          "included_spells": 881,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 670,
-          "path_checksum_sha256": "191f69e5f8eb894a3292e02687d4cf87b735ad6d57fd9c5acf9a2c42d9373a7c",
-          "potential_path_years": 12305,
-          "working_age_path_year_terms": 12305
+          "no_potential_path_spells_excluded": 668,
+          "path_checksum_sha256": "1470c57c1329cdb8ab7d8ff17f4e3cb889729498934e6632d5a5b62c946909c7",
+          "potential_path_years": 11970,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 296844.131,
+          "working_age_path_year_terms": 11970
         }
       },
       "support_struck_named_laws": [],
@@ -268,7 +276,7 @@
           "effective_widowed_shift": 0.0,
           "maximum_cell_logit_shift": 0.0,
           "minimum_cell_logit_shift": 0.0,
-          "target_area": 66007789.85138923,
+          "target_area": 63268570.85596978,
           "target_area_relative_residual": 0.0,
           "target_over_R0_area": 1.0,
           "within_log_rate_budget": true
@@ -280,9 +288,9 @@
           "effective_widowed_shift": 0.05,
           "maximum_cell_logit_shift": 0.05,
           "minimum_cell_logit_shift": 0.05,
-          "target_area": 64900916.088001214,
+          "target_area": 62237347.55428187,
           "target_area_relative_residual": 0.0,
-          "target_over_R0_area": 0.9832311645961781,
+          "target_over_R0_area": 0.9837008598781932,
           "within_log_rate_budget": true
         }
       }
@@ -291,41 +299,41 @@
       "divorced_calibration": {
         "0.50": {
           "alpha_divorced": -0.5,
-          "area_relative_residual": -3.916356128286225e-11,
-          "beta_frontload": 0.9725393452681601,
-          "bracket_residual_high": -0.8610949766169474,
-          "bracket_residual_low": 0.3274726387558855,
-          "candidate_probability_max": 0.24884216493013134,
-          "candidate_probability_min": 0.003699127625486932,
+          "area_relative_residual": -9.570999548458303e-11,
+          "beta_frontload": 0.9710831893607974,
+          "bracket_residual_high": -0.8604730420977594,
+          "bracket_residual_low": 0.32565540097620094,
+          "candidate_probability_max": 0.2485981582654288,
+          "candidate_probability_min": 0.0037050529212885102,
           "centered_contrast": [
             0.8967700884357775,
             -0.10322991156422241,
             -1.1032299115642223
           ],
-          "effective_divorced_shift": -0.5000000000000001,
+          "effective_divorced_shift": -0.49999999999999994,
           "fit_exposure_center": 0.10322991156422241,
-          "maximum_cell_logit_shift": 0.3721441946634011,
-          "minimum_cell_logit_shift": -1.572934495872919,
-          "root_iterations": 35
+          "maximum_cell_logit_shift": 0.37083835760157924,
+          "minimum_cell_logit_shift": -1.5713280211200156,
+          "root_iterations": 34
         },
         "0.75": {
           "alpha_divorced": -0.75,
-          "area_relative_residual": -6.475664449112628e-11,
-          "beta_frontload": 1.3337331637740135,
-          "bracket_residual_high": -0.8610947269867755,
-          "bracket_residual_low": 0.48578380284842404,
-          "candidate_probability_max": 0.2629117575042405,
-          "candidate_probability_min": 0.0019374716035296972,
+          "area_relative_residual": 3.460787212361538e-12,
+          "beta_frontload": 1.3322750581428409,
+          "bracket_residual_high": -0.8604727898355916,
+          "bracket_residual_low": 0.4830698662582016,
+          "candidate_probability_max": 0.26265844016641055,
+          "candidate_probability_min": 0.0019405847253311317,
           "centered_contrast": [
             0.8967700884357775,
             -0.10322991156422241,
             -1.1032299115642223
           ],
-          "effective_divorced_shift": -0.7499999999999999,
+          "effective_divorced_shift": -0.75,
           "fit_exposure_center": 0.10322991156422241,
-          "maximum_cell_logit_shift": 0.4460520072273515,
-          "minimum_cell_logit_shift": -2.221414320320675,
-          "root_iterations": 31
+          "maximum_cell_logit_shift": 0.44474442171153616,
+          "minimum_cell_logit_shift": -2.219805694574146,
+          "root_iterations": 34
         }
       },
       "fit_max_year": 2009,
@@ -368,32 +376,36 @@
       "incumbent_table_sha256": "506235b6cbd8295a005cbead1c58ccbbdf4cd997a238d647c86ca2c236551db5",
       "reference_spells": {
         "divorced": {
-          "R0_area": 246404315.2692457,
+          "R0_area": 224717928.3400443,
           "duplicate_key_groups": 1,
           "duplicate_spells_excluded": 2,
           "duplicate_spells_excluded_weight": 29.896,
-          "eligible_spells_before_duplicate_exclusion": 3921,
-          "included_spell_weight": 34226618.102,
-          "included_spells": 3824,
+          "eligible_spells_before_exclusions": 3921,
+          "included_spell_weight": 31354046.832999997,
+          "included_spells": 3494,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 95,
-          "path_checksum_sha256": "d247e0496e3a2405c40a1774d3d5c836c4d9de8bd0bf93b165cc8b31b7e587ce",
-          "potential_path_years": 59860,
-          "working_age_path_year_terms": 59848
+          "no_potential_path_spells_excluded": 92,
+          "path_checksum_sha256": "a2c401906cf05ecc02eb1bf548e3d08881e36a57c6531663a8fa8f709ddb6e55",
+          "potential_path_years": 54383,
+          "same_year_remarriage_spells_excluded": 333,
+          "same_year_remarriage_spells_excluded_weight": 2902765.269,
+          "working_age_path_year_terms": 54371
         },
         "widowed": {
-          "R0_area": 65515965.33297446,
+          "R0_area": 62925279.75433855,
           "duplicate_key_groups": 0,
           "duplicate_spells_excluded": 0,
           "duplicate_spells_excluded_weight": 0.0,
-          "eligible_spells_before_duplicate_exclusion": 1595,
-          "included_spell_weight": 7713959.728,
-          "included_spells": 907,
+          "eligible_spells_before_exclusions": 1595,
+          "included_spell_weight": 7475111.597,
+          "included_spells": 888,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 688,
-          "path_checksum_sha256": "f3a14073719641a1c43c9a7680718c3b6002ba54204b0d3bde96af51610fc573",
-          "potential_path_years": 12382,
-          "working_age_path_year_terms": 12382
+          "no_potential_path_spells_excluded": 686,
+          "path_checksum_sha256": "a9ef3e2d4775ffb1f0a68072d141cca663c38b6fb407eda00b3aab56bec3981e",
+          "potential_path_years": 12047,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 293349.131,
+          "working_age_path_year_terms": 12047
         }
       },
       "support_struck_named_laws": [],
@@ -405,7 +417,7 @@
           "effective_widowed_shift": 0.0,
           "maximum_cell_logit_shift": 0.0,
           "minimum_cell_logit_shift": 0.0,
-          "target_area": 65515965.33297446,
+          "target_area": 62925279.75433855,
           "target_area_relative_residual": 0.0,
           "target_over_R0_area": 1.0,
           "within_log_rate_budget": true
@@ -417,9 +429,9 @@
           "effective_widowed_shift": 0.05,
           "maximum_cell_logit_shift": 0.05,
           "minimum_cell_logit_shift": 0.05,
-          "target_area": 64390462.392241225,
+          "target_area": 61871664.76554824,
           "target_area_relative_residual": 0.0,
-          "target_over_R0_area": 0.9828209363166207,
+          "target_over_R0_area": 0.9832560936891557,
           "within_log_rate_budget": true
         }
       }
@@ -428,12 +440,12 @@
       "divorced_calibration": {
         "0.50": {
           "alpha_divorced": -0.5,
-          "area_relative_residual": 7.952905001218369e-11,
-          "beta_frontload": 0.9318990679457784,
-          "bracket_residual_high": -0.8662121402722766,
-          "bracket_residual_low": 0.3195396681107574,
-          "candidate_probability_max": 0.24491073122791807,
-          "candidate_probability_min": 0.0034240848127766502,
+          "area_relative_residual": 2.8926416817398604e-11,
+          "beta_frontload": 0.9303924022242427,
+          "bracket_residual_high": -0.865735154365039,
+          "bracket_residual_low": 0.31731809283096224,
+          "candidate_probability_max": 0.244654014329522,
+          "candidate_probability_min": 0.0034296331835791363,
           "centered_contrast": [
             0.9216909476810372,
             -0.07830905231896279,
@@ -441,18 +453,18 @@
           ],
           "effective_divorced_shift": -0.5,
           "fit_exposure_center": 0.07830905231896279,
-          "maximum_cell_logit_shift": 0.35892293507801976,
-          "minimum_cell_logit_shift": -1.504875200813537,
+          "maximum_cell_logit_shift": 0.357534254921299,
+          "minimum_cell_logit_shift": -1.5032505495271864,
           "root_iterations": 34
         },
         "0.75": {
           "alpha_divorced": -0.75,
-          "area_relative_residual": -1.0421552509853882e-11,
-          "beta_frontload": 1.283247327664867,
-          "bracket_residual_high": -0.8662119700365039,
-          "bracket_residual_low": 0.472381439045799,
-          "candidate_probability_max": 0.2588205725465819,
-          "candidate_probability_min": 0.0018286388031989662,
+          "area_relative_residual": -9.26887455676706e-11,
+          "beta_frontload": 1.2817100482061505,
+          "bracket_residual_high": -0.8657349820563133,
+          "bracket_residual_low": 0.46904028984434554,
+          "candidate_probability_max": 0.2585488586572459,
+          "candidate_probability_min": 0.0018316670258287221,
           "centered_contrast": [
             0.9216909476810372,
             -0.07830905231896279,
@@ -460,9 +472,9 @@
           ],
           "effective_divorced_shift": -0.75,
           "fit_exposure_center": 0.07830905231896279,
-          "maximum_cell_logit_shift": 0.4327574455445897,
-          "minimum_cell_logit_shift": -2.1337372097851444,
-          "root_iterations": 36
+          "maximum_cell_logit_shift": 0.43134054898343477,
+          "minimum_cell_logit_shift": -2.1320795474288667,
+          "root_iterations": 34
         }
       },
       "fit_max_year": 2013,
@@ -505,32 +517,36 @@
       "incumbent_table_sha256": "fe09c685ef827890e4ccc96d805b3d5da8a1d45b5f1209073b2668d378673e34",
       "reference_spells": {
         "divorced": {
-          "R0_area": 259167172.33125812,
+          "R0_area": 237009705.16685024,
           "duplicate_key_groups": 1,
           "duplicate_spells_excluded": 2,
           "duplicate_spells_excluded_weight": 29.896,
-          "eligible_spells_before_duplicate_exclusion": 4009,
-          "included_spell_weight": 34673303.108,
-          "included_spells": 3904,
+          "eligible_spells_before_exclusions": 4009,
+          "included_spell_weight": 31821964.839,
+          "included_spells": 3568,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 103,
-          "path_checksum_sha256": "2fc9956ef4f6243981d22b51e4adba904c3e45eebada3ae171ce14bf605a0b78",
-          "potential_path_years": 61307,
-          "working_age_path_year_terms": 61295
+          "no_potential_path_spells_excluded": 100,
+          "path_checksum_sha256": "ffab96beeda0279fc115ce08b4a879306d1fed06bfe996d6ee29714578b747c9",
+          "potential_path_years": 55785,
+          "same_year_remarriage_spells_excluded": 339,
+          "same_year_remarriage_spells_excluded_weight": 2881532.2690000003,
+          "working_age_path_year_terms": 55773
         },
         "widowed": {
-          "R0_area": 67819995.60849245,
+          "R0_area": 65004466.67043962,
           "duplicate_key_groups": 0,
           "duplicate_spells_excluded": 0,
           "duplicate_spells_excluded_weight": 0.0,
-          "eligible_spells_before_duplicate_exclusion": 1621,
-          "included_spell_weight": 7906615.727999999,
-          "included_spells": 916,
+          "eligible_spells_before_exclusions": 1621,
+          "included_spell_weight": 7669654.597,
+          "included_spells": 897,
           "missing_required_or_nonpositive_weight_spells_excluded": 0,
-          "no_potential_path_spells_excluded": 705,
-          "path_checksum_sha256": "edc34db7cf336beeeba84ccf454823edb8d5fcda114acf174d9bc69276994850",
-          "potential_path_years": 12486,
-          "working_age_path_year_terms": 12486
+          "no_potential_path_spells_excluded": 703,
+          "path_checksum_sha256": "82d4ffdd7dc09faccaca1ec186998f19d255c00be8bd003c4bf0dec26371b688",
+          "potential_path_years": 12151,
+          "same_year_remarriage_spells_excluded": 21,
+          "same_year_remarriage_spells_excluded_weight": 300306.131,
+          "working_age_path_year_terms": 12151
         }
       },
       "support_struck_named_laws": [],
@@ -542,7 +558,7 @@
           "effective_widowed_shift": 0.0,
           "maximum_cell_logit_shift": 0.0,
           "minimum_cell_logit_shift": 0.0,
-          "target_area": 67819995.60849245,
+          "target_area": 65004466.67043962,
           "target_area_relative_residual": 0.0,
           "target_over_R0_area": 1.0,
           "within_log_rate_budget": true
@@ -554,9 +570,9 @@
           "effective_widowed_shift": 0.05,
           "maximum_cell_logit_shift": 0.05,
           "minimum_cell_logit_shift": 0.05,
-          "target_area": 66657379.41617186,
+          "target_area": 63921174.19698463,
           "target_area_relative_residual": 0.0,
-          "target_over_R0_area": 0.9828573242759838,
+          "target_over_R0_area": 0.9833351071250674,
           "within_log_rate_budget": true
         }
       }
@@ -602,7 +618,7 @@
   "floating_point_bound": {
     "binary64_unit_roundoff": 1.1102230246251565e-16,
     "conservative_levels_including_ratio_and_subtraction": 20,
-    "maximum_terms_in_any_per_origin_area_sum": 61295,
+    "maximum_terms_in_any_per_origin_area_sum": 55773,
     "pairwise_tree_levels": 16,
     "relative_error_bound_gamma": 2.2204460492503182e-15,
     "root_tolerance_over_error_bound": 45035.996273704855
