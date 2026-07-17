@@ -171,18 +171,15 @@ def test_v4_primary_sidecar_and_frozen_v3_byte_hashes_are_fixed():
     assert _sha256(V4_SIDECAR_PATH) == V4_SIDECAR_SHA256
 
 
-def test_live_gate_remains_bound_to_frozen_v3_before_ratification():
+def test_live_gate_bound_to_ratified_v4_after_ratification():
     gate_document = yaml.safe_load(GATES_PATH.read_text(encoding="utf-8"))
     gate = gate_document["gates"]["gate_m6"]
     assert gate["locked"] is True
-    assert gate["floor_run"] == "runs/m6_holdout_floors_v3.json"
-    assert gate["floor_run_sha256"] == V3_SHA256
+    assert gate["floor_run"] == "runs/m6_holdout_floors_v4.json"
+    assert gate["floor_run_sha256"] == V4_SHA256
     assert set(_named_values(gate, "floor_run")) == {
-        "runs/m6_holdout_floors_v3.json"
+        "runs/m6_holdout_floors_v4.json"
     }
-    assert "runs/m6_holdout_floors_v4.json" not in GATES_PATH.read_text(
-        encoding="utf-8"
-    )
 
 
 def test_v4_schema_and_governance_are_prospective_only():

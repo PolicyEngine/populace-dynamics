@@ -242,7 +242,7 @@ def test_gate_fence_ignores_sibling_gates_and_non_protocol_fields():
 def test_frozen_floor_is_byte_verified():
     resolved = resolve_m6_contract(ROOT)
     assert resolved.floor_sha256 == FROZEN_FLOOR_SHA256
-    assert resolved.floor_path == "runs/m6_holdout_floors_v3.json"
+    assert resolved.floor_path == "runs/m6_holdout_floors_v4.json"
 
 
 def test_report_only_marks_unavailable_paths_without_fabricating_zero():
