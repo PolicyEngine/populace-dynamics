@@ -1,0 +1,685 @@
+{
+  "schema": "m6.remarriage.round2.selector_config.v1",
+  "status": "frozen_train_only_selector_configuration",
+  "authority": {
+    "design_commit": "004c57d306741e1d97275a720effbb41f378d763",
+    "design_sha256": "a73e758c62d67651588e3d4a6ef33c08e30c20ffeee68eb260267c9382e9904b",
+    "round1_ledger_sha256": "aabec7cc1254d1be9bcf57518632a04f4bbf42d842d30b1991b58a832206c05f",
+    "validation_sha256": "6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947",
+    "ratified_design_commit": "004c57d306741e1d97275a720effbb41f378d763",
+    "ratified_design_pr": 234,
+    "ratification_verification_issue_comment": 5005922371,
+    "design_file": {
+      "path": "docs/design/m6_remarriage_learning_plan_round2.md",
+      "git_object": "f99bd9898c1adcbb62b449634d9ebffadf8d3a3a",
+      "sha256": "a73e758c62d67651588e3d4a6ef33c08e30c20ffeee68eb260267c9382e9904b"
+    },
+    "validation_file": {
+      "path": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
+      "git_object": "2edda448a5e26291ff49cff6047c67413c674dcf",
+      "schema": "m6.remarriage.learning_plan.round2.fit_side_validation.v1",
+      "sha256": "6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947",
+      "status": "pre_candidate_outcome_structural_validation_only"
+    },
+    "round1_ledger": {
+      "path": "docs/analysis/m6_remarriage_train_only_delta_results.json",
+      "git_object": "3099182ef94d2c814c4cd8e82dba804c684bada1",
+      "sha256": "aabec7cc1254d1be9bcf57518632a04f4bbf42d842d30b1991b58a832206c05f",
+      "full_stdout_sha256": "fe914611c1e0f2e96db15e62e49b69907af428379bc6cc5f3d1f3dbb782a540c"
+    }
+  },
+  "runtime_numeric_identity": {
+    "python_implementation": "CPython",
+    "python_version": "3.13.12",
+    "numpy_version": "2.4.2"
+  },
+  "freeze": {
+    "mismatch_status": "ROOT_VALIDATION_MISMATCH",
+    "paths": [
+      "scripts/select_m6_remarriage_round2.py",
+      "scripts/m6_remarriage_round2_selector_config.json",
+      "scripts/reduce_m6_remarriage_round2.py",
+      "scripts/analyze_m6_remarriage_train_delta.py"
+    ],
+    "require_clean_committed_head": true
+  },
+  "protocol": {
+    "maximum_information_year": 2014,
+    "boundaries": [2006, 2008, 2010],
+    "evaluation_years": {
+      "2006": [2007, 2008, 2009, 2010],
+      "2008": [2009, 2010, 2011, 2012],
+      "2010": [2011, 2012, 2013]
+    },
+    "n_periods": {
+      "2006": 4,
+      "2008": 4,
+      "2010": 3
+    },
+    "seeds": [
+      7240,
+      7241,
+      7242,
+      7243,
+      7244,
+      7245,
+      7246,
+      7247,
+      7248,
+      7249,
+      7250,
+      7251,
+      7252,
+      7253,
+      7254,
+      7255,
+      7256,
+      7257,
+      7258,
+      7259,
+      7260,
+      7261,
+      7262,
+      7263,
+      7264,
+      7265,
+      7266,
+      7267,
+      7268,
+      7269,
+      7270,
+      7271,
+      7272,
+      7273,
+      7274,
+      7275,
+      7276,
+      7277,
+      7278,
+      7279
+    ],
+    "blocks": [
+      [
+        7240,
+        7241,
+        7242,
+        7243,
+        7244,
+        7245,
+        7246,
+        7247,
+        7248,
+        7249,
+        7250,
+        7251,
+        7252,
+        7253,
+        7254,
+        7255,
+        7256,
+        7257,
+        7258,
+        7259
+      ],
+      [
+        7260,
+        7261,
+        7262,
+        7263,
+        7264,
+        7265,
+        7266,
+        7267,
+        7268,
+        7269,
+        7270,
+        7271,
+        7272,
+        7273,
+        7274,
+        7275,
+        7276,
+        7277,
+        7278,
+        7279
+      ]
+    ],
+    "law_order": [
+      "R0",
+      "R_D50_W00",
+      "R_D75_W00",
+      "R_D50_W05",
+      "R_D75_W05"
+    ]
+  },
+  "information_boundary": {
+    "evidence_cutoff": 2014,
+    "maximum_demographic_interview_year": 2013,
+    "maximum_event_or_establishing_report_year": 2014,
+    "maximum_evaluation_year": 2013,
+    "calendar_2014_flow_excluded": true,
+    "prohibited_selection_years": [2015, 2016, 2017, 2018, 2019]
+  },
+  "pseudo_holdouts": {
+    "boundary_order": [2006, 2008, 2010],
+    "boundaries": {
+      "2006": {
+        "anchor_waves": [2007, 2009],
+        "evaluation_years": [2007, 2008, 2009, 2010],
+        "fit_max_year": 2005,
+        "n_periods": 4,
+        "truth_required_interview_year_max": 2011
+      },
+      "2008": {
+        "anchor_waves": [2009, 2011],
+        "evaluation_years": [2009, 2010, 2011, 2012],
+        "fit_max_year": 2007,
+        "n_periods": 4,
+        "truth_required_interview_year_max": 2013
+      },
+      "2010": {
+        "anchor_waves": [2011, 2013],
+        "evaluation_years": [2011, 2012, 2013],
+        "fit_max_year": 2009,
+        "n_periods": 3,
+        "truth_required_interview_year_max": 2013
+      }
+    },
+    "final_information_fit": {
+      "boundary": 2014,
+      "fit_max_year": 2013
+    }
+  },
+  "rng": {
+    "seed_root": 5200,
+    "selection_seeds": [
+      7240,
+      7241,
+      7242,
+      7243,
+      7244,
+      7245,
+      7246,
+      7247,
+      7248,
+      7249,
+      7250,
+      7251,
+      7252,
+      7253,
+      7254,
+      7255,
+      7256,
+      7257,
+      7258,
+      7259,
+      7260,
+      7261,
+      7262,
+      7263,
+      7264,
+      7265,
+      7266,
+      7267,
+      7268,
+      7269,
+      7270,
+      7271,
+      7272,
+      7273,
+      7274,
+      7275,
+      7276,
+      7277,
+      7278,
+      7279
+    ],
+    "selection_seed_blocks": [
+      [
+        7240,
+        7241,
+        7242,
+        7243,
+        7244,
+        7245,
+        7246,
+        7247,
+        7248,
+        7249,
+        7250,
+        7251,
+        7252,
+        7253,
+        7254,
+        7255,
+        7256,
+        7257,
+        7258,
+        7259
+      ],
+      [
+        7260,
+        7261,
+        7262,
+        7263,
+        7264,
+        7265,
+        7266,
+        7267,
+        7268,
+        7269,
+        7270,
+        7271,
+        7272,
+        7273,
+        7274,
+        7275,
+        7276,
+        7277,
+        7278,
+        7279
+      ]
+    ],
+    "draw_index_expression": "seed_minus_5200",
+    "transition_uniform_address": {
+      "child_index": 0,
+      "module": "MARITAL_CORE",
+      "period": 0
+    },
+    "spouse_gap_address": {
+      "child_index": 1,
+      "module": "MARITAL_CORE",
+      "period": 0
+    }
+  },
+  "family": {
+    "origins": ["divorced", "widowed"],
+    "ysd_band_order": ["0-4", "5-9", "10-120"],
+    "raw_age_delta_domain": [18, 64],
+    "outside_raw_age_domain": "exact_R0_probability",
+    "ysd_frontload_contrast": {
+      "0-4": 1.0,
+      "5-9": 0.0,
+      "10-120": -1.0
+    },
+    "divorced_strengths": [0.5, 0.75],
+    "divorced_effective_shift_targets": [-0.5, -0.75],
+    "widowed_logit_options": [0.0, 0.05],
+    "widowed_log_rate_budget": 0.08956860182931886,
+    "law_order": [
+      "R0",
+      "R_D50_W00",
+      "R_D75_W00",
+      "R_D50_W05",
+      "R_D75_W05"
+    ],
+    "nonzero_law_order": [
+      "R_D50_W00",
+      "R_D75_W00",
+      "R_D50_W05",
+      "R_D75_W05"
+    ],
+    "law_components": {
+      "R0": {
+        "divorced_component": "R0",
+        "divorced_k": 0.0,
+        "k": 0.0,
+        "per_origin_outcome": {
+          "divorced": "NONE",
+          "widowed": "NONE"
+        },
+        "omega": 0.0,
+        "widowed_component": "R0",
+        "widowed_omega": 0.0,
+        "widowed_target": "exact_R0"
+      },
+      "R_D50_W00": {
+        "divorced_component": "R_D50",
+        "divorced_k": 0.5,
+        "k": 0.5,
+        "per_origin_outcome": {
+          "divorced": "R_D50",
+          "widowed": "NONE"
+        },
+        "omega": 0.0,
+        "widowed_component": "R0",
+        "widowed_omega": 0.0,
+        "widowed_target": "exact_R0"
+      },
+      "R_D75_W00": {
+        "divorced_component": "R_D75",
+        "divorced_k": 0.75,
+        "k": 0.75,
+        "per_origin_outcome": {
+          "divorced": "R_D75",
+          "widowed": "NONE"
+        },
+        "omega": 0.0,
+        "widowed_component": "R0",
+        "widowed_omega": 0.0,
+        "widowed_target": "exact_R0"
+      },
+      "R_D50_W05": {
+        "divorced_component": "R_D50",
+        "divorced_k": 0.5,
+        "k": 0.5,
+        "per_origin_outcome": {
+          "divorced": "R_D50",
+          "widowed": "R_W05"
+        },
+        "omega": 0.05,
+        "widowed_component": "R_W05",
+        "widowed_omega": 0.05,
+        "widowed_target": "uniform_positive_0.05_logit_shift"
+      },
+      "R_D75_W05": {
+        "divorced_component": "R_D75",
+        "divorced_k": 0.75,
+        "k": 0.75,
+        "per_origin_outcome": {
+          "divorced": "R_D75",
+          "widowed": "R_W05"
+        },
+        "omega": 0.05,
+        "widowed_component": "R_W05",
+        "widowed_omega": 0.05,
+        "widowed_target": "uniform_positive_0.05_logit_shift"
+      }
+    },
+    "cumulative_nonzero_laws_two_rounds": 7,
+    "divorced_area_target": "R0_per_origin_reference_survivor_area",
+    "widowed_area_target": "uniform_level_shift_table_per_origin_reference_survivor_area"
+  },
+  "construction": {
+    "raw_age_delta_domain": [18, 64],
+    "outside_raw_age_domain": "exact_R0_probability",
+    "ysd_band_order": ["0-4", "5-9", "10-120"],
+    "ysd_contrast": [1.0, 0.0, -1.0],
+    "divorced_strengths": [0.5, 0.75],
+    "widowed_logit_options": [0.0, 0.05],
+    "widowed_log_rate_budget": 0.08956860182931886,
+    "area_tolerance": 1e-10,
+    "sum_algorithm": "fixed_adjacent_pairwise_float64",
+    "root_algorithm": "first_accepted_midpoint_bisection",
+    "root_bracket": [0.0, 16.0],
+    "root_maximum_iterations": 200,
+    "root_midpoint_expression": "lo + (hi - lo) / 2",
+    "root_failure_codes": [
+      "ROOT_NONFINITE",
+      "ROOT_NO_BRACKET",
+      "ROOT_STAGNATION",
+      "ROOT_ITERATION_LIMIT",
+      "ROOT_VALIDATION_MISMATCH"
+    ]
+  },
+  "numeric_protocol": {
+    "sum_algorithm": "fixed_adjacent_pairwise_float64",
+    "area_relative_tolerance": 1e-10,
+    "selector_comparison_tolerance": 1e-12,
+    "root": {
+      "algorithm": "first_accepted_midpoint_bisection",
+      "bracket": [0.0, 16.0],
+      "required_bracket_signs": "G_low_positive_G_high_negative",
+      "midpoint_expression": "lo + (hi - lo) / 2",
+      "maximum_iterations": 200,
+      "acceptance": "abs_G_less_than_or_equal_area_relative_tolerance",
+      "failure_codes": [
+        "ROOT_NONFINITE",
+        "ROOT_NO_BRACKET",
+        "ROOT_STAGNATION",
+        "ROOT_ITERATION_LIMIT",
+        "ROOT_VALIDATION_MISMATCH"
+      ]
+    }
+  },
+  "validation_expectations": {
+    "boundaries": {
+      "2006": {
+        "incumbent_table_sha256": "82d59184b6fa81dbebb304546e2c1311c0a2e1b1eb5deee96384bd7bbaeaafc2",
+        "roots": {
+          "0.50": {
+            "beta_frontload": 0.936521805357188,
+            "area_relative_residual": -8.288147945734181e-11,
+            "root_iterations": 35
+          },
+          "0.75": {
+            "beta_frontload": 1.293768887873739,
+            "area_relative_residual": 5.912537126562256e-11,
+            "root_iterations": 35
+          }
+        }
+      },
+      "2008": {
+        "incumbent_table_sha256": "fa69127856302fd974e214ce481572199f37338bc78b52f472ce1bc28c31af08",
+        "roots": {
+          "0.50": {
+            "beta_frontload": 0.9253702559508383,
+            "area_relative_residual": 8.095990544632059e-11,
+            "root_iterations": 35
+          },
+          "0.75": {
+            "beta_frontload": 1.2791157849133015,
+            "area_relative_residual": 2.4341417770301632e-11,
+            "root_iterations": 32
+          }
+        }
+      },
+      "2010": {
+        "incumbent_table_sha256": "506235b6cbd8295a005cbead1c58ccbbdf4cd997a238d647c86ca2c236551db5",
+        "roots": {
+          "0.50": {
+            "beta_frontload": 0.9710831893607974,
+            "area_relative_residual": -9.570999548458303e-11,
+            "root_iterations": 34
+          },
+          "0.75": {
+            "beta_frontload": 1.3322750581428409,
+            "area_relative_residual": 3.460787212361538e-12,
+            "root_iterations": 34
+          }
+        }
+      },
+      "2014": {
+        "incumbent_table_sha256": "fe09c685ef827890e4ccc96d805b3d5da8a1d45b5f1209073b2668d378673e34",
+        "roots": {
+          "0.50": {
+            "beta_frontload": 0.9303924022242427,
+            "area_relative_residual": 2.8926416817398604e-11,
+            "root_iterations": 34
+          },
+          "0.75": {
+            "beta_frontload": 1.2817100482061505,
+            "area_relative_residual": -9.26887455676706e-11,
+            "root_iterations": 34
+          }
+        }
+      }
+    },
+    "support_struck_named_laws": []
+  },
+  "selector": {
+    "comparison_tolerance": 1e-12,
+    "objective": "mean_boundary_squared_log_pooled_rate_error",
+    "uncertainty": "40_seed_delete_one_jackknife",
+    "jackknife_replicates": 40,
+    "delete_one_seed_count": 39,
+    "jackknife_delete_same_seed_across_all_boundaries": true,
+    "jackknife_reselect_inside_replicate": false,
+    "rules": 7,
+    "rule_definitions": {
+      "1": "all_required_selector_values_finite_positive_log_arguments_and_exact_support_carrier_event_rng_fit_validation_conformance",
+      "2": "all_boundaries_origin_areas_and_deltas_within_frozen_tolerances_positive_beta_positive_exposure_divorced_rise_and_fall_exact_widowed_uniform_shift_and_0_le_g_le_omega_le_BW",
+      "3": "full_J_and_both_fixed_block_J_strictly_better_than_same_seed_R0",
+      "4": "full_40_seed_mean_rate_error_strictly_better_than_R0_at_two_boundaries_and_no_worse_at_all_three",
+      "5": "full_40_seed_mean_pooled_exposure_error_no_worse_than_same_seed_R0_at_every_boundary",
+      "6": "exposure_weighted_pooled_direct_deviance_strictly_better_and_boundary_direct_deviance_strictly_better_at_two_no_worse_at_all_three",
+      "7": "divorced_direct_two_strict_all_no_worse_truth_defined_widowed_zero_event_branch_and_full_40_seed_mean_working_age_widow_exposure_error_no_worse_every_boundary"
+    },
+    "pooled_direct_formula": "sum_boundary_deviance_numerator_over_sum_boundary_deviance_exposure",
+    "zero_event_branch": "publish_widowed_deviance_without_comparison_require_positive_risk_and_0_le_g_le_omega_le_BW",
+    "simplicity_priority": "widowed_thrift_before_divorced_magnitude",
+    "no_op_rule": "select_R0_if_no_eligible_nonzero_or_J_R0_le_best_plus_SE",
+    "one_SE_steps": [
+      "exact_binary64_minimum_J_among_eligible_nonzero_with_bit_equal_simplicity_tie",
+      "cutoff_equals_J_Lbest_plus_SE_J_Lbest",
+      "select_R0_if_J_R0_le_cutoff_plus_1e-12",
+      "otherwise_first_eligible_in_simplicity_order_with_J_le_cutoff_plus_1e-12"
+    ],
+    "selected_outcome_if_no_op": "NO_OP_DESIGNED_PAUSE",
+    "selected_outcome_if_law": "SELECTED_LAW_FOR_AMENDMENT_PROPOSAL",
+    "final_fit_failure": "publish_selected_pseudo_holdout_law_and_continue_designed_pause_without_substitution_or_rerun",
+    "widowed_exposure_guard": "absolute_log_ratio_of_full_40_seed_mean_working_age_widowed_exposure_no_worse_than_same_seed_bank_R0_every_boundary"
+  },
+  "expected_source_audit": {
+    "calendar_2014_flow_excluded": true,
+    "candidate_input_max_information_year": 2014,
+    "raw_source_is_retrospective_product": true,
+    "checksums": {
+      "demographic": "12ad56720f2435f4e738e4cfdfb02a4e6910cdc511f16be21a9108e6f848e81e",
+      "marital_events": "b3451caa2a8be172d0b76a90461b470efbc87a42cd1c51ff60adee4be1504f71",
+      "marital_person_years": "0c1f31c22ecfab97efca6e21be0aa270da4c317fb0a11e0fe4a80bc62d76ad03",
+      "marriage_records": "ed3d89b41fb09858d608534e3f73575bc1f4d2c404d7e7e9fb99963f811361f3"
+    },
+    "raw_rows": {
+      "birth_records": 148739,
+      "deaths": 85536,
+      "demographic": 892639,
+      "marriage_records": 65226
+    },
+    "sanitized_rows": {
+      "actual_births": 69188,
+      "actual_marriages": 22133,
+      "birth_records": 127862,
+      "deaths": 85536,
+      "demographic": 773205,
+      "marital_events": 18583,
+      "marital_person_years": 531199,
+      "marriage_records": 44693
+    },
+    "sanitized_max_year": {
+      "actual_birth": 2013,
+      "actual_birth_report": 2013,
+      "actual_marriage_report": 2013,
+      "actual_marriage_start": 2013,
+      "death": 2014,
+      "demographic_period": 2013,
+      "marital_event": 2013,
+      "marital_person_year": 2014
+    }
+  },
+  "expected_pseudo_holdouts": {
+    "2006": {
+      "anchor_households_before_marital_intersection": 8478,
+      "anchor_persons_before_marital_intersection": 24911,
+      "projected_persons": 8057,
+      "entry_dissolved_carriers": 690,
+      "truth_support_rows": 18358,
+      "support_checksum": "725494b1b4bcf3faebf06fcb22176041e6e66e23de70cc8d10f6d4c473320c6e",
+      "truth_required_interview_year_max": 2011,
+      "truth_same_year_ysd0_events": 1,
+      "truth_same_year_ysd0_event_weight": 3250.0,
+      "truth": {
+        "risk_rows": 1056,
+        "event_rows": 46,
+        "exposure": 12518941.0,
+        "numerator": 514477.0,
+        "rate": 0.04109588822249422
+      },
+      "truth_origin": {
+        "divorced": {
+          "risk_rows": 931,
+          "event_rows": 40,
+          "exposure": 11339380.0,
+          "numerator": 439186.0,
+          "rate": 0.0387310417324404
+        },
+        "widowed": {
+          "risk_rows": 125,
+          "event_rows": 6,
+          "exposure": 1179561.0,
+          "numerator": 75291.0,
+          "rate": 0.06382967900769863
+        }
+      }
+    },
+    "2008": {
+      "anchor_households_before_marital_intersection": 8781,
+      "anchor_persons_before_marital_intersection": 25516,
+      "projected_persons": 7987,
+      "entry_dissolved_carriers": 581,
+      "truth_support_rows": 17997,
+      "support_checksum": "fd63f8272607938a4b57b01459c4e4fcf4d436bd3b3fb12566d1f0e8038e177c",
+      "truth_required_interview_year_max": 2013,
+      "truth_same_year_ysd0_events": 4,
+      "truth_same_year_ysd0_event_weight": 28971.0,
+      "truth": {
+        "risk_rows": 781,
+        "event_rows": 37,
+        "exposure": 8798740.0,
+        "numerator": 349758.0,
+        "rate": 0.039750918881567135
+      },
+      "truth_origin": {
+        "divorced": {
+          "risk_rows": 701,
+          "event_rows": 34,
+          "exposure": 8165478.0,
+          "numerator": 320346.0,
+          "rate": 0.03923175103772247
+        },
+        "widowed": {
+          "risk_rows": 80,
+          "event_rows": 3,
+          "exposure": 633262.0,
+          "numerator": 29412.0,
+          "rate": 0.0464452311997246
+        }
+      }
+    },
+    "2010": {
+      "anchor_households_before_marital_intersection": 8994,
+      "anchor_persons_before_marital_intersection": 25973,
+      "projected_persons": 7389,
+      "entry_dissolved_carriers": 419,
+      "truth_support_rows": 13458,
+      "support_checksum": "6bc35061cbd7dbb30a22984b8cb198091afde5c778e0492dd82aa789b1d08b6e",
+      "truth_required_interview_year_max": 2013,
+      "truth_same_year_ysd0_events": 3,
+      "truth_same_year_ysd0_event_weight": 15869.0,
+      "truth": {
+        "risk_rows": 428,
+        "event_rows": 20,
+        "exposure": 4765776.0,
+        "numerator": 153680.0,
+        "rate": 0.03224658481640765
+      },
+      "truth_origin": {
+        "divorced": {
+          "risk_rows": 388,
+          "event_rows": 20,
+          "exposure": 4459239.0,
+          "numerator": 153680.0,
+          "rate": 0.034463279496793064
+        },
+        "widowed": {
+          "risk_rows": 40,
+          "event_rows": 0,
+          "exposure": 306537.0,
+          "numerator": 0.0,
+          "rate": 0.0
+        }
+      }
+    }
+  },
+  "output": {
+    "selector_script": "scripts/select_m6_remarriage_round2.py",
+    "config_file": "scripts/m6_remarriage_round2_selector_config.json",
+    "reducer_script": "scripts/reduce_m6_remarriage_round2.py",
+    "raw_schema": "m6.remarriage.learning_plan.round2.selection.full.v1",
+    "raw_stdout_external_filename": "m6_remarriage_round2_selection_full.json",
+    "full_stdout_json": "docs/analysis/m6_remarriage_round2_selection_full.json",
+    "findings_schema": "m6.remarriage.learning_plan.round2.selection.findings.v1",
+    "findings_json": "docs/analysis/m6_remarriage_round2_selection_results.json",
+    "findings_report": "docs/analysis/m6_remarriage_round2_selection.md"
+  }
+}
