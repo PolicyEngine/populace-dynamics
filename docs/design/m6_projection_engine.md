@@ -158,7 +158,15 @@
   5001901052](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5001901052);
   adds the stable-coordinate positive-continuation refresh, isolated substreams
   `{4,5}`, train-only Q-grid / one-SE selector, `q=0` bit-equivalence preflight,
-  and the one-field `gate_m6.design_commit` re-finalization ceremony; leaves the
+  and the one-field `gate_m6.design_commit` re-finalization ceremony; records the
+  §2.7.6.4 flat-`yval` erratum: its prose says first-`wtil`, while
+  `CellMarginal.rank` and the pinned test use `np.interp`'s rightmost tie position
+  (`src/populace_dynamics/engine/forward_earnings.py:137-140`;
+  `tests/test_m6_engine_forward_earnings.py:239-268`). The discrepancy is
+  immaterial to certified and candidate-2 surfaces—a deterministic bounded corner
+  perturbation whose prose is non-operative for candidate 2 under the `q=0`
+  bit-equivalence preflight—and the prose-only correction is routed to a separate
+  erratum lane without changing §2.7.6.4 here; leaves the
   separately ratified first-marriage candidate-family spec outside §2.7.7 and
   changes no §2.8 surface, floor, or gate threshold).
 
