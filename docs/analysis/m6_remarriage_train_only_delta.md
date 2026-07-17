@@ -4,10 +4,8 @@
 - **Authority:** candidate-2 program merged at
   `051b4494ecce9345da14d68488bb2833ed476d22`; independently verified in
   issue-comment `5001901052`
-- **Status at this commit:** candidate laws and selector frozen before any
-  marital-outcome fit or comparison; findings pending. A separate calendar
-  audit inspected only pre-2014 demographic wave availability and did not
-  inspect remarriage outcomes or choose any law.
+- **Status at this commit:** complete. The frozen train-only selector chose L0,
+  so the finding is no-op and the recommendation is the designed pause.
 - **Permitted evidence:** real rows whose event year, state year, and required
   interview year are all no later than 2014; synthetic computation
 - **Prohibited evidence:** every 2015+ row, truth moment, candidate output, gate
@@ -187,12 +185,149 @@ recommend the designed pause.
 
 ## 6. Findings
 
-Pending the frozen train-only computation.
+### 6.1 Information-boundary and execution audit
+
+The helper ran with Python 3.13 against the read-only staged PSID directory:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONWARNINGS='ignore::FutureWarning' \
+PYTHONPATH=src \
+POPULACE_DYNAMICS_PSID_DIR=/Users/maxghenis/PolicyEngine/psid-data \
+python3.13 scripts/analyze_m6_remarriage_train_delta.py
+```
+
+Its full JSON stdout has SHA-256
+`fe914611c1e0f2e96db15e62e49b69907af428379bc6cc5f3d1f3dbb782a540c`.
+An independent replay of the same frozen command was byte-identical and
+returned the same hash and disposition.
+The committed [aggregate result ledger](m6_remarriage_train_only_delta_results.json)
+removes only the 480 repetitive per-seed records; it retains source and support
+checksums, fit diagnostics, probability ranges, direct diagnostics, draw means,
+both fixed blocks, origin results, final parameters, and the selector record.
+
+The staged marriage source is a retrospective product rather than a historical
+pre-2015 snapshot. The helper loaded it read-only, severed every post-2014 field
+before panel construction, and passed only the sanitized copy to fitting and
+selection. The sanitized demographic maximum was interview 2013; the marital
+event maximum was 2013. The actual fit maxima at boundaries 2006, 2008, and
+2010 were respectively 2005, 2007, and 2009, and the final information-dated
+fit maximum was 2013. Every evaluation row carried an asserted establishing
+interview no later than 2013. Calendar 2014 was absent because it would require
+the forbidden 2015 interview.
+
+The helper did not import or call the M6 scorer, read a gate tolerance, or write
+under `runs/`. It emitted the current first-marriage fitter's LBFGS 1,000-
+iteration convergence warning once at each boundary; all laws shared that
+unchanged fitted component and common random numbers. No 2015-2019 row or
+outcome entered any fit, diagnostic, comparison, or choice.
+
+### 6.2 Pseudo-holdout support and truth
+
+| Boundary | Evaluation years | Anchor persons / households | Projected persons | Truth support / dissolved rows | Remarriage rows | Entry-dissolved carriers | Truth rate |
+|---:|:---|---:|---:|---:|---:|---:|---:|
+| 2006 | 2007-2010 | 24,911 / 8,478 | 8,057 | 18,358 / 1,056 | 46 | 690 | 0.041096 |
+| 2008 | 2009-2012 | 25,516 / 8,781 | 7,987 | 17,997 / 781 | 37 | 581 | 0.039751 |
+| 2010 | 2011-2013 | 25,973 / 8,994 | 7,389 | 13,458 / 428 | 20 | 419 | 0.032247 |
+
+The F6-weighted truth exposure/numerator pairs were
+`12,518,941 / 514,477`, `8,798,740 / 349,758`, and
+`4,765,776 / 153,680`. Valid same-year dissolution-remarriage events numbered
+1, 4, and 3, with F6 weights 3,250, 28,971, and 15,869. They remain in every
+truth numerator and rate. Only the row-indexed deviance omits them, leaving 45,
+33, and 17 matchable event rows; no unmatched nonzero-YSD event occurred.
+
+All 480 projected supports exactly matched their boundary's truth person-year
+keys. Every one of the 270,400 entry-carrier comparisons preserved dissolved
+state and YSD: 40 draws x 4 laws x `(690 + 581 + 419)` carriers. The three
+truth-support checksums are recorded in the result ledger.
+
+### 6.3 The incumbent overshoot reproduces on train-only splits
+
+| Boundary | Direct expected / actual numerator | Projected exposure / truth | Projected numerator / truth | Projected rate / truth | Block rate ratios |
+|---:|---:|---:|---:|---:|:---|
+| 2006 | 1.5260 | 1.0307 | 1.6133 | 1.5674 | 1.6493 / 1.4855 |
+| 2008 | 1.6189 | 1.0303 | 1.7057 | 1.6577 | 1.6316 / 1.6837 |
+| 2010 | 2.0385 | 1.0583 | 2.2956 | 2.1742 | 2.0650 / 2.2835 |
+
+This is a clear train-only reproduction. L0 overstates the expected numerator
+even on the realized dissolved rows, and full projection transports that
+overstatement while adding a smaller 3.0-5.8% dissolved-exposure excess. The
+pooled rate overshoot appears at every boundary and in both fixed seed blocks;
+it is not an artifact of the published 2015-2019 residual.
+
+The origin ledger localizes the result. L0's divorced-origin rate ratios were
+1.6712, 1.7329, and 2.0420. Its widowed-origin rate ratios were 0.9718 and
+0.9143 in the first two windows; the final window had zero truth widowed
+remarriages, so that ratio is undefined and recorded as `null`. Widowed
+exposure was nevertheless high by 10.2%, 20.2%, and 16.5%. The pooled numerator
+overshoot is therefore primarily divorced-origin hazard transport, while the
+global risk set also over-transports widowed exposure.
+
+### 6.4 Frozen candidate comparison
+
+| Law | Rate ratio 2006 | Rate ratio 2008 | Rate ratio 2010 | Full J | Block J1 / J2 | Pooled direct deviance |
+|:---|---:|---:|---:|---:|:---|---:|
+| L0 | 1.5674 | 1.6577 | 2.1742 | 0.353545 | 0.338605 / 0.369951 | 0.320353 |
+| L1 | 1.5395 | 1.6350 | 2.1523 | 0.338462 | 0.324736 / 0.353713 | 0.319624 |
+| L2 | 1.5411 | 1.6362 | 2.1562 | 0.339955 | 0.326587 / 0.354810 | 0.319658 |
+| L3 | 1.1867 | 1.2389 | 1.5204 | 0.083569 | 0.088679 / 0.080448 | 0.307710 |
+
+Each nonzero law had defined parameters, lowered full and both block losses,
+improved the pooled and boundary direct deviance, and met the rate-boundary
+rule. None passed the frozen exposure protection:
+
+| Law | Exposure ratio 2006 | Exposure ratio 2008 | Exposure ratio 2010 | Failed selector check |
+|:---|---:|---:|---:|:---|
+| L0 | 1.030674 | 1.030281 | 1.058255 | baseline |
+| L1 | 1.031699 | 1.031067 | 1.058875 | exposure boundaries |
+| L2 | 1.031647 | 1.031067 | 1.058713 | exposure boundaries |
+| L3 | 1.046868 | 1.045541 | 1.070651 | exposure boundaries |
+
+All three candidate deltas made absolute log-exposure error worse than L0 at
+all three boundaries. The strict comparison was fixed before outcomes were
+read and did not use a gate tolerance. Consequently, all nonzero laws are
+ineligible, the one-standard-error step is not invoked, and the selector
+returns L0.
+
+L3's fitted recent-window shifts also become much stronger as the information
+boundary advances: -0.3001 from 92 events at 2006, -0.3323 from 65 events at
+2008, -0.4500 from 49 events at 2010, and -0.8698 from only 28 effective
+2011-2013 events for the final fit. Although L3 most sharply lowers pooled
+rate loss, that final shift is not supported as a ratifiable law under the
+frozen transport safeguard. A global downward shift also deepens the already
+low widowed-origin rate, reaching about 0.72 of truth in the first two splits.
+
+Across each boundary and the final fit, all 60 cells had exposure (zero were
+empty) and four were thin under the frozen threshold. L2's four parent groups
+and L3's recent window passed their predeclared minimum-event rules. Full
+parent hazards, counts, probability ranges, and checksums are in the aggregate
+ledger.
+
+### 6.5 Limits of the finding
+
+The three windows overlap and are recent-history stress tests, not independent
+replications. The last has only 20 remarriage rows and no widowed-origin event.
+The retrospective staged source was sanitizable but is not a contemporaneous
+pre-2015 snapshot, and the shared first-marriage fit emitted the convergence
+warning noted above. These facts counsel against inventing a fifth law after
+seeing the results; they do not change the frozen selector's no-op result.
+
+This report establishes that the overshoot mechanism reproduces before 2015.
+It does not establish an admissible corrective law. Choosing one by consulting
+the published 2015-2019 residual would cross the campaign bright line.
 
 ## 7. Recommendation
 
-Pending. The only permitted outcomes are a specific law for a later amendment
-lane or no-op with a designed pause.
+**Recommend no-op and the designed pause.** Leave candidate 2, its registered
+remarriage law, and every gate surface unchanged. No L1-L3 law is ratifiable
+from the frozen train-only evidence because each worsens dissolved-exposure
+transport at every pseudo-boundary.
+
+A future lane may propose a new train-only protocol targeted to the divorced-
+origin hazard mechanism and explicitly protecting the widowed risk set, but it
+must freeze that law and selector before reading outcomes and must not use the
+2015-2019 holdout to choose it. This lane supplies no authority for such an
+amendment now.
 
 ## References
 
@@ -203,3 +338,5 @@ lane or no-op with a designed pause.
   [`5001901052`](https://github.com/PolicyEngine/populace-dynamics/pull/227#issuecomment-5001901052).
 - Forensic motivation only: issue #42 comment
   [`4997635883`](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4997635883).
+- Aggregate train-only result ledger:
+  [`m6_remarriage_train_only_delta_results.json`](m6_remarriage_train_only_delta_results.json).
