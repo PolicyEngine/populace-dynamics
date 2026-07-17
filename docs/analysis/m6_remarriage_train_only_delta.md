@@ -4,8 +4,10 @@
 - **Authority:** candidate-2 program merged at
   `051b4494ecce9345da14d68488bb2833ed476d22`; independently verified in
   issue-comment `5001901052`
-- **Status at this commit:** protocol frozen before any real-data calculation;
-  findings pending
+- **Status at this commit:** candidate laws and selector frozen before any
+  marital-outcome fit or comparison; findings pending. A separate calendar
+  audit inspected only pre-2014 demographic wave availability and did not
+  inspect remarriage outcomes or choose any law.
 - **Permitted evidence:** real rows whose event year, state year, and required
   interview year are all no later than 2014; synthetic computation
 - **Prohibited evidence:** every 2015+ row, truth moment, candidate output, gate
@@ -64,15 +66,17 @@ The expanding boundaries are exactly `{2006, 2008, 2010}`. At boundary `b`:
    interview in `{b+1,b+3}`. Hold its household and F6 weight fixed.
 4. Seed the realized marital state at that person's anchor, including the
    landed entry-dissolved carrier history, and project through `b+4`.
-5. Evaluate years `{b+1,...,b+4}` on symmetric opening-wave presence support,
-   pooled over sex and ages 18-64. The three windows are therefore 2007-2010,
-   2009-2012, and 2011-2014. Their overlap is deliberate recent-history stress,
-   not independent replication.
+5. Evaluate calendar years `{b+1,...,b+4}` only when the interview required to
+   establish that annual row is also no later than 2014, on symmetric
+   opening-wave presence support pooled over sex and ages 18-64. The effective
+   windows are therefore 2007-2010, 2009-2012, and 2011-2013. Calendar 2014 is
+   excluded because its establishing PSID interview is in 2015. Window overlap
+   is deliberate recent-history stress, not independent replication.
 
 The prototype must assert before calculation that the largest fit year and
-required interview year are at most `b`, and that the largest evaluation year
-is at most 2014. It must never call the M6 scorer, read `gates.yaml`, or write a
-`runs/` artifact.
+required interview year are at most `b`, and that every evaluation row's year
+and required interview year are at most 2014. It must never call the M6 scorer,
+read `gates.yaml`, or write a `runs/` artifact.
 
 For Monte Carlo transport, use 40 isolated analysis seeds
 `{7200,...,7239}`. All four laws use common random numbers. The two fixed
@@ -124,8 +128,9 @@ h_L3,c = expit(logit(h_L1,c) + delta_b).
 
 L3 is ineligible if the recent window has fewer than 20 unweighted events,
 non-positive exposure, no finite root, or any non-finite output. If L3 is
-selected, its final 2014 parameter is computed by the identical rule on
-2011-2014 and an L1 table fit through 2014.
+selected, its final 2014 parameter is computed by the identical information-
+dated rule on the effective 2011-2013 rows (calendar 2014 requires a forbidden
+2015 interview) and an L1 table fit through the 2014 information boundary.
 
 There are four laws total, including the exact no-op. There is no continuous
 hyperparameter grid and no after-the-fact subgroup, window, cap, or direction
