@@ -1,9 +1,16 @@
 # ADR 0003: Employer-firm extension — C1 spell schema and C2 canonical firm-size banding
 
-**Status:** Proposed (week-1 freeze candidate for the interface
-contracts on
-[populace-dynamics#192](https://github.com/PolicyEngine/populace-dynamics/issues/192);
-changed only by joint PR between workstreams A and B once frozen)
+**Status:** Accepted — C1 and C2 frozen 2026-07-16. From this
+point the contracts change only by joint PR between workstreams A
+and B ([populace-dynamics#192](https://github.com/PolicyEngine/populace-dynamics/issues/192)).
+
+**Sign-off:** @vahid-ahmadi (Workstream B, author) ·
+@daphnehanse11 (Workstream A) — the joint sign-off is recorded by
+the merge of the freeze PR: authorship by one workstream owner plus
+approval by the other. First scheduled amendment (pre-registered
+below):
+the C1 ``hours_band``/monthly-hours column once phase-1 establishes
+SIPP's supportable hours granularity.
 
 ## Context
 
@@ -182,6 +189,15 @@ review finding 3):
 - `src/populace_dynamics/firms/banding.py` is the single canonical
   banding implementation; workstream A trains to it. Changing a band
   edge after the freeze requires a joint PR touching this ADR.
+- **Cross-workstream pushes carry an approval norm.** Both
+  workstreams push directly to each other's branches when useful
+  (reader fixes, rebases, contract-text corrections — this has run
+  in both directions and worked). The norm the freeze makes
+  explicit: a change that touches contract semantics (C1 columns,
+  C2 bands/codings, gate definitions) requires the *other*
+  workstream owner's approval on the PR even when the commit was
+  pushed directly, so pre-registration always records who decided,
+  not just who typed.
 - The committed target extracts (`data/external/susb_us_*`,
   `bds_us_*`, `qwi_us_*`, `j2j_us_*`; provenance in
   `data/external/employer_firm_target_sources.md`) are external

@@ -320,6 +320,107 @@ def test_marital_core_appends_certified_change_points_and_durations():
     assert events.loc[2016, "years_since_dissolution"] == 1
 
 
+def _entry_state_panel(
+    states: list[str],
+    years_since: list[object],
+    durations: list[object],
+    *,
+    censor_year: int,
+) -> tuple[transitions.MaritalPanel, set[int]]:
+    """A builder-shaped panel containing only each person's entry row."""
+    n_people = len(states)
+    person_ids = np.arange(101, 101 + n_people, dtype=np.int64)
+    attrs = pd.DataFrame(
+        {
+            "person_id": person_ids,
+            "sex": [
+                "female" if i % 2 == 0 else "male" for i in range(n_people)
+            ],
+            "birth_year": np.arange(1971.0, 1971.0 + n_people),
+            "most_recent_report_year": np.full(n_people, float(censor_year)),
+            "n_marriages": np.ones(n_people),
+            "death_year": pd.array([pd.NA] * n_people, dtype="Int64"),
+            "censor_year": np.full(n_people, float(censor_year)),
+            "weight": np.ones(n_people),
+            "start_exposure_year": np.full(n_people, 2015.0),
+        }
+    )
+    person_years = transitions._person_years_frame(attrs)
+    person_years = person_years[person_years["year"] == 2015].copy()
+    person_years["marital_state"] = states
+    person_years["marriage_duration"] = pd.array(durations, dtype="Int64")
+    person_years["years_since_dissolution"] = pd.array(
+        years_since, dtype="Int64"
+    )
+    panel = transitions.MaritalPanel(
+        person_years=person_years,
+        events=_events_schema(),
+        attrs=attrs,
+    )
+    return panel, set(person_ids.tolist())
+
+
+def test_entry_dissolved_person_year_history_survives_assembly():
+    panel, holdout_ids = _entry_state_panel(
+        ["divorced"] * 6 + ["married"],
+        [4] * 6 + [pd.NA],
+        [pd.NA] * 6 + [10],
+        censor_year=2022,
+    )
+
+    simulated, _ = _simulate_candidate16_with_generators(
+        panel,
+        holdout_ids,
+        _components(
+            holdout_ids,
+            divorce_probability=1.0,
+        ),
+        np.random.default_rng(5200),
+        np.random.default_rng(6200),
+    )
+
+    dissolved = simulated.person_years[
+        simulated.person_years["marital_state"] == "divorced"
+    ]
+    # Six entry-divorced people contribute 6 * 8 rows; the married control
+    # dissolves in 2015 and contributes seven more.  Before the repair only
+    # the control survives assembly: 7 / 55 = 12.73%, the real-frame class.
+    assert len(dissolved) / 55 == 1.0
+    entry_dissolved = dissolved[dissolved["person_id"] == 101].sort_values(
+        "year"
+    )
+    assert entry_dissolved["years_since_dissolution"].tolist() == list(
+        range(4, 12)
+    )
+
+
+def test_entry_dissolved_remarriages_keep_event_history_through_assembly():
+    panel, holdout_ids = _entry_state_panel(
+        ["divorced", "widowed"],
+        [4, 7],
+        [pd.NA, pd.NA],
+        censor_year=2015,
+    )
+
+    simulated, _ = _simulate_candidate16_with_generators(
+        panel,
+        holdout_ids,
+        _components(
+            holdout_ids,
+            remarriage_probability=1.0,
+        ),
+        np.random.default_rng(5200),
+        np.random.default_rng(6200),
+    )
+
+    events = simulated.events.sort_values("person_id")
+    assert events["transition"].tolist() == ["remarriage"] * 2
+    assert events["years_since_dissolution"].tolist() == [4, 7]
+    assert events["origin"].tolist() == ["divorced", "widowed"]
+    # Structural entry-history carriers remain inert in lifetime counts.
+    assert simulated.attrs["n_marriages"].tolist() == [1.0, 1.0]
+
+
 def _minor_marital_inputs(
     *,
     birth_year: float,
