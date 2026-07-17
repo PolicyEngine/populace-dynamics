@@ -134,7 +134,13 @@ There are four laws total, including the exact no-op. There is no continuous
 hyperparameter grid and no after-the-fact subgroup, window, cap, or direction
 search.
 
-## 5. Frozen diagnostics and selector
+## 5. Diagnostics and selector
+
+The five selector rules below were frozen in `b887e4e`. The diagnostic
+implementation was not uniformly frozen at first contact with real data:
+`20568ac` later made two rule-5 input amendments, disclosed with their outcome
+audit in section 6.1. Rule 4, which alone determined selection, is unchanged
+from the initial freeze.
 
 For each law and boundary, publish:
 
@@ -161,8 +167,8 @@ J(L) = mean_b [log(projected_rate_L,b / truth_rate_b)^2],
 ```
 
 using each law's 40-draw mean projected rate. Also compute the analogous `J`
-inside each fixed seed block and the pooled direct-standardized Bernoulli
-deviance.
+inside each fixed seed block and the exposure-weighted pooled direct-
+standardized Bernoulli deviance.
 
 A nonzero law is eligible for selection only if all of the following hold:
 
@@ -201,6 +207,18 @@ Its full JSON stdout has SHA-256
 `fe914611c1e0f2e96db15e62e49b69907af428379bc6cc5f3d1f3dbb782a540c`.
 An independent replay of the same frozen command was byte-identical and
 returned the same hash and disposition.
+
+After the helper first touched real data, commit `20568ac` made two rule-5
+diagnostic amendments. First, it converted the original abort on the eight
+valid same-year dissolve-remarry events (`ysd=0`) into exclusion only from the
+row-indexed deviance, while retaining them in every numerator and rate
+diagnostic (`scripts/analyze_m6_remarriage_train_delta.py:831-914`). Second, it
+changed pooled deviance from an equal-boundary mean to exposure-weighted pooling
+(`scripts/analyze_m6_remarriage_train_delta.py:1279-1289`). Both amendments were
+outcome-neutral for selection: every L1-L3 boundary deviance is below L0, so
+rule 5 passes under either pooling definition, while frozen rule 4 alone makes
+all three laws ineligible (`scripts/analyze_m6_remarriage_train_delta.py:1330-1353`).
+
 The committed [aggregate result ledger](m6_remarriage_train_only_delta_results.json)
 removes the 480 repetitive per-seed records and 240 detailed cell records. It
 retains source and support checksums, aggregate fit diagnostics, probability
@@ -324,9 +342,20 @@ ledger.
 The three windows overlap and are recent-history stress tests, not independent
 replications. The last has only 20 remarriage rows and no widowed-origin event.
 The retrospective staged source was sanitizable but is not a contemporaneous
-pre-2015 snapshot, and the shared first-marriage fit emitted the convergence
-warning noted above. These facts counsel against inventing a fifth law after
-seeing the results; they do not change the frozen selector's no-op result.
+pre-2015 snapshot. Its field-aware convention is exclusion-only: an actual
+marriage survives only when both its start year and most-recent report year are
+no later than 2014 (`src/populace_dynamics/engine/refit.py:316-348` and
+`src/populace_dynamics/engine/refit.py:409-443`). Thus a pre-2015 marriage last
+reported after 2014 is dropped rather than reconstructed as a contemporaneous
+record, making retained-source composition correlated with later panel
+continuation even though no post-2014 value enters any computation. The raw
+65,226 records reduce to 44,693, including 22,133 admissible marriages
+(`docs/analysis/m6_remarriage_train_only_delta_results.json:123-149`). This is
+the incumbent's own certified `<=2014` convention, and L0 is bit-equivalent
+under it (`scripts/analyze_m6_remarriage_train_delta.py:439-447`). The shared
+first-marriage fit also emitted the convergence warning noted above. These
+facts counsel against inventing a fifth law after seeing the results; they do
+not change the frozen selector's no-op result.
 
 This report establishes that the overshoot mechanism reproduces before 2015.
 It does not establish an admissible corrective law. Choosing one by consulting
