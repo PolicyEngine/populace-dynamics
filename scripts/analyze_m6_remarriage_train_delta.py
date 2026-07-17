@@ -655,7 +655,7 @@ def _assert_carrier_conformance(
             "years_since_dissolution",
         ]
     ].copy()
-    observed = carriers[["person_id", "year"]].merge(
+    observed = carriers.merge(
         projected_panel.person_years[
             [
                 "person_id",
