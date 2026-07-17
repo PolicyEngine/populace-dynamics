@@ -28,6 +28,22 @@ Sources (all keyless HTTPS GETs of published aggregate files):
   job-to-job hire/separation flows by firm size x NAICS sector,
   2015Q1 on (the ``year >= 2015`` filter; matches the provenance
   note). Feeds E11's national margin.
+* **J2J R2026Q1 (us, sex x age, no firm characteristics)** -- national
+  job-to-job hire/separation flows by sex x age group, all-industry
+  margin only (the committed-extract size cap rules out the full
+  sector detail), 2015Q1 on. Feeds gate E2's age x sex
+  separation/hire/J2J rate references. NOTE: LEHD calls the sex x
+  age tabulation ``sa`` (``se`` is sex x *education*).
+* **J2JOD R2026Q1 (us, origin x destination firm size)** -- national
+  job-to-job flows by origin firm size x destination firm size,
+  2015Q1 on. Feeds gate E11's origin/destination size-ladder
+  reference. The LEHD flat J2JOD files publish only the one-sided
+  firm-size margins, so the full cross comes from the LED Extraction
+  Tool query API (``ledextract.ces.census.gov``), which serves the
+  current release (probed 2026-07-17: schema V4.14.0 = R2026Q1).
+  The full detail is released for 2015Q1-2016Q1 only; later
+  quarters are suppressed (status flag 11) and only the margins
+  remain published -- see the provenance note.
 
 Run from the repository root::
 
@@ -42,7 +58,10 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import json
 import tempfile
+import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -52,6 +71,9 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "data" / "external"
 
 RETRIEVED = "2026-07-14"
+#: Fetch date of the second-wave extracts (sex x age J2J, J2JOD
+#: origin x destination firm size).
+RETRIEVED_WAVE2 = "2026-07-17"
 
 #: Pinned raw source files: url -> sha256 of the download performed on
 #: RETRIEVED. A digest mismatch means the agency re-issued the file;
@@ -83,6 +105,15 @@ SOURCES: dict[str, tuple[str, str]] = {
         "j2j_us_d_fs_gn_ns_oslp_u.csv.gz",
         "abdd573d414d66f864828952501cee0a6ef6c8db88cb789da38af1a3" "c9d55c6f",
     ),
+    "j2j_us_sa_f_gn_ns_oslp_u.csv.gz": (
+        "https://lehd.ces.census.gov/data/j2j/R2026Q1/us/j2j/"
+        "j2j_us_sa_f_gn_ns_oslp_u.csv.gz",
+        "0e043fc8796bd3e11231ff6d174fdfebed926c9d40da4f069a3ad31e" "ed55aba0",
+    ),
+    "label_agegrp.csv": (
+        "https://lehd.ces.census.gov/data/schema/latest/" "label_agegrp.csv",
+        "eb478c6eda6c12a57609afaf89bbb42dd4d9fb2ee883f6dd0399fb71" "7b27889b",
+    ),
     "label_firmsize.csv": (
         "https://lehd.ces.census.gov/data/schema/latest/" "label_firmsize.csv",
         "29dfd8fed594be600c6c554b4cb27bd590c45da549c30e32824cea42" "48dffe1f",
@@ -102,6 +133,66 @@ FIRMSIZE_LABELS = {
     4: "250-499 Employees",
     5: "500+ Employees",
 }
+
+#: LEHD sex code -> label (pinned from the J2J schema).
+SEX_LABELS = {0: "All Sexes", 1: "Male", 2: "Female"}
+
+#: LEHD age-group code -> label (pinned from label_agegrp.csv).
+AGEGRP_LABELS = {
+    "A00": "All Ages (14-99)",
+    "A01": "14-18",
+    "A02": "19-21",
+    "A03": "22-24",
+    "A04": "25-34",
+    "A05": "35-44",
+    "A06": "45-54",
+    "A07": "55-64",
+    "A08": "65-99",
+}
+
+# ----------------------------------------------------------------
+# LED Extraction Tool (the J2JOD origin x destination firm-size
+# cross is not published in the LEHD flat files -- they carry only
+# the one-sided firm-size margins -- so it is pulled through the
+# LED Extraction Tool's query API instead).
+# ----------------------------------------------------------------
+
+LED_BASE = "https://ledextract.ces.census.gov"
+
+#: Query submitted to the LED Extraction Tool (POST /j2j/download).
+#: ``oq`` is the ordinal quarter, year * 4 + (quarter - 1):
+#: 8060 = 2015Q1 .. 8100 = 2025Q1 (the last quarter in R2026Q1).
+#: Origin-destination queries must carry the ``*_orig`` keys.
+LED_J2JOD_REQUEST = {
+    "version": "V4.14.0",
+    "seasonadj": ["U"],
+    "geography": ["00"],
+    "geography_orig": ["00"],
+    "industry": ["00"],
+    "industry_orig": ["00"],
+    "firmage": ["0"],
+    "firmage_orig": ["0"],
+    "firmsize": ["0", "1", "2", "3", "4", "5"],
+    "firmsize_orig": ["0", "1", "2", "3", "4", "5"],
+    "sex": ["0"],
+    "agegrp": ["A00"],
+    "education": ["E0"],
+    "race": ["A0"],
+    "ethnicity": ["A0"],
+    "indicator": ["J2J", "EE", "AQHire", "J2JS", "EES", "AQHireS"],
+    "oq": list(range(8060, 8101)),
+    "export_labels": False,
+}
+
+#: sha256 of the CSV returned by the LED Extraction Tool for
+#: LED_J2JOD_REQUEST on RETRIEVED_WAVE2 (release R2026Q1, schema
+#: V4.14.0; the fetch was repeated and is byte-stable). The tool
+#: serves the *current* release, so this pin breaks -- loudly, by
+#: design -- when LEHD rotates to R2026Q2; re-pin deliberately and
+#: update the provenance note.
+LED_J2JOD_SHA256 = (
+    "adbd16e2c23ee3a87a22c5f6520eca37b09f8036131d4147c081c89d" "6a5a867f"
+)
 
 QWI_MEASURES = [
     "Emp",
@@ -134,6 +225,68 @@ J2J_MEASURES = [
     "NEHire",
     "ENSep",
 ]
+
+
+J2JOD_MEASURES = ["EE", "AQHire", "J2J", "EES", "AQHireS", "J2JS"]
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Surface the LED tool's 303 instead of following it (the
+    redirect target is the HTML results page; the CSV lives at
+    ``download.csv`` with the same query string)."""
+
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+def fetch_led_j2jod(cache_dir: Path) -> Path:
+    """Fetch the J2JOD firm-size cross via the LED Extraction Tool.
+
+    POST the JSON query to ``/j2j/download``; the tool answers 303
+    with the encoded query string, and ``/j2j/download.csv?<query>``
+    serves the extract. The result is cached and its sha256 verified
+    against the pinned digest (see :data:`LED_J2JOD_SHA256`).
+    """
+    path = cache_dir / "led_j2jod_us_fsfs_2015on.csv"
+    if not path.exists():
+        print("querying the LED Extraction Tool (J2JOD firm-size cross)")
+        req = urllib.request.Request(
+            LED_BASE + "/j2j/download",
+            data=json.dumps(LED_J2JOD_REQUEST).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "populace-dynamics fetch script",
+            },
+        )
+        opener = urllib.request.build_opener(_NoRedirect())
+        try:
+            resp = opener.open(req, timeout=300)
+            raise RuntimeError(
+                "LED Extraction Tool did not redirect (HTTP "
+                f"{resp.status}); the query API may have changed."
+            )
+        except urllib.error.HTTPError as err:
+            if err.code != 303:
+                raise
+            location = err.headers["Location"]
+        query = urllib.parse.urlsplit(location).query
+        csv_req = urllib.request.Request(
+            LED_BASE + "/j2j/download.csv?" + query,
+            headers={"User-Agent": "populace-dynamics fetch script"},
+        )
+        tmp = path.with_suffix(path.suffix + ".part")
+        with urllib.request.urlopen(csv_req, timeout=300) as resp:
+            tmp.write_bytes(resp.read())
+        tmp.replace(path)
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != LED_J2JOD_SHA256:
+        raise RuntimeError(
+            f"LED J2JOD extract: sha256 {digest} != pinned "
+            f"{LED_J2JOD_SHA256}. The LED Extraction Tool serves the "
+            "current release; if LEHD rotated releases, re-pin "
+            "deliberately and update the provenance note."
+        )
+    return path
 
 
 def fetch(name: str, cache_dir: Path) -> Path:
@@ -289,6 +442,66 @@ def build_j2j(cache_dir: Path) -> None:
     print(f"j2j_us_firmsize_sector_2015on.csv: {len(out)} rows")
 
 
+def build_j2j_sexage(cache_dir: Path) -> None:
+    """National J2J flows by sex x age group (all-industry margin).
+
+    The raw ``sa`` file is sex x age x NAICS sector; the committed
+    extract keeps the all-industry margin (``industry == "00"``) only
+    -- with the full sector detail the file would breach the 1 MB
+    extract cap -- but keeps the complete sex (0-2) x age (A00-A08)
+    grid, margins included, so aggregation identities stay testable.
+    Pure row/column filter, no re-aggregation, from LEHD_START_YEAR
+    on.
+    """
+    path = fetch("j2j_us_sa_f_gn_ns_oslp_u.csv.gz", cache_dir)
+    with gzip.open(path, "rt") as fh:
+        raw = pd.read_csv(fh, low_memory=False)
+    keep = raw[
+        (raw["year"] >= LEHD_START_YEAR)
+        & (raw["industry"].astype(str) == "00")
+    ].copy()
+    id_cols = ["year", "quarter", "sex", "agegrp"]
+    flag_cols = [f"s{m}" for m in J2J_MEASURES]
+    out = keep[id_cols + J2J_MEASURES + flag_cols].copy()
+    out.insert(3, "sex_label", out["sex"].map(SEX_LABELS))
+    out.insert(5, "agegrp_label", out["agegrp"].map(AGEGRP_LABELS))
+    out = out.sort_values(id_cols).reset_index(drop=True)
+    out.to_csv(
+        OUT_DIR / "j2j_us_sexage_2015on.csv",
+        index=False,
+        float_format="%.10g",
+    )
+    print(f"j2j_us_sexage_2015on.csv: {len(out)} rows")
+
+
+def build_j2jod_firmsize(cache_dir: Path) -> None:
+    """National J2J flows by origin x destination firm size.
+
+    From the LED Extraction Tool (see :func:`fetch_led_j2jod`); the
+    committed extract keeps the full 6 x 6 grid (codes 0-5 on both
+    sides: the 25 detail cells plus the tool's aggregated margins,
+    status flag 10/12). Column subset and sort only, no
+    re-aggregation. Suppressed cells (status flag 11) load as NaN.
+    NOTE: the tool's margins are aggregates of the firm-size-coded
+    tabulation, so they sit slightly below the flat-file ``d_fs``
+    margins, which include public-sector (firm size "N") flows.
+    """
+    raw = pd.read_csv(fetch_led_j2jod(cache_dir), low_memory=False)
+    keep = raw[raw["year"] >= LEHD_START_YEAR].copy()
+    id_cols = ["year", "quarter", "firmsize_orig", "firmsize"]
+    flag_cols = [f"s{m}" for m in J2JOD_MEASURES]
+    out = keep[id_cols + J2JOD_MEASURES + flag_cols].copy()
+    out.insert(4, "firmsize_orig_label", _firmsize_label(out["firmsize_orig"]))
+    out.insert(5, "firmsize_label", _firmsize_label(out["firmsize"]))
+    out = out.sort_values(id_cols).reset_index(drop=True)
+    out.to_csv(
+        OUT_DIR / "j2jod_us_firmsize_od_2015on.csv",
+        index=False,
+        float_format="%.10g",
+    )
+    print(f"j2jod_us_firmsize_od_2015on.csv: {len(out)} rows")
+
+
 def main() -> None:
     cache_dir = Path(tempfile.gettempdir()) / "employer_firm_raw_cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -297,6 +510,8 @@ def main() -> None:
     build_bds(cache_dir)
     build_qwi(cache_dir)
     build_j2j(cache_dir)
+    build_j2j_sexage(cache_dir)
+    build_j2jod_firmsize(cache_dir)
     for f in sorted(OUT_DIR.glob("*_us_*2015on.csv")) + [
         OUT_DIR / "susb_us_sector_size_2022.csv",
         OUT_DIR / "bds_us_firm_size_1978_2022.csv",
