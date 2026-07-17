@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+from collections.abc import Iterable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -614,11 +615,21 @@ def run_floor(
     anchor: pd.DataFrame,
     compute,
     split_col: str,
+    *,
+    retained_seeds: Iterable[int] = GATE_SEEDS,
 ) -> tuple[dict[str, dict[str, float]], list[dict[str, Any]]]:
     """Score |ln(a/b)| (or |a-b|) between two `split_col`-disjoint halves over
     100 seeds; return per-cell (mean, sd, realized_sigma, min_events) + the
-    gate-seed detail. `compute(person_ids)` returns the cell dict for a half.
+    requested seed detail. ``compute(person_ids)`` returns the cell dict for a
+    half. Detail remains limited to the five gate seeds by default; a floor
+    ceremony may retain all 100 without changing the split or reduction math.
     """
+    retained = frozenset(retained_seeds)
+    unknown = retained - frozenset(FLOOR_SEEDS)
+    if unknown:
+        raise ValueError(
+            f"retained floor seeds are outside 0..99: {sorted(unknown)}"
+        )
     persons = anchor[["person_id", "household_id"]].drop_duplicates(
         "person_id"
     )
@@ -652,7 +663,7 @@ def run_floor(
                 "n_events_a": int(na),
                 "n_events_b": int(nb),
             }
-        if seed in GATE_SEEDS:
+        if seed in retained:
             per_seed.append({"seed": seed, "cells": seed_cells})
     floor: dict[str, dict[str, float]] = {}
     for key, vals in scores.items():

@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 from populace_dynamics.harness.m6_cells import (
+    FLOOR_SEEDS,
     earnings_cells,
     oc_4of5,
     run_floor,
@@ -462,6 +463,38 @@ def test_domain_floor_recompute_publishes_both_escalation_directions():
         >= 0.0
     )
     assert contract.draw_seeds[0] == DRAW_SEED_BASE
+
+
+def test_run_floor_can_retain_the_full_ceremony_seed_ledger():
+    anchor = pd.DataFrame(
+        {
+            "person_id": np.arange(20),
+            "household_id": np.arange(20),
+        }
+    )
+
+    def compute(person_ids):
+        return {
+            "synthetic": {
+                "rate": float(sum(person_ids) + 1),
+                "n_events": len(person_ids),
+            }
+        }
+
+    default_floor, default_detail = run_floor(anchor, compute, "person_id")
+    full_floor, full_detail = run_floor(
+        anchor,
+        compute,
+        "person_id",
+        retained_seeds=FLOOR_SEEDS,
+    )
+
+    assert full_floor == default_floor
+    assert [row["seed"] for row in default_detail] == list(GATE_SEEDS)
+    assert [row["seed"] for row in full_detail] == list(FLOOR_SEEDS)
+    assert all(set(row["cells"]) == {"synthetic"} for row in full_detail)
+    with pytest.raises(ValueError, match="outside 0..99"):
+        run_floor(anchor, compute, "person_id", retained_seeds=(100,))
 
 
 def test_aggregate_rejects_missing_or_duplicate_seed_results():
