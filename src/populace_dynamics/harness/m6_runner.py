@@ -31,6 +31,7 @@ from populace_dynamics.engine.assembly import (
     CertifiedEngineInputs,
     assemble_period_modules,
 )
+from populace_dynamics.engine.candidates import CandidateSpec
 from populace_dynamics.engine.earnings_domain import (
     earnings_domain_person_ids as fitted_earnings_domain_person_ids,
 )
@@ -364,7 +365,7 @@ def _refit_lineage(bundle: M6RefitBundle) -> dict[str, Any]:
             components[name] = _plain_provenance(component.provenance)
     resolved_specs = dict(bundle.registry_spec_sha256s)
     resolved_specs["forward_earnings_adapter"] = EARNINGS_SPEC_SHA256
-    return {
+    payload = {
         "boundary_year": int(bundle.boundary_year),
         "earnings_spec_registration": EARNINGS_SPEC_REGISTRATION,
         "earnings_spec_sha256": EARNINGS_SPEC_SHA256,
@@ -373,13 +374,36 @@ def _refit_lineage(bundle: M6RefitBundle) -> dict[str, Any]:
         "certified_full_window_artifacts_read": False,
         "certified_full_window_artifacts_written": False,
     }
+    earnings = bundle.earnings
+    engine_spec_sha256 = (
+        None
+        if earnings is None
+        else getattr(earnings, "engine_candidate_spec_sha256", None)
+    )
+    if engine_spec_sha256 is not None:
+        resolved_specs["engine_candidate"] = engine_spec_sha256
+        payload["engine_candidate_id"] = getattr(
+            earnings, "engine_candidate_id", None
+        )
+        payload["q_invariant_fit_signature_sha256"] = getattr(
+            earnings, "q_invariant_fit_signature_sha256", None
+        )
+        payload["rank_refresh_fit_audit"] = getattr(
+            earnings, "rank_refresh_fit_audit", None
+        )
+    return payload
 
 
-def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
+def refit_m6_phase(
+    inputs: M6HarnessInputs,
+    *,
+    earnings_candidate_spec: CandidateSpec | None = None,
+) -> M6RefitPhase:
     """Refit every component at 2014 and materialize the realized population."""
     bundle = refit_m6_components(
         inputs.refit_inputs,
         boundary_year=BOUNDARY_YEAR,
+        earnings_candidate_spec=earnings_candidate_spec,
     )
     if bundle.mortality is None or bundle.earnings is None:
         raise RuntimeError("M6 refit did not return mortality/earnings")
