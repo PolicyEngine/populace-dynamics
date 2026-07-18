@@ -20,6 +20,18 @@ forbid registration 8 unless and until decision 9 is prospectively
 re-adjudicated
 (`docs/design/m6_candidate2_program.md:971-976,1038-1046`).
 
+The program is silent on reopening an adjudicated §10 decision: it contains
+no reopen or re-adjudication provision, and §9.2's ceremony matrix names no
+route for revising an adjudicated §10 outcome
+(`docs/design/m6_candidate2_program.md:944-955`).  "Re-adjudication" here is
+therefore not a program-supplied retry.  It is shorthand for a later
+prospective amendment to program law under the standing prospective-ceremony
+discipline.  That construction follows the W1 standing rule that an amendment
+binds only runs registered after ratification
+(`docs/amendments/gate_w1_amendment_1_family_b_di_bands.md:331-335`) and the
+later prospective ceremonies in PRs #242, #244, and #246, which amended the
+ratified round-2 plan's reducer contract without editing its existing bytes.
+
 This draft is the prospective process for changing that program disposition.
 Opening the draft changes nothing.  Only an adversarial referee decision,
 fixes, verification, and Max's standing ratification ceremony can replace the
@@ -31,6 +43,8 @@ fixed rung required by
 
 > Any surface change needs its own prospective §2.8 and floor ceremony and
 > cannot retroactively change either learning result.
+>
+> [...]
 >
 > The pause continues throughout.
 
@@ -74,8 +88,10 @@ The authorized ladder is completed and ratified:
   redesigned per-origin family and ultimately ratified no change;
 - the round-2 exposure guard proved load-bearing and produced the designed
   rule-5 no-op rather than being relaxed after outcome contact;
-- the per-origin finding traversed a six-ceremony reducer ladder, ending in
-  independent byte reproduction of R0 and `NO_OP_DESIGNED_PAUSE`; and
+- after the raw round-3 selector, the per-origin finding traversed six reducer
+  amendment/finding PRs—#242, #243, #244, #245, #246, and #247—before
+  ending in independent byte reproduction of R0 and
+  `NO_OP_DESIGNED_PAUSE`; and
 - the ratified reduction records `no_eligible_nonzero_law`, not an undefined
   selection or an unreviewed incident.
 
@@ -158,6 +174,30 @@ endpoints.  These are disclosure fields, not new thresholds, selectors, or
 acceptance rules.  The completed candidate is still graded under the locked
 gate and five-cell regression block.  A realized PASS remains possible; a
 realized FAIL remains modal.  Either result is published once.
+
+If the forecast realizes as a scored FAIL on `remarriage.18-64`, that result
+adds almost nothing about that cell: its post-repair band is already measured,
+candidate 2 carries no remarriage delta, and R0 remains the remarriage law
+regardless.  The run's information value instead concentrates in the first
+candidate-2 fresh-seed evidence for the locked joint two-delta candidate across
+the other ten live gate cells.  Five of those cells are also tested by the
+separate original-threshold must-not-regress block
+(`docs/design/m6_candidate2_program.md:87-101,874-898,917-931`).  The
+cell-by-seed scores show which other cells clear or fail under the registered
+joint candidate and whether all five former passes clear their original
+tolerances together on at least four seeds.  Those scores remain evidence even
+if one cell defeats the gate conjunction.
+
+The conjunction-FAIL headline alone teaches only that fewer than four seeds
+cleared every live cell.  The per-cell scores can identify contributing cells,
+but this one joint, non-ablated run cannot certify either model delta or a
+partial surface, causally assign an outcome to either delta, identify a repair,
+or establish how a repaired remarriage law would score.  The published scores
+permit arithmetic with the remarriage cell omitted, but that post-hoc ten-cell
+regrade is not an authorized changed-surface result.  It cannot validate a
+different surface or license tuning against post-2014 outcomes.  Spending the
+one-shot also forecloses rerunning these same deltas under this contract; any
+further scored evidence requires a prospectively ratified successor contract.
 
 Choice R reopens registration only after every other applicable §9.3
 precondition has cleared.  It does not deem the first-marriage fit converged,
@@ -294,7 +334,49 @@ pooled surface cannot authorize registration under the new contract.  The new
 §2.8/floor ceremony, contract inventory, and corresponding forecast govern,
 with any different decision-9 authority obtained prospectively.
 
-## 11. Exact amendment effect and non-effects
+## 11. Controlling law and exact amendment effect
+
+The operative registration bar is program law.  Section 9.3 box 4 says that a
+chosen pause forbids registration
+(`docs/design/m6_candidate2_program.md:971-976`), keyed to §10 decision 9,
+whose train-only no-op or unratifiable-law clause resolves to disposition (c),
+the designed pause (`docs/design/m6_candidate2_program.md:1038-1046`).  The
+ratified R0 / `NO_OP_DESIGNED_PAUSE` finding therefore engages that
+program-law bar.
+
+The round-2 plan does not create a second, freestanding registration bar.  Its
+§7 sentence says that registration remains forbidden "under" exactly those
+two program ranges
+(`docs/design/m6_remarriage_learning_plan_round2.md:777-781`), so the sentence
+is derivative and tracks a later amendment of the program disposition.  Plan
+§9 says the plan does not edit candidate 2, its registry specification, or
+current remarriage law, or authorize registration 8
+(`docs/design/m6_remarriage_learning_plan_round2.md:833-834`), confirming that
+it did not entrench an independent registration rule in either direction.
+
+This is the same later-prospective-ceremony discipline used when ratified PRs
+#242, #244, and #246 amended the round-2 plan's reducer contract without
+changing the old plan bytes
+(`docs/design/m6_remarriage_round4_amendment.md:48-60`;
+`docs/design/m6_remarriage_round5_amendment.md:48-59`;
+`docs/design/m6_remarriage_round6_amendment.md:381-399`).
+The corresponding findings record each ratification
+(`docs/analysis/m6_remarriage_round4_reduction.md:23-28`;
+`docs/analysis/m6_remarriage_round5_reduction.md:40-47`;
+`docs/analysis/m6_remarriage_round6_reduction.md:28-36`).  Git history gives
+the round-2 plan the identical blob
+`f99bd9898c1adcbb62b449634d9ebffadf8d3a3a` at its ratification commit
+`004c57d` and the three later freezes `d63f36b`, `135b165`, and `982d2c2`.
+
+Plan §7's freestanding commands govern only the law-learning/surface lane:
+the fixed candidate-blind surface rung and its separate prospective ceremony
+(`docs/design/m6_remarriage_learning_plan_round2.md:788-795`), no automatic
+third family, and "The pause continues throughout"
+(`docs/design/m6_remarriage_learning_plan_round2.md:797-799`).  They survive a
+registration-consequence amendment untouched.  Choice R forces no nonzero
+law, permits no holdout tie-break, leaves R0 and both learning results intact,
+and leaves that surface ladder running; it changes only decision 9's separate
+registration consequence.
 
 If R is ratified, the operative program amendment is narrow:
 
@@ -302,9 +384,21 @@ If R is ratified, the operative program amendment is narrow:
   no-op's designed-pause fallback to disposition 2, registration with §5's
   candid modal-failure forecast;
 - only the decision-9 subcondition of §9.3 box 4 becomes satisfied; #226, the
-  fixture audit, and the reconciliation requirements remain unchanged; and
+  fixture audit, and the reconciliation requirements remain unchanged;
+- the derivative plan-§7 registration sentence tracks that amended program
+  disposition, so no round-2-plan §7 amendment is required, while the plan's
+  law-learning pause and surface ladder remain unchanged; and
 - §9.3 box 7's existing candid-forecast requirement is instantiated and locked
   with §5's exact modal-failure language and proposed disclosure fields.
+
+Accordingly, a ratified prospective amendment of program §10 decision 9 away
+from the pause removes the decision-9 bar: choice R does so directly; choice E
+can do so only after a ratified `POOLED_SURFACE_STANDS` finding and a second
+explicit choice-R vote.  With every other §9.3 requirement also satisfied—
+boxes 2, 3, and 5; box 4's other legs; box 6; box 7, including the candid
+modal-FAIL forecast; and box 8—registration 8 is unlocked.  No round-2-plan
+§7 amendment is required, and no disposition in draft PR #249 unlocks
+registration 8 by itself.
 
 If E is ratified, the current decision-9 pause remains and the program records
 the exact `POOLED_SURFACE_STANDS` evidence condition in §6.  Neither result is
