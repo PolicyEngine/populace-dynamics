@@ -1,0 +1,274 @@
+{
+  "schema": "m6.remarriage.learning_plan.round4.frozen_stdout_reduction_defect.v1",
+  "status": "UNRATIFIABLE_FINDING",
+  "outcome_class": "C_CRASH_OR_ABORT",
+  "failure_class": "REDUCER_VALIDATION_DEFECT_ON_FROZEN_STDOUT",
+  "canonical_determination": "NOT_DETERMINED",
+  "canonical_selection_validated": false,
+  "publication_contract_completed": false,
+  "selected_joint_law": null,
+  "per_origin_outcome": {
+    "divorced": "NONE",
+    "widowed": "NONE"
+  },
+  "per_origin_outcome_semantics": "NONE is the canonical non-determination caused by the failed mandatory round-4 reduction; it does not promote the raw R0 claim or encode a ratified NO_OP_DESIGNED_PAUSE result",
+  "no_op_designed_pause": false,
+  "disposition": "DESIGNED_PAUSE_CONTINUES",
+  "registration_8_authorized": false,
+  "candidate_outcome_contact": true,
+  "raw_selector_claim": {
+    "schema": "m6.remarriage.learning_plan.round3.selection.full.v1",
+    "status": "SELECTION_COMPLETE",
+    "selected_law": "R0",
+    "selected_joint_law": "R0",
+    "per_origin_outcome": {
+      "divorced": "NONE",
+      "widowed": "NONE"
+    },
+    "disposition": "NO_OP_DESIGNED_PAUSE",
+    "selection_reason": "no_eligible_nonzero_law",
+    "eligible_nonzero_laws": [],
+    "Lbest": null,
+    "one_SE_cutoff": null,
+    "final_information_fit_status": "NOT_RUN_R0_SELECTED",
+    "ratification_status": "UNRATIFIED_REDUCER_FAILURE",
+    "promoted_to_canonical_outcome": false
+  },
+  "authority": {
+    "round2_plan_pr": 234,
+    "round2_plan_commit": "004c57d306741e1d97275a720effbb41f378d763",
+    "round3_incident_pr": 241,
+    "round3_incident_commit": "23eda4247b25cc4bd94f78957b377d201d88217b",
+    "round4_amendment_pr": 242,
+    "round4_freeze_commit": "d63f36b64f58b53f9ff39a2c54b8c682fea93ac5",
+    "round4_amendment_path": "docs/design/m6_remarriage_round4_amendment.md",
+    "round4_amendment_sha256": "20d13d41d6e56eb6f47f3e67736982569f0c1d4c182c00460671295a9547f645",
+    "round4_referee_issue_comment": 5009101768,
+    "round4_referee_verdict": "AMENDMENT APPROVED -- freeze-ready",
+    "certified_static_sweep_assertions": 168,
+    "certified_static_sweep_failures": 0
+  },
+  "pre_run_verification": {
+    "recorded_at": "2026-07-18T01:26:15Z",
+    "branch": "sol/remarr-r4-reduce",
+    "head": "d63f36b64f58b53f9ff39a2c54b8c682fea93ac5",
+    "upstream": "origin/master",
+    "worktree_clean_before_execution_log_creation": true,
+    "command": "git diff d63f36b -- scripts/ docs/design/m6_remarriage_round4_amendment.md",
+    "command_exit_code": 0,
+    "command_stdout": "",
+    "frozen_scope_diff_empty": true,
+    "reducer": {
+      "path": "scripts/reduce_m6_remarriage_round4.py",
+      "sha256": "ea050de7716e8a4485bb34bcafdb6701ced1c594072e18233acfbc8f672d633d",
+      "expected_sha256": "ea050de7716e8a4485bb34bcafdb6701ced1c594072e18233acfbc8f672d633d",
+      "match": true
+    },
+    "input": {
+      "path": "docs/analysis/m6_remarriage_round3_selection_full.json",
+      "bytes": 14606212,
+      "sha256": "370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b",
+      "expected_sha256": "370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b",
+      "match": true
+    }
+  },
+  "runtime": {
+    "python_executable": "/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python",
+    "python_implementation": "CPython",
+    "python_version": "3.13.12",
+    "numpy_version": "2.4.2",
+    "pandas_version": "2.3.3",
+    "scipy_version": "1.17.0",
+    "required_runtime_match": true,
+    "matches_frozen_stdout_runtime_record": true
+  },
+  "attempt": {
+    "attempt_number": 1,
+    "timestamp": "2026-07-18T01:27:29Z",
+    "command": "/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round4.py < docs/analysis/m6_remarriage_round3_selection_full.json > docs/analysis/m6_remarriage_round3_selection_results.json 2> docs/analysis/m6_remarriage_round4_reduction_stderr.txt",
+    "exit_code": 1,
+    "wall_time_seconds": 0.278973041,
+    "validation_completed": false,
+    "attempt_consumed": true,
+    "rerun_performed": false,
+    "patch_performed": false,
+    "field_stripping_performed": false,
+    "manual_reduction_performed": false,
+    "rerun_permitted_under_current_freeze": false
+  },
+  "completed_before_failure": {
+    "config_lock": true,
+    "authority_and_round1_lock": true,
+    "strict_raw_json_and_top_schema": true,
+    "freeze_bytes_and_commit": true,
+    "runtime_identity": true,
+    "input_and_file_open_audit_record": true,
+    "publication_contract": true,
+    "fit_validation_boundaries": [
+      2006,
+      2008,
+      2010
+    ],
+    "round4_repaired_comparison_legs": [
+      "reference_spells",
+      "reference_exclusion_category_hashes",
+      "divorced_calibration"
+    ],
+    "boundary_2006_truth_and_fit_lock": true,
+    "boundary_2006_R0_direct_record": true,
+    "boundary_2006_R0_per_seed_rows_validated": 40,
+    "boundary_2006_R0_expected_mean_recomputed_in_memory": true,
+    "boundary_2006_R0_mean_pooled_and_origins_validated": true,
+    "boundary_2006_R0_mean_groups_validated_before_failure": 11,
+    "validation_frontier": "boundaries.2006.laws.R0.mean.groups[11].rate"
+  },
+  "not_reached_by_reducer": [
+    "boundary_2006_R0 mean group 11 ratio checks",
+    "boundary_2006_R0 published mean equality check",
+    "boundary_2006_R0 fixed-block validation",
+    "remaining boundary-law aggregate validation",
+    "complete boundary-law-seed cube validation",
+    "fixed-block objective recomputation",
+    "delete-one jackknife recomputation",
+    "seven-rule recomputation",
+    "one-SE selection recomputation",
+    "raw-versus-reduced selection comparison",
+    "final-fit and disposition validation",
+    "publication-group removal",
+    "reduced findings serialization"
+  ],
+  "failure": {
+    "exception_type": "ValueError",
+    "exception_message": "boundaries.2006.laws.R0.mean.groups[11].rate must be a JSON number",
+    "traceback": {
+      "module_main": "scripts/reduce_m6_remarriage_round4.py:2954",
+      "main": "scripts/reduce_m6_remarriage_round4.py:2948",
+      "reduce_validate_cube": "scripts/reduce_m6_remarriage_round4.py:2857",
+      "validate_cube_aggregate": "scripts/reduce_m6_remarriage_round4.py:2074",
+      "validate_aggregate_record": "scripts/reduce_m6_remarriage_round4.py:1626",
+      "validate_group_array": "scripts/reduce_m6_remarriage_round4.py:769",
+      "validate_mean_record": "scripts/reduce_m6_remarriage_round4.py:729",
+      "finite_number": "scripts/reduce_m6_remarriage_round4.py:177"
+    },
+    "defect_class": "NULLABLE_AGGREGATE_MEAN_RATE_CONTRACT_MISMATCH",
+    "first_rejected_record": {
+      "boundary": 2006,
+      "law": "R0",
+      "aggregate": "mean",
+      "group_index": 11,
+      "group": "widowed|age_18_34|ysd_10_120",
+      "origin": "widowed",
+      "age_band": [
+        18,
+        34
+      ],
+      "ysd_band": [
+        10,
+        120
+      ],
+      "seed_count": 40,
+      "mean_risk_rows": 0.0,
+      "mean_event_rows": 0.0,
+      "exposure": 0.0,
+      "numerator": 0.0,
+      "rate": null,
+      "truth_exposure": 0.0,
+      "truth_numerator": 0.0,
+      "truth_rate": null,
+      "per_seed_null_rate_count": 40
+    },
+    "root_cause": "The frozen selector permits null rates for publication groups without a defined per-seed rate and converts non-finite aggregate means to JSON null during serialization. The frozen reducer's _validate_mean_record instead requires every aggregate mean rate to be a finite JSON number before comparing the record with its independent recomputation. It therefore rejects the first selector-valid null rate.",
+    "bounded_static_scope": {
+      "method": "read-only jq enumeration of explicit null rate fields in the preserved stdout; no reducer or selector reexecution and no manual selection reduction",
+      "mean_and_fixed_block_group_records_with_null_rate": 90,
+      "null_rate_records_with_zero_aggregate_exposure": 75,
+      "null_rate_records_with_positive_aggregate_exposure": 15,
+      "additional_records_after_first_failure": 89,
+      "scope_is_diagnostic_only": true,
+      "remaining_reduction_adjudicated": false
+    }
+  },
+  "round4_file_open_audit": {
+    "conclusion": "ZERO_STAGED_SOURCE_FILE_OPENS",
+    "audit_method": "invocation redirection record plus static enumeration of every explicit reducer file read reached before the exception; no reducer rerun",
+    "dynamic_round4_open_hook_installed": false,
+    "stdin_path": "docs/analysis/m6_remarriage_round3_selection_full.json",
+    "explicit_reducer_repository_reads": [
+      "scripts/reduce_m6_remarriage_round4.py",
+      "scripts/m6_remarriage_round3_selector_config.json",
+      "scripts/select_m6_remarriage_round3.py",
+      "scripts/reduce_m6_remarriage_round3.py",
+      "scripts/analyze_m6_remarriage_train_delta.py",
+      "docs/design/m6_remarriage_learning_plan_round2.md",
+      "docs/design/m6_remarriage_learning_plan_round2_validation.json",
+      "docs/analysis/m6_remarriage_train_only_delta_results.json"
+    ],
+    "git_metadata_reads_for_frozen_object_validation": true,
+    "staged_or_psid_source_paths_opened": [],
+    "staged_or_psid_source_open_count": 0,
+    "selector_executed": false,
+    "staged_source_preflight_executed": false,
+    "real_data_contact": false,
+    "post_failure_forensics_real_data_contact": false
+  },
+  "captured_streams": {
+    "stdout": {
+      "path": "docs/analysis/m6_remarriage_round4_reduction_stdout.txt",
+      "original_configured_capture_path": "docs/analysis/m6_remarriage_round3_selection_results.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "valid_complete_results_json": false
+    },
+    "stderr": {
+      "path": "docs/analysis/m6_remarriage_round4_reduction_stderr.txt",
+      "bytes": 2114,
+      "sha256": "ce7460c38e2b6ae3686e14bb06a719a1a7114906f105aec3128e0ff2b9308521",
+      "verbatim": true
+    }
+  },
+  "results_json": {
+    "configured_path": "docs/analysis/m6_remarriage_round3_selection_results.json",
+    "produced": false,
+    "committed": false,
+    "sha256": null,
+    "reason": "The reducer exited before findings serialization. The empty stdout capture is preserved separately; no substitute results JSON was fabricated."
+  },
+  "published_artifacts": {
+    "incident_ledger": "docs/analysis/m6_remarriage_round4_reduction_execution_defect.json",
+    "report": "docs/analysis/m6_remarriage_round4_reduction.md",
+    "execution_log": {
+      "path": "docs/analysis/m6_remarriage_round4_reduction_execution.txt",
+      "bytes": 3909,
+      "sha256": "648393e64322288bd89449bc6c6ed6b10f524f1f0c8b9d4021b84fdcae64ebce"
+    },
+    "stdout_capture": {
+      "path": "docs/analysis/m6_remarriage_round4_reduction_stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr_capture": {
+      "path": "docs/analysis/m6_remarriage_round4_reduction_stderr.txt",
+      "bytes": 2114,
+      "sha256": "ce7460c38e2b6ae3686e14bb06a719a1a7114906f105aec3128e0ff2b9308521"
+    },
+    "configured_results_json": {
+      "path": "docs/analysis/m6_remarriage_round3_selection_results.json",
+      "produced": false,
+      "committed": false,
+      "sha256": null
+    }
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "raw_selector_claim_promoted": false,
+    "failed_reducer_output_repurposed": false,
+    "manual_reduction_used": false,
+    "self_rescue_performed": false,
+    "selector_run_performed_in_round4": false,
+    "reducer_rerun_performed": false,
+    "missing_or_failed_validation_disclosed": true,
+    "designed_pause_continues": true,
+    "registration_8_remains_forbidden": true,
+    "required_next_step": "Stop this lane and obtain a prospective amendment, independent referee decision, and new freeze before any further attempt; this round-4 attempt supplies no authority for a retry or patch."
+  }
+}

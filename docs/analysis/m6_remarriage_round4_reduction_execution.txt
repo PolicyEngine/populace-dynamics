@@ -1,0 +1,98 @@
+M6 remarriage round-4 frozen-stdout reduction execution log
+
+PRE-RUN RECORD
+Recorded at: 2026-07-18T01:26:15Z
+Reducer executions before this record: 0
+
+Freeze and worktree
+Command: git rev-parse HEAD
+Exit code: 0
+Stdout: d63f36b64f58b53f9ff39a2c54b8c682fea93ac5
+
+Command: git status --short --branch
+Exit code: 0
+Stdout: ## sol/remarr-r4-reduce...origin/master
+
+Command: git diff d63f36b -- scripts/ docs/design/m6_remarriage_round4_amendment.md
+Exit code: 0
+Stdout: <empty>
+
+Frozen reducer bytes
+Command: shasum -a 256 scripts/reduce_m6_remarriage_round4.py
+Exit code: 0
+Stdout: ea050de7716e8a4485bb34bcafdb6701ced1c594072e18233acfbc8f672d633d  scripts/reduce_m6_remarriage_round4.py
+Expected SHA-256: ea050de7716e8a4485bb34bcafdb6701ced1c594072e18233acfbc8f672d633d
+Match: true
+
+Frozen input bytes
+Command: shasum -a 256 docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b  docs/analysis/m6_remarriage_round3_selection_full.json
+Expected SHA-256: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b
+Match: true
+
+Command: wc -c docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout:  14606212 docs/analysis/m6_remarriage_round3_selection_full.json
+Expected byte count: 14606212
+Match: true
+
+Pinned runtime
+Interpreter: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python
+Implementation: CPython
+Python: 3.13.12
+NumPy: 2.4.2
+pandas: 2.3.3
+SciPy: 1.17.0
+Required runtime match: true
+The interpreter path and pinned versions match the runtime record embedded in
+the frozen selector stdout.
+
+Authority
+Round-4 freeze: d63f36b64f58b53f9ff39a2c54b8c682fea93ac5
+Approval endpoint: repos/PolicyEngine/populace-dynamics/issues/comments/5009101768
+Approval: AMENDMENT APPROVED -- freeze-ready; certified 168-assertion sweep
+passed with zero failures and did not execute the real reduction.
+
+Authorized invocation, not yet executed when this pre-run record was written:
+/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round4.py < docs/analysis/m6_remarriage_round3_selection_full.json
+
+The invocation will occur exactly once. Its stdout is the configured canonical
+results JSON at docs/analysis/m6_remarriage_round3_selection_results.json.
+Its stderr is captured verbatim at
+docs/analysis/m6_remarriage_round4_reduction_stderr.txt.
+
+EXECUTION RECORD
+Attempt number: 1
+Attempt timestamp: 2026-07-18T01:27:29Z
+Command: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round4.py < docs/analysis/m6_remarriage_round3_selection_full.json > docs/analysis/m6_remarriage_round3_selection_results.json 2> docs/analysis/m6_remarriage_round4_reduction_stderr.txt
+Exit code: 1
+Validation completed: false
+Attempt consumed: true
+Reducer rerun performed: false
+Reducer patch performed: false
+
+Captured stdout
+Original configured capture path: docs/analysis/m6_remarriage_round3_selection_results.json
+Published verbatim capture path: docs/analysis/m6_remarriage_round4_reduction_stdout.txt
+Bytes: 0
+SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Valid complete results JSON produced: false
+Configured canonical results JSON committed: false
+
+Captured stderr
+Path: docs/analysis/m6_remarriage_round4_reduction_stderr.txt
+Bytes: 2114
+SHA-256: ce7460c38e2b6ae3686e14bb06a719a1a7114906f105aec3128e0ff2b9308521
+Final exception: ValueError: boundaries.2006.laws.R0.mean.groups[11].rate must be a JSON number
+
+POST-ATTEMPT DISPOSITION
+Outcome: (c) crash/abort -- UNRATIFIABLE_FINDING
+Canonical determination: NOT_DETERMINED
+Canonical selected law: null
+Per-origin outcomes: divorced NONE; widowed NONE
+NO_OP_DESIGNED_PAUSE ratified: false
+Designed pause continues: true
+Registration 8 authorized: false
+No rerun, retry, field stripping, manual reduction, patch, or self-rescue is
+permitted or performed.
