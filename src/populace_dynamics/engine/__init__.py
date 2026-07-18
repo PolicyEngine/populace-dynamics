@@ -4,6 +4,11 @@ from populace_dynamics.engine.assembly import (
     CertifiedEngineInputs,
     assemble_period_modules,
 )
+from populace_dynamics.engine.candidates import (
+    CANDIDATE_2,
+    CandidateSpec,
+    OperationSpec,
+)
 from populace_dynamics.engine.composition import (
     CompositionDiagnostics,
     CompositionRngs,
@@ -20,6 +25,8 @@ from populace_dynamics.engine.earnings_domain import (
 )
 from populace_dynamics.engine.forward_earnings import (
     ForwardEarningsGenerator,
+    RankRefreshFitAudit,
+    RankRefreshPreflightAbort,
     fit_forward_earnings,
 )
 from populace_dynamics.engine.loop import (
@@ -59,9 +66,11 @@ from populace_dynamics.engine.support import (
 
 __all__ = [
     "BOUNDARY_YEAR",
+    "CANDIDATE_2",
     "AgeSexMortalityModel",
     "CertifiedEngineInputs",
     "ClaimingSchedule",
+    "CandidateSpec",
     "CompositionDiagnostics",
     "CompositionRngs",
     "EvaluationMode",
@@ -73,12 +82,15 @@ __all__ = [
     "MaritalStepResult",
     "PeriodContext",
     "PeriodModules",
+    "OperationSpec",
     "PresenceBasis",
     "ProjectionEngine",
     "ProjectionModule",
     "ProjectionRNGRegistry",
     "ProjectionResult",
     "RecertificationResult",
+    "RankRefreshFitAudit",
+    "RankRefreshPreflightAbort",
     "StartWaveWeightSnapshot",
     "SyntheticPersonIdAllocator",
     "assemble_period_modules",
