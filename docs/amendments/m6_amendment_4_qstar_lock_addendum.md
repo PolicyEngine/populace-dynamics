@@ -4,9 +4,17 @@
 - **Parent authority:** §2.7.7 of `docs/design/m6_projection_engine.md`,
   ratified in [PR #229][amendment] at
   `64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f`
-- **Ceremony stage:** `DRAFT_NOT_OPERATIVE`. This document publishes the
-  train-only finding and proposes the lock for review. It is not ratified law,
-  a production implementation, registration 8, a score, or run authorization.
+- **Ceremony stage:** `RATIFIED_OPERATIVE` — flipped at ratification per the
+  referee approval (PR #255, issue comment 5012589488) and made law by the
+  orchestrator's ratifying merge. The q*=0.55 pin is operative; this document
+  is still not itself a production implementation, registration 8, a score,
+  or run authorization.
+- **Run history:** two attempts of the frozen selector. Attempt 1 was killed
+  by a memory-pressure SIGKILL at ~6h03m during the boundary-2010 refit
+  (forensics preserved under `~/m6-sol-lanes/qstar.*`; nothing was published).
+  Attempt 2 re-ran the same frozen selector with `LOKY_MAX_CPU_COUNT=8` — an
+  environment-only cap that is numerically neutral for the seeded forests —
+  and completed the full ladder, producing this ledger.
 - **Frozen selector commit:**
   `efabdaf2dcba59a4d5ba37312e895846c1da5f59`
 - **Proposed selected value:** `q*=0.55`
@@ -171,14 +179,15 @@ The following governance notes remain explicit:
 
 ## 8. Operative boundary and next action
 
-This addendum is **`DRAFT_NOT_OPERATIVE`**. Its publication does not itself
-freeze production bytes, implement the refresh law, register candidate 2,
-authorize a score, or certify any projection. The q*=0 designed-pause clause is
+This addendum is **`RATIFIED_OPERATIVE`** as of the ratifying merge. Its
+ratification pins q*=0.55 as the selected refresh share. It still does not
+itself freeze production bytes, implement the refresh law, register
+candidate 2, authorize a score, or certify any projection. The q*=0 designed-pause clause is
 not triggered because the registered selector returned the nonzero value 0.55;
 that does not waive the remaining ceremony.
 
-The proposed q* pin becomes operative only through referee review and the
-orchestrator's ratification action. Although [PR #233][design-pin] already
+The q* pin became operative through exactly that path: referee review
+(comment 5012589488) and the orchestrator's ratification action. Although [PR #233][design-pin] already
 landed amendment 4's design-commit antecedent, it did not select or ratify q*.
 This PR makes no `gates.yaml` edit and neither repeats nor reverses that flip.
 No production implementation, registration 8, or scored run may precede the
