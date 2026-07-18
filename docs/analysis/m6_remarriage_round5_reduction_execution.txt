@@ -1,0 +1,116 @@
+M6 remarriage round-5 frozen-stdout reduction execution log
+
+PRE-RUN RECORD
+Recorded at: 2026-07-18T03:48:08Z
+Reducer executions before this record: 0
+
+Freeze and worktree
+Command: git rev-parse HEAD
+Exit code: 0
+Stdout: 135b165432bffd9a4a30701f75cdc46ac6427b06
+
+Command: git status --short --branch
+Exit code: 0
+Stdout: ## sol/remarr-r5-reduce...origin/master
+
+Command: git diff 135b165 -- scripts/ docs/design/
+Exit code: 0
+Stdout: <empty>
+
+Frozen reducer bytes
+Command: shasum -a 256 scripts/reduce_m6_remarriage_round5.py
+Exit code: 0
+Stdout: 58a8eb2da008739b7b11dcc7eab752d00ed822f0363a1a42ac6067755cea3e00  scripts/reduce_m6_remarriage_round5.py
+Expected SHA-256: 58a8eb2da008739b7b11dcc7eab752d00ed822f0363a1a42ac6067755cea3e00
+Match: true
+
+Frozen input bytes
+Command: shasum -a 256 docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b  docs/analysis/m6_remarriage_round3_selection_full.json
+Expected SHA-256: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b
+Match: true
+
+Command: wc -c docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout:  14606212 docs/analysis/m6_remarriage_round3_selection_full.json
+Expected byte count: 14606212
+Match: true
+
+Pinned runtime
+Interpreter: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python
+Implementation: CPython
+Python: 3.13.12
+NumPy: 2.4.2
+pandas: 2.3.3
+SciPy: 1.17.0
+Required runtime match: true
+The interpreter path and pinned versions match the runtime record embedded in
+the frozen selector stdout. SciPy is recorded for referee parity.
+
+Authority
+Round-5 freeze: 135b165432bffd9a4a30701f75cdc46ac6427b06
+Round-5 amendment PR: 244
+Approval endpoint: repos/PolicyEngine/populace-dynamics/issues/comments/5009765292
+Approval: AMENDMENT APPROVED — freeze-ready; the audit author verified all
+90 Surface-A sites and all 810 aggregate group records with zero violations
+through strict serialization, without executing the real reduction.
+
+Canonical output state before execution
+Path: docs/analysis/m6_remarriage_round3_selection_results.json
+Present: false
+
+Authorized invocation, not yet executed when this pre-run record was written:
+/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round5.py < docs/analysis/m6_remarriage_round3_selection_full.json
+
+The invocation will occur exactly once. Its stdout is captured verbatim at the
+configured canonical results path
+docs/analysis/m6_remarriage_round3_selection_results.json. Its stderr is
+captured verbatim at
+docs/analysis/m6_remarriage_round5_reduction_stderr.txt.
+
+EXECUTION RECORD
+Attempt number: 1
+Attempt timestamp: 2026-07-18T03:49:49Z
+Attempt ended: 2026-07-18T03:49:50Z
+Command: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round5.py < docs/analysis/m6_remarriage_round3_selection_full.json > docs/analysis/m6_remarriage_round3_selection_results.json 2> docs/analysis/m6_remarriage_round5_reduction_stderr.txt
+Exit code: 1
+Reducer completed successfully: false
+Selection-object equality validation passed: false
+Attempt consumed: true
+Reducer rerun performed: false
+Reducer patch performed: false
+Field stripping performed: false
+Manual reduction performed: false
+
+Captured stdout
+Original configured capture path: docs/analysis/m6_remarriage_round3_selection_results.json
+Published verbatim capture path: docs/analysis/m6_remarriage_round5_reduction_stdout.txt
+Bytes: 0
+SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Valid complete results JSON produced: false
+Configured canonical results JSON committed: false
+
+Captured stderr
+Path: docs/analysis/m6_remarriage_round5_reduction_stderr.txt
+Bytes: 1138
+SHA-256: f24632ad45c3797e012af3d8d3402d1301707116ea0a3834c3157b88a968e9fb
+Final exception: ValueError: selection and one-SE outcome does not match its independent recomputation
+
+POST-ATTEMPT DISPOSITION
+Outcome: (b) disagreement verbatim
+Raw-versus-independent selection equality: false
+Independent recomputation object emitted: false
+Reduced findings JSON produced: false
+Attempt consumed: true
+Reducer rerun performed: false
+Reducer patch performed: false
+Field stripping performed: false
+Manual reduction performed: false
+
+The mismatch is the section-7 adjudication residual assigned to outcome (b)
+by section 8 of the frozen amendment. The raw selection side and exact
+terminal diagnostic are publishable from the frozen captures. The internal
+independent-selection object was not emitted before process exit and cannot
+be recovered without a forbidden rerun, patch, instrumentation, or manual
+reduction.

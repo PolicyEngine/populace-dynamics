@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round5.py", line 3000, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round5.py", line 2994, in main
+    ledger = reduce(raw)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round5.py", line 2937, in reduce
+    _assert_same(
+    ~~~~~~~~~~~~^
+        actual_selection,
+        ^^^^^^^^^^^^^^^^^
+        independent_selection,
+        ^^^^^^^^^^^^^^^^^^^^^^
+        where="selection and one-SE outcome",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round5.py", line 212, in _assert_same
+    raise ValueError(
+        f"{where} does not match its independent recomputation"
+    )
+ValueError: selection and one-SE outcome does not match its independent recomputation
