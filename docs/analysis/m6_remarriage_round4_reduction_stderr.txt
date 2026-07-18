@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 2954, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 2948, in main
+    ledger = reduce(raw)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 2857, in reduce
+    removable = _validate_cube(ledger, config=config, validation=validation)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 2074, in _validate_cube
+    _validate_aggregate_record(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        law_record["mean"], where=f"{law_where}.mean", truth=truth
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 1626, in _validate_aggregate_record
+    _validate_group_array(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        aggregate["groups"],
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        truth_groups=truth_groups,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 769, in _validate_group_array
+    validated = validator(payload, where=item_where, truth=truth)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 729, in _validate_mean_record
+    number = _finite_number(record[key], where=f"{where}.{key}")
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round4.py", line 177, in _finite_number
+    raise ValueError(f"{where} must be a JSON number")
+ValueError: boundaries.2006.laws.R0.mean.groups[11].rate must be a JSON number
