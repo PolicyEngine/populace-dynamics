@@ -103,6 +103,9 @@ from populace_dynamics.harness.m6_scoring import (
     score_gate_seed,
     side_a_person_ids,
 )
+from populace_dynamics.models.family_transitions.registry import (
+    CandidateSpec as FamilyCandidateSpec,
+)
 
 SCHEMA_VERSION = "gate_m6_candidate1.v1"
 CANDIDATE_NUMBER = 1
@@ -397,14 +400,29 @@ def _refit_lineage(bundle: M6RefitBundle) -> dict[str, Any]:
 def refit_m6_phase(
     inputs: M6HarnessInputs,
     *,
+    family_candidate_spec: FamilyCandidateSpec | None = None,
     earnings_candidate_spec: CandidateSpec | None = None,
 ) -> M6RefitPhase:
     """Refit every component at 2014 and materialize the realized population."""
     bundle = refit_m6_components(
         inputs.refit_inputs,
         boundary_year=BOUNDARY_YEAR,
+        family_candidate_spec=family_candidate_spec,
         earnings_candidate_spec=earnings_candidate_spec,
     )
+    return materialize_m6_refit_phase(inputs, bundle)
+
+
+def materialize_m6_refit_phase(
+    inputs: M6HarnessInputs,
+    bundle: M6RefitBundle,
+) -> M6RefitPhase:
+    """Materialize full inputs around one already-fitted component bundle.
+
+    Candidate 2 uses this additive seam after its fit-only first-marriage
+    preflight.  Candidate 1 still enters through :func:`refit_m6_phase`, which
+    performs the same fit immediately before calling this helper.
+    """
     if bundle.mortality is None or bundle.earnings is None:
         raise RuntimeError("M6 refit did not return mortality/earnings")
     mortality = fit_mortality_model(bundle.mortality)
@@ -1576,6 +1594,7 @@ __all__ = [
     "execute_registered_m6_run",
     "guard_registered_m6_run",
     "load_m6_inputs_after_fit_preflight",
+    "materialize_m6_refit_phase",
     "resolve_m6_contract",
     "validate_registration_id",
 ]
