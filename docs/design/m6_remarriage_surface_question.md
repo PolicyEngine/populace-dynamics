@@ -43,9 +43,9 @@ instrument may load it, compare with it, rank by it, or use it as a stop rule.
 The two ratified train-only rounds and the completed conformance investigation
 motivate asking whether origin pooling is the right certification surface.  The
 second round also demonstrated that the working-age stock guard was
-load-bearing, and the six-ceremony reducer ladder ended in a byte-reproduced
-ratified no-op without forcing a law.  Those are narrative reasons to ask the
-question only.
+load-bearing, and the round-3→6 reducer ladder (PRs #240–#247) ended in a
+byte-reproduced ratified no-op without forcing a law.  Those are narrative
+reasons to ask the question only.
 
 No candidate result supplies a target.  In particular, this proposal does not
 import a candidate-1 score, a scored residual, an origin residual, a rate ratio,
@@ -77,10 +77,14 @@ The field-aware dating rule is the one documented at
 `docs/design/m6_remarriage_learning_plan_round2.md:430-468`:
 
 - a demographic interview must be no later than 2013;
-- a marital event and its establishing report must be no later than 2014;
+- a marriage and its establishing report must be no later than 2014;
 - later end or separation fields are nulled before construction;
 - later deaths are nulled; and
 - any annual interval requiring a later establishing interview is excluded.
+
+Here marriage is the applicable half of the plan's "marriage or birth" rule;
+births are outside this remarriage-only analysis.  Dissolution dating is
+carried separately by the end/separation-nulling rule.
 
 The analysis uses exactly three non-overlapping five-year windows:
 
@@ -258,6 +262,13 @@ r_Acws = N_Acws / E_Acws
 r_Bcws = N_Bcws / E_Bcws
 d_cws  = abs(log(r_Acws / r_Bcws)).
 ```
+
+Before any truth contact, the helper's source freeze must pin the exact
+component-to-half assignment function, RNG library and version, component-key
+serialization and order, seed initialization for `0` through `99`, and the
+half-assignment threshold and comparison rule.  The surface referee must
+approve those bindings before the authorized run; they cannot be inferred
+from output or changed on retry.
 
 For cell `c` and window `w`, over all defined seeds compute
 
