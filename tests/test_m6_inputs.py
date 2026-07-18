@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
+from collections.abc import Mapping
+from dataclasses import fields, is_dataclass, replace
 from types import SimpleNamespace
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -15,6 +17,7 @@ from populace_dynamics.engine.panel_builders import PanelBuilderInputs
 from populace_dynamics.harness import m6_inputs
 from populace_dynamics.harness.m6_inputs import (
     M6RawInputs,
+    assemble_m6_fit_inputs,
     assemble_m6_inputs,
     load_m6_raw_inputs,
 )
@@ -344,6 +347,105 @@ def test_assembly_builds_every_runner_input_without_a_reader_call(
     assert artifact["boundary_year"] == 2014
     assert artifact["certified_full_window_artifacts_read"] is False
     assert artifact["certified_full_window_artifacts_written"] is False
+
+
+def test_fit_only_assembly_never_invokes_a_holdout_truth_builder(monkeypatch):
+    touched = []
+
+    def forbidden(*args, **kwargs):
+        del args, kwargs
+        touched.append("truth")
+        raise AssertionError("holdout truth builder called")
+
+    for name in (
+        "build_anchor_frame",
+        "presence_by_wave",
+        "mortality_slices",
+        "marital_tables_from_panel",
+        "disability_pairs",
+        "earnings_frame",
+    ):
+        monkeypatch.setattr(m6_inputs, name, forbidden)
+    monkeypatch.setattr(
+        PanelBuilderInputs,
+        "from_realized_histories",
+        classmethod(forbidden),
+    )
+
+    fit_inputs = assemble_m6_fit_inputs(_raw(), earnings_seed=5217)
+
+    assert touched == []
+    assert fit_inputs.earnings_seed == 5217
+    assert fit_inputs.family_context.train_ids == frozenset({1, 2})
+    assert fit_inputs.household_context.train_ids == frozenset({1, 2})
+    assert fit_inputs.disability_train_ids == {1, 2}
+
+
+def _assert_same_structure(left, right, *, path):
+    if left is right:
+        return
+    assert type(left) is type(right), path
+    if isinstance(left, pd.DataFrame):
+        pd.testing.assert_frame_equal(left, right, obj=path)
+        return
+    if isinstance(left, pd.Series):
+        pd.testing.assert_series_equal(left, right, obj=path)
+        return
+    if isinstance(left, np.ndarray):
+        np.testing.assert_array_equal(left, right, err_msg=path)
+        return
+    if is_dataclass(left):
+        for field in fields(left):
+            _assert_same_structure(
+                getattr(left, field.name),
+                getattr(right, field.name),
+                path=f"{path}.{field.name}",
+            )
+        return
+    if isinstance(left, Mapping):
+        assert tuple(left) == tuple(right), path
+        for key in left:
+            _assert_same_structure(
+                left[key], right[key], path=f"{path}[{key!r}]"
+            )
+        return
+    if isinstance(left, tuple | list):
+        assert len(left) == len(right), path
+        for index, (left_item, right_item) in enumerate(
+            zip(left, right, strict=True)
+        ):
+            _assert_same_structure(
+                left_item, right_item, path=f"{path}[{index}]"
+            )
+        return
+    if isinstance(left, set | frozenset):
+        assert left == right, path
+        return
+    if hasattr(left, "__dict__"):
+        _assert_same_structure(
+            vars(left), vars(right), path=f"{path}.__dict__"
+        )
+        return
+    assert left == right, path
+
+
+def test_fit_only_and_legacy_assembly_match_every_refit_input_field(
+    certified_marital_builder,
+):
+    del certified_marital_builder
+    raw = _raw()
+    fit_only = assemble_m6_fit_inputs(raw, earnings_seed=5217)
+    legacy = assemble_m6_inputs(raw, earnings_seed=5217).refit_inputs
+
+    compared = []
+    for field in fields(fit_only):
+        compared.append(field.name)
+        _assert_same_structure(
+            getattr(fit_only, field.name),
+            getattr(legacy, field.name),
+            path=f"M6RefitInputs.{field.name}",
+        )
+    assert compared == [field.name for field in fields(legacy)]
 
 
 @pytest.mark.parametrize(
