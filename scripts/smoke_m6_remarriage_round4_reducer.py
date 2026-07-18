@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise both remarriage reducers on one selector-shaped synthetic cube.
+"""Exercise three remarriage reducer revisions on one synthetic cube.
 
 The fixture inherits only frozen locks and candidate-blind fit tables from the
 committed preflight.  Every outcome-bearing cube value is synthetic.  This
@@ -14,6 +14,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,11 @@ VALIDATION_PATH = (
 )
 ROUND3_REDUCER = ROOT / "scripts/reduce_m6_remarriage_round3.py"
 ROUND4_REDUCER = ROOT / "scripts/reduce_m6_remarriage_round4.py"
+PRIOR_ROUND4_COMMIT = "a0c9d916a5ccd4a295d0c6d7c6d73e1d8b2f8987"
+PRIOR_ROUND4_REDUCER_PATH = "scripts/reduce_m6_remarriage_round4.py"
+PRIOR_ROUND4_REDUCER_SHA256 = (
+    "ca567a7dfbd5445d003d05751995a06534e71e16a8bb1e02220e3f71b45ba3d8"
+)
 GROUP_IDENTITY_FIELDS = {"group", "origin", "age_band", "ysd_band"}
 
 
@@ -164,6 +170,21 @@ def _fit_validation(
             if set(audit) != reducer.REFERENCE_AUDIT_FIELDS:
                 raise ValueError("synthetic reference audit is not 21-key")
             references[origin] = audit
+        divorced_calibration = copy.deepcopy(frozen["divorced_calibration"])
+        for alpha_calibration in divorced_calibration.values():
+            area_r0 = 1.0
+            alpha_calibration.update(
+                {
+                    "area_R0": area_r0,
+                    "candidate_area": area_r0
+                    * (1.0 + alpha_calibration["area_relative_residual"]),
+                    "pairwise_term_count": 1,
+                }
+            )
+            if set(alpha_calibration) != reducer.DIVORCED_CALIBRATION_FIELDS:
+                raise ValueError(
+                    "synthetic divorced calibration is not 16-key"
+                )
         fit = {
             "fit_max_year": frozen["fit_max_year"],
             "fit_person_year_rows": 1,
@@ -187,9 +208,7 @@ def _fit_validation(
                 }
                 for origin in reducer.ORIGINS
             },
-            "divorced_calibration": copy.deepcopy(
-                frozen["divorced_calibration"]
-            ),
+            "divorced_calibration": divorced_calibration,
             "widowed_targets": copy.deepcopy(frozen["widowed_targets"]),
             "support_struck_named_laws": copy.deepcopy(
                 frozen["support_struck_named_laws"]
@@ -507,17 +526,69 @@ def _fixture() -> bytes:
     ).encode()
 
 
-def _run_reducer(path: Path, raw: bytes) -> subprocess.CompletedProcess[bytes]:
+def _run_python(
+    arguments: list[str], raw: bytes
+) -> subprocess.CompletedProcess[bytes]:
     environment = os.environ.copy()
     environment["PYTHONDONTWRITEBYTECODE"] = "1"
     return subprocess.run(
-        [sys.executable, str(path)],
+        [sys.executable, *arguments],
         cwd=ROOT,
         env=environment,
         input=raw,
         capture_output=True,
         check=False,
     )
+
+
+def _run_reducer(path: Path, raw: bytes) -> subprocess.CompletedProcess[bytes]:
+    return _run_python([str(path)], raw)
+
+
+def _run_prior_round4_reducer(
+    raw: bytes,
+) -> subprocess.CompletedProcess[bytes]:
+    blob = subprocess.run(
+        [
+            "git",
+            "show",
+            f"{PRIOR_ROUND4_COMMIT}:{PRIOR_ROUND4_REDUCER_PATH}",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if blob.returncode != 0:
+        raise ValueError(blob.stderr.decode())
+    observed_sha256 = hashlib.sha256(blob.stdout).hexdigest()
+    if observed_sha256 != PRIOR_ROUND4_REDUCER_SHA256:
+        raise ValueError("prior round-4 reducer blob hash drifted")
+    with tempfile.TemporaryDirectory(prefix="round4-prior-reducer-") as work:
+        source_path = Path(work) / "reduce_m6_remarriage_round4.py"
+        source_path.write_bytes(blob.stdout)
+        virtual_path = str(ROUND4_REDUCER)
+        launcher = (
+            "from pathlib import Path\n"
+            f"source = Path({str(source_path)!r}).read_bytes()\n"
+            f"virtual_path = {virtual_path!r}\n"
+            "namespace = {'__file__': virtual_path, "
+            "'__name__': '__main__', '__package__': None}\n"
+            "exec(compile(source, virtual_path, 'exec'), namespace)\n"
+        )
+        return _run_python(["-c", launcher], raw)
+
+
+def _with_unknown_divorced_calibration_key(raw: bytes) -> bytes:
+    ledger = json.loads(raw)
+    ledger["fit_validation"]["2006"]["divorced_calibration"]["0.50"][
+        "bogus_extra_key"
+    ] = 0
+    return json.dumps(
+        ledger,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode()
 
 
 def main() -> int:
@@ -536,6 +607,43 @@ def main() -> int:
         "ROUND3_REDUCER_SYNTHETIC_SMOKE=EXPECTED_FAIL "
         f'exit=1 error="{round3_error}"'
     )
+
+    prior_round4 = _run_prior_round4_reducer(raw)
+    prior_round4_error = prior_round4.stderr.decode().strip().splitlines()[-1]
+    expected_prior_round4_error = (
+        "ValueError: fit_validation.2006.divorced_calibration does not match "
+        "its independent recomputation"
+    )
+    if (
+        prior_round4.returncode != 1
+        or prior_round4_error != expected_prior_round4_error
+    ):
+        raise ValueError(
+            "prior round-4 reducer did not fail at divorced_calibration"
+        )
+    print(
+        "ROUND4_A0C9D916_REDUCER_SYNTHETIC_SMOKE=EXPECTED_FAIL "
+        f'exit=1 error="{prior_round4_error}"'
+    )
+
+    unknown_extra = _run_reducer(
+        ROUND4_REDUCER,
+        _with_unknown_divorced_calibration_key(raw),
+    )
+    unknown_extra_error = (
+        unknown_extra.stderr.decode().strip().splitlines()[-1]
+    )
+    expected_unknown_extra_error = (
+        "ValueError: fit_validation.2006.divorced_calibration.0.50 fields "
+        "drifted; missing=[], extra=['bogus_extra_key']"
+    )
+    if (
+        unknown_extra.returncode != 1
+        or unknown_extra_error != expected_unknown_extra_error
+    ):
+        raise ValueError(
+            "round-4 reducer did not reject an unknown calibration key"
+        )
 
     round4 = _run_reducer(ROUND4_REDUCER, raw)
     if round4.returncode != 0:

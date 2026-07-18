@@ -1007,6 +1007,29 @@ REFERENCE_EXCLUSION_CATEGORY_HASH_FIELDS = (
     "included_spells_checksum_sha256",
     "path_checksum_sha256",
 )
+DIVORCED_CALIBRATION_FIELDS = {
+    "alpha_divorced",
+    "beta_frontload",
+    "fit_exposure_center",
+    "centered_contrast",
+    "bracket_residual_low",
+    "bracket_residual_high",
+    "root_iterations",
+    "area_R0",
+    "candidate_area",
+    "area_relative_residual",
+    "pairwise_term_count",
+    "effective_divorced_shift",
+    "minimum_cell_logit_shift",
+    "maximum_cell_logit_shift",
+    "candidate_probability_min",
+    "candidate_probability_max",
+}
+DIVORCED_CALIBRATION_ADDITIVE_FIELDS = {
+    "area_R0",
+    "candidate_area",
+    "pairwise_term_count",
+}
 CELL_AGE_BANDS = ((18, 34), (35, 49), (50, 64), (65, 74), (75, 120))
 CELL_FIELDS = {
     "age_band_index",
@@ -1207,6 +1230,56 @@ def _validate_reference_spells_audit(
     return references
 
 
+def _validate_divorced_calibration(
+    value: Any, expected: Any, *, where: str
+) -> dict[str, Any]:
+    calibration = _mapping(value, where=where)
+    expected_calibration = _mapping(
+        expected,
+        where=f"{where} validation",
+    )
+    expected_subset = {
+        alpha: expected_calibration[alpha] for alpha in calibration
+    }
+    shared_calibration: dict[str, Any] = {}
+    for alpha in calibration:
+        alpha_where = f"{where}.{alpha}"
+        alpha_calibration = _mapping(
+            calibration[alpha],
+            where=alpha_where,
+        )
+        expected_alpha = _mapping(
+            expected_subset[alpha],
+            where=f"{alpha_where} validation",
+        )
+        _strict_keys(
+            alpha_calibration,
+            DIVORCED_CALIBRATION_FIELDS,
+            where=alpha_where,
+        )
+        _strict_keys(
+            expected_alpha,
+            DIVORCED_CALIBRATION_FIELDS.difference(
+                DIVORCED_CALIBRATION_ADDITIVE_FIELDS
+            ),
+            where=f"{alpha_where} validation",
+        )
+        for key in ("area_R0", "candidate_area"):
+            _finite_number(
+                alpha_calibration[key],
+                where=f"{alpha_where}.{key}",
+            )
+        _nonnegative_int(
+            alpha_calibration["pairwise_term_count"],
+            where=f"{alpha_where}.pairwise_term_count",
+        )
+        shared_calibration[alpha] = {
+            key: alpha_calibration[key] for key in expected_alpha
+        }
+    _assert_same(shared_calibration, expected_subset, where=where)
+    return calibration
+
+
 def _validate_fit_public(
     value: Any,
     *,
@@ -1251,7 +1324,14 @@ def _validate_fit_public(
                 where=f"{where}.{key}",
             )
             continue
-        if key in {"divorced_calibration", "widowed_targets"}:
+        if key == "divorced_calibration":
+            _validate_divorced_calibration(
+                fit[key],
+                expected_value,
+                where=f"{where}.{key}",
+            )
+            continue
+        if key == "widowed_targets":
             expected_value = {name: expected_value[name] for name in fit[key]}
         _assert_same(fit[key], expected_value, where=f"{where}.{key}")
     if fit["support_struck_named_laws"] != []:

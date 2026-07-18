@@ -86,21 +86,23 @@ Re-reduction cannot adapt to that disclosure:
 
 1. The input bytes and byte count are immutable and independently checked.
 2. The reducer is deterministic and may execute once.
-3. The round-4 diff is confined to the two contradictory comparison legs in
-   section 4.
+3. The round-4 diff is confined to the three statically enumerated comparison
+   legs in section 4. The divorced-calibration repair admits only the three
+   selector-published fields named there, projects them away, and retains
+   exact canonical equality on every shared field.
 4. Every objective, block, jackknife, eligibility rule, one-SE choice,
    disposition, publication removal, and other non-comparison path remains
    byte-for-byte the round-3 implementation.
 5. The referee must mechanically compare the new reducer with the frozen
    round-3 reducer, whose SHA-256 is
    `41db8a271d08596ad6383494f37695e658b6e4f7531459d95221f684b09c256e`,
-   and reject any third change.
+   and reject any change outside those three legs.
 
 No disclosed metric can set or alter a law, tolerance, seed, order, rule, or
 tie-break. A corrected reduction is allowed to disagree with the raw claim;
 it must not be coerced toward it.
 
-## 4. Verified double defect and exact repair
+## 4. Verified defects and exact three-leg repair
 
 The frozen selector's `_reference_spells` creates a 20-key
 `references[origin]["audit"]` mapping and `_fit_boundary` appends `R0_area`,
@@ -169,12 +171,28 @@ It exact-compares those values with the selector's separately published hash
 object. An explicit tuple prevents a future suffix-named field from silently
 widening the contract.
 
-These two legs are the complete reducer amendment. `_assert_same` itself and
-every other reducer path remain unchanged.
+### Leg C: divorced calibration
+
+The selector publishes `area_R0`, `candidate_area`, and
+`pairwise_term_count` inside every
+`fit_validation.<boundary>.divorced_calibration.<alpha>` mapping, while the
+frozen validation mapping omits those three additive fields. Round 3 filters
+only the top-level alpha names and then passes each inner mapping whole to
+`_assert_same`, so the selector-shaped and validation-shaped mappings cannot
+be canonically equal.
+
+Round 4 explicitly enumerates the three additions, requires them in every
+observed alpha mapping, validates both areas as finite JSON numbers and
+`pairwise_term_count` as a nonnegative integer, and rejects a missing or
+unknown extra key loudly. It projects only those three fields out and
+exact-compares every shared field with frozen validation.
+
+These three legs are the complete reducer amendment. `_assert_same` itself
+and every other reducer path remain unchanged.
 
 ## 5. Defect latency
 
-The mismatch was inherited from round 2, not introduced by the round-3
+The mismatches were inherited from round 2, not introduced by the round-3
 amendment. At the round-2 freeze
 `f44246964b4e54080ab4c7b43e7e5b0c4b78ea7c` and the round-3 freeze
 `841c48c6f0316a08f7584402012f00b0a2b535d9`, the retained round-2 artifacts
@@ -185,39 +203,49 @@ are byte-identical:
 | selector | `deed33105cffabda4477ac3b7d8b6f0edf9b90bb3ddb83ee42d7ef3434578268` |
 | reducer | `6b6f4e0459be23c936894308e6e040219d623762a15926037a7e2d9a2ac83918` |
 
-The round-2 selector published the same audit shape and its reducer carried
-the same exact comparison. Round 2 died earlier in the selector, at the
-boundary-2006 event-free publication group, so the reducer was never reached.
-The round-3 equivalence review correctly established that the reducer logic
-was inherited; a diff-equivalence review could not detect an inherited
-selector-to-reducer contract contradiction. A full reducer-shaped synthetic
+The round-2 selector published the same audit shape and the same three
+additive divorced-calibration fields. Its reducer carried both the same exact
+reference-audit comparison and the same wholesale inner-dict calibration
+comparison, so `divorced_calibration` has the same round-2 latency. Round 2
+died earlier in the selector, at the boundary-2006 event-free publication
+group, so the reducer was never reached. The round-3 equivalence review
+correctly established that the reducer logic was inherited; a
+diff-equivalence review could not detect inherited selector-to-reducer
+contract contradictions. A selector-faithful full reducer-shaped synthetic
 smoke is the missing check supplied here.
 
 ## 6. Full-path synthetic smoke
 
-[`smoke_m6_remarriage_round4_reducer.py`][smoke] creates one selector-shaped
-fixture in memory. It takes the shared fit fields from the frozen validation
-mapping, adds exactly seven deterministic synthetic audit fields to form the
-21-key surface, and uses candidate-blind preflight law tables only where the
-frozen incumbent table hashes require them. Frozen pre-contact config,
-validation, preflight, truth, support, freeze, and runtime locks are inherited
-only to satisfy the full reducer contract. Candidate projection, direct,
-publication-group, RNG, downstream, and per-seed values are generated
-synthetically. No value is read from the 14,606,212-byte stdout, and that file
-is never opened.
+[`smoke_m6_remarriage_round4_reducer.py`][smoke] creates one synthetic fixture
+in memory that is selector-faithful on all three repaired comparison legs. It
+takes the shared fit fields from the frozen validation mapping, adds exactly
+seven deterministic synthetic audit fields to form the 21-key surface, and
+adds deterministic synthetic `area_R0`, `candidate_area`, and
+`pairwise_term_count` values to every divorced-calibration alpha mapping. It
+uses candidate-blind preflight law tables only where the frozen incumbent
+table hashes require them. Frozen pre-contact config, validation, preflight,
+truth, support, freeze, and runtime locks are inherited only to satisfy the
+full reducer contract. Candidate projection, direct, publication-group, RNG,
+downstream, and per-seed values are generated synthetically. No value is read
+from the 14,606,212-byte stdout, and that file is never opened.
 
 The minimal contract-valid cube still contains the reducer-required
 3 x 5 x 40 rows and 18 publication groups per row. The harness sends the same
-generated bytes to the actual round-3 and round-4 reducer CLIs, so config,
-freeze, runtime, input audit, fit, all 600 rows, aggregates, blocks,
-jackknife, seven rules, selection, final disposition, and removal all run.
-It reads no staged source and constructs no real pseudo-holdout or candidate
-outcome.
+generated bytes to the actual round-3 reducer, the exact hash-checked
+`a0c9d916` round-4 reducer blob, and the extended round-4 reducer. Round 3
+fails first at `reference_spells`; `a0c9d916` passes the first two repaired
+legs and fails at `divorced_calibration`; and only the extension proceeds
+through config, freeze, runtime, input audit, fit, all 600 rows, aggregates,
+blocks, jackknife, seven rules, selection, final disposition, and removal. A
+silent companion probe adds one unknown calibration key and requires the
+extension to reject it with the strict-key diagnostic. The smoke reads no
+staged source and constructs no real pseudo-holdout or candidate outcome.
 
 The pinned-runtime smoke prints:
 
 ```text
 ROUND3_REDUCER_SYNTHETIC_SMOKE=EXPECTED_FAIL exit=1 error="ValueError: fit_validation.2006.reference_spells does not match its independent recomputation"
+ROUND4_A0C9D916_REDUCER_SYNTHETIC_SMOKE=EXPECTED_FAIL exit=1 error="ValueError: fit_validation.2006.divorced_calibration does not match its independent recomputation"
 ROUND4_REDUCER_SYNTHETIC_SMOKE=PASS exit=0 selected_law=R0 removed_arrays=600
 ```
 
@@ -230,7 +258,7 @@ This draft stops before the authorized reduction. If and only if the new
 referee endorses the exact amendment, the procedure is:
 
 1. The referee verifies the central exception in section 2, the input hash
-   and byte count, the exact two-leg diff, byte identity of every other
+   and byte count, the exact three-leg diff, byte identity of every other
    reducer path, the full-path smoke, and the zero-data-contact design.
 2. Ratify the accepted amendment. The ratifying squash is the round-4 freeze
    for the amendment, reducer, and smoke bytes.
