@@ -1,0 +1,6 @@
+loading staged PSID first-marriage fit sources (read-only)
+boundary 2006: fitting nine C rungs
+boundary 2008: fitting nine C rungs
+boundary 2010: fitting nine C rungs
+final <=2014 fit: selected C=0.001
+selection disposition: SELECTION_COMPLETE

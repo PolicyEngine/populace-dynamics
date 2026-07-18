@@ -1,0 +1,33 @@
+fm-select frozen selector execution log
+launch_timestamp: 2026-07-18T11:39:10-04:00
+worktree: /Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-box2-fm
+branch: sol/c2-fm-select
+head: 69880c39b60b5c54f8fb8959ef4fadead7d88c5d
+pre_run_git_diff_command: git diff 69880c3 -- scripts/ src/
+pre_run_git_diff_result: EMPTY
+selector_sha256: 031447023863e6866acb59b58f60d9618a0f84a061a32fec47f3e4bdbe6676be
+selector_sha256_expected: 031447023863e6866acb59b58f60d9618a0f84a061a32fec47f3e4bdbe6676be
+selector_sha256_match: true
+runtime_python: CPython 3.13.12
+runtime_numpy: 2.4.2
+launch_uptime: 11:39  up 7 days, 20:02, 1 user, load averages: 14.05 31.77 35.94
+launch_load_5min: 31.77
+load_gate_threshold: 60
+load_gate_decision: LAUNCH_IMMEDIATELY
+load_gate_holds: 0
+recorded_command: PYTHONDONTWRITEBYTECODE=1 PYTHONWARNINGS='ignore::FutureWarning' PYTHONPATH=src POPULACE_DYNAMICS_PSID_DIR=/Users/maxghenis/PolicyEngine/psid-data /opt/homebrew/bin/python3.13 scripts/select_m6_first_marriage_c.py > /Users/maxghenis/PolicyEngine/box2-fm-compute/m6_first_marriage_c_full.json 2> /Users/maxghenis/PolicyEngine/box2-fm-compute/m6_first_marriage_c_progress.log
+selector_attempts: 1
+selector_reruns: 0
+selector_exit_code: 0
+output_completed_timestamp: 2026-07-18T11:41:50-04:00
+outcome: SELECTION_COMPLETE
+selected_c: 0.001
+stdout_bytes: 874278
+stdout_sha256: b2e51b099c20f2f0021a3073d3678b88b97708e758a184caf208642226d64f01
+stderr_bytes: 244
+stderr_sha256: 05f63809b7981a0fb980b0f0969561d7bc4db7867cbf3274a08291596eb4b92b
+post_run_frozen_validator: PASS
+post_run_frozen_reducer: PASS
+findings_bytes: 450055
+findings_sha256: 4ff69bd87a5dc1580128ccc33844cf5c573a6d69437d626f622b9f1fe378b14d
+canonical_source_ledger_sha256: e5693f1bdfe17c8c339c75a562e64b90c9783d06153c337ac3284f57712aa1e1
