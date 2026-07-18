@@ -213,6 +213,11 @@ def main() -> int:
     )
     if incumbent_bytes != q0_bytes:
         raise AssertionError("q=0 failed incumbent bit equivalence")
+    if (
+        q0.q_invariant_fit_signature_sha256
+        != active.q_invariant_fit_signature_sha256
+    ):
+        raise AssertionError("rank-refresh fit signature changed with q")
     if first_bytes != second_bytes:
         raise AssertionError(
             "active rank-refresh projection is not deterministic"
@@ -248,7 +253,7 @@ def main() -> int:
             "full_annual_projection_engine": True,
             "draw_index": 0,
             "q": operation.params["q"],
-            "fit_signature_sha256": (active.q_invariant_fit_signature_sha256),
+            "fit_signature_q_invariant": True,
             "exact_age_bin_counts": active.rank_refresh_fit_audit[
                 "counts_by_bin"
             ],

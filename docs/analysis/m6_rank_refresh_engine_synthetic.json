@@ -80,7 +80,7 @@
       "6": 6,
       "7": 6
     },
-    "fit_signature_sha256": "279de6ac3742bd5fe03f3db3a8740df6535e2ce8befae4fd79695b10f99fca4a",
+    "fit_signature_q_invariant": true,
     "full_annual_projection_engine": true,
     "projection_sha256": "0e7c15d6491923f8693231584abca77e203e7d6589f9fe852395808cc79a9a14",
     "q": 0.55,
