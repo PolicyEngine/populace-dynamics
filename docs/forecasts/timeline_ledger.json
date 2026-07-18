@@ -1,0 +1,123 @@
+{
+  "schema_version": "forecast_ledger.v1",
+  "description": "Append-only schedule forecasts for the Populace dynamics DynaSim-replacement campaign. Rules in docs/forecasts/README.md. Not part of the gates.yaml evaluation contract.",
+  "entries": [
+    {
+      "id": 1,
+      "registered_at": "2026-07-17T20:38:55Z",
+      "registered_retroactively": true,
+      "retro_note": "Original tiered estimate was given in-session on 2026-07-16/17 before this ledger existed; entered here verbatim-in-substance at ledger creation and immediately superseded by entries 2-4. Kept so the revision trail starts at the true first estimate.",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Tiered: certified projection engine in days-to-a-week; policy-useful SS estimates in ~2-3 weeks; full DynaSim parity in 4-7 weeks (from ~2026-07-16).",
+      "resolution_criterion": "Superseded before resolution; graded via the criteria of entries 2-4.",
+      "p50": null,
+      "p80": null,
+      "status": "superseded",
+      "superseded_by": [
+        2,
+        3,
+        4
+      ],
+      "resolution": null
+    },
+    {
+      "id": 2,
+      "registered_at": "2026-07-17T20:38:55Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Certified projection engine: a registered gate_m6 candidate run scores PASS on the 11-cell temporal holdout (>=4-of-5 seeds per the locked contract).",
+      "resolution_criterion": "A scored verdict artifact in runs/ for a registered candidate, published via merged PR, with overall PASS under the live gate_m6 contract.",
+      "p50": "2026-07-22",
+      "p80": "2026-07-25",
+      "status": "superseded",
+      "supersedes": 1,
+      "revision_reason": "Evidence since entry 1: floors v4 locked (#237) and round-2 plan ratified (#234) same-day; 5/11 cells already passing with regression constraints; earnings fix fully designed (amendment 4) with q* selection ~7h into compute. Against that: the round-2 selector execution defect (#238) added a full amendment/refreeze/rerun loop (~1 day) on the blocking remarriage path, and machine contention cost ~half a day.",
+      "resolution": null,
+      "superseded_by": [
+        7
+      ]
+    },
+    {
+      "id": 3,
+      "registered_at": "2026-07-17T20:38:55Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "First DynaSim-style SS estimates: end-to-end benefit and revenue estimates computed on projected earnings/demographic histories from the certified engine, published in-repo with disclosed gaps (no immigration, pre-alignment acceptable).",
+      "resolution_criterion": "A merged PR publishing benefit + revenue estimate tables/analysis derived from a certified-engine projection (statutory AIME/PIA oracle applied to projected histories), explicitly labeled with its disclosed gaps.",
+      "p50": "2026-07-30",
+      "p80": "2026-08-06",
+      "status": "superseded",
+      "supersedes": 1,
+      "revision_reason": "Component inventory is stronger than entry 1 assumed: AIME/PIA oracle, claiming-age, differential mortality, disability, and the M2 revenue/balance analogue are already built and gated; remaining work after certification is assembly plus the M7 factory ceremony (~1 week).",
+      "resolution": null,
+      "superseded_by": [
+        8
+      ]
+    },
+    {
+      "id": 4,
+      "registered_at": "2026-07-17T20:38:55Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Full-parity SS estimates: immigration and alignment integrated into the certified pipeline (pensions/wealth/LTSS explicitly out of scope pending a separate scoping decision).",
+      "resolution_criterion": "Merged PRs integrating an immigration module and target alignment into the estimate pipeline, with refreshed published estimates superseding the entry-3 gapped release.",
+      "p50": "2026-08-15",
+      "p80": "2026-08-29",
+      "status": "open",
+      "supersedes": 1,
+      "revision_reason": "Carried from entry 1's 4-7 week band, narrowed by observed ceremony velocity (three ratifications on 2026-07-17) and the existing immigration design brief.",
+      "resolution": null
+    },
+    {
+      "id": 5,
+      "registered_at": "2026-07-17T20:38:55Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Registration 8 (M6 candidate 2) is submitted on issue #42 - i.e., all three preconditions cleared: floors v4 (done), the amendment-4 q* lock addendum ratified, and the remarriage designed pause resolved through the round-3 path.",
+      "resolution_criterion": "A registration comment for candidate 2 posted on issue #42 naming runs/gate_m6_candidate2_v1.json, per the one-shot write_new convention.",
+      "p50": "2026-07-19",
+      "p80": "2026-07-21",
+      "status": "superseded",
+      "revision_reason": null,
+      "resolution": null,
+      "superseded_by": [
+        6
+      ]
+    },
+    {
+      "id": 6,
+      "registered_at": "2026-07-18T06:50:03Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Registration 8 (M6 candidate 2) is submitted on issue #42 - i.e., all three preconditions cleared: floors v4 (done), the amendment-4 q* lock addendum ratified, and the remarriage designed pause resolved through the round-3 path.",
+      "resolution_criterion": "A registration comment for candidate 2 posted on issue #42 naming runs/gate_m6_candidate2_v1.json, per the one-shot write_new convention.",
+      "p50": "2026-07-20",
+      "p80": "2026-07-22",
+      "status": "open",
+      "supersedes": 5,
+      "revision_reason": "The remarriage train-only ladder completed as a RATIFIED no-op (#247, after the round-3..6 reducer ceremony chain), but the ratified plan's frozen no-op ladder (learning_plan_round2.md section 7) keeps the designed pause ACTIVE and the program's section 9.3 registration condition forbids registration under that disposition. Registration 8 now additionally requires either the decision-9 re-adjudication ceremony or the W1-style surface-question disposition (both proposals launched 07-18). qstar2 also slowed under host contention (uneven 17-64 min/rung). Net: p50 moves 07-19 -> 07-20.",
+      "resolution": null
+    },
+    {
+      "id": 7,
+      "registered_at": "2026-07-18T14:19:53Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Certified projection engine: a registered gate_m6 candidate run scores PASS on the 11-cell temporal holdout (>=4-of-5 seeds per the locked contract).",
+      "resolution_criterion": "A scored verdict artifact in runs/ for a registered candidate, published via merged PR, with overall PASS under the live gate_m6 contract.",
+      "p50": "2026-07-25",
+      "p80": "2026-07-29",
+      "status": "open",
+      "supersedes": 2,
+      "revision_reason": "The ratified condition-5 conformance measurement (#251, merged e147fa7) puts the post-repair remarriage.18-64 residual transport at 111.5%/125.4%/192.7% of the unchanged 0.403 tolerance at train boundaries 2006/2008/2010 - decisively worse than the 105.8% band the R disposition was adjudicated on, and trending worse toward the scored window. Candidate 2 is therefore modal-FAIL on the 11-cell conjunction; its run (still proceeding under R, with the new numbers in the candid forecast) primarily buys scored validation of the two new deltas plus decisive surface-question evidence. A PASS most likely requires the remarriage surface ceremony (#249 lane) plus a candidate 3. p50 therefore moves 07-22 -> 07-25.",
+      "resolution": null
+    },
+    {
+      "id": 8,
+      "registered_at": "2026-07-18T14:19:53Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "First DynaSim-style SS estimates: end-to-end benefit and revenue estimates computed on projected earnings/demographic histories from the certified engine, published in-repo with disclosed gaps (no immigration, pre-alignment acceptable).",
+      "resolution_criterion": "A merged PR publishing benefit + revenue estimate tables/analysis derived from a certified-engine projection (statutory AIME/PIA oracle applied to projected histories), explicitly labeled with its disclosed gaps.",
+      "p50": "2026-08-02",
+      "p80": "2026-08-09",
+      "status": "open",
+      "supersedes": 3,
+      "revision_reason": "Downstream of entry 7's certification shift (candidate-3-after-surface-ceremony now the modal certification path).",
+      "resolution": null
+    }
+  ]
+}

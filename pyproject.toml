@@ -101,6 +101,14 @@ ignore = [
     "E501",  # line too long (handled by black)
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# The round-2 remarriage selector and reducer are FROZEN incident-record
+# bytes (PR #238, freeze commit f4424696) and cannot be edited to satisfy
+# lint. These exemptions stand until the round-3 amendment refreezes fixed
+# versions, at which point they must be removed.
+"scripts/select_m6_remarriage_round2.py" = ["I001"]
+"scripts/reduce_m6_remarriage_round2.py" = ["UP035"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"

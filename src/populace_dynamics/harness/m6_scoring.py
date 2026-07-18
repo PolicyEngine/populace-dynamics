@@ -36,9 +36,9 @@ N_DRAWS = 20
 DRAW_SEED_BASE = 5200
 GATE_SEEDS = (0, 1, 2, 3, 4)
 REQUIRED_SEED_PASSES = 4
-FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v3.json"
+FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v4.json"
 FROZEN_FLOOR_SHA256 = (
-    "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
+    "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
 )
 
 GATED_CELL_NAMES = (

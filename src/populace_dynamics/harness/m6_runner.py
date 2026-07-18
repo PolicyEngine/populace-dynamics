@@ -17,7 +17,7 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -44,6 +44,7 @@ from populace_dynamics.engine.refit import (
     EARNINGS_SPEC_REGISTRATION,
     EARNINGS_SPEC_SHA256,
     M6RefitBundle,
+    M6RefitInputs,
     fit_mortality_model,
     prepare_m6_preflight_context,
     refit_m6_components,
@@ -105,9 +106,9 @@ from populace_dynamics.harness.m6_scoring import (
 SCHEMA_VERSION = "gate_m6_candidate1.v1"
 CANDIDATE_NUMBER = 1
 PROJECTION_END_YEAR = 2022
-FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v3.json"
+FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v4.json"
 FROZEN_FLOOR_SHA256 = (
-    "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
+    "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
 )
 DEFAULT_OUTPUT = Path("runs/gate_m6_candidate1_v1.json")
 PHASE_ORDER = (
@@ -173,6 +174,15 @@ class M6RefitPhase:
     mortality: Any
     population: M6RealizedPopulation | Any
     lineage: Mapping[str, Any]
+
+
+@dataclass(frozen=True)
+class M6LazyPreflightResult:
+    """The exact preflighted fit paired with subsequently materialized inputs."""
+
+    fit: Any
+    preflight: Any
+    inputs: M6HarnessInputs
 
 
 @dataclass(frozen=True)
@@ -1373,6 +1383,71 @@ def default_operations() -> M6RunnerOperations:
     )
 
 
+def load_m6_inputs_after_fit_preflight(
+    fit_inputs: M6RefitInputs,
+    *,
+    fit: Callable[[M6RefitInputs], Any],
+    preflight: Callable[[Any], Any],
+    load_full_inputs: Callable[[], M6HarnessInputs],
+) -> M6LazyPreflightResult:
+    """Fit and preflight before lazily constructing full M6 inputs.
+
+    ``fit_inputs`` can be built by ``assemble_m6_fit_inputs`` without an M6
+    anchor or derived ``M6TruthTables``.  The full ``M6HarnessInputs``
+    construction is deliberately a callback: it is invoked exactly once and
+    only after both ``fit`` and ``preflight`` return.  Exceptions propagate
+    unchanged, so a designed preflight abort cannot be converted to a scored
+    FAIL and cannot invoke that callback.
+
+    This seam does not acquire or restrict the caller-owned raw sources from
+    which ``fit_inputs`` were assembled.  A future registered candidate-2
+    factory owns that separate reader boundary.
+
+    This is an additive candidate-family seam.  The registered candidate-1
+    path continues to call ``execute_registered_m6_run`` with an already
+    assembled ``M6HarnessInputs`` bundle and retains its existing phase order.
+    """
+    fitted = fit(fit_inputs)
+    preflight_result = preflight(fitted)
+    inputs = load_full_inputs()
+    return M6LazyPreflightResult(
+        fit=fitted,
+        preflight=preflight_result,
+        inputs=inputs,
+    )
+
+
+_M6ContinuationResult = TypeVar("_M6ContinuationResult")
+
+
+def continue_m6_after_fit_preflight(
+    fit_inputs: M6RefitInputs,
+    *,
+    fit: Callable[[M6RefitInputs], Any],
+    preflight: Callable[[Any], Any],
+    load_full_inputs: Callable[[], M6HarnessInputs],
+    continuation: Callable[[M6LazyPreflightResult], _M6ContinuationResult],
+) -> _M6ContinuationResult:
+    """Continue with the exact fit that passed the lazy preflight.
+
+    The continuation receives the same :class:`M6LazyPreflightResult` created
+    after ``fit`` and ``preflight`` return and the full-input callback succeeds.
+    It can therefore reuse ``result.fit`` while materializing a later phase,
+    instead of performing an unpreflighted second fit after truth construction.
+
+    Fit and preflight exceptions propagate before either ``load_full_inputs``
+    or ``continuation`` is reachable.  This additive API does not alter the
+    registered candidate-1 execution entry point or its phase order.
+    """
+    result = load_m6_inputs_after_fit_preflight(
+        fit_inputs,
+        fit=fit,
+        preflight=preflight,
+        load_full_inputs=load_full_inputs,
+    )
+    return continuation(result)
+
+
 def _ensure_exclusive_targets(path: Path) -> None:
     for target in (path, Path(f"{path}.env.json")):
         if os.path.lexists(target):
@@ -1464,6 +1539,7 @@ __all__ = [
     "FROZEN_FLOOR_RUN",
     "FROZEN_FLOOR_SHA256",
     "M6RefitPhase",
+    "M6LazyPreflightResult",
     "M6ResolvedContract",
     "M6RunnerOperations",
     "M6SeedRun",
@@ -1471,9 +1547,11 @@ __all__ = [
     "SCHEMA_VERSION",
     "assemble_m6_artifact",
     "contract_from_gate_document",
+    "continue_m6_after_fit_preflight",
     "default_operations",
     "execute_registered_m6_run",
     "guard_registered_m6_run",
+    "load_m6_inputs_after_fit_preflight",
     "resolve_m6_contract",
     "validate_registration_id",
 ]

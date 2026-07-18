@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 2792, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 2786, in main
+    ledger = reduce(raw)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 2695, in reduce
+    removable = _validate_cube(ledger, config=config, validation=validation)
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 1730, in _validate_cube
+    _validate_fit_public(
+    ~~~~~~~~~~~~~~~~~~~~^
+        fit_validation[boundary],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        validation=validation,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 1170, in _validate_fit_public
+    _assert_same(fit[key], expected_value, where=f"{where}.{key}")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/reduce_m6_remarriage_round3.py", line 212, in _assert_same
+    raise ValueError(
+        f"{where} does not match its independent recomputation"
+    )
+ValueError: fit_validation.2006.reference_spells does not match its independent recomputation

@@ -5456,8 +5456,8 @@ gates:
           the gate_1-certified generator.
 
     gates_yaml_untouched_by_this_draft: true
-    floor_run: runs/m6_holdout_floors_v3.json
-    floor_run_sha256: e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77
+    floor_run: runs/m6_holdout_floors_v4.json
+    floor_run_sha256: 4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523
 
     v1_pause_evidence:
       run: runs/m6_holdout_floors_v1.json
@@ -5619,13 +5619,13 @@ gates:
         family: marital
         split_unit: household
         statistic: per (coarsened) age-band x sex marital transition hazard, |ln(rbar/rate_a)| capped ln(1.5)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "first_marriage.18-29|female": 0.356
           "divorce.18-44": 0.379
           "remarriage.18-64": 0.403
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "first_marriage.18-29|female": { key: "first_marriage.18-29|female", k: 3, rounding: 3, metric: log_ratio }
             "divorce.18-44": { key: "divorce.18-44", k: 3, rounding: 3, metric: log_ratio }
@@ -5635,12 +5635,12 @@ gates:
         family: disability
         split_unit: person
         statistic: sex-pooled fully-age-pooled disability incidence / recovery hazard, |ln(rbar/rate_a)| capped ln(1.5), reproduction mode
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "incidence.20-66": 0.404
           "recovery.20-66": 0.314
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "incidence.20-66": { key: "incidence.20-66", k: 3, rounding: 3, metric: log_ratio }
             "recovery.20-66": { key: "recovery.20-66", k: 3, rounding: 3, metric: log_ratio }
@@ -5649,14 +5649,14 @@ gates:
         family: earnings
         split_unit: person
         statistic: earnings moments on the log-ratio scale (level quantile, zero rate, Delta-log SD, mobility diagonal), |ln(a/b)| capped ln(1.5)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
-          "earn_p10.prime": 0.221
-          "earn_zero_rate.older": 0.163
-          "earn_dlog_sd.older": 0.269
-          "earn_mob_h1_diag": 0.052
+          "earn_p10.prime": 0.284
+          "earn_zero_rate.older": 0.168
+          "earn_dlog_sd.older": 0.279
+          "earn_mob_h1_diag": 0.054
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "earn_p10.prime": { key: "earn_p10.prime", k: 3, rounding: 3, metric: log_ratio }
             "earn_zero_rate.older": { key: "earn_zero_rate.older", k: 3, rounding: 3, metric: log_ratio }
@@ -5667,12 +5667,12 @@ gates:
         family: earnings
         split_unit: person
         statistic: signed earnings moments on the absolute-gap scale |a-b| (change-mean log units, autocorr correlation units)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "earn_dlog_mean.prime": 0.043
           "earn_autocorr_lag2": 0.087
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "earn_dlog_mean.prime": { key: "earn_dlog_mean.prime", k: 3, rounding: 3, metric: abs_gap_log }
             "earn_autocorr_lag2": { key: "earn_autocorr_lag2", k: 3, rounding: 3, metric: abs_gap_corr }

@@ -1,0 +1,224 @@
+{
+  "authority": {
+    "process_gate": "draft PR review before ratification, freeze, or real-data selection",
+    "program_commit": "051b4494ecce9345da14d68488bb2833ed476d22",
+    "program_path": "docs/design/m6_candidate2_program.md",
+    "program_sections": [
+      "4",
+      "9.3 box 2"
+    ]
+  },
+  "candidate_16_invariance": {
+    "legacy_first_marriage": {
+      "n_bytes": 5683,
+      "path": "src/populace_dynamics/models/family_transitions/components/first_marriage.py",
+      "sha256": "3b90492eb32e779061afb4d771e40d1d0990c0fa4ddfc912bd6a61187efeabb1"
+    },
+    "literal_candidate_spec_source_sha256": "230845a869c25f092fb4d921cfc163abbcf20079a2ab05699aa8a6c3ac5b7a70",
+    "resolved_candidate_spec_sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1"
+  },
+  "implementation_files": [
+    {
+      "n_bytes": 22624,
+      "path": "src/populace_dynamics/models/family_transitions/registry.py",
+      "sha256": "92491b1282845249ed25027dabcd82b99a47a6ca56842e5bb516b4da8b83d156"
+    },
+    {
+      "n_bytes": 48264,
+      "path": "src/populace_dynamics/models/family_transitions/components/first_marriage_support_aware.py",
+      "sha256": "d1cac0298b6f1c391fe49d5195e1e1754114d710101933dd717bd0651545958e"
+    }
+  ],
+  "registration_disposition": {
+    "freeze_performed": false,
+    "registration_may_proceed": false,
+    "required_next_step": "fable referee review, then ratification and a separate freeze that binds the public train-only selection ledger and eligible final-fit checksums",
+    "status": "PREFREEZE_NOT_REGISTERABLE"
+  },
+  "resolved_candidate_spec": {
+    "candidate_id": "m6_candidate2_registry_prefreeze_v1",
+    "components": [
+      {
+        "implementation_id": "observed_residual_entry_widowed_support75.v1",
+        "kind": "initial_states",
+        "params": {
+          "support_threshold_age": 75
+        }
+      },
+      {
+        "implementation_id": "logit_ncs_age_sex_boundary_flat_cohort_l2.v1",
+        "kind": "first_marriage",
+        "params": {
+          "c_grid": [
+            0.0001,
+            0.0003,
+            0.001,
+            0.003,
+            0.01,
+            0.03,
+            0.1,
+            0.3,
+            1.0
+          ],
+          "canonical_row_order": [
+            "person_id",
+            "year"
+          ],
+          "cohort_age_support": "clip_to_positive_weight_pooled_cohort_support",
+          "cohort_reference": "sorted_oldest_fitted_decade",
+          "global_age_support": "clip_to_positive_weight_sex_support",
+          "gradient_inf_norm_max": 1e-06,
+          "knots": [
+            20,
+            22,
+            25,
+            30,
+            40
+          ],
+          "max_information_year": 2014,
+          "max_iter": 10000,
+          "penalty": "equal_l2_non_intercept",
+          "positive_weight_only": true,
+          "pseudo_boundaries": [
+            2006,
+            2008,
+            2010
+          ],
+          "selected_c": null,
+          "sex_encoding": "female_0_male_1",
+          "solver": "lbfgs",
+          "solver_ftol": 2.220446049250313e-16,
+          "solver_gtol": 1e-08,
+          "solver_tol": 1e-08,
+          "standardization": "unweighted_population_ddof0_zero_sd_to_one",
+          "substream_codes": [],
+          "unseen_cohort": "nearest_fitted_decade_ties_to_older",
+          "weight_normalization": "n_times_weight_over_sum_weight"
+        }
+      },
+      {
+        "implementation_id": "empirical_duration_order_add_one.v1",
+        "kind": "divorce",
+        "params": {
+          "duration_bands": [
+            [
+              0,
+              4
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              10,
+              19
+            ],
+            [
+              20,
+              120
+            ]
+          ]
+        }
+      },
+      {
+        "implementation_id": "empirical_age5_ysd_origin_sex_add_one.v1",
+        "kind": "remarriage",
+        "params": {
+          "age_bands": [
+            [
+              18,
+              34
+            ],
+            [
+              35,
+              49
+            ],
+            [
+              50,
+              64
+            ],
+            [
+              65,
+              74
+            ],
+            [
+              75,
+              120
+            ]
+          ]
+        }
+      },
+      {
+        "implementation_id": "single_age_triangular_bw3_parity_cohort.v1",
+        "kind": "fertility",
+        "params": {
+          "age_range": [
+            15,
+            49
+          ],
+          "bandwidth": 3
+        }
+      },
+      {
+        "implementation_id": "empirical_age4_sex_adjacent_fallback.v1",
+        "kind": "spousal_age_gap",
+        "params": {
+          "min_weighted_couples": 200
+        }
+      },
+      {
+        "implementation_id": "mh85_23_age7_sex_support75_untrended.v1",
+        "kind": "widowhood",
+        "params": {
+          "age_bands": [
+            [
+              18,
+              34
+            ],
+            [
+              35,
+              44
+            ],
+            [
+              45,
+              54
+            ],
+            [
+              55,
+              64
+            ],
+            [
+              65,
+              74
+            ],
+            [
+              75,
+              84
+            ],
+            [
+              85,
+              120
+            ]
+          ],
+          "period_trend_applied": false,
+          "support_strata": [
+            0,
+            1
+          ]
+        }
+      }
+    ],
+    "contract_revision": "m6_candidate2_program_2026_07_16_prefreeze",
+    "sha256": "6f50a44fad24a04c4c282620ad1e6f320d5f2d6ee0bff58a3250f3e38f344d21"
+  },
+  "schema_version": "m6_first_marriage_registry_spec_prefreeze_v1",
+  "selection_binding": {
+    "final_fit_checksums": null,
+    "full_stdout_sha256": null,
+    "no_registerable_status": "NO_REGISTERABLE_FIRST_MARRIAGE_FIT",
+    "real_data_selection_executed_in_this_lane": false,
+    "required_raw_schema": "m6.first_marriage.c_selection.full.v1",
+    "selected_c": null
+  },
+  "status": "PREFREEZE_AWAITING_TRAIN_ONLY_SELECTION"
+}
