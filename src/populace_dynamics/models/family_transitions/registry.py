@@ -29,6 +29,31 @@ from populace_dynamics.models.family_transitions.components.fertility import (
 from populace_dynamics.models.family_transitions.components.first_marriage import (
     fit_first_marriage,
 )
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    C_GRID as FIRST_MARRIAGE_C_GRID,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    GRADIENT_TOL as FIRST_MARRIAGE_GRADIENT_TOL,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    MAX_INFORMATION_YEAR as FIRST_MARRIAGE_MAX_INFORMATION_YEAR,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    MAX_ITER as FIRST_MARRIAGE_MAX_ITER,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    PSEUDO_BOUNDARIES as FIRST_MARRIAGE_PSEUDO_BOUNDARIES,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    SOLVER_FTOL as FIRST_MARRIAGE_SOLVER_FTOL,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    SOLVER_TOL as FIRST_MARRIAGE_SOLVER_TOL,
+)
+from populace_dynamics.models.family_transitions.components.first_marriage_support_aware import (
+    FirstMarriagePreflightAbort,
+    fit_support_aware_first_marriage,
+)
 from populace_dynamics.models.family_transitions.components.initial_states import (
     ObservedInitialStates,
     fit_observed_initial_states,
@@ -48,6 +73,7 @@ from populace_dynamics.models.family_transitions.fitted import (
 
 __all__ = [
     "CANDIDATE_16",
+    "M6_CANDIDATE_2_PREFREEZE",
     "REGISTRY",
     "CandidateSpec",
     "ComponentDefinition",
@@ -157,6 +183,17 @@ class ComponentRegistry:
         self, spec: CandidateSpec, context: FitContext
     ) -> FittedFamilyTransitions:
         """Fit a fully resolved candidate in declared dependency order."""
+        for reference in spec.components:
+            if (
+                reference.kind == "first_marriage"
+                and reference.implementation_id
+                == "logit_ncs_age_sex_boundary_flat_cohort_l2.v1"
+                and reference.params.get("selected_c") is None
+            ):
+                raise FirstMarriagePreflightAbort(
+                    "M6_CANDIDATE_2_PREFREEZE has no selected C; freeze the "
+                    "public train-only selection before fitting any component"
+                )
         fitted: dict[str, Any] = {}
         implementation_ids: dict[str, str] = {}
         for reference in spec.components:
@@ -236,6 +273,139 @@ def _fit_first_marriage(context: FitContext, _: dict[str, Any]) -> Any:
     return fit_first_marriage(never_married, event_years)
 
 
+def _assert_m6_date_fields(
+    frame: pd.DataFrame,
+    *,
+    label: str,
+    fields: tuple[str, ...],
+    required: tuple[str, ...] = (),
+) -> None:
+    """Require every present information-date field to be finite and <=2014."""
+    missing = sorted(set(required) - set(frame.columns))
+    if missing:
+        raise FirstMarriagePreflightAbort(
+            "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: "
+            f"{label} lacks required date fields {missing}"
+        )
+    for field in fields:
+        if field not in frame:
+            continue
+        numeric = pd.to_numeric(frame[field], errors="coerce")
+        invalid = frame[field].notna() & numeric.isna()
+        if invalid.any():
+            raise FirstMarriagePreflightAbort(
+                "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: "
+                f"{label}.{field} contains a nonnumeric date"
+            )
+        if field in required and numeric.isna().any():
+            raise FirstMarriagePreflightAbort(
+                "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: "
+                f"{label}.{field} contains a missing required date"
+            )
+        if (numeric.dropna() > FIRST_MARRIAGE_MAX_INFORMATION_YEAR).any():
+            maximum = int(numeric.dropna().max())
+            raise FirstMarriagePreflightAbort(
+                "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: "
+                f"{label}.{field} reaches {maximum}, beyond "
+                f"{FIRST_MARRIAGE_MAX_INFORMATION_YEAR}"
+            )
+
+
+def _assert_m6_first_marriage_context_boundary(context: FitContext) -> None:
+    """Audit every family-context frame before extracting sibling fit rows."""
+    _assert_m6_date_fields(
+        context.panel.person_years,
+        label="marital person-years",
+        fields=("year", "required_interview_year"),
+        required=("year", "required_interview_year"),
+    )
+    _assert_m6_date_fields(
+        context.panel.events,
+        label="marital events",
+        fields=("year", "required_interview_year"),
+        required=("year", "required_interview_year"),
+    )
+    _assert_m6_date_fields(
+        context.panel.attrs,
+        label="marital attributes",
+        fields=("birth_year", "censor_year"),
+        required=("birth_year",),
+    )
+    _assert_m6_date_fields(
+        context.demographic_panel,
+        label="demographic panel",
+        fields=("period",),
+        required=("period",),
+    )
+    _assert_m6_date_fields(
+        context.marriage_records,
+        label="marriage records",
+        fields=(
+            "start_year",
+            "end_year",
+            "separation_year",
+            "required_interview_year",
+            "most_recent_report_year",
+        ),
+    )
+    _assert_m6_date_fields(
+        context.birth_records,
+        label="birth records",
+        fields=(
+            "birth_year",
+            "required_interview_year",
+            "most_recent_child_report_year",
+        ),
+    )
+    _assert_m6_date_fields(
+        context.marriage_order_map,
+        label="marriage order map",
+        fields=("start_year",),
+    )
+
+
+def _fit_m6_first_marriage(context: FitContext, _: dict[str, Any]) -> Any:
+    """Fit the sibling only after its train-selected C has been frozen."""
+    selected_c = _M6_FIRST_MARRIAGE_PARAMS["selected_c"]
+    if selected_c is None:
+        raise FirstMarriagePreflightAbort(
+            "M6_CANDIDATE_2_PREFREEZE has no selected C; freeze the public "
+            "train-only selection before fitting this registry spec"
+        )
+    _assert_m6_first_marriage_context_boundary(context)
+    train_person_years, train_events, birth_decade = _train_frames(context)
+    never_married = train_person_years[
+        train_person_years["marital_state"] == "never_married"
+    ][["person_id", "year", "age", "sex", "weight"]].copy()
+    never_married["birth_decade"] = (
+        never_married["person_id"].map(birth_decade).to_numpy()
+    )
+    first_marriages = train_events[
+        train_events["transition"] == "first_marriage"
+    ]
+    event_years = {
+        (int(person_id), int(year))
+        for person_id, year in zip(
+            first_marriages["person_id"].to_numpy(),
+            first_marriages["year"].to_numpy(),
+            strict=True,
+        )
+    }
+    try:
+        return fit_support_aware_first_marriage(
+            never_married,
+            event_years,
+            c=float(selected_c),
+            max_iter=FIRST_MARRIAGE_MAX_ITER,
+            tol=FIRST_MARRIAGE_SOLVER_TOL,
+        )
+    except ValueError as error:
+        raise FirstMarriagePreflightAbort(
+            "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: registered fit input is "
+            f"degenerate or invalid: {error}"
+        ) from error
+
+
 def _fit_divorce(context: FitContext, _: dict[str, Any]) -> Any:
     train_person_years, train_events, _ = _train_frames(context)
     return fit_divorce(
@@ -295,6 +465,30 @@ def _params(**values: Any) -> Mapping[str, Any]:
 
 _INITIAL_STATE_PARAMS = _params(support_threshold_age=75)
 _FIRST_MARRIAGE_PARAMS = _params(knots=[20, 22, 25, 30, 40])
+_M6_FIRST_MARRIAGE_PARAMS = _params(
+    knots=[20, 22, 25, 30, 40],
+    selected_c=None,
+    c_grid=list(FIRST_MARRIAGE_C_GRID),
+    pseudo_boundaries=list(FIRST_MARRIAGE_PSEUDO_BOUNDARIES),
+    max_information_year=FIRST_MARRIAGE_MAX_INFORMATION_YEAR,
+    canonical_row_order=["person_id", "year"],
+    positive_weight_only=True,
+    weight_normalization="n_times_weight_over_sum_weight",
+    standardization="unweighted_population_ddof0_zero_sd_to_one",
+    sex_encoding="female_0_male_1",
+    global_age_support="clip_to_positive_weight_sex_support",
+    cohort_age_support="clip_to_positive_weight_pooled_cohort_support",
+    unseen_cohort="nearest_fitted_decade_ties_to_older",
+    cohort_reference="sorted_oldest_fitted_decade",
+    penalty="equal_l2_non_intercept",
+    solver="lbfgs",
+    max_iter=FIRST_MARRIAGE_MAX_ITER,
+    solver_tol=FIRST_MARRIAGE_SOLVER_TOL,
+    solver_gtol=FIRST_MARRIAGE_SOLVER_TOL,
+    solver_ftol=FIRST_MARRIAGE_SOLVER_FTOL,
+    gradient_inf_norm_max=FIRST_MARRIAGE_GRADIENT_TOL,
+    substream_codes=[],
+)
 _DIVORCE_PARAMS = _params(duration_bands=[[0, 4], [5, 9], [10, 19], [20, 120]])
 _REMARRIAGE_PARAMS = _params(
     age_bands=[[18, 34], [35, 49], [50, 64], [65, 74], [75, 120]]
@@ -333,6 +527,13 @@ REGISTRY = ComponentRegistry(
             params=_FIRST_MARRIAGE_PARAMS,
         ),
         ComponentDefinition(
+            kind="first_marriage",
+            implementation_id="logit_ncs_age_sex_boundary_flat_cohort_l2.v1",
+            fitter=_fit_m6_first_marriage,
+            source="m6_candidate2_program:396-493",
+            params=_M6_FIRST_MARRIAGE_PARAMS,
+        ),
+        ComponentDefinition(
             kind="divorce",
             implementation_id="empirical_duration_order_add_one.v1",
             fitter=_fit_divorce,
@@ -368,6 +569,49 @@ REGISTRY = ComponentRegistry(
             params=_WIDOWHOOD_PARAMS,
         ),
     )
+)
+
+
+M6_CANDIDATE_2_PREFREEZE = CandidateSpec(
+    candidate_id="m6_candidate2_registry_prefreeze_v1",
+    contract_revision="m6_candidate2_program_2026_07_16_prefreeze",
+    components=(
+        ComponentRef(
+            "initial_states",
+            "observed_residual_entry_widowed_support75.v1",
+            _INITIAL_STATE_PARAMS,
+        ),
+        ComponentRef(
+            "first_marriage",
+            "logit_ncs_age_sex_boundary_flat_cohort_l2.v1",
+            _M6_FIRST_MARRIAGE_PARAMS,
+        ),
+        ComponentRef(
+            "divorce",
+            "empirical_duration_order_add_one.v1",
+            _DIVORCE_PARAMS,
+        ),
+        ComponentRef(
+            "remarriage",
+            "empirical_age5_ysd_origin_sex_add_one.v1",
+            _REMARRIAGE_PARAMS,
+        ),
+        ComponentRef(
+            "fertility",
+            "single_age_triangular_bw3_parity_cohort.v1",
+            _FERTILITY_PARAMS,
+        ),
+        ComponentRef(
+            "spousal_age_gap",
+            "empirical_age4_sex_adjacent_fallback.v1",
+            _SPOUSAL_GAP_PARAMS,
+        ),
+        ComponentRef(
+            "widowhood",
+            "mh85_23_age7_sex_support75_untrended.v1",
+            _WIDOWHOOD_PARAMS,
+        ),
+    ),
 )
 
 

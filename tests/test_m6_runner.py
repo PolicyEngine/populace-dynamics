@@ -7,6 +7,9 @@ can be checked directly.
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -22,6 +25,7 @@ from populace_dynamics.harness.m6_runner import (
     M6RunnerOperations,
     M6SeedRun,
     build_report_only,
+    continue_m6_after_fit_preflight,
     contract_from_gate_document,
     execute_registered_m6_run,
     guard_registered_m6_run,
@@ -152,9 +156,26 @@ def _synthetic_operations(events, *, fail_at=None):
     )
 
 
-def test_runner_orders_phases_and_commits_last(tmp_path):
+def test_runner_orders_phases_and_commits_last(tmp_path, monkeypatch):
     events = []
     inputs = SimpleNamespace(provenance={"synthetic": True})
+
+    def forbidden_lazy_seam(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError(
+            "candidate-1 execution invoked a lazy sibling seam"
+        )
+
+    monkeypatch.setattr(
+        runner_module,
+        "load_m6_inputs_after_fit_preflight",
+        forbidden_lazy_seam,
+    )
+    monkeypatch.setattr(
+        runner_module,
+        "continue_m6_after_fit_preflight",
+        forbidden_lazy_seam,
+    )
     artifact = execute_registered_m6_run(
         inputs,
         registration_id="9999999999",
@@ -202,6 +223,142 @@ def test_runner_writes_nothing_when_an_earlier_phase_fails(tmp_path):
     assert events == ["resolve", "refit", "preflight_1"]
     assert "write" not in events
     assert not (tmp_path / "never.json").exists()
+
+
+def test_lazy_fit_preflight_abort_fires_before_full_input_loader():
+    events = []
+    fit_inputs = object()
+    fitted = SimpleNamespace(
+        fit_certificate={"eligible": False, "solver_success": False}
+    )
+
+    def fit(observed):
+        assert observed is fit_inputs
+        events.append("fit")
+        return fitted
+
+    def preflight(observed):
+        assert observed is fitted
+        events.append("preflight")
+        raise RuntimeError("synthetic first-marriage preflight abort")
+
+    def load_full_inputs():
+        events.append("holdout_truth_loader")
+        raise AssertionError("holdout truth loaded before preflight passed")
+
+    def continuation(_result):
+        events.append("continuation")
+        raise AssertionError("continuation ran before preflight passed")
+
+    with pytest.raises(RuntimeError, match="first-marriage preflight abort"):
+        continue_m6_after_fit_preflight(
+            fit_inputs,  # type: ignore[arg-type]
+            fit=fit,
+            preflight=preflight,
+            load_full_inputs=load_full_inputs,
+            continuation=continuation,
+        )
+
+    assert events == ["fit", "preflight"]
+
+
+def test_lazy_fit_exception_fences_full_loader_and_continuation():
+    events = []
+
+    def fit(_observed):
+        events.append("fit")
+        raise ValueError("synthetic fit failure")
+
+    def preflight(_observed):
+        events.append("preflight")
+        raise AssertionError("preflight ran after the fit failed")
+
+    def load_full_inputs():
+        events.append("holdout_truth_loader")
+        raise AssertionError("full inputs loaded after the fit failed")
+
+    def continuation(_result):
+        events.append("continuation")
+        raise AssertionError("continuation ran after the fit failed")
+
+    with pytest.raises(ValueError, match="synthetic fit failure"):
+        continue_m6_after_fit_preflight(
+            object(),  # type: ignore[arg-type]
+            fit=fit,
+            preflight=preflight,
+            load_full_inputs=load_full_inputs,
+            continuation=continuation,
+        )
+
+    assert events == ["fit"]
+
+
+def test_lazy_fit_preflight_continuation_receives_exact_fit_after_pass():
+    events = []
+    fit_inputs = object()
+    fitted = object()
+    record = {"passed": True}
+    full_inputs = SimpleNamespace(truth="synthetic")
+    continuation_result = object()
+
+    def fit(observed):
+        assert observed is fit_inputs
+        events.append("fit")
+        return fitted
+
+    def preflight(observed):
+        assert observed is fitted
+        events.append("preflight")
+        return record
+
+    def load_full_inputs():
+        events.append("holdout_truth_loader")
+        return full_inputs
+
+    def continuation(result):
+        events.append("continuation")
+        assert result.fit is fitted
+        assert result.preflight is record
+        assert result.inputs is full_inputs
+        return continuation_result
+
+    result = continue_m6_after_fit_preflight(
+        fit_inputs,  # type: ignore[arg-type]
+        fit=fit,
+        preflight=preflight,
+        load_full_inputs=load_full_inputs,
+        continuation=continuation,
+    )
+
+    assert events == [
+        "fit",
+        "preflight",
+        "holdout_truth_loader",
+        "continuation",
+    ]
+    assert result is continuation_result
+
+
+def test_committed_lazy_preflight_abort_smoke_is_reproducible():
+    script = ROOT / "scripts/smoke_m6_first_marriage_preflight_abort.py"
+    artifact = (
+        ROOT / "docs/analysis/m6_first_marriage_preflight_abort_synthetic.json"
+    )
+    environment = dict(os.environ)
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    environment["PYTHONPATH"] = str(ROOT / "src")
+
+    completed = subprocess.run(
+        [sys.executable, str(script)],
+        cwd=ROOT,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.stderr == ""
+    assert completed.stdout == artifact.read_text(encoding="utf-8")
 
 
 def test_runner_payload_is_deterministic_for_identical_phases(tmp_path):

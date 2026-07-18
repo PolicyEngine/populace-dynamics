@@ -19,6 +19,17 @@ RUNNER_PATH = ROOT / "scripts" / "run_gate2_registry.py"
 IMPLEMENTATION_ROOT = (
     ROOT / "src" / "populace_dynamics" / "models" / "family_transitions"
 )
+SIBLING_IMPLEMENTATION_PATH = (
+    IMPLEMENTATION_ROOT / "components" / "first_marriage_support_aware.py"
+)
+LEGACY_REGISTRY_IDENTITY = {
+    "path": "src/populace_dynamics/models/family_transitions/registry.py",
+    "sha256": "78a508205de6b51cd22c6e693e8641d1a00512b2bb5301c439d096dae7ba54c8",
+    "n_bytes": 13_600,
+}
+CANDIDATE_16_SOURCE_SHA256 = (
+    "230845a869c25f092fb4d921cfc163abbcf20079a2ab05699aa8a6c3ac5b7a70"
+)
 REFERENCE_SHA256 = (
     "ab533ecf4f614e85a0cb17e1d916ad4910b20ef9261c16321750b4b715c77c85"
 )
@@ -331,10 +342,28 @@ def test__given_registry_certificate__then_every_c16_claim_recomputes():
         "n_bytes": REFERENCE_N_BYTES,
     }
     assert certificate["runner"] == _file_identity(RUNNER_PATH)
+    certified_files = {
+        row["path"]: row for row in certificate["implementation_files"]
+    }
     implementation_paths = sorted(IMPLEMENTATION_ROOT.rglob("*.py"))
-    assert certificate["implementation_files"] == [
-        _file_identity(path) for path in implementation_paths
-    ]
+    current_paths = {
+        str(path.relative_to(ROOT)): path for path in implementation_paths
+    }
+    assert set(current_paths) - set(certified_files) == {
+        str(SIBLING_IMPLEMENTATION_PATH.relative_to(ROOT))
+    }
+    assert set(certified_files) - set(current_paths) == set()
+    for relative_path, expected in certified_files.items():
+        if relative_path == LEGACY_REGISTRY_IDENTITY["path"]:
+            assert expected == LEGACY_REGISTRY_IDENTITY
+            registry_bytes = current_paths[relative_path].read_bytes()
+            marker = b"CANDIDATE_16 = CandidateSpec("
+            candidate_source = registry_bytes[registry_bytes.index(marker) :]
+            assert hashlib.sha256(candidate_source).hexdigest() == (
+                CANDIDATE_16_SOURCE_SHA256
+            )
+        else:
+            assert _file_identity(current_paths[relative_path]) == expected
 
     spec_claim = dict(certificate["resolved_candidate_spec"])
     spec_sha = spec_claim.pop("sha256")

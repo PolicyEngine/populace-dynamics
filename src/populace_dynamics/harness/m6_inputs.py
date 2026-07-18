@@ -86,6 +86,7 @@ __all__ = [
     "M6InputProvenance",
     "M6RawInputs",
     "M6TruthTables",
+    "assemble_m6_fit_inputs",
     "assemble_m6_inputs",
     "load_m6_inputs",
     "load_m6_raw_inputs",
@@ -155,6 +156,16 @@ class M6HarnessInputs:
     disability_panel: disability.DisabilityPanel
     death_records: pd.DataFrame
     provenance: M6InputProvenance
+
+
+@dataclass(frozen=True)
+class _PreparedRefitInputs:
+    """Shared fit state, before ``M6TruthTables`` are derived."""
+
+    refit_inputs: M6RefitInputs
+    family_train_ids: frozenset[int]
+    household_train_ids: frozenset[int]
+    disability_train_ids: frozenset[int]
 
 
 def _require_columns(
@@ -285,6 +296,86 @@ def _family_context(
     )
 
 
+def _prepare_refit_inputs(
+    raw: M6RawInputs,
+    *,
+    sources: Mapping[str, Any],
+    disability_panel: disability.DisabilityPanel,
+    boundary_year: int,
+    earnings_seed: int,
+) -> _PreparedRefitInputs:
+    """Build only the inputs consumed by ``refit_m6_components``.
+
+    This helper deliberately has no anchor, presence, panel-builder, or truth
+    argument.  Keeping the fit state separate lets a registered runner execute
+    a designed fit preflight before it derives ``M6TruthTables`` or constructs
+    the complete ``M6HarnessInputs`` bundle.  Its inputs are caller-owned raw
+    source objects; this helper makes no claim that acquiring those objects was
+    reader-free.
+    """
+    preboundary_demo = sources["demo"]
+    preboundary_demo = preboundary_demo[
+        (preboundary_demo["period"] <= boundary_year)
+        & (preboundary_demo["weight"] > 0)
+    ]
+    preboundary_demo_ids = {
+        int(value) for value in preboundary_demo["person_id"].unique()
+    }
+    family_train_ids = frozenset(
+        preboundary_demo_ids
+        & {
+            int(value)
+            for value in sources["mpanel"].attrs["person_id"].unique()
+        }
+    )
+    household_train_ids = frozenset(
+        int(value)
+        for value in sources["hh"]
+        .person_waves.loc[
+            sources["hh"].person_waves["year"] <= boundary_year,
+            "person_id",
+        ]
+        .unique()
+    )
+    disability_train_ids = frozenset(
+        int(value)
+        for value in disability_panel.person_years.loc[
+            disability_panel.person_years["period"] <= boundary_year,
+            "person_id",
+        ].unique()
+    )
+    family_context = _family_context(sources, family_train_ids)
+    household_context = hc.fit_context_from_sources(
+        sources, set(household_train_ids)
+    )
+    modifier_weights = _preboundary_weights(sources["demo"], boundary_year)
+    refit_inputs = M6RefitInputs(
+        family_context=family_context,
+        household_context=household_context,
+        earnings_panel=raw.earnings_panel,
+        earnings_seed=earnings_seed,
+        modifier_marital_panel=sources["mpanel"],
+        modifier_interview_years=sources["demo"]["period"],
+        modifier_marriage_records=sources["mh"],
+        modifier_person_weight=modifier_weights,
+        ssa_params=raw.ssa_params,
+        ssa_params_vintage=int(raw.ssa_params_vintage),
+        modifier_train_ids=set(family_train_ids),
+        disability_panel=disability_panel,
+        disability_train_ids=set(disability_train_ids),
+        claiming_reference=raw.claiming_reference,
+        mortality_exposure=raw.mortality_exposure,
+        mortality_external_rates=raw.mortality_external_rates,
+        mortality_external_vintage=int(raw.mortality_external_vintage),
+    )
+    return _PreparedRefitInputs(
+        refit_inputs=refit_inputs,
+        family_train_ids=family_train_ids,
+        household_train_ids=household_train_ids,
+        disability_train_ids=disability_train_ids,
+    )
+
+
 def _source_provenance(
     *,
     raw: M6RawInputs,
@@ -377,6 +468,59 @@ def _source_provenance(
     )
 
 
+def assemble_m6_fit_inputs(
+    raw: M6RawInputs,
+    *,
+    boundary_year: int = BOUNDARY_YEAR,
+    earnings_seed: int = DEFAULT_EARNINGS_SEED,
+) -> M6RefitInputs:
+    """Assemble fit state without deriving the M6 holdout truth tables.
+
+    The returned object is sufficient for ``refit_m6_components``.  In
+    particular, this path does not build the M6 anchor, realized-population
+    inputs, presence map, or any mortality, marital, disability, or earnings
+    ``M6TruthTables`` member.  A registered candidate can therefore fit and run
+    a designed preflight before lazily constructing ``M6HarnessInputs``.
+
+    ``raw`` is deliberately caller-owned and may already contain full-window
+    source frames produced by external readers.  Deferring or restricting those
+    reads belongs to the registered candidate's input factory, not this pure
+    assembly seam.
+    """
+    boundary = _validate_boundary(boundary_year)
+    seed = int(earnings_seed)
+    if seed < 0:
+        raise ValueError("earnings_seed must be non-negative")
+    _validate_household_sources(raw.household_sources)
+    sources = raw.household_sources
+    _require_columns(
+        sources["demo"],
+        frozenset({"person_id", "period", "age", "weight", "interview"}),
+        "demographic panel",
+    )
+    _require_columns(
+        raw.death_records,
+        frozenset({"person_id", "sex", "death_year"}),
+        "death records",
+    )
+    _require_columns(
+        raw.earnings_panel,
+        frozenset({"person_id", "period", "earnings", "age", "weight"}),
+        "earnings panel",
+    )
+    _validate_external_inputs(raw, boundary)
+    disability_panel = disability.build_disability_panel(
+        raw.disability_status, raw.death_records
+    )
+    return _prepare_refit_inputs(
+        raw,
+        sources=sources,
+        disability_panel=disability_panel,
+        boundary_year=boundary,
+        earnings_seed=seed,
+    ).refit_inputs
+
+
 def assemble_m6_inputs(
     raw: M6RawInputs,
     *,
@@ -437,60 +581,12 @@ def assemble_m6_inputs(
         earnings=earnings_frame(raw.earnings_panel, anchor),
     )
 
-    preboundary_demo = sources["demo"]
-    preboundary_demo = preboundary_demo[
-        (preboundary_demo["period"] <= boundary)
-        & (preboundary_demo["weight"] > 0)
-    ]
-    preboundary_demo_ids = {
-        int(value) for value in preboundary_demo["person_id"].unique()
-    }
-    family_train_ids = frozenset(
-        preboundary_demo_ids
-        & {
-            int(value)
-            for value in sources["mpanel"].attrs["person_id"].unique()
-        }
-    )
-    household_train_ids = frozenset(
-        int(value)
-        for value in sources["hh"]
-        .person_waves.loc[
-            sources["hh"].person_waves["year"] <= boundary,
-            "person_id",
-        ]
-        .unique()
-    )
-    disability_train_ids = frozenset(
-        int(value)
-        for value in disability_panel.person_years.loc[
-            disability_panel.person_years["period"] <= boundary,
-            "person_id",
-        ].unique()
-    )
-    family_context = _family_context(sources, family_train_ids)
-    household_context = hc.fit_context_from_sources(
-        sources, set(household_train_ids)
-    )
-    modifier_weights = _preboundary_weights(sources["demo"], boundary)
-    refit_inputs = M6RefitInputs(
-        family_context=family_context,
-        household_context=household_context,
-        earnings_panel=raw.earnings_panel,
-        earnings_seed=seed,
-        modifier_marital_panel=sources["mpanel"],
-        modifier_interview_years=sources["demo"]["period"],
-        modifier_marriage_records=sources["mh"],
-        modifier_person_weight=modifier_weights,
-        ssa_params=raw.ssa_params,
-        ssa_params_vintage=int(raw.ssa_params_vintage),
-        modifier_train_ids=set(family_train_ids),
+    prepared = _prepare_refit_inputs(
+        raw,
+        sources=sources,
         disability_panel=disability_panel,
-        disability_train_ids=set(disability_train_ids),
-        claiming_reference=raw.claiming_reference,
-        mortality_exposure=raw.mortality_exposure,
-        mortality_external_rates=raw.mortality_external_rates,
-        mortality_external_vintage=int(raw.mortality_external_vintage),
+        boundary_year=boundary,
+        earnings_seed=seed,
     )
     provenance = _source_provenance(
         raw=raw,
@@ -498,12 +594,12 @@ def assemble_m6_inputs(
         truth=truth,
         boundary_year=boundary,
         earnings_seed=seed,
-        family_train_ids=family_train_ids,
-        household_train_ids=household_train_ids,
-        disability_train_ids=disability_train_ids,
+        family_train_ids=prepared.family_train_ids,
+        household_train_ids=prepared.household_train_ids,
+        disability_train_ids=prepared.disability_train_ids,
     )
     return M6HarnessInputs(
-        refit_inputs=refit_inputs,
+        refit_inputs=prepared.refit_inputs,
         panel_builder_inputs=builders,
         truth=truth,
         demographic_panel=sources["demo"],
