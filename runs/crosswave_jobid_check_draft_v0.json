@@ -1,7 +1,7 @@
 {
   "artifact": "crosswave_jobid_check",
   "version": "draft_v0",
-  "status": "DRAFT - pre-lock artifact for the #230 section-6 seam ruling; verdict rule pre-registered in the build script",
+  "status": "DRAFT - pre-lock artifact for the #230 section-6 seam ruling. NOT pre-registered: the verdict rule and the result were committed together (87788eb), and a first run returned a different verdict before the estimator was corrected. Accurate label: disclosed re-analysis after a discovered defect.",
   "issue": "230",
   "question": "are EJB job IDs longitudinally consistent across the pu2022->pu2023 boundary, or is part of the 9.45% seam separation rate a re-keying (linkage) artifact?",
   "within_wave_baseline": {
@@ -24,10 +24,30 @@
   },
   "rekey_signature_definition": "a vanished job whose person holds a next-month job matching it on industry code, class of worker, and earnings within 20% (|log ratio| < 0.1823); computed identically at the seam and within-wave, so the within-wave share is the coincidental-match baseline",
   "bounds": {
-    "gross_id_survival_share": 0.9055,
+    "gross_id_survival_identity": 0.9055,
+    "gross_id_survival_identity_note": "DEFINITIONAL IDENTITY, NOT A BOUND: equals 1 - sep_rate. Takes this value even if every seam separation is a re-key. Relabelled in review of #235.",
     "excess_rekey_signature_share_of_seam_seps": 0.0936,
     "structural_ee_cap_share_of_seam_seps": 0.6188
   },
   "verdict_rule": "PASS if excess re-key share < 15% of seam separations; PASS_WITH_CORRECTION_BAND if 15-30%; REFER_BACK if >30%",
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "scoring_population_sensitivity": {
+    "ee_only_excess_share": 0.1512,
+    "ee_only_verdict": "PASS_WITH_CORRECTION_BAND",
+    "scaled_to_all_seps_excess_share": 0.0936,
+    "scaled_to_all_seps_verdict": "PASS",
+    "note": "The E->E population is where re-keying can occur at all, and scores ABOVE the 15% bar. The scaled figure multiplies it by structural_ee_cap and scores below. Which is operative is UNREGISTERED and is a C3 referee decision.",
+    "derivation": "ee_only = 111/633 - 85/3524; recomputable from the counts in this file."
+  },
+  "precision_note": "Point estimate of a difference of two ratios; no CI. On n=111/633 the binomial SE on 0.1754 alone is ~1.5pp, so the propagated upper end is plausibly 11-12% on the scaled figure. The '<=' framing in the PR body overstates this.",
+  "known_caveats": [
+    "15%/30% bands have no derivation on record; author-chosen, not floor-derived. OPEN for ratification.",
+    "_rekey_match scores missing class-of-worker/earnings as agreement, inflating the signature; untested.",
+    "EARN_LOG_TOL=20% unmotivated; moves seam and within-wave signatures non-proportionally.",
+    "Coincidence baseline drawn from a different separation mix: within-wave exits to nonemployment are 3276/6800=48.2% vs 390/1023=38.1% at the seam.",
+    "Seam denominator (10828 jobs) vs ~17500 per within-wave month-pair: separation_decomposition drops persons absent from present_next, and presence is keyed on SSUID+PNUM -- the same cross-wave linkage under test. Re-keyed persons leave the denominator silently rather than being counted.",
+    "Not test-pinned; no env sidecar; SIPP inputs unpinned (POPULACE_DYNAMICS_SIPP_DIR, no checksum)."
+  ],
+  "metadata_edit_note": "Fields status/bounds/scoring_population_sensitivity/precision_note/known_caveats were edited to match the reviewed build script without re-running (staged SIPP microdata unavailable on the editing machine). NO MEASURED NUMBER WAS CHANGED: every added value is arithmetic on counts already committed in this file and is independently recomputable. Re-run before ratification.",
+  "verdict_is_conditional_on_scoring_population": true
 }

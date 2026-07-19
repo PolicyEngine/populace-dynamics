@@ -34,11 +34,39 @@ Design — three bounds, none assuming what they test:
     separations-to-employment. Only the latter can hide re-keying,
     so the E->E share caps the artifact regardless of (b).
 
-Verdict rule (pre-registered here): the ruling's conditional check
-PASSES if the implied ID-artifact share of the seam rate — excess
-re-key signature applied to the E->E component — is under 15% of
-the measured seam rate; between 15% and 30% the seam figures carry
-a correction band; above 30% the #214 ruling returns to the referee.
+Verdict rule: the ruling's conditional check PASSES if the implied
+ID-artifact share of the seam rate — excess re-key signature applied
+to the E->E component — is under 15% of the measured seam rate;
+between 15% and 30% the seam figures carry a correction band; above
+30% the #214 ruling returns to the referee.
+
+PROVENANCE OF THIS RULE (corrected 2026-07-19, review of #235).
+Earlier revisions of this docstring described the rule as
+"pre-registered here". That claim is not supported by the record and
+is withdrawn:
+
+  * the rule and the result land in a single commit (87788eb); no
+    earlier commit, issue comment, or ADR fixes the 15/30 bands.
+    #230's body conditions on this check without naming a threshold.
+  * a first run of this check returned PASS_WITH_CORRECTION_BAND
+    against a 6.06% conditioned rate. The estimator was then changed
+    (inner-join -> person-month universe) and re-run to PASS. The
+    fix is believed correct on its merits, but it means a verdict
+    was observed before the committed estimator existed.
+
+The accurate description is DISCLOSED RE-ANALYSIS AFTER A DISCOVERED
+DEFECT, not pre-registration. #230 section 6 should cite it as such.
+
+OPEN (referee, C3): the 15%/30% bands have no derivation on record.
+Every other bar in this repo is derived from a noise floor. These
+were chosen by the author. They need either a derivation or separate
+ratification before this artifact can carry the seam ruling.
+
+OPEN (referee, C3): the operative scoring population is unregistered
+and the verdict depends on it -- see ``scoring_population_sensitivity``
+in the artifact. This choice MUST be made by the referee round and
+recorded here. It cannot be settled by whoever reads the numbers
+first without reproducing the defect this file documents.
 
 Usage::
 
@@ -64,6 +92,19 @@ from populace_dynamics.data import sipp_jobs  # noqa: E402
 FILE_YEARS = (2022, 2023)
 EARN_LOG_TOL = abs(np.log(0.8))  # earnings within 20%
 ARTIFACT = REPO / "runs/crosswave_jobid_check_draft_v0.json"
+
+
+def _verdict_for(share: float) -> str:
+    """Apply the 15/30 bands to an artifact share.
+
+    Factored out so the same rule can be reported against both
+    candidate scoring populations without either being privileged.
+    """
+    if share < 0.15:
+        return "PASS"
+    if share <= 0.30:
+        return "PASS_WITH_CORRECTION_BAND"
+    return "REFER_BACK"
 
 
 def person_month_presence(year: int) -> pd.DataFrame:
@@ -114,7 +155,23 @@ def month_frame(job_months: pd.DataFrame) -> pd.DataFrame:
 
 
 def _rekey_match(lost, new_jobs) -> bool:
-    """Does any new job match a lost job's employer profile?"""
+    """Does any new job match a lost job's employer profile?
+
+    KNOWN BIAS, not sensitivity-tested (review of #235). A missing
+    value on class-of-worker or earnings does not disqualify a match:
+    the ``pd.notna`` guards mean a NaN falls through to ``return
+    True``. Missingness is therefore scored as agreement, inflating
+    the re-key signature. This matters only if item non-response
+    differs across the file boundary -- which is exactly the boundary
+    under test, so it cannot be assumed away.
+
+    ``EARN_LOG_TOL`` (20%) is likewise unmotivated and untested; it
+    moves the seam and within-wave signatures non-proportionally.
+
+    Both are left AS-IS deliberately: changing them changes the
+    committed numbers, and re-running requires the staged SIPP
+    microdata. Registered here as C3 sensitivity work.
+    """
     _, ind, clwrk, earn = lost
     for _, n_ind, n_clwrk, n_earn in new_jobs:
         if n_ind != ind:
@@ -247,19 +304,18 @@ def build() -> dict:
     implied_artifact_share = round(excess_sig_ee * ee_share_of_seps, 4)
     ee_cap = round(ee_share_of_seps, 4)
 
-    if implied_artifact_share < 0.15:
-        verdict = "PASS"
-    elif implied_artifact_share <= 0.30:
-        verdict = "PASS_WITH_CORRECTION_BAND"
-    else:
-        verdict = "REFER_BACK"
+    verdict = _verdict_for(implied_artifact_share)
 
     return {
         "artifact": "crosswave_jobid_check",
         "version": "draft_v0",
         "status": (
             "DRAFT - pre-lock artifact for the #230 section-6 seam "
-            "ruling; verdict rule pre-registered in the build script"
+            "ruling. NOT pre-registered: the verdict rule and the "
+            "result were committed together (87788eb), and a first "
+            "run returned a different verdict before the estimator "
+            "was corrected. Accurate label: disclosed re-analysis "
+            "after a discovered defect. See the module docstring."
         ),
         "issue": "230",
         "question": (
@@ -277,25 +333,45 @@ def build() -> dict:
             "within-wave share is the coincidental-match baseline"
         ),
         "bounds": {
-            "gross_id_survival_share": round(
-                (
-                    seam["jobs_kept_share"]
-                    if "jobs_kept_share" in seam
-                    else 1 - seam["sep_rate"]
-                ),
-                4,
-            ),
+            # NOTE: 1 - sep_rate is the arithmetic complement of the
+            # seam rate, i.e. a definitional identity, NOT evidence.
+            # It would take this same value if every seam separation
+            # were a re-key. Retained as context, relabelled so it
+            # cannot be read as a bound. (Review of #235.)
+            "gross_id_survival_identity": round(1 - seam["sep_rate"], 4),
             "excess_rekey_signature_share_of_seam_seps": (
                 implied_artifact_share
             ),
             "structural_ee_cap_share_of_seam_seps": ee_cap,
+        },
+        # Both scoring populations, so the referee can see that the
+        # verdict depends on which one is operative. Disclosure only:
+        # this file does NOT choose between them.
+        "scoring_population_sensitivity": {
+            "ee_only_excess_share": round(excess_sig_ee, 4),
+            "ee_only_verdict": _verdict_for(excess_sig_ee),
+            "scaled_to_all_seps_excess_share": implied_artifact_share,
+            "scaled_to_all_seps_verdict": verdict,
+            "note": (
+                "The E->E population is the one in which re-keying "
+                "can occur at all, and scores ABOVE the 15% bar. The "
+                "scaled figure multiplies it by the E->E share of "
+                "separations (structural_ee_cap) and scores below. "
+                "Which is operative is unregistered -- see the OPEN "
+                "items in the module docstring."
+            ),
         },
         "verdict_rule": (
             "PASS if excess re-key share < 15% of seam separations; "
             "PASS_WITH_CORRECTION_BAND if 15-30%; REFER_BACK if "
             ">30%"
         ),
+        "verdict_bar_provenance": (
+            "OPEN - no derivation on record; author-chosen, not "
+            "floor-derived. Requires ratification (review of #235)."
+        ),
         "verdict": verdict,
+        "verdict_is_conditional_on_scoring_population": True,
     }
 
 
