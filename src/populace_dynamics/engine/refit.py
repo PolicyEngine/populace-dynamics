@@ -606,14 +606,21 @@ def refit_family_transitions(
     context: ft.FitContext,
     *,
     boundary_year: int = BOUNDARY_YEAR,
+    candidate_spec: ft.CandidateSpec | None = None,
     registry: Any = ft.REGISTRY,
 ) -> RegistryRefit:
-    """Refit the unchanged candidate-16 registry on caller-supplied inputs."""
+    """Refit one explicit family registry spec on caller-supplied inputs.
+
+    ``None`` preserves the incumbent candidate-16 binding.  A sibling runner
+    must pass its candidate spec explicitly; a registry adapter alone cannot
+    change the identity recorded in the returned provenance.
+    """
+    spec = ft.CANDIDATE_16 if candidate_spec is None else candidate_spec
     truncated = _truncate_family_context(context, boundary_year)
-    fitted = registry.fit(ft.CANDIDATE_16, truncated)
+    fitted = registry.fit(spec, truncated)
     return RegistryRefit(
-        candidate_id=ft.CANDIDATE_16.candidate_id,
-        spec_sha256=ft.CANDIDATE_16.sha256,
+        candidate_id=spec.candidate_id,
+        spec_sha256=spec.sha256,
         fitted=fitted,
         provenance=_registry_provenance(truncated, boundary_year),
     )
@@ -1117,6 +1124,7 @@ def refit_m6_components(
     *,
     boundary_year: int = BOUNDARY_YEAR,
     qrf_factory: QRFModelFactory | None = None,
+    family_candidate_spec: ft.CandidateSpec | None = None,
     earnings_candidate_spec: CandidateSpec | None = None,
     family_registry: Any = ft.REGISTRY,
     household_registry: Any = hc.REGISTRY,
@@ -1134,6 +1142,7 @@ def refit_m6_components(
     family = refit_family_transitions(
         inputs.family_context,
         boundary_year=boundary_year,
+        candidate_spec=family_candidate_spec,
         registry=family_registry,
     )
     household = refit_household_composition(
