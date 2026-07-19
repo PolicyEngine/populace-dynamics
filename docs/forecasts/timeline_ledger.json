@@ -75,7 +75,14 @@
       "p80": "2026-07-21",
       "status": "superseded",
       "revision_reason": null,
-      "resolution": null,
+      "resolution": {
+        "resolved_at": "2026-07-19T12:09:10Z",
+        "evidence": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5015653634",
+        "error_days_p50": 0,
+        "within_p50": true,
+        "within_p80": true,
+        "note": "Superseded entry graded against reality per the ledger rules: resolved exactly on its original p50 date. The revision (entry 6) moved p50 a day later on the governance-ladder discovery; reality landed on the original date."
+      },
       "superseded_by": [
         6
       ]
@@ -88,10 +95,16 @@
       "resolution_criterion": "A registration comment for candidate 2 posted on issue #42 naming runs/gate_m6_candidate2_v1.json, per the one-shot write_new convention.",
       "p50": "2026-07-20",
       "p80": "2026-07-22",
-      "status": "open",
+      "status": "resolved",
       "supersedes": 5,
       "revision_reason": "The remarriage train-only ladder completed as a RATIFIED no-op (#247, after the round-3..6 reducer ceremony chain), but the ratified plan's frozen no-op ladder (learning_plan_round2.md section 7) keeps the designed pause ACTIVE and the program's section 9.3 registration condition forbids registration under that disposition. Registration 8 now additionally requires either the decision-9 re-adjudication ceremony or the W1-style surface-question disposition (both proposals launched 07-18). qstar2 also slowed under host contention (uneven 17-64 min/rung). Net: p50 moves 07-19 -> 07-20.",
-      "resolution": null
+      "resolution": {
+        "resolved_at": "2026-07-19T12:09:10Z",
+        "evidence": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5015653634",
+        "error_days_p50": -1,
+        "within_p50": true,
+        "within_p80": true
+      }
     },
     {
       "id": 7,

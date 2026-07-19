@@ -38,4 +38,5 @@ Recomputed from resolved entries; append rows, never rewrite history.
 
 | id | claim (short) | p50 | p80 | resolved | error vs p50 (days) | within p50? | within p80? |
 |----|---------------|-----|-----|----------|--------------------:|-------------|-------------|
-| (none resolved yet) | | | | | | | |
+| 5 (superseded) | Registration 8 submitted | 2026-07-19 | 2026-07-21 | 2026-07-19 | 0 | yes | yes |
+| 6 | Registration 8 submitted | 2026-07-20 | 2026-07-22 | 2026-07-19 | -1 | yes | yes |
