@@ -12,9 +12,26 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from populace_dynamics import claiming
+from populace_dynamics.data import (
+    disability as disability_data,
+)
+from populace_dynamics.data import (
+    household_composition as household_data,
+)
+from populace_dynamics.data import (
+    transitions,
+)
 from populace_dynamics.engine import candidates as engine_candidates
 from populace_dynamics.engine import refit as refit_module
+from populace_dynamics.engine.loop import (
+    MaritalStepResult,
+    PeriodModules,
+    ProjectionEngine,
+)
+from populace_dynamics.engine.panel_builders import PanelBuilderInputs
 from populace_dynamics.harness import m6_candidate2_runner as runner
+from populace_dynamics.harness import m6_cells
 from populace_dynamics.harness.m6_candidate2_runner import (
     M6Candidate2Bindings,
     M6Candidate2Preparation,
@@ -30,6 +47,10 @@ from populace_dynamics.harness.m6_scoring import M6CellRule, M6GateContract
 from populace_dynamics.models.family_transitions import (
     registry as family_candidates,
 )
+from populace_dynamics.models.household_composition.components.child_attribution import (
+    father_marital_by_year,
+)
+from populace_dynamics.ss.params import SSAParameters
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -310,6 +331,46 @@ def _resolved() -> M6ResolvedContract:
         floor_artifact={},
         floor_path="synthetic-floor.json",
         floor_sha256=runner.PREREGISTERED_VALUES["floor_run_sha256"],
+    )
+
+
+def _first_marriage_resolved() -> M6ResolvedContract:
+    resolved = _resolved()
+    rules = [
+        M6CellRule(
+            cell=runner.FIRST_MARRIAGE_GATE_CELL,
+            family="marital",
+            split_unit="household",
+            metric="log_ratio",
+            tolerance=0.356,
+            k=3,
+            rounding=3,
+        )
+    ]
+    for cell, tolerance in runner.MUST_NOT_REGRESS_TOLERANCES.items():
+        family = (
+            "earnings"
+            if cell.startswith("earn_")
+            else (
+                "disability"
+                if cell.startswith(("incidence", "recovery"))
+                else "marital"
+            )
+        )
+        rules.append(
+            M6CellRule(
+                cell=cell,
+                family=family,
+                split_unit="household" if family == "marital" else "person",
+                metric="log_ratio",
+                tolerance=tolerance,
+                k=3,
+                rounding=3,
+            )
+        )
+    return replace(
+        resolved,
+        contract=replace(resolved.contract, cells=tuple(rules)),
     )
 
 
@@ -930,12 +991,17 @@ def test_transport_disclosure_uses_canonical_panel_birth_decade():
             "window": ["gated"],
         }
     )
-    attrs = pd.DataFrame({"person_id": [1], "birth_year": [1989]})
+    fit_attrs = pd.DataFrame({"person_id": [1], "birth_year": [1979]})
+    truth_attrs = pd.DataFrame({"person_id": [1], "birth_year": [1989]})
     inputs = runner.M6HarnessInputs(
         refit_inputs=SimpleNamespace(
-            family_context=SimpleNamespace(panel=SimpleNamespace(attrs=attrs))
+            family_context=SimpleNamespace(
+                panel=SimpleNamespace(attrs=fit_attrs)
+            )
         ),
-        panel_builder_inputs=object(),
+        panel_builder_inputs=SimpleNamespace(
+            marital=SimpleNamespace(attrs=truth_attrs)
+        ),
         truth=SimpleNamespace(marital_person_years=frame),
         demographic_panel=object(),
         earnings_panel=object(),
@@ -954,26 +1020,10 @@ def test_transport_disclosure_uses_canonical_panel_birth_decade():
         population=None,
         lineage={},
     )
-    contract = M6GateContract(
-        cells=(
-            M6CellRule(
-                cell="first_marriage.18-29|female",
-                family="marital",
-                split_unit="household",
-                metric="log_ratio",
-                tolerance=0.356,
-                k=3,
-                rounding=3,
-            ),
-        ),
-        gate_seeds=runner.MUST_NOT_REGRESS_SEEDS,
-        required_seed_passes=4,
-    )
-    resolved = replace(_resolved(), contract=contract)
     result = runner._first_marriage_transport_disclosure(
         inputs,
         phase,
-        resolved,
+        _first_marriage_resolved(),
         {"passed": True},
     )
     assert observed == {
@@ -1605,8 +1655,679 @@ def test_family_refit_records_an_explicit_sibling_spec(monkeypatch):
     assert result.spec_sha256 == spec.sha256
 
 
-def _synthetic_operations(events) -> M6Candidate2RunnerOperations:
-    bundle = object()
+class _SyntheticProbabilityGate:
+    classes_ = np.asarray([0, 1], dtype=np.int64)
+
+    def predict_proba(self, values):
+        return np.tile(np.asarray([[0.25, 0.75]]), (len(values), 1))
+
+
+class _SyntheticQRFOutcome:
+    columns = ("earnings", "age_tp2")
+    gate = _SyntheticProbabilityGate()
+
+
+class _SyntheticFittedQRF:
+    def __init__(self):
+        self._target_models = {
+            "earnings_tp2": _SyntheticQRFOutcome(),
+        }
+
+
+class _SyntheticQRFFactory:
+    def __call__(self, *, seed):
+        del seed
+
+        class Model:
+            def fit(self, frame, **kwargs):
+                del frame, kwargs
+                return _SyntheticFittedQRF()
+
+        return Model()
+
+
+def _synthetic_ssa_params() -> SSAParameters:
+    years = list(range(2000, 2017))
+    return SSAParameters(
+        nawi={year: 100.0 + year for year in years},
+        wage_base={1900: 1_000_000.0},
+        pia_factors=(0.9, 0.32, 0.15),
+        fra_months_by_birth_year=[(1900, 804)],
+        early_monthly_rates=(0.0, 0.0),
+        early_first_bracket_months=36,
+        pe_us_revision="synthetic-2014-vintage",
+    )
+
+
+def _synthetic_claim_reference() -> claiming.ClaimAgeReference:
+    categories = {
+        "age62": 40.0,
+        "age63": 10.0,
+        "age64": 10.0,
+        "age65": 10.0,
+        "age66": 10.0,
+        "disability_conversion": 10.0,
+        "age67_69": 6.0,
+        "age70plus": 4.0,
+    }
+    record = {
+        "number_thousands": 1,
+        "average_age": 64.0,
+        "raw": {},
+        "categories": categories,
+        "fra_at": {"share": 0.0, "at_age": 66},
+    }
+    return claiming.ClaimAgeReference(
+        schema_version="ssa_claim_ages.v1",
+        table="synthetic",
+        supplement_year=2014,
+        raw_columns=(),
+        collapsed_categories=tuple(categories),
+        provenance={},
+        validation={},
+        fra_schedule={},
+        _data={
+            "female": {"2014": record},
+            "male": {"2014": record},
+        },
+    )
+
+
+def _synthetic_base_marital_panel() -> transitions.MaritalPanel:
+    person_years = pd.DataFrame(
+        {
+            "person_id": [1, 1, 1, 2, 2],
+            "year": [2012, 2014, 2015, 2013, 2015],
+            "required_interview_year": [2013, 2015, 2015, 2013, 2015],
+            "age": [30, 32, 33, 40, 42],
+            "sex": ["female", "female", "female", "male", "male"],
+            "weight": [1.0, 1.0, 1.0, 2.0, 2.0],
+            "marital_state": [
+                "never_married",
+                "never_married",
+                "married",
+                "married",
+                "married",
+            ],
+            "marriage_duration": pd.array(
+                [pd.NA, pd.NA, 0, 5, 7], dtype="Int64"
+            ),
+            "years_since_dissolution": pd.array([pd.NA] * 5, dtype="Int64"),
+        }
+    )
+    events = pd.DataFrame(
+        {
+            "person_id": [1, 2],
+            "year": [2014, 2013],
+            "required_interview_year": [2015, 2013],
+            "age": [32, 40],
+            "sex": ["female", "male"],
+            "weight": [1.0, 2.0],
+            "transition": ["first_marriage", "divorce"],
+            "marriage_duration": pd.array([pd.NA, 5], dtype="Int64"),
+            "years_since_dissolution": pd.array([pd.NA, pd.NA], dtype="Int64"),
+            "origin": pd.array([pd.NA, pd.NA], dtype="string"),
+        }
+    )
+    attrs = pd.DataFrame(
+        {
+            "person_id": [1, 2],
+            "birth_year": [1982.0, 1973.0],
+            "censor_year": [2023.0, 2023.0],
+            "weight": [1.0, 2.0],
+            "n_marriages": [2.0, 1.0],
+        }
+    )
+    return transitions.MaritalPanel(person_years, events, attrs)
+
+
+def _synthetic_marriage_records() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "person_id": [1, 1, 2],
+            "sex": ["female", "female", "male"],
+            "birth_year": pd.array([1982, 1982, 1973], dtype="Int64"),
+            "start_year": pd.array([2012, 2018, 2010], dtype="Int64"),
+            "required_interview_year": pd.array(
+                [2013, 2019, 2011], dtype="Int64"
+            ),
+            "end_year": pd.array([2018, pd.NA, 2016], dtype="Int64"),
+            "separation_year": pd.array([pd.NA, pd.NA, pd.NA], dtype="Int64"),
+            "most_recent_report_year": pd.array(
+                [2023, 2023, 2023], dtype="Int64"
+            ),
+            "n_marriages": pd.array([2, 2, 1], dtype="Int64"),
+            "is_marriage": [True, True, True],
+            "spouse_person_id": pd.array([2, 2, 1], dtype="Int64"),
+        }
+    )
+
+
+def _synthetic_family_context():
+    base_panel = _synthetic_base_marital_panel()
+    attrs = base_panel.attrs.copy()
+    attrs["sex"] = ["female", "male"]
+    attrs["most_recent_report_year"] = 2014
+    attrs["death_year"] = pd.array([pd.NA, pd.NA], dtype="Int64")
+    attrs["start_exposure_year"] = attrs["birth_year"] + 15
+    patterns = (
+        ("female", 1970, (18, 24, 25)),
+        ("female", 1980, (18, 24, 25)),
+        ("female", 1990, (18, 23)),
+        ("male", 1970, (18, 24, 25)),
+        ("male", 1980, (18, 24, 25)),
+    )
+    rows = []
+    event_years = set()
+    person_id = 101
+    for sex, cohort, ages in patterns:
+        for age in ages:
+            for is_event in (False, True):
+                year = cohort + age
+                rows.append(
+                    {
+                        "person_id": person_id,
+                        "year": year,
+                        "age": age,
+                        "sex": sex,
+                        "weight": 1.0,
+                        "birth_decade": cohort,
+                    }
+                )
+                if is_event:
+                    event_years.add((person_id, year))
+                person_id += 1
+    training = pd.DataFrame(rows)
+    person_years = training.copy()
+    person_years["required_interview_year"] = person_years["year"]
+    person_years["marital_state"] = "never_married"
+    person_years["marriage_duration"] = pd.array(
+        [pd.NA] * len(person_years), dtype="Int64"
+    )
+    person_years["years_since_dissolution"] = pd.array(
+        [pd.NA] * len(person_years), dtype="Int64"
+    )
+    event_mask = [
+        (int(pid), int(year)) in event_years
+        for pid, year in zip(
+            person_years["person_id"],
+            person_years["year"],
+            strict=True,
+        )
+    ]
+    events = person_years.loc[
+        event_mask,
+        [
+            "person_id",
+            "year",
+            "required_interview_year",
+            "age",
+            "sex",
+            "weight",
+        ],
+    ].copy()
+    events["transition"] = "first_marriage"
+    for column in ("marriage_duration", "years_since_dissolution"):
+        events[column] = pd.array([pd.NA] * len(events), dtype="Int64")
+    events["origin"] = pd.array([pd.NA] * len(events), dtype="string")
+    training_attrs = (
+        training.sort_values(["person_id", "year"])
+        .groupby("person_id", as_index=False)
+        .first()[["person_id", "birth_decade", "sex", "weight"]]
+        .rename(columns={"birth_decade": "birth_year"})
+    )
+    training_attrs["censor_year"] = 2014
+    training_attrs["n_marriages"] = 1
+    training_attrs["most_recent_report_year"] = 2014
+    training_attrs["death_year"] = pd.array(
+        [pd.NA] * len(training_attrs), dtype="Int64"
+    )
+    training_attrs["start_exposure_year"] = training_attrs["birth_year"] + 15
+    panel = transitions.MaritalPanel(
+        person_years=pd.concat(
+            [base_panel.person_years, person_years], ignore_index=True
+        ),
+        events=pd.concat([base_panel.events, events], ignore_index=True),
+        attrs=pd.concat([attrs, training_attrs], ignore_index=True),
+    )
+    training_ids = training_attrs["person_id"].astype(int).tolist()
+    demographic = pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "person_id": [1, 1, 2, 2],
+                    "period": [2013, 2015, 2013, 2015],
+                }
+            ),
+            pd.DataFrame(
+                {
+                    "person_id": training_ids,
+                    "period": [2013] * len(training_ids),
+                }
+            ),
+        ],
+        ignore_index=True,
+    )
+    birth_records = pd.DataFrame(
+        {
+            "parent_person_id": [1, 1],
+            "birth_year": pd.array([2010, 2017], dtype="Int64"),
+            "required_interview_year": pd.array([2011, 2017], dtype="Int64"),
+            "is_event": [True, True],
+            "record_type": ["birth", "birth"],
+            "birth_order": pd.array([1, 2], dtype="Int64"),
+            "parent_sex": ["female", "female"],
+            "child_person_id": pd.array([10, 11], dtype="Int64"),
+        }
+    )
+    return family_candidates.FitContext(
+        panel=panel,
+        demographic_panel=demographic,
+        marriage_records=_synthetic_marriage_records(),
+        birth_records=birth_records,
+        marriage_order_map=pd.DataFrame(
+            {
+                "person_id": [1, 1, 2],
+                "start_year": [2012, 2018, 2010],
+                "order": [1, 2, 1],
+            }
+        ),
+        train_ids=frozenset({1, 2, *training_ids}),
+    )
+
+
+def _synthetic_household_context():
+    person_waves = pd.DataFrame(
+        {
+            "person_id": [1, 1, 1, 2, 2],
+            "year": [2011, 2013, 2015, 2013, 2015],
+            "age": [29, 31, 33, 40, 42],
+            "band": ["25-34", "25-34", "25-34", "35-44", "35-44"],
+            "sex": ["female", "female", "female", "male", "male"],
+            "weight": [1.0, 1.0, 1.0, 2.0, 2.0],
+            "hh_size": [2, 2, 3, 1, 2],
+            "coresident_spouse": [False, True, True, False, True],
+            "coresident_parent": [True, False, False, True, True],
+            "coresident_child": [False, False, True, False, False],
+            "coresident_grandchild": [False] * 5,
+            "multigen": [False, False, True, False, False],
+        }
+    )
+    person_waves.loc[
+        (person_waves["person_id"] == 2) & (person_waves["year"] == 2015),
+        "year",
+    ] = 2014
+    person_waves = household_data._add_transitions(person_waves)
+    household = household_data.HouseholdCompositionPanel(
+        person_waves=person_waves,
+        attrs=pd.DataFrame({"person_id": [1, 2]}),
+    )
+    marital = _synthetic_base_marital_panel()
+    marital_years = marital.person_years.copy()
+    row = (marital_years["person_id"] == 1) & (marital_years["year"] == 2014)
+    marital_years.loc[row, ["year", "required_interview_year", "age"]] = [
+        2013,
+        2013,
+        31,
+    ]
+    prebirth = (marital_years["person_id"] == 1) & (
+        marital_years["year"] == 2015
+    )
+    marital_years.loc[
+        prebirth,
+        ["year", "required_interview_year", "age", "marital_state"],
+    ] = [2008, 2013, 26, "never_married"]
+    marital_years.loc[
+        prebirth, ["marriage_duration", "years_since_dissolution"]
+    ] = pd.NA
+    marital_events = marital.events.copy()
+    row = (marital_events["person_id"] == 1) & (
+        marital_events["transition"] == "first_marriage"
+    )
+    marital_events.loc[row, ["year", "required_interview_year", "age"]] = [
+        2012,
+        2013,
+        30,
+    ]
+    marital_attrs = marital.attrs.copy()
+    marital_attrs["sex"] = ["female", "male"]
+    marital_attrs["most_recent_report_year"] = 2014
+    marital_attrs["death_year"] = pd.array([pd.NA, pd.NA], dtype="Int64")
+    marital_attrs["start_exposure_year"] = marital_attrs["birth_year"] + 15
+    marital = transitions.MaritalPanel(
+        marital_years, marital_events, marital_attrs
+    )
+    birth_records = pd.DataFrame(
+        {
+            "is_event": [True],
+            "parent_person_id": pd.Series([1], dtype="int64"),
+            "birth_year": pd.Series([2010], dtype="Int64"),
+            "required_interview_year": pd.Series([2011], dtype="Int64"),
+            "birth_order": pd.Series([1], dtype="Int64"),
+            "record_type": pd.Series(["birth"], dtype="string"),
+            "parent_sex": pd.Series(["female"], dtype="string"),
+            "child_person_id": pd.Series([10], dtype="Int64"),
+        }
+    )
+    relationship_map = pd.DataFrame(
+        {
+            "interview_year": [2013, 2015],
+            "ego_rel_to_alter": [10, 10],
+            "ego_person_id": [1, 1],
+        }
+    )
+    empty_links = pd.DataFrame(
+        {
+            "parent_person_id": pd.Series(dtype="int64"),
+            "child_person_id": pd.Series(dtype="int64"),
+            "birth_year": pd.Series(dtype="int64"),
+        }
+    )
+    empty_pairs = pd.DataFrame(
+        {
+            "parent_person_id": pd.Series(dtype="int64"),
+            "child_person_id": pd.Series(dtype="int64"),
+            "year": pd.Series(dtype="int64"),
+        }
+    )
+    child_exposure = pd.DataFrame(
+        {
+            "father_id": pd.Series(dtype="int64"),
+            "child_person_id": pd.Series(dtype="int64"),
+            "year": pd.Series(dtype="int64"),
+            "child_band": pd.Series(dtype="string"),
+            "weight": pd.Series(dtype="float64"),
+            "with_father": pd.Series(dtype=bool),
+            "marital": pd.Series(dtype=bool),
+        }
+    )
+
+    def person_year(name):
+        return pd.DataFrame(
+            {
+                "person_id": [1, 2],
+                "year": [2013, 2013],
+                name: [1, 1],
+            }
+        )
+
+    from populace_dynamics.models.household_composition import registry
+
+    return registry.FitContext(
+        hh=household,
+        mpanel=marital,
+        demographic_panel=pd.DataFrame(
+            {
+                "person_id": [1, 1, 2, 2],
+                "period": [2013, 2015, 2013, 2015],
+            }
+        ),
+        marriage_records=_synthetic_marriage_records(),
+        birth_records=birth_records,
+        marriage_order_map=pd.DataFrame(
+            {
+                "person_id": [1, 1, 2],
+                "start_year": [2012, 2018, 2010],
+                "order": [1, 2, 1],
+            }
+        ),
+        relationship_map=relationship_map,
+        train_ids=frozenset({1, 2}),
+        father_links_child=empty_links,
+        parent_pairs=empty_pairs,
+        marital_by_year=father_marital_by_year(marital),
+        family_unit_sizes=person_year("family_unit_size"),
+        legal_spouse_flag=person_year("legal_spouse_obs"),
+        child_record_exposure=child_exposure,
+        parent_counts=person_year("n_parent_links"),
+    )
+
+
+def _synthetic_fit_earnings() -> pd.DataFrame:
+    rows = []
+    periods = tuple(range(2002, 2016, 2))
+    for bin_index, age in enumerate(range(27, 67, 5)):
+        person_id = bin_index + 1
+        for wave_index, period in enumerate(periods):
+            earnings = float(10_000 + 1_000 * bin_index + 125 * wave_index)
+            if person_id == 1 and period == 2014:
+                earnings = 0.0
+            rows.append(
+                {
+                    "person_id": person_id,
+                    "period": period,
+                    "earnings": earnings,
+                    "age": age,
+                    "weight": float(person_id),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _synthetic_refit_inputs():
+    family = _synthetic_family_context()
+    disability_years = pd.DataFrame(
+        {
+            "person_id": [1, 1, 2, 2],
+            "period": [2011, 2013, 2011, 2013],
+            "required_interview_year": [2011, 2013, 2011, 2013],
+            "age": [40, 42, 50, 52],
+            "sex": ["female", "female", "male", "male"],
+            "weight": [1.0, 1.0, 1.0, 1.0],
+            "status_code": [1, 5, 5, 1],
+            "disabled": [False, True, True, False],
+            "retired": [False, False, False, False],
+        }
+    )
+    disability_panel = disability_data.DisabilityPanel(
+        disability_years,
+        disability_data.build_transition_pairs(disability_years),
+    )
+    return refit_module.M6RefitInputs(
+        family_context=family,
+        household_context=_synthetic_household_context(),
+        earnings_panel=_synthetic_fit_earnings(),
+        earnings_seed=17,
+        modifier_marital_panel=family.panel,
+        modifier_interview_years=(
+            family.panel.person_years["required_interview_year"]
+        ),
+        modifier_marriage_records=family.marriage_records,
+        modifier_person_weight=(
+            family.panel.attrs.set_index("person_id")["weight"]
+        ),
+        ssa_params=_synthetic_ssa_params(),
+        ssa_params_vintage=2014,
+        modifier_train_ids=set(family.train_ids),
+        disability_panel=disability_panel,
+        disability_train_ids={1, 2},
+        claiming_reference=_synthetic_claim_reference(),
+        mortality_exposure=pd.DataFrame(
+            {
+                "event_year": [2013, 2013],
+                "required_interview_year": [2013, 2013],
+                "age_band": ["0+", "0+"],
+                "sex": ["female", "male"],
+                "start_weight": [1.0, 1.0],
+                "exposure": [1.0, 1.0],
+                "death": [0.01, 0.01],
+            }
+        ),
+        mortality_external_rates=pd.DataFrame(
+            {
+                "lower_age": [0, 0],
+                "upper_age": [120, 120],
+                "age_band": ["0+", "0+"],
+                "sex": ["female", "male"],
+                "central_rate": [0.001, 0.001],
+            }
+        ),
+        mortality_external_vintage=2014,
+    )
+
+
+def _transport_universe_fixture(tmp_path: Path) -> SimpleNamespace:
+    entrant = 9_999
+    truth_attrs = pd.DataFrame(
+        {
+            "person_id": [1, entrant],
+            "sex": ["female", "female"],
+            "birth_year": [1989.0, 2000.0],
+            "most_recent_report_year": [2019.0, 2019.0],
+            "n_marriages": [0.0, 0.0],
+            "death_year": pd.array([pd.NA, pd.NA], dtype="Int64"),
+            "censor_year": [2019.0, 2019.0],
+            "weight": [2.5, 3.0],
+            "start_exposure_year": [2004.0, 2015.0],
+        }
+    )
+    person_years = transitions._assign_state(
+        transitions._person_years_frame(truth_attrs),
+        pd.DataFrame(),
+    )
+    empty_events = pd.DataFrame(
+        columns=[
+            "person_id",
+            "year",
+            "age",
+            "sex",
+            "weight",
+            "transition",
+        ]
+    )
+    marital = transitions.MaritalPanel(
+        person_years=person_years,
+        events=empty_events,
+        attrs=truth_attrs,
+    )
+    anchor = pd.DataFrame(
+        {
+            "person_id": [1, entrant],
+            "household_id": [101, 202],
+            "weight": [2.5, 3.0],
+            "anchor_wave": [2015, 2017],
+        }
+    )
+    presence = {
+        2013: set(),
+        2015: {1},
+        2017: {1, entrant},
+        2019: {1, entrant},
+        2021: set(),
+    }
+    _, marital_person_years = m6_cells.marital_tables_from_panel(
+        marital,
+        anchor,
+        presence,
+    )
+    household = household_data.HouseholdCompositionPanel(
+        person_waves=pd.DataFrame(
+            {
+                "person_id": [1, entrant],
+                "year": [2015, 2017],
+                "coresident_spouse": [False, False],
+                "coresident_parent": [False, False],
+                "coresident_child": [False, False],
+                "coresident_grandchild": [False, False],
+                "multigen": [False, False],
+                "hh_size": [1, 1],
+            }
+        ),
+        attrs=pd.DataFrame({"person_id": [1, entrant]}),
+    )
+    cohabitation = pd.DataFrame(
+        {
+            "person_id": [1, entrant],
+            "year": [2015, 2017],
+            "cohabiting": [False, False],
+        }
+    )
+    builders = PanelBuilderInputs(
+        anchor=anchor,
+        marital=marital,
+        household=household,
+        cohabitation=cohabitation,
+    )
+    demographic_panel = pd.DataFrame(
+        {
+            "person_id": [1, 1, 1, entrant, entrant],
+            "period": [2015, 2017, 2019, 2017, 2019],
+            "age": [26, 28, 30, 17, 19],
+            "sequence": [1, 1, 1, 1, 1],
+            "relationship": [10, 10, 10, 10, 10],
+            "weight": [2.5, 2.5, 2.5, 3.0, 3.0],
+            "interview": [101, 101, 101, 202, 202],
+        }
+    )
+    death_records = pd.DataFrame(
+        {
+            "person_id": [1, entrant],
+            "sex": pd.array(["female", "female"], dtype="string"),
+            "death_year": pd.array([pd.NA, pd.NA], dtype="Int64"),
+        }
+    )
+    earnings_rows = []
+    for person_id, birth_year, weight in (
+        (1, 1989, 2.5),
+        (entrant, 2000, 3.0),
+    ):
+        for period in (2014, 2016, 2018, 2020):
+            earnings_rows.append(
+                {
+                    "person_id": person_id,
+                    "period": period,
+                    "age": period - birth_year,
+                    "weight": weight,
+                    "earnings": 20_000.0 + 100.0 * (period - 2014),
+                }
+            )
+    earnings_panel = pd.DataFrame(earnings_rows)
+    disability_panel = disability_data.DisabilityPanel(
+        person_years=pd.DataFrame(
+            {
+                "person_id": [1, 1, 1, entrant, entrant],
+                "period": [2015, 2017, 2019, 2017, 2019],
+                "status_code": [1, 1, 1, 1, 1],
+                "disabled": [False, False, False, False, False],
+                "retired": [False, False, False, False, False],
+            }
+        ),
+        pairs=pd.DataFrame(),
+    )
+
+    fit_inputs = _synthetic_refit_inputs()
+    inputs = runner.M6HarnessInputs(
+        refit_inputs=fit_inputs,
+        panel_builder_inputs=builders,
+        truth=SimpleNamespace(
+            anchor=anchor,
+            marital_person_years=marital_person_years,
+        ),
+        demographic_panel=demographic_panel,
+        earnings_panel=earnings_panel,
+        disability_status=object(),
+        disability_panel=disability_panel,
+        death_records=death_records,
+        provenance={"synthetic_transport_universe": True},
+    )
+    preparation = replace(
+        _preparation(tmp_path),
+        resolved=_first_marriage_resolved(),
+    )
+    return SimpleNamespace(
+        fit_inputs=fit_inputs,
+        inputs=inputs,
+        bundle=None,
+        preparation=preparation,
+        post_tstar_person_id=entrant,
+        projection_calls=[],
+    )
+
+
+def _synthetic_operations(
+    events, *, bundle=None
+) -> M6Candidate2RunnerOperations:
+    candidate_bundle = object() if bundle is None else bundle
     incumbent_bundle = object()
     candidate_score_ids = set()
 
@@ -1615,12 +2336,12 @@ def _synthetic_operations(events) -> M6Candidate2RunnerOperations:
         return value
 
     def materialize(_inputs, observed_bundle):
-        assert observed_bundle is bundle
+        assert observed_bundle is candidate_bundle
         bindings = _matching_bindings()
         return record(
             "materialize",
             M6RefitPhase(
-                bundle=bundle,
+                bundle=candidate_bundle,
                 mortality=None,
                 population=None,
                 lineage={
@@ -1642,7 +2363,7 @@ def _synthetic_operations(events) -> M6Candidate2RunnerOperations:
         )
 
     def materialize_incumbent(candidate_phase, observed_bundle):
-        assert candidate_phase.bundle is bundle
+        assert candidate_phase.bundle is candidate_bundle
         assert observed_bundle is incumbent_bundle
         return record(
             "materialize_incumbent",
@@ -1669,13 +2390,13 @@ def _synthetic_operations(events) -> M6Candidate2RunnerOperations:
         return record("aggregate", _FakeGateScore(tuple(scores)))
 
     return M6Candidate2RunnerOperations(
-        fit=lambda _inputs: record("fit", bundle),
+        fit=lambda _inputs: record("fit", candidate_bundle),
         first_marriage_preflight=lambda _bundle: record(
             "first_marriage_preflight", {"passed": True}
         ),
         fit_postrepair_incumbent=lambda _inputs, observed: (
             record("fit_incumbent", incumbent_bundle)
-            if observed is bundle
+            if observed is candidate_bundle
             else (_ for _ in ()).throw(AssertionError("wrong bundle"))
         ),
         materialize=materialize,
@@ -1700,6 +2421,421 @@ def _synthetic_operations(events) -> M6Candidate2RunnerOperations:
         ),
         write=lambda *_args: record("write"),
     )
+
+
+def _transport_universe_operations(
+    fixture: SimpleNamespace,
+    events: list[str],
+    disclosure,
+) -> M6Candidate2RunnerOperations:
+    operations = runner.default_operations()
+
+    def fit(fit_inputs):
+        assert fit_inputs is fixture.fit_inputs
+        events.append("fit")
+        fixture.bundle = operations.fit(fit_inputs)
+        return fixture.bundle
+
+    def fit_preflight(bundle):
+        assert bundle is fixture.bundle
+        events.append("first_marriage_preflight")
+        return runner._preflight_candidate2_first_marriage(bundle)
+
+    def materialize(inputs, bundle):
+        assert bundle is fixture.bundle
+        events.append("materialize")
+        return operations.materialize(inputs, bundle)
+
+    def fit_incumbent(inputs, bundle):
+        assert bundle is fixture.bundle
+        events.append("fit_incumbent")
+        return operations.fit_postrepair_incumbent(inputs, bundle)
+
+    def materialize_incumbent(phase, bundle):
+        assert phase.bundle is fixture.bundle
+        events.append("materialize_incumbent")
+        return operations.materialize_postrepair_incumbent(phase, bundle)
+
+    def transport_disclosure(inputs, phase, resolved, fit_preflight):
+        events.append("first_marriage_disclosure")
+        return disclosure(inputs, phase, resolved, fit_preflight)
+
+    def preflight_1(inputs, phase, contract):
+        assert phase.bundle is fixture.bundle
+        assert contract is fixture.preparation.resolved.contract
+        events.append("preflight_1")
+        return runner.m6_runner._run_m6_preflight_1(inputs, phase, contract)
+
+    def preflight_2(inputs, phase, contract):
+        assert inputs is fixture.inputs
+        assert phase.bundle is fixture.bundle
+        assert contract is fixture.preparation.resolved.contract
+        events.append("preflight_2")
+        return runner.m6_runner.run_m6_preflight_2(inputs, phase, contract)
+
+    def score_seed(inputs, phase, contract, seed):
+        arm = "candidate" if phase.bundle is fixture.bundle else "incumbent"
+        events.append(f"score_{arm}_{seed}")
+        return runner.m6_runner.score_m6_seed(
+            inputs,
+            phase,
+            contract,
+            seed,
+        )
+
+    def aggregate(contract, scores):
+        assert len(scores) == len(runner.MUST_NOT_REGRESS_SEEDS)
+        events.append("aggregate")
+        return runner.m6_runner.aggregate_gate(contract, scores)
+
+    def write(path, artifact, sidecar):
+        events.append("write")
+        runner.write_new_candidate2_artifact(path, artifact, sidecar)
+
+    def domain_floor(*_args):
+        events.append("domain_floor")
+        return {"truth_side_only": True}
+
+    def report_only(*_args):
+        events.append("report_only")
+        return {
+            "domain_earnings_floor": {"truth_side_only": True},
+            "family_b": {"gating": False},
+            "family_c": {"gating": False},
+        }
+
+    return replace(
+        operations,
+        fit=fit,
+        first_marriage_preflight=fit_preflight,
+        fit_postrepair_incumbent=fit_incumbent,
+        materialize=materialize,
+        materialize_postrepair_incumbent=materialize_incumbent,
+        first_marriage_disclosure=transport_disclosure,
+        preflight_1=preflight_1,
+        preflight_2=preflight_2,
+        score_seed=score_seed,
+        aggregate=aggregate,
+        domain_floor=domain_floor,
+        report_only=report_only,
+        write=write,
+    )
+
+
+def _install_transport_universe_test_seams(
+    monkeypatch,
+    fixture: SimpleNamespace,
+) -> None:
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    registered_identity = runner.resolve_candidate2_identity()
+    monkeypatch.setattr(
+        runner,
+        "guard_registered_m6_candidate2_run",
+        lambda **_kwargs: fixture.preparation,
+    )
+    monkeypatch.setattr(
+        runner,
+        "_revalidate_source_identity",
+        lambda _preparation: None,
+    )
+    monkeypatch.setattr(
+        runner,
+        "assert_candidate2_identity_is_frozen",
+        lambda _identity: None,
+    )
+
+    def synthetic_identity():
+        if fixture.bundle is None:
+            return registered_identity
+        model = fixture.bundle.family.fitted.first_marriage
+        assert model is not None and model.fit_audit is not None
+        return replace(
+            registered_identity,
+            first_marriage_params={
+                **registered_identity.first_marriage_params,
+                "selected_c": 0.001,
+                "final_fit_checksums": dict(model.fit_audit.checksums),
+            },
+        )
+
+    monkeypatch.setattr(
+        runner,
+        "resolve_candidate2_identity",
+        synthetic_identity,
+    )
+    monkeypatch.setattr(
+        refit_module,
+        "_default_qrf_factory",
+        _SyntheticQRFFactory(),
+    )
+    truth_cells = {
+        rule.cell: {"rate": 0.2, "n_events": 1, "n_at_risk": 5}
+        for rule in fixture.preparation.resolved.contract.cells
+    }
+    monkeypatch.setattr(
+        runner.m6_runner,
+        "_truth_cells",
+        lambda *_args, **_kwargs: truth_cells,
+    )
+    monkeypatch.setattr(
+        runner.m6_runner,
+        "side_a_person_ids",
+        lambda anchor, **_kwargs: set(anchor["person_id"]),
+    )
+
+    def passthrough(frame, _context, _rng):
+        return frame.copy()
+
+    def aging(frame, context, _rng):
+        out = frame.copy()
+        out["year"] = context.year
+        return out
+
+    def earnings(frame, context, _rng):
+        out = frame.copy()
+        out["synthetic_score_signal"] = (
+            0.99 if context.draw_index == 0 else 1.01
+        )
+        return out
+
+    def marital_core(_frame, _context, _rng):
+        return MaritalStepResult(pd.DataFrame(), pd.DataFrame())
+
+    def marital_reader(frame, _context, _marital, _rng):
+        return frame.copy()
+
+    modules = PeriodModules(
+        mortality=passthrough,
+        aging=aging,
+        marital_core=marital_core,
+        fertility=marital_reader,
+        disability=passthrough,
+        earnings=earnings,
+        claiming=passthrough,
+        household_composition=marital_reader,
+    )
+
+    def projected_cells(
+        _inputs,
+        _phase,
+        household_population,
+        _person_population,
+        *,
+        draw_index,
+    ):
+        initial = household_population.initial_slice[["person_id", "year"]]
+        result = ProjectionEngine(modules).project(
+            initial,
+            end_year=runner.m6_runner.PROJECTION_END_YEAR,
+            start_year=2014,
+            draw_index=draw_index,
+            metadata=household_population.projection_metadata(),
+        )
+        final_slice = result.slices[-1]
+        fixture.projection_calls.append(
+            {
+                "draw_index": draw_index,
+                "trace_years": [trace.year for trace in result.traces],
+                "final_person_ids": set(final_slice["person_id"]),
+            }
+        )
+        multiplier = float(final_slice["synthetic_score_signal"].mean())
+        cells = {
+            key: {"rate": record["rate"] * multiplier}
+            for key, record in truth_cells.items()
+        }
+        return cells, result, {}, result, {}
+
+    monkeypatch.setattr(
+        runner.m6_runner,
+        "_projected_cells",
+        projected_cells,
+    )
+    monkeypatch.setattr(
+        runner.m6_runner,
+        "_draw_report",
+        lambda *_args, draw_index: {"draw_index": draw_index},
+    )
+
+
+def test_transport_universe_end_to_end_scores_and_writes_artifact(
+    monkeypatch,
+    tmp_path,
+):
+    fixture = _transport_universe_fixture(tmp_path)
+    _install_transport_universe_test_seams(monkeypatch, fixture)
+    events = []
+    operations = _transport_universe_operations(
+        fixture,
+        events,
+        runner._first_marriage_transport_disclosure,
+    )
+
+    def load_full_inputs():
+        events.append("load_full_inputs")
+        return fixture.inputs
+
+    artifact = runner.execute_registered_m6_candidate2_run(
+        runner.M6Candidate2InputPlan(
+            fit_inputs=fixture.fit_inputs,
+            load_full_inputs=load_full_inputs,
+        ),
+        registration_id="9999999999",
+        root=tmp_path,
+        operations=operations,
+        preparation=fixture.preparation,
+    )
+
+    assert events == [
+        "fit",
+        "first_marriage_preflight",
+        "fit_incumbent",
+        "load_full_inputs",
+        "materialize",
+        "materialize_incumbent",
+        "first_marriage_disclosure",
+        "preflight_1",
+        "preflight_2",
+        "score_candidate_0",
+        "score_candidate_1",
+        "score_candidate_2",
+        "score_candidate_3",
+        "score_candidate_4",
+        "score_incumbent_0",
+        "score_incumbent_1",
+        "score_incumbent_2",
+        "score_incumbent_3",
+        "score_incumbent_4",
+        "aggregate",
+        "domain_floor",
+        "report_only",
+        "write",
+    ]
+    assert len(fixture.projection_calls) == 20
+    assert all(
+        call["trace_years"] == list(range(2015, 2023))
+        for call in fixture.projection_calls
+    )
+    assert all(
+        call["final_person_ids"] == {1, fixture.post_tstar_person_id}
+        for call in fixture.projection_calls
+    )
+    fit_ids = set(fixture.fit_inputs.family_context.panel.attrs["person_id"])
+    truth_ids = set(
+        fixture.inputs.panel_builder_inputs.marital.attrs["person_id"]
+    )
+    support_ids = set(fixture.inputs.truth.marital_person_years["person_id"])
+    assert truth_ids - fit_ids == {fixture.post_tstar_person_id}
+    assert support_ids == truth_ids
+
+    transport = artifact["preflights"]["first_marriage_fit_and_transport"][
+        "gated_cell_transport"
+    ][runner.FIRST_MARRIAGE_GATE_CELL]
+    assert transport["at_risk_rows"] == 6
+    assert transport["at_risk_f6_weight"] == 16.0
+    assert transport["in_support"] == {"rows": 4, "f6_weight": 10.0}
+    assert transport["age_out_of_support"] == {
+        "rows": 0,
+        "f6_weight": 0.0,
+    }
+    assert transport["unseen_cohort"] == {"rows": 2, "f6_weight": 6.0}
+    recertification = artifact["preflights"]["candidate9_recertification"]
+    assert recertification["passed"] is True
+    assert len(recertification["cells"]) == 15
+    assert all(cell["passed"] for cell in recertification["cells"])
+    assert artifact["preflights"]["earnings_sign_path"] == {
+        "branch": "certified_target_models_reconstruction",
+        "gates_checked": ["shared_gate", "zero_anchor_gate"],
+        "probe_rows": 2,
+        "output_signs": [0, 1, 0, 1],
+    }
+    assert artifact["verdict"]["status"] == "PASS"
+    assert fixture.preparation.destination.exists()
+    sidecar = Path(f"{fixture.preparation.destination}.env.json")
+    assert sidecar.exists()
+    assert json.loads(fixture.preparation.destination.read_text()) == artifact
+    assert sidecar.read_bytes() == fixture.preparation.sidecar_payload
+
+
+def test_transport_universe_pre_fix_join_reproduces_designed_abort(
+    monkeypatch,
+    tmp_path,
+):
+    fixture = _transport_universe_fixture(tmp_path)
+    _install_transport_universe_test_seams(monkeypatch, fixture)
+    events = []
+
+    def pre_fix_disclosure(inputs, phase, resolved, fit_preflight):
+        pre_fix_marital = replace(
+            inputs.panel_builder_inputs.marital,
+            attrs=inputs.refit_inputs.family_context.panel.attrs,
+        )
+        pre_fix_builders = replace(
+            inputs.panel_builder_inputs,
+            marital=pre_fix_marital,
+        )
+        pre_fix_inputs = replace(
+            inputs,
+            panel_builder_inputs=pre_fix_builders,
+        )
+        return runner._first_marriage_transport_disclosure(
+            pre_fix_inputs,
+            phase,
+            resolved,
+            fit_preflight,
+        )
+
+    operations = _transport_universe_operations(
+        fixture,
+        events,
+        pre_fix_disclosure,
+    )
+
+    def load_full_inputs():
+        events.append("load_full_inputs")
+        return fixture.inputs
+
+    with pytest.raises(runner.M6Candidate2DesignedAbort) as caught:
+        runner.execute_registered_m6_candidate2_run(
+            runner.M6Candidate2InputPlan(
+                fit_inputs=fixture.fit_inputs,
+                load_full_inputs=load_full_inputs,
+            ),
+            registration_id="9999999999",
+            root=tmp_path,
+            operations=operations,
+            preparation=fixture.preparation,
+        )
+
+    report = caught.value.report
+    assert report["status"] == "FIRST_MARRIAGE_PRESCORE_ABORT"
+    assert report["abort"] == {
+        "type": "FirstMarriagePreflightAbort",
+        "message": (
+            "first-marriage diagnostic support lacks canonical birth year"
+        ),
+        "stage": "transport_disclosure",
+        "converted_to_gate_fail": False,
+    }
+    assert report["fences"] == {
+        "full_inputs_loaded": True,
+        "materialization_completed": True,
+        "projection_started": False,
+        "score_started": False,
+        "candidate_artifact_written": False,
+    }
+    assert events == [
+        "fit",
+        "first_marriage_preflight",
+        "fit_incumbent",
+        "load_full_inputs",
+        "materialize",
+        "materialize_incumbent",
+        "first_marriage_disclosure",
+    ]
+    assert fixture.projection_calls == []
+    assert not fixture.preparation.destination.exists()
+    assert not Path(f"{fixture.preparation.destination}.env.json").exists()
 
 
 def test_candidate2_runner_orders_phases_and_commits_last(
