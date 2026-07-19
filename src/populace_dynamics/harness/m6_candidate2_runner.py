@@ -1396,7 +1396,7 @@ def _first_marriage_transport_disclosure(
             "first-marriage diagnostic support lacks columns "
             f"{sorted(missing)}"
         )
-    attrs = inputs.refit_inputs.family_context.panel.attrs
+    attrs = inputs.panel_builder_inputs.marital.attrs
     if not {"person_id", "birth_year"}.issubset(attrs):
         raise FirstMarriagePreflightAbort(
             "first-marriage diagnostic attributes lack birth_year"
