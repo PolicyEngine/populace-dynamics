@@ -73,6 +73,7 @@ from populace_dynamics.models.family_transitions.fitted import (
 
 __all__ = [
     "CANDIDATE_16",
+    "M6_CANDIDATE_2",
     "M6_CANDIDATE_2_PREFREEZE",
     "REGISTRY",
     "CandidateSpec",
@@ -135,7 +136,7 @@ class CandidateSpec:
                 {
                     "kind": component.kind,
                     "implementation_id": component.implementation_id,
-                    "params": json.loads(json.dumps(dict(component.params))),
+                    "params": _plain(component.params),
                 }
                 for component in self.components
             ],
@@ -457,6 +458,15 @@ def _deep_freeze(value: Any) -> Any:
     return value
 
 
+def _plain(value: Any) -> Any:
+    """Return recursively mutable JSON data for canonical serialization."""
+    if isinstance(value, Mapping):
+        return {str(key): _plain(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain(item) for item in value]
+    return value
+
+
 def _params(**values: Any) -> Mapping[str, Any]:
     return MappingProxyType(
         {key: _deep_freeze(value) for key, value in values.items()}
@@ -465,7 +475,7 @@ def _params(**values: Any) -> Mapping[str, Any]:
 
 _INITIAL_STATE_PARAMS = _params(support_threshold_age=75)
 _FIRST_MARRIAGE_PARAMS = _params(knots=[20, 22, 25, 30, 40])
-_M6_FIRST_MARRIAGE_PARAMS = _params(
+_M6_FIRST_MARRIAGE_PREFREEZE_PARAMS = _params(
     knots=[20, 22, 25, 30, 40],
     selected_c=None,
     c_grid=list(FIRST_MARRIAGE_C_GRID),
@@ -488,6 +498,38 @@ _M6_FIRST_MARRIAGE_PARAMS = _params(
     solver_ftol=FIRST_MARRIAGE_SOLVER_FTOL,
     gradient_inf_norm_max=FIRST_MARRIAGE_GRADIENT_TOL,
     substream_codes=[],
+)
+_M6_FIRST_MARRIAGE_PARAMS = _params(
+    **{
+        **dict(_M6_FIRST_MARRIAGE_PREFREEZE_PARAMS),
+        "selected_c": 0.001,
+        "selection_ledger_sha256": (
+            "4ff69bd87a5dc1580128ccc33844cf5c573a6d69437d626f622b9f1fe378b14d"
+        ),
+        "final_fit_checksums": {
+            "canonical_rows_sha256": (
+                "38c7a6ce03b496bc0945edccac50250e6a2609e9c8fd19ac5d1ff869ec9b6472"
+            ),
+            "coefficient_sha256": (
+                "bad9d4b0777e4927858e5b11f8201f8e32ed61de1e96152c80790b950b9a967c"
+            ),
+            "design_matrix_sha256": (
+                "bf707199f7ace3a1e511d740dfc6027c6b1071d0f6daf4708f61beb95b713893"
+            ),
+            "normalized_weight_sha256": (
+                "3f8a4c9daa1d6268282e94dfd590c903c8880eda239c30b3988ff99666fb172d"
+            ),
+            "selected_c_sha256": (
+                "084248c6bc3e2825be1e6279802c0858cacae712d1c84fb7c3b650a493e187b6"
+            ),
+            "standardization_sha256": (
+                "2037114b4ef1ee751a1ca640d72a21ce0b88dc5f1cf1d04c93f089c61937499b"
+            ),
+            "support_sha256": (
+                "4327e2090f957851faa3af3a8006ef98d2f95624eac522683a194fc73931fc3a"
+            ),
+        },
+    }
 )
 _DIVORCE_PARAMS = _params(duration_bands=[[0, 4], [5, 9], [10, 19], [20, 120]])
 _REMARRIAGE_PARAMS = _params(
@@ -584,7 +626,7 @@ M6_CANDIDATE_2_PREFREEZE = CandidateSpec(
         ComponentRef(
             "first_marriage",
             "logit_ncs_age_sex_boundary_flat_cohort_l2.v1",
-            _M6_FIRST_MARRIAGE_PARAMS,
+            _M6_FIRST_MARRIAGE_PREFREEZE_PARAMS,
         ),
         ComponentRef(
             "divorce",
@@ -611,6 +653,24 @@ M6_CANDIDATE_2_PREFREEZE = CandidateSpec(
             "mh85_23_age7_sex_support75_untrended.v1",
             _WIDOWHOOD_PARAMS,
         ),
+    ),
+)
+
+
+M6_CANDIDATE_2 = CandidateSpec(
+    candidate_id="m6_candidate2_registry_v1",
+    contract_revision="m6_candidate2_program_2026_07_16",
+    components=tuple(
+        (
+            ComponentRef(
+                "first_marriage",
+                "logit_ncs_age_sex_boundary_flat_cohort_l2.v1",
+                _M6_FIRST_MARRIAGE_PARAMS,
+            )
+            if component.kind == "first_marriage"
+            else component
+        )
+        for component in M6_CANDIDATE_2_PREFREEZE.components
     ),
 )
 

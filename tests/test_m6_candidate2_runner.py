@@ -542,18 +542,17 @@ def test_candidate2_identity_comes_from_registry_and_is_not_candidate16():
     )
     assert identity.number == 2
     assert identity.engine_spec is engine_candidates.REGISTRY[identity.number]
-    assert identity.family_spec is family_candidates.M6_CANDIDATE_2_PREFREEZE
+    assert identity.family_spec is family_candidates.M6_CANDIDATE_2
     assert identity.family_spec is not family_candidates.CANDIDATE_16
     assert identity.family_spec_sha256 != family_candidates.CANDIDATE_16.sha256
-    assert identity.first_marriage_params["selected_c"] is None
-    with pytest.raises(RuntimeError, match="still prefreeze"):
-        runner.assert_candidate2_identity_is_frozen(identity)
+    assert identity.first_marriage_params["selected_c"] == 0.001
+    runner.assert_candidate2_identity_is_frozen(identity)
 
 
 def test_candidate2_identity_rejects_candidate16(monkeypatch):
     monkeypatch.setattr(
         family_candidates,
-        "M6_CANDIDATE_2_PREFREEZE",
+        "M6_CANDIDATE_2",
         family_candidates.CANDIDATE_16,
     )
     with pytest.raises(RuntimeError, match="forbidden candidate 16"):
@@ -563,7 +562,7 @@ def test_candidate2_identity_rejects_candidate16(monkeypatch):
 def test_candidate2_identity_rejects_non_first_marriage_sibling_drift(
     monkeypatch,
 ):
-    spec = family_candidates.M6_CANDIDATE_2_PREFREEZE
+    spec = family_candidates.M6_CANDIDATE_2
     components = tuple(
         (
             replace(
@@ -576,7 +575,7 @@ def test_candidate2_identity_rejects_non_first_marriage_sibling_drift(
     )
     monkeypatch.setattr(
         family_candidates,
-        "M6_CANDIDATE_2_PREFREEZE",
+        "M6_CANDIDATE_2",
         replace(spec, components=components),
     )
     with pytest.raises(RuntimeError, match="non-first-marriage component"):
@@ -672,7 +671,7 @@ def test_registry_values_are_semantically_bound_to_selection_ledgers():
         )
 
 
-def test_live_prefreeze_identity_aborts_before_binding_collection(monkeypatch):
+def test_prefreeze_identity_aborts_before_binding_collection(monkeypatch):
     called = False
 
     def collect(*_args, **_kwargs):
@@ -687,6 +686,11 @@ def test_live_prefreeze_identity_aborts_before_binding_collection(monkeypatch):
         lambda _root: M6SourceIdentity("a" * 40),
     )
     monkeypatch.setattr(runner, "_assert_imported_source_tree", lambda _: None)
+    monkeypatch.setattr(
+        family_candidates,
+        "M6_CANDIDATE_2",
+        family_candidates.M6_CANDIDATE_2_PREFREEZE,
+    )
     with pytest.raises(RuntimeError, match="selected_c=None"):
         runner.guard_registered_m6_candidate2_run(
             registration_id="9999999999",

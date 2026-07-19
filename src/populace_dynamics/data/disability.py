@@ -370,6 +370,7 @@ def read_disability_status(
     data_dir: Path | None = None,
     nrows: int | None = None,
     in_family_only: bool = True,
+    max_period: int | None = None,
 ) -> pd.DataFrame:
     """Read the per-wave self-reported disability status person-period.
 
@@ -392,7 +393,10 @@ def read_disability_status(
     format blocks.
     """
     panel = panels.ind_person_period(
-        _STATUS_CONCEPTS, data_dir=data_dir, nrows=nrows
+        _STATUS_CONCEPTS,
+        data_dir=data_dir,
+        nrows=nrows,
+        max_period=max_period,
     )
     panel["status_code"] = panel["status"].astype("int64")
     if in_family_only:

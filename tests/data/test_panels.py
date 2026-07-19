@@ -115,6 +115,15 @@ def test_weight_fallback_covers_both_waves(mini_ind_dir: Path):
     assert list(w.weight) == [12, 14]
 
 
+def test_max_period_field_caps_the_wide_source_read(mini_ind_dir: Path):
+    long = panels.ind_person_period(
+        {"age": (r"^AGE OF INDIVIDUAL",)},
+        data_dir=mini_ind_dir,
+        max_period=1969,
+    )
+    assert long["period"].unique().tolist() == [1969]
+
+
 def test_demographic_panel_presence_filter(mini_ind_dir: Path):
     everyone = panels.demographic_panel(
         data_dir=mini_ind_dir, in_family_only=False

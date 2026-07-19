@@ -188,6 +188,20 @@ def test_read_status_filters_and_decodes(tmp_path):
     assert bool(row.retired) is False
 
 
+def test_read_status_max_period_field_caps_the_source(tmp_path):
+    write_product(
+        tmp_path / "ind2023er",
+        "IND2023ER.sps",
+        "IND2023ER.txt",
+        _READER_FIELDS,
+    )
+    observed = disability.read_disability_status(
+        data_dir=tmp_path,
+        max_period=1999,
+    )
+    assert observed["period"].unique().tolist() == [1999]
+
+
 def test_read_status_missing_concept_raises(tmp_path):
     """Renaming every EMPLOYMENT STATUS label resolves no wave and raises."""
     renamed = {"E99": "LABOR FORCE STATE   99", "E01": "LABOR FORCE STATE  01"}
