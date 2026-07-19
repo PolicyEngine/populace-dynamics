@@ -1,4 +1,4 @@
-"""Guards for the pre-freeze M6 first-marriage registry sibling."""
+"""Guards for the frozen M6 first-marriage registry sibling."""
 
 from __future__ import annotations
 
@@ -44,6 +44,9 @@ SIBLING_FIRST_MARRIAGE_PATH = (
 )
 PREFREEZE_REGISTRY_SPEC_PATH = (
     ROOT / "docs/analysis/m6_first_marriage_registry_spec_prefreeze_v1.json"
+)
+SELECTION_FINDINGS_PATH = (
+    ROOT / "docs/analysis/m6_first_marriage_c_selection_findings.json"
 )
 CANDIDATE_16_SPEC_SHA256 = (
     "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1"
@@ -184,7 +187,7 @@ def test_candidate16_source_component_and_spec_remain_byte_unchanged():
     assert ft_registry.CANDIDATE_16.sha256 == CANDIDATE_16_SPEC_SHA256
 
 
-def test_prefreeze_registry_spec_artifact_is_exact_derived_snapshot():
+def test_prefreeze_registry_spec_artifact_is_exact_historical_snapshot():
     raw = PREFREEZE_REGISTRY_SPEC_PATH.read_text(encoding="utf-8")
     artifact = json.loads(raw)
     assert (
@@ -219,17 +222,34 @@ def test_prefreeze_registry_spec_artifact_is_exact_derived_snapshot():
     ).encode()
     assert hashlib.sha256(canonical).hexdigest() == recorded_sha256
 
-    expected_files = []
-    for path in (REGISTRY_PATH, SIBLING_FIRST_MARRIAGE_PATH):
-        payload = path.read_bytes()
-        expected_files.append(
-            {
-                "n_bytes": len(payload),
-                "path": str(path.relative_to(ROOT)),
-                "sha256": hashlib.sha256(payload).hexdigest(),
-            }
-        )
-    assert artifact["implementation_files"] == expected_files
+    # These bind the immutable prefreeze artifact to its historical source.
+    # The live registry legitimately adds the separately frozen sibling.
+    assert artifact["implementation_files"] == [
+        {
+            "n_bytes": 22624,
+            "path": (
+                "src/populace_dynamics/models/family_transitions/registry.py"
+            ),
+            "sha256": (
+                "92491b1282845249ed25027dabcd82b99a47a6ca56842e5bb516b4da8b83d156"
+            ),
+        },
+        {
+            "n_bytes": 48264,
+            "path": (
+                "src/populace_dynamics/models/family_transitions/components/"
+                "first_marriage_support_aware.py"
+            ),
+            "sha256": (
+                "d1cac0298b6f1c391fe49d5195e1e1754114d710101933dd717bd0651545958e"
+            ),
+        },
+    ]
+    sibling_payload = SIBLING_FIRST_MARRIAGE_PATH.read_bytes()
+    assert len(sibling_payload) == 48264
+    assert hashlib.sha256(sibling_payload).hexdigest() == (
+        "d1cac0298b6f1c391fe49d5195e1e1754114d710101933dd717bd0651545958e"
+    )
     invariance = artifact["candidate_16_invariance"]
     assert invariance == {
         "legacy_first_marriage": {
@@ -353,23 +373,43 @@ def test_candidate16_dispatch_order_and_dependency_state_are_unchanged():
     }
 
 
-def test_prefreeze_spec_is_an_explicit_first_marriage_only_sibling():
+def test_prefreeze_and_frozen_specs_are_first_marriage_only_siblings(
+    monkeypatch: pytest.MonkeyPatch,
+):
     incumbent = {
         component.kind: component
         for component in ft_registry.CANDIDATE_16.components
     }
-    sibling = {
+    prefreeze = {
         component.kind: component
         for component in ft_registry.M6_CANDIDATE_2_PREFREEZE.components
     }
+    sibling = {
+        component.kind: component
+        for component in ft_registry.M6_CANDIDATE_2.components
+    }
 
+    assert tuple(prefreeze) == tuple(incumbent)
     assert tuple(sibling) == tuple(incumbent)
     for kind in set(incumbent) - {"first_marriage"}:
+        assert prefreeze[kind] == incumbent[kind]
         assert sibling[kind] == incumbent[kind]
+    assert prefreeze["first_marriage"].params["selected_c"] is None
     assert sibling["first_marriage"].implementation_id == (
         "logit_ncs_age_sex_boundary_flat_cohort_l2.v1"
     )
-    assert sibling["first_marriage"].params["selected_c"] is None
+    selection = json.loads(SELECTION_FINDINGS_PATH.read_text(encoding="utf-8"))
+    params = sibling["first_marriage"].params
+    assert params["selected_c"] == selection["selection"]["selected_c"]
+    assert params["selected_c"] == 0.001
+    assert (
+        params["selection_ledger_sha256"]
+        == hashlib.sha256(SELECTION_FINDINGS_PATH.read_bytes()).hexdigest()
+    )
+    assert (
+        dict(params["final_fit_checksums"])
+        == selection["final_fit"]["fit_audit"]["checksums"]
+    )
     assert sibling["first_marriage"].params["substream_codes"] == ()
     assert sibling["first_marriage"].params["solver_tol"] == 1e-8
     assert sibling["first_marriage"].params["solver_gtol"] == 1e-8
@@ -385,18 +425,36 @@ def test_prefreeze_spec_is_an_explicit_first_marriage_only_sibling():
     )
     assert incumbent_definition.fitter is ft_registry._fit_first_marriage
     assert sibling_definition.fitter is ft_registry._fit_m6_first_marriage
+    assert ft_registry.M6_CANDIDATE_2.sha256 == (
+        "734a5b04f347c5d4904bbc6d5ab9a1c2876272d35284eedd2f450518acf1cec5"
+    )
+
+    frame, event_years = _balanced_support_frame()
+    context = _registry_context(frame, event_years)
+    fitted = object()
+
+    def fit_sentinel(*_args: object, **kwargs: object) -> object:
+        assert kwargs["c"] == 0.001
+        assert kwargs["max_iter"] == 10000
+        assert kwargs["tol"] == 1e-8
+        return fitted
+
+    monkeypatch.setattr(
+        ft_registry,
+        "fit_support_aware_first_marriage",
+        fit_sentinel,
+    )
+    assert sibling_definition.fitter(context, {}) is fitted
 
 
-def test_prefreeze_registry_adapter_aborts_before_reading_fit_context():
+def test_prefreeze_reference_is_not_a_live_component_definition():
     reference = next(
         component
         for component in ft_registry.M6_CANDIDATE_2_PREFREEZE.components
         if component.kind == "first_marriage"
     )
-    fitter = ft_registry.REGISTRY.definition(reference).fitter
-
-    with pytest.raises(FirstMarriagePreflightAbort, match="has no selected C"):
-        fitter(None, {})  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="parameters"):
+        ft_registry.REGISTRY.definition(reference)
 
 
 def test_prefreeze_candidate_aborts_before_context_or_any_component_fitter():

@@ -6,11 +6,10 @@ assembly, preregistration comparisons, and the exclusive artifact pair.
 Importing it never reads repository data, invokes Git, loads PSID, or writes a
 file.
 
-The family registry currently exposes only the deliberately prefreeze
-candidate-2 sibling.  Binding that object is fail-closed: the run-start guard
-raises before any input factory until a separately ratified selected-C sibling
-is added and this draft receives a fresh registered binding.  This runner never
-mutates the prefreeze spec or substitutes candidate 16 while waiting.
+The family registry exposes a separately ratified selected-C candidate-2
+sibling alongside the immutable prefreeze record.  The run-start guard binds
+only the production sibling and never mutates the prefreeze spec or substitutes
+candidate 16.
 """
 
 from __future__ import annotations
@@ -162,7 +161,7 @@ PREREGISTERED_VALUES: Mapping[str, str] = MappingProxyType(
             "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
         ),
         "candidate_spec.family_transitions": (
-            "6f50a44fad24a04c4c282620ad1e6f320d5f2d6ee0bff58a3250f3e38f344d21"
+            "734a5b04f347c5d4904bbc6d5ab9a1c2876272d35284eedd2f450518acf1cec5"
         ),
         "candidate_spec.engine_operations": (
             "8fbfcf4130fd9051aa063061bf7b2d8514773fc6a900c900caab18717ad8e14c"
@@ -385,7 +384,7 @@ def resolve_candidate2_identity() -> M6Candidate2Identity:
         raise RuntimeError(
             "candidate-2 engine spec is not registered as candidate number 2"
         )
-    family_spec = family_candidates.M6_CANDIDATE_2_PREFREEZE
+    family_spec = family_candidates.M6_CANDIDATE_2
     candidate16 = family_candidates.CANDIDATE_16
     if (
         family_spec is candidate16
@@ -439,20 +438,11 @@ def resolve_candidate2_identity() -> M6Candidate2Identity:
 def assert_candidate2_identity_is_frozen(
     identity: M6Candidate2Identity,
 ) -> None:
-    """Refuse the committed prefreeze sibling before any data can be read.
-
-    The public selection ledger chose ``C=0.001``, but the current registry
-    deliberately still carries ``selected_c=None``.  The runner may bind and
-    hash that sibling for scaffold review, but it cannot turn the ledger into
-    a new spec or silently use candidate 16.  A separately ratified immutable
-    registry sibling plus a fresh preregistered SHA must replace this draft's
-    runner binding before the guard can clear; the prefreeze object stays
-    immutable.
-    """
+    """Refuse any unfrozen family sibling before data can be read."""
     selected_c = identity.first_marriage_params.get("selected_c")
     if "prefreeze" in identity.family_spec.candidate_id or selected_c is None:
         raise RuntimeError(
-            "candidate-2 family registry is still prefreeze "
+            "candidate-2 family registry is not frozen "
             "(selected_c=None); refusing all data reads until a ratified "
             "selected-C CandidateSpec is registered"
         )

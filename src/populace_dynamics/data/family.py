@@ -811,7 +811,10 @@ def family_earnings_panel(
     assigned/edited value (1-9, the digit encoding the method).
     """
     use_waves = tuple(waves) if waves is not None else FAMILY_WAVES
-    demo = panels.demographic_panel(data_dir=data_dir)
+    demo = panels.demographic_panel(
+        data_dir=data_dir,
+        max_period=max(use_waves),
+    )
     demo = demo[demo.period.isin(use_waves)]
 
     frames = []
