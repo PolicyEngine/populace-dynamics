@@ -64,17 +64,25 @@ def test_open_and_resolved_entries_have_decidable_dates():
 
 
 def test_resolution_blocks_are_complete_exactly_when_resolved():
+    required = {
+        "resolved_at",
+        "evidence",
+        "error_days_p50",
+        "within_p50",
+        "within_p80",
+    }
     for e in _ledger()["entries"]:
         if e["status"] == "resolved":
             r = e["resolution"]
             assert r is not None, e["id"]
-            assert {
-                "resolved_at",
-                "evidence",
-                "error_days_p50",
-                "within_p50",
-                "within_p80",
-            } <= set(r), e["id"]
+            assert required <= set(r), e["id"]
+        elif e["status"] == "superseded":
+            # Superseded entries are still graded against reality at
+            # resolution time (README rule 1); a resolution block is
+            # optional but must be complete when present.
+            r = e["resolution"]
+            if r is not None:
+                assert required <= set(r), e["id"]
         else:
             assert e["resolution"] is None, e["id"]
 
