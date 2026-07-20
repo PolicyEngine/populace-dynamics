@@ -24,6 +24,12 @@ from populace_dynamics.data import (
 )
 from populace_dynamics.engine import candidates as engine_candidates
 from populace_dynamics.engine import refit as refit_module
+from populace_dynamics.engine.composition import (
+    RECERTIFICATION_CHANNEL_SETS,
+    Candidate9RecertificationFailure,
+    RecertificationCell,
+    RecertificationResult,
+)
 from populace_dynamics.engine.loop import (
     MaritalStepResult,
     PeriodModules,
@@ -2423,6 +2429,54 @@ def _synthetic_operations(
     )
 
 
+def test_candidate2_default_preflight_threads_registered_family_spec(
+    monkeypatch,
+):
+    identity = runner.resolve_candidate2_identity()
+    calls = []
+
+    monkeypatch.setattr(
+        runner,
+        "resolve_candidate2_identity",
+        lambda: identity,
+    )
+    monkeypatch.setattr(
+        runner,
+        "assert_candidate2_identity_is_frozen",
+        lambda observed: calls.append(("identity", observed)),
+    )
+
+    def capture(inputs, phase, contract, *, family_candidate_spec=None):
+        calls.append(
+            (
+                "preflight_1",
+                inputs,
+                phase,
+                contract,
+                family_candidate_spec,
+            )
+        )
+        return {"passed": True}
+
+    monkeypatch.setattr(runner.m6_runner, "_run_m6_preflight_1", capture)
+    operations = runner.default_operations()
+    inputs = object()
+    phase = object()
+    contract = object()
+
+    assert operations.preflight_1(inputs, phase, contract) == {"passed": True}
+    assert calls == [
+        ("identity", identity),
+        (
+            "preflight_1",
+            inputs,
+            phase,
+            contract,
+            identity.family_spec,
+        ),
+    ]
+
+
 def _transport_universe_operations(
     fixture: SimpleNamespace,
     events: list[str],
@@ -2464,7 +2518,7 @@ def _transport_universe_operations(
         assert phase.bundle is fixture.bundle
         assert contract is fixture.preparation.resolved.contract
         events.append("preflight_1")
-        return runner.m6_runner._run_m6_preflight_1(inputs, phase, contract)
+        return operations.preflight_1(inputs, phase, contract)
 
     def preflight_2(inputs, phase, contract):
         assert inputs is fixture.inputs
@@ -3052,6 +3106,179 @@ def test_transport_disclosure_abort_is_structured_after_materialization(
         "materialize_incumbent",
         "first_marriage_disclosure",
     ]
+
+
+def test_preflight1_failure_publishes_structured_signed_table(
+    monkeypatch, tmp_path
+):
+    preparation = _preparation(tmp_path)
+    events = []
+    monkeypatch.setattr(
+        runner,
+        "guard_registered_m6_candidate2_run",
+        lambda **_kwargs: preparation,
+    )
+    monkeypatch.setattr(
+        runner,
+        "_revalidate_source_identity",
+        lambda _preparation: None,
+    )
+    fit_inputs = object()
+    full_inputs = runner.M6HarnessInputs(
+        refit_inputs=fit_inputs,
+        panel_builder_inputs=object(),
+        truth=object(),
+        demographic_panel=object(),
+        earnings_panel=object(),
+        disability_status=object(),
+        disability_panel=object(),
+        death_records=object(),
+        provenance={},
+    )
+    cells = []
+    for channel_set, names in RECERTIFICATION_CHANNEL_SETS.items():
+        for name in names:
+            failed = name == "legal_core"
+            injected_mean = 0.21 if failed else 0.2
+            internal_mean = 0.2
+            cells.append(
+                RecertificationCell(
+                    channel_set=channel_set,
+                    cell=name,
+                    injected_mean=injected_mean,
+                    internal_mean=internal_mean,
+                    absolute_delta=abs(injected_mean - internal_mean),
+                    sigma_of_mean_difference=0.001,
+                    tolerance=0.003,
+                    passed=not failed,
+                )
+            )
+    failure = Candidate9RecertificationFailure(
+        RecertificationResult(
+            sigma_multiplier=3.0,
+            cells=tuple(cells),
+        ),
+        ("legal_spouse_residual/legal_core: synthetic wiring defect",),
+    )
+    operations = _synthetic_operations(events)
+
+    def abort_preflight(*_args):
+        events.append("preflight_1")
+        raise failure
+
+    operations = replace(operations, preflight_1=abort_preflight)
+
+    def load_full_inputs():
+        events.append("load_full_inputs")
+        return full_inputs
+
+    with pytest.raises(runner.M6Candidate2DesignedAbort) as caught:
+        runner.execute_registered_m6_candidate2_run(
+            runner.M6Candidate2InputPlan(
+                fit_inputs=fit_inputs,
+                load_full_inputs=load_full_inputs,
+            ),
+            registration_id="9999999999",
+            root=tmp_path,
+            operations=operations,
+            preparation=preparation,
+        )
+
+    report = caught.value.report
+    assert report["status"] == "CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT"
+    assert report["abort"] == {
+        "type": "Candidate9RecertificationFailure",
+        "message": str(failure),
+        "stage": "preflight_1",
+        "converted_to_gate_fail": False,
+    }
+    assert report["fences"] == {
+        "full_inputs_loaded": True,
+        "materialization_completed": True,
+        "projection_started": False,
+        "score_started": False,
+        "candidate_artifact_written": False,
+    }
+    recertification = report["preflights"]["candidate9_recertification"]
+    assert recertification["passed"] is False
+    assert recertification["sigma_multiplier"] == 3.0
+    rows = recertification["cells"]
+    keys = [(row["channel_set"], row["cell"]) for row in rows]
+    assert len(keys) == len(set(keys)) == 15
+    assert keys == [
+        (channel_set, name)
+        for channel_set, names in RECERTIFICATION_CHANNEL_SETS.items()
+        for name in names
+    ]
+    assert all(
+        row["signed_delta"]
+        == pytest.approx(row["injected_mean"] - row["internal_mean"])
+        for row in rows
+    )
+    assert [row["cell"] for row in rows if not row["passed"]] == ["legal_core"]
+    assert events == [
+        "fit",
+        "first_marriage_preflight",
+        "fit_incumbent",
+        "load_full_inputs",
+        "materialize",
+        "materialize_incumbent",
+        "first_marriage_disclosure",
+        "preflight_1",
+    ]
+    assert not preparation.destination.exists()
+    assert not Path(f"{preparation.destination}.env.json").exists()
+
+
+def test_preflight1_unrelated_error_is_not_converted(monkeypatch, tmp_path):
+    preparation = _preparation(tmp_path)
+    events = []
+    monkeypatch.setattr(
+        runner,
+        "guard_registered_m6_candidate2_run",
+        lambda **_kwargs: preparation,
+    )
+    monkeypatch.setattr(
+        runner,
+        "_revalidate_source_identity",
+        lambda _preparation: None,
+    )
+    fit_inputs = object()
+    full_inputs = runner.M6HarnessInputs(
+        refit_inputs=fit_inputs,
+        panel_builder_inputs=object(),
+        truth=object(),
+        demographic_panel=object(),
+        earnings_panel=object(),
+        disability_status=object(),
+        disability_panel=object(),
+        death_records=object(),
+        provenance={},
+    )
+    failure = RuntimeError("unrelated preflight defect")
+    operations = _synthetic_operations(events)
+
+    def abort_preflight(*_args):
+        events.append("preflight_1")
+        raise failure
+
+    operations = replace(operations, preflight_1=abort_preflight)
+
+    with pytest.raises(RuntimeError) as caught:
+        runner.execute_registered_m6_candidate2_run(
+            runner.M6Candidate2InputPlan(
+                fit_inputs=fit_inputs,
+                load_full_inputs=lambda: full_inputs,
+            ),
+            registration_id="9999999999",
+            root=tmp_path,
+            operations=operations,
+            preparation=preparation,
+        )
+
+    assert caught.value is failure
+    assert not preparation.destination.exists()
+    assert not Path(f"{preparation.destination}.env.json").exists()
 
 
 def test_first_marriage_designed_abort_precedes_truth_load_and_write(

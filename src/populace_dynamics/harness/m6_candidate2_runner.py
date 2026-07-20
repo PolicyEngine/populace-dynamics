@@ -34,6 +34,9 @@ from populace_dynamics.engine import candidates as engine_candidates
 from populace_dynamics.engine.candidates import (
     CandidateSpec as EngineCandidateSpec,
 )
+from populace_dynamics.engine.composition import (
+    Candidate9RecertificationFailure,
+)
 from populace_dynamics.engine.refit import (
     BOUNDARY_YEAR,
     M6RefitBundle,
@@ -1143,6 +1146,22 @@ def _fit_candidate2(fit_inputs: M6RefitInputs) -> M6RefitBundle:
     )
 
 
+def _run_candidate2_preflight_1(
+    inputs: M6HarnessInputs,
+    phase: M6RefitPhase,
+    contract: Any,
+) -> Mapping[str, Any]:
+    """Bind pre-flight 1's reference arm to the registered family law."""
+    identity = resolve_candidate2_identity()
+    assert_candidate2_identity_is_frozen(identity)
+    return m6_runner._run_m6_preflight_1(
+        inputs,
+        phase,
+        contract,
+        family_candidate_spec=identity.family_spec,
+    )
+
+
 def _fit_postrepair_incumbent_first_marriage(
     fit_inputs: M6RefitInputs,
     candidate_bundle: M6RefitBundle | Any,
@@ -1552,7 +1571,7 @@ def default_operations() -> M6Candidate2RunnerOperations:
             _materialize_postrepair_incumbent_phase
         ),
         first_marriage_disclosure=_first_marriage_transport_disclosure,
-        preflight_1=incumbent.preflight_1,
+        preflight_1=_run_candidate2_preflight_1,
         preflight_2=incumbent.preflight_2,
         score_seed=incumbent.score_seed,
         aggregate=incumbent.aggregate,
@@ -2253,7 +2272,7 @@ def _assert_preparation_unchanged(
 
 def _designed_abort_report(
     preparation: M6Candidate2Preparation,
-    error: FirstMarriagePreflightAbort,
+    error: FirstMarriagePreflightAbort | Candidate9RecertificationFailure,
     bundle: M6RefitBundle | Any | None,
     *,
     stage: str,
@@ -2314,11 +2333,11 @@ def _designed_abort_report(
     bindings = preparation.bindings
     report = {
         "schema_version": "gate_m6_candidate2.designed_abort.v1",
-        "status": (
-            "NO_REGISTERABLE_FIRST_MARRIAGE_FIT"
-            if stage == "fit_preflight"
-            else "FIRST_MARRIAGE_PRESCORE_ABORT"
-        ),
+        "status": {
+            "fit_preflight": "NO_REGISTERABLE_FIRST_MARRIAGE_FIT",
+            "transport_disclosure": "FIRST_MARRIAGE_PRESCORE_ABORT",
+            "preflight_1": "CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT",
+        }[stage],
         "candidate": {
             "number": bindings.candidate_number,
             "family_spec_id": bindings.candidate_spec_ids[
@@ -2378,12 +2397,28 @@ def _designed_abort_report(
             "candidate_artifact_written": False,
         },
     }
+    if isinstance(error, Candidate9RecertificationFailure):
+        report["preflights"] = {
+            "candidate9_recertification": {
+                "passed": error.result.passed,
+                "sigma_multiplier": error.result.sigma_multiplier,
+                "cells": [
+                    {
+                        **asdict(cell),
+                        "signed_delta": (
+                            cell.injected_mean - cell.internal_mean
+                        ),
+                    }
+                    for cell in error.result.cells
+                ],
+            }
+        }
     return m6_runner._json_safe(report)
 
 
 def _verified_designed_abort(
     preparation: M6Candidate2Preparation,
-    error: FirstMarriagePreflightAbort,
+    error: FirstMarriagePreflightAbort | Candidate9RecertificationFailure,
     bundle: M6RefitBundle | Any | None,
     *,
     stage: str,
@@ -2499,7 +2534,17 @@ def execute_registered_m6_candidate2_run(
             full_inputs_loaded=True,
             materialization_completed=True,
         ) from error
-    preflight_1 = ops.preflight_1(inputs, phase, resolved.contract)
+    try:
+        preflight_1 = ops.preflight_1(inputs, phase, resolved.contract)
+    except Candidate9RecertificationFailure as error:
+        raise _verified_designed_abort(
+            prepared,
+            error,
+            bundle,
+            stage="preflight_1",
+            full_inputs_loaded=True,
+            materialization_completed=True,
+        ) from error
     preflight_2 = ops.preflight_2(inputs, phase, resolved.contract)
     seed_runs = tuple(
         ops.score_seed(inputs, phase, resolved.contract, seed)

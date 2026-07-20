@@ -4,11 +4,31 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 16). This document seeded the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 17). This document seeded the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
   ratify-by-merge → lock), now **locked** (`gates.gate_m6`, v3 floor
-  `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This document edits no
-  `gates.yaml` cell, moves no threshold, builds no floor, and writes no test.**
+  `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This amendment edits no
+  `gates.yaml` cell, moves no threshold, builds no floor, and changes no frozen
+  artifact.**
+- **Revision 17 (design amendment 5)** prospectively corrects the §2.6 P2 /
+  §2.8.5 pre-flight-1 reference-arm law after the ratified #264 classification
+  (ii), **STALE PREFLIGHT SURFACE**
+  ([classification-referee comment
+  5017886441](https://github.com/PolicyEngine/populace-dynamics/issues/264#issuecomment-5017886441),
+  merge `cff216a`). Under a registered family-law candidate, the internal
+  reference carries the same registered family law as the injected arm; with no
+  family candidate spec, the candidate-1 path remains byte-identical and both
+  arms still resolve to candidate 16. The check again varies only marital-state
+  provenance. Its 15 channels, 20 draws, RNG addresses, runtime 3σ/no-floor
+  rule, train-only universe, and pre-score accounting do not change. On the
+  registered-family path, a failure uses the structured designed-abort carrier
+  and publishes all 15 signed rows; the no-spec path retains its historical raw
+  exception bytes.
+  This is prospective only: invocation 4 remains a non-consuming pre-score
+  abort and no re-execution occurs under registration 9. After ratification the
+  coordinator, not this lane, re-finalizes only `gate_m6.design_commit` before
+  registration 10; no gate, floor, threshold, seed, reducer, or frozen artifact
+  changes here.
 - **Revision 16 (design amendment 4)** prospectively adds §2.7.7, the
   candidate-2 **stable-coordinate conditional-rank refresh**. It wraps only the
   positive-continuation rank transition in a train-selected one-parameter
@@ -170,6 +190,23 @@
   erratum lane without changing §2.7.6.4 here; leaves the
   separately routed first-marriage candidate-family spec outside §2.7.7 and
   changes no §2.8 surface, floor, or gate threshold).
+- amendment 5 (pre-flight-1 registered-law reference arm) → §2.6 P2, §2.8.5,
+  §10 revision 17 (the ratified incident #264 at `cff216a`,
+  [classification-referee comment
+  5017886441](https://github.com/PolicyEngine/populace-dynamics/issues/264#issuecomment-5017886441),
+  proves classification (ii), **STALE PREFLIGHT SURFACE**).
+  Candidate 2's registered first-marriage sibling reached the injected arm while
+  the internal reference remained frozen candidate 16, falsifying the historical
+  same-core P2 premise and §2.8.5's “only in marital-state provenance” claim by
+  design. Candidate-2 §9.1 byte-carried the candidate-1 protocol, and no §9.2 row
+  or §9.3 box touched this surface. The amendment binds both arms to the registered
+  family law, preserves the no-spec candidate-1 bytes, retains every
+  channel/draw/address/3σ rule, and routes registered-family failure through a
+  structured full-table designed abort. Prospective only: invocation 4 is not
+  regraded, the one-shot remains unconsumed, and registration 9 is not
+  re-executed. The coordinator
+  performs the later one-field `design_commit` re-finalization before registration
+  10.
 
 ## 1. Summary
 
@@ -179,7 +216,8 @@ future births and immigrant entrants as synthetic persons entering the panel).
 Original M6/candidate 1 fits nothing new except a versioned alignment layer.
 The ratified candidate-2 program's two immediate model deltas are the separately
 routed first-marriage candidate-family spec and §2.7.7's train-only
-earnings-refresh selector; this document carries only the latter amendment. Any
+earnings-refresh selector. Revision 16 carried the latter law; revision 17 now
+re-derives the §2.8.5 conformance surface that the former law invalidated. Any
 remarriage delta remains on the program's separate follow-up-amendment route. The
 certification move remains a **temporal holdout** — fit the dynamics through year
 `T*`, project the held-out window `T*+1 … T_end`, and score projected observables
@@ -469,8 +507,12 @@ the floors-ceremony referee re-verifies rather than assumes.
 **What the re-certification note must establish** (targeted margin check, not a
 gate-2b re-ceremony):
 
-1. the estimated core is byte-identical — `ft.REGISTRY.fit(ft.CANDIDATE_16,
-   context)` in both the step-3 path and candidate-9's `_fit_marital` (P2);
+1. both arms carry the same byte-identical estimated family core. For original
+   M6 and the no-family-spec candidate-1 path this remains
+   `ft.REGISTRY.fit(ft.CANDIDATE_16, context)` in both. When a registered
+   candidate supplies a family-law sibling, the step-3 fit and candidate-9
+   internal reference both carry that registered candidate spec; P2 is equality
+   between the two arms, not a universal candidate-16 pin;
 2. the composition path changed: candidate-9 consumes injected step-3 `sim_years`
    (carrying the 2c marginal-preserving modifier) instead of its internal
    `ft.simulate(draw_seed)` draw;
@@ -487,8 +529,19 @@ gate-2b re-ceremony):
    composition depends on the bypassed internal draw and a fuller re-ceremony is
    required.
 
+**Amendment-5 scope correction (post-#264).** Registration-9 invocation 4 proved
+that the historical P2/candidate-16 wording and §2.8.5's “only in marital-state
+provenance” statement were false for candidate 2 by design: §9.1 of the
+candidate-2 program byte-carried the candidate-1 protocol while the registered
+first-marriage sibling changed the injected arm, and no §9.2 ceremony row or
+§9.3 precondition re-derived this pre-flight surface. Classification (ii),
+**STALE PREFLIGHT SURFACE**, is ratified in #264 at `cff216a` (classification-
+referee comment 5017886441). The correction below is prospective only. It does
+not regrade invocation 4 and authorizes no registration-9 re-execution.
+
 **Dataflow, once per period** (the single-source-of-truth trace finding 5 asks
-for): step 3 emits authoritative `sim_years` (CANDIDATE_16 core + 2c modifier).
+for): step 3 emits authoritative `sim_years` (the registered family core;
+candidate 16 on the no-spec/candidate-1 path + 2c modifier).
 Readers: step 4 fertility (`paternal_births`, reads `married`); step 8 household
 composition (via `spouse_from_marital`, `simulated_marital_binary`,
 `father_marital_by_year` — all read-only, no `ft.simulate`). Non-readers (verified
@@ -2378,26 +2431,51 @@ machinery **verbatim**:
   runs record).
 
 **2.8.5 Pre-flight 1 — the candidate-9 re-certification margin (real-data,
-holdout-blind).** Before any scored phase, the harness runs the §2.6 targeted
-transfer check on the **`≤2014`-refit** household panel over the gate-seed draws:
-for each `k`, `composition.simulate_candidate9_injected` (injected whole-window
-step-3 marital) vs `composition.simulate_candidate9_internal_reference` (the frozen
-internal `ft.simulate`), reduced to the pre-named channel moments
-(`composition.composition_channel_moments`; `RECERTIFICATION_CHANNEL_SETS`:
-cohabitation, legal-spouse-residual, occupancy, household-size), checked by
-`composition.check_candidate9_recertification` at the **≥3σ** `gate_m4`-style
-margin. The injected arm supplies the §2.8.2-pinned household-conditioning
-fertility (`steps.simulate_fertility` drawn on `registry.generator(0, FERTILITY)`,
-mirroring the certified `assembly.py` household step) into
-`simulate_candidate9_injected`, so it carries the same maternal-birth line the
-internal reference generates inline through `ft.simulate`; the two arms differ
-**only** in marital-state provenance, not in the presence of fertility. This is
-**candidate-blind**: it compares two *simulation* paths on the
-fitted panel and reads **no holdout cell**. A failure is a **designed abort** —
-`check_candidate9_recertification` raises, the run stops pre-scoring, the one-shot
-is **not** consumed, and the fuller re-ceremony §2.6 names is triggered (not a
-self-rescue). The per-channel margins publish with the run (registration
-observation 3).
+holdout-blind; amendment 5).** Before any scored phase, the harness runs the §2.6
+targeted transfer check on the **`≤2014`-refit** household panel over 20 draws,
+`k = 0, …, 19`. For each `k`,
+`composition.simulate_candidate9_injected` consumes the authoritative injected
+step-3 marital path. `composition.simulate_candidate9_internal_reference` runs
+the internal `ft.simulate` from a reference clone of
+`household.fitted.family_transitions` whose `first_marriage` component is replaced
+by the fitted `first_marriage` component of the registered family candidate. A
+component-identity guard proves that every other family component is carried
+unchanged. When no family candidate spec is supplied, no replacement occurs: the
+candidate-1 path remains byte-identical and both arms use candidate 16. Thus both
+arms carry the **same registered family law** and once again differ **only** in
+marital-state provenance.
+
+Both arms retain the §2.8.2-pinned household-conditioning fertility
+(`steps.simulate_fertility` drawn on `registry.generator(0, FERTILITY)`, mirroring
+the certified `assembly.py` household step). The 15 pre-named cells remain
+unchanged (`composition.composition_channel_moments`;
+`RECERTIFICATION_CHANNEL_SETS`: cohabitation, legal-spouse-residual, occupancy,
+household-size), as do the RNG addresses and the runtime **3σ, no-floor** rule in
+`composition.check_candidate9_recertification`. The check is
+registered-law-aware but candidate-output-blind and holdout-blind: it compares two
+simulation paths on the fitted training panel and reads no holdout cell.
+
+A failed margin is a **designed pre-score abort**. The one-shot is not consumed,
+and no score or candidate artifact is produced. On the registered-family path,
+the failure must travel through `Candidate9RecertificationFailure` into the
+structured status
+`CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT`, publishing all 15 ordered rows with
+channel, cell, injected and internal means, signed and absolute delta, standard
+error, `3σ` tolerance, and pass/fail. A registered-family failure that escapes
+as a raw `AssertionError` and discards the signed table is not conforming. The
+no-family-spec candidate-1 path retains its historical plain-`AssertionError`
+class and message bytes.
+
+The cross-law invocation-4 table classified in #264 is a separate train-only
+transport diagnostic, not an expected-delta band and not a relaxation of this
+check. Classification-referee comment 5017886441 at merge `cff216a` proved that
+§2.6 P2 and this subsection's historical same-law premise were falsified by
+candidate 2's registered first-marriage swap. Candidate-2 §9.1 byte-carried the
+candidate-1 protocol, and no §9.2 row or §9.3 box touched this surface. Amendment
+5 is therefore **prospective only**: it does not regrade invocation 4 or cause a
+registration-9 re-execution. The next eligible invocation follows referee review,
+ratification, the coordinator-only `gate_m6.design_commit` re-finalization, and
+registration 10.
 
 **2.8.6 Pre-flight 2 — the certified sign-path verification.** The harness
 verifies that the forward earnings generator deploys the **certified
@@ -3681,15 +3759,14 @@ The ceremony that seeds from this revised §4 must produce, before locking:
 
 This block summarizes the proposed parameters and the artifact/code fields they
 derive from. Unlike a ratified amendment's consistency ledger, it is **not** bound
-to committed artifacts by a test — this is a docs-only design PR that builds no
-floor and writes no test. The numbers become test-bound only when
+to committed artifacts by a test. The numbers become test-bound only when
 `runs/m6_holdout_floors_v1.json` and the `gates.gate_m6` block are authored in the
 lock ceremony.
 
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 16,
+  "revision": 17,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -3725,7 +3802,8 @@ lock ceremony.
     "decision6_lagged_edge": "SUPERSEDED; feed permanent-earnings tercile at step 3",
     "injection_forced": true,
     "injection_class_under_R1": "surgery (bypasses candidate-9 internal ft.simulate)",
-    "recertification": "targeted distributional margin check on candidate-9 composition outputs (P2 identical core; 2c marginal-preserving); not a gate-2b re-ceremony"
+    "recertification": "targeted 15-cell distributional wiring margin: both arms carry the same registered family law (candidate 16 on the no-spec/candidate-1 path; registered first-marriage sibling on candidate 2) and differ only in marital-state provenance; K=20, runtime 3sigma, no floor; candidate-output-blind and holdout-blind",
+    "amendment_5_section": "2.6 P2 + 2.8.5 (prospective registered-law reference-arm correction after #264/cff216a classification (ii), comment 5017886441; c1 no-spec bytes unchanged; full signed structured-abort payload; no registration-9 re-execution; coordinator-only design_commit re-finalization before registration 10)"
   },
   "forward_earnings_generator": {
     "blocker": "Sol PR #173 (BLOCKED): certified candidate-11 is a backward biennial chain; cannot compose forward without a new law",
@@ -3876,7 +3954,7 @@ lock ceremony.
       "conjunction": "cell clears iff score <= locked block tolerance; seed passes iff EVERY gated cell clears; family A passes iff >= 4 of 5 gate seeds (read from the locked block, computed nowhere)",
       "guards": ["undefined_draw_rule (any undefined gated rate on any draw invalidates)", "regenerated-surface conformance (non-zero across-draw dispersion recorded)"]
     },
-    "preflight_1": "candidate-9 re-certification margin on the <=2014-refit REAL panel over gate-seed draws BEFORE any scored phase: simulate_candidate9_injected vs simulate_candidate9_internal_reference, composition_channel_moments over RECERTIFICATION_CHANNEL_SETS, check_candidate9_recertification >=3sigma; holdout-blind (two simulation paths, no holdout cell); failure = DESIGNED ABORT pre-scoring (one-shot not consumed, fuller re-ceremony per 2.6); per-channel margins publish",
+    "preflight_1": "candidate-9 15-cell wiring re-certification on the <=2014-refit REAL training panel over K=20 draws BEFORE scoring: injected and internal-reference arms carry the same registered family law and differ only in marital-state provenance; no-spec/candidate-1 keeps the exact embedded candidate-16 object and historical plain-AssertionError failure bytes; candidate 2 clones the household family fit and swaps only registered first_marriage; same channels, RNG addresses, runtime 3sigma/no-floor rule, fertility line, and holdout-blind boundary. Registered-family failure = structured CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT carrying every ordered signed row; one-shot not consumed, no score/artifact. Amendment 5 is prospective only: no registration-9 re-execution; coordinator re-finalizes design_commit before registration 10",
     "preflight_2": "verify the certified externally-driven _gate_sign_draw _target_models reconstruction deploys (forward_earnings.py:820-826; reproduces FittedRegimeGatedQRF._gate_draw on engine-supplied uniforms -- today's RegimeGatedQRF exposes _target_models and NO draw_sign, so this is the branch every real candidate-10 gate takes) vs the draw_sign test seam (:815-819; only test doubles define draw_sign) on a SYNTHETIC probe; record which path executed; DESIGNED ABORT if a gate deploys the draw_sign seam. Corrects the prior inversion (harness-referee F1, PR #185 comment 4966859161); restores engine-referee obs 6 (PR #173 comment 4962620806): draw_sign=seam, _target_models=certified",
     "runner_phases": ["refit (refit_m6_components boundary 2014 + from_refit_bundle; RefitProvenance + EARNINGS_SPEC_SHA256 recorded)", "preflight_1 (abort-on-fail)", "preflight_2", "project+score per gate seed (K=20 draws, side-A, v3 floor)", "report_only (shock, not_certified, re-drawn-seed comparison, entrants, alignment displacement)", "assemble + artifacts.write_new(sidecar=True) stamping registration-id + EARNINGS_SPEC_REGISTRATION + floor sha e931c886 + spec sha256s; publishes_regardless"],
     "must_not": ["no gates.yaml read beyond the gate_m6 block's protocol/cells (no tolerance computed, no threshold moved)", "no holdout-informed choice (synthetic frames only until the registered run)", "no realized post-boundary macro read on the scored path (2.7.6.3 fence: I_proj only, never the frame's realized nawi)", "forward-mode inputs stay rejected (EvaluationMode.GATED_REALIZED only; FORWARD rejects realized inputs)"],
@@ -3907,7 +3985,7 @@ lock ceremony.
     "F6": "weight semantics over the projection window (start-wave vs per-year calibrated)",
     "F7": "PSID attrition on the truth side (mortality worst)"
   },
-  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze (PINNED 2.8.10: 2014 Supplement 6.B5.1, supplement_year 2014)", "candidate2_section2.7.7_nonzero_q_ledger_lock_plus_one-field_design_commit_refinalization_before_registration8"],
+  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze (PINNED 2.8.10: 2014 Supplement 6.B5.1, supplement_year 2014)", "candidate2_section2.7.7_nonzero_q_ledger_lock_plus_one-field_design_commit_refinalization_before_registration8", "candidate2_section2.8.5_registered_law_reference_arm_plus_one_field_design_commit_refinalization_before_registration10"],
   "non_goals": ["behavioral_response", "macro_feedback", "trust_fund_accounting_M7", "rules_on_whole_panel_M8", "unregistered_spec_estimation_beyond_candidate2_first_marriage_and_section2.7.7_refresh", "validated_projection_beyond_holdout", "forward_engine_certification_deferred_to_successor_gate"],
   "process_addendum_bindings": {"pass_run_verification": "#42 comment 4948637741", "ladder_search_disclosure": "#42 comment 4948637741 + finding 1 spec-selection"}
 }
