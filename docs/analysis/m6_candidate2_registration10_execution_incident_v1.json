@@ -1,0 +1,262 @@
+{
+  "schema": "m6.candidate2.registration10.execution_incident.v1",
+  "status": "PROJECTION_RUNTIME_INCIDENT",
+  "outcome": "NO_SCORED_VERDICT",
+  "verdict": null,
+  "candidate": {
+    "number": 2,
+    "output_path": "runs/gate_m6_candidate2_v1.json",
+    "sidecar_path": "runs/gate_m6_candidate2_v1.json.env.json"
+  },
+  "registration": {
+    "id": 5018346030,
+    "number": 10,
+    "issue": 42,
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5018346030"
+  },
+  "attempt": {
+    "current_lane_runner_invocations": 1,
+    "known_prior_candidate2_runner_invocations": 4,
+    "current_candidate2_runner_invocation_ordinal": 5,
+    "known_prior_registration_10_runner_invocations": 0,
+    "current_registration_10_runner_invocation_ordinal": 1,
+    "dispatcher_lane_label": "CANDIDATE_2_ONE_SHOT_SCORED_RUN_INVOCATION_5",
+    "unified_exec_session_id": 27970,
+    "runner_started_at_utc": "2026-07-20T06:51:13Z",
+    "terminal_log_last_modified_at_utc": "2026-07-20T06:57:13Z",
+    "terminal_log_capture_span_seconds": 360,
+    "exit_code": 1,
+    "rerun_performed_by_current_lane": false,
+    "self_rescue_performed": false,
+    "one_shot_consumption": "NOT_ADJUDICATED_BY_THIS_LANE",
+    "reexecution_disposition": "COORDINATOR_ADJUDICATION_REQUIRED"
+  },
+  "invocation": {
+    "cwd": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6",
+    "command": ".venv/bin/python scripts/run_gate_m6_candidate2.py --registration-id 5018346030 --input-factory registered_m6_candidate2_inputs:build_input_plan",
+    "environment": {
+      "POPULACE_DYNAMICS_PSID_DIR": "/Users/maxghenis/PolicyEngine/psid-data",
+      "POPULACE_DYNAMICS_PE_US_DIR": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/.venv/lib/python3.14/site-packages"
+    },
+    "stdout_stderr_capture": "exclusive combined redirection to c2-run.log",
+    "worker_knobs_set_by_lane": false
+  },
+  "source": {
+    "branch": "sol/c2-run6",
+    "git_commit": "92e23e96291ea387202c8d0be914d2dd4bd3dd87",
+    "authorized_dispatch_commit": "92e23e96291ea387202c8d0be914d2dd4bd3dd87",
+    "origin_master_at_invocation": "92e23e96291ea387202c8d0be914d2dd4bd3dd87",
+    "design_commit": "0e067a910fde7e479240c472087ece6a7ce29bcd",
+    "worktree_clean_at_invocation": true,
+    "worktree_clean_after_exit_before_incident_files": true,
+    "runner_sha256": "c568d8f2744b488e5a9b11d761fae5db63befddf4f6866ac2ccb0b4196bc3ea9",
+    "cli_sha256": "c4c2cb88296649f025c759e33a381301216e4826e02d5ca88404012257fc7e56",
+    "input_factory_sha256": "acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf",
+    "registered_inputs_sha256": "4b8e1e7d45f3a59db51c0ffcb728c1f41acd2b3dc53689ba104af2db54503a57",
+    "ssa_params_sha256": "9b49894b56eaab32daa62032a139ecb33a1d11f657b1523d3bebadebc2387efd",
+    "m6_runner_sha256": "01cd9d7fa3c28a296f3cfef180f1567a6b5908d02878bbd979fe2bc55a3ddb86",
+    "assembly_sha256": "2c5b603d39bc86b0a716a57859d438c21cfb007a04c051ce5865b8b60d05a9c2",
+    "first_marriage_support_aware_sha256": "d1cac0298b6f1c391fe49d5195e1e1754114d710101933dd717bd0651545958e",
+    "populace_commit": "b33524189e6a65100acdbc84fe43229ecc14162a"
+  },
+  "runtime": {
+    "python": "3.14.4",
+    "pip": "26.1.2",
+    "numpy": "2.5.1",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "scikit_learn": "1.9.0",
+    "quantile_forest": "1.4.2",
+    "policyengine_us": "1.752.2",
+    "policyengine_core": "3.30.1",
+    "populace_fit": "0.1.0",
+    "populace_frame": "0.1.0",
+    "pip_present_prelaunch": true,
+    "scikit_learn_1_9_prelaunch_assertion_passed": true,
+    "dependency_snapshot": {
+      "canonical_pip_freeze_line_count": 164,
+      "canonical_pip_freeze_sha256": "95237d2507123a56077c3d61141fb2cb510c4c0276fb5b48773589e8a679c9dc",
+      "evidence_basis": "post-failure read-only recomputation in the unchanged virtual environment; the runner published no sidecar"
+    }
+  },
+  "mandatory_environment_recipe": {
+    "required_env_value": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/.venv/lib/python3.14/site-packages",
+    "recorded_verification_executions_before_launch": 3,
+    "last_recorded_verification_at_utc": "2026-07-20T06:51:01Z",
+    "last_recorded_verification_output": {
+      "guard_equality": true,
+      "pe_us_version": "1.752.2"
+    },
+    "verification_formula": "Path(POPULACE_DYNAMICS_PE_US_DIR) / policyengine_us / parameters / gov / ssa",
+    "runtime_guard_formula": "_resolve_pe_us(None) / policyengine_us / parameters / gov / ssa",
+    "formulas_equivalent_for_supplied_value": true,
+    "resolved_ssa_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+    "runtime_guard_passed": true
+  },
+  "failure": {
+    "classification": "UNCAUGHT_PROJECTION_ASSEMBLY_VALUE_ERROR",
+    "designed_abort": false,
+    "terminal_exception": {
+      "type": "ValueError",
+      "message": "fitted marital core is not byte-comparable"
+    },
+    "direct_cause": {
+      "type": "TypeError",
+      "message": "cannot pickle 'mappingproxy' object"
+    },
+    "context": {
+      "arm": "candidate",
+      "seed_ordinal": 1,
+      "draw_index": 0,
+      "projection_side": "household"
+    },
+    "failing_operation": "engine.assembly._fit_digest(inputs.family) while assemble_period_modules constructs the first draw's household-side ProjectionEngine",
+    "serialization_chain": [
+      "FittedFamilyTransitions.first_marriage",
+      "SupportAwareFirstMarriageModel.fit_audit",
+      "FirstMarriageFitAudit.checksums",
+      "MappingProxyType"
+    ],
+    "comparison_status": {
+      "authoritative_family_digest_completed": false,
+      "embedded_family_digest_started": false,
+      "byte_comparison_completed": false
+    },
+    "traceback": {
+      "cli_main": "scripts/run_gate_m6_candidate2.py:110",
+      "execute_seed_phase": "src/populace_dynamics/harness/m6_candidate2_runner.py:2549-2550",
+      "score_seed_projection_call": "src/populace_dynamics/harness/m6_runner.py:1079",
+      "projected_cells_household_side": "src/populace_dynamics/harness/m6_runner.py:615",
+      "projection_engine_assembly": "src/populace_dynamics/harness/m6_runner.py:579",
+      "period_module_assembly": "src/populace_dynamics/engine/assembly.py:237",
+      "fit_digest": "src/populace_dynamics/engine/assembly.py:164-170"
+    },
+    "preceding_warnings": {
+      "type": "sklearn.exceptions.ConvergenceWarning",
+      "count_in_combined_transcript": 2,
+      "message": "lbfgs failed to converge after 1000 iterations; iteration limit reached",
+      "terminal_exception": false
+    },
+    "root_cause_statement": "The registered support-aware first-marriage fit carries a deep-frozen audit checksum mapping. Period-module assembly attempted to pickle the fitted family for its byte-comparability digest, encountered that MappingProxyType, and wrapped the resulting TypeError as the terminal ValueError before either digest comparison or ProjectionEngine construction."
+  },
+  "progress": {
+    "runner_governance_guard_completed": true,
+    "input_factory_imported": true,
+    "input_plan_completed": true,
+    "train_only_loader_completed": true,
+    "policyengine_us_version_gate_passed": true,
+    "policyengine_us_parameter_directory_gate_passed": true,
+    "explicit_parameter_loader_reached": true,
+    "explicit_psid_loader_reached": true,
+    "candidate_refit_completed": true,
+    "selected_c_fit_preflight_completed": true,
+    "postrepair_incumbent_refit_completed": true,
+    "full_inputs_loaded": true,
+    "candidate_materialization_completed": true,
+    "postrepair_incumbent_materialization_completed": true,
+    "first_marriage_transport_disclosure_completed": true,
+    "preflight_1_completed": true,
+    "preflight_1_passed": true,
+    "preflight_2_completed": true,
+    "preflight_2_passed": true,
+    "score_seed_orchestration_started": true,
+    "truth_cells_constructed_for_first_seed": true,
+    "projection_started": true,
+    "projection_path_entered": true,
+    "period_module_assembly_started": true,
+    "projection_engine_constructed": false,
+    "projection_engine_project_called": false,
+    "person_side_projection_started": false,
+    "projected_draws_completed": 0,
+    "numeric_cell_scoring_started": false,
+    "candidate_seed_runs_completed": 0,
+    "incumbent_seed_phase_started": false,
+    "aggregate_started": false,
+    "artifact_assembly_started": false,
+    "final_guard_started": false,
+    "candidate_artifact_written": false,
+    "environment_sidecar_written": false,
+    "external_env_verify_marker_emitted": true,
+    "external_refit_marker_emitted_at_launch": true,
+    "external_preflight_1_marker_emitted_after_exit_from_source_and_traceback_evidence": true,
+    "external_preflight_2_marker_emitted_after_exit_from_source_and_traceback_evidence": true,
+    "external_projection_marker_emitted_after_exit_from_traceback_evidence": true,
+    "external_scoring_marker_emitted": false,
+    "external_publish_marker_emitted_for_incident_publication": true
+  },
+  "prelaunch_compute_care": {
+    "conflicting_heavy_process_detected": true,
+    "launch_deferred_until_conflicting_batches_exited": true,
+    "maximum_observed_single_process_rss_kib": 102227440,
+    "host_clear_at_utc": "2026-07-20T06:50:10Z",
+    "host_clear_memory_pressure": "87% free",
+    "host_clear_processes_above_5_gib_rss": 0,
+    "worker_control_environment_knobs_set": false,
+    "available_disk_at_prelaunch": "1.4 TiB",
+    "external_process_touched_or_signaled": false,
+    "runner_touched_or_signaled_after_launch": false,
+    "runner_monitoring": "unified execution-session completion polls only"
+  },
+  "information_boundary": {
+    "full_input_loader_completed": true,
+    "truth_cells_constructed_for_first_seed": true,
+    "post_2014_read_status": "SANCTIONED_HARNESS_SCORING_PATH_REACHED",
+    "outside_harness_post_2014_read_performed_by_lane": false,
+    "numeric_post_2014_value_inspected_by_lane": false,
+    "basis": "Execution reached score_m6_seed's first-draw projection setup after its registered truth-cell preparation. All such reads occurred inside the harness scoring path; after failure the lane inspected only the runner transcript and tracked source call order."
+  },
+  "outputs": {
+    "candidate_artifact": {
+      "path": "runs/gate_m6_candidate2_v1.json",
+      "exists_after_exit": false
+    },
+    "environment_sidecar": {
+      "path": "runs/gate_m6_candidate2_v1.json.env.json",
+      "exists_after_exit": false
+    },
+    "artifact_sha256": null,
+    "per_cell_summary": null,
+    "partial_scored_output_repurposed": false,
+    "fabricated_substitute": false
+  },
+  "evidence": {
+    "combined_transcript": {
+      "path": "docs/analysis/m6_candidate2_registration10_execution_incident_v1.txt",
+      "bytes": 5106,
+      "lines": 78,
+      "sha256": "14d960eaf17f8c6d3b17928a8c4655db700c97bf4ad08338c71c3e0f81e495db",
+      "scope": "exact combined runner stdout and stderr: two convergence warnings and the nested terminal traceback",
+      "stream_separation_available": false,
+      "terminating_lf": true
+    },
+    "runner_exit_capture": {
+      "unified_exec_session_id": 27970,
+      "exit_code": 1,
+      "evidence_basis": "agent/orchestrator observation outside the combined runner transcript"
+    }
+  },
+  "publication": {
+    "incident_ledger": "docs/analysis/m6_candidate2_registration10_execution_incident_v1.json",
+    "human_report": "docs/analysis/m6_candidate2_registration10_execution_incident_v1.md",
+    "exact_combined_transcript": "docs/analysis/m6_candidate2_registration10_execution_incident_v1.txt",
+    "commit_strategy": "after scoped checks, use --no-verify to avoid the linked-worktree bd flush hook mutating unrelated tracked state",
+    "draft_pr_required": true
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "runner_reinvoked_by_current_lane": false,
+    "environment_changed_after_failure": false,
+    "registration_changed": false,
+    "gates_changed": false,
+    "frozen_artifacts_changed": false,
+    "runs_artifact_changed": false,
+    "required_next_step": "The coordinator adjudicates this projection-runtime incident, one-shot accounting, and any future execution or registration; this lane must not self-invoke."
+  },
+  "authority": {
+    "registration_10": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5018346030",
+    "amendment_5_pr": "https://github.com/PolicyEngine/populace-dynamics/pull/265",
+    "design_commit_flip_pr": "https://github.com/PolicyEngine/populace-dynamics/pull/266",
+    "prior_registration_9_incident_pr": "https://github.com/PolicyEngine/populace-dynamics/pull/264",
+    "crash_publication_precedent": "https://github.com/PolicyEngine/populace-dynamics/pull/238"
+  }
+}
