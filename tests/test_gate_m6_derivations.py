@@ -69,7 +69,7 @@ ASYMMETRIC_AGE2_RUNG = "sex_pooled_age2p"
 DESIGN_PR = "175"
 DESIGN_COMMIT_DRAFT = "d6abb16b0a034ca08a26e3eb8fc9211967c53259"  # PR #175 pin
 DESIGN_COMMIT_175 = "ce9893b13e74a99f38d04ace2d278fac495012d0"  # interim #175
-DESIGN_COMMIT_FINAL = "64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f"  # #229 squash (amendment 4 re-finalization)
+DESIGN_COMMIT_FINAL = "0e067a910fde7e479240c472087ece6a7ce29bcd"  # #265 squash (amendment 5 re-finalization)
 # PR #175's new not_certified margin: the gated {2016,2018} earnings cells ride
 # the design 2.7 FORWARD earnings law, first-certified by gate_m6 (gate_1 does
 # NOT cover it).
