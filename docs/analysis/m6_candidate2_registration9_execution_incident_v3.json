@@ -1,0 +1,249 @@
+{
+  "schema": "m6.candidate2.registration9.execution_incident.v3",
+  "status": "PREFLIGHT_1_RUNTIME_INCIDENT",
+  "outcome": "NO_SCORED_VERDICT",
+  "verdict": null,
+  "candidate": {
+    "number": 2,
+    "output_path": "runs/gate_m6_candidate2_v1.json",
+    "sidecar_path": "runs/gate_m6_candidate2_v1.json.env.json"
+  },
+  "registration": {
+    "id": 5016328696,
+    "number": 9,
+    "issue": 42,
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696"
+  },
+  "attempt": {
+    "current_lane_runner_invocations": 1,
+    "known_prior_registration_9_runner_invocations": 3,
+    "current_registration_9_runner_invocation_ordinal": 4,
+    "dispatcher_lane_label": "CANDIDATE_2_ONE_SHOT_SCORED_RUN_INVOCATION_4",
+    "runner_pid": 34189,
+    "unified_exec_session_id": 12624,
+    "terminal_log_last_modified_at_utc": "2026-07-19T22:29:08.739592Z",
+    "exit_evidence_frozen_at_utc": "2026-07-19T22:30:49Z",
+    "exit_code": 1,
+    "rerun_performed_by_current_lane": false,
+    "self_rescue_performed": false,
+    "one_shot_consumption": "NOT_ADJUDICATED_BY_THIS_LANE",
+    "reexecution_disposition": "COORDINATOR_ADJUDICATION_REQUIRED"
+  },
+  "invocation": {
+    "cwd": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run5",
+    "command": ".venv/bin/python scripts/run_gate_m6_candidate2.py --registration-id 5016328696 --input-factory registered_m6_candidate2_inputs:build_input_plan",
+    "environment": {
+      "POPULACE_DYNAMICS_PSID_DIR": "/Users/maxghenis/PolicyEngine/psid-data",
+      "POPULACE_DYNAMICS_PE_US_DIR": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run5/.venv/lib/python3.14/site-packages"
+    },
+    "stdout_stderr_capture": "append-combined to c2-run.log",
+    "worker_knobs_set_by_lane": false
+  },
+  "source": {
+    "branch": "sol/c2-run5",
+    "git_commit": "0dd42985d8663f8632915d5813dc5c3da9cb4cc2",
+    "authorized_dispatch_commit": "0dd42985d8663f8632915d5813dc5c3da9cb4cc2",
+    "origin_master_at_publication_precheck": "fd44a0b00512475f3326a759fff217db28075b60",
+    "origin_master_advance_since_dispatch": "one docs-only invocation-3 incident publication commit; no run-surface change",
+    "worktree_clean_at_invocation": true,
+    "worktree_clean_after_exit_before_incident_files": true,
+    "runner_sha256": "62e2a3d9057fef7660efb2d57bb8f5b793796ceecbccc45c9d4d9ae094cad884",
+    "cli_sha256": "c4c2cb88296649f025c759e33a381301216e4826e02d5ca88404012257fc7e56",
+    "input_factory_sha256": "acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf",
+    "registered_inputs_sha256": "4b8e1e7d45f3a59db51c0ffcb728c1f41acd2b3dc53689ba104af2db54503a57",
+    "ssa_params_sha256": "9b49894b56eaab32daa62032a139ecb33a1d11f657b1523d3bebadebc2387efd",
+    "populace_commit": "b33524189e6a65100acdbc84fe43229ecc14162a"
+  },
+  "runtime": {
+    "python": "3.14.4",
+    "pip": "26.1.2",
+    "numpy": "2.5.1",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "scikit_learn": "1.9.0",
+    "quantile_forest": "1.4.2",
+    "policyengine_us": "1.752.2",
+    "policyengine_core": "3.30.1",
+    "populace_fit": "0.1.0",
+    "populace_frame": "0.1.0",
+    "pip_present_prelaunch": true,
+    "scikit_learn_1_9_prelaunch_assertion_passed": true,
+    "registered_predecessor_unique_name_version_set_equal": true,
+    "registered_predecessor_unique_name_version_pair_count": 165,
+    "dependency_snapshot": {
+      "canonical_pip_freeze_line_count": 164,
+      "canonical_pip_freeze_sha256": "1f0d44ec236f7bd2028f33d97a68c57545d8f138472226fe3cbaad7a368c419b",
+      "evidence_basis": "post-failure read-only recomputation in the unchanged virtual environment; the runner reached execution but published no sidecar"
+    }
+  },
+  "mandatory_environment_recipe": {
+    "source": "dispatcher corrected substitution c for invocation 4",
+    "required_env_value": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run5/.venv/lib/python3.14/site-packages",
+    "recorded_verification_executions_before_launch": 1,
+    "last_recorded_verification_output": {
+      "mirrored_guard_equality": true,
+      "pe_us_version": "1.752.2"
+    },
+    "verification_formula": "Path(POPULACE_DYNAMICS_PE_US_DIR) / policyengine_us / parameters / gov / ssa",
+    "runtime_guard_formula": "_resolve_pe_us(None) / policyengine_us / parameters / gov / ssa",
+    "formulas_equivalent_for_supplied_value": true,
+    "resolved_ssa_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run5/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+    "runtime_guard_passed": true
+  },
+  "failure": {
+    "classification": "UNCAUGHT_PREFLIGHT_1_ASSERTION",
+    "designed_abort": false,
+    "exception_type": "AssertionError",
+    "exception_message": "candidate-9 injected-state re-certification failed; fuller re-ceremony required: legal_spouse_residual/legal_core: delta=0.0089596796 > 3sigma=0.0031888439; legal_spouse_residual/final_spouse: delta=0.0079574811 > 3sigma=0.0031818483; household_size/household_size.1: delta=0.0032050662 > 3sigma=0.0026893011; household_size/household_size.4: delta=0.0027247735 > 3sigma=0.001621927",
+    "failing_guard": "engine.composition.check_candidate9_recertification",
+    "traceback": {
+      "cli_main": "scripts/run_gate_m6_candidate2.py:110",
+      "execute_preflight_1": "src/populace_dynamics/harness/m6_candidate2_runner.py:2502",
+      "run_m6_preflight_1": "src/populace_dynamics/harness/m6_runner.py:474",
+      "run_candidate9_recertification": "src/populace_dynamics/harness/m6_preflight.py:138",
+      "check_candidate9_recertification": "src/populace_dynamics/engine/composition.py:796"
+    },
+    "recertification": {
+      "draw_count": 20,
+      "sigma_multiplier": 3,
+      "comparison": "absolute difference between injected and internal-reference means must not exceed three standard errors of the mean difference",
+      "failed_cells": [
+        {
+          "channel_set": "legal_spouse_residual",
+          "cell": "legal_core",
+          "absolute_delta": 0.0089596796,
+          "tolerance_3sigma": 0.0031888439
+        },
+        {
+          "channel_set": "legal_spouse_residual",
+          "cell": "final_spouse",
+          "absolute_delta": 0.0079574811,
+          "tolerance_3sigma": 0.0031818483
+        },
+        {
+          "channel_set": "household_size",
+          "cell": "household_size.1",
+          "absolute_delta": 0.0032050662,
+          "tolerance_3sigma": 0.0026893011
+        },
+        {
+          "channel_set": "household_size",
+          "cell": "household_size.4",
+          "absolute_delta": 0.0027247735,
+          "tolerance_3sigma": 0.001621927
+        }
+      ],
+      "runner_disposition": "fuller re-ceremony required"
+    },
+    "preceding_warnings": {
+      "type": "sklearn.exceptions.ConvergenceWarning",
+      "count_in_combined_transcript": 2,
+      "message": "lbfgs failed to converge after 1000 iterations; iteration limit reached",
+      "terminal_exception": false
+    },
+    "root_cause_statement": "The locked candidate-9 injected-state re-certification rejected four cells whose observed absolute injected-vs-internal mean differences exceeded their three-sigma tolerances. This incident record makes no model-cause inference beyond the runner's assertion and required fuller re-ceremony."
+  },
+  "progress": {
+    "runner_governance_guard_completed": true,
+    "input_factory_imported": true,
+    "input_plan_completed": true,
+    "train_only_loader_completed": true,
+    "policyengine_us_version_gate_passed": true,
+    "policyengine_us_parameter_directory_gate_passed": true,
+    "explicit_parameter_loader_reached": true,
+    "explicit_psid_loader_reached": true,
+    "candidate_refit_completed": true,
+    "selected_c_fit_preflight_completed": true,
+    "postrepair_incumbent_refit_completed": true,
+    "full_inputs_loaded": true,
+    "candidate_materialization_completed": true,
+    "postrepair_incumbent_materialization_completed": true,
+    "first_marriage_transport_disclosure_completed": true,
+    "preflight_1_started": true,
+    "preflight_1_completed": false,
+    "preflight_1_passed": false,
+    "preflight_2_started": false,
+    "projection_started": false,
+    "scoring_started": false,
+    "candidate_artifact_written": false,
+    "environment_sidecar_written": false,
+    "external_refit_marker_emitted_at_launch": true,
+    "external_preflight_1_marker_emitted_after_exit_from_traceback_evidence": true,
+    "external_projection_marker_emitted": false,
+    "external_scoring_marker_emitted": false,
+    "external_publish_marker_emitted_for_incident_publication": true
+  },
+  "prelaunch_compute_care": {
+    "conflicting_heavy_process_detected": false,
+    "machine_pressure_rechecked_before_launch": true,
+    "worker_control_environment_knobs_set": false,
+    "available_disk_at_prelaunch": "1.3 TiB",
+    "memory_pressure_at_last_live_sample": "91% free",
+    "runner_touched_or_signaled_after_launch": false
+  },
+  "information_boundary": {
+    "explicit_parameter_loader_reached": true,
+    "explicit_psid_loader_reached": true,
+    "post_2014_read_status": "SANCTIONED_HARNESS_FULL_INPUT_LOAD_COMPLETED_BEFORE_PREFLIGHT_1",
+    "outside_harness_post_2014_read_performed_by_lane": false,
+    "basis": "Execution reached m6_candidate2_runner.py:2502, so the tracked load_full_inputs call at line 2473 and both materialization calls at lines 2480-2485 had returned before preflight_1. The lane performed no data inspection outside the runner."
+  },
+  "outputs": {
+    "candidate_artifact": {
+      "path": "runs/gate_m6_candidate2_v1.json",
+      "exists_after_exit": false
+    },
+    "environment_sidecar": {
+      "path": "runs/gate_m6_candidate2_v1.json.env.json",
+      "exists_after_exit": false
+    },
+    "partial_scored_output_repurposed": false,
+    "fabricated_substitute": false
+  },
+  "evidence": {
+    "combined_transcript": {
+      "path": "docs/analysis/m6_candidate2_registration9_execution_incident_v3.txt",
+      "bytes": 4251,
+      "lines": 65,
+      "sha256": "e4be49c46936b975a0a7deb364e9721e6c986d177b48f02cc41512650596b502",
+      "scope": "prelaunch environment, source and command record; launch marker; two emitted convergence warnings; exact combined runner traceback",
+      "stream_separation_available": false
+    },
+    "runner_exit_capture": {
+      "runner_pid": 34189,
+      "unified_exec_session_id": 12624,
+      "exit_code": 1,
+      "evidence_basis": "agent/orchestrator observation outside the combined runner transcript"
+    }
+  },
+  "publication": {
+    "incident_ledger": "docs/analysis/m6_candidate2_registration9_execution_incident_v3.json",
+    "human_report": "docs/analysis/m6_candidate2_registration9_execution_incident_v3.md",
+    "exact_combined_transcript": "docs/analysis/m6_candidate2_registration9_execution_incident_v3.txt",
+    "commit_hook": {
+      "normal_commit_attempt_exit_code": 1,
+      "normal_commit_created": false,
+      "failure": "Failed to flush bd changes to JSONL",
+      "fallback": "scoped checks passed; create the same scoped commit with --no-verify",
+      "precedent": "invocation-3 incident PR 263"
+    }
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "runner_reinvoked_by_current_lane": false,
+    "environment_changed_after_failure": false,
+    "registration_changed": false,
+    "gates_changed": false,
+    "frozen_artifacts_changed": false,
+    "runs_artifact_changed": false,
+    "required_next_step": "Coordinator adjudicates the preflight-1 incident, fuller re-ceremony requirement, one-shot accounting, and any future execution or registration; this lane must not self-invoke."
+  },
+  "authority": {
+    "registration_9": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696",
+    "prior_host_termination_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017203962",
+    "prior_invocation_2_environment_incident_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017283998",
+    "prior_invocation_3_environment_incident_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017534238",
+    "prior_invocation_3_incident_pr": "https://github.com/PolicyEngine/populace-dynamics/pull/263",
+    "crash_publication_precedent": "https://github.com/PolicyEngine/populace-dynamics/pull/238"
+  }
+}
