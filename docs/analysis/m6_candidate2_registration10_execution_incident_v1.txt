@@ -1,0 +1,78 @@
+/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/.venv/lib/python3.14/site-packages/sklearn/linear_model/_logistic.py:599: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/.venv/lib/python3.14/site-packages/sklearn/linear_model/_logistic.py:599: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/engine/assembly.py", line 166, in _fit_digest
+    payload = pickle.dumps(value, protocol=5)
+TypeError: cannot pickle 'mappingproxy' object
+when serializing dict item 'checksums'
+when serializing populace_dynamics.models.family_transitions.components.first_marriage_support_aware.FirstMarriageFitAudit state
+when serializing populace_dynamics.models.family_transitions.components.first_marriage_support_aware.FirstMarriageFitAudit object
+when serializing dict item 'fit_audit'
+when serializing populace_dynamics.models.family_transitions.components.first_marriage_support_aware.SupportAwareFirstMarriageModel state
+when serializing populace_dynamics.models.family_transitions.components.first_marriage_support_aware.SupportAwareFirstMarriageModel object
+when serializing dict item 'first_marriage'
+when serializing populace_dynamics.models.family_transitions.fitted.FittedFamilyTransitions state
+when serializing populace_dynamics.models.family_transitions.fitted.FittedFamilyTransitions object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/scripts/run_gate_m6_candidate2.py", line 137, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/scripts/run_gate_m6_candidate2.py", line 110, in main
+    artifact = execute_registered_m6_candidate2_run(
+        input_plan,
+    ...<3 lines>...
+        preparation=preparation,
+    )
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/harness/m6_candidate2_runner.py", line 2549, in execute_registered_m6_candidate2_run
+    seed_runs = tuple(
+                ^^^^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/harness/m6_candidate2_runner.py", line 2550, in <genexpr>
+    ops.score_seed(inputs, phase, resolved.contract, seed)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/harness/m6_runner.py", line 1079, in score_m6_seed
+    ) = _projected_cells(
+        ~~~~~~~~~~~~~~~~^
+        inputs,
+        ^^^^^^^
+    ...<3 lines>...
+        draw_index=draw_index,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/harness/m6_runner.py", line 615, in _projected_cells
+    household_result, household_collector = _project_side(
+                                            ~~~~~~~~~~~~~^
+        phase, household_population, draw_index=draw_index
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/harness/m6_runner.py", line 579, in _project_side
+    engine = ProjectionEngine(assemble_period_modules(certified))
+                              ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/engine/assembly.py", line 237, in assemble_period_modules
+    if _fit_digest(inputs.family) != _fit_digest(embedded):
+       ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run6/src/populace_dynamics/engine/assembly.py", line 168, in _fit_digest
+    raise ValueError(
+        "fitted marital core is not byte-comparable"
+    ) from error
+ValueError: fitted marital core is not byte-comparable
