@@ -460,6 +460,8 @@ def _run_m6_preflight_1(
     inputs: M6HarnessInputs,
     phase: M6RefitPhase,
     contract: M6GateContract,
+    *,
+    family_candidate_spec: FamilyCandidateSpec | None = None,
 ) -> Mapping[str, Any]:
     bundle = phase.bundle
     if any(
@@ -470,6 +472,16 @@ def _run_m6_preflight_1(
     truncated = prepare_m6_preflight_context(
         inputs.refit_inputs, boundary_year=BOUNDARY_YEAR
     )
+    registered_reference_family = None
+    if family_candidate_spec is not None:
+        if (
+            bundle.family.candidate_id != family_candidate_spec.candidate_id
+            or bundle.family.spec_sha256 != family_candidate_spec.sha256
+        ):
+            raise RuntimeError(
+                "pre-flight 1 family fit does not match its candidate spec"
+            )
+        registered_reference_family = bundle.family.fitted
     holdout_ids = set(truncated.train_ids)
     result = run_candidate9_recertification(
         Candidate9PreflightInputs(
@@ -480,6 +492,7 @@ def _run_m6_preflight_1(
             modifier=bundle.modifier.modifier,
             permanent_axis=bundle.modifier.axis,
             household=bundle.household.fitted,
+            registered_reference_family=registered_reference_family,
         ),
         draw_indices=tuple(range(contract.n_draws)),
     )

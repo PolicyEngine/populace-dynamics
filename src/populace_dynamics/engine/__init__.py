@@ -10,6 +10,7 @@ from populace_dynamics.engine.candidates import (
     OperationSpec,
 )
 from populace_dynamics.engine.composition import (
+    Candidate9RecertificationFailure,
     CompositionDiagnostics,
     CompositionRngs,
     RecertificationResult,
@@ -71,6 +72,7 @@ __all__ = [
     "CertifiedEngineInputs",
     "ClaimingSchedule",
     "CandidateSpec",
+    "Candidate9RecertificationFailure",
     "CompositionDiagnostics",
     "CompositionRngs",
     "EvaluationMode",
