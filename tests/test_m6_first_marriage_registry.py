@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import pickle
 import warnings
 from dataclasses import replace
 from pathlib import Path
@@ -245,10 +246,12 @@ def test_prefreeze_registry_spec_artifact_is_exact_historical_snapshot():
             ),
         },
     ]
+    # The live sibling adds only the post-#267 pickle-boundary reducer; the
+    # prefreeze artifact above remains its unchanged historical snapshot.
     sibling_payload = SIBLING_FIRST_MARRIAGE_PATH.read_bytes()
-    assert len(sibling_payload) == 48264
+    assert len(sibling_payload) == 49673
     assert hashlib.sha256(sibling_payload).hexdigest() == (
-        "d1cac0298b6f1c391fe49d5195e1e1754114d710101933dd717bd0651545958e"
+        "5bff8cc9fc2d9a57686a2adb99e11f2683017605ba21db9e61d21bd42b137b2a"
     )
     invariance = artifact["candidate_16_invariance"]
     assert invariance == {
@@ -657,6 +660,23 @@ def test_fit_audit_is_canonical_complete_and_records_empty_cartesian_cell():
     }
     assert model.fit_audit.solver_gtol == 1e-8
     assert model.fit_audit.solver_ftol == np.finfo(np.float64).eps
+
+
+def test_fit_audit_and_model_pickle_round_trip():
+    model = _fit_balanced()
+    audit = model.fit_audit
+    assert audit is not None
+
+    restored_audit = pickle.loads(pickle.dumps(audit, protocol=5))
+    assert restored_audit.canonical_dict() == audit.canonical_dict()
+    with pytest.raises(TypeError):
+        restored_audit.checksums["coefficient_sha256"] = "0" * 64
+    with pytest.raises(TypeError):
+        restored_audit.support["sex"]["female"]["age_max"] = 123.0
+
+    restored_model = pickle.loads(pickle.dumps(model, protocol=5))
+    assert restored_model.audit_dict() == model.audit_dict()
+    validate_support_aware_first_marriage_fit(restored_model)
 
 
 def test_explicit_penalized_objective_and_gradient_scaling():

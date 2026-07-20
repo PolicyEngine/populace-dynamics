@@ -285,6 +285,47 @@ class FirstMarriageFitAudit:
         object.__setattr__(self, "checksums", _deep_freeze(self.checksums))
         object.__setattr__(self, "support", _deep_freeze(self.support))
 
+    def __reduce__(self):
+        return (
+            type(self),
+            (
+                self.c,
+                self.n_input_rows,
+                self.n_train_rows,
+                self.n_train_events,
+                self.n_features,
+                self.solver_success,
+                self.solver_status,
+                self.solver_message,
+                self.n_iter,
+                self.max_iter,
+                self.max_iter_reached,
+                self.solver_gtol,
+                self.solver_ftol,
+                self.warning_count,
+                self.warning_messages,
+                self.convergence_warning_count,
+                self.convergence_warning_messages,
+                self.objective_value,
+                self.gradient_inf_norm,
+                self.intercept,
+                self.coefficients,
+                self.design_finite,
+                self.coefficients_finite,
+                self.linear_predictor_finite,
+                self.linear_predictor_min,
+                self.linear_predictor_max,
+                self.probabilities_finite,
+                self.probabilities_strict_unit_interval,
+                self.probability_min,
+                self.probability_max,
+                self.eligible,
+                self.eligibility_failures,
+                dict(self.checksums),
+                _plain(dict(self.support)),
+            ),
+        )
+
     def canonical_dict(self) -> dict[str, Any]:
         """Return a strict-JSON-ready selector/preflight ledger record."""
         payload = {
