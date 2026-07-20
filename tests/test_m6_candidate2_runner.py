@@ -22,6 +22,7 @@ from populace_dynamics.data import (
 from populace_dynamics.data import (
     transitions,
 )
+from populace_dynamics.engine import assembly
 from populace_dynamics.engine import candidates as engine_candidates
 from populace_dynamics.engine import refit as refit_module
 from populace_dynamics.engine.composition import (
@@ -1940,6 +1941,53 @@ def _synthetic_family_context():
         ),
         train_ids=frozenset({1, 2, *training_ids}),
     )
+
+
+def _refit_registered_family_core(spec):
+    return refit_module.refit_family_transitions(
+        _synthetic_family_context(),
+        candidate_spec=spec,
+    ).fitted
+
+
+def test_fit_digest_accepts_populated_candidate2_audit_core():
+    core = _refit_registered_family_core(family_candidates.M6_CANDIDATE_2)
+    audit = core.first_marriage.fit_audit
+    assert audit is not None
+    assert audit.checksums
+    assert audit.support
+
+    digest = assembly._fit_digest(core)
+    assert len(digest) == 64
+    int(digest, 16)
+
+
+def test_every_live_registered_family_core_is_digestable():
+    specs = (
+        family_candidates.CANDIDATE_16,
+        family_candidates.M6_CANDIDATE_2,
+    )
+
+    def fully_registered(spec):
+        try:
+            for component in spec.components:
+                family_candidates.REGISTRY.definition(component)
+        except (KeyError, ValueError):
+            return False
+        return True
+
+    discovered = {
+        value.candidate_id
+        for value in vars(family_candidates).values()
+        if isinstance(value, family_candidates.CandidateSpec)
+        and fully_registered(value)
+    }
+    assert discovered == {spec.candidate_id for spec in specs}
+
+    for spec in specs:
+        digest = assembly._fit_digest(_refit_registered_family_core(spec))
+        assert len(digest) == 64
+        int(digest, 16)
 
 
 def _synthetic_household_context():
