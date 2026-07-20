@@ -159,7 +159,7 @@ SELECTION_EVIDENCE_PATHS: Mapping[str, str] = MappingProxyType(
 # sidecar are intentionally record-and-publish values.
 PREREGISTERED_VALUES: Mapping[str, str] = MappingProxyType(
     {
-        "design_commit": ("64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f"),
+        "design_commit": ("0e067a910fde7e479240c472087ece6a7ce29bcd"),
         "floor_run_sha256": (
             "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
         ),

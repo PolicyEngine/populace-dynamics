@@ -5350,7 +5350,7 @@ gates:
     kind: temporal_holdout
     design: docs/design/m6_projection_engine.md
     design_pr: "175"
-    design_commit: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+    design_commit: 0e067a910fde7e479240c472087ece6a7ce29bcd
     design_commit_note: >-
       design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
       pre-amendment revision-1 design) to this PR's design commit carrying the
@@ -5763,11 +5763,20 @@ gates:
         design_commit_finalized:
           rule: design_commit_note (finalize the design pin to the squash-merge at the lock flip)
           from: d6abb16b0a034ca08a26e3eb8fc9211967c53259
-          to: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+          to: 0e067a910fde7e479240c472087ece6a7ce29bcd
           refinalized_from: ce9893b13e74a99f38d04ace2d278fac495012d0
           refinalized_amendment_4:
             from: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
             to: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+          refinalized_amendment_5:
+            from: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+            to: 0e067a910fde7e479240c472087ece6a7ce29bcd
+            reason: >-
+              Amendment 5 (PR #265, the SS 2.8.5 preflight-1 registered-law
+              reference arm, revision 17; classification (ii) at PR #264
+              comment 5017886441; referee approval 5018174663) re-pinned
+              design_commit to its squash-merge per design_commit_note,
+              executed at ratification in this flip.
             reason: >-
               Amendment 4 (PR #229, the SS 2.7.7 candidate-2 earnings rank
               refresh; referee SPEC SOUND 5003073745, verification 5003353084)
@@ -5866,7 +5875,9 @@ gates:
           ce9893b13e74a99f38d04ace2d278fac495012d0, then RE-FINALIZED to the #178 squash
           4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 once SS 2.7.6 completed the forward law,
           then RE-FINALIZED AGAIN to the #229 squash 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
-          at amendment-4 ratification (SS 2.7.7 rank refresh; flip PR #233). ZERO
+          at amendment-4 ratification (SS 2.7.7 rank refresh; flip PR #233), then
+          RE-FINALIZED to the #265 squash 0e067a910fde7e479240c472087ece6a7ce29bcd at
+          amendment-5 ratification (SS 2.8.5 preflight-1 registered-law reference). ZERO
           threshold movement vs the ratified frozen floor: the flip READS
           runs/m6_holdout_floors_v3.json and rewrites nothing. Bindings go
           LOCKED-HOT (tests/test_gate_m6_derivations.py).
