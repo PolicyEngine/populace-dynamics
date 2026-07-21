@@ -739,7 +739,9 @@ def test_registry_values_are_semantically_bound_to_selection_ledgers():
         )
 
 
-def test_prefreeze_identity_aborts_before_binding_collection(monkeypatch):
+def test_prefreeze_identity_aborts_before_binding_collection(
+    monkeypatch, tmp_path
+):
     called = False
 
     def collect(*_args, **_kwargs):
@@ -759,10 +761,15 @@ def test_prefreeze_identity_aborts_before_binding_collection(monkeypatch):
         "M6_CANDIDATE_2",
         family_candidates.M6_CANDIDATE_2_PREFREEZE,
     )
+    # A root without the published one-shot artifact: since the real run
+    # completed, runs/gate_m6_candidate2_v1.json exists at ROOT and the
+    # guard's write_new refusal would fire before the prefreeze check
+    # under test (the sibling-test tmp_path pattern).
+    (tmp_path / runner.DEFAULT_OUTPUT.parent).mkdir()
     with pytest.raises(RuntimeError, match="selected_c=None"):
         runner.guard_registered_m6_candidate2_run(
             registration_id="9999999999",
-            root=ROOT,
+            root=tmp_path,
         )
     assert called is False
 
