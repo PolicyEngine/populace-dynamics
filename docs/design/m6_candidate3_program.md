@@ -28,8 +28,10 @@ prospective design amendment plus a reviewed lock addendum re-finalizing
 `gate_m6.design_commit`, then a fresh registration on issue #42, then one
 one-shot run under the hardened direct-runner topology proven by invocation
 #6-re (incident record: issue #42 comment 5028176439 — no network-dependent
-babysitter in the process ancestry; `nohup` + launchd orphaning; `caffeinate
--sim` held by a child of the runner).
+babysitter in the process ancestry; `nohup` + launchd orphaning; in the
+incident record's own words, "`caffeinate -sim` wrapping the runner itself
+(previously the codex process held the assertion; the runner now holds its
+own)").
 
 ## 2. Frozen evidence — artifact-only forensics of the candidate-2 verdict
 
@@ -85,16 +87,20 @@ tolerance (0.403 in log space ≈ 1.5×) absorbs it in four of five.
 
 ### 2.2 Floor-relative sizing
 
-The floors-v4 method derived each tolerance as `round(mean + 3·sd, 3)` of
-the candidate-blind split-half anchor-noise distribution (100 seeds;
-`floor.method`, `floor.cells`). Placing each cell's candidate mean score in
-that distribution:
+The floors-v4 method derived each earnings tolerance as
+`round(mean + 3·sd, 3)` of the candidate-blind split-half anchor-noise
+distribution (100 seeds; `floor.method`, `floor.cells`); the five flow-cell
+records, including `remarriage.18-64`, are byte-carried from frozen v3 under
+the same formula. Placing each cell's candidate mean score in that
+distribution (floor stats printed to 6 decimals because the F1 sum
+`mean + 3·sd = 0.0434971` sits on the 3-decimal rounding boundary — 5-decimal
+inputs would misreproduce the 0.043 tolerance as 0.044):
 
 | cell | floor mean | floor sd | candidate mean score | floor-SDs above floor mean |
 |------|-----------|----------|----------------------|-----------------------------|
-| earn_dlog_mean.prime | 0.01411 | 0.00980 | 0.03948 | **+2.59** |
-| earn_autocorr_lag2 | 0.02674 | 0.01993 | 0.06922 | **+2.13** |
-| remarriage.18-64 | 0.12206 | 0.09353 | 0.30713 | **+1.98** |
+| earn_dlog_mean.prime | 0.014107 | 0.009797 | 0.03948 | **+2.59** |
+| earn_autocorr_lag2 | 0.026737 | 0.019927 | 0.06922 | **+2.13** |
+| remarriage.18-64 | 0.122060 | 0.093530 | 0.30713 | **+1.98** |
 
 All three candidate discrepancies sit 2-2.6 anchor-noise SDs above the
 anchor-noise mean: real model-truth divergence beyond sampling noise, below
@@ -118,8 +124,10 @@ measurement (111.5/125.4/192.7% of tolerance at train boundaries 2006/2008/
 2010, same-direction, worsening toward the scored window). The scored
 window measured remarriage at 59-103% of tolerance (median 73.2%). The
 transport extrapolation overstated the scored-window residual by roughly a
-factor of two. Any future use of boundary-transport measurements as
-scored-window forecasts must carry this calibration datum.
+factor of two — pinned comparators for falsifiability: 2010-boundary
+transport 192.7% vs scored median 73.2% = 2.6×; vs scored worst-seed 102.7%
+= 1.9×. Any future use of boundary-transport measurements as scored-window
+forecasts must carry this calibration datum with these comparators.
 
 ### 2.5 What the artifact cannot decide
 
@@ -140,21 +148,23 @@ is executable train-only.
 
 ## 3. Controlling law
 
-Verbatim anchors that bind everything below:
+Anchors that bind everything below — the first quoted verbatim, the second
+and third stated as characterized law (their sources cited; not quotations):
 
-- **§2.7.7 selection discipline (candidate-2 program §5.4):** "No 2015+ row,
-  realized post-2014 macro value, candidate-1 seed score, or candidate-2
-  score may enter numerical estimation." The one-SE rule text: "select the
-  **smallest** `q` with `J(q)≤J(q_min)+SE[J(q_min)]`. Exact ties choose the
-  smaller `q`."
-- **The W1 surface-license precedent:** a scored failure licenses *which
-  surface* the next candidate works, through a public amendment plus referee
-  round; it never licenses reading holdout values into estimation or
-  selection.
-- **One-shot law:** each registered candidate gets one scored run;
-  re-running an unchanged candidate against fresh seeds is seed-fishing and
-  is prohibited (`fresh_registration_required` binds candidate 3 to a
-  registered delta).
+- **§2.7.7 selection discipline (verbatim, candidate-2 program §5.4):** "No
+  2015+ row, realized post-2014 macro value, candidate-1 seed score, or
+  candidate-2 score may enter numerical estimation." The one-SE rule text:
+  "select the **smallest** `q` with `J(q)≤J(q_min)+SE[J(q_min)]`. Exact ties
+  choose the smaller `q`."
+- **The W1 surface-license precedent (characterized from the gate_w1
+  amendment/re-scope chain):** a scored failure licenses *which surface* the
+  next candidate works, through a public amendment plus referee round; it
+  never licenses reading holdout values into estimation or selection.
+- **One-run-per-registration law (characterized from the registration-8
+  terms, issue #42 comment 5015653634):** each registered candidate gets one
+  scored run; re-running an unchanged candidate against fresh seeds — this
+  program's coinage for the practice is "seed-fishing" — is prohibited
+  (`fresh_registration_required` binds candidate 3 to a registered delta).
 
 ## 4. The leakage boundary, drawn explicitly
 
@@ -167,7 +177,16 @@ value; adding scored-window moments to any objective; tuning any tie-break
 rule (including the one-SE smallest-q rule) in response to the scored
 outcome *and applying it to the same selection evidence*. The boundary
 test: if the same numerical choice could not have been justified from
-≤2014 evidence under a rule written before the verdict, it is leakage.
+≤2014 evidence under a rule written before the verdict — or under a rule
+ratified through the public §2.7 amendment + referee process whose only
+verdict-dependence is surface identity (which moments/cells enter the
+objective), with every numerical input train-derived — it is leakage.
+
+One further binding sentence: **no scored-window-derived numeric — including
+the §2.2 sizing values and the §5.5 planning magnitudes — may appear as a
+constant, target, weight, threshold, or stopping rule in any candidate-3
+spec, objective, estimation, or selection code.** The W1 license covers
+surface identity only.
 
 A subtlety this program must respect: the c2 selector's objective `J` was
 built on the older-worker cells (`earn_dlog_sd.older`, `earn_zero_rate.older`).
@@ -184,17 +203,24 @@ disclosure, not slipped into a re-run of the old selector.
 ### 5.1 Mandatory first diagnostic — the F1 mechanism split (train-only)
 
 Before any mechanism amendment is drafted, run and publish a train-only
-diagnostic separating §2.5(a) from §2.5(b): within ≤2014, hold out the last
-two waves (the 2011/2013-style internal split already used by the c2
-selector's pseudo-boundaries), project with the certified engine, and
+diagnostic separating §2.5(a) from §2.5(b): within ≤2014, use the c2
+selector's deepest pseudo-boundary (boundary 2010 → reference years
+2012/2014, interview years 2013/2015 — the amendment must pin interview
+versus reference years explicitly), project with the certified engine, and
 decompose the mean-Δlog gap into (i) the component explained by the
 projected wage-index path versus (ii) the residual conditional on the
 index. Publish as a findings artifact (#231 pattern: train-only, no
-contract surface). The result routes the design:
+contract surface) carrying two validity caveats verbatim: (i) the held-out
+waves sat inside q*'s selection evidence, so the (a)-versus-(b) split is
+not out-of-sample with respect to the engine's selection; (ii) an
+index-law error specific to the 2015-2022 macro path cannot manifest in a
+≤2014 window, so a "predominantly (a)" routing carries regime-mismatch
+risk. The result routes the design:
 
 - predominantly (b) → the amendment targets the §2.7.6 projected-index law;
 - predominantly (a) → the amendment targets the refresh/persistence
-  mechanism jointly for F1+F2;
+  mechanism jointly for F1+F2, with the regime-mismatch caveat disclosed
+  in the amendment;
 - mixed → both, with the selector extension of §5.2.
 
 ### 5.2 Primary direction — selector-objective extension (two-stage §2.7 amendment)
@@ -225,9 +251,14 @@ bit-reproduction preflight analog.
 - **Scored-window re-selection of q\*** — prohibited (§4). Recording for
   the permanent record: the c2 one-SE band was {0.55, 0.60} and the
   smallest-q rule chose 0.55. Whether 0.60 would have scored differently
-  is unknowable without leakage and is not a licensed question; the rule
-  stands unless a *rule-level* amendment is ratified prospectively and
-  applied only to fresh train-only selection evidence under `J'`.
+  is unknowable without leakage and is not a licensed question. **The
+  smallest-q tie-break rule is frozen for the candidate-3 program**: no
+  rule-level tie-break amendment may apply within this program, because
+  any `J'` selection runs on the same ≤2014 rows — there is no "fresh"
+  train evidence for a re-flipped tie-break to consume, and a
+  verdict-motivated flip applied to a `J'` band again containing
+  {0.55, 0.60} would reconstruct the prohibited scored-window
+  re-selection through the back door.
 - **Tolerance relief for the earnings cells** — no floors change is
   licensed by this verdict; the floors are candidate-blind by construction
   and the breaches are candidate-side.
@@ -235,13 +266,19 @@ bit-reproduction preflight analog.
 
 ### 5.5 Sizing the bar candidate 3 must clear
 
-For a ≥4-of-5 verdict, at most one seed may fail any cell. Under the
-observed across-seed dispersions (§2.2), the central discrepancy reductions
-needed to put the per-seed breach probability at or below the 4-of-5 bar
-are approximately: F1 mean score 0.0395 → ≤0.031 (≈ −22%), F2 mean 0.0692
-→ ≤0.055 (≈ −20%), assuming unchanged dispersion. These are planning
-magnitudes, not acceptance criteria; the gate's own conjunction remains the
-only acceptance test.
+For a ≥4-of-5 verdict, at most one seed may fail the full 11-cell
+conjunction. The candidate-2 FAIL came from breach-seed non-overlap (seed 2
+on F1+F3, seed 3 on F2), so honest sizing is joint across cells and must
+include remarriage's residual per-seed breach probability under the
+unchanged law (≈7% at the observed mean and dispersion). Under a normal
+approximation with unchanged dispersions, the required central-discrepancy
+reductions on the two earnings cells are **on the order of −10% to −30%,
+criterion-dependent** (an equal-proportional-reduction joint solve at
+per-seed conjunction-fail ≤ 0.2 gives ≈ −23% on both). These are rough
+planning magnitudes, not acceptance criteria and not derivation-grade
+numbers; the gate's own conjunction remains the only acceptance test, and
+per §4 none of these values may enter any candidate-3 specification or
+selection code.
 
 ## 6. Remarriage disposition and the #249 adjudication input
 
@@ -252,8 +289,9 @@ by the incumbent 0.403 tolerance in 4/5 seeds; the cell is not
 verdict-pivotal (§2.3). Recommendation to the #249 ceremony: proceed
 prospective-only as chartered — the surface question retains scientific
 value for tolerance semantics — but **certification does not wait on it**,
-and no candidate-3 step depends on its outcome. The F3 bias is hereby
-documented as the standing measurement the #249 instruments should explain.
+and no candidate-3 step depends on its outcome. The F3 bias is documented
+here for the permanent record as narrative motivation per the #249 charter;
+the instruments remain candidate-blind and no disposition is prejudged.
 
 ## 7. Must-not-regress constraints for candidate 3
 
@@ -264,10 +302,19 @@ Carried forward from the ratified c2 regression block, plus the c2 verdict:
    `earn_zero_rate.older` 0.163, `incidence.20-66` 0.404,
    `recovery.20-66` 0.314) — unchanged, per §2.8.4a distinct from the live
    gate values.
-2. **New:** the eight cells candidate 2 passed in ≥4 seeds must not
-   regress to <4 seeds under candidate 3 (registered as a candid
-   constraint in the c3 registration; scored by the unchanged gate
-   machinery, no new reducers).
+2. **New:** the eight cells candidate 2 passed 5-of-5
+   (`divorce.18-44`, `earn_dlog_sd.older`, `earn_mob_h1_diag`,
+   `earn_p10.prime`, `earn_zero_rate.older`,
+   `first_marriage.18-29|female`, `incidence.20-66`, `recovery.20-66`)
+   must not regress below 4-of-5 seeds under candidate 3; and
+   `remarriage.18-64` (4-of-5 under the unchanged law, the sole
+   4-of-5-passing cell outside the target surface) is additionally
+   constrained not to regress below 4-of-5. The two target-surface cells
+   (`earn_dlog_mean.prime`, `earn_autocorr_lag2`) carry no regression
+   constraint — they are what candidate 3 exists to move, and the gate
+   conjunction itself scores them. (Registered as a candid constraint in
+   the c3 registration; scored by the unchanged gate machinery, no new
+   reducers.)
 
 ## 8. Candidate-3 protocol
 
@@ -286,10 +333,22 @@ Box ladder to registration (all boxes referee-gated):
    template (new design_commit, same floors v4, new spec shas, new
    selection-evidence shas, remarriage no-op sha unchanged); candid
    forecast per house rule — including the §2.4 transport-calibration
-   datum; the disclosed re-execution allowance resets per the standing
-   contract, with the incident-5028176439 topology mandatory.
+   datum with its pinned comparators; the c3 registration **restates the
+   registration-8 one-run terms verbatim** ("One registered run;
+   `publishes_regardless`; `no_self_rescue`; one disclosed re-execution
+   maximum"), granting the re-execution allowance afresh in the
+   registration text itself (root precedent: issue #42 comment
+   5015653634 — registrations 9-11 did not restate the sentence and the
+   incident adjudication relied on carriage; the c3 registration closes
+   that gap by carrying the words); the incident-5028176439 topology is
+   mandatory.
 6. **One one-shot run** (~23h at candidate-2 cost; plan compute
    accordingly), verdict PR, referee, ratify.
 
-No 2015-2019 row, score, residual, or truth moment enters any numerical
-step of boxes 2-4. Box 8-style attestation repeats at registration.
+**No post-2014 row, score, residual, or truth moment — including the
+candidate-2 artifact's published report-only shock-window (2020-2022)
+values — enters any numerical step of boxes 2-4.** (This deliberately
+strengthens the registration-11 Box-8 template's "2015-2019" range, which
+left published post-2019 aggregates formally unbarred; the c3 registration
+should adopt this post-2014 wording.) Box-8-style attestation repeats at
+registration.
