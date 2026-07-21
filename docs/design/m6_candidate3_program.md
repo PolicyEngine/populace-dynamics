@@ -133,18 +133,24 @@ forecasts must carry this calibration datum with these comparators.
 
 The scored cells are window-aggregates; the artifact carries no per-year
 earnings moments (verified: no per-year moment tables exist under the
-earnings families). Therefore the artifact alone cannot separate two
-mechanisms for F1:
+earnings families). Therefore the artifact alone cannot separate three
+candidate mechanisms for F1/F2:
 
 - **(a) persistence-suppressed growth**: the rank-refresh share leaves rank
   trajectories too sticky, damping the mobility contribution to mean Δlog
   (coherent with F2's excess lag-2 autocorrelation via one mechanism);
 - **(b) indexation drift**: the §2.7.6 rank-to-level projected-index law
   under-carries the holdout window's level growth, an error that would
-  accumulate over 2015-2022 independently of persistence.
+  accumulate over 2015-2022 independently of persistence;
+- **(c) horizon compounding**: the scored holdout is an 8-year projection
+  while the c2 selector evaluated 4-year pseudo-boundary windows; a
+  per-period error small enough to survive train-time selection compounds
+  over the doubled horizon (coherent with the §4 record that the selector
+  had already priced both moments at 4-year windows and the candidate
+  still failed them at 8).
 
-Distinguishing them is the program's first mandatory diagnostic (§5.1) and
-is executable train-only.
+Distinguishing among them is the program's first mandatory diagnostic
+(§5.1, two legs) and is executable train-only.
 
 ## 3. Controlling law
 
@@ -188,62 +194,121 @@ constant, target, weight, threshold, or stopping rule in any candidate-3
 spec, objective, estimation, or selection code.** The W1 license covers
 surface identity only.
 
-A subtlety this program must respect: the c2 selector's objective `J` was
-built on the older-worker cells (`earn_dlog_sd.older`, `earn_zero_rate.older`).
-A candidate-3 selector whose objective *adds train-window analogs of the
-failing moments* (prime-age mean Δlog level; lag-2 autocorrelation) is
-train-only in its data and is the standard surface-license move — but the
-*decision to include those moments* is verdict-motivated. That is exactly
-the W1-precedent shape (scored failure → surface amendment → train-only
-estimation), and it must be ratified as a design amendment with this
-disclosure, not slipped into a re-run of the old selector.
+A fact this program must state precisely, because an earlier draft got it
+wrong: the c2 selector's objective `J` **already contained train-window
+analogs of both failing moments**. The pinned selection ledger
+(`d25b8e15…`) records `protocol.objective_cells = [earn_p10.prime,
+earn_dlog_mean.prime, earn_mob_h1_diag, earn_autocorr_lag2]` with the
+older-worker cells (`earn_dlog_sd.older`, `earn_zero_rate.older`) as
+*feasibility guards*, matching the ratified c2 program's
+`J(q) = Σ_b Σ_j∈{p10, mean, mobility, autocorr} [score(j,b,q)/σ(j,b)]²`.
+Two consequences bind the design space:
+
+1. "Add the failing moments to the objective" is not an available move —
+   they are already in it, and were selected on. The candidate-2 outcome
+   is therefore evidence about *transfer*: train-window objective pressure
+   on these two moments, at the selector's 4-year windows, did not carry
+   to the 8-year scored holdout.
+2. The ledger's per-cell contributions show *where* the train-time
+   frontier sat: at q\*=0.55 the lag-2 autocorrelation term remained the
+   largest or second-largest objective component at every pseudo-boundary
+   (26.76 / 16.08 / 9.79 standardized-squared at 2006/2008/2010),
+   improving monotonically toward q=1 (11.34 / 5.82 / 3.83) but foreclosed
+   by the mobility term's blow-up there (141.45 at boundary 2010, q=1).
+   The selected q\* sits on a train-time tradeoff frontier between
+   persistence correction and mobility fidelity — the autocorr residual
+   was priced, visible, and *bounded by a tradeoff*, not ignored.
+
+The W1 surface license therefore attaches not to "which moments enter the
+objective" (settled pre-verdict) but to **which mechanism surface the
+candidate-3 amendments target** — the §2.7.6 projected-index law, the
+§2.7.7 refresh-law structure, or the selector's evaluation geometry
+(window horizon, weighting) — each ratifiable only as a design amendment
+with this disclosure, every numerical input train-derived.
 
 ## 5. Candidate-3 design directions, adjudicated
 
-### 5.1 Mandatory first diagnostic — the F1 mechanism split (train-only)
+### 5.1 Mandatory first diagnostic — the F1/F2 mechanism split (train-only, two legs)
 
 Before any mechanism amendment is drafted, run and publish a train-only
-diagnostic separating §2.5(a) from §2.5(b): within ≤2014, use the c2
+diagnostic separating §2.5(a)/(b)/(c). Publish as a findings artifact
+(#231 pattern: train-only, no contract surface).
+
+**Leg 1 — index decomposition (a-vs-b).** Within ≤2014, use the c2
 selector's deepest pseudo-boundary (boundary 2010 → reference years
 2012/2014, interview years 2013/2015 — the amendment must pin interview
 versus reference years explicitly), project with the certified engine, and
 decompose the mean-Δlog gap into (i) the component explained by the
 projected wage-index path versus (ii) the residual conditional on the
-index. Publish as a findings artifact (#231 pattern: train-only, no
-contract surface) carrying two validity caveats verbatim: (i) the held-out
-waves sat inside q*'s selection evidence, so the (a)-versus-(b) split is
-not out-of-sample with respect to the engine's selection; (ii) an
-index-law error specific to the 2015-2022 macro path cannot manifest in a
-≤2014 window, so a "predominantly (a)" routing carries regime-mismatch
-risk. The result routes the design:
+index.
+
+**Leg 2 — horizon extension (c).** At boundary 2006 — the only boundary
+whose 8-year window stays inside train (reference years through 2014) —
+score the mean-Δlog and lag-2-autocorrelation train analogs at horizons
++2, +4, +6, +8 and measure whether the gaps grow with horizon. Growth
+curves rising materially beyond the +4 window evidence hypothesis (c);
+flat curves refute it for the train regime.
+
+Both legs carry these validity caveats verbatim: (i) the evaluated waves
+sat inside q*'s selection evidence, so no leg is out-of-sample with
+respect to the engine's selection; (ii) an error specific to the
+2015-2022 macro path cannot manifest in a ≤2014 window, so any routing
+carries regime-mismatch risk; (iii) leg 2's single usable boundary (2006)
+gives one horizon curve, not a distribution — its reading is directional,
+not conclusive. The result routes the design:
 
 - predominantly (b) → the amendment targets the §2.7.6 projected-index law;
-- predominantly (a) → the amendment targets the refresh/persistence
-  mechanism jointly for F1+F2, with the regime-mismatch caveat disclosed
-  in the amendment;
-- mixed → both, with the selector extension of §5.2.
+- predominantly (a) → the amendment targets the §2.7.7 refresh-law
+  structure jointly for F1+F2, with the regime-mismatch caveat disclosed;
+- (c) implicated (leg-2 growth curves rising) → the amendment set includes
+  the selector-geometry amendment of §5.2 item 2 (horizon-extended
+  evaluation windows), alongside whichever mechanism amendment legs 1-2
+  route;
+- mixed → the union, each through its own two-stage ceremony.
 
-### 5.2 Primary direction — selector-objective extension (two-stage §2.7 amendment)
+### 5.2 Primary direction — diagnostic-routed mechanism amendment (two-stage §2.7 pattern)
 
-Extend the train-only selector objective `J` to `J'` adding the two
-verdict-motivated moments as train-window analogs (prime-age mean Δlog;
-lag-2 autocorrelation), re-run the full 21-rung ladder + feasibility +
-one-SE machinery unchanged in *rule* but on `J'`, and freeze the selected
-`q*'` (which may equal or differ from 0.55) via the same two-stage
-amendment + lock-addendum + design-commit re-finalization pattern as
-amendment 4. All estimation data ≤2014; the ladder, caps, jackknife SE,
-and smallest-q tie-break carry over verbatim. Disclosure: the objective
-extension is verdict-motivated (per §4); the numbers are not.
+Because the §4 record forecloses "add the moments to the objective" (they
+are already in it) and shows train-window objective pressure transferring
+imperfectly, candidate 3's primary direction is a **mechanism-level
+amendment routed by the §5.1 diagnostic**, in one or more of three
+surfaces, each through the two-stage amendment + lock-addendum +
+design-commit re-finalization pattern of amendment 4:
 
-### 5.3 Secondary direction — F2-specific refresh-correlation law
+1. **§2.7.6 projected-index law** (route: leg 1 predominantly (b)) — the
+   rank-to-level index path; the amendment enumerates its own train-only
+   estimation and preflight analogs.
+2. **Selector evaluation geometry** (route: leg 2 implicates (c)) —
+   extend the selector's pseudo-boundary evaluation windows toward the
+   scored horizon (boundary 2006 at +8 exists inside train; boundary
+   weighting to be adjudicated in the amendment), then re-run the
+   existing four-cell objective `J`, the 21-rung ladder, feasibility
+   guards, caps, jackknife SE, and the (frozen, §5.4) smallest-q
+   tie-break — unchanged in *rule* — over the amended geometry, freezing
+   the newly selected `q*'` (which may equal or differ from 0.55).
+3. **§2.7.7 refresh-law structure** (route: leg 1 predominantly (a)) — a
+   narrow structural amendment to the refresh mechanism's temporal
+   behavior (e.g., refresh-event persistence across adjacent periods),
+   options enumerated in the amendment itself, each with train-only
+   estimation and the q=0 bit-reproduction preflight analog.
 
-If the §5.1 diagnostic shows the persistence channel dominant and §5.2's
-`J'` selection cannot move lag-2 autocorrelation without damaging the
-protected cells (feasibility guards), adjudicate a narrow structural
-amendment to the refresh law's temporal correlation (e.g., refresh-event
-persistence across adjacent periods) — options to be enumerated in the
-amendment itself, each with train-only estimation and the q=0
-bit-reproduction preflight analog.
+Disclosures binding all three: the *surface choice* is verdict-motivated
+(per §4's license); every numerical input is train-derived; any selector
+re-run uses the existing objective cells — the tradeoff frontier §4
+documents (autocorr improvement foreclosed by mobility blow-up at high q)
+is exactly what amendments 1-3 attempt to shift *mechanistically* rather
+than re-weight away.
+
+### 5.3 Demoted direction — objective re-weighting
+
+Re-weighting `J`'s four terms (or its boundary weights) without a
+mechanism change is available in principle but **demoted below all §5.2
+routes**: the c2 result is direct evidence that train-window objective
+pressure on these cells transfers imperfectly, and §4's frontier means
+re-weighting toward autocorr trades against mobility — risking a
+must-not-regress cell for a target cell. It may be adjudicated only if
+every §5.2 route is exhausted or refuted by the diagnostic, with the §4
+disclosure and the same two-stage ceremony.
 
 ### 5.4 Rejected directions
 
@@ -254,9 +319,10 @@ bit-reproduction preflight analog.
   is unknowable without leakage and is not a licensed question. **The
   smallest-q tie-break rule is frozen for the candidate-3 program**: no
   rule-level tie-break amendment may apply within this program, because
-  any `J'` selection runs on the same ≤2014 rows — there is no "fresh"
-  train evidence for a re-flipped tie-break to consume, and a
-  verdict-motivated flip applied to a `J'` band again containing
+  any candidate-3 selector re-run (§5.2 item 2) runs on the same ≤2014
+  rows — there is no "fresh" train evidence for a re-flipped tie-break to
+  consume, and a verdict-motivated flip applied to a re-selection band
+  again containing
   {0.55, 0.60} would reconstruct the prohibited scored-window
   re-selection through the back door.
 - **Tolerance relief for the earnings cells** — no floors change is
@@ -324,8 +390,9 @@ Box ladder to registration (all boxes referee-gated):
    verification → ratify-by-merge).
 2. **§5.1 diagnostic findings published** (train-only artifact + PR,
    #231 pattern).
-3. **Design amendment(s)** per the diagnostic's routing (§5.2 primary;
-   §5.3 only if routed), two-stage with lock addendum + design-commit
+3. **Design amendment(s)** per the diagnostic's routing (the §5.2
+   mechanism surfaces; §5.3 re-weighting only if every §5.2 route is
+   exhausted or refuted), two-stage with lock addendum + design-commit
    re-finalization.
 4. **Selection executed and frozen** (ledger + checksums + reviewed lock,
    amendment-4 pattern), if the routed design selects parameters.
@@ -338,7 +405,8 @@ Box ladder to registration (all boxes referee-gated):
    `publishes_regardless`; `no_self_rescue`; one disclosed re-execution
    maximum"), granting the re-execution allowance afresh in the
    registration text itself (root precedent: issue #42 comment
-   5015653634 — registrations 9-11 did not restate the sentence and the
+   5015653634 — registrations 10-11 did not restate the sentence (registration 9,
+   comment 5016328696, restated it verbatim) and the
    incident adjudication relied on carriage; the c3 registration closes
    that gap by carrying the words); the incident-5028176439 topology is
    mandatory.
