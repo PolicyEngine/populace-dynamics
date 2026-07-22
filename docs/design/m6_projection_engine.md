@@ -1263,8 +1263,8 @@ routes candidate 3 through a mechanism-level §2.7 amendment on one or both of
 two surfaces, with the §2.7.7 refresh-law structure the route for the
 predominantly-(a) reading; the ratified §5.1 diagnostic (PR #271, merge
 `7eb4c3c`) supplies the routing evidence: the lag-2 autocorrelation train gap
-(−0.109160, ≈3.9 boundary-floor SDs) decomposes to index −0.50% / residual
-100.50% — a real train-window persistence phenomenon that is not an index
+(−0.109160, ≈3.9 floor-SDs above the boundary-2010 anchor-floor mean)
+decomposes to index −0.50% / residual 100.50% — a real train-window persistence phenomenon that is not an index
 artifact. This amendment therefore targets the §2.7.7 refresh law's temporal
 structure. It follows the two-stage §2.7.7.7 pattern verbatim: this
 prospective amendment ratifies only the **generic** correlated-refresh
@@ -1274,8 +1274,9 @@ It does not choose `ρ*`, run the selector, implement the law, register
 candidate 3, read a 2015+ row, score a holdout, create or rewrite a run/floor
 artifact, or edit `gates.yaml`.
 
-The candidate-2 verdict conditioning caveat travels with this amendment
-verbatim, as the #271 record requires:
+The #271 diagnostic's conditioning caveat — conditioning the use of the
+candidate-2 verdict evidence — travels with this amendment verbatim, as
+the #271 record requires:
 
 > The pooled F1 shares (503.60% / −403.60%) are ratios to a
 > statistically-zero denominator and carry no mechanism information: the
@@ -1415,8 +1416,10 @@ conditional-rank memory, which is the pathology under repair. Rejected.
 prototype re-uses §2.7.7.5 verbatim — `PSEUDO_BOUNDARIES = {2006, 2008,
 2010}`, `FIT_SEED = 5200`, `SELECTION_DRAW_SEEDS = {6200,…,6219}`, the
 shifted-`I_proj` rule, the same scoring support, the same four-cell
-standardized objective `J`, the same older-worker feasibility guards, caps,
-half-draw objectives, and delete-one jackknife SE — with one substitution:
+standardized objective `J`, the same older-worker feasibility guards,
+half-draw objectives, and delete-one jackknife SE (program §5.2's "caps"
+refers to the untouched gate-floor tolerance caps, which are not selector
+machinery) — with one substitution:
 the ladder runs over
 
 ```text
@@ -1424,19 +1427,34 @@ RHO_GRID = {−0.80, −0.75, …, −0.05, 0.00}    (17 rungs)
 ```
 
 at fixed `q = q* = 0.55`. The grid confines to non-positive `ρ`: positive
-`ρ` lengthens unrefreshed runs — the direction of the documented failure —
-and admissibility caps the negative side at `−0.8181…`; `−0.80` is the
-deepest admissible grid rung at 0.05 spacing. `q` is **not re-selected**:
+`ρ` lengthens unrefreshed runs — the direction of the documented failure,
+supportable from train evidence alone (train lag-2 autocorrelation
+0.7647 versus truth 0.6555, gap −0.109160) — and admissibility caps the
+negative side at `−0.8181…`; `−0.80` is the deepest admissible grid rung
+at 0.05 spacing. This satisfies the ratified program §5.2's box-4 terms
+in rule-substance: the ladder machinery, 0.05 spacing, objective, guards,
+half-draw objectives, and jackknife SE are unchanged; the rung count
+follows from the derived admissible range and the train-documented
+direction (a literal 21-rung grid cannot fit in the admissible
+non-positive range); and the closest-to-zero rule below is the
+§5.4-frozen tie-break's exact content under the correct isomorphism —
+select the rung nearest the incumbent no-op within one SE (`q = 0` on
+the Q grid; `ρ = 0` here) — so the §5.4 freeze ("no rule-level tie-break
+amendment may apply within this program") is respected, not amended, and
+`q` itself is not re-selected. `q` is **not re-selected**:
 the smallest-`q` tie-break is frozen for this program (candidate-3 program
 §5.4), the ratified `q*` retains its own one-SE justification, and a joint
 `(q, ρ)` ladder would multiply prototype cost without a licensed objective
 change; the joint option is enumerated and rejected on those grounds.
 
 **The tie-break rule, fixed now and blind** (before any ladder value is
-computed): a nonzero `ρ` must improve on `ρ = 0` in the all-draw objective
-and in both half-draw objectives; among feasible rungs, let `ρ_min`
-minimize the all-draw `J`; select the rung **closest to zero** (smallest
-`|ρ|`) among feasible rungs with `J(ρ) ≤ J(ρ_min) + SE[J(ρ_min)]`. If
+computed): a nonzero `ρ` is **retained** only if it is feasible under the
+older-worker guards and improves on `ρ = 0` in the all-draw objective and
+in both half-draw objectives (§2.7.7.5's retention rule, mutatis
+mutandis). Among `ρ = 0` plus the retained rungs, let `ρ_min` minimize
+the all-draw `J`, an exact argmin tie resolving toward the rung closest
+to zero; select the rung **closest to zero** (smallest `|ρ|`) among
+`ρ = 0` plus the retained rungs with `J(ρ) ≤ J(ρ_min) + SE[J(ρ_min)]`. If
 `ρ = 0` itself satisfies that cutoff, the selection returns `ρ* = 0` — a
 **designed pause**: the amendment ends as a ratified no-op, candidate 3
 does not proceed on this surface, and the program returns to its §5.2
@@ -1452,11 +1470,26 @@ reduced moments and the exact states of streams 1–5; (2) the refresh-state
 column's reset law via a discriminating fixture (a synthetic person with a
 gap whose post-gap threshold must be `q*`, not `p(0)` or `p(1)`); (3) the
 endogenous participation feedback via the §2.7.7.2-mandated test pattern.
+It must also demonstrate, at the object level, that the participation
+formula/fit/coefficients, the `CellMarginal`, `I_proj`, the inverse rank
+map, the frame state, odd-year behavior, and the pre-existing substreams
+are unchanged — bit-identity at `ρ = 0` alone cannot catch an
+implementation that perturbs a pinned object only on the `ρ ≠ 0` path.
 Failure of any leg invalidates the mechanism rather than selecting around
-it. The selection ledger must publish every rung's objective, contributions,
-feasibility, half-draw and jackknife values, the realized transition-pair
-counts entering each rung's chain, and checksums per the §2.7.7.5 ledger
-discipline, plus the per-rung train F1 analog as disclosure.
+it. The selection ledger must publish everything §2.7.7.6's ledger
+discipline requires, mutatis mutandis (`ρ` for `q`) — every rung,
+boundary, support, simulated and truth moment, standardizer, feasibility
+and retention result, full/half/jackknife objective, the one-SE cutoff,
+the selected value, the effective search size, and checksums of fit rows,
+pools, support IDs, and the RNG registry — plus the realized
+transition-pair counts entering each rung's chain and the per-rung train
+F1 analog as disclosure. The §2.7.7.6 prohibition sentence applies
+extended to the now-existing candidate-2 record: no 2015+ row, realized
+post-2014 macro value, candidate-1 seed score, unpublished holdout value,
+candidate-2 seed score, or candidate-2 scored-artifact value may enter
+numerical estimation or implementation choices, and the executed ledger
+must carry the `no_candidate_1_or_candidate_2_artifact_read`,
+`no_gate_score`, and `no_runs_write` fence fields the q* ledger carries.
 
 **2.7.8.7 Two-stage lock ceremony and certification boundary.** The
 §2.7.7.7 sequence applies with candidate-3 names: (1) this prospective
@@ -1468,11 +1501,22 @@ substream codes, with all implementation/test proofs; (4) at that lock
 addendum's ratification the orchestrator re-finalizes the live
 `gate_m6.design_commit` from `0e067a910fde7e479240c472087ece6a7ce29bcd`
 (the amendment-5 pin now live) to this amendment's exact squash-merge
-commit before the candidate-3 registration. The candidate-3 registration
-restates the registration-8 one-run terms verbatim, adopts the post-2014
-attestation wording, and carries the §2.4 transport-calibration datum with
-its pinned comparators and the §2.7.8.1 conditioning caveat, per the
-ratified candidate-3 program §8. No production/registered candidate-3
+commit before the candidate-3 registration. The §2.7.7.7 accepted notes
+apply with candidate-3 names: the lock flip changes **exactly one field**
+(`gate_m6.design_commit`), intentionally leaves the pre-amendment gate
+narratives stale (including `gates.yaml:5324-5346`, the 5354-5361
+`design_commit_note`, and the amendment-4/5 history entries, which narrate
+the superseded pins as endpoints; no narrative byte is an authorized
+edit), and prohibits writing a placeholder or anticipated merge hash into
+`gates.yaml`; the strict-versus-weak note is restated in §2.7.8.5; and
+after the candidate-3 registration, `ρ*`, the ledger and its SHA, the
+refresh-state law, and every registered implementation byte are
+immutable — a designed pre-score abort cannot authorize a silent retry.
+The candidate-3 registration restates the registration-8 one-run terms
+verbatim, adopts the post-2014 attestation wording, and carries the
+candidate-3 program's §2.4 transport-calibration datum with its pinned
+comparators and the §2.7.8.1 conditioning caveat, per the ratified
+candidate-3 program §8. No production/registered candidate-3
 implementation, registration, or score may precede all four steps; the
 train-only, non-scoring prototype authorized by step 1 is the sole
 exception. A later accepted candidate-3 PASS would first-certify the
