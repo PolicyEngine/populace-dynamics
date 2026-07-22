@@ -70,7 +70,7 @@ sys.path.insert(0, str(REPO / "src"))
 from populace_dynamics.data import sipp_jobs  # noqa: E402
 
 YEAR = 2023
-SEEDS = (0, 1, 2, 3, 4)
+SEEDS = tuple(range(20))
 AGE_BANDS = ((16, 24), (25, 34), (35, 44), (45, 54), (55, 64), (65, 99))
 THIN_CELL_PERSONS = 200
 
@@ -285,7 +285,12 @@ def e9_floors(pairs: pd.DataFrame) -> dict:
         for seed in SEEDS:
             half = cell["person_id"].map(lambda p, s=seed: _half(p, s))
             a, b = cell[half == 0], cell[half == 1]
-            halves_n.append(min(len(a), len(b)))
+            halves_n.append(
+                min(
+                    a["person_id"].nunique(),
+                    b["person_id"].nunique(),
+                )
+            )
 
             def q(frame, qq):
                 return _weighted_quantile(
@@ -324,11 +329,28 @@ def build() -> dict:
         "version": "draft_v0",
         "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
         "issue": "192",
+        "deployment_scale_note": (
+            "RECORDED GAP (review of #212): these floors are "
+            "half-vs-half, i.e. the sampling noise of ~50%-of-source "
+            "estimates, while candidate runs will be scored on the "
+            "full source - there is no candidate-context floor "
+            "(gate-1 ctx20 analog) in this draft. Under root-n "
+            "scaling the full-source floor is ~1/sqrt(2) (~0.71x) "
+            "of the half-split floor, making half-split-derived "
+            "thresholds conservative (too wide) at deployment "
+            "scale; C3 decides whether to accept that conservatism, "
+            "scale analytically, or require deployment-context "
+            "floors at v1 promotion."
+        ),
         "source": f"pu{YEAR} (reference year {YEAR - 1}), persons "
         "observed all 12 reference months (censoring-free draft "
-        "restriction, recorded)",
+        "restriction, recorded; ESTIMAND NOTE per review: candidate "
+        "runs scored against these cells must apply the identical "
+        "full-year-persons restriction)",
         "method": (
-            "person-disjoint sha256 half-splits, seeds 0-4; rates "
+            "person-disjoint sha256 half-splits, seeds 0-19 (raised "
+            "from 5 per review: E8 cells where floor sd exceeds "
+            "the mean need a stable across-seed sd); rates "
             "floored on |log rate ratio|, earnings-change medians/"
             "IQRs on absolute gaps in log-points; weighted by "
             "WPFINWGT"

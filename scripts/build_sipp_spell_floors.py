@@ -217,6 +217,19 @@ def build() -> dict:
         "version": "draft_v0",
         "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
         "issue": "192",
+        "deployment_scale_note": (
+            "RECORDED GAP (review of #212): these floors are "
+            "half-vs-half, i.e. the sampling noise of ~50%-of-source "
+            "estimates, while candidate runs will be scored on the "
+            "full source - there is no candidate-context floor "
+            "(gate-1 ctx20 analog) in this draft. Under root-n "
+            "scaling the full-source floor is ~1/sqrt(2) (~0.71x) "
+            "of the half-split floor, making half-split-derived "
+            "thresholds conservative (too wide) at deployment "
+            "scale; C3 decides whether to accept that conservatism, "
+            "scale analytically, or require deployment-context "
+            "floors at v1 promotion."
+        ),
         "source": f"pu{YEAR} (reference year {YEAR - 1})",
         "method": (
             "person-disjoint sha256 half-splits, seeds 0-4; per-cell "
