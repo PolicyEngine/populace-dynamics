@@ -40,6 +40,9 @@ class _CertifiedEarningsGenerator(Protocol):
     u_w_by_person: Mapping[int, float]
     realized_earn_2014_by_person: Mapping[int, float]
 
+    @property
+    def earnings_frame_update_columns(self) -> tuple[str, ...]: ...
+
     def materialize_initial_frame(
         self, frame: pd.DataFrame
     ) -> pd.DataFrame: ...
@@ -185,8 +188,31 @@ class EarningsDomainAdapter:
             if column == "earnings":
                 values[~membership] = 0.0
             out[column] = values
+        update_columns = tuple(
+            getattr(self.generator, "earnings_frame_update_columns", ())
+        )
+        for column in update_columns:
+            if materialized is None:
+                values = np.full(len(frame), np.nan, dtype=np.float64)
+            else:
+                if column not in materialized:
+                    raise ValueError(
+                        f"earnings initializer omitted column {column!r}"
+                    )
+                values = np.full(len(frame), np.nan, dtype=np.float64)
+                values[membership] = pd.to_numeric(
+                    materialized[column], errors="raise"
+                ).to_numpy(dtype=np.float64)
+            out[column] = values
         out[EARNINGS_DOMAIN_COLUMN] = membership
         return out
+
+    @property
+    def earnings_frame_update_columns(self) -> tuple[str, ...]:
+        """Expose opt-in generated state without changing incumbent frames."""
+        return tuple(
+            getattr(self.generator, "earnings_frame_update_columns", ())
+        )
 
     def validate_domain(self, frame: pd.DataFrame) -> np.ndarray:
         """Return the marker after checking its fitted-state equivalence."""
@@ -210,6 +236,27 @@ class EarningsDomainAdapter:
                 "earnings-domain generation must be called once per person"
             )
         return np.asarray(self.generator.generate(frame, year, rng))
+
+    def generate_with_frame_updates(
+        self, frame: pd.DataFrame, year: int, rng: np.random.Generator
+    ):
+        """Guard and delegate an opt-in stateful per-person generation call."""
+        marked = self.validate_domain(frame)
+        if not marked.any():
+            columns = self.earnings_frame_update_columns
+            return np.zeros(len(frame), dtype=np.float64), {
+                column: np.full(len(frame), np.nan, dtype=np.float64)
+                for column in columns
+            }
+        if len(frame) != 1:
+            raise ValueError(
+                "earnings-domain generation must be called once per person"
+            )
+        method = getattr(self.generator, "generate_with_frame_updates", None)
+        if method is None:
+            raise TypeError("earnings generator has no frame-update method")
+        result = method(frame, year, rng)
+        return result.earnings, result.frame_updates
 
 
 def wrap_earnings_domain(generator: object) -> object:
