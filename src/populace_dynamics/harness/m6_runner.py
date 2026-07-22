@@ -17,7 +17,7 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -31,6 +31,7 @@ from populace_dynamics.engine.assembly import (
     CertifiedEngineInputs,
     assemble_period_modules,
 )
+from populace_dynamics.engine.candidates import CandidateSpec
 from populace_dynamics.engine.earnings_domain import (
     earnings_domain_person_ids as fitted_earnings_domain_person_ids,
 )
@@ -44,6 +45,7 @@ from populace_dynamics.engine.refit import (
     EARNINGS_SPEC_REGISTRATION,
     EARNINGS_SPEC_SHA256,
     M6RefitBundle,
+    M6RefitInputs,
     fit_mortality_model,
     prepare_m6_preflight_context,
     refit_m6_components,
@@ -101,13 +103,16 @@ from populace_dynamics.harness.m6_scoring import (
     score_gate_seed,
     side_a_person_ids,
 )
+from populace_dynamics.models.family_transitions.registry import (
+    CandidateSpec as FamilyCandidateSpec,
+)
 
 SCHEMA_VERSION = "gate_m6_candidate1.v1"
 CANDIDATE_NUMBER = 1
 PROJECTION_END_YEAR = 2022
-FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v3.json"
+FROZEN_FLOOR_RUN = "runs/m6_holdout_floors_v4.json"
 FROZEN_FLOOR_SHA256 = (
-    "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
+    "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
 )
 DEFAULT_OUTPUT = Path("runs/gate_m6_candidate1_v1.json")
 PHASE_ORDER = (
@@ -173,6 +178,15 @@ class M6RefitPhase:
     mortality: Any
     population: M6RealizedPopulation | Any
     lineage: Mapping[str, Any]
+
+
+@dataclass(frozen=True)
+class M6LazyPreflightResult:
+    """The exact preflighted fit paired with subsequently materialized inputs."""
+
+    fit: Any
+    preflight: Any
+    inputs: M6HarnessInputs
 
 
 @dataclass(frozen=True)
@@ -354,7 +368,7 @@ def _refit_lineage(bundle: M6RefitBundle) -> dict[str, Any]:
             components[name] = _plain_provenance(component.provenance)
     resolved_specs = dict(bundle.registry_spec_sha256s)
     resolved_specs["forward_earnings_adapter"] = EARNINGS_SPEC_SHA256
-    return {
+    payload = {
         "boundary_year": int(bundle.boundary_year),
         "earnings_spec_registration": EARNINGS_SPEC_REGISTRATION,
         "earnings_spec_sha256": EARNINGS_SPEC_SHA256,
@@ -363,14 +377,52 @@ def _refit_lineage(bundle: M6RefitBundle) -> dict[str, Any]:
         "certified_full_window_artifacts_read": False,
         "certified_full_window_artifacts_written": False,
     }
+    earnings = bundle.earnings
+    engine_spec_sha256 = (
+        None
+        if earnings is None
+        else getattr(earnings, "engine_candidate_spec_sha256", None)
+    )
+    if engine_spec_sha256 is not None:
+        resolved_specs["engine_candidate"] = engine_spec_sha256
+        payload["engine_candidate_id"] = getattr(
+            earnings, "engine_candidate_id", None
+        )
+        payload["q_invariant_fit_signature_sha256"] = getattr(
+            earnings, "q_invariant_fit_signature_sha256", None
+        )
+        payload["rank_refresh_fit_audit"] = getattr(
+            earnings, "rank_refresh_fit_audit", None
+        )
+    return payload
 
 
-def refit_m6_phase(inputs: M6HarnessInputs) -> M6RefitPhase:
+def refit_m6_phase(
+    inputs: M6HarnessInputs,
+    *,
+    family_candidate_spec: FamilyCandidateSpec | None = None,
+    earnings_candidate_spec: CandidateSpec | None = None,
+) -> M6RefitPhase:
     """Refit every component at 2014 and materialize the realized population."""
     bundle = refit_m6_components(
         inputs.refit_inputs,
         boundary_year=BOUNDARY_YEAR,
+        family_candidate_spec=family_candidate_spec,
+        earnings_candidate_spec=earnings_candidate_spec,
     )
+    return materialize_m6_refit_phase(inputs, bundle)
+
+
+def materialize_m6_refit_phase(
+    inputs: M6HarnessInputs,
+    bundle: M6RefitBundle,
+) -> M6RefitPhase:
+    """Materialize full inputs around one already-fitted component bundle.
+
+    Candidate 2 uses this additive seam after its fit-only first-marriage
+    preflight.  Candidate 1 still enters through :func:`refit_m6_phase`, which
+    performs the same fit immediately before calling this helper.
+    """
     if bundle.mortality is None or bundle.earnings is None:
         raise RuntimeError("M6 refit did not return mortality/earnings")
     mortality = fit_mortality_model(bundle.mortality)
@@ -408,6 +460,8 @@ def _run_m6_preflight_1(
     inputs: M6HarnessInputs,
     phase: M6RefitPhase,
     contract: M6GateContract,
+    *,
+    family_candidate_spec: FamilyCandidateSpec | None = None,
 ) -> Mapping[str, Any]:
     bundle = phase.bundle
     if any(
@@ -418,6 +472,16 @@ def _run_m6_preflight_1(
     truncated = prepare_m6_preflight_context(
         inputs.refit_inputs, boundary_year=BOUNDARY_YEAR
     )
+    registered_reference_family = None
+    if family_candidate_spec is not None:
+        if (
+            bundle.family.candidate_id != family_candidate_spec.candidate_id
+            or bundle.family.spec_sha256 != family_candidate_spec.sha256
+        ):
+            raise RuntimeError(
+                "pre-flight 1 family fit does not match its candidate spec"
+            )
+        registered_reference_family = bundle.family.fitted
     holdout_ids = set(truncated.train_ids)
     result = run_candidate9_recertification(
         Candidate9PreflightInputs(
@@ -428,6 +492,7 @@ def _run_m6_preflight_1(
             modifier=bundle.modifier.modifier,
             permanent_axis=bundle.modifier.axis,
             household=bundle.household.fitted,
+            registered_reference_family=registered_reference_family,
         ),
         draw_indices=tuple(range(contract.n_draws)),
     )
@@ -1373,6 +1438,71 @@ def default_operations() -> M6RunnerOperations:
     )
 
 
+def load_m6_inputs_after_fit_preflight(
+    fit_inputs: M6RefitInputs,
+    *,
+    fit: Callable[[M6RefitInputs], Any],
+    preflight: Callable[[Any], Any],
+    load_full_inputs: Callable[[], M6HarnessInputs],
+) -> M6LazyPreflightResult:
+    """Fit and preflight before lazily constructing full M6 inputs.
+
+    ``fit_inputs`` can be built by ``assemble_m6_fit_inputs`` without an M6
+    anchor or derived ``M6TruthTables``.  The full ``M6HarnessInputs``
+    construction is deliberately a callback: it is invoked exactly once and
+    only after both ``fit`` and ``preflight`` return.  Exceptions propagate
+    unchanged, so a designed preflight abort cannot be converted to a scored
+    FAIL and cannot invoke that callback.
+
+    This seam does not acquire or restrict the caller-owned raw sources from
+    which ``fit_inputs`` were assembled.  A future registered candidate-2
+    factory owns that separate reader boundary.
+
+    This is an additive candidate-family seam.  The registered candidate-1
+    path continues to call ``execute_registered_m6_run`` with an already
+    assembled ``M6HarnessInputs`` bundle and retains its existing phase order.
+    """
+    fitted = fit(fit_inputs)
+    preflight_result = preflight(fitted)
+    inputs = load_full_inputs()
+    return M6LazyPreflightResult(
+        fit=fitted,
+        preflight=preflight_result,
+        inputs=inputs,
+    )
+
+
+_M6ContinuationResult = TypeVar("_M6ContinuationResult")
+
+
+def continue_m6_after_fit_preflight(
+    fit_inputs: M6RefitInputs,
+    *,
+    fit: Callable[[M6RefitInputs], Any],
+    preflight: Callable[[Any], Any],
+    load_full_inputs: Callable[[], M6HarnessInputs],
+    continuation: Callable[[M6LazyPreflightResult], _M6ContinuationResult],
+) -> _M6ContinuationResult:
+    """Continue with the exact fit that passed the lazy preflight.
+
+    The continuation receives the same :class:`M6LazyPreflightResult` created
+    after ``fit`` and ``preflight`` return and the full-input callback succeeds.
+    It can therefore reuse ``result.fit`` while materializing a later phase,
+    instead of performing an unpreflighted second fit after truth construction.
+
+    Fit and preflight exceptions propagate before either ``load_full_inputs``
+    or ``continuation`` is reachable.  This additive API does not alter the
+    registered candidate-1 execution entry point or its phase order.
+    """
+    result = load_m6_inputs_after_fit_preflight(
+        fit_inputs,
+        fit=fit,
+        preflight=preflight,
+        load_full_inputs=load_full_inputs,
+    )
+    return continuation(result)
+
+
 def _ensure_exclusive_targets(path: Path) -> None:
     for target in (path, Path(f"{path}.env.json")):
         if os.path.lexists(target):
@@ -1464,6 +1594,7 @@ __all__ = [
     "FROZEN_FLOOR_RUN",
     "FROZEN_FLOOR_SHA256",
     "M6RefitPhase",
+    "M6LazyPreflightResult",
     "M6ResolvedContract",
     "M6RunnerOperations",
     "M6SeedRun",
@@ -1471,9 +1602,12 @@ __all__ = [
     "SCHEMA_VERSION",
     "assemble_m6_artifact",
     "contract_from_gate_document",
+    "continue_m6_after_fit_preflight",
     "default_operations",
     "execute_registered_m6_run",
     "guard_registered_m6_run",
+    "load_m6_inputs_after_fit_preflight",
+    "materialize_m6_refit_phase",
     "resolve_m6_contract",
     "validate_registration_id",
 ]

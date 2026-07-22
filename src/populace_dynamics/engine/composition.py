@@ -10,7 +10,7 @@ generator is supplied by the engine.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 import numpy as np
@@ -154,6 +154,22 @@ class RecertificationResult:
     @property
     def passed(self) -> bool:
         return all(cell.passed for cell in self.cells)
+
+
+class Candidate9RecertificationFailure(AssertionError):
+    """Designed pre-score abort retaining the complete transfer table."""
+
+    def __init__(
+        self,
+        result: RecertificationResult,
+        failures: Sequence[str],
+    ) -> None:
+        self.result = result
+        self.failures = tuple(failures)
+        super().__init__(
+            "candidate-9 injected-state re-certification failed; fuller "
+            "re-ceremony required: " + "; ".join(self.failures)
+        )
 
 
 RECERTIFICATION_CHANNEL_SETS: dict[str, tuple[str, ...]] = {
@@ -663,18 +679,52 @@ def simulate_candidate9_internal_reference(
     fitted: FittedHouseholdComposition,
     holdout_ids: set[int],
     draw_seed: int,
+    *,
+    registered_family: ft.FittedFamilyTransitions | None = None,
 ) -> tuple[hc.HouseholdCompositionPanel, CompositionDiagnostics]:
     """Expose candidate-9's internal-marital reference for re-certification.
 
-    This is not a projection path.  It deliberately invokes the frozen
-    candidate-16 simulator, then measures the same latent output channels as
-    the injected adapter so the targeted transfer test can compare the two
-    distributions on one complete surface.
+    This is not a projection path.  With a registered family-law candidate,
+    clone the household fit's internal family bundle and replace only its
+    first-marriage component with the authoritative registered fit.  With no
+    override, pass the exact embedded family object unchanged.  The targeted
+    transfer test therefore compares marital-state provenance under one law.
     """
     if draw_seed < 5200:
         raise ValueError("internal reference draw_seed must be at least 5200")
+    reference_family = fitted.family_transitions
+    if registered_family is not None:
+        try:
+            registered_implementation = registered_family.implementation_ids[
+                "first_marriage"
+            ]
+        except KeyError as error:
+            raise ValueError(
+                "registered family fit has no first-marriage implementation"
+            ) from error
+        implementation_ids = dict(reference_family.implementation_ids)
+        implementation_ids["first_marriage"] = registered_implementation
+        reference_family = replace(
+            reference_family,
+            first_marriage=registered_family.first_marriage,
+            implementation_ids=implementation_ids,
+        )
+        for name in (
+            "divorce",
+            "widowhood",
+            "remarriage",
+            "fertility",
+            "initial_states",
+            "spousal_age_gaps",
+        ):
+            if getattr(reference_family, name) is not getattr(
+                fitted.family_transitions, name
+            ):
+                raise RuntimeError(
+                    "pre-flight reference changed a carried family fit"
+                )
     sim_panel, births = ft.simulate(
-        mpanel, holdout_ids, fitted.family_transitions, draw_seed
+        mpanel, holdout_ids, reference_family, draw_seed
     )
     marital = MaritalStepResult(
         sim_years=sim_panel.person_years,
@@ -735,6 +785,7 @@ def check_candidate9_recertification(
     internal: Sequence[CompositionDiagnostics],
     *,
     sigma_multiplier: float = 3.0,
+    structured_failure: bool = False,
 ) -> RecertificationResult:
     """Check every named channel at three standard errors of the mean delta.
 
@@ -793,6 +844,10 @@ def check_candidate9_recertification(
         sigma_multiplier=float(sigma_multiplier), cells=tuple(cells)
     )
     if failures:
+        if structured_failure:
+            raise Candidate9RecertificationFailure(result, failures)
+        # Preserve candidate 1's exact no-spec failure surface.  Only the
+        # registered-law path opts into the richer designed-abort carrier.
         raise AssertionError(
             "candidate-9 injected-state re-certification failed; fuller "
             "re-ceremony required: " + "; ".join(failures)

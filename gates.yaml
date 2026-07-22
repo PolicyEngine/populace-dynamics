@@ -5350,7 +5350,7 @@ gates:
     kind: temporal_holdout
     design: docs/design/m6_projection_engine.md
     design_pr: "175"
-    design_commit: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
+    design_commit: 0e067a910fde7e479240c472087ece6a7ce29bcd
     design_commit_note: >-
       design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
       pre-amendment revision-1 design) to this PR's design commit carrying the
@@ -5456,8 +5456,8 @@ gates:
           the gate_1-certified generator.
 
     gates_yaml_untouched_by_this_draft: true
-    floor_run: runs/m6_holdout_floors_v3.json
-    floor_run_sha256: e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77
+    floor_run: runs/m6_holdout_floors_v4.json
+    floor_run_sha256: 4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523
 
     v1_pause_evidence:
       run: runs/m6_holdout_floors_v1.json
@@ -5619,13 +5619,13 @@ gates:
         family: marital
         split_unit: household
         statistic: per (coarsened) age-band x sex marital transition hazard, |ln(rbar/rate_a)| capped ln(1.5)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "first_marriage.18-29|female": 0.356
           "divorce.18-44": 0.379
           "remarriage.18-64": 0.403
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "first_marriage.18-29|female": { key: "first_marriage.18-29|female", k: 3, rounding: 3, metric: log_ratio }
             "divorce.18-44": { key: "divorce.18-44", k: 3, rounding: 3, metric: log_ratio }
@@ -5635,12 +5635,12 @@ gates:
         family: disability
         split_unit: person
         statistic: sex-pooled fully-age-pooled disability incidence / recovery hazard, |ln(rbar/rate_a)| capped ln(1.5), reproduction mode
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "incidence.20-66": 0.404
           "recovery.20-66": 0.314
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "incidence.20-66": { key: "incidence.20-66", k: 3, rounding: 3, metric: log_ratio }
             "recovery.20-66": { key: "recovery.20-66", k: 3, rounding: 3, metric: log_ratio }
@@ -5649,14 +5649,14 @@ gates:
         family: earnings
         split_unit: person
         statistic: earnings moments on the log-ratio scale (level quantile, zero rate, Delta-log SD, mobility diagonal), |ln(a/b)| capped ln(1.5)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
-          "earn_p10.prime": 0.221
-          "earn_zero_rate.older": 0.163
-          "earn_dlog_sd.older": 0.269
-          "earn_mob_h1_diag": 0.052
+          "earn_p10.prime": 0.284
+          "earn_zero_rate.older": 0.168
+          "earn_dlog_sd.older": 0.279
+          "earn_mob_h1_diag": 0.054
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "earn_p10.prime": { key: "earn_p10.prime", k: 3, rounding: 3, metric: log_ratio }
             "earn_zero_rate.older": { key: "earn_zero_rate.older", k: 3, rounding: 3, metric: log_ratio }
@@ -5667,12 +5667,12 @@ gates:
         family: earnings
         split_unit: person
         statistic: signed earnings moments on the absolute-gap scale |a-b| (change-mean log units, autocorr correlation units)
-        floor_run: runs/m6_holdout_floors_v3.json
+        floor_run: runs/m6_holdout_floors_v4.json
         tolerances:
           "earn_dlog_mean.prime": 0.043
           "earn_autocorr_lag2": 0.087
         derivations:
-          floor_run: runs/m6_holdout_floors_v3.json
+          floor_run: runs/m6_holdout_floors_v4.json
           rules:
             "earn_dlog_mean.prime": { key: "earn_dlog_mean.prime", k: 3, rounding: 3, metric: abs_gap_log }
             "earn_autocorr_lag2": { key: "earn_autocorr_lag2", k: 3, rounding: 3, metric: abs_gap_corr }
@@ -5763,8 +5763,25 @@ gates:
         design_commit_finalized:
           rule: design_commit_note (finalize the design pin to the squash-merge at the lock flip)
           from: d6abb16b0a034ca08a26e3eb8fc9211967c53259
-          to: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
+          to: 0e067a910fde7e479240c472087ece6a7ce29bcd
           refinalized_from: ce9893b13e74a99f38d04ace2d278fac495012d0
+          refinalized_amendment_4:
+            from: 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2
+            to: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+          refinalized_amendment_5:
+            from: 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+            to: 0e067a910fde7e479240c472087ece6a7ce29bcd
+            reason: >-
+              Amendment 5 (PR #265, the SS 2.8.5 preflight-1 registered-law
+              reference arm, revision 17; classification (ii) at PR #264
+              comment 5017886441; referee approval 5018174663) re-pinned
+              design_commit to its squash-merge per design_commit_note,
+              executed at ratification in this flip.
+            reason: >-
+              Amendment 4 (PR #229, the SS 2.7.7 candidate-2 earnings rank
+              refresh; referee SPEC SOUND 5003073745, verification 5003353084)
+              re-pinned design_commit to its squash-merge per design_commit_note,
+              executed at ratification in the flip PR #233.
           reason: >-
             design_pr #175 amended the block draft (the design 2.7 forward-earnings
             law: first-certified by gate_m6, gate_1 does NOT cover it) and re-pinned
@@ -5856,7 +5873,11 @@ gates:
           AND the design_commit pin FINALIZED per design_commit_note -- from PR
           #175's design commit d6abb16b0a034ca08a26e3eb8fc9211967c53259, first to the #175 squash
           ce9893b13e74a99f38d04ace2d278fac495012d0, then RE-FINALIZED to the #178 squash
-          4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 once SS 2.7.6 completed the forward law. ZERO
+          4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 once SS 2.7.6 completed the forward law,
+          then RE-FINALIZED AGAIN to the #229 squash 64ec6c04bf8f3e6a6f4fcaf71c086a128056a86f
+          at amendment-4 ratification (SS 2.7.7 rank refresh; flip PR #233), then
+          RE-FINALIZED to the #265 squash 0e067a910fde7e479240c472087ece6a7ce29bcd at
+          amendment-5 ratification (SS 2.8.5 preflight-1 registered-law reference). ZERO
           threshold movement vs the ratified frozen floor: the flip READS
           runs/m6_holdout_floors_v3.json and rewrites nothing. Bindings go
           LOCKED-HOT (tests/test_gate_m6_derivations.py).

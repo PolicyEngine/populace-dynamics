@@ -14,6 +14,7 @@ import populace_dynamics.engine.refit as refit_module
 from populace_dynamics import claiming
 from populace_dynamics.data import disability, transitions
 from populace_dynamics.data import household_composition as hc_data
+from populace_dynamics.engine.candidates import CANDIDATE_2
 from populace_dynamics.engine.refit import (
     M6RefitBundle,
     M6RefitInputs,
@@ -496,6 +497,7 @@ def test_mortality_refit_applies_psid_band_ratio_to_admissible_external_rates():
 
 def test_complete_refit_entrypoint_invokes_every_composed_object(monkeypatch):
     calls = []
+    earnings_calls = []
     modifier_calls = []
     family = SimpleNamespace(fitted="family-fit")
     household = SimpleNamespace(fitted="household-fit")
@@ -510,10 +512,14 @@ def test_complete_refit_entrypoint_invokes_every_composed_object(monkeypatch):
         "refit_household_composition",
         lambda *args, **kwargs: calls.append("household") or household,
     )
+
+    def record_earnings(*args, **kwargs):
+        calls.append("earnings")
+        earnings_calls.append((args, kwargs))
+        return "earnings-fit"
+
     monkeypatch.setattr(
-        refit_module,
-        "refit_earnings_chained_generator",
-        lambda *args, **kwargs: calls.append("earnings") or "earnings-fit",
+        refit_module, "refit_earnings_chained_generator", record_earnings
     )
 
     def record_modifier(*args, **kwargs):
@@ -576,6 +582,10 @@ def test_complete_refit_entrypoint_invokes_every_composed_object(monkeypatch):
     assert bundle.disability == "disability-fit"
     assert bundle.mortality == "mortality-fit"
     assert modifier_calls[0][1]["interview_years"].tolist() == [2013, 2015]
+    assert earnings_calls[0][1]["candidate_spec"] is None
+
+    refit_m6_components(inputs, earnings_candidate_spec=CANDIDATE_2)
+    assert earnings_calls[1][1]["candidate_spec"] is CANDIDATE_2
 
 
 class _ConstantFirstMarriage:

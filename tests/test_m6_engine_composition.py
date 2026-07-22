@@ -13,6 +13,7 @@ from populace_dynamics.data import household_composition as hc
 from populace_dynamics.data import transitions
 from populace_dynamics.engine.composition import (
     RECERTIFICATION_CHANNEL_SETS,
+    Candidate9RecertificationFailure,
     CompositionDiagnostics,
     CompositionRngs,
     _attach_cohabitation_seed,
@@ -284,6 +285,84 @@ def test_candidate9_injection_bypasses_both_internal_marital_runs(monkeypatch):
     )
 
 
+def test_internal_reference_without_registered_law_uses_exact_family_object(
+    monkeypatch,
+):
+    embedded_family = _components()
+    captured = []
+
+    class ReferenceCaptured(Exception):
+        pass
+
+    def capture(_panel, _ids, family, _seed):
+        captured.append(family)
+        raise ReferenceCaptured
+
+    monkeypatch.setattr(ft, "simulate", capture)
+
+    with pytest.raises(ReferenceCaptured):
+        simulate_candidate9_internal_reference(
+            object(),
+            object(),
+            SimpleNamespace(family_transitions=embedded_family),
+            {1},
+            5200,
+        )
+
+    assert captured == [embedded_family]
+    assert captured[0] is embedded_family
+
+
+def test_internal_reference_swaps_only_registered_first_marriage(monkeypatch):
+    embedded_family = _components()
+    registered_first_marriage = object()
+    registered_family = replace(
+        embedded_family,
+        first_marriage=registered_first_marriage,
+        implementation_ids={
+            **embedded_family.implementation_ids,
+            "first_marriage": "registered.first_marriage.v1",
+        },
+    )
+    captured = []
+
+    class ReferenceCaptured(Exception):
+        pass
+
+    def capture(_panel, _ids, family, _seed):
+        captured.append(family)
+        raise ReferenceCaptured
+
+    monkeypatch.setattr(ft, "simulate", capture)
+
+    with pytest.raises(ReferenceCaptured):
+        simulate_candidate9_internal_reference(
+            object(),
+            object(),
+            SimpleNamespace(family_transitions=embedded_family),
+            {1},
+            5200,
+            registered_family=registered_family,
+        )
+
+    reference = captured[0]
+    assert reference is not embedded_family
+    assert reference.first_marriage is registered_first_marriage
+    assert reference.implementation_ids["first_marriage"] == (
+        "registered.first_marriage.v1"
+    )
+    for name in (
+        "divorce",
+        "widowhood",
+        "remarriage",
+        "fertility",
+        "initial_states",
+        "spousal_age_gaps",
+    ):
+        assert getattr(reference, name) is getattr(embedded_family, name)
+    assert embedded_family.first_marriage is not registered_first_marriage
+
+
 def test_targeted_recertification_covers_every_marital_consuming_channel():
     n_people = 600
     hh = _household_panel(n_people)
@@ -368,5 +447,55 @@ def test_targeted_recertification_fails_loudly_on_a_channel_shift():
         base,
         cohabitation_increment=np.ones(n, dtype=bool),
     )
-    with pytest.raises(AssertionError, match="fuller re-ceremony required"):
+    with pytest.raises(
+        Candidate9RecertificationFailure,
+        match="fuller re-ceremony required",
+    ) as caught:
+        check_candidate9_recertification(
+            [shifted, shifted],
+            [base, base],
+            structured_failure=True,
+        )
+
+    result = caught.value.result
+    assert isinstance(caught.value, AssertionError)
+    assert result.passed is False
+    assert len(result.cells) == 15
+    assert [(cell.channel_set, cell.cell) for cell in result.cells] == [
+        (channel_set, cell)
+        for channel_set, cells in RECERTIFICATION_CHANNEL_SETS.items()
+        for cell in cells
+    ]
+    failed = [cell for cell in result.cells if not cell.passed]
+    assert [(cell.channel_set, cell.cell) for cell in failed] == [
+        ("cohabitation", "cohabitation_increment")
+    ]
+
+
+def test_no_spec_recertification_failure_retains_plain_assertion_bytes():
+    n = 2
+    base = CompositionDiagnostics(
+        weight=np.ones(n),
+        legal_core=np.zeros(n, dtype=bool),
+        cohabitation_state=np.zeros(n, dtype=bool),
+        cohabitation_increment=np.zeros(n, dtype=bool),
+        legal_residual_state=np.zeros(n, dtype=bool),
+        legal_residual_increment=np.zeros(n, dtype=bool),
+        final_spouse=np.zeros(n, dtype=bool),
+        coresident_parent=np.zeros(n, dtype=bool),
+        multigen=np.zeros(n, dtype=bool),
+        coresident_child=np.zeros(n, dtype=bool),
+        coresident_grandchild=np.zeros(n, dtype=bool),
+        household_size=np.ones(n, dtype=np.int64),
+        model_diagnostics={},
+    )
+    shifted = replace(base, cohabitation_increment=np.ones(n, dtype=bool))
+    with pytest.raises(AssertionError) as caught:
         check_candidate9_recertification([shifted, shifted], [base, base])
+
+    assert type(caught.value) is AssertionError
+    assert str(caught.value) == (
+        "candidate-9 injected-state re-certification failed; fuller "
+        "re-ceremony required: cohabitation/cohabitation_increment: "
+        "delta=1 > 3sigma=0"
+    )

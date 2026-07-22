@@ -1,0 +1,292 @@
+{
+  "schema": "m6.candidate2.preflight1_law_delta.v1",
+  "status": "PUBLISHED_TRAIN_ONLY_TRANSPORT_DIAGNOSTIC",
+  "authority": {
+    "classification": "(ii) STALE PREFLIGHT SURFACE",
+    "issue": 264,
+    "classification_comment": 5017886441,
+    "classification_url": "https://github.com/PolicyEngine/populace-dynamics/issues/264#issuecomment-5017886441",
+    "ratified_merge": "cff216a45c58798d87dfeb561a430f7e4b3b2902",
+    "source_tree": "8563fe60bd9339634d0444ffb63257a7b2aa4b10"
+  },
+  "purpose": "Recover the signed 15-cell cross-law table that invocation 4's raw AssertionError did not transport. This is diagnosis of the stale check, not a candidate score, expected-delta band, tolerance change, or registration-9 re-execution.",
+  "runtime": {
+    "python": "3.14.4",
+    "numpy": "2.5.1",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "scikit_learn": "1.9.0"
+  },
+  "spec_bindings": {
+    "injected_family": {
+      "candidate_id": "m6_candidate2_registry_v1",
+      "sha256": "734a5b04f347c5d4904bbc6d5ab9a1c2876272d35284eedd2f450518acf1cec5"
+    },
+    "internal_family": {
+      "candidate_id": "candidate16_registry_v1",
+      "sha256": "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1"
+    },
+    "household_composition": {
+      "candidate_id": "gate2b_candidate9_registry_v1",
+      "sha256": "6137d921032c49ccd71c2302418759868689dac731706f1093a21716080800ab"
+    },
+    "engine_operations_record_only": {
+      "candidate_id": "m6_candidate2_engine_v1",
+      "sha256": "8fbfcf4130fd9051aa063061bf7b2d8514773fc6a900c900caab18717ad8e14c"
+    }
+  },
+  "source_bindings": {
+    "scripts/registered_m6_candidate2_inputs.py": "acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf",
+    "scripts/registered_m6_inputs.py": "4b8e1e7d45f3a59db51c0ffcb728c1f41acd2b3dc53689ba104af2db54503a57",
+    "src/populace_dynamics/harness/m6_inputs.py": "b7cf775ce9e418378c6dd09174c2b3a1101fb79089392011c3ddbf8a7e8171b9",
+    "src/populace_dynamics/harness/m6_candidate2_runner.py": "62e2a3d9057fef7660efb2d57bb8f5b793796ceecbccc45c9d4d9ae094cad884",
+    "src/populace_dynamics/harness/m6_preflight.py": "1916d08daa77fab5673d25ffb43910a4c33ab7d3eb4a58a854a55bd4a95644b6",
+    "src/populace_dynamics/engine/composition.py": "c5e9626722db25b9f8bf635ab2a7a6b310618c8f2b9a54bfd50e2e4738205e17",
+    "src/populace_dynamics/engine/refit.py": "9601a0cfe68b783d38dfd82f7058b0d74415005385abc406efa6d0993a10d014",
+    "src/populace_dynamics/models/family_transitions/registry.py": "cfc02b9f2a8d908f6d07a5ab0d6289817ab8395b3cb063acb530f3ffe69f3cec",
+    "src/populace_dynamics/models/family_transitions/simulator.py": "519c583adc82f96af3c37be7cdad0d6a4a34f564e51af2360d9c354759ee58fa",
+    "src/populace_dynamics/models/household_composition/registry.py": "e73e6dc03aee2df8256070078cdb4af2b9aa0e2209e0f5e87c898cc2d14e9467",
+    "src/populace_dynamics/models/household_composition/components/marital_core_adapter.py": "f37f165ecf4e533b6f9eb0abb38a05b5fc81e9922cd5fb189f59f7d6e9964c52",
+    "src/populace_dynamics/ss/params.py": "9b49894b56eaab32daa62032a139ecb33a1d11f657b1523d3bebadebc2387efd",
+    "docs/design/m6_projection_engine.md": "3eb91143e05a2903760def5f63612882799adc88134dff5aad670781404bce81",
+    "docs/design/m6_candidate2_program.md": "daae8e345ff6bdb38335db35df9f0287f4b2c846a128524e0212f3cb7e1fa9b1",
+    "docs/analysis/m6_candidate2_registration9_execution_incident_v3.json": "b75afb3a19526dfa2b977749e7cee10910e3d652a891443473d7b78f8b3e7df4",
+    "ssa_parameter_environment_symbol": "populace_dynamics.ss.params._PE_US_ENV"
+  },
+  "information_boundary": {
+    "train_only_factory": true,
+    "full_inputs_callback_called": false,
+    "post_2014_holdout_truth_loaded": false,
+    "registered_runner_invoked": false,
+    "selection_performed": false,
+    "projection_started": false,
+    "scoring_started": false,
+    "gates_yaml_read": false,
+    "runs_read": false,
+    "runs_written": false,
+    "candidate_artifact_read": false,
+    "candidate_artifact_written": false
+  },
+  "universe": {
+    "person_waves": 431643,
+    "person_ids": 38252,
+    "maximum_selection_relevant_year": 2014
+  },
+  "protocol": {
+    "input_path": "build_input_plan train-only path; the full-input callback was never invoked",
+    "fits": "candidate-2 family fit plus historical no-spec household fit embedding candidate 16; candidate-2 modifier; earnings, disability, and mortality fits skipped",
+    "context": "prepared from <=2014 inputs only",
+    "draws": 20,
+    "draw_index": "k=0..19",
+    "seed": "5200+k",
+    "injected_arm": "registered candidate-2 family law with externally injected marital state",
+    "internal_arm": "household-embedded candidate-16 family law with internal marital simulation",
+    "signed_delta_definition": "injected_mean - internal_mean",
+    "standard_error": "sqrt(var(injected, ddof=1)/20 + var(internal, ddof=1)/20)",
+    "pass_rule": "abs(signed_delta) <= 3 * standard_error",
+    "floor": null
+  },
+  "cells": [
+    {
+      "channel_set": "cohabitation",
+      "cell": "cohabitation_state",
+      "injected_mean": 0.0737912230953323,
+      "internal_mean": 0.0737912230953323,
+      "signed_delta": 0.0,
+      "absolute_delta": 0.0,
+      "standard_error": 0.0004037634248831389,
+      "tolerance_3sigma": 0.0012112902746494168,
+      "passed": true
+    },
+    {
+      "channel_set": "cohabitation",
+      "cell": "cohabitation_increment",
+      "injected_mean": 0.034561403701794446,
+      "internal_mean": 0.03506069579378555,
+      "signed_delta": -0.0004992920919911006,
+      "absolute_delta": 0.0004992920919911006,
+      "standard_error": 0.0002465699262897449,
+      "tolerance_3sigma": 0.0007397097788692348,
+      "passed": true
+    },
+    {
+      "channel_set": "legal_spouse_residual",
+      "cell": "legal_core",
+      "injected_mean": 0.5503746723192847,
+      "internal_mean": 0.5414149926957715,
+      "signed_delta": 0.008959679623513184,
+      "absolute_delta": 0.008959679623513184,
+      "standard_error": 0.0010629479617637067,
+      "tolerance_3sigma": 0.00318884388529112,
+      "passed": false
+    },
+    {
+      "channel_set": "legal_spouse_residual",
+      "cell": "legal_residual_state",
+      "injected_mean": 0.03637115181012412,
+      "internal_mean": 0.03637115181012412,
+      "signed_delta": 0.0,
+      "absolute_delta": 0.0,
+      "standard_error": 0.0002962168183286013,
+      "tolerance_3sigma": 0.000888650454985804,
+      "passed": true
+    },
+    {
+      "channel_set": "legal_spouse_residual",
+      "cell": "legal_residual_increment",
+      "injected_mean": 0.014220644402849475,
+      "internal_mean": 0.014743759117438521,
+      "signed_delta": -0.0005231147145890458,
+      "absolute_delta": 0.0005231147145890458,
+      "standard_error": 0.0001799498908327103,
+      "tolerance_3sigma": 0.0005398496724981309,
+      "passed": true
+    },
+    {
+      "channel_set": "legal_spouse_residual",
+      "cell": "final_spouse",
+      "injected_mean": 0.60073247737436,
+      "internal_mean": 0.592774996309705,
+      "signed_delta": 0.007957481064654992,
+      "absolute_delta": 0.007957481064654992,
+      "standard_error": 0.0010606161157311778,
+      "tolerance_3sigma": 0.0031818483471935336,
+      "passed": false
+    },
+    {
+      "channel_set": "occupancy",
+      "cell": "coresident_parent",
+      "injected_mean": 0.1337638829045253,
+      "internal_mean": 0.13404952636722495,
+      "signed_delta": -0.00028564346269965846,
+      "absolute_delta": 0.00028564346269965846,
+      "standard_error": 0.0002975749895398873,
+      "tolerance_3sigma": 0.0008927249686196619,
+      "passed": true
+    },
+    {
+      "channel_set": "occupancy",
+      "cell": "multigen",
+      "injected_mean": 0.041999425289821445,
+      "internal_mean": 0.04221917812085212,
+      "signed_delta": -0.00021975283103067844,
+      "absolute_delta": 0.00021975283103067844,
+      "standard_error": 0.0003102922230889451,
+      "tolerance_3sigma": 0.0009308766692668353,
+      "passed": true
+    },
+    {
+      "channel_set": "occupancy",
+      "cell": "coresident_child",
+      "injected_mean": 0.34976917159691673,
+      "internal_mean": 0.3478286875715878,
+      "signed_delta": 0.0019404840253289257,
+      "absolute_delta": 0.0019404840253289257,
+      "standard_error": 0.0007450029985972904,
+      "tolerance_3sigma": 0.002235008995791871,
+      "passed": true
+    },
+    {
+      "channel_set": "occupancy",
+      "cell": "coresident_grandchild",
+      "injected_mean": 0.029837344449215125,
+      "internal_mean": 0.02977255630675657,
+      "signed_delta": 0.00006478814245855502,
+      "absolute_delta": 0.00006478814245855502,
+      "standard_error": 0.0003275822728704544,
+      "tolerance_3sigma": 0.0009827468186113632,
+      "passed": true
+    },
+    {
+      "channel_set": "household_size",
+      "cell": "household_size.1",
+      "injected_mean": 0.1841691502891581,
+      "internal_mean": 0.1873742165346764,
+      "signed_delta": -0.0032050662455183065,
+      "absolute_delta": 0.0032050662455183065,
+      "standard_error": 0.0008964336898967452,
+      "tolerance_3sigma": 0.0026893010696902356,
+      "passed": false
+    },
+    {
+      "channel_set": "household_size",
+      "cell": "household_size.2",
+      "injected_mean": 0.35766363064898554,
+      "internal_mean": 0.35798519491307607,
+      "signed_delta": -0.00032156426409052363,
+      "absolute_delta": 0.00032156426409052363,
+      "standard_error": 0.000869356757737695,
+      "tolerance_3sigma": 0.002608070273213085,
+      "passed": true
+    },
+    {
+      "channel_set": "household_size",
+      "cell": "household_size.3",
+      "injected_mean": 0.17838786851464877,
+      "internal_mean": 0.1777478042908902,
+      "signed_delta": 0.000640064223758563,
+      "absolute_delta": 0.000640064223758563,
+      "standard_error": 0.0005365139034627958,
+      "tolerance_3sigma": 0.0016095417103883874,
+      "passed": true
+    },
+    {
+      "channel_set": "household_size",
+      "cell": "household_size.4",
+      "injected_mean": 0.1670336601055489,
+      "internal_mean": 0.16430888660739895,
+      "signed_delta": 0.0027247734981499516,
+      "absolute_delta": 0.0027247734981499516,
+      "standard_error": 0.0005406423384134715,
+      "tolerance_3sigma": 0.0016219270152404146,
+      "passed": false
+    },
+    {
+      "channel_set": "household_size",
+      "cell": "household_size.5+",
+      "injected_mean": 0.11274569044165865,
+      "internal_mean": 0.1125838976539584,
+      "signed_delta": 0.0001617927877002462,
+      "absolute_delta": 0.0001617927877002462,
+      "standard_error": 0.00043879763647850883,
+      "tolerance_3sigma": 0.0013163929094355264,
+      "passed": true
+    }
+  ],
+  "assertion_replay": {
+    "failed_cell_count": 4,
+    "failed_cells": [
+      "legal_spouse_residual/legal_core",
+      "legal_spouse_residual/final_spouse",
+      "household_size/household_size.1",
+      "household_size/household_size.4"
+    ],
+    "invocation_4_absolute_deltas_and_tolerances_reproduced_digit_for_digit": true
+  },
+  "interpretation": {
+    "legal_core_percentage_point_shift": 0.8959679623513184,
+    "final_spouse_percentage_point_shift": 0.7957481064654992,
+    "household_size_signed_deltas_sum_to_zero_within_binary_rounding": true,
+    "law_insensitive_exact_zero_controls": [
+      "cohabitation/cohabitation_state",
+      "legal_spouse_residual/legal_residual_state"
+    ],
+    "all_occupancy_cells_pass": true,
+    "conclusion": "The four moved cells are the real training-surface footprint of comparing candidate 2's registered first-marriage law against candidate 16, not evidence of an injection wiring defect."
+  },
+  "byte_contract": {
+    "candidate1_artifact": "runs/gate_m6_candidate1_v1.json",
+    "candidate1_artifact_sha256": "546a9739f8d1c7d21a91a07eb902c8af9bda92cdaa8f7917f312894f6a861b24",
+    "candidate1_artifact_edited": false,
+    "no_spec_reference_path": "exact embedded candidate-16 fitted-family object; no registered-family keyword is supplied",
+    "success_payload_schema_changed": false
+  },
+  "disposition": {
+    "effect": "prospective_only",
+    "invocation_4_regraded": false,
+    "registration_9_reexecuted": false,
+    "one_shot_consumed": false,
+    "next_registration": 10,
+    "design_commit_refinalization_owner": "coordinator_after_ratification"
+  }
+}

@@ -1,0 +1,31 @@
+PHASE: env-verify
+/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4
+## sol/c2-run4...origin/master
+9d6da5e5b031b4deda432fdc984054f54799b0a2
+62e2a3d9057fef7660efb2d57bb8f5b793796ceecbccc45c9d4d9ae094cad884  src/populace_dynamics/harness/m6_candidate2_runner.py
+c4c2cb88296649f025c759e33a381301216e4826e02d5ca88404012257fc7e56  scripts/run_gate_m6_candidate2.py
+acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf  scripts/registered_m6_candidate2_inputs.py
+pip 26.1.2 from /Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/pip (python 3.14)
+registered_versions={"numpy": "2.5.1", "pandas": "3.0.3", "pip": "26.1.2", "policyengine_us": "1.752.2", "python": "3.14.4", "scipy": "1.18.0", "sklearn": "1.9.0"}
+guard_equality: True
+pe_us_version: 1.752.2
+PRELAUNCH HOLD: pre-existing heavy compute detected; candidate runner not launched.
+guard_equality: True
+pe_us_version: 1.752.2
+PHASE: refit
+Traceback (most recent call last):
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/scripts/run_gate_m6_candidate2.py", line 137, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/scripts/run_gate_m6_candidate2.py", line 103, in main
+    input_plan = factory()
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/scripts/registered_m6_candidate2_inputs.py", line 280, in build_input_plan
+    raw = load_train_only_raw_inputs()
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/scripts/registered_m6_candidate2_inputs.py", line 221, in load_train_only_raw_inputs
+    registered_m6_inputs.assert_pe_us_param_dir()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/scripts/registered_m6_inputs.py", line 173, in assert_pe_us_param_dir
+    raise RuntimeError(
+    ...<3 lines>...
+    )
+RuntimeError: POPULACE_DYNAMICS_PE_US_DIR resolves SSA parameters to a directory that is not the metadata-versioned policyengine-us install; point it at the 1.752.2 install.

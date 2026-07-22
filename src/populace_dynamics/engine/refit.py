@@ -34,9 +34,11 @@ from populace_dynamics.models import disability_hazard_sim as m4
 from populace_dynamics.models import family_transitions as ft
 from populace_dynamics.models import household_composition as hc
 
+from .candidates import CandidateSpec
 from .forward_earnings import (
     ForwardEarningsGenerator,
     fit_forward_earnings,
+    validate_rank_refresh_fit,
 )
 from .steps import AgeSexMortalityModel
 
@@ -150,6 +152,10 @@ class EarningsChainedRefit:
     spec_registration: str
     adapter_spec_sha256: str
     provenance: RefitProvenance
+    engine_candidate_id: str | None = None
+    engine_candidate_spec_sha256: str | None = None
+    q_invariant_fit_signature_sha256: str | None = None
+    rank_refresh_fit_audit: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -600,14 +606,21 @@ def refit_family_transitions(
     context: ft.FitContext,
     *,
     boundary_year: int = BOUNDARY_YEAR,
+    candidate_spec: ft.CandidateSpec | None = None,
     registry: Any = ft.REGISTRY,
 ) -> RegistryRefit:
-    """Refit the unchanged candidate-16 registry on caller-supplied inputs."""
+    """Refit one explicit family registry spec on caller-supplied inputs.
+
+    ``None`` preserves the incumbent candidate-16 binding.  A sibling runner
+    must pass its candidate spec explicitly; a registry adapter alone cannot
+    change the identity recorded in the returned provenance.
+    """
+    spec = ft.CANDIDATE_16 if candidate_spec is None else candidate_spec
     truncated = _truncate_family_context(context, boundary_year)
-    fitted = registry.fit(ft.CANDIDATE_16, truncated)
+    fitted = registry.fit(spec, truncated)
     return RegistryRefit(
-        candidate_id=ft.CANDIDATE_16.candidate_id,
-        spec_sha256=ft.CANDIDATE_16.sha256,
+        candidate_id=spec.candidate_id,
+        spec_sha256=spec.sha256,
         fitted=fitted,
         provenance=_registry_provenance(truncated, boundary_year),
     )
@@ -780,6 +793,7 @@ def refit_earnings_chained_generator(
     seed: int,
     boundary_year: int = BOUNDARY_YEAR,
     qrf_factory: QRFModelFactory | None = None,
+    candidate_spec: CandidateSpec | None = None,
 ) -> EarningsChainedRefit:
     """Refit the pinned forward conditional-rank law on ``<=T*`` rows."""
     fitted = fit_forward_earnings(
@@ -788,7 +802,9 @@ def refit_earnings_chained_generator(
         seed=seed,
         boundary_year=boundary_year,
         qrf_factory=qrf_factory or _default_qrf_factory,
+        candidate_spec=candidate_spec,
     )
+    validate_rank_refresh_fit(fitted.generator)
     provenance = RefitProvenance(
         boundary_year=boundary_year,
         estimation_rule=(
@@ -819,6 +835,20 @@ def refit_earnings_chained_generator(
         spec_registration=EARNINGS_SPEC_REGISTRATION,
         adapter_spec_sha256=EARNINGS_SPEC_SHA256,
         provenance=provenance,
+        engine_candidate_id=(
+            None if candidate_spec is None else candidate_spec.candidate_id
+        ),
+        engine_candidate_spec_sha256=(
+            None if candidate_spec is None else candidate_spec.sha256
+        ),
+        q_invariant_fit_signature_sha256=(
+            fitted.q_invariant_fit_signature_sha256
+        ),
+        rank_refresh_fit_audit=(
+            None
+            if fitted.rank_refresh_fit_audit is None
+            else fitted.rank_refresh_fit_audit.as_dict()
+        ),
     )
 
 
@@ -1094,6 +1124,8 @@ def refit_m6_components(
     *,
     boundary_year: int = BOUNDARY_YEAR,
     qrf_factory: QRFModelFactory | None = None,
+    family_candidate_spec: ft.CandidateSpec | None = None,
+    earnings_candidate_spec: CandidateSpec | None = None,
     family_registry: Any = ft.REGISTRY,
     household_registry: Any = hc.REGISTRY,
     disability_fitter: Callable[
@@ -1110,6 +1142,7 @@ def refit_m6_components(
     family = refit_family_transitions(
         inputs.family_context,
         boundary_year=boundary_year,
+        candidate_spec=family_candidate_spec,
         registry=family_registry,
     )
     household = refit_household_composition(
@@ -1123,6 +1156,7 @@ def refit_m6_components(
         seed=inputs.earnings_seed,
         boundary_year=boundary_year,
         qrf_factory=qrf_factory,
+        candidate_spec=earnings_candidate_spec,
     )
     modifier = refit_first_marriage_modifier(
         family.fitted,

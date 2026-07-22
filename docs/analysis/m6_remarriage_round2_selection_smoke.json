@@ -1,0 +1,85 @@
+{
+  "candidate_outcome_computed": false,
+  "checks": {
+    "omega_zero_widowed_exact_R0": true,
+    "pairwise_sum": 15.0,
+    "raw_age_guard": true,
+    "root_first_accepted_midpoint": {
+      "alpha_divorced": -0.5,
+      "area_R0": 12.83028155182915,
+      "area_relative_residual": -1.87051485411871e-11,
+      "beta_frontload": 1.1342523428611457,
+      "bracket_residual_high": -0.9220591129505632,
+      "bracket_residual_low": 0.17557955614874698,
+      "candidate_area": 12.830281551589158,
+      "candidate_probability_max": 0.09028281474976628,
+      "candidate_probability_min": 0.010163958603901962,
+      "centered_contrast": [
+        1.0,
+        0.0,
+        -1.0
+      ],
+      "effective_divorced_shift": -0.5,
+      "fit_exposure_center": 0.0,
+      "maximum_cell_logit_shift": 0.6342523428611457,
+      "minimum_cell_logit_shift": -1.6342523428611457,
+      "pairwise_term_count": 20,
+      "root_iterations": 35
+    },
+    "table_sha256": "d1907c099c59310b2e7a14b1becafb9838e98b2b352e4bf8737e4c7c34dc0f33"
+  },
+  "config_sha256": "e83b331b5a1d7250c11d916dc1028d69e277d4c9ef5d46d8ae987507e2a5bdb2",
+  "freeze": {
+    "all_imports_from_frozen_tree": true,
+    "authority_sha256": {
+      "design_sha256": "a73e758c62d67651588e3d4a6ef33c08e30c20ffeee68eb260267c9382e9904b",
+      "round1_ledger_sha256": "aabec7cc1254d1be9bcf57518632a04f4bbf42d842d30b1991b58a832206c05f",
+      "validation_sha256": "6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947"
+    },
+    "branch": "sol/remarr-r2-invest",
+    "freeze_commit": "f44246964b4e54080ab4c7b43e7e5b0c4b78ea7c",
+    "frozen_blob_sha1": {
+      "scripts/analyze_m6_remarriage_train_delta.py": "f213b8eb57a05ded3530aa6411251ca02544231f",
+      "scripts/m6_remarriage_round2_selector_config.json": "f17463fa2c4d303f5df6ae9da6127dee1a86828d",
+      "scripts/reduce_m6_remarriage_round2.py": "37f594dc9375e4808254e0de737d0b73ecf2386f",
+      "scripts/select_m6_remarriage_round2.py": "f6b548bd6b0e7ac3a3e4d8b5c1c00392f146772d"
+    },
+    "frozen_file_sha256": {
+      "scripts/analyze_m6_remarriage_train_delta.py": "3c4f5b789f90a1d322a3dce6787d546a24b577e1999738f9a72394aa54dbd5c1",
+      "scripts/m6_remarriage_round2_selector_config.json": "e83b331b5a1d7250c11d916dc1028d69e277d4c9ef5d46d8ae987507e2a5bdb2",
+      "scripts/reduce_m6_remarriage_round2.py": "6b6f4e0459be23c936894308e6e040219d623762a15926037a7e2d9a2ac83918",
+      "scripts/select_m6_remarriage_round2.py": "deed33105cffabda4477ac3b7d8b6f0edf9b90bb3ddb83ee42d7ef3434578268"
+    },
+    "import_paths": {
+      "marital_engine": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/src/populace_dynamics/engine/marital.py",
+      "refit": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/src/populace_dynamics/engine/refit.py",
+      "remarriage_component": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/src/populace_dynamics/models/family_transitions/components/remarriage.py",
+      "round1_chassis": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-remarr-r2/scripts/analyze_m6_remarriage_train_delta.py"
+    },
+    "source_tree_sha1": "5acfa23ab0a4f061b74f9082abba9a1b1d754a24",
+    "worktree_clean": true
+  },
+  "pseudo_holdout_truth_constructed": false,
+  "runtime": {
+    "dependencies": {
+      "pandas": "2.3.3",
+      "policyengine-us": "1.752.2",
+      "populace-fit": "0.1.0",
+      "populace-frame": "0.1.0",
+      "quantile-forest": "1.4.2",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    },
+    "dont_write_bytecode": true,
+    "forbidden_m6_modules_imported": [],
+    "numpy_version": "2.4.2",
+    "python_executable": "/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python",
+    "python_implementation": "CPython",
+    "python_version": "3.13.12"
+  },
+  "schema": "m6.remarriage.learning_plan.round2.synthetic_smoke.v1",
+  "selector_run": false,
+  "staged_data_opened": false,
+  "status": "SYNTHETIC_SMOKE_PASS",
+  "synthetic_only": true
+}

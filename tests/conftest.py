@@ -1,5 +1,6 @@
 """Automatically assign one execution tier to every collected test."""
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,28 @@ _SANCTIONED_ARTIFACT_MODULES = frozenset(
     {Path("tests/test_m6_truth_identity.py")}
 )
 _TIER_POLICY_COLLECTION = pytest.StashKey()
+
+
+@pytest.fixture(autouse=True)
+def _replay_frozen_qstar_preproduction_registry(request, monkeypatch):
+    """Replay the frozen selector against its historical incumbent registry.
+
+    The selector and its proof suite are frozen preproduction blobs.  Once the
+    production engine appends streams 4/5, their historical runtime assertion
+    still needs to see the pre-implementation 1/2/3 registry without changing
+    either frozen blob.
+    """
+    source_path = Path(str(request.fspath)).resolve()
+    if source_path.relative_to(_REPO_ROOT) != Path(
+        "tests/test_m6_qstar_selection.py"
+    ):
+        return
+    selector = sys.modules["select_m6_qstar_train_only"]
+    monkeypatch.setattr(
+        selector.fe,
+        "SUBSTREAM_CODES",
+        {"gate": 1, "donor-draw": 2, "re-entry-draw": 3},
+    )
 
 
 def _references_run_artifact(source: str) -> bool:

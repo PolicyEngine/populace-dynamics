@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+import sklearn
 
 from populace_dynamics.data import family
 
@@ -12,6 +13,17 @@ REAL_DATA = Path("~/PolicyEngine/psid-data").expanduser()
 needs_real_family = pytest.mark.skipif(
     not (REAL_DATA / "family" / "2023").is_dir(),
     reason="PSID family files not staged",
+)
+# HistGradientBoostingClassifier is scikit-learn-version-sensitive. The
+# frozen Gate-1 floor artifacts were scored in the repository's 1.9.0
+# environment (also recorded by runs/c10_diagnostics_v1.json), so their
+# exact C2ST witness is meaningful only in that version-matched environment.
+needs_gate1_floor_environment = pytest.mark.skipif(
+    sklearn.__version__ != "1.9.0",
+    reason=(
+        "exact Gate-1 floor reproduction requires scikit-learn 1.9.0 "
+        f"(running {sklearn.__version__})"
+    ),
 )
 
 
@@ -333,6 +345,7 @@ def _prime_family_panel():
 
 
 @needs_real_family
+@needs_gate1_floor_environment
 def test_real_family_runs_noise_floor_reproduces_committed_run():
     """Window-3 floor artifact (the runs view gate 1 locks)."""
     import json
@@ -364,6 +377,7 @@ def test_real_family_runs_noise_floor_reproduces_committed_run():
 
 
 @needs_real_family
+@needs_gate1_floor_environment
 def test_real_family_ctx20_floor_reproduces_committed_run():
     """Candidate-context floor: 20% vs 20% of persons, seed 0."""
     import json
@@ -398,6 +412,7 @@ def test_real_family_ctx20_floor_reproduces_committed_run():
 
 
 @needs_real_family
+@needs_gate1_floor_environment
 def test_real_family_runs_ctx20_floor_reproduces_committed_run():
     """Deployment-scale window-3 floor (runs-view derivation basis)."""
     import json

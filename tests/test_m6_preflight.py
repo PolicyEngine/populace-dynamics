@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 
 import numpy as np
@@ -10,6 +11,7 @@ import pytest
 
 from populace_dynamics.engine.composition import (
     CompositionDiagnostics,
+    RecertificationCell,
     RecertificationResult,
 )
 from populace_dynamics.engine.rng import (
@@ -137,8 +139,10 @@ def test_candidate9_preflight_uses_period_zero_for_both_paths(monkeypatch):
         assert fertility is not None
         return object(), _diagnostics(True)
 
-    def fake_internal(*args):
-        internal_seeds.append(args[-1])
+    registered_family = object()
+
+    def fake_internal(*args, registered_family=None):
+        internal_seeds.append((args[-1], registered_family))
         return object(), _diagnostics(True)
 
     monkeypatch.setattr(m6_preflight, "simulate_marital_step", fake_marital)
@@ -156,15 +160,56 @@ def test_candidate9_preflight_uses_period_zero_for_both_paths(monkeypatch):
     )
 
     result = m6_preflight.run_candidate9_recertification(
-        _preflight_inputs(),
+        _preflight_inputs(
+            registered_reference_family=registered_family,
+        ),
         draw_indices=(0, 1),
     )
 
     assert isinstance(result, RecertificationResult)
     assert result.passed
     assert composition_periods == [0, 0]
-    assert internal_seeds == [5200, 5201]
+    assert internal_seeds == [
+        (5200, registered_family),
+        (5201, registered_family),
+    ]
     assert len(marital_periods) == 2
+
+
+def test_candidate1_success_payload_bytes_remain_unchanged():
+    result = RecertificationResult(
+        sigma_multiplier=3.0,
+        cells=(
+            RecertificationCell(
+                channel_set="cohabitation",
+                cell="cohabitation_state",
+                injected_mean=0.25,
+                internal_mean=0.25,
+                absolute_delta=0.0,
+                sigma_of_mean_difference=0.01,
+                tolerance=0.03,
+                passed=True,
+            ),
+        ),
+    )
+
+    payload = m6_preflight.recertification_payload(result)
+    actual = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+
+    assert actual == (
+        b'{"cells":[{"absolute_delta":0.0,'
+        b'"cell":"cohabitation_state",'
+        b'"channel_set":"cohabitation",'
+        b'"injected_mean":0.25,"internal_mean":0.25,'
+        b'"passed":true,"sigma_of_mean_difference":0.01,'
+        b'"tolerance":0.03}],"passed":true,'
+        b'"sigma_multiplier":3.0}'
+    )
+    assert "signed_delta" not in payload["cells"][0]
 
 
 class _ExternalGate:
@@ -250,8 +295,8 @@ def _install_recertification_fakes(
             injected_from_fertility(fertility, marital)
         )
 
-    def fake_internal(*args):
-        del args
+    def fake_internal(*args, registered_family=None):
+        del args, registered_family
         count = internal_counts[internal_counter["i"]]
         internal_counter["i"] += 1
         return object(), _diag_from_maternal(count)
@@ -322,39 +367,41 @@ def test_preflight_injected_arm_carries_pinned_maternal_line(monkeypatch):
 def test_preflight_without_pinned_maternal_line_fails_recertification(
     monkeypatch,
 ):
-    """Reg-4 abort reproduction: an injected arm with no maternal line fails.
+    """A real fertility-injection omission still fails the repaired check.
 
-    This is the defect's effect (``fertility=None`` left the injected arm with
-    only the empty injected-marital births as its maternal source while the
-    internal reference carried ~24k maternal births/draw).  Re-certification
-    must abort naming the household-composition channels.
+    The fertility draw and internal arm carry identical nonempty maternal
+    lines.  The injected test double deliberately discards that supplied draw
+    and follows the ``fertility=None`` branch, isolating a wiring defect rather
+    than a law or realization difference.  Re-certification must still abort.
     """
     draws = (0, 1, 2)
+    fert_counter = {"i": 0}
 
-    def fake_fertility_empty(marital, components, holdout_ids, male_gap, rng):
+    def fake_fertility(marital, components, holdout_ids, male_gap, rng):
         del marital, components, holdout_ids, male_gap, rng
+        count = _MATERNAL_COUNTS[fert_counter["i"]]
+        fert_counter["i"] += 1
         return SimpleNamespace(
-            maternal=_maternal_frame(0), paternal=_maternal_frame(0)
+            maternal=_maternal_frame(count), paternal=_maternal_frame(0)
         )
 
     def injected_from_fertility(fertility, marital):
-        # Mirror engine/composition.py: the injected maternal source is
-        # fertility.maternal when supplied, else the injected marital births.
-        source = (
-            fertility.maternal if fertility is not None else marital.births
-        )
-        return len(source)
+        assert fertility is not None
+        assert len(fertility.maternal) > 0
+        # Synthetic defect: ignore the supplied draw and take the None branch.
+        return len(marital.births)
 
     _install_recertification_fakes(
         monkeypatch,
-        fake_fertility=fake_fertility_empty,
+        fake_fertility=fake_fertility,
         injected_from_fertility=injected_from_fertility,
         internal_counts=_MATERNAL_COUNTS,
     )
 
     with pytest.raises(AssertionError) as excinfo:
         m6_preflight.run_candidate9_recertification(
-            _preflight_inputs(), draw_indices=draws
+            _preflight_inputs(registered_reference_family=object()),
+            draw_indices=draws,
         )
 
     message = str(excinfo.value)

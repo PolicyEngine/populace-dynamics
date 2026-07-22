@@ -1,0 +1,93 @@
+{
+  "candidate_2_binding": {
+    "candidate_id": "m6_candidate2_engine_v1",
+    "candidate_spec_sha256": "8fbfcf4130fd9051aa063061bf7b2d8514773fc6a900c900caab18717ad8e14c",
+    "operation": {
+      "implementation_id": "stable_coordinate_exact_age_weighted_knn.v1",
+      "kind": "forward_earnings.rank_refresh",
+      "params": {
+        "q": 0.55,
+        "substream_codes": {
+          "memory-refresh-gate": 4,
+          "memory-refresh-rank": 5
+        }
+      }
+    }
+  },
+  "degenerate_empty_pool": {
+    "adjacent_or_pooled_donor_used": false,
+    "audit": {
+      "checksums_by_bin": {
+        "0": "ce61e2aea43ec57f0a61ddf9cf870a994154fc000f83a50e55ed93c5c58e4b43",
+        "1": "cf8486abec83e33947e8db7dfac4c67a2aa289ee95922c79593a2d763831c598",
+        "2": "8561118c4432dce6ca8cf519e447f59b2ef2ed961c984041aefa6879dc56d21e",
+        "3": "fd2cf2198c41e393c713dbd84bd552f2ba9620a312dd4171b92c0612b7c782bf",
+        "4": "c840d0a6a0808969236f77e0a19e52040a4f9558030e169924d01fa6cd972cdd",
+        "5": "383efbffccd9acabebcd7165c464a68d97234873ff525cc8ab170a1f433fc02e",
+        "6": "ce0c12d3870603a1adee7826129067885edc8eb2b66fbcec5658dd43c2ddf0e3",
+        "7": "83ab4b47a983f0c1fd0c458791f36fe98f6d39353fc6263f73a47f7fd383efef"
+      },
+      "counts_by_bin": {
+        "0": 6,
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 6,
+        "6": 6,
+        "7": 0
+      },
+      "disposition": "NO_REGISTERABLE_EARNINGS_REFRESH_FIT",
+      "eligible": false,
+      "empty_bins": [
+        7
+      ],
+      "empty_pool_check_passed": false,
+      "k": 25,
+      "partition_sha256": "845a08cb61ab5bcdf68b9a756260a5007705dc4aae260dccb676f7c4878c7a2a",
+      "sort": [
+        "person_id",
+        "period_tp2"
+      ],
+      "source": "incumbent positive-to-positive pair pool",
+      "target_age_bin_width": 5
+    },
+    "candidate_artifact_write_calls": 0,
+    "fallback": "NONE_BY_RATIFIED_LAW",
+    "message": "NO_REGISTERABLE_EARNINGS_REFRESH_FIT: empty exact target-age bin(s) 7; the ratified law permits no donor fallback",
+    "preflight_exception": "RankRefreshPreflightAbort",
+    "projection_calls": 0,
+    "published": true,
+    "status": "NO_REGISTERABLE_EARNINGS_REFRESH_FIT_PUBLISHED"
+  },
+  "equivalence": {
+    "candidate1_operation_absent": true,
+    "candidate1_projection_sha256": "f4552bd7ffb359c0fe72720769829d88e3f2332edbf990a49bac5ae4d8253038",
+    "q0_incumbent_bit_equivalent": true,
+    "q0_projection_sha256": "f4552bd7ffb359c0fe72720769829d88e3f2332edbf990a49bac5ae4d8253038"
+  },
+  "happy_path": {
+    "changed_person_period_rows_vs_incumbent": 12,
+    "deterministic_replay": true,
+    "draw_index": 0,
+    "exact_age_bin_counts": {
+      "0": 6,
+      "1": 6,
+      "2": 6,
+      "3": 6,
+      "4": 6,
+      "5": 6,
+      "6": 6,
+      "7": 6
+    },
+    "fit_signature_q_invariant": true,
+    "full_annual_projection_engine": true,
+    "projection_sha256": "0e7c15d6491923f8693231584abca77e203e7d6589f9fe852395808cc79a9a14",
+    "q": 0.55,
+    "refresh_active": true
+  },
+  "real_data_projection_run": false,
+  "schema": "m6.rank_refresh_engine.synthetic_smoke.v1",
+  "status": "PASS",
+  "synthetic_only": true
+}

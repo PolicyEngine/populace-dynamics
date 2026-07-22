@@ -1,4 +1,4 @@
-"""Candidate-blind pre-flights for the M6 scored-run harness.
+"""Holdout-blind pre-flights for the M6 scored-run harness.
 
 Neither pre-flight reads a holdout cell.  The first compares two simulation
 paths on the cutoff-refitted native panels; the second exercises the fitted
@@ -43,6 +43,7 @@ class Candidate9PreflightInputs:
     modifier: Any
     permanent_axis: Any
     household: Any
+    registered_reference_family: Any | None = None
 
 
 @dataclass(frozen=True)
@@ -101,14 +102,15 @@ def run_candidate9_recertification(
         #
         # Argument derivations mirror ``assembly.py`` exactly: ``marital`` is
         # the injected step-3 state, ``inputs.family`` is the authoritative
-        # candidate-16 fit, ``holdout_ids`` is this universe's train ids, and
+        # registered family fit, ``holdout_ids`` is this universe's train ids,
+        # and
         # ``male_gap`` is ``float(inputs.household.male_gap)`` -- assembly's
         # ``inputs.male_gap`` is likewise ``float(household_fit.male_gap)``
-        # (assembly.py:150,160).  The pre-flight deliberately does not rebind
-        # the candidate-9 household core to the family fit, so its own fitted
-        # ``male_gap`` is the value the internal reference's paternal shadow
-        # also consumes (``engine/composition.py`` fertility=None branch),
-        # keeping the two arms male_gap-symmetric.
+        # (assembly.py:150,160).  The pre-flight deliberately does not
+        # recompute the candidate-9 household core's ``male_gap`` from the
+        # family fit: its own fitted value is what the internal reference's
+        # paternal shadow also consumes (``engine/composition.py``
+        # fertility=None branch), keeping the two arms male_gap-symmetric.
         household_fertility = simulate_fertility(
             marital,
             inputs.family,
@@ -124,18 +126,31 @@ def run_candidate9_recertification(
             composition_rngs_from_registry(registry, 0),
             fertility=household_fertility,
         )
-        _reference_panel, internal_diagnostics = (
-            simulate_candidate9_internal_reference(
-                inputs.household_panel,
-                inputs.marital_panel,
-                inputs.household,
-                set(inputs.holdout_ids),
-                5200 + draw_index,
-            )
+        reference_args = (
+            inputs.household_panel,
+            inputs.marital_panel,
+            inputs.household,
+            set(inputs.holdout_ids),
+            5200 + draw_index,
         )
+        if inputs.registered_reference_family is None:
+            _reference_panel, internal_diagnostics = (
+                simulate_candidate9_internal_reference(*reference_args)
+            )
+        else:
+            _reference_panel, internal_diagnostics = (
+                simulate_candidate9_internal_reference(
+                    *reference_args,
+                    registered_family=inputs.registered_reference_family,
+                )
+            )
         injected.append(injected_diagnostics)
         internal.append(internal_diagnostics)
-    return check_candidate9_recertification(injected, internal)
+    return check_candidate9_recertification(
+        injected,
+        internal,
+        structured_failure=inputs.registered_reference_family is not None,
+    )
 
 
 def recertification_payload(

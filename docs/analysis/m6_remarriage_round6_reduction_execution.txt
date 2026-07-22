@@ -1,0 +1,153 @@
+M6 remarriage round-6 frozen-stdout reduction execution log
+
+PRE-RUN RECORD
+Recorded at: 2026-07-18T05:48:11Z
+Reducer executions before this record: 0
+
+Freeze and worktree
+Command: git rev-parse HEAD
+Exit code: 0
+Stdout: 982d2c251245504b5c114625c4822950d51f7bbc
+
+Command: git status --short --branch
+Exit code: 0
+Stdout: ## sol/remarr-r6-reduce...origin/master
+
+Command: git diff 982d2c2 -- scripts/ docs/design/
+Exit code: 0
+Stdout: <empty>
+
+Frozen reducer bytes
+Command: shasum -a 256 scripts/reduce_m6_remarriage_round6.py
+Exit code: 0
+Stdout: 94bc5d67f80243b874c425284a676549dc2524d42be6c0b1061c11a52fbfa431  scripts/reduce_m6_remarriage_round6.py
+Expected SHA-256: 94bc5d67f80243b874c425284a676549dc2524d42be6c0b1061c11a52fbfa431
+Match: true
+
+Frozen amendment bytes
+Command: shasum -a 256 docs/design/m6_remarriage_round6_amendment.md
+Exit code: 0
+Stdout: 8e1a6c7705ec0338959b881c9386d4da678f9726fdc4aaaceac754cecdee5767  docs/design/m6_remarriage_round6_amendment.md
+Frozen byte count: 27931
+Match to freeze commit 982d2c2: true
+
+Frozen input bytes
+Command: shasum -a 256 docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b  docs/analysis/m6_remarriage_round3_selection_full.json
+Expected SHA-256: 370bef8d00313e847c9cbb0fe09d6b6a5b9dddcf2658449ab61b02a42534614b
+Match: true
+
+Command: wc -c docs/analysis/m6_remarriage_round3_selection_full.json
+Exit code: 0
+Stdout:  14606212 docs/analysis/m6_remarriage_round3_selection_full.json
+Expected byte count: 14606212
+Match: true
+
+Pinned runtime
+Interpreter: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python
+Implementation: CPython
+Python: 3.13.12
+NumPy: 2.4.2
+pandas: 2.3.3
+SciPy: 1.17.0
+Required runtime match: true
+The interpreter path and pinned versions match the frozen procedure. SciPy
+1.17.0 is recorded and matched for referee parity.
+
+Authority
+Round-6 freeze: 982d2c251245504b5c114625c4822950d51f7bbc
+Round-6 amendment PR: 246
+Approval endpoint: repos/PolicyEngine/populace-dynamics/issues/comments/5010108053
+Approval: AMENDMENT APPROVED — freeze-ready. The referee drove the
+round-6 independent reconstruction and diff over the pinned public stdout in
+read-only scratch space and recorded canonical_equal=True,
+key_presence_diffs=0, and value_diffs=0. The referee did not execute the
+authorized real reduction or write to this repository.
+
+Canonical output state before execution
+Path: docs/analysis/m6_remarriage_round3_selection_results.json
+Present: false
+
+Authorized invocation, not yet executed when this pre-run record was written:
+/Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round6.py < docs/analysis/m6_remarriage_round3_selection_full.json
+
+The invocation will occur exactly once. Its stdout will be captured verbatim
+at the configured canonical results path
+docs/analysis/m6_remarriage_round3_selection_results.json. Its stderr will be
+captured verbatim at
+docs/analysis/m6_remarriage_round6_reduction_stderr.txt.
+
+EXECUTION RECORD
+Attempt number: 1
+Attempt timestamp: 2026-07-18T05:50:20Z
+Attempt ended: 2026-07-18T05:50:20Z
+Command: /Users/maxghenis/m6-sol-lanes/remarr-r2-runtime/bin/python scripts/reduce_m6_remarriage_round6.py < docs/analysis/m6_remarriage_round3_selection_full.json > docs/analysis/m6_remarriage_round3_selection_results.json 2> docs/analysis/m6_remarriage_round6_reduction_stderr.txt
+Exit code: 0
+Reducer completed successfully: true
+Selection-object equality validation passed: true
+Attempt consumed: true
+Reducer rerun performed: false
+Reducer patch performed: false
+Field stripping performed: false
+Manual reduction performed: false
+
+Captured stdout
+Verbatim and canonical path: docs/analysis/m6_remarriage_round3_selection_results.json
+Bytes: 5714733
+SHA-256: 28e635fdd12d090e23066ea836b853af7c7f1760fc80fc4b214b9d529f93bfd0
+Valid complete results JSON produced: true
+Configured canonical results JSON retained for publication: true
+
+Captured stderr
+Path: docs/analysis/m6_remarriage_round6_reduction_stderr.txt
+Bytes: 0
+SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Selection-diff diagnostic emitted: false
+Exception emitted: false
+
+ZERO NEW STAGED-SOURCE FILE-OPEN AUDIT
+Method: invocation redirection record plus static enumeration of the frozen
+round-6 reducer's explicit reads; no reducer rerun or dynamic hook
+Stdin path: docs/analysis/m6_remarriage_round3_selection_full.json
+Explicit repository reads:
+- scripts/reduce_m6_remarriage_round6.py
+- scripts/m6_remarriage_round3_selector_config.json
+- scripts/select_m6_remarriage_round3.py
+- scripts/reduce_m6_remarriage_round3.py
+- scripts/analyze_m6_remarriage_train_delta.py
+- docs/design/m6_remarriage_learning_plan_round2.md
+- docs/design/m6_remarriage_learning_plan_round2_validation.json
+- docs/analysis/m6_remarriage_train_only_delta_results.json
+Git metadata read for frozen object validation: true
+Staged or PSID source paths opened by round 6: []
+Staged or PSID source open count: 0
+Selector executed: false
+Staged-source preflight executed: false
+Real-data contact: false
+The findings retain historical source-path strings inside the frozen raw
+selector audit. Those embedded strings are not round-6 file opens.
+
+POST-ATTEMPT DISPOSITION
+Outcome: (a) ratified NO_OP_DESIGNED_PAUSE
+Raw-versus-independent selection equality: true
+Reduced findings JSON produced: true
+Selected joint law: R0
+Per-origin outcome, divorced: NONE
+Per-origin outcome, widowed: NONE
+Disposition: NO_OP_DESIGNED_PAUSE
+Selection reason: no_eligible_nonzero_law
+Eligible nonzero laws: []
+Lbest: null
+One-SE cutoff: null
+Attempt consumed: true
+Reducer rerun performed: false
+Reducer patch performed: false
+Field stripping performed: false
+Manual reduction performed: false
+
+The frozen reducer reproduced the complete raw selection object through the
+strict canonical comparison and serialized the reduced finding. This ratifies
+the raw R0 claim. The remarriage reduction pause RESOLVES as a ratified no-op;
+the frozen downstream candidate-blind ladder continues, and registration 8 is
+not authorized by this result.

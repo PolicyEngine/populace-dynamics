@@ -1,0 +1,47 @@
+{
+  "abort": {
+    "exception": "FirstMarriagePreflightAbort",
+    "message": "NO_REGISTERABLE_FIRST_MARRIAGE_FIT: solver termination was unsuccessful; max_iter was reached; gradient infinity norm exceeds 1e-6; fit audit is ineligible",
+    "propagated_unchanged": true
+  },
+  "fences": {
+    "candidate_artifact_write": 0,
+    "downstream_continuation": 0,
+    "holdout_truth_builder": 0,
+    "holdout_truth_loader": 0,
+    "projection": 0,
+    "score": 0
+  },
+  "fit_certificate": {
+    "c": 0.01,
+    "eligibility_failures": [
+      "solver_unsuccessful",
+      "max_iter_reached",
+      "gradient_above_threshold"
+    ],
+    "eligible": false,
+    "gradient_above_threshold": true,
+    "max_iter": 1,
+    "max_iter_reached": true,
+    "n_iter": 1,
+    "n_train_events": 2,
+    "n_train_rows": 8,
+    "solver_success": false,
+    "support_sha256": "11fc4f34bf0c1ffd117e5eba25502df7a2dd47f1dc8d3e97f9983525f98bc857",
+    "warning_count": 0
+  },
+  "ordering": [
+    "fit",
+    "preflight"
+  ],
+  "schema": "m6.first_marriage.lazy_preflight_abort.synthetic.v1",
+  "staged_data_opened": false,
+  "status": "EXPECTED_PREFLIGHT_ABORT",
+  "synthetic_fit_input": {
+    "consumed_by_real_fit_callback": true,
+    "n_events": 2,
+    "n_rows": 8,
+    "type": "SyntheticFirstMarriageFitInputs"
+  },
+  "synthetic_only": true
+}
