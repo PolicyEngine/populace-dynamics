@@ -1,0 +1,175 @@
+{
+  "schema": "m6.candidate2.registration9.execution_incident.v1",
+  "status": "PRE_REFIT_RUNTIME_INCIDENT",
+  "outcome": "NO_SCORED_VERDICT",
+  "verdict": null,
+  "candidate": {
+    "number": 2,
+    "output_path": "runs/gate_m6_candidate2_v1.json",
+    "sidecar_path": "runs/gate_m6_candidate2_v1.json.env.json"
+  },
+  "registration": {
+    "id": 5016328696,
+    "number": 9,
+    "issue": 42,
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696"
+  },
+  "attempt": {
+    "current_lane_runner_invocations": 1,
+    "known_prior_registration_9_runner_invocations_minimum": 1,
+    "current_registration_9_runner_invocation_ordinal": "AT_LEAST_2",
+    "dispatcher_lane_label": "RELAUNCH_2",
+    "started_at_utc": "2026-07-19T20:17:29.680Z",
+    "terminal_log_last_modified_at_utc": "2026-07-19T20:17:36Z",
+    "exit_observed_at_utc": "2026-07-19T20:18:05.881Z",
+    "timing_evidence_basis": "agent/orchestrator tool-call observations and transcript filesystem metadata outside the combined runner transcript",
+    "exit_code": 1,
+    "rerun_performed_by_current_lane": false,
+    "self_rescue_performed": false,
+    "one_shot_consumption": "NOT_ADJUDICATED_BY_THIS_LANE",
+    "reexecution_disposition": "COORDINATOR_ADJUDICATION_REQUIRED"
+  },
+  "invocation": {
+    "cwd": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run3",
+    "command": "POPULACE_DYNAMICS_PSID_DIR=/Users/maxghenis/PolicyEngine/psid-data .venv/bin/python scripts/run_gate_m6_candidate2.py --registration-id 5016328696 --input-factory registered_m6_candidate2_inputs:build_input_plan",
+    "stdout_stderr_capture": "append-combined to c2-run.log",
+    "worker_knobs_set_by_lane": false
+  },
+  "source": {
+    "branch": "sol/c2-run3",
+    "git_commit": "9d6da5e5b031b4deda432fdc984054f54799b0a2",
+    "origin_master": "9d6da5e5b031b4deda432fdc984054f54799b0a2",
+    "worktree_clean_at_invocation": true,
+    "runner_sha256": "62e2a3d9057fef7660efb2d57bb8f5b793796ceecbccc45c9d4d9ae094cad884",
+    "cli_sha256": "c4c2cb88296649f025c759e33a381301216e4826e02d5ca88404012257fc7e56",
+    "input_factory_sha256": "acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf",
+    "registered_inputs_sha256": "4b8e1e7d45f3a59db51c0ffcb728c1f41acd2b3dc53689ba104af2db54503a57",
+    "ssa_params_sha256": "9b49894b56eaab32daa62032a139ecb33a1d11f657b1523d3bebadebc2387efd",
+    "populace_commit": "b33524189e6a65100acdbc84fe43229ecc14162a"
+  },
+  "runtime": {
+    "python": "3.14.4",
+    "pip": "26.1.2",
+    "numpy": "2.5.1",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "scikit_learn": "1.9.0",
+    "quantile_forest": "1.4.2",
+    "policyengine_us": "1.752.2",
+    "policyengine_core": "3.30.1",
+    "populace_fit": "0.1.0",
+    "populace_frame": "0.1.0",
+    "pip_present_prelaunch": true,
+    "scikit_learn_1_9_prelaunch_assertion_passed": true,
+    "dependency_snapshot": {
+      "canonical_pip_freeze_line_count": 164,
+      "canonical_pip_freeze_sha256": "dd86f55e69c6fc01869cdf3cb8966646563dd5f549d66a870348e694b2e27a91",
+      "evidence_basis": "post-failure read-only recomputation in the unchanged virtual environment; the completed runner governance guard had captured pip freeze in memory but published no sidecar or digest"
+    }
+  },
+  "failure": {
+    "classification": "UNCAUGHT_INPUT_FACTORY_PRECONDITION",
+    "designed_abort": false,
+    "exception_type": "RuntimeError",
+    "exception_message": "POPULACE_DYNAMICS_PE_US_DIR resolves SSA parameters to a directory that is not the metadata-versioned policyengine-us install; point it at the 1.752.2 install.",
+    "failing_guard": "registered_m6_inputs.assert_pe_us_param_dir",
+    "traceback": {
+      "cli_main": "scripts/run_gate_m6_candidate2.py:103",
+      "build_input_plan": "scripts/registered_m6_candidate2_inputs.py:280",
+      "load_train_only_raw_inputs": "scripts/registered_m6_candidate2_inputs.py:221",
+      "assert_pe_us_param_dir": "scripts/registered_m6_inputs.py:173"
+    },
+    "directory_binding": {
+      "post_failure_POPULACE_DYNAMICS_PE_US_DIR": null,
+      "default_ssa_directory": "/Users/maxghenis/PolicyEngine/policyengine-us/policyengine_us/parameters/gov/ssa",
+      "metadata_versioned_ssa_directory": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run3/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+      "directories_equal": false,
+      "evidence_basis": "post-failure static reconstruction in the current workspace environment, with unchanged tracked source and virtual environment; the contemporaneous combined transcript proves the guard's inequality finding but did not record the historical ambient variable or both paths"
+    },
+    "root_cause": "The direct command explicitly set only the registered PSID environment variable. The guard proved that the resolved parameter directory differed from the metadata-versioned policyengine-us 1.752.2 install. Post-failure static reconstruction in the current workspace environment, with unchanged tracked source and virtual environment, found POPULACE_DYNAMICS_PE_US_DIR unset, the host-checkout default selected, and that default unequal to the virtual-environment distribution path."
+  },
+  "progress": {
+    "runner_governance_guard_completed": true,
+    "input_factory_imported": true,
+    "input_plan_completed": false,
+    "train_only_loader_entered": true,
+    "policyengine_us_version_gate_passed": true,
+    "policyengine_us_parameter_directory_gate_passed": false,
+    "explicit_psid_loader_reached": false,
+    "dynamic_file_open_audit_available": false,
+    "refit_started": false,
+    "preflight_1_started": false,
+    "full_inputs_loaded": false,
+    "projection_started": false,
+    "scoring_started": false,
+    "candidate_artifact_written": false,
+    "environment_sidecar_written": false,
+    "external_refit_marker_emitted_before_process_start": true,
+    "external_refit_marker_semantics": "The dispatcher marker announced process launch; the internal refit phase was not reached.",
+    "external_refit_marker_evidence": "agent stdout outside the combined runner transcript"
+  },
+  "information_boundary": {
+    "explicit_psid_loader_reached": false,
+    "dynamic_file_open_audit_available": false,
+    "post_2014_read_status": "NOT_DYNAMICALLY_AUDITED",
+    "basis": "load_train_only_raw_inputs calls assert_pe_us_param_dir at line 221; the first parameter load is line 222 and the first explicit PSID panel reader is line 225. The exception occurred at line 221. This proves the explicit loader was not reached, but no dynamic open-path audit was installed for an absolute file-read claim."
+  },
+  "outputs": {
+    "candidate_artifact": {
+      "path": "runs/gate_m6_candidate2_v1.json",
+      "exists_after_exit": false
+    },
+    "environment_sidecar": {
+      "path": "runs/gate_m6_candidate2_v1.json.env.json",
+      "exists_after_exit": false
+    },
+    "partial_scored_output_repurposed": false,
+    "fabricated_substitute": false
+  },
+  "evidence": {
+    "combined_transcript": {
+      "path": "docs/analysis/m6_candidate2_registration9_execution_incident_v1.txt",
+      "bytes": 8136,
+      "lines": 223,
+      "sha256": "0ed8fe98fe40ab2015a4a98c61e8c77cdce6dd3eb83cf195505def74363b1762",
+      "scope": "environment construction, prelaunch verification, and exact combined runner stdout/stderr",
+      "stream_separation_available": false
+    },
+    "runner_exit_capture": {
+      "unified_exec_session_id": 47635,
+      "exit_code": 1,
+      "evidence_basis": "agent/orchestrator observation outside the combined runner transcript"
+    },
+    "workspace_markers": {
+      "c2-run.log": true,
+      "c2-run.exit": false,
+      "c2-run.done": false,
+      "c2-run.last.md": false,
+      "backfilled_after_incident": false,
+      "note": "Only the ignored combined log existed; missing contemporaneous markers were disclosed and not fabricated after exit."
+    }
+  },
+  "publication": {
+    "incident_ledger": "docs/analysis/m6_candidate2_registration9_execution_incident_v1.json",
+    "human_report": "docs/analysis/m6_candidate2_registration9_execution_incident_v1.md",
+    "exact_combined_transcript": "docs/analysis/m6_candidate2_registration9_execution_incident_v1.txt"
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "runner_reinvoked_by_current_lane": false,
+    "environment_changed_after_failure": false,
+    "registration_changed": false,
+    "gates_changed": false,
+    "frozen_artifacts_changed": false,
+    "runs_artifact_changed": false,
+    "required_next_step": "Coordinator adjudicates any disclosed re-execution or subsequent registration; this lane must not self-invoke.",
+    "prior_host_termination_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017203962"
+  },
+  "authority": {
+    "registration_9": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696",
+    "candidate2_program_public_abort_rule": "docs/design/m6_candidate2_program.md:490-493",
+    "candidate2_program_post_registration_rule": "docs/design/m6_candidate2_program.md:996-999",
+    "crash_publication_precedent": "https://github.com/PolicyEngine/populace-dynamics/pull/238",
+    "dispatch_contract": "Crash publishes an incident per the #238 pattern; no self-rescue; coordinator adjudicates re-execution."
+  }
+}

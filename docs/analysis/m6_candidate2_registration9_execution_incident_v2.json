@@ -1,0 +1,188 @@
+{
+  "schema": "m6.candidate2.registration9.execution_incident.v2",
+  "status": "PRE_REFIT_RUNTIME_INCIDENT",
+  "outcome": "NO_SCORED_VERDICT",
+  "verdict": null,
+  "candidate": {
+    "number": 2,
+    "output_path": "runs/gate_m6_candidate2_v1.json",
+    "sidecar_path": "runs/gate_m6_candidate2_v1.json.env.json"
+  },
+  "registration": {
+    "id": 5016328696,
+    "number": 9,
+    "issue": 42,
+    "url": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696"
+  },
+  "attempt": {
+    "current_lane_runner_invocations": 1,
+    "known_prior_registration_9_runner_invocations": 2,
+    "current_registration_9_runner_invocation_ordinal": 3,
+    "dispatcher_lane_label": "CANDIDATE_2_ONE_SHOT_SCORED_RUN_INVOCATION_3",
+    "terminal_log_last_modified_at_utc": "2026-07-19T21:54:03Z",
+    "exit_observed_at_utc": "2026-07-19T21:54:11Z",
+    "exit_code": 1,
+    "rerun_performed_by_current_lane": false,
+    "self_rescue_performed": false,
+    "one_shot_consumption": "NOT_ADJUDICATED_BY_THIS_LANE",
+    "reexecution_disposition": "COORDINATOR_ADJUDICATION_REQUIRED"
+  },
+  "invocation": {
+    "cwd": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4",
+    "command": ".venv/bin/python scripts/run_gate_m6_candidate2.py --registration-id 5016328696 --input-factory registered_m6_candidate2_inputs:build_input_plan",
+    "environment": {
+      "POPULACE_DYNAMICS_PSID_DIR": "/Users/maxghenis/PolicyEngine/psid-data",
+      "POPULACE_DYNAMICS_PE_US_DIR": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us"
+    },
+    "stdout_stderr_capture": "append-combined to c2-run.log",
+    "worker_knobs_set_by_lane": false
+  },
+  "source": {
+    "branch": "sol/c2-run4",
+    "git_commit": "9d6da5e5b031b4deda432fdc984054f54799b0a2",
+    "worktree_clean_at_invocation": true,
+    "runner_sha256": "62e2a3d9057fef7660efb2d57bb8f5b793796ceecbccc45c9d4d9ae094cad884",
+    "cli_sha256": "c4c2cb88296649f025c759e33a381301216e4826e02d5ca88404012257fc7e56",
+    "input_factory_sha256": "acb46989f0f412292e7ea4fb1a15acc5b3001ab6d45067d611e4d49f9d55ddbf",
+    "registered_inputs_sha256": "4b8e1e7d45f3a59db51c0ffcb728c1f41acd2b3dc53689ba104af2db54503a57",
+    "ssa_params_sha256": "9b49894b56eaab32daa62032a139ecb33a1d11f657b1523d3bebadebc2387efd",
+    "populace_commit": "b33524189e6a65100acdbc84fe43229ecc14162a"
+  },
+  "runtime": {
+    "python": "3.14.4",
+    "pip": "26.1.2",
+    "numpy": "2.5.1",
+    "pandas": "3.0.3",
+    "scipy": "1.18.0",
+    "scikit_learn": "1.9.0",
+    "quantile_forest": "1.4.2",
+    "policyengine_us": "1.752.2",
+    "policyengine_core": "3.30.1",
+    "populace_fit": "0.1.0",
+    "populace_frame": "0.1.0",
+    "pip_present_prelaunch": true,
+    "scikit_learn_1_9_prelaunch_assertion_passed": true,
+    "dependency_snapshot": {
+      "canonical_pip_freeze_line_count": 164,
+      "canonical_pip_freeze_sha256": "26b98985eca59336cb62dbd97e356551c0ed56e55fdfcdc199ea2d91d47d9c3e",
+      "evidence_basis": "post-failure read-only recomputation in the unchanged virtual environment; the completed runner governance guard captured the same environment in memory but published no sidecar"
+    }
+  },
+  "mandatory_environment_recipe": {
+    "source": "dispatcher substitution c for invocation 3",
+    "required_env_value": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us",
+    "verification_executions_before_launch": 2,
+    "last_verification_output": {
+      "guard_equality": true,
+      "pe_us_version": "1.752.2"
+    },
+    "verification_formula": "Path(POPULACE_DYNAMICS_PE_US_DIR) / parameters / gov / ssa",
+    "runtime_guard_formula": "_resolve_pe_us(None) / policyengine_us / parameters / gov / ssa",
+    "formulas_equivalent_for_supplied_value": false
+  },
+  "failure": {
+    "classification": "UNCAUGHT_INPUT_FACTORY_PRECONDITION",
+    "designed_abort": false,
+    "exception_type": "RuntimeError",
+    "exception_message": "POPULACE_DYNAMICS_PE_US_DIR resolves SSA parameters to a directory that is not the metadata-versioned policyengine-us install; point it at the 1.752.2 install.",
+    "failing_guard": "registered_m6_inputs.assert_pe_us_param_dir",
+    "traceback": {
+      "cli_main": "scripts/run_gate_m6_candidate2.py:103",
+      "build_input_plan": "scripts/registered_m6_candidate2_inputs.py:280",
+      "load_train_only_raw_inputs": "scripts/registered_m6_candidate2_inputs.py:221",
+      "assert_pe_us_param_dir": "scripts/registered_m6_inputs.py:173"
+    },
+    "directory_binding": {
+      "mandated_env_root": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us",
+      "dispatcher_recipe_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+      "runtime_guard_resolved_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us/policyengine_us/parameters/gov/ssa",
+      "metadata_versioned_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c2-run4/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+      "dispatcher_recipe_equality": true,
+      "runtime_guard_equality": false,
+      "runtime_guard_resolved_path_exists": false,
+      "metadata_versioned_path_exists": true,
+      "evidence_basis": "post-failure static reconstruction from the mandatory value, importlib.metadata, and unchanged tracked source; no corrected environment value was tried"
+    },
+    "root_cause": "The mandatory recipe supplied the policyengine_us package directory and verified it by appending parameters/gov/ssa. Runtime _resolve_pe_us treats POPULACE_DYNAMICS_PE_US_DIR as a root containing policyengine_us, and assert_pe_us_param_dir appends policyengine_us/parameters/gov/ssa. The two formulas therefore disagreed: the prescribed precheck passed while the runtime guard constructed a nonexistent double-policyengine_us path and failed."
+  },
+  "progress": {
+    "runner_governance_guard_completed": true,
+    "input_factory_imported": true,
+    "input_plan_completed": false,
+    "train_only_loader_entered": true,
+    "policyengine_us_version_gate_passed": true,
+    "policyengine_us_parameter_directory_gate_passed": false,
+    "explicit_parameter_loader_reached": false,
+    "explicit_psid_loader_reached": false,
+    "refit_started": false,
+    "preflight_1_started": false,
+    "full_inputs_loaded": false,
+    "projection_started": false,
+    "scoring_started": false,
+    "candidate_artifact_written": false,
+    "environment_sidecar_written": false,
+    "external_refit_marker_emitted_before_process_start": true,
+    "external_refit_marker_semantics": "The dispatcher marker announced process launch; internal refit was not reached."
+  },
+  "prelaunch_compute_care": {
+    "conflicting_heavy_process_detected": true,
+    "runner_launched_during_pressure": false,
+    "external_process_touched_by_lane": false,
+    "launch_waited_until_external_processes_exited": true,
+    "machine_pressure_rechecked_before_launch": true
+  },
+  "information_boundary": {
+    "explicit_parameter_loader_reached": false,
+    "explicit_psid_loader_reached": false,
+    "post_2014_read_status": "NO_EXPLICIT_HARNESS_DATA_LOADER_REACHED",
+    "basis": "load_train_only_raw_inputs calls assert_pe_us_version at line 220 and assert_pe_us_param_dir at line 221; parameter loading starts at line 222 and the first explicit PSID panel reader at line 225. The exception occurred at line 221."
+  },
+  "outputs": {
+    "candidate_artifact": {
+      "path": "runs/gate_m6_candidate2_v1.json",
+      "exists_after_exit": false
+    },
+    "environment_sidecar": {
+      "path": "runs/gate_m6_candidate2_v1.json.env.json",
+      "exists_after_exit": false
+    },
+    "partial_scored_output_repurposed": false,
+    "fabricated_substitute": false
+  },
+  "evidence": {
+    "combined_transcript": {
+      "path": "docs/analysis/m6_candidate2_registration9_execution_incident_v2.txt",
+      "bytes": 2219,
+      "lines": 31,
+      "sha256": "1884a50147f41920c6326d060e12d66bb58a651fd84034c81dd116e39504f004",
+      "scope": "prelaunch identity/version/equality checks, compute-care hold marker, launch marker, and exact combined runner traceback",
+      "stream_separation_available": false
+    },
+    "runner_exit_capture": {
+      "unified_exec_session_id": 58306,
+      "exit_code": 1,
+      "evidence_basis": "agent/orchestrator observation outside the combined runner transcript"
+    }
+  },
+  "publication": {
+    "incident_ledger": "docs/analysis/m6_candidate2_registration9_execution_incident_v2.json",
+    "human_report": "docs/analysis/m6_candidate2_registration9_execution_incident_v2.md",
+    "exact_combined_transcript": "docs/analysis/m6_candidate2_registration9_execution_incident_v2.txt"
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "runner_reinvoked_by_current_lane": false,
+    "environment_changed_after_failure": false,
+    "registration_changed": false,
+    "gates_changed": false,
+    "frozen_artifacts_changed": false,
+    "runs_artifact_changed": false,
+    "required_next_step": "Coordinator adjudicates the mandatory environment-recipe inconsistency and any future execution or registration; this lane must not self-invoke."
+  },
+  "authority": {
+    "registration_9": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5016328696",
+    "prior_host_termination_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017203962",
+    "prior_environment_incident_disclosure": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5017283998",
+    "crash_publication_precedent": "https://github.com/PolicyEngine/populace-dynamics/pull/238"
+  }
+}

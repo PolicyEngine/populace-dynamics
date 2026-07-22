@@ -1,0 +1,106 @@
+loading staged PSID sources (read-only)
+fit-side preflight: boundary 2006
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+fit-side preflight: boundary 2008
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+fit-side preflight: boundary 2010
+/opt/homebrew/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+candidate outcome: boundary 2006, R0, 40 CRN draws
+boundary 2006: R0 draw 10/40
+boundary 2006: R0 draw 20/40
+boundary 2006: R0 draw 30/40
+boundary 2006: R0 draw 40/40
+candidate outcome: boundary 2006, R_D50_W00, 40 CRN draws
+boundary 2006: R_D50_W00 draw 10/40
+boundary 2006: R_D50_W00 draw 20/40
+boundary 2006: R_D50_W00 draw 30/40
+boundary 2006: R_D50_W00 draw 40/40
+candidate outcome: boundary 2006, R_D75_W00, 40 CRN draws
+boundary 2006: R_D75_W00 draw 10/40
+boundary 2006: R_D75_W00 draw 20/40
+boundary 2006: R_D75_W00 draw 30/40
+boundary 2006: R_D75_W00 draw 40/40
+candidate outcome: boundary 2006, R_D50_W05, 40 CRN draws
+boundary 2006: R_D50_W05 draw 10/40
+boundary 2006: R_D50_W05 draw 20/40
+boundary 2006: R_D50_W05 draw 30/40
+boundary 2006: R_D50_W05 draw 40/40
+candidate outcome: boundary 2006, R_D75_W05, 40 CRN draws
+boundary 2006: R_D75_W05 draw 10/40
+boundary 2006: R_D75_W05 draw 20/40
+boundary 2006: R_D75_W05 draw 30/40
+boundary 2006: R_D75_W05 draw 40/40
+candidate outcome: boundary 2008, R0, 40 CRN draws
+boundary 2008: R0 draw 10/40
+boundary 2008: R0 draw 20/40
+boundary 2008: R0 draw 30/40
+boundary 2008: R0 draw 40/40
+candidate outcome: boundary 2008, R_D50_W00, 40 CRN draws
+boundary 2008: R_D50_W00 draw 10/40
+boundary 2008: R_D50_W00 draw 20/40
+boundary 2008: R_D50_W00 draw 30/40
+boundary 2008: R_D50_W00 draw 40/40
+candidate outcome: boundary 2008, R_D75_W00, 40 CRN draws
+boundary 2008: R_D75_W00 draw 10/40
+boundary 2008: R_D75_W00 draw 20/40
+boundary 2008: R_D75_W00 draw 30/40
+boundary 2008: R_D75_W00 draw 40/40
+candidate outcome: boundary 2008, R_D50_W05, 40 CRN draws
+boundary 2008: R_D50_W05 draw 10/40
+boundary 2008: R_D50_W05 draw 20/40
+boundary 2008: R_D50_W05 draw 30/40
+boundary 2008: R_D50_W05 draw 40/40
+candidate outcome: boundary 2008, R_D75_W05, 40 CRN draws
+boundary 2008: R_D75_W05 draw 10/40
+boundary 2008: R_D75_W05 draw 20/40
+boundary 2008: R_D75_W05 draw 30/40
+boundary 2008: R_D75_W05 draw 40/40
+candidate outcome: boundary 2010, R0, 40 CRN draws
+boundary 2010: R0 draw 10/40
+boundary 2010: R0 draw 20/40
+boundary 2010: R0 draw 30/40
+boundary 2010: R0 draw 40/40
+candidate outcome: boundary 2010, R_D50_W00, 40 CRN draws
+boundary 2010: R_D50_W00 draw 10/40
+boundary 2010: R_D50_W00 draw 20/40
+boundary 2010: R_D50_W00 draw 30/40
+boundary 2010: R_D50_W00 draw 40/40
+candidate outcome: boundary 2010, R_D75_W00, 40 CRN draws
+boundary 2010: R_D75_W00 draw 10/40
+boundary 2010: R_D75_W00 draw 20/40
+boundary 2010: R_D75_W00 draw 30/40
+boundary 2010: R_D75_W00 draw 40/40
+candidate outcome: boundary 2010, R_D50_W05, 40 CRN draws
+boundary 2010: R_D50_W05 draw 10/40
+boundary 2010: R_D50_W05 draw 20/40
+boundary 2010: R_D50_W05 draw 30/40
+boundary 2010: R_D50_W05 draw 40/40
+candidate outcome: boundary 2010, R_D75_W05, 40 CRN draws
+boundary 2010: R_D75_W05 draw 10/40
+boundary 2010: R_D75_W05 draw 20/40
+boundary 2010: R_D75_W05 draw 30/40
+boundary 2010: R_D75_W05 draw 40/40

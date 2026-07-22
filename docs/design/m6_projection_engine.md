@@ -4,11 +4,42 @@
 - **Roadmap**: #113 M6 (the projection engine), the last build before #113 M7
   (trust-fund accounting) and #113 M8 (integrated scoring). Workstreams #100
   (W1/W2/W3 seams), ADR-0001 (`docs/adr/0001-populace-axiom-seam-ownership.md`).
-- **Status**: DESIGN (draft, revision 7). This document seeded the `gate_m6` lock
+- **Status**: DESIGN (draft, revision 17). This document seeded the `gate_m6` lock
   ceremony (design review → floor build → adversarial referee → verification →
   ratify-by-merge → lock), now **locked** (`gates.gate_m6`, v3 floor
-  `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This document edits no
-  `gates.yaml` cell, moves no threshold, builds no floor, and writes no test.**
+  `runs/m6_holdout_floors_v3.json` sha256 `e931c886…`). **This amendment edits no
+  `gates.yaml` cell, moves no threshold, builds no floor, and changes no frozen
+  artifact.**
+- **Revision 17 (design amendment 5)** prospectively corrects the §2.6 P2 /
+  §2.8.5 pre-flight-1 reference-arm law after the ratified #264 classification
+  (ii), **STALE PREFLIGHT SURFACE**
+  ([classification-referee comment
+  5017886441](https://github.com/PolicyEngine/populace-dynamics/issues/264#issuecomment-5017886441),
+  merge `cff216a`). Under a registered family-law candidate, the internal
+  reference carries the same registered family law as the injected arm; with no
+  family candidate spec, the candidate-1 path remains byte-identical and both
+  arms still resolve to candidate 16. The check again varies only marital-state
+  provenance. Its 15 channels, 20 draws, RNG addresses, runtime 3σ/no-floor
+  rule, train-only universe, and pre-score accounting do not change. On the
+  registered-family path, a failure uses the structured designed-abort carrier
+  and publishes all 15 signed rows; the no-spec path retains its historical raw
+  exception bytes.
+  This is prospective only: invocation 4 remains a non-consuming pre-score
+  abort and no re-execution occurs under registration 9. After ratification the
+  coordinator, not this lane, re-finalizes only `gate_m6.design_commit` before
+  registration 10; no gate, floor, threshold, seed, reducer, or frozen artifact
+  changes here.
+- **Revision 16 (design amendment 4)** prospectively adds §2.7.7, the
+  candidate-2 **stable-coordinate conditional-rank refresh**. It wraps only the
+  positive-continuation rank transition in a train-selected one-parameter
+  mixture, adds isolated earnings substreams 4 and 5, and pins the train-only
+  pseudo-holdout selector, equivalence preflight, publication ledger, and
+  two-stage lock ceremony. The fitted participation gates, the incumbent
+  conditional draw, re-entry, §2.7.6 `CellMarginal` / `I_proj` / inverse,
+  generated-lag state, age support, and old substreams remain unchanged. This
+  docs-only amendment selects no `q`, runs no prototype or score, writes no
+  artifact, and edits no `gates.yaml` byte; the orchestrator re-finalizes only
+  `gate_m6.design_commit` at the later reviewed lock addendum.
 - **Revision 7 (design amendment 3c)** corrects §2.8.6 and the §10 `preflight_2`
   field, which **inverted** the certified earnings sign-path. They pinned
   pre-flight 2 to verify the `draw_sign` branch and to reject the `_target_models`
@@ -140,16 +171,58 @@
   `coresident_spouse`-against-removed-spouse disclosure ledger; leaves every gated
   cell, threshold, and frozen-v3-floor byte unchanged per the verification
   [#42 comment 4985929556](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4985929556)).
+- amendment 4 (candidate-2 conditional-rank persistence law) → §2.7.7,
+  §10 revision 16 (implements the prospective earnings-law route ratified in
+  `docs/design/m6_candidate2_program.md` at merge `051b449`, whose referee fixes
+  were [verified in issue #42 comment
+  5001901052](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5001901052);
+  re-syncs the status line from stale revision 7 to revision 16;
+  adds the stable-coordinate positive-continuation refresh, isolated substreams
+  `{4,5}`, train-only Q-grid / one-SE selector, `q=0` bit-equivalence preflight,
+  and the one-field `gate_m6.design_commit` re-finalization ceremony; records the
+  §2.7.6.4 flat-`yval` erratum: its prose says first-`wtil`, while
+  `CellMarginal.rank` and the pinned test use `np.interp`'s rightmost tie position
+  (`src/populace_dynamics/engine/forward_earnings.py:137-140`;
+  `tests/test_m6_engine_forward_earnings.py:239-268`). The discrepancy is
+  immaterial to certified and candidate-2 surfaces—a deterministic bounded corner
+  perturbation whose prose is non-operative for candidate 2 under the `q=0`
+  bit-equivalence preflight—and the prose-only correction is routed to a separate
+  erratum lane without changing §2.7.6.4 here; leaves the
+  separately routed first-marriage candidate-family spec outside §2.7.7 and
+  changes no §2.8 surface, floor, or gate threshold).
+- amendment 5 (pre-flight-1 registered-law reference arm) → §2.6 P2, §2.8.5,
+  §10 revision 17 (the ratified incident #264 at `cff216a`,
+  [classification-referee comment
+  5017886441](https://github.com/PolicyEngine/populace-dynamics/issues/264#issuecomment-5017886441),
+  proves classification (ii), **STALE PREFLIGHT SURFACE**).
+  Candidate 2's registered first-marriage sibling reached the injected arm while
+  the internal reference remained frozen candidate 16, falsifying the historical
+  same-core P2 premise and §2.8.5's “only in marital-state provenance” claim by
+  design. Candidate-2 §9.1 byte-carried the candidate-1 protocol, and no §9.2 row
+  or §9.3 box touched this surface. The amendment binds both arms to the registered
+  family law, preserves the no-spec candidate-1 bytes, retains every
+  channel/draw/address/3σ rule, and routes registered-family failure through a
+  structured full-table designed abort. Prospective only: invocation 4 is not
+  regraded, the one-shot remains unconsumed, and registration 9 is not
+  re-executed. The coordinator
+  performs the later one-field `design_commit` re-finalization before registration
+  10.
 
 ## 1. Summary
 
 M6 composes the M1–M5 certified generators into a year-by-year forward
 simulation on the unified person-period panel (#113: populace persons × years,
 future births and immigrant entrants as synthetic persons entering the panel).
-It fits nothing new except a versioned alignment layer; its certification move is
-a **temporal holdout** — fit the dynamics through year `T*`, project the held-out
-window `T*+1 … T_end`, and score projected observables against their realized
-PSID values under the same locked machinery every prior gate uses
+Original M6/candidate 1 fits nothing new except a versioned alignment layer.
+The ratified candidate-2 program's two immediate model deltas are the separately
+routed first-marriage candidate-family spec and §2.7.7's train-only
+earnings-refresh selector. Revision 16 carried the latter law; revision 17 now
+re-derives the §2.8.5 conformance surface that the former law invalidated. Any
+remarriage delta remains on the program's separate follow-up-amendment route. The
+certification move remains a **temporal holdout** — fit the dynamics through year
+`T*`, project the held-out window `T*+1 … T_end`, and score projected observables
+against their realized PSID values under the same locked machinery every prior
+gate uses
 (`gates.yaml` `noise_floor` half-split floors; K=20-draw mean estimator on
 `numpy.random.default_rng(5200 + k)`; tolerance `round(mean + k·sd, 3)` capped at
 `ln(1.5)`; seeds `0–4` with a 4-of-5 conjunction; the one-shot rule enforced by
@@ -434,8 +507,12 @@ the floors-ceremony referee re-verifies rather than assumes.
 **What the re-certification note must establish** (targeted margin check, not a
 gate-2b re-ceremony):
 
-1. the estimated core is byte-identical — `ft.REGISTRY.fit(ft.CANDIDATE_16,
-   context)` in both the step-3 path and candidate-9's `_fit_marital` (P2);
+1. both arms carry the same byte-identical estimated family core. For original
+   M6 and the no-family-spec candidate-1 path this remains
+   `ft.REGISTRY.fit(ft.CANDIDATE_16, context)` in both. When a registered
+   candidate supplies a family-law sibling, the step-3 fit and candidate-9
+   internal reference both carry that registered candidate spec; P2 is equality
+   between the two arms, not a universal candidate-16 pin;
 2. the composition path changed: candidate-9 consumes injected step-3 `sim_years`
    (carrying the 2c marginal-preserving modifier) instead of its internal
    `ft.simulate(draw_seed)` draw;
@@ -452,8 +529,19 @@ gate-2b re-ceremony):
    composition depends on the bypassed internal draw and a fuller re-ceremony is
    required.
 
+**Amendment-5 scope correction (post-#264).** Registration-9 invocation 4 proved
+that the historical P2/candidate-16 wording and §2.8.5's “only in marital-state
+provenance” statement were false for candidate 2 by design: §9.1 of the
+candidate-2 program byte-carried the candidate-1 protocol while the registered
+first-marriage sibling changed the injected arm, and no §9.2 ceremony row or
+§9.3 precondition re-derived this pre-flight surface. Classification (ii),
+**STALE PREFLIGHT SURFACE**, is ratified in #264 at `cff216a` (classification-
+referee comment 5017886441). The correction below is prospective only. It does
+not regrade invocation 4 and authorizes no registration-9 re-execution.
+
 **Dataflow, once per period** (the single-source-of-truth trace finding 5 asks
-for): step 3 emits authoritative `sim_years` (CANDIDATE_16 core + 2c modifier).
+for): step 3 emits authoritative `sim_years` (the registered family core;
+candidate 16 on the no-spec/candidate-1 path + 2c modifier).
 Readers: step 4 fertility (`paternal_births`, reads `married`); step 8 household
 composition (via `spouse_from_marital`, `simulated_marital_binary`,
 `father_marital_by_year` — all read-only, no `ft.simulate`). Non-readers (verified
@@ -619,7 +707,8 @@ frame** — not the pure function the revision-1 draft (incorrectly) described.
   branch on `year`. On an **even reference year** `∈ {2016, 2018, …}` compute the
   forward biennial draw — participation gate → later-rank draw conditional on the
   frame's `rank_t` / `rank_{t−2}` / anchor → de-index to a level — consuming the
-  §2.7.5 substream slots, and return that level (`0` if non-participating). On an
+  §2.7.5 substream slots (prospectively extended for candidate 2 by §2.7.7.4),
+  and return that level (`0` if non-participating). On an
   **odd year** return the deterministic §2.7.2 carry-forward value (no RNG consumed).
   Either return is written to `frame["earnings"]` and carried forward by the
   loop's frame reassignment, so the drawn `2016` level is the `2018` step's
@@ -644,6 +733,9 @@ candidate-7's three canonical sub-streams from that per-person period stream —
 Because each biennial draw uses its own period-`t` per-person stream, no two
 `(k, t)` earnings draws share entropy, any biennial step is independently
 reproducible, and the split stream stays disjoint from `5200 + k` (§3.3).
+
+For candidate 2, §2.7.7.4 appends two isolated codes without renumbering or
+changing these three canonical streams, their draw order, or their exact states.
 
 ### 2.7.6 The rank-to-level and re-ranking laws (design amendment 2, closes Sol's round-2 blocker)
 
@@ -824,6 +916,613 @@ pins, the **lock flip's `design_commit` must finalize to this amendment's merge
 commit** (not the round-2 `d6abb16`); the block draft's `design_commit_note`
 already records the finalize-at-lock-flip rule, and the `gate_m6` lock is holding
 for this amendment.
+
+### 2.7.7 Candidate-2 conditional-rank persistence amendment (design amendment 4)
+
+**2.7.7.1 Authority, placement, and prospective scope.** The ratified
+candidate-2 program (`docs/design/m6_candidate2_program.md`, merge `051b449`)
+classifies excessive conditional-rank memory as a model-law failure and routes
+the repair through this prospective §2.7 amendment. Its fixes were independently
+[verified in issue #42 comment
+5001901052](https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5001901052).
+The same program routes the support-aware first-marriage estimator through a
+**separate candidate-family spec and immutable registry entry**. Therefore this
+amendment does not carry, restate, or relocate the first-marriage transport law,
+and it changes no §2.8 support, event, reducer, floor, or harness rule.
+
+This amendment ratifies the **generic** stable-coordinate refresh mechanism and
+its selector and authorizes a later **train-only, non-scoring prototype**. It does
+not choose `q*`, run the selector, implement the law, register candidate 2, read a
+2015+ row, score a holdout, create or rewrite a run/floor artifact, or edit
+`gates.yaml`. A reviewed lock addendum after the prototype must freeze a nonzero
+`q*` and its complete ledger before registration 8 (§2.7.7.7).
+
+The forensic basis is directional and structural. In candidate 1, all 100
+seed-by-draw observations put `earn_mob_h1_diag` and
+`earn_autocorr_lag2` beyond their locked tolerances; their five-seed mean
+projected/truth ratios are `1.181` and `1.246`. The current generator fixes
+`k=25`, distance weights `1/0.5/0.25`, and `λ=0.1`, and registers only streams
+1–3 (`src/populace_dynamics/engine/forward_earnings.py:47-65`). Its positive
+transition distance conditions directly on current rank, prior rank when
+available, and the blended anchor coordinate
+(`src/populace_dynamics/engine/forward_earnings.py:983-1044`). Static substitution
+of realized 2016/2018 NAWI has zero effect on those two persistence statistics;
+realized post-`T*` NAWI remains prohibited on the scored path under §2.7.6.3.
+
+**2.7.7.2 The amended primitive and the pins that remain byte-carried.** The
+amendment changes only the **positive-to-positive continuation rank output** and
+the earnings substream registry. The incumbent path still computes the same
+conditional donor rank, here named `u_cond`, before the refresh decision. The
+same-step participation draw and positive-participation decision remain exactly
+as now (`src/populace_dynamics/engine/forward_earnings.py:1102-1134`), as does the
+zero-to-positive re-entry draw
+(`src/populace_dynamics/engine/forward_earnings.py:991-1011` and
+`src/populace_dynamics/engine/forward_earnings.py:1155-1170`). The incumbent
+triple-then-pair branch order, distances, weights, `λ`, and stream-2 donor draw
+remain the source of `u_cond`
+(`src/populace_dynamics/engine/forward_earnings.py:57-65`,
+`src/populace_dynamics/engine/forward_earnings.py:829-854`,
+`src/populace_dynamics/engine/forward_earnings.py:983-1044`,
+`src/populace_dynamics/engine/forward_earnings.py:1102-1105`, and
+`src/populace_dynamics/engine/forward_earnings.py:1167-1190`).
+
+For a person who is positive at `t`, participates at `t+2`, and would receive
+`u_cond`, candidate 2 draws
+
+```text
+B_refresh ~ Bernoulli(q*)
+u_out = u_stable  if B_refresh = 1
+        u_cond    otherwise.
+```
+
+The unchanged `rank_to_level` maps `u_out` through the same target-age-bin
+`CellMarginal` and `I_proj`; the next biennial step re-ranks that carried level
+through the unchanged inverse
+(`src/populace_dynamics/engine/forward_earnings.py:926-963`). The generated-lag
+shift remains the one at
+`src/populace_dynamics/engine/steps.py:267-286`, so a refreshed 2016 level is the
+level re-ranked for the 2018 transition
+(`src/populace_dynamics/engine/forward_earnings.py:1135-1153`). This preserves
+the **fitted objects and maps**, not the realized positive output marginal:
+changing the rank mixture is intended to change projected moments.
+
+Everything else is pinned unchanged:
+
+- the participation-gate architecture, features, fitted coefficients, Q0/shared
+  routing, and stream-1 address; the fit remains the existing weighted QRF fit
+  (`src/populace_dynamics/engine/forward_earnings.py:65`,
+  `src/populace_dynamics/engine/forward_earnings.py:744-760`,
+  `src/populace_dynamics/engine/forward_earnings.py:808-826`, and
+  `src/populace_dynamics/engine/forward_earnings.py:1102-1130`);
+- the zero-to-positive re-entry law and stream 3;
+- the incumbent positive conditional donor law `u_cond`, including
+  `W_CURRENT=1`, `W_PRIOR=0.5`, `W_ANCHOR=0.25`, `LAMBDA_FIXED=0.1`, and
+  `k=25`;
+- §2.7.6.2's pooled, NAWI-normalized age-bin `CellMarginal`, §2.7.6.3's
+  projected `I_proj` and leakage fence, and §2.7.6.4's inverse CDF;
+- the `[25,64]` age support, five-year age bins, biennial timing, odd-year
+  carry, frame columns, and generated-lag state; and
+- all existing RNG addresses, stream codes 1–3, their draw order, and their
+  exact states.
+
+Preservation of the `CellMarginal` and inverse is a byte- and test-equivalence
+requirement. This amendment does not restate or re-adjudicate §2.7.6.4's inherited
+corner/tie semantics; the implementation must leave the pre-amendment maps and
+semantics unchanged, and the existing tests must continue to pass (they may be
+extended with the new equivalence proofs;
+`src/populace_dynamics/engine/forward_earnings.py:111-152`;
+`tests/test_m6_engine_forward_earnings.py:239-276`).
+
+An unchanged participation gate does **not** imply bit-identical downstream
+participation after a refresh. The gate reads the carried current earnings level
+(`src/populace_dynamics/engine/forward_earnings.py:1066-1069,1113-1117`), so a
+refreshed 2016 level can change the unchanged 2018 participation probability.
+That endogenous feedback is part of the amended scored law and must be exposed by
+a discriminating test, not suppressed.
+
+**2.7.7.3 Stable-coordinate donor law.** `u_stable` is a weighted single-record
+draw from the `≤2014` **positive-to-positive forward-pair** donors whose target
+age lies in the same exact five-year age bin as the target person at `t+2`. This
+age-bin restriction is a new, fixed conditioning choice: damping recent-rank
+memory may not also change target-age composition. No adjacent-bin, pooled-age,
+or re-entry-pool fallback is permitted.
+
+The pair rows are sorted by `(person_id, period_tp2)` and weighted by
+`weight_tp2`. The incumbent pool builder already constructs positive-to-positive
+pairs, carries `weight_tp2`, and applies that stable sort
+(`src/populace_dynamics/engine/forward_earnings.py:499-615`); implementation adds
+the target-age-bin partition without changing the incumbent pair/triple pools.
+For target person `i` and donor `d`, the stable-only distance drops `u_t` and
+`u_tm2` and is exactly
+
+```text
+d_stable(i,d) = |u_A(d) - u_A(i)|                         if i is Q0
+                |0.1 u_w(d) + 0.9 u_A(d) - u_A(i)|       otherwise.
+```
+
+In particular, target `u_w(i)` remains omitted. The Q0/non-Q0 stable coordinate
+is the same asymmetric donor-side coordinate the incumbent helper exposes
+(`src/populace_dynamics/engine/forward_earnings.py:983-990`); only the recent-rank
+terms are removed. Within the exact-age-bin pool, select
+`min(25, n_pool)` nearest records and make the same weighted one-record, no-jitter
+draw with the incumbent helper and its existing stable selection behavior
+(`src/populace_dynamics/engine/forward_earnings.py:829-854`). An empty exact-age-bin
+pool is a **non-registerable fit**, not authorization to widen the pool or invent
+a fallback.
+
+**2.7.7.4 Isolated substreams and common random numbers.** The earnings registry
+prospectively appends
+
+```text
+4: memory-refresh-gate
+5: memory-refresh-rank
+```
+
+to the existing `{1: gate, 2: donor-draw, 3: re-entry-draw}` registry. The parent
+seed bridge and existing `SeedSequence([seed, code])` construction remain
+unchanged (`src/populace_dynamics/engine/forward_earnings.py:803-805,1102-1105`).
+Codes 4 and 5 are isolated: they cannot perturb the same-step participation
+uniform, incumbent `u_cond`, re-entry draw, or any pre-existing stream state.
+
+For **every eligible positive continuer**, in canonical person order, code 4
+draws one refresh uniform and code 5 draws one stable-donor uniform regardless of
+the candidate `q` or realized refresh outcome. `q` only thresholds the code-4
+uniform and switches between the already-computed `u_cond` and `u_stable`. Thus
+all 21 Q-grid rungs are nested under common random numbers, including `q=0` and
+`q=1`. Odd years retain their early deterministic carry return and consume no
+parent or child RNG (`src/populace_dynamics/engine/forward_earnings.py:1046-1055`;
+`tests/test_m6_engine_forward_earnings.py:279-293`).
+
+**2.7.7.5 Train-only selection of `q*`.** The authorized prototype uses exactly
+
+```text
+Q_GRID = {0.00, 0.05, ..., 0.95, 1.00}
+PSEUDO_BOUNDARIES = {2006, 2008, 2010}
+FIT_SEED = 5200
+SELECTION_DRAW_SEEDS = {6200, ..., 6219}
+```
+
+For each pseudo-boundary `b`, use earnings rows dated `≤b` only to refit the
+**complete** forward law and construct the `b`-anchored earnings domain. Shift the
+pinned `I_proj` rule without changing it: fit `ln(NAWI_y)` on `y` over
+`[b-9,b]` and project it to `b+2` and `b+4`; realized `NAWI_{b+2}` and
+`NAWI_{b+4}` are prohibited. Project `b → b+2 → b+4` under each `q`.
+
+The scoring support at each boundary is the realized positive-weight row support
+at `{b+2,b+4}`, intersected with persons who carry the required `b` anchor and
+`u_w`, restricted to ages 25–64, identically on truth and projection. Call the
+existing parameterized `earnings_cells` reducer with
+
+```text
+level_years  = (b+2, b+4)
+change_years = (b, b+2, b+4)
+```
+
+and retain exactly these six cells
+(`src/populace_dynamics/harness/m6_cells.py:476-586`):
+
+```text
+earn_p10.prime
+earn_dlog_mean.prime
+earn_dlog_sd.older
+earn_mob_h1_diag
+earn_autocorr_lag2
+earn_zero_rate.older
+```
+
+For each boundary, split the **full** `b` anchor by person using the exact floor
+seeds `0…99`, then intersect each returned half with the `b` domain. Domain-first
+splitting is prohibited. The current full-anchor-then-domain implementation is at
+`src/populace_dynamics/harness/m6_scoring.py:767-806`; `run_floor` and its
+`realized_sigma` construction are at
+`src/populace_dynamics/harness/m6_cells.py:42` and
+`src/populace_dynamics/harness/m6_cells.py:613-674`. Define
+`σ_{j,b}` as that `realized_sigma`, never the folded-score SD or a gated
+tolerance.
+
+At each selection-draw seed, use identical person/period addresses and streams
+1–5 across all 21 Q-grid rungs. The common-random-number identity is across rungs
+at that fixed seed, not shared state among the 20 distinct draw seeds. Average
+the projected moment over seeds `6200…6219` and compare it with the truth moment
+on the **same full support** (full means not half-split) using that gated cell's
+exact log-ratio or absolute-gap metric
+(`src/populace_dynamics/harness/m6_cells.py:592-610`). The objective deliberately
+targets the four failed level/growth/persistence cells only:
+
+```text
+J(q) = Σ_b Σ_j∈{earn_p10.prime,
+                 earn_dlog_mean.prime,
+                 earn_mob_h1_diag,
+                 earn_autocorr_lag2}
+       [score(j,b,q) / σ_{j,b}]².
+```
+
+The three overlapping pseudo-windows receive equal weight. They are deliberate
+recent-history stress, not three independent samples. A `q` rung is ineligible
+if any truth cell is undefined, any standardizer is non-positive, any projected
+draw is undefined, truth/projection support differs, any required exact-age-bin
+pool is empty, or the simulated surface is not regenerated. The same defect at
+`q=0` invalidates the entire selector rather than permitting selection around a
+broken baseline.
+
+The two candidate-1 passes act as boundary-by-boundary feasibility guards. A `q`
+is feasible only if, for every `b`,
+
+```text
+score(earn_dlog_sd.older,b,q) / σ(dlog_sd,b)
+  <= score(earn_dlog_sd.older,b,0) / σ(dlog_sd,b) + 1
+
+score(earn_zero_rate.older,b,q) / σ(zero_rate,b)
+  <= score(earn_zero_rate.older,b,0) / σ(zero_rate,b) + 1.
+```
+
+Compute `J(q)` on all 20 draws, on the fixed halves `6200…6209` and
+`6210…6219`, and in all 20 delete-one-draw replicates. Retain `q=0` explicitly as
+the baseline rung after the global `q=0` validity checks above. Every nonzero `q`
+retained for selection must be feasible and improve on `q=0` in the all-draw
+objective **and both** fixed half-draw objectives. Among the baseline plus those
+retained nonzero rungs, let `q_min` minimize the all-draw `J`, resolving an exact
+tie toward smaller `q`. For its delete-one values `J_{-r}`, compute
+
+```text
+SE[J(q_min)] = sqrt[(19/20) Σ_r
+                    (J_{-r}(q_min) - mean_r J_{-r}(q_min))²].
+```
+
+Select the **smallest** retained `q` satisfying
+`J(q) <= J(q_min) + SE[J(q_min)]`; an exact tie again selects smaller `q`.
+This one-SE rule, rather than a bare floating-point tie rule, limits departure
+from the incumbent law under Monte Carlo noise.
+
+**2.7.7.6 Equivalence preflight, publication, and the zero result.** Before any
+value can be frozen, `q=0` must reproduce the incumbent generator **bit for bit**
+at every generated person-period level and participation state for all three
+pseudo-boundaries and all 20 draws. All six reduced moments must match, and
+streams 1–3 must finish in their exact incumbent states. Failure invalidates the
+mechanism; it cannot be waived by a favorable objective. The proof suite must
+also show that the participation formula/fit/coefficients, `CellMarginal`,
+`I_proj`, inverse rank, frame state, odd-year behavior, and old substreams are
+unchanged, while separately demonstrating the intended later-participation change
+when a refreshed carried level crosses the unchanged gate.
+
+The public selection ledger must exist before registration 8 and publish every
+`q`, boundary/cutoff, support, simulated and truth moment, `realized_sigma`,
+feasibility result, all-draw / fixed-half / delete-one objective, one-SE cutoff,
+selected value, effective search size, and checksums of fit rows, donor pools,
+support IDs, and the RNG registry. It must also publish the empty-pool and
+regeneration checks. No 2015+ row, realized post-2014 macro value, candidate-1
+seed score, unpublished holdout value, or candidate-2 score may enter numerical
+estimation or implementation choices.
+
+If the train-only selector returns `q*=0`, registration 8 **pauses** and the
+result returns to the referee as a new proposal problem. A nonzero value may not
+be forced, and a knowingly no-op earnings delta may not be registered. If a
+nonzero `q*` is selected, that is still no promise of a gate pass; the fresh
+candidate-2 artifact, once lawfully registered and run, becomes evidence
+regardless of verdict.
+
+**2.7.7.7 Two-stage lock ceremony and certification boundary.** The governance
+sequence is mandatory:
+
+1. this prospective amendment is referee-ratified and squash-merged, authorizing
+   only the generic mechanism and train-only, non-scoring prototype;
+2. the prototype publishes the full Q-grid ledger and selects a nonzero `q*`
+   under §2.7.7.5–.6;
+3. a reviewed lock addendum freezes `q*`, the ledger SHA, exact-age-bin pool law,
+   and substream codes 4/5, accompanied by all required implementation/test
+   proofs; and
+4. at that lock addendum's ratification, **the orchestrator** re-finalizes the
+   live `gate_m6.design_commit` from
+   `4c6a0f69f5637c6832659ab4dc8599b2c1a928b2` to this amendment's exact
+   squash-merge commit before registration 8.
+
+The lock addendum must make two accepted notes explicit. First, the one-field
+flip intentionally leaves the unchanged gate narrative stale:
+`gates.yaml:5324-5346` will still describe re-finalization to the pre-amendment
+`4c6a0f6…` pin, while `gates.yaml:5354-5361` remains the pre-amendment
+`design_commit_note`; neither narrative byte is an authorized edit. Second, its
+equivalence notes must record that strict versus weak “improve on `q=0`” cannot
+change a selected outcome: if `J(0) ≤ J(q)` for a nonzero rung, then whenever
+that rung satisfies the one-SE cutoff, retained `q=0` does too, and the
+smallest-`q` rule returns `q=0` (the designed pause).
+
+The governing live note is quoted exactly from `gates.yaml:5354-5361`:
+
+> design_commit is re-pinned in this PR off 1d83a221 (PR #170, the
+> pre-amendment revision-1 design) to this PR's design commit carrying the
+> §2.7 forward-earnings amendment -- the backward-vs-forward law distinction
+> and the first-certified-by-gate_m6 framing (covers + not_certified
+> .forward_earnings_law_not_gate1_certified). The concrete hash is set to
+> this PR's design commit; it is finalized to the squash-merge commit at the
+> lock flip.
+
+That later gate edit changes **exactly one field**: `gate_m6.design_commit`.
+`design_pr`, `design_commit_note`, `design_verified_comment`, every cell and
+reducer, every tolerance and floor binding, all seeds, `K`, the 4-of-5
+conjunction, and every other gate byte remain unchanged. This docs PR performs
+none of that edit; writing a placeholder or anticipated merge hash into
+`gates.yaml` is prohibited.
+
+After registration 8, `q*`, the ledger and its SHA, pool law, substream registry,
+and every registered implementation byte are immutable. A designed pre-score
+abort cannot authorize a silent retry; any changed byte requires a reviewed fix
+and fresh registration before another run.
+
+No production/registered candidate-2 implementation, registration, or score may
+precede all four steps; the train-only non-scoring prototype authorized by step 1
+is the sole exception. A later accepted candidate-2 PASS would first-certify this
+amended forward law only on the registered 2016/2018 `gate_m6` surface. No
+`gate_1` certificate transfers, and no result certifies 2100 earnings or any
+report-only path.
+
+### 2.7.8 Candidate-3 correlated-refresh amendment (design amendment 6)
+
+**2.7.8.1 Authority, placement, and prospective scope.** The ratified
+candidate-3 program (`docs/design/m6_candidate3_program.md`, merge `2d15b54`)
+routes candidate 3 through a mechanism-level §2.7 amendment on one or both of
+two surfaces, with the §2.7.7 refresh-law structure the route for the
+predominantly-(a) reading; the ratified §5.1 diagnostic (PR #271, merge
+`7eb4c3c`) supplies the routing evidence: the lag-2 autocorrelation train gap
+(−0.109160, ≈3.9 floor-SDs above the boundary-2010 anchor-floor mean)
+decomposes to index −0.50% / residual 100.50% — a real train-window persistence phenomenon that is not an index
+artifact. This amendment therefore targets the §2.7.7 refresh law's temporal
+structure. It follows the two-stage §2.7.7.7 pattern verbatim: this
+prospective amendment ratifies only the **generic** correlated-refresh
+mechanism, its selection protocol (including a fresh, prospectively fixed
+tie-break rule, §2.7.8.5), and a later **train-only, non-scoring prototype**.
+It does not choose `ρ*`, run the selector, implement the law, register
+candidate 3, read a 2015+ row, score a holdout, create or rewrite a run/floor
+artifact, or edit `gates.yaml`.
+
+The #271 diagnostic's conditioning caveat — conditioning the use of the
+candidate-2 verdict evidence — travels with this amendment verbatim, as
+the #271 record requires:
+
+> The pooled F1 shares (503.60% / −403.60%) are ratios to a
+> statistically-zero denominator and carry no mechanism information: the
+> pooled train gap (−0.003786) is 0.5 per-draw SD, 22% of the certified
+> boundary-2010 anchor-floor mean for `earn_dlog_mean.prime` and 19% of its
+> sigma — against scored breaches at ~2.6 anchor-noise SDs. The train gap's
+> sign is moreover opposite the scored phenomenon (scored F1 failed UNDER in
+> 5/5 seeds; the pooled train candidate is OVER truth, with the 2012
+> transition OVER by −0.0185 and only the 2014 transition sign-aligned at
+> ≈0.7 floor-sigma). What this artifact licenses: (1) the §2.7.6 projected
+> index at boundary 2010 overstates the realized index (−2.44% at 2012,
+> −3.62% at 2014) and at this boundary moves the candidate DOWN — it cannot
+> explain an F1 undershoot in-window (whether it does at the 2014 production
+> boundary is exactly the regime-mismatch caveat); (2) the secondary F2
+> result is well-conditioned and real (train gap −0.109160 ≈ 3.9
+> boundary-floor SDs; index share −0.50%, per-draw index components sd
+> 0.0016) — solid train-side support for routing F2 to the §2.7.7
+> refresh-law surface, regime caveat attached; (3) nothing here licenses a
+> "predominantly (b)" or "predominantly (a)" routing for F1 by itself.
+
+Accordingly: **F2 is the routed target of this amendment. F1 is included as
+a hypothesis only** (§2.7.8.2), no train evidence quantifies an F1 effect,
+and the candidate-3 registration's candid forecast must price F1 as
+unresolved.
+
+**2.7.8.2 The structural defect and the decoupling parameter.** Under
+§2.7.7.2 the refresh indicators are drawn i.i.d. per eligible transition:
+each positive continuer's `B_refresh ~ Bernoulli(q*)` independently. One
+parameter therefore controls two distinct behaviors: the **marginal** refresh
+rate `q` (which the selection ledger shows the mobility cell punishing at
+high `q`: the `earn_mob_h1_diag` objective contribution rises to 141.4509 at
+`q=1.00`, boundary 2010) and the **joint** persistence of unrefreshed runs
+(`P(no refresh at two consecutive eligible transitions) = (1−q)²` under
+independence), which drives conditional-rank memory across two biennial
+steps — the lag-2 surface. The amendment-4 ladder's frontier (the
+`earn_autocorr_lag2` contribution remains the largest objective component at
+every pseudo-boundary at `q*=0.55` — 26.7630 / 16.0775 / 9.7949 — and
+improves monotonically toward `q=1`) is this coupling made visible: more
+marginal refresh buys less joint persistence but degrades mobility.
+
+Candidate 3 adds one structural parameter and nothing else: a **within-person
+first-order correlation `ρ` between consecutive eligible refresh
+indicators**, holding the marginal at the frozen `q* = 0.55`. For a person's
+consecutive eligible transitions with indicators `B_prev, B_next`, the joint
+law is the two-state stationary Markov chain
+
+```text
+P(B_next = 1 | B_prev = 1) = q + ρ(1−q)
+P(B_next = 1 | B_prev = 0) = q(1−ρ)
+```
+
+whose stationary marginal is `q` for every admissible `ρ` (proof:
+`q[q+ρ(1−q)] + (1−q)q(1−ρ) = q² + ρq(1−q) + q(1−q) − ρq(1−q) = q`), and
+whose consecutive-pair probabilities are
+
+```text
+P(1,1) = q² + ρq(1−q)          P(0,0) = (1−q)² + ρq(1−q)
+P(1,0) = P(0,1) = q(1−q)(1−ρ)
+```
+
+(sum 1 identically; `corr(B_prev, B_next) = ρ` by construction).
+Admissibility requires all four probabilities and both transition
+probabilities in `[0,1]`: `ρ ∈ [−min(q/(1−q), (1−q)/q), 1]`; at
+`q* = 0.55` this is `ρ ∈ [−0.8181…, 1]`. Negative `ρ` shortens unrefreshed
+runs at unchanged marginal: at `q* = 0.55`, `P(0,0)` falls from `0.2025`
+(i.i.d.) to `0.2025 + ρ·0.2475` — e.g. `0.0788` at `ρ = −0.50`, a 61%
+reduction in consecutive-no-refresh probability with the mobility-relevant
+marginal untouched. That is the mechanism aimed at F2.
+
+The F1 hypothesis, stated as hypothesis: long unrefreshed runs propagate
+low-mobility conditional-rank paths; shortening runs at fixed marginal can
+raise the within-window mobility contribution to mean Δlog. Per the
+conditioning caveat above, no train measurement quantifies this; the
+prototype's ledger will publish the train F1 analog per rung as
+**disclosure, not selection input beyond its incumbent role in `J`** (it is
+already an objective cell), and the registration forecast must not predict
+an F1 PASS from this mechanism.
+
+**2.7.8.3 The amended primitive; everything else byte-carried.** The only
+changed law is the code-4 threshold. §2.7.7.4's draw discipline is
+preserved exactly: for every eligible positive continuer, in canonical
+person order, code 4 draws one uniform and code 5 draws one stable-donor
+uniform regardless of parameters or outcome; odd years consume no RNG. The
+amended decision is
+
+```text
+B_refresh = 1{ U₄ < p(B_prev_state) }
+p(∅)  = q*                      (no prior eligible indicator)
+p(1)  = q* + ρ(1−q*)
+p(0)  = q*(1−ρ)
+```
+
+where `B_prev_state ∈ {∅, 0, 1}` is the person's carried refresh state
+(§2.7.8.4). At `ρ = 0` every threshold equals `q*` and the law is
+**bit-identical to the ratified candidate-2 generator** — the equivalence
+preflight of §2.7.8.6. At `q = 0` the stationary start assigns `p(∅) = 0`,
+state 1 is unreachable, and refresh never fires for any `ρ`: the candidate-1
+generator is reproduced (the §2.7.7.6 zero-result analog, with the
+reachability argument recorded rather than assumed).
+
+Byte-carried unchanged, exactly as §2.7.7.2-2.7.7.3 pin them: `u_cond` (its
+branch order, distances, `W_CURRENT=1`, `W_PRIOR=0.5`, `W_ANCHOR=0.25`,
+`LAMBDA_FIXED=0.1`, `k=25`, stream-2 draw), `u_stable` (exact-age-bin pool,
+no fallback, stable-only distance), the participation gate and stream 1, the
+re-entry law and stream 3, `rank_to_level`, the `CellMarginal`, `I_proj` and
+its leakage fence, the inverse CDF and its corner/tie semantics, the
+`[25,64]` support, five-year bins, biennial timing, odd-year carry, and
+substream codes 4/5 with their existing addresses and draw order. No new
+stream is registered; `ρ` only re-thresholds the existing code-4 uniform,
+so **all rungs of the ρ ladder are nested under common random numbers**,
+including `ρ = 0`, by the same argument §2.7.7.4 makes for the Q grid. The
+endogenous participation feedback disclosed in §2.7.7.2 (a refreshed level
+changes the next participation probability through the unchanged gate)
+carries over unchanged and must again be exposed by a discriminating test,
+not suppressed.
+
+**2.7.8.4 The refresh-state law.** The person-level state `B_prev_state`
+is a new generated-lag frame column governed by:
+
+1. **Initialization.** At a person's first eligible positive-continuation
+   transition after the anchor, `B_prev_state = ∅` and the stationary
+   threshold `q*` applies.
+2. **Update.** After each eligible transition, the realized `B_refresh`
+   becomes `B_prev_state` for the person's next transition.
+3. **Reset on gap.** Any intervening ineligible period — non-participation,
+   a zero-earnings year, re-entry through stream 3, or exit from the
+   `[25,64]` support — resets `B_prev_state` to `∅`. The chain correlates
+   only **consecutive eligible** transitions.
+
+The reset-on-gap choice is adjudicated, not assumed: the alternative
+(memory across gaps) would correlate refresh decisions across states the
+incumbent law already decorrelates through the re-entry draw, entangling
+the new parameter with the unchanged stream-3 law; a gap already breaks
+conditional-rank memory, which is the pathology under repair. Rejected.
+
+**2.7.8.5 Train-only selection of `ρ*` at frozen `q*`.** The authorized
+prototype re-uses §2.7.7.5 verbatim — `PSEUDO_BOUNDARIES = {2006, 2008,
+2010}`, `FIT_SEED = 5200`, `SELECTION_DRAW_SEEDS = {6200,…,6219}`, the
+shifted-`I_proj` rule, the same scoring support, the same four-cell
+standardized objective `J`, the same older-worker feasibility guards,
+half-draw objectives, and delete-one jackknife SE (program §5.2's "caps"
+refers to the untouched gate-floor tolerance caps, which are not selector
+machinery) — with one substitution:
+the ladder runs over
+
+```text
+RHO_GRID = {−0.80, −0.75, …, −0.05, 0.00}    (17 rungs)
+```
+
+at fixed `q = q* = 0.55`. The grid confines to non-positive `ρ`: positive
+`ρ` lengthens unrefreshed runs — the direction of the documented failure,
+supportable from train evidence alone (train lag-2 autocorrelation
+0.7647 versus truth 0.6555, gap −0.109160) — and admissibility caps the
+negative side at `−0.8181…`; `−0.80` is the deepest admissible grid rung
+at 0.05 spacing. This satisfies the ratified program §5.2's box-4 terms
+in rule-substance: the ladder machinery, 0.05 spacing, objective, guards,
+half-draw objectives, and jackknife SE are unchanged; the rung count
+follows from the derived admissible range and the train-documented
+direction (a literal 21-rung grid cannot fit in the admissible
+non-positive range); and the closest-to-zero rule below is the
+§5.4-frozen tie-break's exact content under the correct isomorphism —
+select the rung nearest the incumbent no-op within one SE (`q = 0` on
+the Q grid; `ρ = 0` here) — so the §5.4 freeze ("no rule-level tie-break
+amendment may apply within this program") is respected, not amended, and
+`q` itself is not re-selected. `q` is **not re-selected**:
+the smallest-`q` tie-break is frozen for this program (candidate-3 program
+§5.4), the ratified `q*` retains its own one-SE justification, and a joint
+`(q, ρ)` ladder would multiply prototype cost without a licensed objective
+change; the joint option is enumerated and rejected on those grounds.
+
+**The tie-break rule, fixed now and blind** (before any ladder value is
+computed): a nonzero `ρ` is **retained** only if it is feasible under the
+older-worker guards and improves on `ρ = 0` in the all-draw objective and
+in both half-draw objectives (§2.7.7.5's retention rule, mutatis
+mutandis). Among `ρ = 0` plus the retained rungs, let `ρ_min` minimize
+the all-draw `J`, an exact argmin tie resolving toward the rung closest
+to zero; select the rung **closest to zero** (smallest `|ρ|`) among
+`ρ = 0` plus the retained rungs with `J(ρ) ≤ J(ρ_min) + SE[J(ρ_min)]`. If
+`ρ = 0` itself satisfies that cutoff, the selection returns `ρ* = 0` — a
+**designed pause**: the amendment ends as a ratified no-op, candidate 3
+does not proceed on this surface, and the program returns to its §5.2
+routing with that outcome published. The §2.7.7.7 strict-versus-weak note
+applies unchanged.
+
+**2.7.8.6 Equivalence preflight, publication, and the zero result.** Before
+any ladder value is computed, the prototype must demonstrate: (1) at
+`ρ = 0`, bit-identical reproduction of the ratified candidate-2 generator at
+every generated person-period level and participation state, for all
+pseudo-boundaries and all 20 draws — including byte-identity of the six
+reduced moments and the exact states of streams 1–5; (2) the refresh-state
+column's reset law via a discriminating fixture (a synthetic person with a
+gap whose post-gap threshold must be `q*`, not `p(0)` or `p(1)`); (3) the
+endogenous participation feedback via the §2.7.7.2-mandated test pattern.
+It must also demonstrate, at the object level, that the participation
+formula/fit/coefficients, the `CellMarginal`, `I_proj`, the inverse rank
+map, the frame state, odd-year behavior, and the pre-existing substreams
+are unchanged — bit-identity at `ρ = 0` alone cannot catch an
+implementation that perturbs a pinned object only on the `ρ ≠ 0` path.
+Failure of any leg invalidates the mechanism rather than selecting around
+it. The selection ledger must publish everything §2.7.7.6's ledger
+discipline requires, mutatis mutandis (`ρ` for `q`) — every rung,
+boundary, support, simulated and truth moment, standardizer, feasibility
+and retention result, full/half/jackknife objective, the one-SE cutoff,
+the selected value, the effective search size, and checksums of fit rows,
+pools, support IDs, and the RNG registry — plus the realized
+transition-pair counts entering each rung's chain and the per-rung train
+F1 analog as disclosure. The §2.7.7.6 prohibition sentence applies
+extended to the now-existing candidate-2 record: no 2015+ row, realized
+post-2014 macro value, candidate-1 seed score, unpublished holdout value,
+candidate-2 seed score, or candidate-2 scored-artifact value may enter
+numerical estimation or implementation choices, and the executed ledger
+must carry the `no_candidate_1_or_candidate_2_artifact_read`,
+`no_gate_score`, and `no_runs_write` fence fields the q* ledger carries.
+
+**2.7.8.7 Two-stage lock ceremony and certification boundary.** The
+§2.7.7.7 sequence applies with candidate-3 names: (1) this prospective
+amendment is referee-ratified and squash-merged; (2) the prototype
+publishes the full ρ-grid ledger and selects `ρ*` under §2.7.8.5-.6 (a
+`ρ* = 0` outcome is the designed pause); (3) a reviewed lock addendum
+freezes `ρ*`, the ledger SHA, the refresh-state law, and the unchanged
+substream codes, with all implementation/test proofs; (4) at that lock
+addendum's ratification the orchestrator re-finalizes the live
+`gate_m6.design_commit` from `0e067a910fde7e479240c472087ece6a7ce29bcd`
+(the amendment-5 pin now live) to this amendment's exact squash-merge
+commit before the candidate-3 registration. The §2.7.7.7 accepted notes
+apply with candidate-3 names: the lock flip changes **exactly one field**
+(`gate_m6.design_commit`), intentionally leaves the pre-amendment gate
+narratives stale (including `gates.yaml:5324-5346`, the 5354-5361
+`design_commit_note`, and the amendment-4/5 history entries, which narrate
+the superseded pins as endpoints; no narrative byte is an authorized
+edit), and prohibits writing a placeholder or anticipated merge hash into
+`gates.yaml`; the strict-versus-weak note is restated in §2.7.8.5; and
+after the candidate-3 registration, `ρ*`, the ledger and its SHA, the
+refresh-state law, and every registered implementation byte are
+immutable — a designed pre-score abort cannot authorize a silent retry.
+The candidate-3 registration restates the registration-8 one-run terms
+verbatim, adopts the post-2014 attestation wording, and carries the
+candidate-3 program's §2.4 transport-calibration datum with its pinned
+comparators and the §2.7.8.1 conditioning caveat, per the ratified
+candidate-3 program §8. No production/registered candidate-3
+implementation, registration, or score may precede all four steps; the
+train-only, non-scoring prototype authorized by step 1 is the sole
+exception. A later accepted candidate-3 PASS would first-certify the
+correlated-refresh forward law only on the registered 2016/2018 `gate_m6`
+surface; no `gate_1` certificate transfers, and no result certifies 2100
+earnings or any report-only path.
 
 ### 2.8 The scored-run harness (design amendment 3, unblocks the `gate_m6` run)
 
@@ -2001,26 +2700,51 @@ machinery **verbatim**:
   runs record).
 
 **2.8.5 Pre-flight 1 — the candidate-9 re-certification margin (real-data,
-holdout-blind).** Before any scored phase, the harness runs the §2.6 targeted
-transfer check on the **`≤2014`-refit** household panel over the gate-seed draws:
-for each `k`, `composition.simulate_candidate9_injected` (injected whole-window
-step-3 marital) vs `composition.simulate_candidate9_internal_reference` (the frozen
-internal `ft.simulate`), reduced to the pre-named channel moments
-(`composition.composition_channel_moments`; `RECERTIFICATION_CHANNEL_SETS`:
-cohabitation, legal-spouse-residual, occupancy, household-size), checked by
-`composition.check_candidate9_recertification` at the **≥3σ** `gate_m4`-style
-margin. The injected arm supplies the §2.8.2-pinned household-conditioning
-fertility (`steps.simulate_fertility` drawn on `registry.generator(0, FERTILITY)`,
-mirroring the certified `assembly.py` household step) into
-`simulate_candidate9_injected`, so it carries the same maternal-birth line the
-internal reference generates inline through `ft.simulate`; the two arms differ
-**only** in marital-state provenance, not in the presence of fertility. This is
-**candidate-blind**: it compares two *simulation* paths on the
-fitted panel and reads **no holdout cell**. A failure is a **designed abort** —
-`check_candidate9_recertification` raises, the run stops pre-scoring, the one-shot
-is **not** consumed, and the fuller re-ceremony §2.6 names is triggered (not a
-self-rescue). The per-channel margins publish with the run (registration
-observation 3).
+holdout-blind; amendment 5).** Before any scored phase, the harness runs the §2.6
+targeted transfer check on the **`≤2014`-refit** household panel over 20 draws,
+`k = 0, …, 19`. For each `k`,
+`composition.simulate_candidate9_injected` consumes the authoritative injected
+step-3 marital path. `composition.simulate_candidate9_internal_reference` runs
+the internal `ft.simulate` from a reference clone of
+`household.fitted.family_transitions` whose `first_marriage` component is replaced
+by the fitted `first_marriage` component of the registered family candidate. A
+component-identity guard proves that every other family component is carried
+unchanged. When no family candidate spec is supplied, no replacement occurs: the
+candidate-1 path remains byte-identical and both arms use candidate 16. Thus both
+arms carry the **same registered family law** and once again differ **only** in
+marital-state provenance.
+
+Both arms retain the §2.8.2-pinned household-conditioning fertility
+(`steps.simulate_fertility` drawn on `registry.generator(0, FERTILITY)`, mirroring
+the certified `assembly.py` household step). The 15 pre-named cells remain
+unchanged (`composition.composition_channel_moments`;
+`RECERTIFICATION_CHANNEL_SETS`: cohabitation, legal-spouse-residual, occupancy,
+household-size), as do the RNG addresses and the runtime **3σ, no-floor** rule in
+`composition.check_candidate9_recertification`. The check is
+registered-law-aware but candidate-output-blind and holdout-blind: it compares two
+simulation paths on the fitted training panel and reads no holdout cell.
+
+A failed margin is a **designed pre-score abort**. The one-shot is not consumed,
+and no score or candidate artifact is produced. On the registered-family path,
+the failure must travel through `Candidate9RecertificationFailure` into the
+structured status
+`CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT`, publishing all 15 ordered rows with
+channel, cell, injected and internal means, signed and absolute delta, standard
+error, `3σ` tolerance, and pass/fail. A registered-family failure that escapes
+as a raw `AssertionError` and discards the signed table is not conforming. The
+no-family-spec candidate-1 path retains its historical plain-`AssertionError`
+class and message bytes.
+
+The cross-law invocation-4 table classified in #264 is a separate train-only
+transport diagnostic, not an expected-delta band and not a relaxation of this
+check. Classification-referee comment 5017886441 at merge `cff216a` proved that
+§2.6 P2 and this subsection's historical same-law premise were falsified by
+candidate 2's registered first-marriage swap. Candidate-2 §9.1 byte-carried the
+candidate-1 protocol, and no §9.2 row or §9.3 box touched this surface. Amendment
+5 is therefore **prospective only**: it does not regrade invocation 4 or cause a
+registration-9 re-execution. The next eligible invocation follows referee review,
+ratification, the coordinator-only `gate_m6.design_commit` re-finalization, and
+registration 10.
 
 **2.8.6 Pre-flight 2 — the certified sign-path verification.** The harness
 verifies that the forward earnings generator deploys the **certified
@@ -2759,6 +3483,19 @@ truncated-panel **fitted artifact**, and it neither reads nor writes the certifi
 full-window artifacts. §7's "no new estimation" means no new **spec**; the
 truncation is a data input, not a param change.
 
+**Candidate-2 prospective earnings exception (design amendment 4, §2.7.7).** The
+preceding same-spec statement describes the original M6/candidate-1 law and every
+byte-carried candidate-2 module. Within forward earnings, candidate 2 has one
+expressly ratified new spec degree of freedom: the global positive-continuation
+refresh share `q*`. It is selected only through the §2.7.7.5 `≤2010`
+pseudo-boundaries, whose train-only outcomes end by 2014, then published and
+locked before registration 8; no 2015+ row or candidate score enters the selector.
+This exception authorizes no other earnings spec selection: participation
+coefficients/features, incumbent weights and `λ`, rank↔level objects, and age
+support remain governed by the existing refit/spec rules. The candidate-2
+program's separately routed first-marriage candidate spec remains on its
+candidate-family/registry route outside this §2.7 amendment.
+
 **Spec-selection-on-full-sample (finding 1, the residual second-order leak).** The
 holdout cures parameter leakage but not **structure** leakage: `CANDIDATE_16/9`,
 M4 (`disability_hazard_sim`), and the gate-1 chained-QRF (`gates.yaml:122-126`)
@@ -3168,11 +3905,17 @@ closed frame, and M7 lifts it onto the open panel.
 - **No macro feedback.** Wages, prices, interest, the wage base are exogenous
   Trustees inputs; no general-equilibrium loop. The 2020–2022 shock is not modelled
   and its cells are report-only (§4.1).
-- **No new spec estimation.** M6 composes the M1–M5 certified **specs** unchanged
-  (same `CandidateSpec.sha256`); it re-runs their **estimates** on ≤`T*`-truncated
-  panels (finding 3, §4.2) and fits nothing new except the alignment layer (a
-  versioned adjustment, disclosed, not a certified generator). `gate_m6` certifies
-  composition/projection, not spec re-estimation.
+- **No unregistered spec estimation.** Original M6/candidate 1 composes the M1–M5
+  certified **specs** unchanged (same `CandidateSpec.sha256`), re-runs their
+  **estimates** on ≤`T*`-truncated panels (finding 3, §4.2), and fits nothing new
+  except the alignment layer. Within forward earnings, candidate 2's sole
+  prospective exception is the §2.7.7 global refresh share, selected on the
+  pinned train-only pseudo-holdouts and locked before registration 8. No other
+  earnings spec, participation recoupling, weight/`λ` search, age-specific
+  refresh, or holdout-informed estimation is authorized. The separately routed
+  first-marriage candidate-family spec remains governed by the candidate-2
+  program, not this exception. `gate_m6` certifies only the registered
+  composition/projection law, not an unregistered spec search.
 - **No trust-fund accounting (M7); no whole-panel rules scoring (M8).** M6 exposes
   the §6 levels and runs the per-year W2 seam (§5); it computes no actuarial balance
   and runs no simultaneous cross-year rules execution / W3 cross-validation.
@@ -3285,15 +4028,14 @@ The ceremony that seeds from this revised §4 must produce, before locking:
 
 This block summarizes the proposed parameters and the artifact/code fields they
 derive from. Unlike a ratified amendment's consistency ledger, it is **not** bound
-to committed artifacts by a test — this is a docs-only design PR that builds no
-floor and writes no test. The numbers become test-bound only when
+to committed artifacts by a test. The numbers become test-bound only when
 `runs/m6_holdout_floors_v1.json` and the `gates.gate_m6` block are authored in the
 lock ceremony.
 
 ```json m6-design-parameters
 {
   "design_id": "2026-07-12-m6-projection-engine",
-  "revision": 15,
+  "revision": 17,
   "referee_round": "PR #170 comment 4953818376 (MAJOR REVISION)",
   "adjudication": "issue #42 comment 4953722912",
   "status": "design_draft",
@@ -3306,7 +4048,7 @@ lock ceremony.
   "fit_holdout": {
     "boundary_T_star": 2014,
     "prohibited_reestimation_includes_gate1_earnings_qrf": true,
-    "spec_vs_fit": "same CandidateSpec.sha256 (params/impl), different truncated-panel fitted artifact; certified full-window artifacts neither read nor written",
+    "spec_vs_fit": "original M6 and every byte-carried candidate-2 module keep the same CandidateSpec.sha256 (params/impl) with a different truncated-panel fitted artifact; candidate 2's separately routed first-marriage candidate spec stays on its family-registry route, while section 2.7.7 alone authorizes the prospective earnings q selector; certified full-window artifacts are neither read nor written",
     "spec_selection_on_full_sample_disclosed": true,
     "biennial_boundary_rule": "exclude any flow event whose dating needs a post-T* (2015+) interview from the fit",
     "person_overlap_intended": true,
@@ -3329,24 +4071,75 @@ lock ceremony.
     "decision6_lagged_edge": "SUPERSEDED; feed permanent-earnings tercile at step 3",
     "injection_forced": true,
     "injection_class_under_R1": "surgery (bypasses candidate-9 internal ft.simulate)",
-    "recertification": "targeted distributional margin check on candidate-9 composition outputs (P2 identical core; 2c marginal-preserving); not a gate-2b re-ceremony"
+    "recertification": "targeted 15-cell distributional wiring margin: both arms carry the same registered family law (candidate 16 on the no-spec/candidate-1 path; registered first-marriage sibling on candidate 2) and differ only in marital-state provenance; K=20, runtime 3sigma, no floor; candidate-output-blind and holdout-blind",
+    "amendment_5_section": "2.6 P2 + 2.8.5 (prospective registered-law reference-arm correction after #264/cff216a classification (ii), comment 5017886441; c1 no-spec bytes unchanged; full signed structured-abort payload; no registration-9 re-execution; coordinator-only design_commit re-finalization before registration 10)"
   },
   "forward_earnings_generator": {
     "blocker": "Sol PR #173 (BLOCKED): certified candidate-11 is a backward biennial chain; cannot compose forward without a new law",
-    "law": "biennial forward conditional-rank chain 2014->2016->2018 (scored on {2016,2018}), mirrors certified conditioning structure reversed, fit <=2014 from scratch (not an inversion)",
+    "law": "biennial forward conditional-rank chain 2014->2016->2018 (scored on {2016,2018}), mirrors certified conditioning structure reversed, fit <=2014 from scratch (not an inversion); prospectively for candidate 2, section 2.7.7 wraps only the positive-continuation output rank in a train-selected stable-coordinate refresh mixture",
     "transfers_from_candidate11": ["knn_k=25", "distance_weights_1/0.5/0.25", "lambda=0.1_donor_blend_Q0_exempt", "u_w_shrunk_permanent_rank_candidate8_PR58_on_candidate3_stage1c", "RegimeGatedQRF_participation_gate", "zero_anchor_full_reentry_pool", "weighted_single_record_draw_no_jitter", "age_only_covariate_marital_blind"],
-    "newly_chosen_fit_window_only": ["forward_conditional_donor_pools_on_<=2014_forward_tuples", "forward_participation_gate_coefficients", "anchor_flip_initial_2014", "start_of_chain_memory_ramp_2014->2016_one_step"],
+    "newly_chosen_fit_window_only": ["forward_conditional_donor_pools_on_<=2014_forward_tuples", "forward_participation_gate_coefficients", "anchor_flip_initial_2014", "start_of_chain_memory_ramp_2014->2016_one_step", "candidate2_global_refresh_q_via_pseudo_boundaries_2006_2008_2010_with_outcomes_ending_2014"],
     "annualization": "NON-SCORED; real per-year forward seam has no lookahead so DEFAULT is carry-forward (participation+level) of the last drawn/realized biennial value; log-linear interpolation only via batch-compute+backfill (departs from per-period stream assignment); scored cells read only {2016,2018}; interp-vs-carry gate-immaterial",
     "certification": "NOT gate_1-certified (different/forward law); first-certified by gate_m6; no gate_1 certificate transfers",
     "seam_signature": "EarningsGenerator.generate(frame, year, rng) -> np.ndarray (steps.py:164-169); per-year, called by apply_earnings every projection year; stateful THROUGH the frame (drawn earnings column written in-place and carried by the loop's frame reassignment; _merge_period_columns threads the marital/disability/household update-frames), not a pure fn",
-    "rng_slots": "per-year person stream context.person_generator(EARNINGS, person_id) = stream(k,t=year,earnings); RNG consumed only at even reference years; even-year spawns candidate-7 SUBSTREAM_CODES {gate:1,donor:2,reentry:3}; odd-year carry-forward deterministic",
+    "rng_slots": "per-year person stream context.person_generator(EARNINGS, person_id) = stream(k,t=year,earnings); RNG consumed only at even reference years; incumbent codes {gate:1,donor:2,reentry:3} and their states/order are unchanged; candidate 2 appends isolated {memory-refresh-gate:4,memory-refresh-rank:5}, drawing both for every eligible positive continuer regardless of q/outcome; odd-year carry-forward deterministic",
     "drawn_prior_rank_threading": "at 2018, drawn-2016 rank recovered inside generate by re-ranking the frame's carried earnings column (0=non-participation); rank_{t-2} + anchor from realized-2014 columns; no generator-held cross-year state",
     "amendment_2_section": "2.7.6 (closes Sol round-2 blocker: rank<->level map undefined)",
+    "amendment_4_section": "2.7.7 (candidate-2 conditional-rank persistence law; DOCS-ONLY prospective design amendment, revision 16, authority docs/design/m6_candidate2_program.md merge 051b449, referee verification issue #42 comment 5001901052). DELTA: for a positive continuer, u_out=u_stable with Bernoulli(q*) else the unchanged u_cond; u_stable is a weight_tp2-weighted k=25 one-record draw from positive-to-positive forward-pair donors in the exact target five-year age bin, sorted (person_id,period_tp2), dropping recent-rank distance while retaining the asymmetric Q0/non-Q0 stable coordinate. RNG: append isolated codes 4/5, always draw both for every eligible continuer, preserve codes 1-3 and odd-year no-consumption. SELECTOR: Q={0,.05,...,1}, boundaries {2006,2008,2010}, fit seed 5200, draws 6200-6219, full-anchor split seeds 0-99 then domain intersection, four-cell standardized objective, two older-cell +1-sigma feasibility guards, all/half/delete-one stability, smallest-q one-SE rule, hard q=0 bit equivalence. Q=0 pauses registration 8. CEREMONY: a reviewed addendum freezes nonzero q*, ledger SHA, pool law, and codes 4/5; at ratification the orchestrator changes only gate_m6.design_commit from 4c6a0f69f5637c6832659ab4dc8599b2c1a928b2 to this amendment's squash merge before registration 8. First-marriage stays a separate candidate-family spec; no section 2.8 or gate-surface change.",
+    "candidate2_rank_refresh": {
+      "status": "PROSPECTIVE_AMENDMENT_FOR_FABLE_REFEREE_Q_NOT_SELECTED",
+      "program_id": "2026-07-16-m6-candidate2",
+      "program_merge": "051b4494ecce9345da14d68488bb2833ed476d22",
+      "program_verification_comment": "5001901052",
+      "scope": "positive-to-positive continuation rank output plus isolated earnings substreams only; first-marriage remains a separate candidate-family spec",
+      "mixture": "B_refresh~Bernoulli(q*); u_out=u_stable if refreshed else unchanged u_cond",
+      "stable_pool": "positive-to-positive forward pairs in the exact target five-year age bin; sorted by (person_id,period_tp2); weight_tp2; min(25,n_pool); current weighted one-record no-jitter helper; empty pool is non-registerable and has no adjacent-bin fallback",
+      "stable_distance": {
+        "Q0": "abs(u_A(donor)-u_A(target))",
+        "non_Q0": "abs(0.1*u_w(donor)+0.9*u_A(donor)-u_A(target))",
+        "drops": ["u_t", "u_tm2"],
+        "target_u_w_omitted": true
+      },
+      "preserved": ["participation architecture/features/fit/coefficients/address", "incumbent u_cond weights 1/0.5/0.25 and lambda 0.1", "zero-to-positive reentry", "section-2.7.6 CellMarginal", "I_proj and realized-post-T*-NAWI prohibition", "inverse rank map", "age support [25,64]", "biennial timing and generated-lag frame state", "odd-year no-RNG carry", "substream codes 1-3 and exact states/order"],
+      "rng": {
+        "existing_unchanged": {"gate": 1, "donor-draw": 2, "re-entry-draw": 3},
+        "appended": {"memory-refresh-gate": 4, "memory-refresh-rank": 5},
+        "consumption": "for every eligible positive continuer in canonical person order, draw codes 4 and 5 regardless of q or refresh outcome; q only thresholds code 4 and selects rank",
+        "common_random_numbers_across_q": true,
+        "odd_year_consumption": 0
+      },
+      "selector": {
+        "q_grid": [0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+        "pseudo_boundaries": [2006, 2008, 2010],
+        "fit_seed": 5200,
+        "selection_draw_seeds": [6200, 6201, 6202, 6203, 6204, 6205, 6206, 6207, 6208, 6209, 6210, 6211, 6212, 6213, 6214, 6215, 6216, 6217, 6218, 6219],
+        "floor_seeds": "0-99; split full b anchor by person before domain intersection",
+        "I_proj_window": "[b-9,b]; realized NAWI at b+2/b+4 prohibited",
+        "projection": "b->b+2->b+4",
+        "retained_cells": ["earn_p10.prime", "earn_dlog_mean.prime", "earn_dlog_sd.older", "earn_mob_h1_diag", "earn_autocorr_lag2", "earn_zero_rate.older"],
+        "objective_cells": ["earn_p10.prime", "earn_dlog_mean.prime", "earn_mob_h1_diag", "earn_autocorr_lag2"],
+        "standardizer": "run_floor realized_sigma, not folded-score sd or tolerance",
+        "feasibility_guards": ["earn_dlog_sd.older standardized score <= q0 + 1 at every boundary", "earn_zero_rate.older standardized score <= q0 + 1 at every boundary"],
+        "stability": "nonzero q improves q0 in all-20 and both fixed 10-draw halves; compute 20 delete-one replicates",
+        "selection_rule": "retain q0 baseline; among feasible stable rungs minimize all-draw J; select smallest q within one jackknife SE of J(q_min); exact ties choose smaller q",
+        "q0_equivalence": "bit-identical generated person-period levels and participation states at every boundary/draw; all six moments match; streams 1-3 retain exact states",
+        "q0_result": "PAUSE_REGISTRATION_8_AND_RETURN_TO_REFEREE"
+      },
+      "governance": {
+        "prototype_authority": "train-only and non-scoring after amendment ratification",
+        "lock_addendum_freezes": ["nonzero q*", "full ledger SHA", "exact-age-bin pool law", "substream codes 4 and 5"],
+        "current_design_commit": "4c6a0f69f5637c6832659ab4dc8599b2c1a928b2",
+        "required_final_pin": "SECTION_2_7_AMENDMENT_SQUASH_MERGE_COMMIT",
+        "gate_edit_actor_and_time": "orchestrator at reviewed lock-addendum ratification before registration 8",
+        "gate_edit_scope": "gate_m6.design_commit only; every non-pin gate byte unchanged",
+        "post_registration": "q, ledger/pool/substreams, and implementation bytes immutable; changed byte requires reviewed fix and fresh registration"
+      }
+    },
     "rank_to_level_law": "PINNED (b2): NAWI-normalized calendar-invariant age_bin CellMarginal on pooled <=2014 positive earnings (certified fit_cell_marginals verbatim, key (age_bin,period)->age_bin); de-index rank u -> Qhat_pos_agebin.quantile(u) normalized level -> x I_proj(target_year) -> nominal level. REJECT (a) donor-level bootstrap (departs from certified marginal-quantile de-index candidate7:648-654, R2 violation, no clean inverse); REJECT (b1) carry-2014-period-marginal (§2.7.1-prohibited + biases earn_p10 low)",
     "wage_index_projection": "I_proj(2016),I_proj(2018) = OLS ln(NAWI)~year over trailing decade [2005,2014] extrapolated (== <=2014 trailing-decade geometric-mean wage growth); ss/params.py NAWI series; NEVER realized post-2014 NAWI",
     "leakage_prohibition": "realized post-T* NAWI on the SCORED path PROHIBITED (would leak into gated earn_p10/p50/Dlog-SD/mobility); frame's realized nawi column (steps.py:145-156 aging) admissible only for non-scored seam/taxable_max + report-only alignment; gated path = un-aligned projection (decision 9, §4.8; M2 calibration_disclosure)",
     "re_ranking_law": "PINNED fit-population CDF: rank_t = rhat_agebin(level / I_proj(wave)) -- the inverse of rank_to_level (Qhat_pos/rhat = np.interp on one grid), INTERIOR-EXACT; corner clamps ([ymin,ymax]/[0.001,0.999]) + flat-yval ties are deterministic-but-inexact (candidate5b:250-259, corner_bottom/top); 2018 re-rank is deterministic so chain integrity holds (inexactness = bounded corner rank perturbation); zero -> p0/Q0 regime. REJECT within-frame percentile (references synthetic projected cohort not the PSID fit population, R2 violation, breaks round-trip). R2: certified ranks ARE CellMarginal CDF positions so deployed re-rank must reference the fit-population marginal",
-    "secondary_gaps_pinned": {"memory_after_2018": "two rolling generated-biennial-level cols gen_earn_w2/gen_earn_w4 + realized-<=2014 start-lags", "generator_to_substream": "engine.rng.seed_from_generator(rng)->int then SeedSequence([seed,code]) codes {1:gate,2:donor,3:reentry} (m6-engine rng.py; candidate10:239)", "frame_schema": "person_id,age,sex,u_w,realized_earn_2014,realized_earn_2012,earnings,gen_earn_w2,gen_earn_w4; engine refit.py materializes u_w+realized_earn_* at period 0; _merge_period_columns carries", "age_support": "forward law fits [25,64] (EXTENDS transferred gate-1 [25,59], refit.py:802-806) because gated cohorts prime 25-44 + older 45-64 (EARN_COHORTS build_m6_holdout_floors.py:120, no panel age cap); [25,59] is a NON-transferable hyperparameter (conflicts pre-registered surface; would kill earn_zero_rate.older); 8 age_bins {25-29..60-64}; participation-gate/donor-pools/memory/marginal all fit [25,64] pooled <=2014; clip <25->25-29, >64->60-64; <25 & 65+ non-scored; principle: law must cover the scored surface, narrowing to fit support = candidate-informed surface design PROHIBITED"},
+    "secondary_gaps_pinned": {"memory_after_2018": "two rolling generated-biennial-level cols gen_earn_w2/gen_earn_w4 + realized-<=2014 start-lags", "generator_to_substream": "engine.rng.seed_from_generator(rng)->int then SeedSequence([seed,code]); incumbent codes {1:gate,2:donor,3:reentry} remain exact and candidate 2 appends isolated {4:memory-refresh-gate,5:memory-refresh-rank}; odd years consume none", "frame_schema": "person_id,age,sex,u_w,realized_earn_2014,realized_earn_2012,earnings,gen_earn_w2,gen_earn_w4; engine refit.py materializes u_w+realized_earn_* at period 0; _merge_period_columns carries", "age_support": "forward law fits [25,64] (EXTENDS transferred gate-1 [25,59], refit.py:802-806) because gated cohorts prime 25-44 + older 45-64 (EARN_COHORTS build_m6_holdout_floors.py:120, no panel age cap); [25,59] is a NON-transferable hyperparameter (conflicts pre-registered surface; would kill earn_zero_rate.older); 8 age_bins {25-29..60-64}; participation-gate/donor-pools/memory/marginal all fit [25,64] pooled <=2014; clip <25->25-29, >64->60-64; <25 & 65+ non-scored; principle: law must cover the scored surface, narrowing to fit support = candidate-informed surface design PROHIBITED"},
     "closes_round2_blocker": true,
     "lock_flip_design_commit_finalizes_to_this_amendment_merge": true
   },
@@ -3430,7 +4223,7 @@ lock ceremony.
       "conjunction": "cell clears iff score <= locked block tolerance; seed passes iff EVERY gated cell clears; family A passes iff >= 4 of 5 gate seeds (read from the locked block, computed nowhere)",
       "guards": ["undefined_draw_rule (any undefined gated rate on any draw invalidates)", "regenerated-surface conformance (non-zero across-draw dispersion recorded)"]
     },
-    "preflight_1": "candidate-9 re-certification margin on the <=2014-refit REAL panel over gate-seed draws BEFORE any scored phase: simulate_candidate9_injected vs simulate_candidate9_internal_reference, composition_channel_moments over RECERTIFICATION_CHANNEL_SETS, check_candidate9_recertification >=3sigma; holdout-blind (two simulation paths, no holdout cell); failure = DESIGNED ABORT pre-scoring (one-shot not consumed, fuller re-ceremony per 2.6); per-channel margins publish",
+    "preflight_1": "candidate-9 15-cell wiring re-certification on the <=2014-refit REAL training panel over K=20 draws BEFORE scoring: injected and internal-reference arms carry the same registered family law and differ only in marital-state provenance; no-spec/candidate-1 keeps the exact embedded candidate-16 object and historical plain-AssertionError failure bytes; candidate 2 clones the household family fit and swaps only registered first_marriage; same channels, RNG addresses, runtime 3sigma/no-floor rule, fertility line, and holdout-blind boundary. Registered-family failure = structured CANDIDATE9_RECERTIFICATION_PRESCORE_ABORT carrying every ordered signed row; one-shot not consumed, no score/artifact. Amendment 5 is prospective only: no registration-9 re-execution; coordinator re-finalizes design_commit before registration 10",
     "preflight_2": "verify the certified externally-driven _gate_sign_draw _target_models reconstruction deploys (forward_earnings.py:820-826; reproduces FittedRegimeGatedQRF._gate_draw on engine-supplied uniforms -- today's RegimeGatedQRF exposes _target_models and NO draw_sign, so this is the branch every real candidate-10 gate takes) vs the draw_sign test seam (:815-819; only test doubles define draw_sign) on a SYNTHETIC probe; record which path executed; DESIGNED ABORT if a gate deploys the draw_sign seam. Corrects the prior inversion (harness-referee F1, PR #185 comment 4966859161); restores engine-referee obs 6 (PR #173 comment 4962620806): draw_sign=seam, _target_models=certified",
     "runner_phases": ["refit (refit_m6_components boundary 2014 + from_refit_bundle; RefitProvenance + EARNINGS_SPEC_SHA256 recorded)", "preflight_1 (abort-on-fail)", "preflight_2", "project+score per gate seed (K=20 draws, side-A, v3 floor)", "report_only (shock, not_certified, re-drawn-seed comparison, entrants, alignment displacement)", "assemble + artifacts.write_new(sidecar=True) stamping registration-id + EARNINGS_SPEC_REGISTRATION + floor sha e931c886 + spec sha256s; publishes_regardless"],
     "must_not": ["no gates.yaml read beyond the gate_m6 block's protocol/cells (no tolerance computed, no threshold moved)", "no holdout-informed choice (synthetic frames only until the registered run)", "no realized post-boundary macro read on the scored path (2.7.6.3 fence: I_proj only, never the frame's realized nawi)", "forward-mode inputs stay rejected (EvaluationMode.GATED_REALIZED only; FORWARD rejects realized inputs)"],
@@ -3461,8 +4254,8 @@ lock ceremony.
     "F6": "weight semantics over the projection window (start-wave vs per-year calibrated)",
     "F7": "PSID attrition on the truth side (mortality worst)"
   },
-  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze (PINNED 2.8.10: 2014 Supplement 6.B5.1, supplement_year 2014)"],
-  "non_goals": ["behavioral_response", "macro_feedback", "trust_fund_accounting_M7", "rules_on_whole_panel_M8", "new_spec_estimation", "validated_projection_beyond_holdout", "forward_engine_certification_deferred_to_successor_gate"],
+  "ceremony_deliverables": ["floor_artifact", "recertification_margin_check", "OC_before_lock_weak_power_pause", "household_id_weight_rule", "claiming_vintage_freeze (PINNED 2.8.10: 2014 Supplement 6.B5.1, supplement_year 2014)", "candidate2_section2.7.7_nonzero_q_ledger_lock_plus_one-field_design_commit_refinalization_before_registration8", "candidate2_section2.8.5_registered_law_reference_arm_plus_one_field_design_commit_refinalization_before_registration10"],
+  "non_goals": ["behavioral_response", "macro_feedback", "trust_fund_accounting_M7", "rules_on_whole_panel_M8", "unregistered_spec_estimation_beyond_candidate2_first_marriage_and_section2.7.7_refresh", "validated_projection_beyond_holdout", "forward_engine_certification_deferred_to_successor_gate"],
   "process_addendum_bindings": {"pass_run_verification": "#42 comment 4948637741", "ladder_search_disclosure": "#42 comment 4948637741 + finding 1 spec-selection"}
 }
 ```

@@ -1,0 +1,211 @@
+{
+  "schema": "m6.remarriage.learning_plan.round2.post_contact_defect.v1",
+  "status": "UNRATIFIABLE_FINDING",
+  "failure_class": "SELECTOR_DEFECT_AFTER_OUTCOME_CONTACT",
+  "selector_determination": "NOT_DETERMINED",
+  "selection_completed": false,
+  "selected_joint_law": null,
+  "per_origin_outcome": {
+    "divorced": "NONE",
+    "widowed": "NONE"
+  },
+  "per_origin_outcome_semantics": "NONE means that no law was selected because the selector did not complete; it is not an R0 or NO_OP_DESIGNED_PAUSE result",
+  "no_op_designed_pause": false,
+  "disposition": "DESIGNED_PAUSE_CONTINUES",
+  "disposition_basis": "unratifiable finding under section 7 of the ratified plan",
+  "registration_8_authorized": false,
+  "candidate_outcome_contact": true,
+  "attempt": {
+    "attempt_number": 1,
+    "started_at": "2026-07-17T15:36:40-04:00",
+    "ended_at": "2026-07-17T15:37:16-04:00",
+    "exit_code": 1,
+    "rerun_performed": false,
+    "disclosed_reexecution_used": false,
+    "rerun_permitted_under_current_freeze": false
+  },
+  "load_gate": {
+    "decision": "PROCEED",
+    "load_5_minute": 35.0,
+    "threshold": 40.0,
+    "reason": "load5_below_40",
+    "qstar_exit_used": false
+  },
+  "authority": {
+    "design_commit": "004c57d306741e1d97275a720effbb41f378d763",
+    "design_path": "docs/design/m6_remarriage_learning_plan_round2.md",
+    "design_sha256": "a73e758c62d67651588e3d4a6ef33c08e30c20ffeee68eb260267c9382e9904b",
+    "validation_path": "docs/design/m6_remarriage_learning_plan_round2_validation.json",
+    "validation_sha256": "6174887a095992bfe3d9ed4ddc9e2828090903c5862402b10f63542f8672f947",
+    "round1_ledger_path": "docs/analysis/m6_remarriage_train_only_delta_results.json",
+    "round1_ledger_sha256": "aabec7cc1254d1be9bcf57518632a04f4bbf42d842d30b1991b58a832206c05f",
+    "verification_issue_comment": 5005922371
+  },
+  "freeze": {
+    "commit": "f44246964b4e54080ab4c7b43e7e5b0c4b78ea7c",
+    "branch": "sol/remarr-r2-invest",
+    "source_tree_sha1": "5acfa23ab0a4f061b74f9082abba9a1b1d754a24",
+    "worktree_clean_at_execution": true,
+    "file_sha256": {
+      "scripts/analyze_m6_remarriage_train_delta.py": "3c4f5b789f90a1d322a3dce6787d546a24b577e1999738f9a72394aa54dbd5c1",
+      "scripts/m6_remarriage_round2_selector_config.json": "e83b331b5a1d7250c11d916dc1028d69e277d4c9ef5d46d8ae987507e2a5bdb2",
+      "scripts/reduce_m6_remarriage_round2.py": "6b6f4e0459be23c936894308e6e040219d623762a15926037a7e2d9a2ac83918",
+      "scripts/select_m6_remarriage_round2.py": "deed33105cffabda4477ac3b7d8b6f0edf9b90bb3ddb83ee42d7ef3434578268"
+    }
+  },
+  "runtime": {
+    "python_implementation": "CPython",
+    "python_version": "3.13.12",
+    "numpy_version": "2.4.2",
+    "dependencies": {
+      "pandas": "2.3.3",
+      "policyengine-us": "1.752.2",
+      "populace-fit": "0.1.0",
+      "populace-frame": "0.1.0",
+      "quantile-forest": "1.4.2",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    }
+  },
+  "information_boundary": {
+    "candidate_input_max_information_year": 2014,
+    "calendar_2014_flow_excluded": true,
+    "selection_relevant_2015_2019_read": false,
+    "fit_boundaries_validated": [
+      2006,
+      2008,
+      2010
+    ],
+    "fit_effective_max_year": {
+      "2006": 2005,
+      "2008": 2007,
+      "2010": 2009
+    },
+    "field_aware_runtime_asserts_passed": true,
+    "source_checksums": {
+      "demographic": "12ad56720f2435f4e738e4cfdfb02a4e6910cdc511f16be21a9108e6f848e81e",
+      "marital_events": "b3451caa2a8be172d0b76a90461b470efbc87a42cd1c51ff60adee4be1504f71",
+      "marital_person_years": "0c1f31c22ecfab97efca6e21be0aa270da4c317fb0a11e0fe4a80bc62d76ad03",
+      "marriage_records": "ed3d89b41fb09858d608534e3f73575bc1f4d2c404d7e7e9fb99963f811361f3"
+    }
+  },
+  "dynamic_file_open_audit": {
+    "installed_before_selector_reads": true,
+    "payload_assembled": false,
+    "observed_path_set_serialized": false,
+    "gates_yaml_read_result": null,
+    "runs_artifact_read_result": null,
+    "completeness": "NOT_DETERMINED",
+    "reason": "The frozen helper serializes and checks the accumulated path set only while assembling a completed selector payload. The exception preceded that step, and the in-memory set cannot be reconstructed without a forbidden rerun.",
+    "available_evidence": "The published preflight contains the dependency versions, frozen-tree import paths, source audit, and field-aware information-boundary validation."
+  },
+  "completed_before_failure": {
+    "synthetic_smoke_status": "SYNTHETIC_SMOKE_PASS",
+    "preflight_status": "PRE_OUTCOME_PREFLIGHT_PASS",
+    "full_run_source_load": true,
+    "full_run_fit_side_validation_boundaries": [
+      2006,
+      2008,
+      2010
+    ],
+    "boundary_2006_pseudo_truth_constructed": true,
+    "boundary_2006_expected_lock_matched": true,
+    "boundary_2006_transition_uniform_checksums": 40,
+    "boundary_2006_r0_direct_standardization": "pooled and both-origin records completed; publication-group loop failed before the direct diagnostic returned"
+  },
+  "boundary_2006_contact_facts": {
+    "anchor_persons_before_marital_intersection": 24911,
+    "anchor_households_before_marital_intersection": 8478,
+    "projected_persons": 8057,
+    "entry_dissolved_carriers": 690,
+    "truth_support_rows": 18358,
+    "truth_support_sha256": "725494b1b4bcf3faebf06fcb22176041e6e66e23de70cc8d10f6d4c473320c6e",
+    "truth_risk_rows": 1056,
+    "truth_event_rows": 46,
+    "truth_same_year_ysd0_events": 1,
+    "truth_same_year_ysd0_event_weight": 3250.0,
+    "origin_rows": {
+      "divorced": {
+        "risk": 931,
+        "events": 40
+      },
+      "widowed": {
+        "risk": 125,
+        "events": 6
+      }
+    },
+    "finding_role": "locked input and contact facts only; not a completed candidate outcome"
+  },
+  "not_reached": [
+    "completed_r0_law_record",
+    "spouse_gap_draws",
+    "nonzero_laws",
+    "boundary_2008_pseudo_truth",
+    "boundary_2010_pseudo_truth",
+    "eligibility_rules",
+    "objective_J",
+    "jackknife_standard_error",
+    "one_se_selection",
+    "final_2014_information_fit"
+  ],
+  "crn_projection_draws_planned_for_current_law": 40,
+  "crn_projection_draws_run": 0,
+  "failure": {
+    "exception_type": "KeyError",
+    "exception_message": "'weight'",
+    "last_progress_message": "candidate outcome: boundary 2006, R0, 40 CRN draws",
+    "traceback": {
+      "evaluate_boundary": "scripts/select_m6_remarriage_round2.py:2729",
+      "publication_group_record": "scripts/select_m6_remarriage_round2.py:2255",
+      "failing_weight_access": "scripts/select_m6_remarriage_round2.py:2179"
+    },
+    "root_cause": "For an event-free publication group, the list-comprehension mask is empty. pandas interprets selected_events[[]] as a zero-column selection rather than a zero-row Boolean selection, so the subsequent weight access raises KeyError.",
+    "source_weight_column_present": true,
+    "first_empty_group_identity_known": false
+  },
+  "selector_stdout": {
+    "configured_path": "docs/analysis/m6_remarriage_round2_selection_full.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "valid_json_produced": false,
+    "configured_path_committed": false,
+    "reason": "Committing substitute JSON at the frozen full-output path would repurpose an empty selector output after contact."
+  },
+  "reducer": {
+    "configured_path": "docs/analysis/m6_remarriage_round2_selection_results.json",
+    "run": false,
+    "status": "NOT_RUN_NO_JSON_INPUT",
+    "configured_path_committed": false,
+    "reason": "The frozen reducer requires the completed raw selector schema; stdout contained zero bytes."
+  },
+  "published_artifacts": {
+    "incident_ledger": "docs/analysis/m6_remarriage_round2_selection_execution_defect.json",
+    "report": "docs/analysis/m6_remarriage_round2_selection.md",
+    "selector_stderr": {
+      "path": "docs/analysis/m6_remarriage_round2_selection_execution_defect.txt",
+      "bytes": 4365,
+      "sha256": "6c02d24548b8687bb5e81a8ca347ca5fbe2b1a235e5f6e1e99e3f2f61df60c3c"
+    },
+    "synthetic_smoke": {
+      "path": "docs/analysis/m6_remarriage_round2_selection_smoke.json",
+      "bytes": 4018,
+      "sha256": "75748e787e76dd374810a804db9ea0adff148ddc11fed35af65a943c405b2c37"
+    },
+    "preflight": {
+      "path": "docs/analysis/m6_remarriage_round2_selection_preflight.json",
+      "bytes": 587101,
+      "sha256": "76f63908156777867c8788f4e3801717a030cf74b4187b705a6ea48e852e897b"
+    }
+  },
+  "governance": {
+    "stop_and_disclose_applied": true,
+    "partial_output_repurposed": false,
+    "self_rescue_performed": false,
+    "missing_dynamic_file_open_finding_disclosed": true,
+    "required_next_step": "amend the selector prospectively, obtain a new referee decision and freeze, then begin a new investigation",
+    "authority_sections": [
+      "docs/design/m6_remarriage_learning_plan_round2.md:770-773",
+      "docs/design/m6_remarriage_learning_plan_round2.md:777-781"
+    ]
+  }
+}

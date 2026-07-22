@@ -1,0 +1,1984 @@
+{
+  "authority": {
+    "pattern": "train-only findings artifact; no contract surface",
+    "program": "docs/design/m6_candidate3_program.md section 5.1",
+    "projected_index_law": "docs/design/m6_projection_engine.md section 2.7.6"
+  },
+  "cross_pins": {
+    "boundary_2010_fit_signature_sha256": "287a4a29e8ed506f0ba1a7546495b9bfe1971a8e889ec265f935541030bf2dd3",
+    "boundary_2010_rng_registry_sha256": "a06f211ff57031f886d693a33ba7742a90d51e9b414a221a38f19f3beca357ed",
+    "candidate_per_draw_replay_matches_ledger": true,
+    "candidate_per_draw_replay_records_sha256": "293e5dd06871f5c0120b722cb1dc2274bd5ed1d74d4f1bc8db748c552806c16a",
+    "qstar_freeze_commit": "efabdaf2dcba59a4d5ba37312e895846c1da5f59",
+    "qstar_ledger_bytes": 1739115,
+    "qstar_ledger_path": "docs/analysis/m6_qstar_train_only_selection_results.json",
+    "qstar_ledger_sha256": "d25b8e159384f8a84ed7f2218d863ca63d96fc9cb244536853b0a1f05c4025bb",
+    "qstar_raw_stdout_sha256": "24131632e717293551cb539d4da73c772d090ae91adc256c4a029add88103401",
+    "qstar_schema": "m6_qstar_train_only_selection.findings.v1",
+    "qstar_selected_q": 0.55
+  },
+  "environment": {
+    "editable_fitting_stack": {
+      "populace_fit": {
+        "editable_source": "/Users/maxghenis/PolicyEngine/populace/packages/populace-fit",
+        "repository_branch": "main",
+        "repository_head": "ee8f7fc139271de5d4e448549c35e8c5eb992534",
+        "repository_root": "/Users/maxghenis/PolicyEngine/populace",
+        "source_tree_sha1": "5c866378fdf5906b7a61da9977b8d028d1d36e9f",
+        "tracked_source_clean": true,
+        "version": "0.1.0"
+      },
+      "populace_frame": {
+        "editable_source": "/Users/maxghenis/PolicyEngine/populace/packages/populace-frame",
+        "repository_branch": "main",
+        "repository_head": "ee8f7fc139271de5d4e448549c35e8c5eb992534",
+        "repository_root": "/Users/maxghenis/PolicyEngine/populace",
+        "source_tree_sha1": "7cfb9ee78beb74911963913f202a4471aae2f52b",
+        "tracked_source_clean": true,
+        "version": "0.1.0"
+      }
+    },
+    "packages": {
+      "numpy": "2.5.1",
+      "pandas": "3.0.3",
+      "policyengine-core": "3.30.3",
+      "policyengine-us": "1.752.2",
+      "populace-fit": "0.1.0",
+      "populace-frame": "0.1.0",
+      "quantile-forest": "1.4.2",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.18.0"
+    },
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.4",
+    "python_executable": "/Users/maxghenis/.local/share/uv/python/cpython-3.14.4-macos-aarch64-none/bin/python3.14",
+    "repository": {
+      "branch": "sol/c3-diag",
+      "head": "a0219a3b2c85a0142c7e3ea4043e45651702d751",
+      "root": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c3-diag",
+      "script_blob_sha1": "c45efe2ad696fa06b5ab1793c0c0719a45298c15",
+      "script_sha256": "78b8c8dccd7aa9c2b70832250c3a798ff2d21ef8282cb60e8f2c8763ac906f9c",
+      "source_tree_sha1": "57b53e85bfbd0bf00fc475a1f1347bfbbd52fa7f",
+      "worktree_clean_at_start": true
+    },
+    "thread_environment": {
+      "LOKY_MAX_CPU_COUNT": "8",
+      "MKL_NUM_THREADS": "8",
+      "NUMEXPR_NUM_THREADS": "8",
+      "OMP_NUM_THREADS": "8",
+      "OPENBLAS_NUM_THREADS": "8",
+      "POPULACE_FIT_N_JOBS": "8",
+      "POPULACE_FIT_PREDICT_WORKERS": "8",
+      "VECLIB_MAXIMUM_THREADS": "8"
+    }
+  },
+  "findings": {
+    "primary_f1_mean_dlog": {
+      "aggregate": {
+        "by_reference_year": {
+          "2012": {
+            "absolute_gap": 0.018505865735627097,
+            "candidate_projected_index_moment": 0.15459022246822196,
+            "candidate_realized_index_moment": 0.12984565433856857,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.018505865735627097,
+            "index_explained_component": -0.024744568129653394,
+            "index_explained_percent": 133.71202667927975,
+            "residual_conditional_on_index": 0.0062387023940262964,
+            "residual_percent": -33.712026679279745,
+            "truth_moment": 0.13608435673259486
+          },
+          "2014": {
+            "absolute_gap": 0.014119073096621235,
+            "candidate_projected_index_moment": 0.11652343605600053,
+            "candidate_realized_index_moment": 0.10429673554089261,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.014119073096621235,
+            "index_explained_component": -0.012226700515107922,
+            "index_explained_percent": -86.59704806000214,
+            "residual_conditional_on_index": 0.026345773611729156,
+            "residual_percent": 186.59704806000215,
+            "truth_moment": 0.13064250915262177
+          }
+        },
+        "draw_seeds": [
+          6200,
+          6201,
+          6202,
+          6203,
+          6204,
+          6205,
+          6206,
+          6207,
+          6208,
+          6209,
+          6210,
+          6211,
+          6212,
+          6213,
+          6214,
+          6215,
+          6216,
+          6217,
+          6218,
+          6219
+        ],
+        "window_aggregate": {
+          "absolute_gap": 0.0037862630307179956,
+          "candidate_projected_index_moment": 0.13734761001092965,
+          "candidate_realized_index_moment": 0.11827985981827979,
+          "closure_error": 0.0,
+          "gap_truth_minus_candidate": -0.0037862630307179956,
+          "index_explained_component": -0.019067750192649863,
+          "index_explained_percent": 503.60342210651993,
+          "residual_conditional_on_index": 0.015281487161931867,
+          "residual_percent": -403.60342210652,
+          "truth_moment": 0.13356134698021166
+        }
+      },
+      "cell": "earn_dlog_mean.prime",
+      "cohort": "prime (ages 25-44)",
+      "exact_gate_analog": "weighted pooled mean of positive-to-positive adjacent biennial log changes over reference years 2010/2012/2014",
+      "label": "primary F1 mechanism split",
+      "metric": "abs_gap_log",
+      "per_draw": [
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.01689645521828398,
+              "candidate_projected_index_moment": 0.15298081195087884,
+              "candidate_realized_index_moment": 0.12823624382122542,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.01689645521828398,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 146.4482804823869,
+              "residual_conditional_on_index": 0.007848112911369443,
+              "residual_percent": -46.44828048238691,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.02119751221489774,
+              "candidate_projected_index_moment": 0.10944499693772403,
+              "candidate_realized_index_moment": 0.09434715131298212,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.02119751221489774,
+              "index_explained_component": -0.01509784562474191,
+              "index_explained_percent": -71.22461103775684,
+              "residual_conditional_on_index": 0.03629535783963965,
+              "residual_percent": 171.22461103775683,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6200,
+          "window_aggregate": {
+            "absolute_gap": 0.00033285994039883304,
+            "candidate_projected_index_moment": 0.13322848703981283,
+            "candidate_realized_index_moment": 0.11287860657365828,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.00033285994039883304,
+            "index_explained_component": -0.020349880466154546,
+            "index_explained_percent": -6113.646611175651,
+            "residual_conditional_on_index": 0.02068274040655338,
+            "residual_percent": 6213.646611175651,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.007914802424251022,
+              "candidate_projected_index_moment": 0.12816955430834384,
+              "candidate_realized_index_moment": 0.10342498617869046,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.007914802424251022,
+              "index_explained_component": -0.02474456812965338,
+              "index_explained_percent": -312.63658652850023,
+              "residual_conditional_on_index": 0.0326593705539044,
+              "residual_percent": 412.63658652850023,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.0011281702634799995,
+              "candidate_projected_index_moment": 0.12951433888914177,
+              "candidate_realized_index_moment": 0.11663560284265712,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.0011281702634799995,
+              "index_explained_component": -0.012878736046484651,
+              "index_explained_percent": -1141.5596088092575,
+              "residual_conditional_on_index": 0.01400690630996465,
+              "residual_percent": 1241.5596088092575,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6201,
+          "window_aggregate": {
+            "absolute_gap": 0.004784939966006735,
+            "candidate_projected_index_moment": 0.12877640701420492,
+            "candidate_realized_index_moment": 0.10938676240243778,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.004784939966006735,
+            "index_explained_component": -0.01938964461176715,
+            "index_explained_percent": -405.2223173021072,
+            "residual_conditional_on_index": 0.024174584577773883,
+            "residual_percent": 505.2223173021071,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.016925395613606536,
+              "candidate_projected_index_moment": 0.1530097523462014,
+              "candidate_realized_index_moment": 0.12826518421654795,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.016925395613606536,
+              "index_explained_component": -0.02474456812965345,
+              "index_explained_percent": 146.19787149767407,
+              "residual_conditional_on_index": 0.007819172516046913,
+              "residual_percent": -46.19787149767408,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.036973106318559074,
+              "candidate_projected_index_moment": 0.09366940283406269,
+              "candidate_realized_index_moment": 0.08337830524990558,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.036973106318559074,
+              "index_explained_component": -0.01029109758415711,
+              "index_explained_percent": -27.834008577719576,
+              "residual_conditional_on_index": 0.047264203902716184,
+              "residual_percent": 127.83400857771959,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6202,
+          "window_aggregate": {
+            "absolute_gap": 0.007296201239135519,
+            "candidate_projected_index_moment": 0.12626514574107614,
+            "candidate_realized_index_moment": 0.10804597722047643,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.007296201239135519,
+            "index_explained_component": -0.01821916852059971,
+            "index_explained_percent": -249.7075933552291,
+            "residual_conditional_on_index": 0.02551536975973523,
+            "residual_percent": 349.7075933552291,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.01734544978298977,
+              "candidate_projected_index_moment": 0.15342980651558463,
+              "candidate_realized_index_moment": 0.1286852383859312,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.01734544978298977,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 142.65740259972836,
+              "residual_conditional_on_index": 0.007399118346663652,
+              "residual_percent": -42.65740259972834,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.024263045024637567,
+              "candidate_projected_index_moment": 0.1063794641279842,
+              "candidate_realized_index_moment": 0.09467665793764983,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.024263045024637567,
+              "index_explained_component": -0.01170280619033437,
+              "index_explained_percent": -48.23304815389379,
+              "residual_conditional_on_index": 0.035965851214971936,
+              "residual_percent": 148.2330481538938,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6203,
+          "window_aggregate": {
+            "absolute_gap": 0.0013794600896615272,
+            "candidate_projected_index_moment": 0.13218188689055013,
+            "candidate_realized_index_moment": 0.1133497172743398,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.0013794600896615272,
+            "index_explained_component": -0.01883216961621033,
+            "index_explained_percent": -1365.1840859586669,
+            "residual_conditional_on_index": 0.020211629705871856,
+            "residual_percent": 1465.184085958667,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.04195234160955352,
+              "candidate_projected_index_moment": 0.1780366983421484,
+              "candidate_realized_index_moment": 0.15329213021249496,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.04195234160955352,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 58.982567313998295,
+              "residual_conditional_on_index": -0.0172077734799001,
+              "residual_percent": 41.017432686001705,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.035099173098580835,
+              "candidate_projected_index_moment": 0.09554333605404093,
+              "candidate_realized_index_moment": 0.080586602767598,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.035099173098580835,
+              "index_explained_component": -0.014956733286442925,
+              "index_explained_percent": -42.612779635676574,
+              "residual_conditional_on_index": 0.05005590638502376,
+              "residual_percent": 142.6127796356766,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6204,
+          "window_aggregate": {
+            "absolute_gap": 0.007127863073194934,
+            "candidate_projected_index_moment": 0.1406892100534066,
+            "candidate_realized_index_moment": 0.12044173788590283,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.007127863073194934,
+            "index_explained_component": -0.020247472167503763,
+            "index_explained_percent": 284.0609023992966,
+            "residual_conditional_on_index": 0.013119609094308829,
+            "residual_percent": -184.06090239929657,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.0194297391690067,
+              "candidate_projected_index_moment": 0.15551409590160156,
+              "candidate_realized_index_moment": 0.13076952777194814,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.0194297391690067,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 127.3540931991751,
+              "residual_conditional_on_index": 0.0053148289606467225,
+              "residual_percent": -27.354093199175104,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.02541891920979092,
+              "candidate_projected_index_moment": 0.10522358994283085,
+              "candidate_realized_index_moment": 0.09133816248721603,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.02541891920979092,
+              "index_explained_component": -0.013885427455614816,
+              "index_explained_percent": -54.626348748401526,
+              "residual_conditional_on_index": 0.039304346665405734,
+              "residual_percent": 154.6263487484015,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6205,
+          "window_aggregate": {
+            "absolute_gap": 0.0007966344959670357,
+            "candidate_projected_index_moment": 0.13276471248424462,
+            "candidate_realized_index_moment": 0.11294750035456655,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.0007966344959670357,
+            "index_explained_component": -0.019817212129678075,
+            "index_explained_percent": -2487.616620922489,
+            "residual_conditional_on_index": 0.02061384662564511,
+            "residual_percent": 2587.616620922489,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.010615366291695266,
+              "candidate_projected_index_moment": 0.14669972302429013,
+              "candidate_realized_index_moment": 0.12195515489463671,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.010615366291695266,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 233.10140648666896,
+              "residual_conditional_on_index": 0.014129201837958155,
+              "residual_percent": -133.101406486669,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.014507689514072414,
+              "candidate_projected_index_moment": 0.11613481963854935,
+              "candidate_realized_index_moment": 0.10400929842771503,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.014507689514072414,
+              "index_explained_component": -0.012125521210834322,
+              "index_explained_percent": -83.57996081369542,
+              "residual_conditional_on_index": 0.026633210724906736,
+              "residual_percent": 183.57996081369544,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6206,
+          "window_aggregate": {
+            "absolute_gap": 0.0007422056679783906,
+            "candidate_projected_index_moment": 0.13281914131223327,
+            "candidate_realized_index_moment": 0.11381143766461681,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.0007422056679783906,
+            "index_explained_component": -0.01900770364761646,
+            "index_explained_percent": -2560.975275140296,
+            "residual_conditional_on_index": 0.019749909315594852,
+            "residual_percent": 2660.975275140296,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.01765617808229822,
+              "candidate_projected_index_moment": 0.15374053481489308,
+              "candidate_realized_index_moment": 0.12899596668523966,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.01765617808229822,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 140.14679742306123,
+              "residual_conditional_on_index": 0.007088390047355203,
+              "residual_percent": -40.14679742306123,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.008710247248108677,
+              "candidate_projected_index_moment": 0.12193226190451309,
+              "candidate_realized_index_moment": 0.11247521538406202,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.008710247248108677,
+              "index_explained_component": -0.009457046520451068,
+              "index_explained_percent": -108.57380107670939,
+              "residual_conditional_on_index": 0.018167293768559745,
+              "residual_percent": 208.57380107670937,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6207,
+          "window_aggregate": {
+            "absolute_gap": 0.005766238897858628,
+            "candidate_projected_index_moment": 0.1393275858780703,
+            "candidate_realized_index_moment": 0.12151751680053284,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.005766238897858628,
+            "index_explained_component": -0.017810069077537447,
+            "index_explained_percent": 308.8680402081756,
+            "residual_conditional_on_index": 0.012043830179678819,
+            "residual_percent": -208.86804020817556,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.017321031226582823,
+              "candidate_projected_index_moment": 0.15340538795917769,
+              "candidate_realized_index_moment": 0.1286608198295243,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.017321031226582823,
+              "index_explained_component": -0.024744568129653394,
+              "index_explained_percent": 142.85851578904592,
+              "residual_conditional_on_index": 0.007423536903070571,
+              "residual_percent": -42.85851578904591,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.039451114851173114,
+              "candidate_projected_index_moment": 0.09119139430144865,
+              "candidate_realized_index_moment": 0.0831556676458273,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.039451114851173114,
+              "index_explained_component": -0.008035726655621356,
+              "index_explained_percent": -20.36882021188916,
+              "residual_conditional_on_index": 0.04748684150679447,
+              "residual_percent": 120.36882021188916,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6208,
+          "window_aggregate": {
+            "absolute_gap": 0.008453517046382059,
+            "candidate_projected_index_moment": 0.1251078299338296,
+            "candidate_realized_index_moment": 0.10798183127817045,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.008453517046382059,
+            "index_explained_component": -0.017125998655659155,
+            "index_explained_percent": -202.59021850542965,
+            "residual_conditional_on_index": 0.025579515702041214,
+            "residual_percent": 302.5902185054296,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.022121679675678824,
+              "candidate_projected_index_moment": 0.1582060364082737,
+              "candidate_realized_index_moment": 0.13346146827862027,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.022121679675678824,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 111.85664240884147,
+              "residual_conditional_on_index": 0.002622888453974598,
+              "residual_percent": -11.856642408841463,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.018204329818813536,
+              "candidate_projected_index_moment": 0.1488468389714353,
+              "candidate_realized_index_moment": 0.1359941180244489,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.018204329818813536,
+              "index_explained_component": -0.01285272094698639,
+              "index_explained_percent": 70.6025493655007,
+              "residual_conditional_on_index": -0.005351608871827146,
+              "residual_percent": 29.397450634499304,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6209,
+          "window_aggregate": {
+            "absolute_gap": 0.020389890745859618,
+            "candidate_projected_index_moment": 0.15395123772607128,
+            "candidate_realized_index_moment": 0.13461304199539598,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.020389890745859618,
+            "index_explained_component": -0.0193381957306753,
+            "index_explained_percent": 94.84207626076724,
+            "residual_conditional_on_index": -0.0010516950151843174,
+            "residual_percent": 5.157923739232762,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.02706663592566405,
+              "candidate_projected_index_moment": 0.16315099265825891,
+              "candidate_realized_index_moment": 0.13840642452860552,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.02706663592566405,
+              "index_explained_component": -0.024744568129653394,
+              "index_explained_percent": 91.42092204443878,
+              "residual_conditional_on_index": -0.0023220677960106573,
+              "residual_percent": 8.579077955561218,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.03936960326560664,
+              "candidate_projected_index_moment": 0.09127290588701513,
+              "candidate_realized_index_moment": 0.08418206697127203,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.03936960326560664,
+              "index_explained_component": -0.0070908389157430946,
+              "index_explained_percent": -18.010948365176098,
+              "residual_conditional_on_index": 0.04646044218134973,
+              "residual_percent": 118.01094836517609,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6210,
+          "window_aggregate": {
+            "absolute_gap": 0.002916985925053822,
+            "candidate_projected_index_moment": 0.13064436105515784,
+            "candidate_realized_index_moment": 0.11390348497928134,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.002916985925053822,
+            "index_explained_component": -0.0167408760758765,
+            "index_explained_percent": -573.9100738227803,
+            "residual_conditional_on_index": 0.019657862000930323,
+            "residual_percent": 673.9100738227803,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.003221862643144835,
+              "candidate_projected_index_moment": 0.13286249408945003,
+              "candidate_realized_index_moment": 0.1081179259597966,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.003221862643144835,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": -768.0205790989414,
+              "residual_conditional_on_index": 0.027966430772798256,
+              "residual_percent": 868.0205790989414,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.018960183857760243,
+              "candidate_projected_index_moment": 0.149602693010382,
+              "candidate_realized_index_moment": 0.1407078507772208,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.018960183857760243,
+              "index_explained_component": -0.008894842233161199,
+              "index_explained_percent": 46.91326993393376,
+              "residual_conditional_on_index": -0.010065341624599045,
+              "residual_percent": 53.08673006606624,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6211,
+          "window_aggregate": {
+            "absolute_gap": 0.0068633478039748785,
+            "candidate_projected_index_moment": 0.14042469478418654,
+            "candidate_realized_index_moment": 0.12280804549631878,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.0068633478039748785,
+            "index_explained_component": -0.017616649287867756,
+            "index_explained_percent": 256.67720463860434,
+            "residual_conditional_on_index": 0.010753301483892877,
+            "residual_percent": -156.67720463860434,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.020360873106382765,
+              "candidate_projected_index_moment": 0.15644522983897763,
+              "candidate_realized_index_moment": 0.1317006617093242,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.020360873106382765,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 121.52999530209954,
+              "residual_conditional_on_index": 0.004383695023270656,
+              "residual_percent": -21.529995302099532,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.016037036056747972,
+              "candidate_projected_index_moment": 0.1146054730958738,
+              "candidate_realized_index_moment": 0.10285902195020126,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.016037036056747972,
+              "index_explained_component": -0.011746451145672535,
+              "index_explained_percent": -73.24577374589072,
+              "residual_conditional_on_index": 0.027783487202420507,
+              "residual_percent": 173.24577374589072,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6212,
+          "window_aggregate": {
+            "absolute_gap": 0.0038971451484718367,
+            "candidate_projected_index_moment": 0.1374584921286835,
+            "candidate_realized_index_moment": 0.11860568770894238,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.0038971451484718367,
+            "index_explained_component": -0.018852804419741118,
+            "index_explained_percent": 483.75935977477644,
+            "residual_conditional_on_index": 0.014955659271269281,
+            "residual_percent": -383.75935977477644,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.020036235394190943,
+              "candidate_projected_index_moment": 0.1561205921267858,
+              "candidate_realized_index_moment": 0.1313760239971324,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.020036235394190943,
+              "index_explained_component": -0.024744568129653394,
+              "index_explained_percent": 123.49908874013093,
+              "residual_conditional_on_index": 0.0047083327354624505,
+              "residual_percent": -23.499088740130922,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.009421452248099899,
+              "candidate_projected_index_moment": 0.14006396140072166,
+              "candidate_realized_index_moment": 0.12327151973582624,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.009421452248099899,
+              "index_explained_component": -0.01679244166489542,
+              "index_explained_percent": 178.23623389145862,
+              "residual_conditional_on_index": 0.007370989416795523,
+              "residual_percent": -78.23623389145862,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6213,
+          "window_aggregate": {
+            "absolute_gap": 0.015278295792066382,
+            "candidate_projected_index_moment": 0.14883964277227804,
+            "candidate_realized_index_moment": 0.12770476484808094,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.015278295792066382,
+            "index_explained_component": -0.021134877924197104,
+            "index_explained_percent": 138.33269241437185,
+            "residual_conditional_on_index": 0.005856582132130722,
+            "residual_percent": -38.33269241437184,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.016330912482197674,
+              "candidate_projected_index_moment": 0.15241526921479254,
+              "candidate_realized_index_moment": 0.12767070108513914,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.016330912482197674,
+              "index_explained_component": -0.024744568129653394,
+              "index_explained_percent": 151.51981346190817,
+              "residual_conditional_on_index": 0.00841365564745572,
+              "residual_percent": -51.51981346190818,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.0008774934336170381,
+              "candidate_projected_index_moment": 0.1315200025862388,
+              "candidate_realized_index_moment": 0.11655281803809828,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.0008774934336170381,
+              "index_explained_component": -0.014967184548140527,
+              "index_explained_percent": 1705.6748204309197,
+              "residual_conditional_on_index": 0.01408969111452349,
+              "residual_percent": -1605.67482043092,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6214,
+          "window_aggregate": {
+            "absolute_gap": 0.009405569497013266,
+            "candidate_projected_index_moment": 0.14296691647722493,
+            "candidate_realized_index_moment": 0.12264435210580575,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.009405569497013266,
+            "index_explained_component": -0.020322564371419174,
+            "index_explained_percent": 216.0694722193334,
+            "residual_conditional_on_index": 0.010916994874405908,
+            "residual_percent": -116.06947221933338,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.045280323216395024,
+              "candidate_projected_index_moment": 0.1813646799489899,
+              "candidate_realized_index_moment": 0.15662011181933647,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.045280323216395024,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 54.64750772956928,
+              "residual_conditional_on_index": -0.020535755086741603,
+              "residual_percent": 45.35249227043072,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.03790682047859803,
+              "candidate_projected_index_moment": 0.09273568867402374,
+              "candidate_realized_index_moment": 0.0747111821361923,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.03790682047859803,
+              "index_explained_component": -0.018024506537831442,
+              "index_explained_percent": -47.54950774098285,
+              "residual_conditional_on_index": 0.05593132701642947,
+              "residual_percent": 147.54950774098285,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6215,
+          "window_aggregate": {
+            "absolute_gap": 0.007545591772139704,
+            "candidate_projected_index_moment": 0.14110693875235136,
+            "candidate_realized_index_moment": 0.11945183834688555,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.007545591772139704,
+            "index_explained_component": -0.02165510040546581,
+            "index_explained_percent": 286.99008718470697,
+            "residual_conditional_on_index": 0.014109508633326107,
+            "residual_percent": -186.99008718470697,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.016950113965410213,
+              "candidate_projected_index_moment": 0.15303447069800508,
+              "candidate_realized_index_moment": 0.12828990256835168,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.016950113965410213,
+              "index_explained_component": -0.024744568129653394,
+              "index_explained_percent": 145.98467113642528,
+              "residual_conditional_on_index": 0.007794454164243181,
+              "residual_percent": -45.984671136425284,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.003537464406938806,
+              "candidate_projected_index_moment": 0.13417997355956057,
+              "candidate_realized_index_moment": 0.12173839622693074,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.003537464406938806,
+              "index_explained_component": -0.012441577332629836,
+              "index_explained_percent": 351.70890506277425,
+              "residual_conditional_on_index": 0.00890411292569103,
+              "residual_percent": -251.70890506277425,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6216,
+          "window_aggregate": {
+            "absolute_gap": 0.010937298915272398,
+            "candidate_projected_index_moment": 0.14449864589548406,
+            "candidate_realized_index_moment": 0.12532306640320864,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.010937298915272398,
+            "index_explained_component": -0.019175579492275413,
+            "index_explained_percent": 175.32280721979188,
+            "residual_conditional_on_index": 0.008238280577003015,
+            "residual_percent": -75.32280721979187,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.012845518434178221,
+              "candidate_projected_index_moment": 0.14892987516677308,
+              "candidate_realized_index_moment": 0.12418530703711966,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.012845518434178221,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 192.63191483043036,
+              "residual_conditional_on_index": 0.0118990496954752,
+              "residual_percent": -92.63191483043033,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.009374645852583241,
+              "candidate_projected_index_moment": 0.140017155005205,
+              "candidate_realized_index_moment": 0.12718135057552069,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.009374645852583241,
+              "index_explained_component": -0.012835804429684322,
+              "index_explained_percent": 136.92041951800599,
+              "residual_conditional_on_index": 0.003461158577101081,
+              "residual_percent": -36.92041951800598,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6217,
+          "window_aggregate": {
+            "absolute_gap": 0.011343297737694436,
+            "candidate_projected_index_moment": 0.1449046447179061,
+            "candidate_realized_index_moment": 0.12553813858730362,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.011343297737694436,
+            "index_explained_component": -0.01936650613060248,
+            "index_explained_percent": 170.73082782837002,
+            "residual_conditional_on_index": 0.008023208392908043,
+            "residual_percent": -70.73082782837002,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.02003724271060059,
+              "candidate_projected_index_moment": 0.15612159944319545,
+              "candidate_realized_index_moment": 0.13137703131354203,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.02003724271060059,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 123.49288016839986,
+              "residual_conditional_on_index": 0.004707325419052832,
+              "residual_percent": -23.49288016839986,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.02928944511268486,
+              "candidate_projected_index_moment": 0.10135306403993691,
+              "candidate_realized_index_moment": 0.08936673671944034,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.02928944511268486,
+              "index_explained_component": -0.011986327320496565,
+              "index_explained_percent": -40.923709119041824,
+              "residual_conditional_on_index": 0.041275772433181424,
+              "residual_percent": 140.92370911904183,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6218,
+          "window_aggregate": {
+            "absolute_gap": 0.00219353680702164,
+            "candidate_projected_index_moment": 0.13136781017319002,
+            "candidate_realized_index_moment": 0.11239038816905961,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": 0.00219353680702164,
+            "index_explained_component": -0.018977422004130412,
+            "index_explained_percent": -865.1517468675507,
+            "residual_conditional_on_index": 0.021170958811152052,
+            "residual_percent": 965.1517468675507,
+            "truth_moment": 0.13356134698021166
+          }
+        },
+        {
+          "by_reference_year": {
+            "2012": {
+              "absolute_gap": 0.022082487875223183,
+              "candidate_projected_index_moment": 0.15816684460781805,
+              "candidate_realized_index_moment": 0.13342227647816463,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": -0.022082487875223183,
+              "index_explained_component": -0.02474456812965342,
+              "index_explained_percent": 112.05516456964581,
+              "residual_conditional_on_index": 0.002662080254430238,
+              "residual_percent": -12.055164569645815,
+              "truth_moment": 0.13608435673259486
+            },
+            "2014": {
+              "absolute_gap": 0.013405148893299454,
+              "candidate_projected_index_moment": 0.11723736025932231,
+              "candidate_realized_index_moment": 0.10876698560708735,
+              "closure_error": 0.0,
+              "gap_truth_minus_candidate": 0.013405148893299454,
+              "index_explained_component": -0.008470374652234963,
+              "index_explained_percent": -63.187471617483254,
+              "residual_conditional_on_index": 0.021875523545534417,
+              "residual_percent": 163.18747161748325,
+              "truth_moment": 0.13064250915262177
+            }
+          },
+          "draw_seed": 6219,
+          "window_aggregate": {
+            "absolute_gap": 0.006067062408419227,
+            "candidate_projected_index_moment": 0.1396284093886309,
+            "candidate_realized_index_moment": 0.12225330027061172,
+            "closure_error": 0.0,
+            "gap_truth_minus_candidate": -0.006067062408419227,
+            "index_explained_component": -0.017375109118019164,
+            "index_explained_percent": 286.38421608961573,
+            "residual_conditional_on_index": 0.011308046709599937,
+            "residual_percent": -186.38421608961573,
+            "truth_moment": 0.13356134698021166
+          }
+        }
+      ]
+    },
+    "secondary_lag2_autocorrelation": {
+      "aggregate": {
+        "absolute_gap": 0.10915983074341762,
+        "candidate_projected_index_moment": 0.7646722454819226,
+        "candidate_realized_index_moment": 0.7652143270386539,
+        "closure_error": 0.0,
+        "draw_seeds": [
+          6200,
+          6201,
+          6202,
+          6203,
+          6204,
+          6205,
+          6206,
+          6207,
+          6208,
+          6209,
+          6210,
+          6211,
+          6212,
+          6213,
+          6214,
+          6215,
+          6216,
+          6217,
+          6218,
+          6219
+        ],
+        "gap_truth_minus_candidate": -0.10915983074341762,
+        "index_explained_component": 0.0005420815567312998,
+        "index_explained_percent": -0.4965943543879922,
+        "residual_conditional_on_index": -0.10970191230014892,
+        "residual_percent": 100.496594354388,
+        "truth_moment": 0.655512414738505
+      },
+      "cell": "earn_autocorr_lag2",
+      "exact_gate_analog": "weighted Pearson correlation of positive log earnings at lag 2 on the biennial 2010/2012/2014 grid",
+      "label": "secondary",
+      "metric": "abs_gap_corr",
+      "per_draw": [
+        {
+          "absolute_gap": 0.10804314057168107,
+          "candidate_projected_index_moment": 0.763555555310186,
+          "candidate_realized_index_moment": 0.7632160517536154,
+          "closure_error": 0.0,
+          "draw_seed": 6200,
+          "gap_truth_minus_candidate": -0.10804314057168107,
+          "index_explained_component": -0.0003395035565706417,
+          "index_explained_percent": 0.3142296260310931,
+          "residual_conditional_on_index": -0.10770363701511043,
+          "residual_percent": 99.68577037396891,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.130603737647346,
+          "candidate_projected_index_moment": 0.786116152385851,
+          "candidate_realized_index_moment": 0.7891631912185367,
+          "closure_error": 0.0,
+          "draw_seed": 6201,
+          "gap_truth_minus_candidate": -0.130603737647346,
+          "index_explained_component": 0.0030470388326857556,
+          "index_explained_percent": -2.333041065726096,
+          "residual_conditional_on_index": -0.13365077648003176,
+          "residual_percent": 102.33304106572609,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.09418462522079307,
+          "candidate_projected_index_moment": 0.749697039959298,
+          "candidate_realized_index_moment": 0.7485783917945437,
+          "closure_error": 0.0,
+          "draw_seed": 6202,
+          "gap_truth_minus_candidate": -0.09418462522079307,
+          "index_explained_component": -0.0011186481647543767,
+          "index_explained_percent": 1.1877184435697192,
+          "residual_conditional_on_index": -0.0930659770560387,
+          "residual_percent": 98.81228155643029,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.12647721027112824,
+          "candidate_projected_index_moment": 0.7819896250096332,
+          "candidate_realized_index_moment": 0.7829809119264749,
+          "closure_error": 0.0,
+          "draw_seed": 6203,
+          "gap_truth_minus_candidate": -0.12647721027112824,
+          "index_explained_component": 0.0009912869168416938,
+          "index_explained_percent": -0.7837672215545232,
+          "residual_conditional_on_index": -0.12746849718796993,
+          "residual_percent": 100.78376722155451,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.1077200603726246,
+          "candidate_projected_index_moment": 0.7632324751111296,
+          "candidate_realized_index_moment": 0.7640240600184215,
+          "closure_error": 0.0,
+          "draw_seed": 6204,
+          "gap_truth_minus_candidate": -0.1077200603726246,
+          "index_explained_component": 0.0007915849072919201,
+          "index_explained_percent": -0.7348537538446175,
+          "residual_conditional_on_index": -0.10851164527991652,
+          "residual_percent": 100.73485375384462,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.06486729955477222,
+          "candidate_projected_index_moment": 0.7203797142932772,
+          "candidate_realized_index_moment": 0.7200288537055939,
+          "closure_error": 0.0,
+          "draw_seed": 6205,
+          "gap_truth_minus_candidate": -0.06486729955477222,
+          "index_explained_component": -0.0003508605876832993,
+          "index_explained_percent": 0.5408897704875814,
+          "residual_conditional_on_index": -0.06451643896708892,
+          "residual_percent": 99.45911022951242,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.10157770102131869,
+          "candidate_projected_index_moment": 0.7570901157598237,
+          "candidate_realized_index_moment": 0.7568001525291815,
+          "closure_error": 0.0,
+          "draw_seed": 6206,
+          "gap_truth_minus_candidate": -0.10157770102131869,
+          "index_explained_component": -0.0002899632306421207,
+          "index_explained_percent": 0.28545953267958335,
+          "residual_conditional_on_index": -0.10128773779067657,
+          "residual_percent": 99.71454046732042,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.1144071694045059,
+          "candidate_projected_index_moment": 0.7699195841430109,
+          "candidate_realized_index_moment": 0.7712587496132659,
+          "closure_error": 0.0,
+          "draw_seed": 6207,
+          "gap_truth_minus_candidate": -0.1144071694045059,
+          "index_explained_component": 0.0013391654702550326,
+          "index_explained_percent": -1.1705258308770725,
+          "residual_conditional_on_index": -0.11574633487476094,
+          "residual_percent": 101.17052583087707,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.09965071369020617,
+          "candidate_projected_index_moment": 0.7551631284287111,
+          "candidate_realized_index_moment": 0.7556986665309009,
+          "closure_error": 0.0,
+          "draw_seed": 6208,
+          "gap_truth_minus_candidate": -0.09965071369020617,
+          "index_explained_component": 0.0005355381021897587,
+          "index_explained_percent": -0.5374152199798969,
+          "residual_conditional_on_index": -0.10018625179239593,
+          "residual_percent": 100.53741521997989,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.12295925674541497,
+          "candidate_projected_index_moment": 0.7784716714839199,
+          "candidate_realized_index_moment": 0.7779061280171476,
+          "closure_error": 0.0,
+          "draw_seed": 6209,
+          "gap_truth_minus_candidate": -0.12295925674541497,
+          "index_explained_component": -0.0005655434667722892,
+          "index_explained_percent": 0.4599437909284351,
+          "residual_conditional_on_index": -0.12239371327864268,
+          "residual_percent": 99.54005620907157,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.12065717103148821,
+          "candidate_projected_index_moment": 0.7761695857699932,
+          "candidate_realized_index_moment": 0.774530002006387,
+          "closure_error": 0.0,
+          "draw_seed": 6210,
+          "gap_truth_minus_candidate": -0.12065717103148821,
+          "index_explained_component": -0.0016395837636061783,
+          "index_explained_percent": 1.358878009147332,
+          "residual_conditional_on_index": -0.11901758726788203,
+          "residual_percent": 98.64112199085267,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.1080565822641768,
+          "candidate_projected_index_moment": 0.7635689970026818,
+          "candidate_realized_index_moment": 0.7668136577391785,
+          "closure_error": 0.0,
+          "draw_seed": 6211,
+          "gap_truth_minus_candidate": -0.1080565822641768,
+          "index_explained_component": 0.003244660736496763,
+          "index_explained_percent": -3.0027423304618446,
+          "residual_conditional_on_index": -0.11130124300067357,
+          "residual_percent": 103.00274233046184,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.09704294235833044,
+          "candidate_projected_index_moment": 0.7525553570968354,
+          "candidate_realized_index_moment": 0.7533940504236154,
+          "closure_error": 0.0,
+          "draw_seed": 6212,
+          "gap_truth_minus_candidate": -0.09704294235833044,
+          "index_explained_component": 0.0008386933267799934,
+          "index_explained_percent": -0.8642496882288706,
+          "residual_conditional_on_index": -0.09788163568511044,
+          "residual_percent": 100.86424968822887,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.11977056614923043,
+          "candidate_projected_index_moment": 0.7752829808877354,
+          "candidate_realized_index_moment": 0.7741953965700209,
+          "closure_error": 0.0,
+          "draw_seed": 6213,
+          "gap_truth_minus_candidate": -0.11977056614923043,
+          "index_explained_component": -0.0010875843177144962,
+          "index_explained_percent": 0.9080564221090845,
+          "residual_conditional_on_index": -0.11868298183151593,
+          "residual_percent": 99.09194357789092,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.11063813572088776,
+          "candidate_projected_index_moment": 0.7661505504593927,
+          "candidate_realized_index_moment": 0.7638956410135046,
+          "closure_error": 0.0,
+          "draw_seed": 6214,
+          "gap_truth_minus_candidate": -0.11063813572088776,
+          "index_explained_component": -0.0022549094458881314,
+          "index_explained_percent": 2.0380942169675578,
+          "residual_conditional_on_index": -0.10838322627499963,
+          "residual_percent": 97.96190578303244,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.10085132289514265,
+          "candidate_projected_index_moment": 0.7563637376336476,
+          "candidate_realized_index_moment": 0.7592274136126429,
+          "closure_error": 0.0,
+          "draw_seed": 6215,
+          "gap_truth_minus_candidate": -0.10085132289514265,
+          "index_explained_component": 0.0028636759789952837,
+          "index_explained_percent": -2.839502642888196,
+          "residual_conditional_on_index": -0.10371499887413793,
+          "residual_percent": 102.8395026428882,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.10542815653368431,
+          "candidate_projected_index_moment": 0.7609405712721893,
+          "candidate_realized_index_moment": 0.7618168708222917,
+          "closure_error": 0.0,
+          "draw_seed": 6216,
+          "gap_truth_minus_candidate": -0.10542815653368431,
+          "index_explained_component": 0.0008762995501023774,
+          "index_explained_percent": -0.8311817060202504,
+          "residual_conditional_on_index": -0.10630445608378669,
+          "residual_percent": 100.83118170602025,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.10634623970066637,
+          "candidate_projected_index_moment": 0.7618586544391713,
+          "candidate_realized_index_moment": 0.7621356378664016,
+          "closure_error": 0.0,
+          "draw_seed": 6217,
+          "gap_truth_minus_candidate": -0.10634623970066637,
+          "index_explained_component": 0.0002769834272302596,
+          "index_explained_percent": -0.26045436868279226,
+          "residual_conditional_on_index": -0.10662322312789663,
+          "residual_percent": 100.26045436868279,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.1288189818948846,
+          "candidate_projected_index_moment": 0.7843313966333896,
+          "candidate_realized_index_moment": 0.7870806512853378,
+          "closure_error": 0.0,
+          "draw_seed": 6218,
+          "gap_truth_minus_candidate": -0.1288189818948846,
+          "index_explained_component": 0.0027492546519481964,
+          "index_explained_percent": -2.1341999536928253,
+          "residual_conditional_on_index": -0.1315682365468328,
+          "residual_percent": 102.13419995369283,
+          "truth_moment": 0.655512414738505
+        },
+        {
+          "absolute_gap": 0.11509560182007006,
+          "candidate_projected_index_moment": 0.770608016558575,
+          "candidate_realized_index_moment": 0.7715420623260144,
+          "closure_error": 0.0,
+          "draw_seed": 6219,
+          "gap_truth_minus_candidate": -0.11509560182007006,
+          "index_explained_component": 0.0009340457674393843,
+          "index_explained_percent": -0.811539062022184,
+          "residual_conditional_on_index": -0.11602964758750944,
+          "residual_percent": 100.81153906202219,
+          "truth_moment": 0.655512414738505
+        }
+      ],
+      "reference_year": 2014
+    }
+  },
+  "information_boundary": {
+    "boundary_nawi_read_audit": {
+      "admitted_prefix_sha256": "e272a7bc63a1e23fa4ca4c6abdd7bc35ef0e5fa56943e49b215a262c2e8440d7",
+      "bytes_consumed_through_maximum_key": 1588,
+      "maximum_admitted_key_year": 2010,
+      "path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c3-diag/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa/nawi.yaml",
+      "post_maximum_key_bytes_read": false,
+      "stopped_after_maximum_key": true
+    },
+    "candidate_or_gate_artifact_read": false,
+    "collection_wave_2015_use": "income-reference year 2014 labor fields and incumbent collection-wave covariates only",
+    "collection_waves_after_2014": [
+      2015
+    ],
+    "gate_configuration_read": false,
+    "maximum_collection_wave_requested": 2015,
+    "maximum_earnings_reference_year_requested": 2014,
+    "maximum_realized_macro_year_read": 2014,
+    "post_2014_earnings_reference_row_requested": false,
+    "realized_macro_post_2014_read": false,
+    "realized_nawi_read_audit": {
+      "admitted_prefix_sha256": "9660f7a89b04a9f735607d66699a8919f01812cddb40ddff26a3e907fe914d89",
+      "bytes_consumed_through_maximum_key": 1684,
+      "maximum_admitted_key_year": 2014,
+      "path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c3-diag/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa/nawi.yaml",
+      "post_maximum_key_bytes_read": false,
+      "stopped_after_maximum_key": true
+    },
+    "run_artifact_read": false,
+    "run_artifact_written": false,
+    "source_audit": {
+      "anchor_demographic_max_interview": 2011,
+      "candidate_or_gate_artifact_read": false,
+      "checksums": {
+        "anchor_demographic": "927140d5ad7b83ed7c5eb4303cb4db9182828434a2419f472e6a95edfd3e6510",
+        "earnings": "a87e368710c9d6f957480d099f2e3d81657ccb81a5653eae63b3ae524c1a1478"
+      },
+      "dating_note": "family labor-income levels are field-dated by their verified income-reference year. For the amendment-required 2014 earnings row, the incumbent family-panel convention reads the 2015 collection-wave age, sequence, relationship, weight, and interview fields: relationship/interview attach the two family labor fields, sequence defines presence, and age/weight enter support and reduction. This is the sole collection wave above 2014; no 2015 earnings-reference field is requested",
+      "expected_boundary_nawi": {
+        "2006": {
+          "mapping_sha256": "749b034a756468e1b1b3a164e30465dc313ca474e8e3e5663c2a38b23e40b67c",
+          "prefix_bytes": 1492,
+          "prefix_sha256": "0f9f6ea4cc0c95dd10142c4673dbcb8c9447327f1294860ee4117ac55ce0fcf2"
+        },
+        "2008": {
+          "mapping_sha256": "37ca4ec34d2342f624c3ba9a47d9980e08864d07c4a5cd6d579bf614bfb2434e",
+          "prefix_bytes": 1540,
+          "prefix_sha256": "d3b20c353081a4094a4044c189354ffad6e426a5ce3b5bd6535d589ee46786c4"
+        },
+        "2010": {
+          "mapping_sha256": "26b6a0498ccff6f5a23bf226ec6fe47347dca853b9844bb2da1c8a831579582c",
+          "prefix_bytes": 1588,
+          "prefix_sha256": "e272a7bc63a1e23fa4ca4c6abdd7bc35ef0e5fa56943e49b215a262c2e8440d7"
+        }
+      },
+      "gate_configuration_read": false,
+      "maximum_selection_information_year": 2014,
+      "nawi_path": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c3-diag/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa/nawi.yaml",
+      "nawi_read_policy": "no NAWI value is loaded during source assembly; each q-by-boundary cell performs an unbuffered prefix read that stops at that exact b and asserts its frozen prefix and mapping hashes",
+      "policyengine_us_parameter_dir": "/Users/maxghenis/PolicyEngine/social-security-model-worktrees/sol-c3-diag/.venv/lib/python3.14/site-packages/policyengine_us/parameters/gov/ssa",
+      "policyengine_us_version": "1.752.2",
+      "post_2014_earnings_reference_row_requested": false,
+      "psid_dir": "/Users/maxghenis/PolicyEngine/psid-data",
+      "psid_field_read": {
+        "broad_demographic_panel_called": false,
+        "broad_family_earnings_panel_called": false,
+        "collection_waves_after_2014": [
+          2015
+        ],
+        "collection_waves_requested": [
+          1969,
+          1970,
+          1971,
+          1972,
+          1973,
+          1974,
+          1975,
+          1976,
+          1977,
+          1978,
+          1979,
+          1980,
+          1981,
+          1982,
+          1983,
+          1984,
+          1985,
+          1986,
+          1987,
+          1988,
+          1989,
+          1990,
+          1991,
+          1992,
+          1993,
+          1994,
+          1995,
+          1996,
+          1997,
+          1999,
+          2001,
+          2003,
+          2005,
+          2007,
+          2009,
+          2011,
+          2013,
+          2015
+        ],
+        "family_fields_requested_per_wave": [
+          "interview",
+          "head_labor",
+          "spouse_labor"
+        ],
+        "individual_concepts_requested": [
+          "age",
+          "sequence",
+          "relationship",
+          "weight",
+          "interview"
+        ],
+        "individual_reader": "panels.ind_person_period with an explicit collection-wave list",
+        "maximum_collection_wave": 2015,
+        "post_2014_reference_field_requested": false
+      },
+      "raw_source_is_retrospective_product": true,
+      "requested_earnings_reference_max": 2014,
+      "runs_path_written": false,
+      "sanitized_rows": {
+        "anchor_demographic": 68164,
+        "earnings": 348758
+      }
+    }
+  },
+  "intervention": {
+    "all_non_index_fitted_surfaces_preserved": true,
+    "fresh_initial_state_per_arm_and_draw": true,
+    "full_projection_replayed": true,
+    "inverse_reranking_index_swapped": true,
+    "name": "realized-index path through 2014",
+    "post_hoc_moment_rescaling": false,
+    "projected_index": {
+      "2012": 45432.07213649044,
+      "2014": 48227.57226872353
+    },
+    "projected_index_fit": "OLS ln(NAWI) on year over 2001-2010",
+    "rank_to_level_index_swapped": true,
+    "realized_index": {
+      "2012": 44321.67,
+      "2014": 46481.52
+    },
+    "same_draw_addresses_across_arms": true,
+    "swap_years": [
+      2012,
+      2014
+    ]
+  },
+  "projection_audit": {
+    "all_draws_defined": true,
+    "all_support_equal": true,
+    "candidate_records_sha256": "293e5dd06871f5c0120b722cb1dc2274bd5ed1d74d4f1bc8db748c552806c16a",
+    "fit": {
+      "adapter_spec_sha256": "31e4d06d14f3ce2fad24563ec67246fe83468fe4783b428c15c73ca754b4e316",
+      "boundary": 2010,
+      "checksums": {
+        "anchors": "751c9ef4d8e50849343b0276d1373a54f251b2b8ed6f11532a8b4b5bb7bd7545",
+        "estimation_rows": "b273c44dc41233829254ff6395b97ffe49d7f1396a3c7b96dfa36d62018cc931",
+        "forward_pairs": "19977af6e927b5630dd61d6902425baf00d6ea675ebbe4bef033def31e80083a",
+        "marginals": "ef848fef6822744c770da844c0543b94b807d51b6aa120525a6135accb871c66",
+        "u_w": "0810814a9924a0c6f72b3c905840da1fc5ecfe70aaecf679a84698c448719c91",
+        "wage_index": "f19a6c353e6a6b6a924e6dee9f497043c938532fc5e726e6911b4195d3bb40b3"
+      },
+      "donor_pools": {
+        "pairs": {
+          "checksum": "e29ca0206386ac12b4e6f3a8f8e928225f47111e2f5a6accf4bf87e5f569fa69",
+          "max_period_tp2": 2010,
+          "n_rows": 89574
+        },
+        "reentry": {
+          "checksum": "4b8568d549f90feaded7e6ecf8fc696b30ed914b2710ec9e08d15f40d30a420e",
+          "max_period_tp2": 2010,
+          "n_rows": 5326
+        },
+        "triples": {
+          "checksum": "2274acd0794a9dd35602203a8503f304b31fad719286037e18050f41bcaa4b19",
+          "max_period_tp2": 2010,
+          "n_rows": 73367
+        }
+      },
+      "empty_pool_check_passed": true,
+      "external_sign_path": {
+        "branch": "certified_target_models_reconstruction",
+        "gates_checked": [
+          "shared_gate",
+          "zero_anchor_gate"
+        ],
+        "output_signs": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "probe_rows": 2
+      },
+      "fit_seed": 5200,
+      "n_zero_anchor_pairs": 44586,
+      "participation_gates": {
+        "shared_gate": {
+          "canonical_surface_rows": 113823,
+          "canonical_surface_sha256": "7aa705511d6c2d85c306b0dac72b3ebb9ec06872a81c0a6989888265406bdf37",
+          "classes": [
+            0,
+            1
+          ],
+          "columns": [
+            "earnings",
+            "age_tp2"
+          ],
+          "gate_class": "sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingClassifier",
+          "gate_state_pickle_protocol": 5,
+          "gate_state_sha256": "2a2fae2f0a358d74f02d58c2e7c1d04f31e5505294f2efb1ca37cf194bf53424",
+          "name": "shared_gate",
+          "present": true,
+          "regime": "zero_inflated_positive"
+        },
+        "zero_anchor_gate": {
+          "canonical_surface_rows": 113823,
+          "canonical_surface_sha256": "4d66914fb15d4e3ecffa22802f6c65f09b49d3895cb74d3d10fe5b12f036a76f",
+          "classes": [
+            0,
+            1
+          ],
+          "columns": [
+            "earnings",
+            "age_tp2"
+          ],
+          "gate_class": "sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingClassifier",
+          "gate_state_pickle_protocol": 5,
+          "gate_state_sha256": "88e84fe555ab40712de81692f4b627f7abf8f7d9a4133c8085b37915ee46b0f4",
+          "name": "zero_anchor_gate",
+          "present": true,
+          "regime": "zero_inflated_positive"
+        }
+      },
+      "provenance": {
+        "boundary_year": 2010,
+        "certified_full_window_artifacts_read": false,
+        "certified_full_window_artifacts_written": false,
+        "estimation_rule": "forward earnings income-reference period <=T*; age 25-64; calendar-invariant NAWI-normalized marginal",
+        "max_year": {
+          "earnings_reference_year": 2010
+        },
+        "n_rows": {
+          "estimation_panel": 248864,
+          "forward_pairs": 113823,
+          "zero_anchor_pairs": 44586
+        }
+      },
+      "q_invariant_fit_signature_sha256": "287a4a29e8ed506f0ba1a7546495b9bfe1971a8e889ec265f935541030bf2dd3",
+      "spec_registration": "https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-4905323933",
+      "stable_pools": {
+        "checksums_by_bin": {
+          "0": "ff22911499193f9125739f687c139f5af75e02976397acaea9ef6d1ee20d4029",
+          "1": "2d4a13237ce10dea282a158f993fc749d99d40258726014a56e3223c5eafab95",
+          "2": "db1bc526abe8ad8119f335ebc6eefea988006fdde7450f72a519ec3eb658e600",
+          "3": "774fa908b25e9b310eda883497f573f4e41bd3662463d9dedf57b0f9a9387e5c",
+          "4": "b7fe7af8a2c0f2051b932f0a6f285ab4a3c89d94165aba89a8a9e99cb059b003",
+          "5": "4a73072e575570fc45bc5fa08bb347a7fb0a083c8fc25f9c08069bf282f25d8f",
+          "6": "57c207292105b0b51a6c76076249c56cab1d113c95177b066d74c0c526723fbd",
+          "7": "d6e35aef961fc415151e86414da725898e922be3eada64a758b891919ff895a1"
+        },
+        "counts_by_bin": {
+          "0": 10247,
+          "1": 16864,
+          "2": 15414,
+          "3": 14056,
+          "4": 12610,
+          "5": 9959,
+          "6": 6830,
+          "7": 3594
+        },
+        "empty_pool_check_passed": true,
+        "k": 25,
+        "partition_checksum": "2a6ecc37b79cc82cb4e0ce8aa581d6b5dbb975ec7c2d516314c43527328c853e",
+        "sort": [
+          "person_id",
+          "period_tp2"
+        ],
+        "source": "incumbent positive-to-positive pair pool",
+        "target_age_bin_width": 5
+      },
+      "u_w_diagnostics": {
+        "gamma": {
+          "0": 1.0295444824916469,
+          "1": 0.7750345402524222,
+          "2": 0.72361499231784,
+          "3": 0.6923597249094231,
+          "4": 0.665481652430487,
+          "5": 0.6440750709722816
+        },
+        "gamma_0": 1.0295444824916469,
+        "gamma_pair_counts": {
+          "0": 198797,
+          "1": 156916,
+          "2": 130528,
+          "3": 108272,
+          "4": 89104,
+          "5": 72663
+        },
+        "implied_perm_share": 0.5728186435050882,
+        "n_z_panel_rows": 198797,
+        "pooled_z_mean": -0.10368569551210982,
+        "rho": 0.74,
+        "sigma2_noise": 0.19061183648888977,
+        "sigma2_perm": 0.5897422738890131,
+        "sigma2_trans": 0.24919037211374404,
+        "sigma_hat_w": 0.7679467910532689,
+        "sse": 1.2117829892828074e-05
+      }
+    },
+    "fit_input": {
+      "checksum": "a9b1a6ad638dcd30b16f7bed9ac0285d0d9e1e410837e918bbb1a8cc9dd1b0ed",
+      "maximum_reference_year": 2010,
+      "rows": 321500
+    },
+    "per_draw": [
+      {
+        "candidate_annual_level_sha256": "7e7dd3d1cd85308bc9145aed2f4936b42ddf62ed1b5336557da40adefa3df7da",
+        "candidate_annual_participation_sha256": "726abc00a0cb377f7cbaa5137250285d9468396f427360be81971d4bd4aaaa64",
+        "common_rng_address": true,
+        "draw_seed": 6200,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "aadbacf15388b7b5eea3d05014a07f0379321b66cf9aa22f789fbffc388c793b",
+        "realized_index_annual_participation_sha256": "2aff93f6fd957e09493b56fe8c488b2d7a2003326af3b5fd81a7035e367a1d50",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "e0b0fd1ae97eb8e8e518c69710970c6bdc7824ed751f973a118b9e3fdeb46021",
+        "candidate_annual_participation_sha256": "09282e8998b4b1dcc9fa032fdde725ce1307e84be42957b790d5da5178e107b1",
+        "common_rng_address": true,
+        "draw_seed": 6201,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "be684bd6719cac1ccfe8e0d70dc7804f193c1f9f2f31262b25f2a9b03aafc94e",
+        "realized_index_annual_participation_sha256": "41e7a493c7940a162e71a77b26fb55bfee44ed3089f41d1b03935a5329719555",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "3b5692a62035c9fc9432ea01861f23bd7e26196a92d9d94c6a16c8cf015a6003",
+        "candidate_annual_participation_sha256": "c17721587683dd681191d99f16551912db49c67682d6d541785f4e2193d81ab0",
+        "common_rng_address": true,
+        "draw_seed": 6202,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "d48b5f4dfd13721f90e37e7349470026b4a67b1fa008b2f88d6a9f0326594c0c",
+        "realized_index_annual_participation_sha256": "dc7b79ea66e59d8210ddb7df13dcb81525c96d523d06a5584212b48dac3b6c66",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "3a14ec264f599a6c1f40b06f94d6d3e275cad9628565865764e5fd577374ae86",
+        "candidate_annual_participation_sha256": "dc03711bdaa16346ce923dc4afbe9d5de0978557b1fc624bcc5c518f59c4398b",
+        "common_rng_address": true,
+        "draw_seed": 6203,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "38d3f15d5ea5d0ec8cfd550340c890f57874ca280e1cd19400f0e8106461ebb1",
+        "realized_index_annual_participation_sha256": "5b5db1969af00b2f5a6a7868023e655cb1e094026a7832320e226afa0ca2b158",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "fbcd90c7daa1e1d73cecc026173e4b370a63c60748454bbeb448fc60b47afd67",
+        "candidate_annual_participation_sha256": "73d0f0424b0b363fc74acad2dbafba49e91c79b5b6cbf0ac31ec73fefa3e5c61",
+        "common_rng_address": true,
+        "draw_seed": 6204,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "b7dd7bbf789664a74c6aa96f6b97299cff2e171a1352d59ecb94dc175af4abcc",
+        "realized_index_annual_participation_sha256": "8a80617ade19cdc5780110358d125c42e174027654f2ca0a7e01b9882dca34db",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "fc61423e77dc93315ab59f44f350bf63d6982b88558a7a9b4d28958422a80f40",
+        "candidate_annual_participation_sha256": "31be0727cae799c55e68022256c002aaf7dea1b41f29cee9f892ab3bb6e1a0ea",
+        "common_rng_address": true,
+        "draw_seed": 6205,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "094d6729a6152f84364ef09675f5853050ee189d47ccb19da0d32022f1c9f17e",
+        "realized_index_annual_participation_sha256": "dc1b9de3fcdebcb23c9b0bbb9dca30862deb2abaf090cc97ca9cf562904e1322",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "17e58a76c0be4b2805db776459d3381b7ffb30c9160de41b525ac38e632b48d5",
+        "candidate_annual_participation_sha256": "a134e8fab9d13b7221424292698a84077b41ba10cd5077c83dd96b22c90190ba",
+        "common_rng_address": true,
+        "draw_seed": 6206,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "7431428bbddd9fa38d731abc93cbaef1da39fc4897c90be8f3f243973fceabdc",
+        "realized_index_annual_participation_sha256": "93e3fb6cf34d0ed3a0971bc39c763ab9af34a600bbfe03351d0ae429d67fea3c",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "9172b3714bfab715755295aa9bc63ca4c061aad8b90e7df33d53edf1d5686eba",
+        "candidate_annual_participation_sha256": "1acefa255fd5ae58cdb5cbc2b1992baa53625485855626c9aad55a54699df1f9",
+        "common_rng_address": true,
+        "draw_seed": 6207,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "8a8f2b7835f03a3a4994b5156c3ada365d981b61fda8eb3e1e3b84f32e644e05",
+        "realized_index_annual_participation_sha256": "154c382801eb64a525f8fd4b3b8435cad897b149b0d86ad4588296155a04cc3a",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "8b40193885f65c2116841c8971dd0e9634835152cae9b37d975e8feb86cc9344",
+        "candidate_annual_participation_sha256": "46be2cacf97f10c2b9943be1b7a0d6925893a0b3e6f25ff0b5f10abb5be0c871",
+        "common_rng_address": true,
+        "draw_seed": 6208,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "0da1f7c1154a282cce650026be13e32258394b46fa5aa53ba5cd678263152f12",
+        "realized_index_annual_participation_sha256": "53887c723ae3c8898748692e29b76d3fcd90354eed1d103f480fe994ee120d1a",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "ab5e5d27cd0a4268d74c3b8541aca326b33511d047640c9d97d1338168d4a191",
+        "candidate_annual_participation_sha256": "65bf246d9a263e6f322d0c8eab397d397cd6ded7f737960a6608a6615ece6c3e",
+        "common_rng_address": true,
+        "draw_seed": 6209,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "85d61eaaf97d12bcfb8dcbe7993ad9c273c3181963f1b59d93ffedd70007e0c2",
+        "realized_index_annual_participation_sha256": "82b37c98263fcbd7e5f1202431b18e81485dde264b5ba2ad731a2142ab093bae",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "d7fae4614384d39d06dfab344ddb6a8580370f591f11e6543d4e9e64a653f179",
+        "candidate_annual_participation_sha256": "0843d707fc0436bcaaca831dbf5591e70a03b74c715f3e3199c61dde5db2763d",
+        "common_rng_address": true,
+        "draw_seed": 6210,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "567254533d1b2c29cbb2ef306d864f3609f1e6dd2d2fac919553dcbf8f1d8a67",
+        "realized_index_annual_participation_sha256": "a4b105f4381cddb579f61fad3adaa4c065e64f76c26725e86ba3e6df5c902b4c",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "2f8b3fd276a2c2c57e1494c0449a65bdc2da29733430e1c5c742fc039b722d71",
+        "candidate_annual_participation_sha256": "84fef949dd79f69f9418b7bcf43d15ef9d64c49e10022ca137232fd5043d7ed2",
+        "common_rng_address": true,
+        "draw_seed": 6211,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "74fa404fdb2aa4d07f8c427c96974cac4e028e2554fcc478b3ddf5352a4c51b8",
+        "realized_index_annual_participation_sha256": "ad7968a4cc782bd34d76606ec56fe0485fe090632cd1abf6ccb3dea237258b5c",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "ab8b4db54ae66e747f47e6de9f63a7375dc40b03c4f24fd315b6b2f7c1e98952",
+        "candidate_annual_participation_sha256": "2dcde0267ebafa7125e04b2c151d2322d13a909b6cd2b0b82366b12794aff0f0",
+        "common_rng_address": true,
+        "draw_seed": 6212,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "5a3c5af188a4a2ed121b3060b3cb999843dd782e2b60e2f27459d9515bc1ab09",
+        "realized_index_annual_participation_sha256": "ebb6e98b2cc290102b049b315ba41e33bd2c1b09fa18d91e771566f573f061f0",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "2ca18ea6b2ba22dfeffc63101f4c4266ad0931cf048fa796cbbcc6890997f4ad",
+        "candidate_annual_participation_sha256": "639d7be2568216d2b419d560ee2cab0b3b6923228c2cc815509d926e15de79cf",
+        "common_rng_address": true,
+        "draw_seed": 6213,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "36e2a30b8359bc98c226e9fe9297c504a6f43288ec215b524fc0ef31112647ad",
+        "realized_index_annual_participation_sha256": "f19cdc714ac925f51b499767faf84d5aa89fcb2039ddbb13fd59b6eed4094023",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "baf7ed5d53fe41aae49bc89a13d81661738af7c3a4f31221d7feedbcb2ac8e91",
+        "candidate_annual_participation_sha256": "63a1620432399d154be212bb046a5dfefeb4e45487007d6df4118cefb7b46419",
+        "common_rng_address": true,
+        "draw_seed": 6214,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "06e239900e31584ee40390d007eb0d38387d3024b4496df62f11d6ddb02a3958",
+        "realized_index_annual_participation_sha256": "b3329c800eebf51d2b85851b11693904bcddf6c7477bc924a21d85101a94ba34",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "62ab242ed990bb65a228fc73bfefd91c96b36ee82cf99438350c78685f27e8d9",
+        "candidate_annual_participation_sha256": "d13b3df4c63cf544883bdb6b8b0d532ce70fbdeada13b58632a08efbc6ea2743",
+        "common_rng_address": true,
+        "draw_seed": 6215,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "c3e0f864e25a774e6ff7cc30dad52799dbb38ce1b3eba92a87316be340e885d4",
+        "realized_index_annual_participation_sha256": "3e7783a6e752622b5c90a3b7a1fa20958f9d90cafcd525d33a78110945bd4154",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "b1554b2ed2f129ed5d315935c45aba38a1357c56fca3003246fc1416ef43b277",
+        "candidate_annual_participation_sha256": "4002492829a9512f1bd26d2fe7aa461c69b9cb8ecb3a26975ced92b09f3e8f66",
+        "common_rng_address": true,
+        "draw_seed": 6216,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "9f9037360f0b2e37a12ab2cfaf2a7c798735e0bc92bb9e6565722eae050c033f",
+        "realized_index_annual_participation_sha256": "7299de6d76d23b9cc8c1a2540cdca81d3664cdcd5942b4c734569a8df0e5e270",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "02c6338c87904c561fded035b4325e19a1f2bd0d0ccf9dc4fdff09331066cb4c",
+        "candidate_annual_participation_sha256": "5494f2d98e0b82962518277dbff60b301401b580a04a1e70fdfb5f4151b0aec9",
+        "common_rng_address": true,
+        "draw_seed": 6217,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "b8431b65b2795d9e217d1e54a49914f24e60c1090dc8854705d04e114e81580e",
+        "realized_index_annual_participation_sha256": "dd2ce13f5665cc2bdb163f397624e1e56086b94ce7aa26c18df67ca3e23fcead",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "d34b5cea4fa776d35fa80b99409501aff7566a162d2de1e40385e4b527b3cdfa",
+        "candidate_annual_participation_sha256": "94174202d3241dd58e64c2aa0b4eceb5058fbf440b830524d3a826cfcea110af",
+        "common_rng_address": true,
+        "draw_seed": 6218,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "8444996993acad95f2d1c1a238891cc164816bf785ad1de8718f4be2f93b029b",
+        "realized_index_annual_participation_sha256": "e28d7ba2e5aa908d9612172704509eb79767643c1312885726f7de30eedfcf50",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      },
+      {
+        "candidate_annual_level_sha256": "db1832ca6ab2a3e044ef7e20944d3c45f9292ad66cbcfd7a50d2ab0ab7c4afc5",
+        "candidate_annual_participation_sha256": "557ba0f36453687f647d800cf76fd356f67568ed488100f8f0f14fb1cea172da",
+        "common_rng_address": true,
+        "draw_seed": 6219,
+        "fresh_initial_state_both_arms": true,
+        "realized_index_annual_level_sha256": "844cdff323c233946114b96d73f609238f35a82953e89d43b6de5867a9afd95f",
+        "realized_index_annual_participation_sha256": "a543b183b93c1c33a890088c614e867c1a5026cabcc5a0936e529ae12b79e256",
+        "support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+      }
+    ],
+    "rng_registry": {
+      "draw_seed_base": 5200,
+      "earnings_module_index": 5,
+      "full_anchor_ordinal_ids_sha256": "29b1b3fa948c9efce76e81d8b6ab260fc331414b2eecba85dbdb35c4795c3eb3",
+      "gate_m6_tag": 19766,
+      "module_order": [
+        "mortality",
+        "aging",
+        "marital_core",
+        "fertility",
+        "disability",
+        "earnings",
+        "claiming",
+        "household_composition"
+      ],
+      "n_full_anchor_ordinals": 23134,
+      "n_periods": 4,
+      "period_indices": {
+        "2011": 1,
+        "2012": 2,
+        "2013": 3,
+        "2014": 4
+      },
+      "selection_draw_indices": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1018,
+        1019
+      ],
+      "selection_draw_seeds": [
+        6200,
+        6201,
+        6202,
+        6203,
+        6204,
+        6205,
+        6206,
+        6207,
+        6208,
+        6209,
+        6210,
+        6211,
+        6212,
+        6213,
+        6214,
+        6215,
+        6216,
+        6217,
+        6218,
+        6219
+      ],
+      "sha256": "a06f211ff57031f886d693a33ba7742a90d51e9b414a221a38f19f3beca357ed",
+      "substream_codes": {
+        "donor-draw": 2,
+        "gate": 1,
+        "memory-refresh-gate": 4,
+        "memory-refresh-rank": 5,
+        "re-entry-draw": 3
+      }
+    },
+    "support": {
+      "anchor_wave": 2011,
+      "domain_ids_sha256": "a9aace23a3649333ac72cc363a3709c537f28482f012ceee36b2faddbbad2fa0",
+      "endpoint_support_ids_sha256": "b35be7f9d081ca969cc7d6dea6f56437c32370a4d5d2addd185e5e128f023bd7",
+      "endpoint_support_rows": 19475,
+      "fixed_boundary_anchor_weight": true,
+      "full_anchor_definition": "positive-weight demographic roster at exact collection wave b+1",
+      "full_anchor_ids_sha256": "29b1b3fa948c9efce76e81d8b6ab260fc331414b2eecba85dbdb35c4795c3eb3",
+      "n_domain": 13542,
+      "n_full_anchor": 23134,
+      "sex_frame_value": "selection_schema_only",
+      "sex_is_schema_only": true,
+      "split_before_domain_intersection": true,
+      "support_age_max": 64,
+      "support_age_min": 25,
+      "truth_frame_checksum": "8fa57360e0e8691036e0f0bda5d74a46832b76ff6bc7c88c26a06c5fb907e8bd",
+      "truth_support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02",
+      "truth_support_rows": 30541,
+      "truth_support_rows_by_period": {
+        "2010": 11066,
+        "2012": 10165,
+        "2014": 9310
+      }
+    },
+    "truth_support_ids_sha256": "6f0def2970ee2063fc29834f3f27c4e81e752b46a4b4ed0f9826c1ae3c1b8a02"
+  },
+  "protocol": {
+    "anchor_interview_year": 2011,
+    "draw_indices": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019
+    ],
+    "draw_seeds": [
+      6200,
+      6201,
+      6202,
+      6203,
+      6204,
+      6205,
+      6206,
+      6207,
+      6208,
+      6209,
+      6210,
+      6211,
+      6212,
+      6213,
+      6214,
+      6215,
+      6216,
+      6217,
+      6218,
+      6219
+    ],
+    "earnings_fit_rule": "all earnings reference rows through 2010",
+    "fit_seed": 5200,
+    "interview_years": [
+      2013,
+      2015
+    ],
+    "maximum_information_year": 2014,
+    "n_draws": 20,
+    "projected_index_fit_years": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010
+    ],
+    "pseudo_boundary": 2010,
+    "q": 0.55,
+    "reference_to_interview_year": {
+      "2012": 2013,
+      "2014": 2015
+    },
+    "reference_years": [
+      2012,
+      2014
+    ],
+    "routing_note": "section 5.1 defines no numerical predominantly/mixed cutoff; this findings artifact reports components without inventing one",
+    "routing_threshold": null,
+    "share_convention": "signed component / signed gap * 100; shares are not clamped and can lie outside [0,100] when the swap over-closes or moves against the gap",
+    "sign_convention": "gap = truth - candidate; index-explained = candidate under realized index - candidate under projected index; residual = truth - candidate under realized index"
+  },
+  "schema": "m6_c3_f1_mechanism_diagnostic.findings.v1",
+  "status": "COMPUTED_TRAIN_ONLY_FINDING",
+  "validity_caveats_verbatim": "(i) the evaluated waves sat inside q*'s selection evidence, so it is not out-of-sample with respect to the engine's selection; (ii) an error specific to the 2016/2018 scored regime cannot manifest in a \u22642014 window, so any routing carries regime-mismatch risk."
+}

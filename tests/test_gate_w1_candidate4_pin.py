@@ -41,6 +41,9 @@ NOTES = ROOT / "runs" / "NOTES-gate_w1_candidate4.md"
 # --- the pins (frozen record) -------------------------------------------
 ARTIFACT_BLOB = "d944ed2270a2c46c36ed3d0cd7e3328f1c8dbe88"
 CONTRACT_BLOB = "1efbf0958b722d8172697ac3f9a48c043de09bcf"
+# The LIVE contract blob moves only at ratified flips; the scored-against pin
+# above is frozen forever. Updated at the amendment-4 design_commit flip (#233).
+CONTRACT_BLOB_LIVE = "269ff692f0e5a8d7985a3e52e72186aa2ee2fc21"
 FRAME_SHA_PREFIX = "c2065b64"
 GATED_CELLS = 43
 CUBE_SHAPE = [20, GATED_CELLS, 5]
@@ -199,8 +202,9 @@ def test_contract_blob_pinned_and_live():
     # the frozen sidecar records the contract the run was scored against
     assert sidecar["contract"]["blob_sha"] == CONTRACT_BLOB
     assert sidecar["contract"]["path"] == "gates.yaml"
-    # locked-hot: the live gates.yaml is still that exact contract blob
-    assert git_blob_sha(GATES.read_bytes()) == CONTRACT_BLOB
+    # locked-hot: the live gates.yaml matches the current ratified contract
+    # blob (moves only at ratified flips; unratified edits still fail here)
+    assert git_blob_sha(GATES.read_bytes()) == CONTRACT_BLOB_LIVE
 
 
 # ========================================================================

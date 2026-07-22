@@ -5,13 +5,12 @@ predecessors), adapted for a DETERMINISTIC candidate that fits no model
 and needs no populace-fit:
 
 * :func:`test_seed0_reproduces_committed_artifact` (skipped when the PSID
-  family files are absent) reruns seed 0 through the candidate-5a
-  matching + splicing and pins the committed artifact's seed-0 splice
-  diagnostics, geometry, and battery values to float precision. There is
-  NO populace-fit gate on this test -- candidate 5a is fully
-  deterministic donor matching + splicing under the repo ``.venv`` -- and
-  no populace-fit importorskip, per the frozen spec (the gate seed enters
-  only through the split).
+  family files or the registered scikit-learn 1.9.0 scoring environment
+  are absent) reruns seed 0 through the candidate-5a matching + splicing
+  and pins the committed artifact's seed-0 splice diagnostics, geometry,
+  and battery values to float precision. There is NO populace-fit gate on
+  this test -- candidate 5a is fully deterministic donor matching +
+  splicing -- but its C2ST scorer is scikit-learn-version-sensitive.
 * The always-runnable consistency tests touch only the committed artifact
   and ``gates.yaml``: every reported pass/fail recomputes from its own
   stored score against its stored threshold, the stored thresholds equal
@@ -27,6 +26,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import sklearn
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +37,14 @@ REAL_DATA = Path("~/PolicyEngine/psid-data").expanduser()
 needs_real_family = pytest.mark.skipif(
     not (REAL_DATA / "family" / "2023").is_dir(),
     reason="PSID family files not staged",
+)
+needs_registered_scoring_environment = pytest.mark.skipif(
+    sklearn.__version__ != "1.9.0",
+    reason=(
+        "exact Gate-1 scoring reproduction requires the registered "
+        "scikit-learn 1.9.0 environment "
+        f"(running {sklearn.__version__})"
+    ),
 )
 
 SPEC_URL = (
@@ -55,9 +63,10 @@ def _gate1_thresholds() -> dict:
 
 
 # --------------------------------------------------------------------------
-# Reproduction (needs the staged PSID family files; NO populace-fit needed)
+# Reproduction (needs staged PSID + registered scorer; NO populace-fit)
 # --------------------------------------------------------------------------
 @needs_real_family
+@needs_registered_scoring_environment
 def test_seed0_reproduces_committed_artifact():
     """Rerun seed 0 and match the committed artifact to float precision.
 

@@ -50,6 +50,7 @@ DESIGN_PATH = ROOT / "docs" / "design" / "m6_projection_engine.md"
 V1_SHA = "16c28d8cd9095e5233ab224c659c8d5b9eb1621099e2524455a3a8ff8e88d318"
 V2_SHA = "3f273d474692917b01055f85830cb982dfbe9e63070581c99975aa799759b9a0"
 V3_SHA = "e931c88622fad84e8f8b2cf18940cbe27da1c93e0d009dfbaa3d6c6cae050c77"
+V4_SHA = "4cd2d01a9fd76064e701ae77a9226208cbae94d743f76f502d3d0a5f657d9523"
 LN_1_5 = math.log(1.5)
 METRIC_CAP = {"log_ratio": LN_1_5, "abs_gap_log": LN_1_5, "abs_gap_corr": 0.15}
 
@@ -559,7 +560,7 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     assert live["locked"] is True
     assert live["status"] == "locked"
     assert live["id"] == "m6_temporal_holdout_projection_drift"
-    assert live["floor_run"] == "runs/m6_holdout_floors_v3.json"
+    assert live["floor_run"] == "runs/m6_holdout_floors_v4.json"
     # the lock-time deltas: locked / status / +history / the design_commit pin
     # finalized to a squash-merge (the draft prescribes this in
     # design_commit_note). It is re-finalized to the #178 squash-merge (4c6a0f6,
@@ -570,7 +571,7 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     assert block["status"] == "draft_cleared_ready_for_lock_flip"
     assert live["design_pr"] == block["design_pr"] == "175"
     assert block["design_commit"] == "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
-    assert live["design_commit"] == "4c6a0f69f5637c6832659ab4dc8599b2c1a928b2"
+    assert live["design_commit"] == "0e067a910fde7e479240c472087ece6a7ce29bcd"
     assert "design_commit_note" in live and "design_commit_note" in block
     _deltas = ("locked", "status", "history", "design_commit")
     live_cmp = {k: v for k, v in live.items() if k not in _deltas}
@@ -579,7 +580,24 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
         for k, v in block.items()
         if k not in ("locked", "status", "design_commit")
     }
-    assert live_cmp == draft_cmp
+    # the ratified #232 v4 floor lock: the live block equals the draft plus
+    # EXACTLY the enumerated floor rebinding -- top-level path/sha, the
+    # eight nested floor_run copies, the six earnings tolerances at v4.
+    expected = json.loads(json.dumps(draft_cmp))
+    expected["floor_run"] = "runs/m6_holdout_floors_v4.json"
+    expected["floor_run_sha256"] = V4_SHA
+    for view in expected["views"].values():
+        view["floor_run"] = "runs/m6_holdout_floors_v4.json"
+        view["derivations"]["floor_run"] = "runs/m6_holdout_floors_v4.json"
+    expected["views"]["earnings_log_ratio"]["tolerances"].update(
+        {
+            "earn_p10.prime": 0.284,
+            "earn_zero_rate.older": 0.168,
+            "earn_dlog_sd.older": 0.279,
+            "earn_mob_h1_diag": 0.054,
+        }
+    )
+    assert live_cmp == expected
     text = DESIGN_PATH.read_text(encoding="utf-8")
     assert "4.10" in text and "Post-pause surface redesign" in text
     assert V1_SHA in text  # the pause evidence is cited in the design

@@ -186,6 +186,7 @@ def ind_person_period(
     data_dir: Path | None = None,
     nrows: int | None = None,
     waves: list[int] | None = None,
+    max_period: int | None = None,
 ) -> pd.DataFrame:
     """Melt the cross-year individual file into a person-period frame.
 
@@ -198,6 +199,8 @@ def ind_person_period(
             smoke tests.
         waves: Restrict to these years; default is every wave that
             carries all concepts.
+        max_period: Read no wave later than this year. This field cap is
+            applied before selecting columns from the wide source product.
 
     Returns:
         Tidy frame with columns ``person_id``, ``period``, and one
@@ -213,6 +216,13 @@ def ind_person_period(
     labels = psid.parse_sps_labels(sps_path)
     resolved, common_waves = _resolve_concepts(labels, concepts)
     use_waves = waves if waves is not None else common_waves
+    if max_period is not None:
+        boundary = int(max_period)
+        use_waves = [wave for wave in use_waves if wave <= boundary]
+        if not use_waves:
+            raise ValueError(
+                f"No requested wave is at or before max_period={boundary}."
+            )
     missing_waves = [
         w for w in use_waves if any(w not in m for m in resolved.values())
     ]
@@ -246,6 +256,7 @@ def demographic_panel(
     data_dir: Path | None = None,
     nrows: int | None = None,
     in_family_only: bool = True,
+    max_period: int | None = None,
 ) -> pd.DataFrame:
     """The verified demographic person-period panel, 1969-2023.
 
@@ -259,7 +270,10 @@ def demographic_panel(
     1968 drops out because sequence numbers begin in 1969.
     """
     panel = ind_person_period(
-        DEMOGRAPHIC_CONCEPTS, data_dir=data_dir, nrows=nrows
+        DEMOGRAPHIC_CONCEPTS,
+        data_dir=data_dir,
+        nrows=nrows,
+        max_period=max_period,
     )
     if in_family_only:
         low, high = _IN_FAMILY_SEQUENCE
