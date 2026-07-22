@@ -13,6 +13,7 @@
       "bytes": 3726010471
     }
   },
+  "sipp_jobs_reader_commit": "a059193e4fad80ceb1c2e1f4177aa5c69abb1048",
   "question": "are EJB job IDs longitudinally consistent across the pu2022->pu2023 boundary, or is part of the 9.45% seam separation rate a re-keying (linkage) artifact?",
   "within_wave_baseline": {
     "jobs_held": 384747,
@@ -34,7 +35,7 @@
     "rekey_signature_strict": 92,
     "rekey_signature_share_of_seps": 0.1085
   },
-  "rekey_signature_definition": "a vanished job whose person holds a next-month job matching it on industry code, class of worker, and earnings within 20% (|log ratio| < 0.1823); computed identically at the seam and within-wave, so the within-wave share is the coincidental-match baseline",
+  "rekey_signature_definition": "a vanished job whose person holds a next-month job matching it on industry code, class of worker, and earnings within 20% (|log ratio| < 0.1823); computed identically at the seam and within-wave. The excess is computed on the E->E-CONDITIONAL baseline (signature count / separations-to-employment on each side), then optionally scaled by the seam E->E share for the all-separations population \u2014 the per-all-seps rekey_signature_share_of_seps fields are descriptive only (referee note, #230 round 1 S3)",
   "bounds": {
     "gross_id_survival_identity": {
       "value": 0.9055,

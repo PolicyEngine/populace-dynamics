@@ -54,6 +54,49 @@ def test_uncertainty_and_strict_variant(artifact):
     assert "MISMATCH" in strict["note"]
 
 
+def test_derived_fields_recompute_from_counts(artifact):
+    # Referee S3 (#230 round 1): the committed JSON's derived fields
+    # and verdicts must recompute exactly from its own counts, so a
+    # hand-edited verdict cannot pass unnoticed.
+    within = artifact["within_wave_baseline"]
+    seam = artifact["across_wave_seam"]
+    assert seam["sep_rate"] == pytest.approx(
+        seam["separations"] / seam["jobs_held"], abs=5e-5
+    )
+    ee_excess = max(
+        0.0,
+        seam["rekey_signature"] / seam["to_employment"]
+        - within["rekey_signature"] / within["to_employment"],
+    )
+    assert artifact["bounds"][
+        "excess_rekey_share_ee_population"
+    ] == pytest.approx(ee_excess, abs=5e-5)
+    all_seps = ee_excess * seam["to_employment"] / seam["separations"]
+    assert artifact["bounds"][
+        "excess_rekey_share_all_separations"
+    ] == pytest.approx(all_seps, abs=5e-5)
+
+    def band(x):
+        if x < 0.15:
+            return "PASS"
+        if x <= 0.30:
+            return "PASS_WITH_CORRECTION_BAND"
+        return "REFER_BACK"
+
+    verdicts = artifact["verdict_by_population"]
+    assert verdicts["ee_population"] == band(
+        artifact["bounds"]["excess_rekey_share_ee_population"]
+    )
+    assert verdicts["all_separations"] == band(
+        artifact["bounds"]["excess_rekey_share_all_separations"]
+    )
+
+
+def test_ee_conditional_baseline_stated(artifact):
+    assert "E->E-CONDITIONAL" in artifact["rekey_signature_definition"]
+    assert len(artifact["sipp_jobs_reader_commit"]) == 40
+
+
 def test_inputs_pinned(artifact):
     assert set(artifact["inputs"]) == {"pu2022.csv.gz", "pu2023.csv"}
     for pin in artifact["inputs"].values():

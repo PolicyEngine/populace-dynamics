@@ -202,6 +202,27 @@ def separation_decomposition(
     }
 
 
+def _reader_commit() -> str:
+    import subprocess
+
+    return (
+        subprocess.run(
+            [
+                "git",
+                "log",
+                "-1",
+                "--format=%H",
+                "--",
+                "src/populace_dynamics/data/sipp_jobs.py",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=str(REPO),
+        ).stdout.strip()
+        or "unknown"
+    )
+
+
 def _input_pins() -> dict:
     """sha256 + size of the staged pu files consumed."""
     import hashlib as _h
@@ -359,6 +380,7 @@ def build() -> dict:
         ),
         "issue": "230",
         "inputs": _input_pins(),
+        "sipp_jobs_reader_commit": _reader_commit(),
         "question": (
             "are EJB job IDs longitudinally consistent across the "
             "pu2022->pu2023 boundary, or is part of the 9.45% seam "
@@ -370,8 +392,13 @@ def build() -> dict:
             "a vanished job whose person holds a next-month job "
             "matching it on industry code, class of worker, and "
             "earnings within 20% (|log ratio| < 0.1823); computed "
-            "identically at the seam and within-wave, so the "
-            "within-wave share is the coincidental-match baseline"
+            "identically at the seam and within-wave. The excess is "
+            "computed on the E->E-CONDITIONAL baseline (signature "
+            "count / separations-to-employment on each side), then "
+            "optionally scaled by the seam E->E share for the "
+            "all-separations population — the per-all-seps "
+            "rekey_signature_share_of_seps fields are descriptive "
+            "only (referee note, #230 round 1 S3)"
         ),
         "bounds": {
             "gross_id_survival_identity": {
