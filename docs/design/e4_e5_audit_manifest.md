@@ -163,7 +163,13 @@ freezes are registered so audit labels cannot leak backward:
    sheets.
 4. Coding manual v1 commits; calibration round runs; panel codes.
 5. `runs/e4_e5_audit_v1.json` reports precision/recall with
-   confidence bounds, agreement, dispositions — consumed by the C3
-   amendment PR as E4/E5's ADR 0004 prerequisite. Passing uses the
-   one-sided bound, never the observed proportion; a failed floor
-   invalidates the cell.
+   confidence bounds, agreement, dispositions. **Sequence (pinned
+   per the #230 round-1 referee review, S4, matching ADR 0004
+   §1.5)**: this manifest is the pre-lock artifact; the C3 block
+   may lock with the audit *designed but undrawn*; the audit
+   **results must exist before the first one-shot candidate run**
+   that scores any E4/E5 cell. Passing uses the one-sided bound,
+   never the observed proportion. A failed floor invalidates the
+   E4/E5 cells — no candidate can then pass the block — and the
+   audit artifact publishes regardless of result: a designed stop
+   is a graded, publishable outcome, not a re-scoping event.
