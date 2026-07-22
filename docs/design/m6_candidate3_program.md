@@ -133,24 +133,29 @@ forecasts must carry this calibration datum with these comparators.
 
 The scored cells are window-aggregates; the artifact carries no per-year
 earnings moments (verified: no per-year moment tables exist under the
-earnings families). Therefore the artifact alone cannot separate three
+earnings families). Therefore the artifact alone cannot separate two
 candidate mechanisms for F1/F2:
 
 - **(a) persistence-suppressed growth**: the rank-refresh share leaves rank
   trajectories too sticky, damping the mobility contribution to mean Δlog
   (coherent with F2's excess lag-2 autocorrelation via one mechanism);
 - **(b) indexation drift**: the §2.7.6 rank-to-level projected-index law
-  under-carries the holdout window's level growth, an error that would
-  accumulate over 2015-2022 independently of persistence;
-- **(c) horizon compounding**: the scored holdout is an 8-year projection
-  while the c2 selector evaluated 4-year pseudo-boundary windows; a
-  per-period error small enough to survive train-time selection compounds
-  over the doubled horizon (coherent with the §4 record that the selector
-  had already priced both moments at 4-year windows and the candidate
-  still failed them at 8).
+  under-carries level growth at the gated reference years (2016/2018),
+  independently of persistence.
 
-Distinguishing among them is the program's first mandatory diagnostic
-(§5.1, two legs) and is executable train-only.
+A third hypothesis an earlier draft entertained — horizon compounding —
+is refuted by the pinned gate geometry: the gated earnings cells are
+scored at reference years {2016, 2018}, T\*+2/T\*+4 from the 2014
+boundary, the exact `(b, b+2, b+4)` window depth the c2 selector
+evaluated (gates.yaml: `gated_earnings_reference_years: [2016, 2018]`,
+`no_window_extension_this_round: true`; the 2020-2022 shock window is
+report-only and "No gated cell is scored on it"). Window depth is
+therefore controlled out between selection and scoring; what differs is
+boundary depth (2006/2008/2010 versus 2014) and calendar regime — the
+transfer question folds into (a)/(b) plus the regime caveat of §5.1.
+
+Distinguishing (a) from (b) is the program's first mandatory diagnostic
+(§5.1) and is executable train-only.
 
 ## 3. Controlling law
 
@@ -207,11 +212,13 @@ Two consequences bind the design space:
 1. "Add the failing moments to the objective" is not an available move —
    they are already in it, and were selected on. The candidate-2 outcome
    is therefore evidence about *transfer*: train-window objective pressure
-   on these two moments, at the selector's 4-year windows, did not carry
-   to the 8-year scored holdout.
+   on these two moments did not carry to the scored boundary (T\*=2014;
+   gated earnings reference years {2016, 2018} — the same +2/+4 window
+   geometry the selector evaluated, so window depth is controlled out and
+   the failure is boundary-depth/regime transfer).
 2. The ledger's per-cell contributions show *where* the train-time
    frontier sat: at q\*=0.55 the lag-2 autocorrelation term remained the
-   largest or second-largest objective component at every pseudo-boundary
+   largest objective component at every pseudo-boundary
    (26.76 / 16.08 / 9.79 standardized-squared at 2006/2008/2010),
    improving monotonically toward q=1 (11.34 / 5.82 / 3.83) but foreclosed
    by the mobility term's blow-up there (141.45 at boundary 2010, q=1).
@@ -221,83 +228,65 @@ Two consequences bind the design space:
 
 The W1 surface license therefore attaches not to "which moments enter the
 objective" (settled pre-verdict) but to **which mechanism surface the
-candidate-3 amendments target** — the §2.7.6 projected-index law, the
-§2.7.7 refresh-law structure, or the selector's evaluation geometry
-(window horizon, weighting) — each ratifiable only as a design amendment
+candidate-3 amendments target** — the §2.7.6 projected-index law or the
+§2.7.7 refresh-law structure — each ratifiable only as a design amendment
 with this disclosure, every numerical input train-derived.
 
 ## 5. Candidate-3 design directions, adjudicated
 
-### 5.1 Mandatory first diagnostic — the F1/F2 mechanism split (train-only, two legs)
+### 5.1 Mandatory first diagnostic — the F1 mechanism split (train-only)
 
 Before any mechanism amendment is drafted, run and publish a train-only
-diagnostic separating §2.5(a)/(b)/(c). Publish as a findings artifact
-(#231 pattern: train-only, no contract surface).
-
-**Leg 1 — index decomposition (a-vs-b).** Within ≤2014, use the c2
+diagnostic separating §2.5(a) from §2.5(b). Within ≤2014, use the c2
 selector's deepest pseudo-boundary (boundary 2010 → reference years
 2012/2014, interview years 2013/2015 — the amendment must pin interview
 versus reference years explicitly), project with the certified engine, and
 decompose the mean-Δlog gap into (i) the component explained by the
 projected wage-index path versus (ii) the residual conditional on the
-index.
+index. Publish as a findings artifact (#231 pattern: train-only, no
+contract surface).
 
-**Leg 2 — horizon extension (c).** At boundary 2006 — the only boundary
-whose 8-year window stays inside train (reference years through 2014) —
-score the mean-Δlog and lag-2-autocorrelation train analogs at horizons
-+2, +4, +6, +8 and measure whether the gaps grow with horizon. Growth
-curves rising materially beyond the +4 window evidence hypothesis (c);
-flat curves refute it for the train regime.
-
-Both legs carry these validity caveats verbatim: (i) the evaluated waves
-sat inside q*'s selection evidence, so no leg is out-of-sample with
+The diagnostic carries these validity caveats verbatim: (i) the evaluated
+waves sat inside q*'s selection evidence, so it is not out-of-sample with
 respect to the engine's selection; (ii) an error specific to the
-2015-2022 macro path cannot manifest in a ≤2014 window, so any routing
-carries regime-mismatch risk; (iii) leg 2's single usable boundary (2006)
-gives one horizon curve, not a distribution — its reading is directional,
-not conclusive. The result routes the design:
+2016/2018 scored regime cannot manifest in a ≤2014 window, so any routing
+carries regime-mismatch risk. The result routes the design:
 
 - predominantly (b) → the amendment targets the §2.7.6 projected-index law;
 - predominantly (a) → the amendment targets the §2.7.7 refresh-law
   structure jointly for F1+F2, with the regime-mismatch caveat disclosed;
-- (c) implicated (leg-2 growth curves rising) → the amendment set includes
-  the selector-geometry amendment of §5.2 item 2 (horizon-extended
-  evaluation windows), alongside whichever mechanism amendment legs 1-2
-  route;
-- mixed → the union, each through its own two-stage ceremony.
+- mixed → both, each through its own two-stage ceremony.
 
 ### 5.2 Primary direction — diagnostic-routed mechanism amendment (two-stage §2.7 pattern)
 
 Because the §4 record forecloses "add the moments to the objective" (they
 are already in it) and shows train-window objective pressure transferring
-imperfectly, candidate 3's primary direction is a **mechanism-level
-amendment routed by the §5.1 diagnostic**, in one or more of three
-surfaces, each through the two-stage amendment + lock-addendum +
-design-commit re-finalization pattern of amendment 4:
+imperfectly across boundary depth, candidate 3's primary direction is a
+**mechanism-level amendment routed by the §5.1 diagnostic**, in one or
+both of two surfaces, each through the two-stage amendment +
+lock-addendum + design-commit re-finalization pattern of amendment 4:
 
-1. **§2.7.6 projected-index law** (route: leg 1 predominantly (b)) — the
+1. **§2.7.6 projected-index law** (route: predominantly (b)) — the
    rank-to-level index path; the amendment enumerates its own train-only
    estimation and preflight analogs.
-2. **Selector evaluation geometry** (route: leg 2 implicates (c)) —
-   extend the selector's pseudo-boundary evaluation windows toward the
-   scored horizon (boundary 2006 at +8 exists inside train; boundary
-   weighting to be adjudicated in the amendment), then re-run the
-   existing four-cell objective `J`, the 21-rung ladder, feasibility
-   guards, caps, jackknife SE, and the (frozen, §5.4) smallest-q
-   tie-break — unchanged in *rule* — over the amended geometry, freezing
-   the newly selected `q*'` (which may equal or differ from 0.55).
-3. **§2.7.7 refresh-law structure** (route: leg 1 predominantly (a)) — a
+2. **§2.7.7 refresh-law structure** (route: predominantly (a)) — a
    narrow structural amendment to the refresh mechanism's temporal
    behavior (e.g., refresh-event persistence across adjacent periods),
    options enumerated in the amendment itself, each with train-only
    estimation and the q=0 bit-reproduction preflight analog.
 
-Disclosures binding all three: the *surface choice* is verdict-motivated
-(per §4's license); every numerical input is train-derived; any selector
-re-run uses the existing objective cells — the tradeoff frontier §4
-documents (autocorr improvement foreclosed by mobility blow-up at high q)
-is exactly what amendments 1-3 attempt to shift *mechanistically* rather
-than re-weight away.
+If a ratified mechanism amendment introduces or re-parameterizes a
+selectable quantity, its selection re-runs the existing four-cell
+objective `J`, the 21-rung ladder, feasibility guards, caps, jackknife
+SE, and the (frozen, §5.4) smallest-q tie-break — unchanged in *rule* —
+over the amended mechanism, freezing the newly selected value (§8 box 4).
+
+Disclosures binding both surfaces: the *surface choice* is
+verdict-motivated (per §4's license); every numerical input is
+train-derived; any selection re-run uses the existing objective cells —
+the tradeoff frontier §4 documents (autocorr improvement foreclosed by
+mobility blow-up at high q) is exactly what these amendments attempt to
+shift *mechanistically* rather than re-weight away.
 
 ### 5.3 Demoted direction — objective re-weighting
 
@@ -319,7 +308,8 @@ disclosure and the same two-stage ceremony.
   is unknowable without leakage and is not a licensed question. **The
   smallest-q tie-break rule is frozen for the candidate-3 program**: no
   rule-level tie-break amendment may apply within this program, because
-  any candidate-3 selector re-run (§5.2 item 2) runs on the same ≤2014
+  any candidate-3 selection re-run (the §8 box-4 selection over an
+  amended mechanism) runs on the same ≤2014
   rows — there is no "fresh" train evidence for a re-flipped tie-break to
   consume, and a verdict-motivated flip applied to a re-selection band
   again containing
