@@ -1255,6 +1255,275 @@ amended forward law only on the registered 2016/2018 `gate_m6` surface. No
 `gate_1` certificate transfers, and no result certifies 2100 earnings or any
 report-only path.
 
+### 2.7.8 Candidate-3 correlated-refresh amendment (design amendment 6)
+
+**2.7.8.1 Authority, placement, and prospective scope.** The ratified
+candidate-3 program (`docs/design/m6_candidate3_program.md`, merge `2d15b54`)
+routes candidate 3 through a mechanism-level §2.7 amendment on one or both of
+two surfaces, with the §2.7.7 refresh-law structure the route for the
+predominantly-(a) reading; the ratified §5.1 diagnostic (PR #271, merge
+`7eb4c3c`) supplies the routing evidence: the lag-2 autocorrelation train gap
+(−0.109160, ≈3.9 floor-SDs above the boundary-2010 anchor-floor mean)
+decomposes to index −0.50% / residual 100.50% — a real train-window persistence phenomenon that is not an index
+artifact. This amendment therefore targets the §2.7.7 refresh law's temporal
+structure. It follows the two-stage §2.7.7.7 pattern verbatim: this
+prospective amendment ratifies only the **generic** correlated-refresh
+mechanism, its selection protocol (including a fresh, prospectively fixed
+tie-break rule, §2.7.8.5), and a later **train-only, non-scoring prototype**.
+It does not choose `ρ*`, run the selector, implement the law, register
+candidate 3, read a 2015+ row, score a holdout, create or rewrite a run/floor
+artifact, or edit `gates.yaml`.
+
+The #271 diagnostic's conditioning caveat — conditioning the use of the
+candidate-2 verdict evidence — travels with this amendment verbatim, as
+the #271 record requires:
+
+> The pooled F1 shares (503.60% / −403.60%) are ratios to a
+> statistically-zero denominator and carry no mechanism information: the
+> pooled train gap (−0.003786) is 0.5 per-draw SD, 22% of the certified
+> boundary-2010 anchor-floor mean for `earn_dlog_mean.prime` and 19% of its
+> sigma — against scored breaches at ~2.6 anchor-noise SDs. The train gap's
+> sign is moreover opposite the scored phenomenon (scored F1 failed UNDER in
+> 5/5 seeds; the pooled train candidate is OVER truth, with the 2012
+> transition OVER by −0.0185 and only the 2014 transition sign-aligned at
+> ≈0.7 floor-sigma). What this artifact licenses: (1) the §2.7.6 projected
+> index at boundary 2010 overstates the realized index (−2.44% at 2012,
+> −3.62% at 2014) and at this boundary moves the candidate DOWN — it cannot
+> explain an F1 undershoot in-window (whether it does at the 2014 production
+> boundary is exactly the regime-mismatch caveat); (2) the secondary F2
+> result is well-conditioned and real (train gap −0.109160 ≈ 3.9
+> boundary-floor SDs; index share −0.50%, per-draw index components sd
+> 0.0016) — solid train-side support for routing F2 to the §2.7.7
+> refresh-law surface, regime caveat attached; (3) nothing here licenses a
+> "predominantly (b)" or "predominantly (a)" routing for F1 by itself.
+
+Accordingly: **F2 is the routed target of this amendment. F1 is included as
+a hypothesis only** (§2.7.8.2), no train evidence quantifies an F1 effect,
+and the candidate-3 registration's candid forecast must price F1 as
+unresolved.
+
+**2.7.8.2 The structural defect and the decoupling parameter.** Under
+§2.7.7.2 the refresh indicators are drawn i.i.d. per eligible transition:
+each positive continuer's `B_refresh ~ Bernoulli(q*)` independently. One
+parameter therefore controls two distinct behaviors: the **marginal** refresh
+rate `q` (which the selection ledger shows the mobility cell punishing at
+high `q`: the `earn_mob_h1_diag` objective contribution rises to 141.4509 at
+`q=1.00`, boundary 2010) and the **joint** persistence of unrefreshed runs
+(`P(no refresh at two consecutive eligible transitions) = (1−q)²` under
+independence), which drives conditional-rank memory across two biennial
+steps — the lag-2 surface. The amendment-4 ladder's frontier (the
+`earn_autocorr_lag2` contribution remains the largest objective component at
+every pseudo-boundary at `q*=0.55` — 26.7630 / 16.0775 / 9.7949 — and
+improves monotonically toward `q=1`) is this coupling made visible: more
+marginal refresh buys less joint persistence but degrades mobility.
+
+Candidate 3 adds one structural parameter and nothing else: a **within-person
+first-order correlation `ρ` between consecutive eligible refresh
+indicators**, holding the marginal at the frozen `q* = 0.55`. For a person's
+consecutive eligible transitions with indicators `B_prev, B_next`, the joint
+law is the two-state stationary Markov chain
+
+```text
+P(B_next = 1 | B_prev = 1) = q + ρ(1−q)
+P(B_next = 1 | B_prev = 0) = q(1−ρ)
+```
+
+whose stationary marginal is `q` for every admissible `ρ` (proof:
+`q[q+ρ(1−q)] + (1−q)q(1−ρ) = q² + ρq(1−q) + q(1−q) − ρq(1−q) = q`), and
+whose consecutive-pair probabilities are
+
+```text
+P(1,1) = q² + ρq(1−q)          P(0,0) = (1−q)² + ρq(1−q)
+P(1,0) = P(0,1) = q(1−q)(1−ρ)
+```
+
+(sum 1 identically; `corr(B_prev, B_next) = ρ` by construction).
+Admissibility requires all four probabilities and both transition
+probabilities in `[0,1]`: `ρ ∈ [−min(q/(1−q), (1−q)/q), 1]`; at
+`q* = 0.55` this is `ρ ∈ [−0.8181…, 1]`. Negative `ρ` shortens unrefreshed
+runs at unchanged marginal: at `q* = 0.55`, `P(0,0)` falls from `0.2025`
+(i.i.d.) to `0.2025 + ρ·0.2475` — e.g. `0.0788` at `ρ = −0.50`, a 61%
+reduction in consecutive-no-refresh probability with the mobility-relevant
+marginal untouched. That is the mechanism aimed at F2.
+
+The F1 hypothesis, stated as hypothesis: long unrefreshed runs propagate
+low-mobility conditional-rank paths; shortening runs at fixed marginal can
+raise the within-window mobility contribution to mean Δlog. Per the
+conditioning caveat above, no train measurement quantifies this; the
+prototype's ledger will publish the train F1 analog per rung as
+**disclosure, not selection input beyond its incumbent role in `J`** (it is
+already an objective cell), and the registration forecast must not predict
+an F1 PASS from this mechanism.
+
+**2.7.8.3 The amended primitive; everything else byte-carried.** The only
+changed law is the code-4 threshold. §2.7.7.4's draw discipline is
+preserved exactly: for every eligible positive continuer, in canonical
+person order, code 4 draws one uniform and code 5 draws one stable-donor
+uniform regardless of parameters or outcome; odd years consume no RNG. The
+amended decision is
+
+```text
+B_refresh = 1{ U₄ < p(B_prev_state) }
+p(∅)  = q*                      (no prior eligible indicator)
+p(1)  = q* + ρ(1−q*)
+p(0)  = q*(1−ρ)
+```
+
+where `B_prev_state ∈ {∅, 0, 1}` is the person's carried refresh state
+(§2.7.8.4). At `ρ = 0` every threshold equals `q*` and the law is
+**bit-identical to the ratified candidate-2 generator** — the equivalence
+preflight of §2.7.8.6. At `q = 0` the stationary start assigns `p(∅) = 0`,
+state 1 is unreachable, and refresh never fires for any `ρ`: the candidate-1
+generator is reproduced (the §2.7.7.6 zero-result analog, with the
+reachability argument recorded rather than assumed).
+
+Byte-carried unchanged, exactly as §2.7.7.2-2.7.7.3 pin them: `u_cond` (its
+branch order, distances, `W_CURRENT=1`, `W_PRIOR=0.5`, `W_ANCHOR=0.25`,
+`LAMBDA_FIXED=0.1`, `k=25`, stream-2 draw), `u_stable` (exact-age-bin pool,
+no fallback, stable-only distance), the participation gate and stream 1, the
+re-entry law and stream 3, `rank_to_level`, the `CellMarginal`, `I_proj` and
+its leakage fence, the inverse CDF and its corner/tie semantics, the
+`[25,64]` support, five-year bins, biennial timing, odd-year carry, and
+substream codes 4/5 with their existing addresses and draw order. No new
+stream is registered; `ρ` only re-thresholds the existing code-4 uniform,
+so **all rungs of the ρ ladder are nested under common random numbers**,
+including `ρ = 0`, by the same argument §2.7.7.4 makes for the Q grid. The
+endogenous participation feedback disclosed in §2.7.7.2 (a refreshed level
+changes the next participation probability through the unchanged gate)
+carries over unchanged and must again be exposed by a discriminating test,
+not suppressed.
+
+**2.7.8.4 The refresh-state law.** The person-level state `B_prev_state`
+is a new generated-lag frame column governed by:
+
+1. **Initialization.** At a person's first eligible positive-continuation
+   transition after the anchor, `B_prev_state = ∅` and the stationary
+   threshold `q*` applies.
+2. **Update.** After each eligible transition, the realized `B_refresh`
+   becomes `B_prev_state` for the person's next transition.
+3. **Reset on gap.** Any intervening ineligible period — non-participation,
+   a zero-earnings year, re-entry through stream 3, or exit from the
+   `[25,64]` support — resets `B_prev_state` to `∅`. The chain correlates
+   only **consecutive eligible** transitions.
+
+The reset-on-gap choice is adjudicated, not assumed: the alternative
+(memory across gaps) would correlate refresh decisions across states the
+incumbent law already decorrelates through the re-entry draw, entangling
+the new parameter with the unchanged stream-3 law; a gap already breaks
+conditional-rank memory, which is the pathology under repair. Rejected.
+
+**2.7.8.5 Train-only selection of `ρ*` at frozen `q*`.** The authorized
+prototype re-uses §2.7.7.5 verbatim — `PSEUDO_BOUNDARIES = {2006, 2008,
+2010}`, `FIT_SEED = 5200`, `SELECTION_DRAW_SEEDS = {6200,…,6219}`, the
+shifted-`I_proj` rule, the same scoring support, the same four-cell
+standardized objective `J`, the same older-worker feasibility guards,
+half-draw objectives, and delete-one jackknife SE (program §5.2's "caps"
+refers to the untouched gate-floor tolerance caps, which are not selector
+machinery) — with one substitution:
+the ladder runs over
+
+```text
+RHO_GRID = {−0.80, −0.75, …, −0.05, 0.00}    (17 rungs)
+```
+
+at fixed `q = q* = 0.55`. The grid confines to non-positive `ρ`: positive
+`ρ` lengthens unrefreshed runs — the direction of the documented failure,
+supportable from train evidence alone (train lag-2 autocorrelation
+0.7647 versus truth 0.6555, gap −0.109160) — and admissibility caps the
+negative side at `−0.8181…`; `−0.80` is the deepest admissible grid rung
+at 0.05 spacing. This satisfies the ratified program §5.2's box-4 terms
+in rule-substance: the ladder machinery, 0.05 spacing, objective, guards,
+half-draw objectives, and jackknife SE are unchanged; the rung count
+follows from the derived admissible range and the train-documented
+direction (a literal 21-rung grid cannot fit in the admissible
+non-positive range); and the closest-to-zero rule below is the
+§5.4-frozen tie-break's exact content under the correct isomorphism —
+select the rung nearest the incumbent no-op within one SE (`q = 0` on
+the Q grid; `ρ = 0` here) — so the §5.4 freeze ("no rule-level tie-break
+amendment may apply within this program") is respected, not amended, and
+`q` itself is not re-selected. `q` is **not re-selected**:
+the smallest-`q` tie-break is frozen for this program (candidate-3 program
+§5.4), the ratified `q*` retains its own one-SE justification, and a joint
+`(q, ρ)` ladder would multiply prototype cost without a licensed objective
+change; the joint option is enumerated and rejected on those grounds.
+
+**The tie-break rule, fixed now and blind** (before any ladder value is
+computed): a nonzero `ρ` is **retained** only if it is feasible under the
+older-worker guards and improves on `ρ = 0` in the all-draw objective and
+in both half-draw objectives (§2.7.7.5's retention rule, mutatis
+mutandis). Among `ρ = 0` plus the retained rungs, let `ρ_min` minimize
+the all-draw `J`, an exact argmin tie resolving toward the rung closest
+to zero; select the rung **closest to zero** (smallest `|ρ|`) among
+`ρ = 0` plus the retained rungs with `J(ρ) ≤ J(ρ_min) + SE[J(ρ_min)]`. If
+`ρ = 0` itself satisfies that cutoff, the selection returns `ρ* = 0` — a
+**designed pause**: the amendment ends as a ratified no-op, candidate 3
+does not proceed on this surface, and the program returns to its §5.2
+routing with that outcome published. The §2.7.7.7 strict-versus-weak note
+applies unchanged.
+
+**2.7.8.6 Equivalence preflight, publication, and the zero result.** Before
+any ladder value is computed, the prototype must demonstrate: (1) at
+`ρ = 0`, bit-identical reproduction of the ratified candidate-2 generator at
+every generated person-period level and participation state, for all
+pseudo-boundaries and all 20 draws — including byte-identity of the six
+reduced moments and the exact states of streams 1–5; (2) the refresh-state
+column's reset law via a discriminating fixture (a synthetic person with a
+gap whose post-gap threshold must be `q*`, not `p(0)` or `p(1)`); (3) the
+endogenous participation feedback via the §2.7.7.2-mandated test pattern.
+It must also demonstrate, at the object level, that the participation
+formula/fit/coefficients, the `CellMarginal`, `I_proj`, the inverse rank
+map, the frame state, odd-year behavior, and the pre-existing substreams
+are unchanged — bit-identity at `ρ = 0` alone cannot catch an
+implementation that perturbs a pinned object only on the `ρ ≠ 0` path.
+Failure of any leg invalidates the mechanism rather than selecting around
+it. The selection ledger must publish everything §2.7.7.6's ledger
+discipline requires, mutatis mutandis (`ρ` for `q`) — every rung,
+boundary, support, simulated and truth moment, standardizer, feasibility
+and retention result, full/half/jackknife objective, the one-SE cutoff,
+the selected value, the effective search size, and checksums of fit rows,
+pools, support IDs, and the RNG registry — plus the realized
+transition-pair counts entering each rung's chain and the per-rung train
+F1 analog as disclosure. The §2.7.7.6 prohibition sentence applies
+extended to the now-existing candidate-2 record: no 2015+ row, realized
+post-2014 macro value, candidate-1 seed score, unpublished holdout value,
+candidate-2 seed score, or candidate-2 scored-artifact value may enter
+numerical estimation or implementation choices, and the executed ledger
+must carry the `no_candidate_1_or_candidate_2_artifact_read`,
+`no_gate_score`, and `no_runs_write` fence fields the q* ledger carries.
+
+**2.7.8.7 Two-stage lock ceremony and certification boundary.** The
+§2.7.7.7 sequence applies with candidate-3 names: (1) this prospective
+amendment is referee-ratified and squash-merged; (2) the prototype
+publishes the full ρ-grid ledger and selects `ρ*` under §2.7.8.5-.6 (a
+`ρ* = 0` outcome is the designed pause); (3) a reviewed lock addendum
+freezes `ρ*`, the ledger SHA, the refresh-state law, and the unchanged
+substream codes, with all implementation/test proofs; (4) at that lock
+addendum's ratification the orchestrator re-finalizes the live
+`gate_m6.design_commit` from `0e067a910fde7e479240c472087ece6a7ce29bcd`
+(the amendment-5 pin now live) to this amendment's exact squash-merge
+commit before the candidate-3 registration. The §2.7.7.7 accepted notes
+apply with candidate-3 names: the lock flip changes **exactly one field**
+(`gate_m6.design_commit`), intentionally leaves the pre-amendment gate
+narratives stale (including `gates.yaml:5324-5346`, the 5354-5361
+`design_commit_note`, and the amendment-4/5 history entries, which narrate
+the superseded pins as endpoints; no narrative byte is an authorized
+edit), and prohibits writing a placeholder or anticipated merge hash into
+`gates.yaml`; the strict-versus-weak note is restated in §2.7.8.5; and
+after the candidate-3 registration, `ρ*`, the ledger and its SHA, the
+refresh-state law, and every registered implementation byte are
+immutable — a designed pre-score abort cannot authorize a silent retry.
+The candidate-3 registration restates the registration-8 one-run terms
+verbatim, adopts the post-2014 attestation wording, and carries the
+candidate-3 program's §2.4 transport-calibration datum with its pinned
+comparators and the §2.7.8.1 conditioning caveat, per the ratified
+candidate-3 program §8. No production/registered candidate-3
+implementation, registration, or score may precede all four steps; the
+train-only, non-scoring prototype authorized by step 1 is the sole
+exception. A later accepted candidate-3 PASS would first-certify the
+correlated-refresh forward law only on the registered 2016/2018 `gate_m6`
+surface; no `gate_1` certificate transfers, and no result certifies 2100
+earnings or any report-only path.
+
 ### 2.8 The scored-run harness (design amendment 3, unblocks the `gate_m6` run)
 
 **The blocker (the run lane's designed pre-scoring stop).** `gate_m6` candidate-1
