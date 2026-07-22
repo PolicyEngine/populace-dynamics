@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import sys
 from pathlib import Path
@@ -19,6 +21,13 @@ from populace_dynamics.engine.forward_earnings import (  # noqa: E402
     CellMarginal,
     ForwardEarningsGenerator,
     ProjectedWageIndex,
+)
+
+ARTIFACT_PATH = (
+    ROOT / "docs/analysis/m6_c3_f1_mechanism_diagnostic_results.json"
+)
+ARTIFACT_SHA256 = (
+    "dcd1bf3589643dd382c34fe989d5e79c8ec0b00fc309b165397f95efb5e6a0bb"
 )
 
 
@@ -192,3 +201,62 @@ def test_identical_indexes_have_zero_index_explained_component():
     assert split["index_explained_component"] == pytest.approx(0.0)
     assert split["index_explained_percent"] == pytest.approx(0.0)
     assert split["residual_percent"] == pytest.approx(100.0)
+
+
+def test_findings_artifact_reproduction_pin_and_closure():
+    raw = ARTIFACT_PATH.read_bytes()
+    artifact = json.loads(raw)
+    canonical = (
+        json.dumps(artifact, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    ).encode()
+
+    assert raw == canonical
+    assert hashlib.sha256(raw).hexdigest() == ARTIFACT_SHA256
+    assert {
+        key: artifact["protocol"][key]
+        for key in (
+            "pseudo_boundary",
+            "reference_years",
+            "interview_years",
+            "q",
+            "n_draws",
+            "maximum_information_year",
+        )
+    } == {
+        "pseudo_boundary": 2010,
+        "reference_years": [2012, 2014],
+        "interview_years": [2013, 2015],
+        "q": 0.55,
+        "n_draws": 20,
+        "maximum_information_year": 2014,
+    }
+    assert artifact["cross_pins"]["qstar_ledger_sha256"] == (
+        "d25b8e159384f8a84ed7f2218d863ca63d96fc9cb244536853b0a1f05c4025bb"
+    )
+    assert (
+        artifact["cross_pins"]["candidate_per_draw_replay_records_sha256"]
+        == "293e5dd06871f5c0120b722cb1dc2274bd5ed1d74d4f1bc8db748c552806c16a"
+    )
+    assert artifact["validity_caveats_verbatim"] == (
+        diagnostic.VALIDITY_CAVEATS
+    )
+
+    findings = artifact["findings"]
+    primary = findings["primary_f1_mean_dlog"]
+    secondary = findings["secondary_lag2_autocorrelation"]
+    assert len(primary["per_draw"]) == 20
+    assert len(secondary["per_draw"]) == 20
+    splits = [primary["aggregate"]["window_aggregate"]]
+    splits.extend(primary["aggregate"]["by_reference_year"].values())
+    splits.append(secondary["aggregate"])
+    for record in primary["per_draw"]:
+        splits.append(record["window_aggregate"])
+        splits.extend(record["by_reference_year"].values())
+    splits.extend(secondary["per_draw"])
+    for split in splits:
+        assert split["gap_truth_minus_candidate"] == pytest.approx(
+            split["index_explained_component"]
+            + split["residual_conditional_on_index"],
+            abs=1e-15,
+        )
+        assert split["closure_error"] == pytest.approx(0.0, abs=1e-15)
