@@ -114,10 +114,13 @@
       "resolution_criterion": "A scored verdict artifact in runs/ for a registered candidate, published via merged PR, with overall PASS under the live gate_m6 contract.",
       "p50": "2026-07-25",
       "p80": "2026-07-29",
-      "status": "open",
+      "status": "superseded",
       "supersedes": 2,
       "revision_reason": "The ratified condition-5 conformance measurement (#251, merged e147fa7) puts the post-repair remarriage.18-64 residual transport at 111.5%/125.4%/192.7% of the unchanged 0.403 tolerance at train boundaries 2006/2008/2010 - decisively worse than the 105.8% band the R disposition was adjudicated on, and trending worse toward the scored window. Candidate 2 is therefore modal-FAIL on the 11-cell conjunction; its run (still proceeding under R, with the new numbers in the candid forecast) primarily buys scored validation of the two new deltas plus decisive surface-question evidence. A PASS most likely requires the remarriage surface ceremony (#249 lane) plus a candidate 3. p50 therefore moves 07-22 -> 07-25.",
-      "resolution": null
+      "resolution": null,
+      "superseded_by": [
+        9
+      ]
     },
     {
       "id": 8,
@@ -130,6 +133,19 @@
       "status": "open",
       "supersedes": 3,
       "revision_reason": "Downstream of entry 7's certification shift (candidate-3-after-surface-ceremony now the modal certification path).",
+      "resolution": null
+    },
+    {
+      "id": 9,
+      "registered_at": "2026-07-22T16:30:00Z",
+      "forecaster": "claude-fable-5 (session orchestrator)",
+      "claim": "Certified projection engine: a registered gate_m6 candidate run scores PASS on the 11-cell temporal holdout (>=4-of-5 seeds per the locked contract).",
+      "resolution_criterion": "A scored verdict artifact in runs/ for a registered candidate, published via merged PR, with overall PASS under the live gate_m6 contract.",
+      "p50": "2026-07-26",
+      "p80": "2026-07-30",
+      "status": "open",
+      "supersedes": 7,
+      "revision_reason": "The candidate-3 pipeline advanced far faster than the entry-7 modal path assumed (program #270, diagnostic #271, amendment 6 #272 all ratified within ~30h of the candidate-2 verdict; prototype #273 implemented with all preflights green), but the rho-selection ladder consumed the schedule margin: measured pace is ~2h/rung x 17 rungs (~36h sealed run) vs the ~7h q*-ladder precedent, and the first attempt livelocked after 7h39m in an OpenMP join barrier (stack-sampled; permanent), with the restart then catching a fitting-stack HEAD drift from a concurrent lane (guard worked; resolved by a lane-local clone pinned at ee8f7fc1). Hardened attempt 2 launched 2026-07-22 ~12:20 ET puts the ledger at ~00:30 7/24, registration + 23h run on 7/24, verdict ~7/25, and refereed certification 7/25 only if every remaining step lands first-try. With ladder-recurrence risk and the amendment's F1-unresolved-by-design uncertainty, the median certification lands 7/26. p50 7/25 -> 7/26; p80 7/29 -> 7/30.",
       "resolution": null
     }
   ]
