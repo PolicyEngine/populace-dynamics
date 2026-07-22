@@ -34,39 +34,15 @@ Design — three bounds, none assuming what they test:
     separations-to-employment. Only the latter can hide re-keying,
     so the E->E share caps the artifact regardless of (b).
 
-Verdict rule: the ruling's conditional check PASSES if the implied
-ID-artifact share of the seam rate — excess re-key signature applied
-to the E->E component — is under 15% of the measured seam rate;
-between 15% and 30% the seam figures carry a correction band; above
-30% the #214 ruling returns to the referee.
-
-PROVENANCE OF THIS RULE (corrected 2026-07-19, review of #235).
-Earlier revisions of this docstring described the rule as
-"pre-registered here". That claim is not supported by the record and
-is withdrawn:
-
-  * the rule and the result land in a single commit (87788eb); no
-    earlier commit, issue comment, or ADR fixes the 15/30 bands.
-    #230's body conditions on this check without naming a threshold.
-  * a first run of this check returned PASS_WITH_CORRECTION_BAND
-    against a 6.06% conditioned rate. The estimator was then changed
-    (inner-join -> person-month universe) and re-run to PASS. The
-    fix is believed correct on its merits, but it means a verdict
-    was observed before the committed estimator existed.
-
-The accurate description is DISCLOSED RE-ANALYSIS AFTER A DISCOVERED
-DEFECT, not pre-registration. #230 section 6 should cite it as such.
-
-OPEN (referee, C3): the 15%/30% bands have no derivation on record.
-Every other bar in this repo is derived from a noise floor. These
-were chosen by the author. They need either a derivation or separate
-ratification before this artifact can carry the seam ruling.
-
-OPEN (referee, C3): the operative scoring population is unregistered
-and the verdict depends on it -- see ``scoring_population_sensitivity``
-in the artifact. This choice MUST be made by the referee round and
-recorded here. It cannot be settled by whoever reads the numbers
-first without reproducing the defect this file documents.
+Verdict rule (author-proposed, UNRATIFIED — see the artifact's
+status field): under 15% implied ID-artifact share PASSES; 15-30%
+carries a correction band; above 30% the #214 ruling returns to the
+referee. Two scoring populations are reported (E->E-only and
+all-separations) and the operative one is a referee item, as is the
+bar itself. This artifact is a DISCLOSED RE-ANALYSIS, not a
+pre-registration: the first committed estimator had a population
+defect (documented in the status field) and the corrected estimator
+re-ran after a verdict had been observed.
 
 Usage::
 
@@ -92,19 +68,6 @@ from populace_dynamics.data import sipp_jobs  # noqa: E402
 FILE_YEARS = (2022, 2023)
 EARN_LOG_TOL = abs(np.log(0.8))  # earnings within 20%
 ARTIFACT = REPO / "runs/crosswave_jobid_check_draft_v0.json"
-
-
-def _verdict_for(share: float) -> str:
-    """Apply the 15/30 bands to an artifact share.
-
-    Factored out so the same rule can be reported against both
-    candidate scoring populations without either being privileged.
-    """
-    if share < 0.15:
-        return "PASS"
-    if share <= 0.30:
-        return "PASS_WITH_CORRECTION_BAND"
-    return "REFER_BACK"
 
 
 def person_month_presence(year: int) -> pd.DataFrame:
@@ -154,37 +117,27 @@ def month_frame(job_months: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def _rekey_match(lost, new_jobs) -> bool:
+def _rekey_match(lost, new_jobs, strict: bool = False) -> bool:
     """Does any new job match a lost job's employer profile?
 
-    KNOWN BIAS, not sensitivity-tested (review of #235). A missing
-    value on class-of-worker or earnings does not disqualify a match:
-    the ``pd.notna`` guards mean a NaN falls through to ``return
-    True``. Missingness is therefore scored as agreement, inflating
-    the re-key signature. This matters only if item non-response
-    differs across the file boundary -- which is exactly the boundary
-    under test, so it cannot be assumed away.
-
-    ``EARN_LOG_TOL`` (20%) is likewise unmotivated and untested; it
-    moves the seam and within-wave signatures non-proportionally.
-
-    Both are left AS-IS deliberately: changing them changes the
-    committed numbers, and re-running requires the staged SIPP
-    microdata. Registered here as C3 sensitivity work.
+    Default (main) matching treats a missing field as compatible;
+    ``strict=True`` treats any missing industry/class/earnings on
+    either side as a mismatch (the sensitivity variant for the
+    NaN-matching caveat).
     """
     _, ind, clwrk, earn = lost
     for _, n_ind, n_clwrk, n_earn in new_jobs:
         if n_ind != ind:
             continue
-        if pd.notna(clwrk) and pd.notna(n_clwrk) and n_clwrk != clwrk:
+        if pd.isna(clwrk) or pd.isna(n_clwrk):
+            if strict:
+                continue
+        elif n_clwrk != clwrk:
             continue
-        if (
-            pd.notna(earn)
-            and pd.notna(n_earn)
-            and earn > 0
-            and n_earn > 0
-            and abs(np.log(n_earn / earn)) > EARN_LOG_TOL
-        ):
+        if pd.isna(earn) or pd.isna(n_earn) or not earn > 0 or not n_earn > 0:
+            if strict:
+                continue
+        elif abs(np.log(n_earn / earn)) > EARN_LOG_TOL:
             continue
         return True
     return False
@@ -217,6 +170,7 @@ def separation_decomposition(
     )
     jobs_held = jobs_kept = 0
     lost_to_nonemp = lost_to_emp = lost_rekey_sig = 0
+    lost_rekey_sig_strict = 0
     for row in merged.itertuples(index=False):
         kept_ids = row.jobs & row.jobs_n
         jobs_held += len(row.jobs)
@@ -231,6 +185,8 @@ def separation_decomposition(
             lost_to_emp += 1
             if _rekey_match(lost, new_jobs):
                 lost_rekey_sig += 1
+            if _rekey_match(lost, new_jobs, strict=True):
+                lost_rekey_sig_strict += 1
     separations = jobs_held - jobs_kept
     return {
         "jobs_held": jobs_held,
@@ -239,10 +195,39 @@ def separation_decomposition(
         "to_nonemployment": lost_to_nonemp,
         "to_employment": lost_to_emp,
         "rekey_signature": lost_rekey_sig,
+        "rekey_signature_strict": lost_rekey_sig_strict,
         "rekey_signature_share_of_seps": (
             round(lost_rekey_sig / separations, 4) if separations else None
         ),
     }
+
+
+def _input_pins() -> dict:
+    """sha256 + size of the staged pu files consumed."""
+    import hashlib as _h
+    import os
+
+    data_dir = Path(
+        os.environ.get(
+            "POPULACE_DYNAMICS_SIPP_DIR",
+            str(Path("~/PolicyEngine/sipp-data").expanduser()),
+        )
+    ).expanduser()
+    pins = {}
+    for year in FILE_YEARS:
+        for suffix in (".csv", ".csv.gz"):
+            p = data_dir / f"pu{year}{suffix}"
+            if p.exists():
+                digest = _h.sha256()
+                with open(p, "rb") as fh:
+                    for chunk in iter(lambda: fh.read(1 << 22), b""):
+                        digest.update(chunk)
+                pins[p.name] = {
+                    "sha256": digest.hexdigest(),
+                    "bytes": p.stat().st_size,
+                }
+                break
+    return pins
 
 
 def build() -> dict:
@@ -259,6 +244,7 @@ def build() -> dict:
         "to_nonemployment": 0,
         "to_employment": 0,
         "rekey_signature": 0,
+        "rekey_signature_strict": 0,
     }
     for year in FILE_YEARS:
         mf = months[year]
@@ -288,7 +274,9 @@ def build() -> dict:
     seam = separation_decomposition(dec, jan, present_jan)
 
     # The bound: excess re-key signature at the seam over the
-    # within-wave baseline, applied to seam separations.
+    # within-wave baseline. Two defensible scoring populations exist
+    # and the verdict differs between them, so BOTH are reported and
+    # the operative choice is a referee item, not an author choice.
     seam_ee_sig_share = (
         seam["rekey_signature"] / seam["to_employment"]
         if seam["to_employment"]
@@ -301,23 +289,76 @@ def build() -> dict:
     )
     excess_sig_ee = max(0.0, seam_ee_sig_share - within_ee_sig_share)
     ee_share_of_seps = seam["to_employment"] / seam["separations"]
-    implied_artifact_share = round(excess_sig_ee * ee_share_of_seps, 4)
+    share_ee_population = round(excess_sig_ee, 4)
+    share_all_separations = round(excess_sig_ee * ee_share_of_seps, 4)
     ee_cap = round(ee_share_of_seps, 4)
 
-    verdict = _verdict_for(implied_artifact_share)
+    # Point-estimate uncertainty: binomial SEs on the two signature
+    # shares, propagated to the excess (independent samples), and a
+    # one-sided 95% upper bound per population.
+    import math
+
+    se_seam = math.sqrt(
+        seam_ee_sig_share * (1 - seam_ee_sig_share) / seam["to_employment"]
+    )
+    se_within = math.sqrt(
+        within_ee_sig_share
+        * (1 - within_ee_sig_share)
+        / within["to_employment"]
+    )
+    se_excess = math.sqrt(se_seam**2 + se_within**2)
+    upper_ee = round(excess_sig_ee + 1.645 * se_excess, 4)
+    upper_all = round(
+        (excess_sig_ee + 1.645 * se_excess) * ee_share_of_seps, 4
+    )
+
+    def band(x: float) -> str:
+        if x < 0.15:
+            return "PASS"
+        if x <= 0.30:
+            return "PASS_WITH_CORRECTION_BAND"
+        return "REFER_BACK"
+
+    strict_seam = (
+        seam["rekey_signature_strict"] / seam["to_employment"]
+        if seam["to_employment"]
+        else 0.0
+    )
+    strict_within = (
+        within["rekey_signature_strict"] / within["to_employment"]
+        if within["to_employment"]
+        else 0.0
+    )
+    strict_excess = max(0.0, strict_seam - strict_within)
+    strict_variant = {
+        "note": (
+            "missing industry/class/earnings treated as MISMATCH "
+            "(main variant treats missing as compatible)"
+        ),
+        "seam_signature_share": round(strict_seam, 4),
+        "within_signature_share": round(strict_within, 4),
+        "excess_ee_population": round(strict_excess, 4),
+        "excess_all_separations": round(strict_excess * ee_share_of_seps, 4),
+    }
 
     return {
         "artifact": "crosswave_jobid_check",
-        "version": "draft_v0",
+        "version": "draft_v1",
         "status": (
             "DRAFT - pre-lock artifact for the #230 section-6 seam "
-            "ruling. NOT pre-registered: the verdict rule and the "
-            "result were committed together (87788eb), and a first "
-            "run returned a different verdict before the estimator "
-            "was corrected. Accurate label: disclosed re-analysis "
-            "after a discovered defect. See the module docstring."
+            "ruling. DISCLOSED RE-ANALYSIS, not pre-registration: "
+            "the first committed estimator (inner-join population, "
+            "conditioned 6.06% seam rate) returned "
+            "PASS_WITH_CORRECTION_BAND; a population defect (exits "
+            "to nonemployment silently dropped, contradicting the "
+            "documented design) was found and fixed, and the "
+            "corrected estimator re-ran. Both runs are disclosed "
+            "here; the 15/30 bands are author-proposed and "
+            "UNRATIFIED (referee item), as is the operative scoring "
+            "population."
         ),
         "issue": "230",
+        "inputs": _input_pins(),
         "question": (
             "are EJB job IDs longitudinally consistent across the "
             "pu2022->pu2023 boundary, or is part of the 9.45% seam "
@@ -333,45 +374,65 @@ def build() -> dict:
             "within-wave share is the coincidental-match baseline"
         ),
         "bounds": {
-            # NOTE: 1 - sep_rate is the arithmetic complement of the
-            # seam rate, i.e. a definitional identity, NOT evidence.
-            # It would take this same value if every seam separation
-            # were a re-key. Retained as context, relabelled so it
-            # cannot be read as a bound. (Review of #235.)
-            "gross_id_survival_identity": round(1 - seam["sep_rate"], 4),
-            "excess_rekey_signature_share_of_seam_seps": (
-                implied_artifact_share
-            ),
+            "gross_id_survival_identity": {
+                "value": round(1 - seam["sep_rate"], 4),
+                "note": (
+                    "definitional identity (1 - seam sep rate), NOT "
+                    "evidence — it would be unchanged if every seam "
+                    "separation were a re-key; retained only as "
+                    "context"
+                ),
+            },
+            "excess_rekey_share_ee_population": share_ee_population,
+            "excess_rekey_share_all_separations": share_all_separations,
+            "one_sided_95_upper_ee_population": upper_ee,
+            "one_sided_95_upper_all_separations": upper_all,
             "structural_ee_cap_share_of_seam_seps": ee_cap,
         },
-        # Both scoring populations, so the referee can see that the
-        # verdict depends on which one is operative. Disclosure only:
-        # this file does NOT choose between them.
-        "scoring_population_sensitivity": {
-            "ee_only_excess_share": round(excess_sig_ee, 4),
-            "ee_only_verdict": _verdict_for(excess_sig_ee),
-            "scaled_to_all_seps_excess_share": implied_artifact_share,
-            "scaled_to_all_seps_verdict": verdict,
-            "note": (
-                "The E->E population is the one in which re-keying "
-                "can occur at all, and scores ABOVE the 15% bar. The "
-                "scaled figure multiplies it by the E->E share of "
-                "separations (structural_ee_cap) and scores below. "
-                "Which is operative is unregistered -- see the OPEN "
-                "items in the module docstring."
+        "verdict_rule": (
+            "author-proposed, UNRATIFIED (referee item): PASS if "
+            "excess re-key share < 15%; PASS_WITH_CORRECTION_BAND "
+            "if 15-30%; REFER_BACK if >30%. The operative scoring "
+            "population (E->E separations only, arguably the "
+            "conservative reading since re-keying is a "
+            "within-continuing-employment phenomenon, vs all seam "
+            "separations, since E->N separations cannot be ID "
+            "artifacts) is ALSO a referee item — the verdict "
+            "differs between them."
+        ),
+        "verdict_by_population": {
+            "ee_population": band(share_ee_population),
+            "all_separations": band(share_all_separations),
+            "operative": "REFEREE",
+        },
+        "caveats": {
+            "composition_mismatch": (
+                "the within-wave coincidence baseline has a "
+                "different separation mix (E->N share "
+                f"{within['to_nonemployment'] / within['separations']:.3f}"
+                " within-wave vs "
+                f"{seam['to_nonemployment'] / seam['separations']:.3f}"
+                " at the seam)"
+            ),
+            "nan_matching": (
+                "the re-key signature treats missing "
+                "industry/class/earnings as matching (pd.notna "
+                "guards), biasing the signature upward where item "
+                "nonresponse differs across the boundary; the "
+                "strict variant below treats missing as mismatch"
+            ),
+            "seam_denominator": (
+                "person presence at the seam is keyed on SSUID+PNUM "
+                "- the same cross-file linkage under test; a person "
+                "whose ID re-keyed would leave the denominator as a "
+                "sample leaver rather than appear as a separation, "
+                "so person-level re-keying is NOT bounded by this "
+                "artifact (jobs_held 10,828 at the seam vs ~17,500 "
+                "per within-wave pair reflects sample rotation plus "
+                "any such loss)"
             ),
         },
-        "verdict_rule": (
-            "PASS if excess re-key share < 15% of seam separations; "
-            "PASS_WITH_CORRECTION_BAND if 15-30%; REFER_BACK if "
-            ">30%"
-        ),
-        "verdict_bar_provenance": (
-            "OPEN - no derivation on record; author-chosen, not "
-            "floor-derived. Requires ratification (review of #235)."
-        ),
-        "verdict": verdict,
-        "verdict_is_conditional_on_scoring_population": True,
+        "strict_nan_variant": strict_variant,
     }
 
 
@@ -382,7 +443,8 @@ def main() -> None:
     print("within-wave:", artifact["within_wave_baseline"])
     print("seam:", artifact["across_wave_seam"])
     print("bounds:", artifact["bounds"])
-    print("VERDICT:", artifact["verdict"])
+    print("strict variant:", artifact["strict_nan_variant"])
+    print("VERDICT BY POPULATION:", artifact["verdict_by_population"])
 
 
 if __name__ == "__main__":
