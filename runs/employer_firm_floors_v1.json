@@ -1,0 +1,2729 @@
+{
+  "artifact": "employer_firm_floors",
+  "version": "v1",
+  "status": "PRE-LOCK REFERENCE - NOT RATIFIED; C3 not locked; no thresholds. v1 marks the artifact sha256-pinned and reproduction-tested (#230 section 12.2 item 2), which is a pinning event, not a ratification: the numbers here bind nothing until the C3 amendment PR merges",
+  "input_extract_sha256": {
+    "susb_us_sector_size_2022.csv": "b2db9502cf71480f4284cbeb8b78f31e8eb77f63963f679c167bfd40ade9d5e0",
+    "bds_us_firm_size_1978_2022.csv": "0cbfec27392d4d328ddf8be9800c30a65d954d3a50ef170e9c98fc4babc82b31",
+    "qwi_us_firmsize_sector_2015on.csv": "a173e5995cd7afeeb82e8afa543ab6e1a1d8c1b4089c4e50a947696e98e47dbd",
+    "j2j_us_firmsize_sector_2015on.csv": "118d4a0fd4c2c7cd3dab98bb81d1c8df668d5d0c83ebf9d7e3fd09240fd62e82",
+    "j2j_us_sexage_2015on.csv": "6ca16b98b3e809ebf4493f6884c75bee712c727cce16ddc219e0fca97e7edf60",
+    "j2jod_us_firmsize_od_2015on.csv": "0f83df008ae498643b66ecf25187170014988f5fb1f761c84cf9882376e3bef6"
+  },
+  "issue": "192",
+  "workstream": "B",
+  "sources": {
+    "susb": "data/external/susb_us_sector_size_2022.csv",
+    "bds": "data/external/bds_us_firm_size_1978_2022.csv",
+    "qwi": "data/external/qwi_us_firmsize_sector_2015on.csv",
+    "j2j": "data/external/j2j_us_firmsize_sector_2015on.csv",
+    "j2j_sexage": "data/external/j2j_us_sexage_2015on.csv",
+    "j2jod": "data/external/j2jod_us_firmsize_od_2015on.csv",
+    "provenance": "data/external/employer_firm_target_sources.md"
+  },
+  "method": "temporal-stability floors on published administrative aggregates: year-over-year same-quarter |log ratio| per cell (QWI/J2J, 2015Q1 on; same-quarter comparison absorbs seasonality in the not-seasonally-adjusted extracts), year-over-year |log share ratio| for the BDS size margin (2012-2022), and published noise-flag CV bounds for the single-vintage SUSB table; banding via populace_dynamics.firms.banding only; thin flag at minimum cell denominator < 10000 jobs (draft choice)",
+  "unit_rules": [
+    "QWI/J2J cells count jobs, not persons (ADR 0003): the job-to-person adjustment (~ multiple-jobholding rate, ~5%) is a pre-registered C3 item",
+    "QWI EarnS is MEAN monthly earnings of full-quarter employees; QWI never publishes medians; E7 is stated on means",
+    "J2J extract ownership is oslp (state/local + private) while QWI is private-only (op) and SUSB excludes government; NAICS 92 is dropped from the J2J extract but state/local employment embedded in other sectors (esp. 61, 62) remains \u2014 E2/E11 cells must restate on a private-comparable basis or carry this scope caveat (locks with C3)"
+  ],
+  "method_findings": {
+    "e1_no_sector_replicate": "the committed SUSB extract is a single 2022 cross-section: a same-source temporal or resampling floor on the size x sector cells is degenerate. The E1 floor is therefore composed of the published SUSB noise-flag CV bounds per cell plus a BDS year-over-year stability floor that exists only for the national size margin \u2014 the sector axis has no stability floor derivable from committed extracts",
+    "e1_bds_straddle": "the BDS '20 to 99' category straddles the canonical 50 edge (banding.bds_fsize_to_canonical is inexact there), so the BDS margin floor is stated on a coarsened partition (20_99 kept whole), not on the five canonical bands",
+    "e2_sex_age_axis_built": "SUPERSEDES draft_v0's 'e2_no_age_sex_axis'. E2's registered sex x age axis is now floored from the committed J2J sex x age extract (#228): the full 3 x 9 grid at the all-industry margin, 2015Q1-2025Q1, same |log YoY ratio| machinery as the firm-size axis, reported per cell and pooled over the 2 x 8 non-margin cells. The firm-size x sector floors remain the aggregate-side references they always were; the two E2 axes are now on one footing. Naming correction carried from the earlier draft: LEHD's sex x age tabulation is 'sa'; 'se' is sex x EDUCATION, and the draft_v0 finding named the wrong one",
+    "e11_extract_committed_but_no_temporal_replicate": "SUPERSEDES draft_v0's 'e11_no_od_extract', which is now factually stale: the origin x destination firm-size cross IS committed (#228, the full 6 x 6 grid). The obstacle is temporal, not availability. The national detail is published only for 2015Q1-2016Q1 (status flag 11 from 2016Q2), so same-quarter year-over-year pairing yields at most ONE pair per detail cell \u2014 a gap with no dispersion, hence no mean + k*sd floor on the cross. The destination-size margins run through 2025Q1 and are floored in the e11 block. A second, independent bound on any margin threshold comes from cross-source disagreement: the LED tool's margins and the LEHD flat file's differ by up to ~3% in either direction (e11.cross_source_margin_disagreement)",
+    "release_revision_noise_unfloored": "a third floorable concept, recorded and NOT built: vintage-to-vintage revision noise. LEHD revises across releases, and none of the floors here see that \u2014 every extract is a single release (R2026Q1). Observed during the #228 review: LEHD rotated to R2026Q2 mid-round and the J2JOD values for 2015Q1-2025Q1 were unchanged across the rotation (all 1,476 rows), which is one datum, on one series, over one rotation \u2014 suggestive that revision noise is small for these aggregates, not evidence that it is zero. Building it needs two release-stamped vintages of the same series committed; the C3 referee round should decide whether E1/E2/E6/E7/E11 thresholds must carry a revision allowance on top of the temporal floor",
+    "e12_deferred": "E12 (AKM moments) has no committed extract: AKM variance decompositions require linked employer-employee microdata, and the published decompositions are research outputs rather than a recurring aggregate release. No floor is buildable; E12 is recorded as deferred pending a committed, provenance-pinned reference extract, and must not lock with C3 without one",
+    "cycle_signal_in_floors": "temporal-stability floors on published aggregates include true business-cycle variation (2020-2021 most visibly) as well as source noise; both the full-sample and ex-pandemic figures are committed rather than choosing one \u2014 the C3 referee round picks the formulation with both on the record",
+    "floors_not_monotone_in_disaggregation": "an empirical finding from the sex x age build, and a trap for the threshold policy: the temporal floor is NOT monotone in disaggregation. Of the 26 non-aggregate sex x age cells, the number whose ex-pandemic floor is TIGHTER than the all-sexes all-ages cell is 13 (hire), 10 (separation), 6 (j2j hire), 7 (j2j separation). The pattern is interpretable -- the 45-99 age cells are the most stable and the 19-34 cells the least, while the aggregate carries compositional shift the older cells do not -- but the consequence is procedural: a floor measured on a margin CANNOT be used as a conservative bound for the cells beneath it. Every gated cell needs its own floor, or the threshold policy must say explicitly which cell's floor governs (C3 open question 1)",
+    "e11_margin_trend": "the E11 destination-size margins are EE flow COUNTS, so their year-over-year variation carries aggregate flow growth (a trend, not noise) exactly as raw EarnS carries nominal wage growth. Both are committed: 'ee' (raw counts) and 'ee_rel' (share of the quarter's all-size EE total, which divides the common trend out). The relative variant is far TIGHTER than the raw one: across the five destination bands its floor mean is 4.5x to 9.5x smaller (e.g. firmsize1 0.1054 raw vs 0.0233 relative), and 3.4x to 6.6x smaller on the ex-pandemic window. Most of the raw floor is the aggregate flow trend, which is exactly what the relative variant removes; the C3 referee round picks the formulation, as for E7",
+    "e7_nominal_trend": "raw EarnS YoY variation embeds aggregate nominal wage growth (a trend, not noise); the aggregate-relative EarnS floor is committed alongside the raw one, both on the record"
+  },
+  "e1": {
+    "susb_2022_share_by_sector_band": {
+      "11": {
+        "B100_499": {
+          "employment": 29243,
+          "share": 0.17341,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 48395,
+          "share": 0.28698,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 28400,
+          "share": 0.16841,
+          "noise_flag_worst": "J",
+          "cv_upper_bound": null
+        },
+        "B50_99": {
+          "employment": 16558,
+          "share": 0.09819,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 46038,
+          "share": 0.27301,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "21": {
+        "B100_499": {
+          "employment": 96849,
+          "share": 0.19064,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 72714,
+          "share": 0.14313,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 267414,
+          "share": 0.52638,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        },
+        "B50_99": {
+          "employment": 39882,
+          "share": 0.0785,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 31164,
+          "share": 0.06134,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "22": {
+        "B100_499": {
+          "employment": 58348,
+          "share": 0.09043,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 24877,
+          "share": 0.03856,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 523619,
+          "share": 0.81154,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        },
+        "B50_99": {
+          "employment": 24990,
+          "share": 0.03873,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 13380,
+          "share": 0.02074,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "23": {
+        "B100_499": {
+          "employment": 1257639,
+          "share": 0.17083,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 2217549,
+          "share": 0.30122,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 1419254,
+          "share": 0.19279,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 834047,
+          "share": 0.11329,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1633358,
+          "share": 0.22187,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "31-33": {
+        "B100_499": {
+          "employment": 2184791,
+          "share": 0.17925,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 1444401,
+          "share": 0.11851,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 7203660,
+          "share": 0.59103,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 883941,
+          "share": 0.07252,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 471537,
+          "share": 0.03869,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "42": {
+        "B100_499": {
+          "employment": 1091735,
+          "share": 0.17771,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 1055183,
+          "share": 0.17176,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 2929637,
+          "share": 0.47689,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 505733,
+          "share": 0.08232,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 560942,
+          "share": 0.09131,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "44-45": {
+        "B100_499": {
+          "employment": 1123241,
+          "share": 0.07054,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 2014328,
+          "share": 0.12651,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 10470141,
+          "share": 0.65757,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 763829,
+          "share": 0.04797,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1550899,
+          "share": 0.0974,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "48-49": {
+        "B100_499": {
+          "employment": 622233,
+          "share": 0.10187,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 639788,
+          "share": 0.10474,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 4080292,
+          "share": 0.66801,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 372968,
+          "share": 0.06106,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 392840,
+          "share": 0.06431,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "51": {
+        "B100_499": {
+          "employment": 425798,
+          "share": 0.11717,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 254370,
+          "share": 0.07,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 2660578,
+          "share": 0.73213,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 136910,
+          "share": 0.03767,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 156356,
+          "share": 0.04303,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "52": {
+        "B100_499": {
+          "employment": 729538,
+          "share": 0.10678,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 406149,
+          "share": 0.05945,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 4950276,
+          "share": 0.72458,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 222014,
+          "share": 0.0325,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 523920,
+          "share": 0.07669,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "53": {
+        "B100_499": {
+          "employment": 368603,
+          "share": 0.15799,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 415027,
+          "share": 0.17788,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 780729,
+          "share": 0.33463,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        },
+        "B50_99": {
+          "employment": 160390,
+          "share": 0.06874,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 608376,
+          "share": 0.26076,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        }
+      },
+      "54": {
+        "B100_499": {
+          "employment": 1552879,
+          "share": 0.15296,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 1765942,
+          "share": 0.17395,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 4529305,
+          "share": 0.44614,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 710784,
+          "share": 0.07001,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1593194,
+          "share": 0.15693,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "55": {
+        "B100_499": {
+          "employment": 292129,
+          "share": 0.07977,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 31786,
+          "share": 0.00868,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 3285090,
+          "share": 0.89708,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 45684,
+          "share": 0.01248,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 7288,
+          "share": 0.00199,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        }
+      },
+      "56": {
+        "B100_499": {
+          "employment": 1502438,
+          "share": 0.11065,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 1134105,
+          "share": 0.08352,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 9687197,
+          "share": 0.71341,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 538533,
+          "share": 0.03966,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 716436,
+          "share": 0.05276,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "61": {
+        "B100_499": {
+          "employment": 733380,
+          "share": 0.19589,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 526624,
+          "share": 0.14066,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 1971357,
+          "share": 0.52656,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 324751,
+          "share": 0.08674,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 187728,
+          "share": 0.05014,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "62": {
+        "B100_499": {
+          "employment": 3432316,
+          "share": 0.16212,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 2934487,
+          "share": 0.13861,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 11910294,
+          "share": 0.56257,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 1399147,
+          "share": 0.06609,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1494988,
+          "share": 0.07061,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "71": {
+        "B100_499": {
+          "employment": 466716,
+          "share": 0.20131,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 516682,
+          "share": 0.22287,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 841941,
+          "share": 0.36316,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B50_99": {
+          "employment": 250550,
+          "share": 0.10807,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 242468,
+          "share": 0.10459,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "72": {
+        "B100_499": {
+          "employment": 1736736,
+          "share": 0.12591,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 4370162,
+          "share": 0.31683,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 5135989,
+          "share": 0.37235,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        },
+        "B50_99": {
+          "employment": 1435374,
+          "share": 0.10406,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1115217,
+          "share": 0.08085,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        }
+      },
+      "81": {
+        "B100_499": {
+          "employment": 619059,
+          "share": 0.11313,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B10_49": {
+          "employment": 1795251,
+          "share": 0.32808,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "B500_PLUS": {
+          "employment": 822678,
+          "share": 0.15034,
+          "noise_flag_worst": "H",
+          "cv_upper_bound": 0.05
+        },
+        "B50_99": {
+          "employment": 484178,
+          "share": 0.08848,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        },
+        "LT10": {
+          "employment": 1750821,
+          "share": 0.31996,
+          "noise_flag_worst": "G",
+          "cv_upper_bound": 0.02
+        }
+      },
+      "99": {
+        "B10_49": {
+          "employment": 2887,
+          "share": 0.24359,
+          "noise_flag_worst": "J",
+          "cv_upper_bound": null
+        },
+        "LT10": {
+          "employment": 8965,
+          "share": 0.75641,
+          "noise_flag_worst": "J",
+          "cv_upper_bound": null
+        }
+      }
+    },
+    "bds_size_margin_yoy_stability": {
+      "window": [
+        2012,
+        2022
+      ],
+      "groups": {
+        "1_9": {
+          "bds_fsize_categories": [
+            "a) 1 to 4",
+            "b) 5 to 9"
+          ],
+          "canonical_bands": [
+            "LT10"
+          ],
+          "exact": true,
+          "share_2022": 0.10702,
+          "floor_abs_log_ratio_mean": 0.01718,
+          "floor_abs_log_ratio_sd": 0.01336,
+          "n_pairs": 11,
+          "ex_pandemic_mean": 0.01482,
+          "ex_pandemic_sd": 0.00511,
+          "n_pairs_ex_pandemic": 8
+        },
+        "10_19": {
+          "bds_fsize_categories": [
+            "c) 10 to 19"
+          ],
+          "canonical_bands": [
+            "B10_49"
+          ],
+          "exact": true,
+          "share_2022": 0.0666,
+          "floor_abs_log_ratio_mean": 0.01131,
+          "floor_abs_log_ratio_sd": 0.0054,
+          "n_pairs": 11,
+          "ex_pandemic_mean": 0.00915,
+          "ex_pandemic_sd": 0.00414,
+          "n_pairs_ex_pandemic": 8
+        },
+        "20_99": {
+          "bds_fsize_categories": [
+            "d) 20 to 99"
+          ],
+          "canonical_bands": [
+            "B10_49",
+            "B50_99"
+          ],
+          "exact": false,
+          "share_2022": 0.16113,
+          "floor_abs_log_ratio_mean": 0.00816,
+          "floor_abs_log_ratio_sd": 0.0086,
+          "n_pairs": 11,
+          "ex_pandemic_mean": 0.00404,
+          "ex_pandemic_sd": 0.00329,
+          "n_pairs_ex_pandemic": 8
+        },
+        "100_499": {
+          "bds_fsize_categories": [
+            "e) 100 to 499"
+          ],
+          "canonical_bands": [
+            "B100_499"
+          ],
+          "exact": true,
+          "share_2022": 0.13528,
+          "floor_abs_log_ratio_mean": 0.00563,
+          "floor_abs_log_ratio_sd": 0.00755,
+          "n_pairs": 11,
+          "ex_pandemic_mean": 0.0039,
+          "ex_pandemic_sd": 0.00275,
+          "n_pairs_ex_pandemic": 8
+        },
+        "500_plus": {
+          "bds_fsize_categories": [
+            "f) 500 to 999",
+            "g) 1000 to 2499",
+            "h) 2500 to 4999",
+            "i) 5000 to 9999",
+            "j) 10000+"
+          ],
+          "canonical_bands": [
+            "B500_PLUS"
+          ],
+          "exact": true,
+          "share_2022": 0.52997,
+          "floor_abs_log_ratio_mean": 0.00516,
+          "floor_abs_log_ratio_sd": 0.00231,
+          "n_pairs": 11,
+          "ex_pandemic_mean": 0.0048,
+          "ex_pandemic_sd": 0.00185,
+          "n_pairs_ex_pandemic": 8
+        }
+      }
+    }
+  },
+  "e2": {
+    "by_firmsize_all_industry": {
+      "firmsize1": {
+        "firmsize_label": "0-19 Employees",
+        "canonical_bands": [
+          "LT10",
+          "B10_49"
+        ],
+        "exact": false,
+        "min_denominator_jobs": 18440372,
+        "thin": false,
+        "hire_rate": {
+          "level_mean": 0.13835,
+          "floor_abs_log_ratio_mean": 0.0565,
+          "floor_abs_log_ratio_sd": 0.05567,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.02729,
+          "ex_pandemic_sd": 0.02157,
+          "n_pairs_ex_pandemic": 24
+        },
+        "separation_rate": {
+          "level_mean": 0.12446,
+          "floor_abs_log_ratio_mean": 0.05609,
+          "floor_abs_log_ratio_sd": 0.12328,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.01837,
+          "ex_pandemic_sd": 0.01665,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_hire_rate": {
+          "level_mean": 0.05473,
+          "floor_abs_log_ratio_mean": 0.06146,
+          "floor_abs_log_ratio_sd": 0.0702,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03739,
+          "ex_pandemic_sd": 0.03021,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_separation_rate": {
+          "level_mean": 0.05247,
+          "floor_abs_log_ratio_mean": 0.08393,
+          "floor_abs_log_ratio_sd": 0.10246,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04322,
+          "ex_pandemic_sd": 0.03921,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_hire_rate": {
+          "level_mean": 0.03678,
+          "floor_abs_log_ratio_mean": 0.08076,
+          "floor_abs_log_ratio_sd": 0.11019,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04296,
+          "ex_pandemic_sd": 0.03455,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_separation_rate": {
+          "level_mean": 0.03435,
+          "floor_abs_log_ratio_mean": 0.10011,
+          "floor_abs_log_ratio_sd": 0.13464,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04862,
+          "ex_pandemic_sd": 0.04112,
+          "n_pairs_ex_pandemic": 24
+        }
+      },
+      "firmsize2": {
+        "firmsize_label": "20-49 Employees",
+        "canonical_bands": [
+          "B10_49"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 10007762,
+        "thin": false,
+        "hire_rate": {
+          "level_mean": 0.13301,
+          "floor_abs_log_ratio_mean": 0.07117,
+          "floor_abs_log_ratio_sd": 0.09021,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03415,
+          "ex_pandemic_sd": 0.0276,
+          "n_pairs_ex_pandemic": 24
+        },
+        "separation_rate": {
+          "level_mean": 0.12795,
+          "floor_abs_log_ratio_mean": 0.05895,
+          "floor_abs_log_ratio_sd": 0.10961,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.02151,
+          "ex_pandemic_sd": 0.01723,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_hire_rate": {
+          "level_mean": 0.06192,
+          "floor_abs_log_ratio_mean": 0.07963,
+          "floor_abs_log_ratio_sd": 0.10108,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04356,
+          "ex_pandemic_sd": 0.03415,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_separation_rate": {
+          "level_mean": 0.06427,
+          "floor_abs_log_ratio_mean": 0.08386,
+          "floor_abs_log_ratio_sd": 0.10272,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04362,
+          "ex_pandemic_sd": 0.03531,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_hire_rate": {
+          "level_mean": 0.04311,
+          "floor_abs_log_ratio_mean": 0.09836,
+          "floor_abs_log_ratio_sd": 0.13799,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.0497,
+          "ex_pandemic_sd": 0.03948,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_separation_rate": {
+          "level_mean": 0.0439,
+          "floor_abs_log_ratio_mean": 0.10179,
+          "floor_abs_log_ratio_sd": 0.1389,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05047,
+          "ex_pandemic_sd": 0.03819,
+          "n_pairs_ex_pandemic": 24
+        }
+      },
+      "firmsize3": {
+        "firmsize_label": "50-249 Employees",
+        "canonical_bands": [
+          "B50_99",
+          "B100_499"
+        ],
+        "exact": false,
+        "min_denominator_jobs": 16053464,
+        "thin": false,
+        "hire_rate": {
+          "level_mean": 0.12559,
+          "floor_abs_log_ratio_mean": 0.07152,
+          "floor_abs_log_ratio_sd": 0.10092,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03417,
+          "ex_pandemic_sd": 0.02558,
+          "n_pairs_ex_pandemic": 24
+        },
+        "separation_rate": {
+          "level_mean": 0.12039,
+          "floor_abs_log_ratio_mean": 0.05035,
+          "floor_abs_log_ratio_sd": 0.08501,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.02188,
+          "ex_pandemic_sd": 0.01621,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_hire_rate": {
+          "level_mean": 0.06398,
+          "floor_abs_log_ratio_mean": 0.08444,
+          "floor_abs_log_ratio_sd": 0.10867,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04298,
+          "ex_pandemic_sd": 0.03308,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_separation_rate": {
+          "level_mean": 0.06447,
+          "floor_abs_log_ratio_mean": 0.07991,
+          "floor_abs_log_ratio_sd": 0.09664,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.0423,
+          "ex_pandemic_sd": 0.03385,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_hire_rate": {
+          "level_mean": 0.04519,
+          "floor_abs_log_ratio_mean": 0.10125,
+          "floor_abs_log_ratio_sd": 0.14163,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05036,
+          "ex_pandemic_sd": 0.04076,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_separation_rate": {
+          "level_mean": 0.04492,
+          "floor_abs_log_ratio_mean": 0.09829,
+          "floor_abs_log_ratio_sd": 0.13179,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04958,
+          "ex_pandemic_sd": 0.03893,
+          "n_pairs_ex_pandemic": 24
+        }
+      },
+      "firmsize4": {
+        "firmsize_label": "250-499 Employees",
+        "canonical_bands": [
+          "B100_499"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 6036916,
+        "thin": false,
+        "hire_rate": {
+          "level_mean": 0.12129,
+          "floor_abs_log_ratio_mean": 0.07696,
+          "floor_abs_log_ratio_sd": 0.10712,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04226,
+          "ex_pandemic_sd": 0.03558,
+          "n_pairs_ex_pandemic": 24
+        },
+        "separation_rate": {
+          "level_mean": 0.11677,
+          "floor_abs_log_ratio_mean": 0.05004,
+          "floor_abs_log_ratio_sd": 0.06679,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.02763,
+          "ex_pandemic_sd": 0.02353,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_hire_rate": {
+          "level_mean": 0.06345,
+          "floor_abs_log_ratio_mean": 0.09662,
+          "floor_abs_log_ratio_sd": 0.1154,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05223,
+          "ex_pandemic_sd": 0.04437,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_separation_rate": {
+          "level_mean": 0.06428,
+          "floor_abs_log_ratio_mean": 0.08368,
+          "floor_abs_log_ratio_sd": 0.09313,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04842,
+          "ex_pandemic_sd": 0.04304,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_hire_rate": {
+          "level_mean": 0.04467,
+          "floor_abs_log_ratio_mean": 0.11341,
+          "floor_abs_log_ratio_sd": 0.14634,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.06109,
+          "ex_pandemic_sd": 0.05044,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_separation_rate": {
+          "level_mean": 0.04511,
+          "floor_abs_log_ratio_mean": 0.10241,
+          "floor_abs_log_ratio_sd": 0.125,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05741,
+          "ex_pandemic_sd": 0.0484,
+          "n_pairs_ex_pandemic": 24
+        }
+      },
+      "firmsize5": {
+        "firmsize_label": "500+ Employees",
+        "canonical_bands": [
+          "B500_PLUS"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 54935065,
+        "thin": false,
+        "hire_rate": {
+          "level_mean": 0.11101,
+          "floor_abs_log_ratio_mean": 0.07952,
+          "floor_abs_log_ratio_sd": 0.09987,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04312,
+          "ex_pandemic_sd": 0.04673,
+          "n_pairs_ex_pandemic": 24
+        },
+        "separation_rate": {
+          "level_mean": 0.1067,
+          "floor_abs_log_ratio_mean": 0.05405,
+          "floor_abs_log_ratio_sd": 0.05735,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03493,
+          "ex_pandemic_sd": 0.03283,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_hire_rate": {
+          "level_mean": 0.0593,
+          "floor_abs_log_ratio_mean": 0.09724,
+          "floor_abs_log_ratio_sd": 0.10992,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05534,
+          "ex_pandemic_sd": 0.05671,
+          "n_pairs_ex_pandemic": 24
+        },
+        "j2j_separation_rate": {
+          "level_mean": 0.06032,
+          "floor_abs_log_ratio_mean": 0.09256,
+          "floor_abs_log_ratio_sd": 0.11011,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.05281,
+          "ex_pandemic_sd": 0.0542,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_hire_rate": {
+          "level_mean": 0.04125,
+          "floor_abs_log_ratio_mean": 0.11389,
+          "floor_abs_log_ratio_sd": 0.14234,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.06284,
+          "ex_pandemic_sd": 0.06471,
+          "n_pairs_ex_pandemic": 24
+        },
+        "ee_separation_rate": {
+          "level_mean": 0.04255,
+          "floor_abs_log_ratio_mean": 0.10903,
+          "floor_abs_log_ratio_sd": 0.14268,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.06003,
+          "ex_pandemic_sd": 0.05956,
+          "n_pairs_ex_pandemic": 24
+        }
+      }
+    },
+    "sector_cells": {
+      "n_cells": 95,
+      "hire_rate": {
+        "cell_floor_median": 0.08873,
+        "cell_floor_p90": 0.14927,
+        "cell_floor_max": 0.29279,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "separation_rate": {
+        "cell_floor_median": 0.06316,
+        "cell_floor_p90": 0.09947,
+        "cell_floor_max": 0.18552,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "j2j_hire_rate": {
+        "cell_floor_median": 0.10574,
+        "cell_floor_p90": 0.1587,
+        "cell_floor_max": 0.31612,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "j2j_separation_rate": {
+        "cell_floor_median": 0.09402,
+        "cell_floor_p90": 0.13385,
+        "cell_floor_max": 0.21333,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "ee_hire_rate": {
+        "cell_floor_median": 0.12524,
+        "cell_floor_p90": 0.1836,
+        "cell_floor_max": 0.35072,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "ee_separation_rate": {
+        "cell_floor_median": 0.11164,
+        "cell_floor_p90": 0.16538,
+        "cell_floor_max": 0.23564,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      }
+    },
+    "by_sex_age": {
+      "cells": {
+        "sex0_A00": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A00",
+          "agegrp_label": "All Ages (14-99)",
+          "min_denominator_jobs": 124416927,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.11138,
+            "floor_abs_log_ratio_mean": 0.06924,
+            "floor_abs_log_ratio_sd": 0.08584,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03781,
+            "ex_pandemic_sd": 0.03295,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.10588,
+            "floor_abs_log_ratio_mean": 0.053,
+            "floor_abs_log_ratio_sd": 0.07945,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0272,
+            "ex_pandemic_sd": 0.02372,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.05446,
+            "floor_abs_log_ratio_mean": 0.08798,
+            "floor_abs_log_ratio_sd": 0.10137,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04834,
+            "ex_pandemic_sd": 0.04246,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.0547,
+            "floor_abs_log_ratio_mean": 0.08697,
+            "floor_abs_log_ratio_sd": 0.10513,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04752,
+            "ex_pandemic_sd": 0.04515,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A01": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A01",
+          "agegrp_label": "14-18",
+          "min_denominator_jobs": 2374533,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.42042,
+            "floor_abs_log_ratio_mean": 0.07367,
+            "floor_abs_log_ratio_sd": 0.08249,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03536,
+            "ex_pandemic_sd": 0.03241,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.27113,
+            "floor_abs_log_ratio_mean": 0.07401,
+            "floor_abs_log_ratio_sd": 0.09739,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03089,
+            "ex_pandemic_sd": 0.02891,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.10984,
+            "floor_abs_log_ratio_mean": 0.07842,
+            "floor_abs_log_ratio_sd": 0.06298,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05368,
+            "ex_pandemic_sd": 0.04363,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11713,
+            "floor_abs_log_ratio_mean": 0.08081,
+            "floor_abs_log_ratio_sd": 0.09525,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05043,
+            "ex_pandemic_sd": 0.04433,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A02": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A02",
+          "agegrp_label": "19-21",
+          "min_denominator_jobs": 5105305,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.29055,
+            "floor_abs_log_ratio_mean": 0.06968,
+            "floor_abs_log_ratio_sd": 0.07426,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03633,
+            "ex_pandemic_sd": 0.03347,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.25229,
+            "floor_abs_log_ratio_mean": 0.05892,
+            "floor_abs_log_ratio_sd": 0.06633,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03226,
+            "ex_pandemic_sd": 0.03203,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.1353,
+            "floor_abs_log_ratio_mean": 0.07439,
+            "floor_abs_log_ratio_sd": 0.08139,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05102,
+            "ex_pandemic_sd": 0.04566,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.13621,
+            "floor_abs_log_ratio_mean": 0.07625,
+            "floor_abs_log_ratio_sd": 0.09273,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04843,
+            "ex_pandemic_sd": 0.04726,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A03": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A03",
+          "agegrp_label": "22-24",
+          "min_denominator_jobs": 6550706,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.21288,
+            "floor_abs_log_ratio_mean": 0.07371,
+            "floor_abs_log_ratio_sd": 0.09203,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03942,
+            "ex_pandemic_sd": 0.03697,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.18928,
+            "floor_abs_log_ratio_mean": 0.05737,
+            "floor_abs_log_ratio_sd": 0.06247,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03363,
+            "ex_pandemic_sd": 0.03283,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.1144,
+            "floor_abs_log_ratio_mean": 0.0823,
+            "floor_abs_log_ratio_sd": 0.10323,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05016,
+            "ex_pandemic_sd": 0.04394,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11468,
+            "floor_abs_log_ratio_mean": 0.08425,
+            "floor_abs_log_ratio_sd": 0.1033,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04861,
+            "ex_pandemic_sd": 0.04625,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A04": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A04",
+          "agegrp_label": "25-34",
+          "min_denominator_jobs": 26944125,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.13034,
+            "floor_abs_log_ratio_mean": 0.0767,
+            "floor_abs_log_ratio_sd": 0.09979,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04057,
+            "ex_pandemic_sd": 0.03877,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.12315,
+            "floor_abs_log_ratio_mean": 0.05804,
+            "floor_abs_log_ratio_sd": 0.06572,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03373,
+            "ex_pandemic_sd": 0.03061,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.07351,
+            "floor_abs_log_ratio_mean": 0.09471,
+            "floor_abs_log_ratio_sd": 0.112,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05039,
+            "ex_pandemic_sd": 0.04575,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.07357,
+            "floor_abs_log_ratio_mean": 0.09352,
+            "floor_abs_log_ratio_sd": 0.11245,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04977,
+            "ex_pandemic_sd": 0.04891,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A05": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A05",
+          "agegrp_label": "35-44",
+          "min_denominator_jobs": 26554573,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.09039,
+            "floor_abs_log_ratio_mean": 0.06993,
+            "floor_abs_log_ratio_sd": 0.08995,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03733,
+            "ex_pandemic_sd": 0.03389,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.08612,
+            "floor_abs_log_ratio_mean": 0.05528,
+            "floor_abs_log_ratio_sd": 0.07795,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0279,
+            "ex_pandemic_sd": 0.02411,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.04795,
+            "floor_abs_log_ratio_mean": 0.09433,
+            "floor_abs_log_ratio_sd": 0.10529,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04636,
+            "ex_pandemic_sd": 0.04237,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.04799,
+            "floor_abs_log_ratio_mean": 0.09472,
+            "floor_abs_log_ratio_sd": 0.1051,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04685,
+            "ex_pandemic_sd": 0.04441,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A06": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A06",
+          "agegrp_label": "45-54",
+          "min_denominator_jobs": 25614101,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.06985,
+            "floor_abs_log_ratio_mean": 0.06539,
+            "floor_abs_log_ratio_sd": 0.08085,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03522,
+            "ex_pandemic_sd": 0.0295,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.06889,
+            "floor_abs_log_ratio_mean": 0.05573,
+            "floor_abs_log_ratio_sd": 0.08709,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02334,
+            "ex_pandemic_sd": 0.01937,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.03565,
+            "floor_abs_log_ratio_mean": 0.09163,
+            "floor_abs_log_ratio_sd": 0.09921,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04597,
+            "ex_pandemic_sd": 0.03736,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.03562,
+            "floor_abs_log_ratio_mean": 0.09187,
+            "floor_abs_log_ratio_sd": 0.09805,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04618,
+            "ex_pandemic_sd": 0.03922,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A07": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A07",
+          "agegrp_label": "55-64",
+          "min_denominator_jobs": 20859090,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.05553,
+            "floor_abs_log_ratio_mean": 0.06896,
+            "floor_abs_log_ratio_sd": 0.08034,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03671,
+            "ex_pandemic_sd": 0.02972,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.0654,
+            "floor_abs_log_ratio_mean": 0.05664,
+            "floor_abs_log_ratio_sd": 0.1031,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.01923,
+            "ex_pandemic_sd": 0.01458,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02505,
+            "floor_abs_log_ratio_mean": 0.09193,
+            "floor_abs_log_ratio_sd": 0.09486,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04861,
+            "ex_pandemic_sd": 0.03196,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.0249,
+            "floor_abs_log_ratio_mean": 0.09233,
+            "floor_abs_log_ratio_sd": 0.0937,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04911,
+            "ex_pandemic_sd": 0.03419,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex0_A08": {
+          "sex": 0,
+          "sex_label": "All Sexes",
+          "agegrp": "A08",
+          "agegrp_label": "65-99",
+          "min_denominator_jobs": 6794173,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.07202,
+            "floor_abs_log_ratio_mean": 0.07749,
+            "floor_abs_log_ratio_sd": 0.08494,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04487,
+            "ex_pandemic_sd": 0.04025,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.09982,
+            "floor_abs_log_ratio_mean": 0.0688,
+            "floor_abs_log_ratio_sd": 0.14007,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.01811,
+            "ex_pandemic_sd": 0.01571,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02219,
+            "floor_abs_log_ratio_mean": 0.08403,
+            "floor_abs_log_ratio_sd": 0.07878,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05429,
+            "ex_pandemic_sd": 0.03511,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.02205,
+            "floor_abs_log_ratio_mean": 0.0873,
+            "floor_abs_log_ratio_sd": 0.08428,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05674,
+            "ex_pandemic_sd": 0.03615,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A00": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A00",
+          "agegrp_label": "All Ages (14-99)",
+          "min_denominator_jobs": 62895777,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.11264,
+            "floor_abs_log_ratio_mean": 0.06422,
+            "floor_abs_log_ratio_sd": 0.07882,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03567,
+            "ex_pandemic_sd": 0.02914,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.10773,
+            "floor_abs_log_ratio_mean": 0.04806,
+            "floor_abs_log_ratio_sd": 0.06829,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02496,
+            "ex_pandemic_sd": 0.02124,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.05589,
+            "floor_abs_log_ratio_mean": 0.08477,
+            "floor_abs_log_ratio_sd": 0.0939,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04672,
+            "ex_pandemic_sd": 0.03793,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.05609,
+            "floor_abs_log_ratio_mean": 0.08497,
+            "floor_abs_log_ratio_sd": 0.09734,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04705,
+            "ex_pandemic_sd": 0.04064,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A01": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A01",
+          "agegrp_label": "14-18",
+          "min_denominator_jobs": 1084140,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.43626,
+            "floor_abs_log_ratio_mean": 0.06712,
+            "floor_abs_log_ratio_sd": 0.06893,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03712,
+            "ex_pandemic_sd": 0.0329,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.28055,
+            "floor_abs_log_ratio_mean": 0.07033,
+            "floor_abs_log_ratio_sd": 0.08996,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03153,
+            "ex_pandemic_sd": 0.02657,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.1076,
+            "floor_abs_log_ratio_mean": 0.0738,
+            "floor_abs_log_ratio_sd": 0.05438,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05264,
+            "ex_pandemic_sd": 0.04086,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11527,
+            "floor_abs_log_ratio_mean": 0.0758,
+            "floor_abs_log_ratio_sd": 0.08788,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04973,
+            "ex_pandemic_sd": 0.04253,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A02": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A02",
+          "agegrp_label": "19-21",
+          "min_denominator_jobs": 2508489,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.29572,
+            "floor_abs_log_ratio_mean": 0.06433,
+            "floor_abs_log_ratio_sd": 0.06592,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0378,
+            "ex_pandemic_sd": 0.03232,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.25643,
+            "floor_abs_log_ratio_mean": 0.05566,
+            "floor_abs_log_ratio_sd": 0.05724,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03353,
+            "ex_pandemic_sd": 0.02995,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.136,
+            "floor_abs_log_ratio_mean": 0.07226,
+            "floor_abs_log_ratio_sd": 0.07794,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05087,
+            "ex_pandemic_sd": 0.04292,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.13694,
+            "floor_abs_log_ratio_mean": 0.07474,
+            "floor_abs_log_ratio_sd": 0.08757,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.0502,
+            "ex_pandemic_sd": 0.04434,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A03": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A03",
+          "agegrp_label": "22-24",
+          "min_denominator_jobs": 3280046,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.2154,
+            "floor_abs_log_ratio_mean": 0.0716,
+            "floor_abs_log_ratio_sd": 0.08499,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04026,
+            "ex_pandemic_sd": 0.0353,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.19136,
+            "floor_abs_log_ratio_mean": 0.0534,
+            "floor_abs_log_ratio_sd": 0.05443,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03481,
+            "ex_pandemic_sd": 0.03131,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.11515,
+            "floor_abs_log_ratio_mean": 0.08085,
+            "floor_abs_log_ratio_sd": 0.09544,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05161,
+            "ex_pandemic_sd": 0.04112,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11547,
+            "floor_abs_log_ratio_mean": 0.08336,
+            "floor_abs_log_ratio_sd": 0.09716,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05123,
+            "ex_pandemic_sd": 0.04395,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A04": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A04",
+          "agegrp_label": "25-34",
+          "min_denominator_jobs": 13775079,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.13315,
+            "floor_abs_log_ratio_mean": 0.07246,
+            "floor_abs_log_ratio_sd": 0.09351,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03837,
+            "ex_pandemic_sd": 0.03524,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.12585,
+            "floor_abs_log_ratio_mean": 0.05408,
+            "floor_abs_log_ratio_sd": 0.05766,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03269,
+            "ex_pandemic_sd": 0.02865,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.07649,
+            "floor_abs_log_ratio_mean": 0.09041,
+            "floor_abs_log_ratio_sd": 0.10399,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0493,
+            "ex_pandemic_sd": 0.04191,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.07652,
+            "floor_abs_log_ratio_mean": 0.09049,
+            "floor_abs_log_ratio_sd": 0.10455,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.0499,
+            "ex_pandemic_sd": 0.04476,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A05": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A05",
+          "agegrp_label": "35-44",
+          "min_denominator_jobs": 13661887,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.09162,
+            "floor_abs_log_ratio_mean": 0.06408,
+            "floor_abs_log_ratio_sd": 0.08345,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03367,
+            "ex_pandemic_sd": 0.02885,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.08857,
+            "floor_abs_log_ratio_mean": 0.05026,
+            "floor_abs_log_ratio_sd": 0.06663,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02504,
+            "ex_pandemic_sd": 0.02176,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.05004,
+            "floor_abs_log_ratio_mean": 0.08969,
+            "floor_abs_log_ratio_sd": 0.09852,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04421,
+            "ex_pandemic_sd": 0.03769,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.05001,
+            "floor_abs_log_ratio_mean": 0.09107,
+            "floor_abs_log_ratio_sd": 0.09824,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04549,
+            "ex_pandemic_sd": 0.03987,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A06": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A06",
+          "agegrp_label": "45-54",
+          "min_denominator_jobs": 13005656,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.07106,
+            "floor_abs_log_ratio_mean": 0.05836,
+            "floor_abs_log_ratio_sd": 0.07424,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03106,
+            "ex_pandemic_sd": 0.02446,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.07092,
+            "floor_abs_log_ratio_mean": 0.0468,
+            "floor_abs_log_ratio_sd": 0.07313,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0194,
+            "ex_pandemic_sd": 0.01638,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.03705,
+            "floor_abs_log_ratio_mean": 0.08444,
+            "floor_abs_log_ratio_sd": 0.09235,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04119,
+            "ex_pandemic_sd": 0.03369,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.03698,
+            "floor_abs_log_ratio_mean": 0.08604,
+            "floor_abs_log_ratio_sd": 0.09081,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04277,
+            "ex_pandemic_sd": 0.03474,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A07": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A07",
+          "agegrp_label": "55-64",
+          "min_denominator_jobs": 10403974,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.05782,
+            "floor_abs_log_ratio_mean": 0.06305,
+            "floor_abs_log_ratio_sd": 0.0721,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03419,
+            "ex_pandemic_sd": 0.02567,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.06761,
+            "floor_abs_log_ratio_mean": 0.04635,
+            "floor_abs_log_ratio_sd": 0.08553,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.01628,
+            "ex_pandemic_sd": 0.01322,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02673,
+            "floor_abs_log_ratio_mean": 0.08497,
+            "floor_abs_log_ratio_sd": 0.08835,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04383,
+            "ex_pandemic_sd": 0.0312,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.02654,
+            "floor_abs_log_ratio_mean": 0.08629,
+            "floor_abs_log_ratio_sd": 0.08754,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04502,
+            "ex_pandemic_sd": 0.03331,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex1_A08": {
+          "sex": 1,
+          "sex_label": "Male",
+          "agegrp": "A08",
+          "agegrp_label": "65-99",
+          "min_denominator_jobs": 3512909,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.07378,
+            "floor_abs_log_ratio_mean": 0.07166,
+            "floor_abs_log_ratio_sd": 0.0737,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04237,
+            "ex_pandemic_sd": 0.03784,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.10064,
+            "floor_abs_log_ratio_mean": 0.05896,
+            "floor_abs_log_ratio_sd": 0.12119,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.01589,
+            "ex_pandemic_sd": 0.01392,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02309,
+            "floor_abs_log_ratio_mean": 0.08276,
+            "floor_abs_log_ratio_sd": 0.07591,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05243,
+            "ex_pandemic_sd": 0.03565,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.02293,
+            "floor_abs_log_ratio_mean": 0.08645,
+            "floor_abs_log_ratio_sd": 0.08223,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05469,
+            "ex_pandemic_sd": 0.0369,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A00": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A00",
+          "agegrp_label": "All Ages (14-99)",
+          "min_denominator_jobs": 61261381,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.1101,
+            "floor_abs_log_ratio_mean": 0.07457,
+            "floor_abs_log_ratio_sd": 0.09449,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03999,
+            "ex_pandemic_sd": 0.03769,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.104,
+            "floor_abs_log_ratio_mean": 0.05945,
+            "floor_abs_log_ratio_sd": 0.09026,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02969,
+            "ex_pandemic_sd": 0.02674,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.053,
+            "floor_abs_log_ratio_mean": 0.09336,
+            "floor_abs_log_ratio_sd": 0.10852,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05292,
+            "ex_pandemic_sd": 0.04499,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.05329,
+            "floor_abs_log_ratio_mean": 0.09193,
+            "floor_abs_log_ratio_sd": 0.1117,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05161,
+            "ex_pandemic_sd": 0.04705,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A01": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A01",
+          "agegrp_label": "14-18",
+          "min_denominator_jobs": 1290393,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.40702,
+            "floor_abs_log_ratio_mean": 0.08137,
+            "floor_abs_log_ratio_sd": 0.09561,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03462,
+            "ex_pandemic_sd": 0.03186,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.26294,
+            "floor_abs_log_ratio_mean": 0.07794,
+            "floor_abs_log_ratio_sd": 0.10405,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0309,
+            "ex_pandemic_sd": 0.03068,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.1118,
+            "floor_abs_log_ratio_mean": 0.08275,
+            "floor_abs_log_ratio_sd": 0.07126,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0553,
+            "ex_pandemic_sd": 0.04525,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11878,
+            "floor_abs_log_ratio_mean": 0.08551,
+            "floor_abs_log_ratio_sd": 0.10219,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05158,
+            "ex_pandemic_sd": 0.04546,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A02": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A02",
+          "agegrp_label": "19-21",
+          "min_denominator_jobs": 2596816,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.28574,
+            "floor_abs_log_ratio_mean": 0.07515,
+            "floor_abs_log_ratio_sd": 0.08405,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03525,
+            "ex_pandemic_sd": 0.03475,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.24836,
+            "floor_abs_log_ratio_mean": 0.06226,
+            "floor_abs_log_ratio_sd": 0.07515,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03138,
+            "ex_pandemic_sd": 0.03425,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.13467,
+            "floor_abs_log_ratio_mean": 0.078,
+            "floor_abs_log_ratio_sd": 0.08413,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05258,
+            "ex_pandemic_sd": 0.04754,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.13554,
+            "floor_abs_log_ratio_mean": 0.07924,
+            "floor_abs_log_ratio_sd": 0.0972,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04881,
+            "ex_pandemic_sd": 0.0486,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A03": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A03",
+          "agegrp_label": "22-24",
+          "min_denominator_jobs": 3270659,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.21051,
+            "floor_abs_log_ratio_mean": 0.07623,
+            "floor_abs_log_ratio_sd": 0.10036,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03886,
+            "ex_pandemic_sd": 0.03892,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.18725,
+            "floor_abs_log_ratio_mean": 0.06152,
+            "floor_abs_log_ratio_sd": 0.07064,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0329,
+            "ex_pandemic_sd": 0.03442,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.11371,
+            "floor_abs_log_ratio_mean": 0.08469,
+            "floor_abs_log_ratio_sd": 0.11117,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.0499,
+            "ex_pandemic_sd": 0.04653,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.11394,
+            "floor_abs_log_ratio_mean": 0.08596,
+            "floor_abs_log_ratio_sd": 0.10923,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.04739,
+            "ex_pandemic_sd": 0.04803,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A04": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A04",
+          "agegrp_label": "25-34",
+          "min_denominator_jobs": 13169046,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.12745,
+            "floor_abs_log_ratio_mean": 0.08139,
+            "floor_abs_log_ratio_sd": 0.1077,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04282,
+            "ex_pandemic_sd": 0.04361,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.12034,
+            "floor_abs_log_ratio_mean": 0.06229,
+            "floor_abs_log_ratio_sd": 0.07457,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03481,
+            "ex_pandemic_sd": 0.03326,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.07043,
+            "floor_abs_log_ratio_mean": 0.10116,
+            "floor_abs_log_ratio_sd": 0.12044,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05397,
+            "ex_pandemic_sd": 0.04837,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.07052,
+            "floor_abs_log_ratio_mean": 0.09911,
+            "floor_abs_log_ratio_sd": 0.11999,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05293,
+            "ex_pandemic_sd": 0.05104,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A05": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A05",
+          "agegrp_label": "35-44",
+          "min_denominator_jobs": 12892686,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.08912,
+            "floor_abs_log_ratio_mean": 0.07657,
+            "floor_abs_log_ratio_sd": 0.09772,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04164,
+            "ex_pandemic_sd": 0.04013,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.08356,
+            "floor_abs_log_ratio_mean": 0.062,
+            "floor_abs_log_ratio_sd": 0.08974,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.03111,
+            "ex_pandemic_sd": 0.02721,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.04578,
+            "floor_abs_log_ratio_mean": 0.10251,
+            "floor_abs_log_ratio_sd": 0.11114,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05311,
+            "ex_pandemic_sd": 0.04404,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.04588,
+            "floor_abs_log_ratio_mean": 0.10136,
+            "floor_abs_log_ratio_sd": 0.11121,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05216,
+            "ex_pandemic_sd": 0.04675,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A06": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A06",
+          "agegrp_label": "45-54",
+          "min_denominator_jobs": 12608445,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.06863,
+            "floor_abs_log_ratio_mean": 0.07384,
+            "floor_abs_log_ratio_sd": 0.08839,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04102,
+            "ex_pandemic_sd": 0.03494,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.06682,
+            "floor_abs_log_ratio_mean": 0.06623,
+            "floor_abs_log_ratio_sd": 0.10139,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02927,
+            "ex_pandemic_sd": 0.02202,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.03422,
+            "floor_abs_log_ratio_mean": 0.10182,
+            "floor_abs_log_ratio_sd": 0.10553,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05473,
+            "ex_pandemic_sd": 0.03831,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.03423,
+            "floor_abs_log_ratio_mean": 0.10074,
+            "floor_abs_log_ratio_sd": 0.10445,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05378,
+            "ex_pandemic_sd": 0.0411,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A07": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A07",
+          "agegrp_label": "55-64",
+          "min_denominator_jobs": 10455116,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.05323,
+            "floor_abs_log_ratio_mean": 0.07784,
+            "floor_abs_log_ratio_sd": 0.08927,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.04238,
+            "ex_pandemic_sd": 0.03189,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.06318,
+            "floor_abs_log_ratio_mean": 0.0678,
+            "floor_abs_log_ratio_sd": 0.12145,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02297,
+            "ex_pandemic_sd": 0.01809,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02336,
+            "floor_abs_log_ratio_mean": 0.10114,
+            "floor_abs_log_ratio_sd": 0.10246,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05581,
+            "ex_pandemic_sd": 0.03141,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.02324,
+            "floor_abs_log_ratio_mean": 0.09958,
+            "floor_abs_log_ratio_sd": 0.1016,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.05426,
+            "ex_pandemic_sd": 0.03632,
+            "n_pairs_ex_pandemic": 24
+          }
+        },
+        "sex2_A08": {
+          "sex": 2,
+          "sex_label": "Female",
+          "agegrp": "A08",
+          "agegrp_label": "65-99",
+          "min_denominator_jobs": 3281264,
+          "thin": false,
+          "hire_rate": {
+            "level_mean": 0.07016,
+            "floor_abs_log_ratio_mean": 0.08678,
+            "floor_abs_log_ratio_sd": 0.09842,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05075,
+            "ex_pandemic_sd": 0.04107,
+            "n_pairs_ex_pandemic": 25
+          },
+          "separation_rate": {
+            "level_mean": 0.09892,
+            "floor_abs_log_ratio_mean": 0.08,
+            "floor_abs_log_ratio_sd": 0.15915,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.02109,
+            "ex_pandemic_sd": 0.01865,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_hire_rate": {
+            "level_mean": 0.02121,
+            "floor_abs_log_ratio_mean": 0.08586,
+            "floor_abs_log_ratio_sd": 0.08288,
+            "n_pairs": 37,
+            "ex_pandemic_mean": 0.05643,
+            "ex_pandemic_sd": 0.03501,
+            "n_pairs_ex_pandemic": 25
+          },
+          "j2j_separation_rate": {
+            "level_mean": 0.02111,
+            "floor_abs_log_ratio_mean": 0.08876,
+            "floor_abs_log_ratio_sd": 0.08702,
+            "n_pairs": 36,
+            "ex_pandemic_mean": 0.0591,
+            "ex_pandemic_sd": 0.03595,
+            "n_pairs_ex_pandemic": 24
+          }
+        }
+      },
+      "cross_cell": {
+        "n_cells": 16,
+        "note": "non-margin cells only (sex in 1,2 x agegrp A01-A08); the all-sexes / all-ages rows are aggregates of these and are reported per-cell above, not pooled here",
+        "hire_rate": {
+          "cell_floor_median": 0.07315,
+          "cell_floor_p90": 0.08138,
+          "cell_floor_max": 0.08678,
+          "n_cells_with_pairs": 16,
+          "n_thin_cells": 0
+        },
+        "separation_rate": {
+          "cell_floor_median": 0.06176,
+          "cell_floor_p90": 0.07414,
+          "cell_floor_max": 0.08,
+          "n_cells_with_pairs": 16,
+          "n_thin_cells": 0
+        },
+        "j2j_hire_rate": {
+          "cell_floor_median": 0.08483,
+          "cell_floor_p90": 0.10149,
+          "cell_floor_max": 0.10251,
+          "n_cells_with_pairs": 16,
+          "n_thin_cells": 0
+        },
+        "j2j_separation_rate": {
+          "cell_floor_median": 0.08637,
+          "cell_floor_p90": 0.10016,
+          "cell_floor_max": 0.10136,
+          "n_cells_with_pairs": 16,
+          "n_thin_cells": 0
+        }
+      }
+    }
+  },
+  "e6_e7": {
+    "by_firmsize_all_industry": {
+      "firmsize1": {
+        "firmsize_label": "0-19 Employees",
+        "canonical_bands": [
+          "LT10",
+          "B10_49"
+        ],
+        "exact": false,
+        "min_denominator_jobs": 25040755,
+        "thin": false,
+        "e6_hire_rate": {
+          "level_mean": 0.17624,
+          "floor_abs_log_ratio_mean": 0.04064,
+          "floor_abs_log_ratio_sd": 0.03991,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.02704,
+          "ex_pandemic_sd": 0.02644,
+          "n_pairs_ex_pandemic": 24
+        },
+        "e6_separation_rate": {
+          "level_mean": 0.16626,
+          "floor_abs_log_ratio_mean": 0.05999,
+          "floor_abs_log_ratio_sd": 0.11622,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02282,
+          "ex_pandemic_sd": 0.02517,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_mean": {
+          "level_mean": 3750.15385,
+          "floor_abs_log_ratio_mean": 0.03537,
+          "floor_abs_log_ratio_sd": 0.02616,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02618,
+          "ex_pandemic_sd": 0.01311,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_rel_to_aggregate": {
+          "floor_abs_log_ratio_mean": 0.01162,
+          "floor_abs_log_ratio_sd": 0.0086,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.0094,
+          "ex_pandemic_sd": 0.00565,
+          "n_pairs_ex_pandemic": 23
+        }
+      },
+      "firmsize2": {
+        "firmsize_label": "20-49 Employees",
+        "canonical_bands": [
+          "B10_49"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 12789770,
+        "thin": false,
+        "e6_hire_rate": {
+          "level_mean": 0.17312,
+          "floor_abs_log_ratio_mean": 0.05679,
+          "floor_abs_log_ratio_sd": 0.07378,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03523,
+          "ex_pandemic_sd": 0.032,
+          "n_pairs_ex_pandemic": 24
+        },
+        "e6_separation_rate": {
+          "level_mean": 0.17206,
+          "floor_abs_log_ratio_mean": 0.06336,
+          "floor_abs_log_ratio_sd": 0.10903,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02619,
+          "ex_pandemic_sd": 0.02508,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_mean": {
+          "level_mean": 4381.53846,
+          "floor_abs_log_ratio_mean": 0.03731,
+          "floor_abs_log_ratio_sd": 0.03138,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02465,
+          "ex_pandemic_sd": 0.01173,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_rel_to_aggregate": {
+          "floor_abs_log_ratio_mean": 0.01223,
+          "floor_abs_log_ratio_sd": 0.00568,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.01198,
+          "ex_pandemic_sd": 0.00533,
+          "n_pairs_ex_pandemic": 23
+        }
+      },
+      "firmsize3": {
+        "firmsize_label": "50-249 Employees",
+        "canonical_bands": [
+          "B50_99",
+          "B100_499"
+        ],
+        "exact": false,
+        "min_denominator_jobs": 20162591,
+        "thin": false,
+        "e6_hire_rate": {
+          "level_mean": 0.16488,
+          "floor_abs_log_ratio_mean": 0.0591,
+          "floor_abs_log_ratio_sd": 0.0873,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03188,
+          "ex_pandemic_sd": 0.02802,
+          "n_pairs_ex_pandemic": 24
+        },
+        "e6_separation_rate": {
+          "level_mean": 0.16329,
+          "floor_abs_log_ratio_mean": 0.05497,
+          "floor_abs_log_ratio_sd": 0.08723,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02339,
+          "ex_pandemic_sd": 0.02125,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_mean": {
+          "level_mean": 5030.20513,
+          "floor_abs_log_ratio_mean": 0.04158,
+          "floor_abs_log_ratio_sd": 0.0342,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02727,
+          "ex_pandemic_sd": 0.0135,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_rel_to_aggregate": {
+          "floor_abs_log_ratio_mean": 0.00892,
+          "floor_abs_log_ratio_sd": 0.00766,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.00961,
+          "ex_pandemic_sd": 0.00864,
+          "n_pairs_ex_pandemic": 23
+        }
+      },
+      "firmsize4": {
+        "firmsize_label": "250-499 Employees",
+        "canonical_bands": [
+          "B100_499"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 7617802,
+        "thin": false,
+        "e6_hire_rate": {
+          "level_mean": 0.16156,
+          "floor_abs_log_ratio_mean": 0.06534,
+          "floor_abs_log_ratio_sd": 0.09317,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.03994,
+          "ex_pandemic_sd": 0.0375,
+          "n_pairs_ex_pandemic": 24
+        },
+        "e6_separation_rate": {
+          "level_mean": 0.16052,
+          "floor_abs_log_ratio_mean": 0.05247,
+          "floor_abs_log_ratio_sd": 0.0692,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.02996,
+          "ex_pandemic_sd": 0.0296,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_mean": {
+          "level_mean": 5525.97436,
+          "floor_abs_log_ratio_mean": 0.04863,
+          "floor_abs_log_ratio_sd": 0.03432,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.03416,
+          "ex_pandemic_sd": 0.01636,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_rel_to_aggregate": {
+          "floor_abs_log_ratio_mean": 0.00912,
+          "floor_abs_log_ratio_sd": 0.00785,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.00654,
+          "ex_pandemic_sd": 0.00621,
+          "n_pairs_ex_pandemic": 23
+        }
+      },
+      "firmsize5": {
+        "firmsize_label": "500+ Employees",
+        "canonical_bands": [
+          "B500_PLUS"
+        ],
+        "exact": true,
+        "min_denominator_jobs": 68074643,
+        "thin": false,
+        "e6_hire_rate": {
+          "level_mean": 0.14811,
+          "floor_abs_log_ratio_mean": 0.06934,
+          "floor_abs_log_ratio_sd": 0.08517,
+          "n_pairs": 36,
+          "ex_pandemic_mean": 0.04385,
+          "ex_pandemic_sd": 0.04534,
+          "n_pairs_ex_pandemic": 24
+        },
+        "e6_separation_rate": {
+          "level_mean": 0.14779,
+          "floor_abs_log_ratio_mean": 0.05885,
+          "floor_abs_log_ratio_sd": 0.06307,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.03847,
+          "ex_pandemic_sd": 0.0392,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_mean": {
+          "level_mean": 6198.97436,
+          "floor_abs_log_ratio_mean": 0.04616,
+          "floor_abs_log_ratio_sd": 0.02996,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.03539,
+          "ex_pandemic_sd": 0.0167,
+          "n_pairs_ex_pandemic": 23
+        },
+        "e7_earns_rel_to_aggregate": {
+          "floor_abs_log_ratio_mean": 0.00492,
+          "floor_abs_log_ratio_sd": 0.00398,
+          "n_pairs": 35,
+          "ex_pandemic_mean": 0.00397,
+          "ex_pandemic_sd": 0.00271,
+          "n_pairs_ex_pandemic": 23
+        }
+      }
+    },
+    "sector_cells": {
+      "n_cells": 95,
+      "e6_hire_rate": {
+        "cell_floor_median": 0.07599,
+        "cell_floor_p90": 0.13751,
+        "cell_floor_max": 0.24728,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "e6_separation_rate": {
+        "cell_floor_median": 0.06708,
+        "cell_floor_p90": 0.1134,
+        "cell_floor_max": 0.17484,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      },
+      "e7_earns_mean": {
+        "cell_floor_median": 0.04492,
+        "cell_floor_p90": 0.06791,
+        "cell_floor_max": 0.11178,
+        "n_cells_with_pairs": 95,
+        "n_thin_cells": 0
+      }
+    }
+  },
+  "e11": {
+    "status": "detail floor NOT derivable (one YoY pair per cell); destination-size margin floor derivable",
+    "detail_window": {
+      "observed_quarters": [
+        "2015Q1",
+        "2015Q2",
+        "2015Q3",
+        "2015Q4",
+        "2016Q1"
+      ],
+      "n_quarters": 5,
+      "max_yoy_pairs_per_cell": 1,
+      "why_not_floorable": "the national origin x destination cross is published only for 2015Q1-2016Q1 (from 2016Q2 every detail cell carries status flag 11); same-quarter year-over-year pairing therefore yields at most one pair per detail cell, which gives a gap but no dispersion, so no mean + k*sd floor exists on the cross. This is a different disposition from the earlier draft's 'no extract committed': the extract exists (#228), the temporal replicate does not"
+    },
+    "destination_size_margin": {
+      "firmsize1": {
+        "firmsize_label": "0-19 Employees",
+        "ee": {
+          "floor_abs_log_ratio_mean": 0.1054,
+          "floor_abs_log_ratio_sd": 0.13661,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.05397,
+          "ex_pandemic_sd": 0.04699,
+          "n_pairs_ex_pandemic": 25
+        },
+        "ee_rel": {
+          "floor_abs_log_ratio_mean": 0.02329,
+          "floor_abs_log_ratio_sd": 0.02113,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.01431,
+          "ex_pandemic_sd": 0.00849,
+          "n_pairs_ex_pandemic": 25
+        }
+      },
+      "firmsize2": {
+        "firmsize_label": "20-49 Employees",
+        "ee": {
+          "floor_abs_log_ratio_mean": 0.11739,
+          "floor_abs_log_ratio_sd": 0.15705,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.05478,
+          "ex_pandemic_sd": 0.03831,
+          "n_pairs_ex_pandemic": 25
+        },
+        "ee_rel": {
+          "floor_abs_log_ratio_mean": 0.02035,
+          "floor_abs_log_ratio_sd": 0.01787,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.01269,
+          "ex_pandemic_sd": 0.01065,
+          "n_pairs_ex_pandemic": 25
+        }
+      },
+      "firmsize3": {
+        "firmsize_label": "50-249 Employees",
+        "ee": {
+          "floor_abs_log_ratio_mean": 0.11377,
+          "floor_abs_log_ratio_sd": 0.15272,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.04992,
+          "ex_pandemic_sd": 0.03355,
+          "n_pairs_ex_pandemic": 25
+        },
+        "ee_rel": {
+          "floor_abs_log_ratio_mean": 0.01738,
+          "floor_abs_log_ratio_sd": 0.0129,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.01457,
+          "ex_pandemic_sd": 0.01355,
+          "n_pairs_ex_pandemic": 25
+        }
+      },
+      "firmsize4": {
+        "firmsize_label": "250-499 Employees",
+        "ee": {
+          "floor_abs_log_ratio_mean": 0.12445,
+          "floor_abs_log_ratio_sd": 0.15539,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.05997,
+          "ex_pandemic_sd": 0.04299,
+          "n_pairs_ex_pandemic": 25
+        },
+        "ee_rel": {
+          "floor_abs_log_ratio_mean": 0.01445,
+          "floor_abs_log_ratio_sd": 0.01401,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.01089,
+          "ex_pandemic_sd": 0.01025,
+          "n_pairs_ex_pandemic": 25
+        }
+      },
+      "firmsize5": {
+        "firmsize_label": "500+ Employees",
+        "ee": {
+          "floor_abs_log_ratio_mean": 0.12535,
+          "floor_abs_log_ratio_sd": 0.14728,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.06573,
+          "ex_pandemic_sd": 0.05016,
+          "n_pairs_ex_pandemic": 25
+        },
+        "ee_rel": {
+          "floor_abs_log_ratio_mean": 0.01321,
+          "floor_abs_log_ratio_sd": 0.01144,
+          "n_pairs": 37,
+          "ex_pandemic_mean": 0.00999,
+          "ex_pandemic_sd": 0.00981,
+          "n_pairs_ex_pandemic": 25
+        }
+      }
+    },
+    "cross_source_margin_disagreement": {
+      "all_size_ee_tool_above_flat_file": "37 of 41 quarters",
+      "all_size_ee_deviation_range_pct": [
+        -1.0,
+        2.02
+      ],
+      "per_size_deviation_range_pct": [
+        -3.2,
+        3.67
+      ],
+      "note": "the LED Extraction Tool's margins and the LEHD flat file's d_fs margins are independent publications of the same quantity and disagree by up to ~3% in either direction (provenance entry 6; reproduce with scripts/check_j2jod_margin_agreement.py). Since E11's post-2016Q1 constraints are margins-only, this cross-source wobble bounds how tight any E11 margin threshold can be, independently of the temporal floor above"
+    }
+  },
+  "e12": {
+    "status": "deferred - no committed extract"
+  }
+}

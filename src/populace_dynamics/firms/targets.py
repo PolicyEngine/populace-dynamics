@@ -30,6 +30,8 @@ __all__ = [
     "load_bds_firm_size",
     "load_qwi_firmsize_sector",
     "load_j2j_firmsize_sector",
+    "load_j2j_sexage",
+    "load_j2jod_firmsize",
 ]
 
 EXTERNAL_DIR = Path(__file__).resolve().parents[3] / "data" / "external"
@@ -37,6 +39,11 @@ SUSB_PATH = EXTERNAL_DIR / "susb_us_sector_size_2022.csv"
 BDS_PATH = EXTERNAL_DIR / "bds_us_firm_size_1978_2022.csv"
 QWI_PATH = EXTERNAL_DIR / "qwi_us_firmsize_sector_2015on.csv"
 J2J_PATH = EXTERNAL_DIR / "j2j_us_firmsize_sector_2015on.csv"
+J2J_SEXAGE_PATH = EXTERNAL_DIR / "j2j_us_sexage_2015on.csv"
+J2JOD_PATH = EXTERNAL_DIR / "j2jod_us_firmsize_od_2015on.csv"
+
+#: LEHD age-group codes (A00 is the all-ages margin).
+LEHD_DETAIL_AGEGRPS = {f"A0{i}" for i in range(1, 9)}
 
 #: SUSB 2022 US total-employment pin (all sectors, ENTRSIZE 01),
 #: verified against the published table at fetch time.
@@ -170,20 +177,36 @@ def _load_bds_firm_size(path: str | None = None) -> pd.DataFrame:
     return df
 
 
-def _load_lehd(path: Path, measures: list[str], name: str) -> pd.DataFrame:
+def _load_lehd(
+    path: Path,
+    measures: list[str],
+    name: str,
+    id_cols: list[str] | None = None,
+    key_cols: list[str] | None = None,
+) -> pd.DataFrame:
+    if id_cols is None:
+        id_cols = [
+            "year",
+            "quarter",
+            "industry",
+            "firmsize",
+            "firmsize_label",
+        ]
+    if key_cols is None:
+        key_cols = ["year", "quarter", "industry", "firmsize"]
     df = _read(path)
-    id_cols = ["year", "quarter", "industry", "firmsize", "firmsize_label"]
     missing = [c for c in id_cols + measures if c not in df.columns]
     if missing:
         raise ValueError(f"{name} extract is missing columns {missing}.")
-    if set(df["firmsize"].unique()) != LEHD_DETAIL_FIRMSIZES:
-        raise ValueError(
-            f"{name} firmsize codes changed: "
-            f"{sorted(df['firmsize'].unique())}"
-        )
+    if "firmsize" in key_cols and "firmsize_orig" not in key_cols:
+        if set(df["firmsize"].unique()) != LEHD_DETAIL_FIRMSIZES:
+            raise ValueError(
+                f"{name} firmsize codes changed: "
+                f"{sorted(df['firmsize'].unique())}"
+            )
     if not df["quarter"].isin([1, 2, 3, 4]).all():
         raise ValueError(f"{name} quarter values out of range.")
-    dupes = df.duplicated(["year", "quarter", "industry", "firmsize"])
+    dupes = df.duplicated(key_cols)
     if dupes.any():
         raise ValueError(f"{name} extract has duplicate cells.")
     return df
@@ -275,4 +298,116 @@ def _load_j2j_firmsize_sector(path: str | None = None) -> pd.DataFrame:
         observed = df[col].dropna()
         if not observed.between(0.0, 1.0).all():
             raise ValueError(f"J2J derived {col} outside [0, 1].")
+    return df
+
+
+def load_j2j_sexage(path: str | None = None) -> pd.DataFrame:
+    """National J2J flows by sex x age group, 2015Q1 on (jobs).
+
+    All-industry margin only (gate E2's age x sex reference); the
+    full sex (0-2) x age (A00-A08) grid including margins. Adds
+    derived per-job quarterly rates ``hire_rate`` (MHire / MainB),
+    ``separation_rate`` (MSep / MainB), ``j2j_hire_rate``
+    (J2JHire / MainB) and ``j2j_separation_rate`` (J2JSep / MainB).
+    Returns a fresh copy on each call (see
+    :func:`load_susb_sector_size`).
+    """
+    return _load_j2j_sexage(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_j2j_sexage(path: str | None = None) -> pd.DataFrame:
+    measures = [
+        "MainB",
+        "MainE",
+        "MHire",
+        "MSep",
+        "EEHire",
+        "EESep",
+        "J2JHire",
+        "J2JSep",
+        "NEHire",
+        "ENSep",
+    ]
+    id_cols = ["year", "quarter", "sex", "sex_label", "agegrp"]
+    key_cols = ["year", "quarter", "sex", "agegrp"]
+    df = _load_lehd(
+        Path(path) if path is not None else J2J_SEXAGE_PATH,
+        measures,
+        "J2J sex-age",
+        id_cols=id_cols,
+        key_cols=key_cols,
+    )
+    if set(df["sex"].unique()) != {0, 1, 2}:
+        raise ValueError("J2J sex-age extract sex codes changed.")
+    if set(df["agegrp"].unique()) != LEHD_DETAIL_AGEGRPS | {"A00"}:
+        raise ValueError("J2J sex-age extract age groups changed.")
+    if (df[measures] < 0).any().any():
+        raise ValueError("J2J sex-age counts must be non-negative.")
+    for m in measures:
+        missing = df[m].isna()
+        if not df.loc[missing, f"s{m}"].isin([-1, 5]).all():
+            raise ValueError(f"J2J sex-age {m} has unexplained missing cells.")
+    df = df.copy()
+    base = df["MainB"].where(df["MainB"] > 0)
+    df["hire_rate"] = df["MHire"] / base
+    df["separation_rate"] = df["MSep"] / base
+    df["j2j_hire_rate"] = df["J2JHire"] / base
+    df["j2j_separation_rate"] = df["J2JSep"] / base
+    for col in (
+        "hire_rate",
+        "separation_rate",
+        "j2j_hire_rate",
+        "j2j_separation_rate",
+    ):
+        observed = df[col].dropna()
+        if not observed.between(0.0, 1.0).all():
+            raise ValueError(f"J2J sex-age derived {col} outside [0, 1].")
+    return df
+
+
+def load_j2jod_firmsize(path: str | None = None) -> pd.DataFrame:
+    """National J2J flows by origin x destination firm size, 2015Q1 on.
+
+    From the LED Extraction Tool (gate E11's origin/destination
+    size-ladder reference): the full 6 x 6 firm-size grid, codes 0-5
+    on both sides (0 is the tool's aggregated margin, status flag
+    10/12; suppressed cells, flag 11, load as NaN). The 5 x 5
+    detail is published for 2015Q1-2016Q1 only; later quarters
+    carry the margins only (provenance note entry 6). Counts are
+    jobs, as for QWI/J2J. Returns a fresh copy on each call (see
+    :func:`load_susb_sector_size`).
+    """
+    return _load_j2jod_firmsize(path).copy()
+
+
+@lru_cache(maxsize=1)
+def _load_j2jod_firmsize(path: str | None = None) -> pd.DataFrame:
+    measures = ["EE", "AQHire", "J2J", "EES", "AQHireS", "J2JS"]
+    id_cols = [
+        "year",
+        "quarter",
+        "firmsize_orig",
+        "firmsize",
+        "firmsize_orig_label",
+        "firmsize_label",
+    ]
+    key_cols = ["year", "quarter", "firmsize_orig", "firmsize"]
+    df = _load_lehd(
+        Path(path) if path is not None else J2JOD_PATH,
+        measures,
+        "J2JOD",
+        id_cols=id_cols,
+        key_cols=key_cols,
+    )
+    all_sizes = LEHD_DETAIL_FIRMSIZES | {0}
+    for col in ("firmsize", "firmsize_orig"):
+        if set(df[col].unique()) != all_sizes:
+            raise ValueError(f"J2JOD {col} codes changed.")
+    if (df[measures] < 0).any().any():
+        raise ValueError("J2JOD counts must be non-negative.")
+    for m in measures:
+        missing = df[m].isna()
+        if not df.loc[missing, f"s{m}"].isin([-1, 5, 11]).all():
+            raise ValueError(f"J2JOD {m} has unexplained missing cells.")
     return df
