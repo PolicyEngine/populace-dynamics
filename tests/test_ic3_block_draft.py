@@ -36,13 +36,18 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 DRAFT = ROOT / "docs" / "design" / "ic3_employer_gate_block_draft.yaml"
-DESIGN = ROOT / "docs" / "design" / "c3_employer_gate_block.md"
+#: The registered design-document path. The rename to `ic3_` lands
+#: with #230; the legacy name is listed only so a design document
+#: arriving under it FAILS rather than leaving the agreement check
+#: permanently skipped (the block's `design_filename_pin`).
+DESIGN = ROOT / "docs" / "design" / "ic3_employer_gate_block.md"
+LEGACY_DESIGN = ROOT / "docs" / "design" / "c3_employer_gate_block.md"
 
 #: Exact gated cell counts. These numbers ARE the mutation pin: a
 #: cell added or dropped anywhere changes one of them.
 GATED_CELL_COUNTS = {
     "e2_sexage_rates": 16,  # 2 sexes x 8 age groups, margins excluded
-    "e3_tenure_ecdf_by_age": 7,
+    "e3_tenure_ecdf_by_age": 21,  # 3 supplement years x 7 BLS bands
     "e4_retention_by_age_sex": 12,  # 6 age bands x 2 sexes
     "e5_runs_by_age": 6,
     "e7_earns_relative_gradient_by_size": 5,
@@ -59,6 +64,7 @@ MUST_STAY_REPORT_ONLY = {
     "e6_size_margin_and_sector_cells",  # B1: linear functional of targets
     "e9_stay_median",  # degenerate floor
     "e9_stay_iqr",  # degenerate floor (B5)
+    "e9_transition_rates",  # entry/exit/j2j/stay: on a partition side
     "firm_size_conditional_cells",  # no truth frame, permanent
     "e11_origin_x_destination_detail",  # one YoY pair per cell
 }
@@ -176,7 +182,86 @@ def test_k_basis_states_the_locked_band_honestly(block):
     basis = block["threshold_policy"]["k_basis"]
     assert "1.8-8" in basis
     assert "POLICY CHOICE" in basis
-    assert "5 seeds exactly as gate-1's did" in basis
+    # The seed counts are NOT uniform across the SIPP side, and the
+    # earlier "5 seeds" sentence pinned a misstatement of the E8/E9
+    # artifact, whose method string says seeds 0-19.
+    assert "5 seeds (0-4)" in basis
+    assert "20 seeds (0-19)" in basis
+
+
+def test_e3_registers_a_per_year_floor_rule(block):
+    """The count pin may not harden an unwritten derivation rule.
+
+    Round 1's draft pinned 7 age-band cells while the #230 design
+    defines age bands x supplement years, and `floor_path` carried a
+    free `<year>` placeholder with no rule saying which year's floor
+    derives the threshold. Both halves are pinned here.
+    """
+    family = block["families"]["e3_tenure_ecdf_by_age"]
+    years = {cell.split("|")[0] for cell in family["cells"]}
+    bands = {cell.split("|")[1] for cell in family["cells"]}
+    assert years == {"2020", "2022", "2024"}
+    assert len(bands) == 7
+    assert len(family["cells"]) == len(years) * len(bands)
+    assert family["derivations"]["floor_selection"] == "per_cell_own_year"
+    assert "NOT pooled" in family["year_rule"]
+
+
+def test_reweighting_targets_the_full_frame_including_the_seam(block):
+    """The seam is the audit's risk locus, not an excluded tail.
+
+    Restricting the target population to the within-wave part would
+    make `seam_vs_within_indicator` — one of this block's own
+    observables — constant, and silently drop it from the propensity
+    model.
+    """
+    rw = block["linkage_qc"]["reweighting"]
+    population = rw["target_reference_population"]
+    assert "384,747" in population
+    assert "10,828" in population
+    assert "395,575" in population
+    assert "seam_vs_within_indicator" in rw["observables"]
+
+
+def test_thin_rules_cover_the_pair_unit_families(block):
+    """E9's unit is transition pairs; the person rule does not
+    govern it, and an unmodified 200-person flag misreads it."""
+    thin = block["threshold_policy"]["thin_rules"]
+    assert thin["sipp_side_min_pairs"] == 200
+    assert (
+        "pairs"
+        in block["families"]["e9_j2j_earnings_change"][
+            "thinnest_gated_cell_note"
+        ].lower()
+    )
+
+
+def test_e9_declares_its_linkage_status(block):
+    """It gates at first lock while being job-ID-derived; silence
+    on `linkage_prerequisite` was the round-1 gap."""
+    family = block["families"]["e9_j2j_earnings_change"]
+    assert family["linkage_prerequisite"] is True
+    assert "6.4" in family["linkage_note"]
+    assert block["linkage_qc"]["first_lock_scope"] == (
+        "e4_e5_sipp_internal_only"
+    )
+
+
+def test_the_holdout_reverses_the_floor_scale_direction(block):
+    """A 0.20 holdout is noisier than the half-split basis, so the
+    artifacts' sqrt(2) conservatism note runs the wrong way."""
+    scale = block["scoring_frame"]["floor_scale_assertion"]
+    note = scale["holdout_reverses_the_ratio"]
+    assert "ANTI-conservative" in note
+    assert scale["status"] == "RECORDED_NOT_SATISFIED"
+
+
+def test_the_holdout_seed_is_not_claimed_to_parameterize_the_split(block):
+    frame = block["scoring_frame"]["sipp_holdout"]
+    assert "salted hash" in frame["seed_note"] or (
+        "salt" in frame["seed_note"]
+    )
+    assert "consumes no RNG stream" in frame["seed_note"]
 
 
 def test_linkage_reweighting_is_instantiated(block):
@@ -206,6 +291,9 @@ def test_ceremony_requires_merges_and_pinning(block):
     merges = " ".join(ceremony["merges_required_before_amendment"])
     assert "#224" in merges
     assert "#277" in merges
+    # The controlling design document must land before the block
+    # that points at it can reach its amendment PR.
+    assert "#230" in merges
     assert "AT ITS MERGE COMMIT" in ceremony["artifact_pinning"]
     assert ceremony["referee_verification_required"] is True
     assert ceremony["no_candidate_runs_before_lock"] is True
@@ -219,6 +307,18 @@ def test_the_block_states_what_it_cannot_certify(block):
     )
     assert "PERMANENTLY" in not_certified["imputed_band_conditioned_cells"]
     assert "Phase-2 no-go" in not_certified["e12_not_gated"]
+
+
+def test_the_design_document_is_at_the_registered_path(block):
+    """A design doc under the legacy name would silently disable the
+    agreement check below and leave `design:` stale — the fragility
+    the block's `design_filename_pin` records."""
+    assert block["design"] == "docs/design/ic3_employer_gate_block.md"
+    assert not LEGACY_DESIGN.exists(), (
+        "the design document is at the unregistered legacy path "
+        f"{LEGACY_DESIGN.name}; #230 renames it to {DESIGN.name}, "
+        "which is the only name `design:` may carry."
+    )
 
 
 @pytest.mark.skipif(
@@ -250,4 +350,8 @@ def test_naming_uses_the_interface_contract_prefix():
     body = text.split("# NAMING.")[1].split("\n\n", 1)[1]
     import re
 
-    assert not re.search(r"\bC[123]\b", body)
+    # Case-insensitive: the colliding gates.yaml fingerprint keys are
+    # lowercase (`fingerprints.c1`), and a `c3_`-prefixed design path
+    # is exactly the drift this pin should catch.
+    assert not re.search(r"\bC[123]\b", body, re.IGNORECASE)
+    assert not re.search(r"\bc[123]_", body)

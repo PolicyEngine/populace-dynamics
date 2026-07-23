@@ -39,8 +39,17 @@ gates:
     status: draft_round_1_continuing
     locked: false
     kind: employer_attachment
-    design: docs/design/c3_employer_gate_block.md
+    design: docs/design/ic3_employer_gate_block.md
     design_pr: "230"
+    design_filename_pin: >-
+      the design document is renamed to `ic3_employer_gate_block.md`
+      on the #230 branch as part of the ADR 0003 amendment-1 pass, and
+      that is the ONLY name this block's `design:` key may carry. The
+      pin exists because the draft/design agreement test keys on the
+      file's existence: were #230 to land the document under its old
+      pre-amendment prefix, the check would silently never fire and
+      `design:` would go stale. The test now fails on a design
+      document found at an unregistered path rather than skipping.
     design_commit: PENDING  # squash-merge commit, set at the flip
     plan: issue #192
     contracts:
@@ -92,7 +101,15 @@ gates:
           files are restaged.
         salt: employer_ic3_holdout_v1
         holdout_fraction: 0.20
-        seed: 20260717  # same seed as the #236 audit draw, by design
+        seed: 20260717
+        seed_note: >-
+          numerically the same integer the #236 manifest registers as
+          the audit DRAW seed, reused for provenance legibility only.
+          It parameterizes nothing here: the split is a salted hash
+          (`salt` above) and consumes no RNG stream, so the holdout is
+          determined by the salt alone. The two uses are independent —
+          changing one does not move the other — and the shared value
+          is a bookkeeping convenience, not an identity "by design".
         leakage_rule: >-
           phase-1 training and every fitting stage in
           partition.fitting_consumes may read ONLY the holdout's
@@ -112,6 +129,17 @@ gates:
           it. The referee treats this as lock-blocking if still open
           at verification; resolution is one of the three recorded
           options, chosen on the record before any candidate runs.
+        holdout_reverses_the_ratio: >-
+          the artifacts' sqrt(2) note assumed full-source scoring, in
+          which case half-split floors are conservative (too wide) by
+          ~1/sqrt(2). This block scores on a 0.20 holdout, which is
+          SMALLER than the half-split basis, so its sampling noise is
+          LARGER (~sqrt(0.5/0.2) = 1.58x under root-n) and half-split
+          floors turn mildly ANTI-conservative — too tight — rather
+          than conservative. The direction reverses; the status stays
+          RECORDED_NOT_SATISFIED either way, and the resolution
+          chosen on the record must use this direction, not the
+          artifacts' unmodified ratio.
         tolerance: REFEREE
 
     # ---------------------------------------------------------------
@@ -125,16 +153,28 @@ gates:
         gates.yaml is 1.8-8 (k=4.2 :221, 8 :297, 1.8 :327, 1.9 :333,
         4 :493), so two locked ks sit BELOW 4 and precedent brackets
         rather than supports it. The aggregated-sd argument holds
-        only for the B-side (24-36 year-pairs); the SIPP-side floors
-        aggregate 5 seeds exactly as gate-1's did, so for
-        E3/E4/E5/E8/E9 k=4 is a bare policy choice.
-      substantive_tolerance_basis: docs/design/c3_employer_gate_block.md#10A
+        only for the B-side (24-36 year-pairs). The SIPP-side floors
+        do NOT aggregate a uniform seed count: E3 (tenure), E4 and E5
+        aggregate 5 seeds (0-4), exactly as gate-1's did, while E8 and
+        E9 aggregate 20 seeds (0-19) — raised from 5 in the #212
+        review because E8 cells whose floor sd exceeds their mean need
+        a stable across-seed sd. Neither count changes the verdict:
+        for E3/E4/E5/E8/E9 k=4 is a bare policy choice, and the extra
+        seeds buy a better-estimated sd, not a precedent for k.
+      substantive_tolerance_basis: docs/design/ic3_employer_gate_block.md#10A
       verdict_rule: >-
         a gated gate passes iff ALL its non-thin cells pass;
         report-only gates publish per-cell pass/fail but never block.
       thin_rules:
-        sipp_side_min_persons: 200
+        sipp_side_min_persons: 200        # person-unit families
+        sipp_side_min_pairs: 200          # pair-unit families (E9)
         firm_side_min_denominator_jobs: 10000
+        unit_rule: >-
+          a thin rule applies only to families measured in ITS unit.
+          E9 is counted in transition pairs, not persons, so the
+          person rule does not govern it; the pair rule does, at the
+          same 200 threshold and with the clustering caveat that a
+          pair count overstates the independent-observation count.
         thin_disposition: report_only
 
     # ---------------------------------------------------------------
@@ -181,6 +221,7 @@ gates:
         - e7_raw_earns_levels                  # nominal trend
         - e9_stay_median                       # degenerate floor
         - e9_stay_iqr                          # degenerate floor (B5)
+        - e9_transition_rates                  # entry/exit/j2j/stay
         - e11_origin_x_destination_detail      # 1 YoY pair per cell
         - firm_size_conditional_cells          # §9.1, PERMANENT
         - firm_age_axis                        # no extract/floor
@@ -242,7 +283,7 @@ gates:
         split_unit: person
         reference: CPS January tenure supplement (2020/2022/2024)
         statistic: ECDF max-gap of the tenure distribution by age band
-        floor_run: runs/tenure_floors_v1.json
+        floor_run: runs/tenure_floors_v1.json  # PENDING promotion (#212)
         floor_path: by_year.<year>.<age_band>.floor_ecdf_max_gap
         substantive_tolerance: 0.02
         formulation_note: >-
@@ -250,22 +291,53 @@ gates:
           floors are exactly 0.0 from integer heaping. The quantile
           gaps are retained report-only as the interpretable-in-years
           view.
-        cells:
-          - "16_19"
-          - "20_24"
-          - "25_34"
-          - "35_44"
-          - "45_54"
-          - "55_64"
-          - "65_200"
-        derivations: { k: 4, rounding: 3, metric: ecdf_max_gap }
+        year_rule: >-
+          ONE CELL PER (supplement year, age band) — 3 x 7 = 21, the
+          #230 design's enumeration. Each cell's threshold derives
+          from ITS OWN year's floor
+          (`by_year.<year>.<age_band>.floor_ecdf_max_gap`); floors are
+          NOT pooled, averaged, or worst-of'd across years, and the
+          `<year>` placeholder in `floor_path` is resolved by the
+          cell's own year, never by a choice made at scoring time.
+          Registered explicitly because the round-1 defect class B2
+          exists to catch is exactly this: a count pin (the earlier
+          7) hardening an unwritten rule. The artifact floors each
+          year separately, so per-year is the only rule its evidence
+          base supports.
+        cells:  # 3 supplement years x 7 BLS age bands
+          - "2020|16_19"
+          - "2020|20_24"
+          - "2020|25_34"
+          - "2020|35_44"
+          - "2020|45_54"
+          - "2020|55_64"
+          - "2020|65_200"
+          - "2022|16_19"
+          - "2022|20_24"
+          - "2022|25_34"
+          - "2022|35_44"
+          - "2022|45_54"
+          - "2022|55_64"
+          - "2022|65_200"
+          - "2024|16_19"
+          - "2024|20_24"
+          - "2024|25_34"
+          - "2024|35_44"
+          - "2024|45_54"
+          - "2024|55_64"
+          - "2024|65_200"
+        derivations:
+          k: 4
+          rounding: 3
+          metric: ecdf_max_gap
+          floor_selection: per_cell_own_year
 
       e4_retention_by_age_sex:
         quantity_type: flow
         split_unit: person
         reference: SIPP holdout
         statistic: employer-retention pair rate, |ln(model/truth)|
-        floor_run: runs/sipp_spell_floors_v1.json
+        floor_run: runs/sipp_spell_floors_v1.json  # PENDING promotion (#212)
         floor_path: e4_retention_by_age_sex
         substantive_tolerance: 0.005
         tolerance_note: >-
@@ -293,7 +365,7 @@ gates:
         split_unit: person
         reference: SIPP holdout
         statistic: multi-window attachment run share, |ln(model/truth)|
-        floor_run: runs/sipp_spell_floors_v1.json
+        floor_run: runs/sipp_spell_floors_v1.json  # PENDING promotion (#212)
         floor_path: e5_runs_by_age
         substantive_tolerance: 0.05
         linkage_prerequisite: true
@@ -336,7 +408,7 @@ gates:
           any- and long-nonemployment shares by age band,
           |ln(model/truth)|, censoring-free 12-month-observed
           restriction carried from the floor artifact
-        floor_run: runs/sipp_e8_e9_floors_v1.json
+        floor_run: runs/sipp_e8_e9_floors_v1.json  # PENDING promotion (#212)
         floor_path: e8_nonemployment_by_age
         substantive_tolerance: 0.10
         linkage_prerequisite: false  # needs no worker-to-firm link
@@ -362,12 +434,31 @@ gates:
         statistic: >-
           median and IQR of log earnings change across j2j
           transitions, absolute gap
-        floor_run: runs/sipp_e8_e9_floors_v1.json
+        floor_run: runs/sipp_e8_e9_floors_v1.json  # PENDING promotion (#212)
         floor_path: e9_transitions.earnings_change.j2j
         substantive_tolerance: null  # floors non-degenerate; not needed
+        linkage_prerequisite: true
+        linkage_note: >-
+          declared explicitly (it was silent in the round-1 draft
+          while the family gates at first lock). A j2j transition is
+          definitionally job-ID-derived — ADR 0004 §6.4 names E9 — so
+          it depends on the same attachment linkage E4/E5 do. It is
+          NOT in `first_lock_scope`
+          (`e4_e5_sipp_internal_only`), so under `no_inheritance`
+          above, E9 must clear its own ADR 0004 audit at promotion
+          and may not ride on the E4/E5 pass. Resolving whether that
+          makes E9 gate-eligible at FIRST lock, or defers it to
+          promotion, is a referee item — flagged here rather than
+          decided silently by omission.
         thinnest_gated_cell_note: >-
-          545 unweighted pairs — above the 200 thin flag but the
-          thinnest gated cell in the block. Recorded, not hidden.
+          545 unweighted PAIRS — the thinnest gated cell in the
+          block. The `sipp_side_min_persons: 200` thin rule is stated
+          in persons and does not apply to E9 unmodified: this
+          family's unit is transition pairs, and a pair count is not
+          a person count (the same 545 pairs may come from fewer
+          persons, clustered within worker). E9's thin test is the
+          pair-count rule in `thin_rules.sipp_side_min_pairs`.
+          Recorded, not hidden.
         cells:
           - median_log_change
           - iqr_log_change
@@ -448,8 +539,17 @@ gates:
         analysis_unit: adjacent_month_job_pair
         clustering: worker
         target_reference_population: >-
-          all adjacent-month job-pairs in the #235 within-wave frame
-          (384,747 job-holdings) — NOT the adjudicated subsample.
+          the FULL #235 frame of adjacent-month job-pairs — 384,747
+          within-wave job-holdings PLUS the 10,828 at the seam
+          (395,575 in total, the manifest §2 eligible universe) — NOT
+          the adjudicated subsample, and NOT the within-wave part
+          alone. The seam is the registered risk locus the audit
+          deliberately oversamples (17.5% re-key signature rate there
+          against 2.4% within-wave), so restricting the target frame
+          to within-wave would both drop the population the audit is
+          powered for and make this block's own
+          `seam_vs_within_indicator` observable constant, silently
+          removing it from the propensity model.
         observables:
           - age_band
           - sex
@@ -485,6 +585,10 @@ gates:
         - runs/seam_reconciliation_v1.json           # #274
       merges_required_before_amendment:  # B3
         - "#224 (ADR 0004 text carries its three adopted changes)"
+        - "#230 (the controlling design document this block's
+          `design:` key points at — omitted from the round-1 list,
+          which would have let the block reach its amendment PR with
+          its own design unmerged: B3's defect class)"
         - "#212"
         - "#223"
         - "#228"
