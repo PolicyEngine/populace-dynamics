@@ -589,7 +589,7 @@ def build_m6_q_frontier() -> str:
     def path(vals: list[float]) -> str:
         return " ".join(
             f"{'M' if i == 0 else 'L'}{xf(q):.1f},{yf(v):.1f}"
-            for i, (q, v) in enumerate(zip(qs, vals))
+            for i, (q, v) in enumerate(zip(qs, vals, strict=True))
         )
 
     body: list[str] = []
