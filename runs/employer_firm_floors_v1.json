@@ -1,7 +1,15 @@
 {
   "artifact": "employer_firm_floors",
-  "version": "draft_v0.1",
-  "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
+  "version": "v1",
+  "status": "PRE-LOCK REFERENCE - NOT RATIFIED; C3 not locked; no thresholds. v1 marks the artifact sha256-pinned and reproduction-tested (#230 section 12.2 item 2), which is a pinning event, not a ratification: the numbers here bind nothing until the C3 amendment PR merges",
+  "input_extract_sha256": {
+    "susb_us_sector_size_2022.csv": "b2db9502cf71480f4284cbeb8b78f31e8eb77f63963f679c167bfd40ade9d5e0",
+    "bds_us_firm_size_1978_2022.csv": "0cbfec27392d4d328ddf8be9800c30a65d954d3a50ef170e9c98fc4babc82b31",
+    "qwi_us_firmsize_sector_2015on.csv": "a173e5995cd7afeeb82e8afa543ab6e1a1d8c1b4089c4e50a947696e98e47dbd",
+    "j2j_us_firmsize_sector_2015on.csv": "118d4a0fd4c2c7cd3dab98bb81d1c8df668d5d0c83ebf9d7e3fd09240fd62e82",
+    "j2j_us_sexage_2015on.csv": "6ca16b98b3e809ebf4493f6884c75bee712c727cce16ddc219e0fca97e7edf60",
+    "j2jod_us_firmsize_od_2015on.csv": "0f83df008ae498643b66ecf25187170014988f5fb1f761c84cf9882376e3bef6"
+  },
   "issue": "192",
   "workstream": "B",
   "sources": {

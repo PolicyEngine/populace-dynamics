@@ -41,11 +41,12 @@ Usage::
 
     python scripts/build_employer_firm_floors.py
 
-writes ``runs/employer_firm_floors_draft_v0.json``.
+writes ``runs/employer_firm_floors_v1.json``.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
@@ -58,9 +59,33 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from populace_dynamics.firms import banding, targets  # noqa: E402
 
-ARTIFACT = Path(__file__).resolve().parents[1] / (
-    "runs/employer_firm_floors_draft_v0.json"
+ROOT = Path(__file__).resolve().parents[1]
+ARTIFACT = ROOT / "runs/employer_firm_floors_v1.json"
+
+#: Committed extracts this build consumes. Their digests go into the
+#: artifact, so "v1" pins what it was built FROM, not only its own
+#: bytes: a silently re-fetched extract changes the floors, and a
+#: reproduction test that reads the same changed file would still
+#: pass. v1 is a pinning event, not a ratification -- the artifact
+#: stays pre-lock with no thresholds until the C3 amendment merges.
+INPUT_EXTRACTS = (
+    "susb_us_sector_size_2022.csv",
+    "bds_us_firm_size_1978_2022.csv",
+    "qwi_us_firmsize_sector_2015on.csv",
+    "j2j_us_firmsize_sector_2015on.csv",
+    "j2j_us_sexage_2015on.csv",
+    "j2jod_us_firmsize_od_2015on.csv",
 )
+
+
+def _input_digests() -> dict[str, str]:
+    """sha256 of every committed extract the floors are built from."""
+    out = {}
+    for name in INPUT_EXTRACTS:
+        path = ROOT / "data" / "external" / name
+        out[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return out
+
 
 #: Pandemic years: YoY pairs touching these are reported separately
 #: (never dropped from the full-sample figures).
@@ -514,8 +539,15 @@ def build() -> dict:
     e2, e11 = e2_e11_block()
     return {
         "artifact": "employer_firm_floors",
-        "version": "draft_v0.1",
-        "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
+        "version": "v1",
+        "status": (
+            "PRE-LOCK REFERENCE - NOT RATIFIED; C3 not locked; no "
+            "thresholds. v1 marks the artifact sha256-pinned and "
+            "reproduction-tested (#230 section 12.2 item 2), which "
+            "is a pinning event, not a ratification: the numbers "
+            "here bind nothing until the C3 amendment PR merges"
+        ),
+        "input_extract_sha256": _input_digests(),
         "issue": "192",
         "workstream": "B",
         "sources": {

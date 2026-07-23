@@ -1,15 +1,28 @@
-"""Pin the DRAFT employer-firm aggregate noise-floor artifact (#192).
+"""Pin the v1 employer-firm aggregate noise-floor artifact (#192).
 
-``runs/employer_firm_floors_draft_v0.json`` is a reported anchor
-(workstream B counterpart to the #212 battery): DRAFT, NOT RATIFIED,
-no thresholds — it commits the floor-building method for the E1/E2/
-E6/E7/E11 aggregate references, and the E11/E12 deferral findings,
-before C3 locks. These tests pin its internal consistency and — since
-the source extracts are committed — always reproduce it in full.
+``runs/employer_firm_floors_v1.json`` is a reported anchor
+(workstream B counterpart to the #212 battery): PRE-LOCK, NOT
+RATIFIED, no thresholds — it commits the floor-building method for
+the E1/E2/E6/E7/E11 aggregate references, and the E11/E12 deferral
+findings, before C3 locks.
+
+**v1 is a pinning event, not a ratification** (#230 section 12.2
+item 2). Three digests are pinned, and each catches a different way
+the artifact could drift out from under the C3 record:
+
+* the artifact's own bytes — an edited artifact;
+* the builder's bytes — a changed method that happens to land on
+  the same numbers, or a reproduction test quietly rewritten to
+  agree with a new build;
+* every input extract's bytes — a re-fetched source. This is the
+  one a reproduction test alone cannot catch: rebuild from a
+  silently changed extract and the artifact and the rebuild agree
+  with each other while both differ from what C3 was shown.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -18,8 +31,15 @@ import pytest
 
 from populace_dynamics.firms import banding
 
-ARTIFACT = Path(__file__).resolve().parents[1] / (
-    "runs/employer_firm_floors_draft_v0.json"
+ROOT = Path(__file__).resolve().parents[1]
+ARTIFACT = ROOT / "runs/employer_firm_floors_v1.json"
+BUILDER = ROOT / "scripts/build_employer_firm_floors.py"
+
+ARTIFACT_SHA256 = (
+    "c9c50b7521b1df3ee0c9ffc942a3aa8593fc89c0eec8d1cc1682ce3a426716ed"
+)
+BUILDER_SHA256 = (
+    "b85c2234289c99e166f9343a69a1bb14417b98bb77351b9ba9ca4131f3625677"
 )
 
 CANONICAL_NAMES = {band.name for band in banding.CANONICAL_BANDS}
@@ -32,8 +52,11 @@ def artifact() -> dict:
 
 def test_artifact_is_a_draft_with_no_thresholds(artifact):
     assert artifact["artifact"] == "employer_firm_floors"
-    assert artifact["version"] == "draft_v0.1"
-    assert "DRAFT" in artifact["status"]
+    assert artifact["version"] == "v1"
+    # "DRAFT" gave way to "PRE-LOCK REFERENCE" at v1: the artifact
+    # is pinned now, so calling it a draft would misdescribe it. What
+    # must not weaken is the ratification status.
+    assert "PRE-LOCK REFERENCE" in artifact["status"]
     assert "NOT RATIFIED" in artifact["status"]
 
     def keys_of(node):
@@ -264,3 +287,66 @@ def test_e11_records_the_cross_source_margin_disagreement(artifact):
     lo, hi = note["per_size_deviation_range_pct"]
     assert lo < 0 < hi
     assert "margins-only" in note["note"]
+
+
+# ---------------------------------------------------------------
+# v1 pinning (#230 section 12.2 item 2)
+# ---------------------------------------------------------------
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_artifact_sha256_is_pinned():
+    assert _sha256(ARTIFACT) == ARTIFACT_SHA256
+
+
+def test_builder_sha256_is_pinned():
+    """A changed method must not slip past the reproduction test.
+
+    ``test_reproduces_from_committed_extracts`` compares the builder
+    against the artifact, so editing both together passes. Pinning
+    the builder makes that edit visible.
+    """
+    assert _sha256(BUILDER) == BUILDER_SHA256
+
+
+def test_input_extract_digests_match_the_committed_files(artifact):
+    """The drift a reproduction test structurally cannot catch.
+
+    If an extract is re-fetched, the artifact and a rebuild from it
+    agree with each other while both differ from what the C3 record
+    was shown. Only a digest recorded *at build time* and compared
+    against the file *now* separates those.
+    """
+    recorded = artifact["input_extract_sha256"]
+    for name, digest in recorded.items():
+        path = ROOT / "data" / "external" / name
+        assert path.exists(), f"{name} is recorded but not committed"
+        assert _sha256(path) == digest, (
+            f"{name} has changed since the floors were built; rebuild "
+            "the artifact and re-pin deliberately, and say so in the "
+            "C3 record — the floors move with it"
+        )
+
+
+def test_every_consumed_extract_is_digest_recorded(artifact):
+    """No source may be consumed without appearing in the pin."""
+    recorded = set(artifact["input_extract_sha256"])
+    sources = {
+        Path(value).name
+        for key, value in artifact["sources"].items()
+        if key != "provenance"
+    }
+    assert sources == recorded
+
+
+def test_v1_is_pinned_but_not_ratified(artifact):
+    # The distinction the whole ceremony rests on: pinning makes the
+    # numbers immovable, not binding. Thresholds arrive only with the
+    # C3 amendment PR.
+    status = artifact["status"]
+    assert "NOT RATIFIED" in status
+    assert "no thresholds" in status
+    assert "not a ratification" in status
