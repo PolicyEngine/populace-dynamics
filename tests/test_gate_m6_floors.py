@@ -571,7 +571,7 @@ def test_gates_yaml_gate_m6_locked_by_the_flip_and_design_amended():
     assert block["status"] == "draft_cleared_ready_for_lock_flip"
     assert live["design_pr"] == block["design_pr"] == "175"
     assert block["design_commit"] == "d6abb16b0a034ca08a26e3eb8fc9211967c53259"
-    assert live["design_commit"] == "0e067a910fde7e479240c472087ece6a7ce29bcd"
+    assert live["design_commit"] == "5b5c9c641d0cf38926d42afb839b45434c4b1b60"
     assert "design_commit_note" in live and "design_commit_note" in block
     _deltas = ("locked", "status", "history", "design_commit")
     live_cmp = {k: v for k, v in live.items() if k not in _deltas}
