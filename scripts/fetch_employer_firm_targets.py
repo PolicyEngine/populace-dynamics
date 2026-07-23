@@ -39,11 +39,15 @@ Sources (all keyless HTTPS GETs of published aggregate files):
   2015Q1 on. Feeds gate E11's origin/destination size-ladder
   reference. The LEHD flat J2JOD files publish only the one-sided
   firm-size margins, so the full cross comes from the LED Extraction
-  Tool query API (``ledextract.ces.census.gov``), which serves the
-  current release (probed 2026-07-17: schema V4.14.0 = R2026Q1).
-  The full detail is released for 2015Q1-2016Q1 only; later
-  quarters are suppressed (status flag 11) and only the margins
-  remain published -- see the provenance note.
+  Tool query API (``ledextract.ces.census.gov``), which serves
+  whatever release is current and reports no release identifier of
+  its own (its schema version V4.14.0 is the *software* version and
+  is identical across R2026Q1 and R2026Q2, so it cannot pin the
+  release -- see the provenance note). The full detail is released
+  for 2015Q1-2016Q1 only; later quarters are suppressed (status
+  flag 11) and only the margins remain published. Because the tool
+  re-runs the query live, that only-ever detail window is archived
+  under ``data/external/raw/`` and is the builder's default input.
 
 Run from the repository root::
 
@@ -58,6 +62,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import io
 import json
 import tempfile
 import urllib.error
@@ -184,15 +189,42 @@ LED_J2JOD_REQUEST = {
     "export_labels": False,
 }
 
-#: sha256 of the CSV returned by the LED Extraction Tool for
-#: LED_J2JOD_REQUEST on RETRIEVED_WAVE2 (release R2026Q1, schema
-#: V4.14.0; the fetch was repeated and is byte-stable). The tool
-#: serves the *current* release, so this pin breaks -- loudly, by
-#: design -- when LEHD rotates to R2026Q2; re-pin deliberately and
-#: update the provenance note.
+#: The archived raw tool response. The LED Extraction Tool serves
+#: only its *current* release and re-runs the query live, so the
+#: 2015Q1-2016Q1 origin x destination detail window -- the only
+#: window in which that cross is published at all (see the
+#: detail-window note in the provenance file) -- would be
+#: unrecoverable the day the tool stops serving it. The response is
+#: therefore committed, and it is the default input: a fetch is a
+#: *verification* path, not the only path to the data.
+LED_J2JOD_ARCHIVE = OUT_DIR / "raw" / "led_j2jod_us_fsfs_2015on.csv.gz"
+
+#: sha256 of the archived response bytes, as served on 2026-07-23.
 LED_J2JOD_SHA256 = (
-    "adbd16e2c23ee3a87a22c5f6520eca37b09f8036131d4147c081c89d" "6a5a867f"
+    "7afad9f408319c54e7e7d802b068723e346f49c840d4fe861e7e55d9" "528d3944"
 )
+
+#: sha256 of the response's *content*, canonicalised (columns sorted,
+#: rows sorted by year/quarter/firmsize_orig/firmsize, fixed float
+#: format) before hashing.
+#:
+#: This -- not the byte digest -- is the integrity pin, because the
+#: byte digest is not a property of the data. The response first
+#: pinned on this PR (``adbd16e2...``) stopped matching six days
+#: later while every one of the 1,476 rows was unchanged, value for
+#: value: the tool had merely reordered its measure columns
+#: (``EE,AQHire,EES,AQHireS,J2J,J2JS`` where it previously emitted
+#: ``EE,AQHire,J2J,EES,AQHireS,J2JS``). A pin that fires on cosmetic
+#: reordering is worse than no pin: it trains the reader to re-pin
+#: on sight, so the one failure that matters -- an actual revision --
+#: arrives looking exactly like the six false alarms before it.
+#: Byte drift is now reported and tolerated; content drift raises.
+LED_J2JOD_CONTENT_SHA256 = (
+    "c52ec512bc3f478d6426efb7b03cccbe1edc952309214030ed53eb42" "f7a83354"
+)
+
+#: Key columns defining canonical row order for the content digest.
+LED_J2JOD_KEY = ["year", "quarter", "firmsize_orig", "firmsize"]
 
 QWI_MEASURES = [
     "Emp",
@@ -239,14 +271,69 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def fetch_led_j2jod(cache_dir: Path) -> Path:
-    """Fetch the J2JOD firm-size cross via the LED Extraction Tool.
+def led_j2jod_content_digest(path: Path) -> str:
+    """Canonical content digest of a raw LED J2JOD response.
 
-    POST the JSON query to ``/j2j/download``; the tool answers 303
-    with the encoded query string, and ``/j2j/download.csv?<query>``
-    serves the extract. The result is cached and its sha256 verified
-    against the pinned digest (see :data:`LED_J2JOD_SHA256`).
+    Columns sorted, rows sorted by :data:`LED_J2JOD_KEY`, fixed float
+    format — so the digest is a property of the *data*, invariant to
+    the tool's column ordering (see :data:`LED_J2JOD_CONTENT_SHA256`
+    for why that distinction is load-bearing).
     """
+    frame = pd.read_csv(path, low_memory=False)
+    canonical = (
+        frame[sorted(frame.columns)]
+        .sort_values(LED_J2JOD_KEY)
+        .reset_index(drop=True)
+    )
+    buf = io.StringIO()
+    canonical.to_csv(buf, index=False, float_format="%.10g")
+    return hashlib.sha256(buf.getvalue().encode()).hexdigest()
+
+
+def _verify_led_j2jod(path: Path) -> Path:
+    """Verify a raw response by content, reporting byte drift."""
+    content = led_j2jod_content_digest(path)
+    if content != LED_J2JOD_CONTENT_SHA256:
+        raise RuntimeError(
+            f"LED J2JOD extract: content sha256 {content} != pinned "
+            f"{LED_J2JOD_CONTENT_SHA256}. Values changed, not just "
+            "the response layout — LEHD revises across releases, so "
+            "re-pin only after diffing the cells and updating the "
+            "provenance note with the new release."
+        )
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != LED_J2JOD_SHA256:
+        print(
+            f"note: LED J2JOD response bytes changed ({digest[:12]} != "
+            f"{LED_J2JOD_SHA256[:12]}) but every value is unchanged; "
+            "the tool reordered columns. Not an error."
+        )
+    return path
+
+
+def fetch_led_j2jod(cache_dir: Path, *, live: bool = False) -> Path:
+    """Return the raw J2JOD firm-size cross, verified by content.
+
+    Reads the committed archive (:data:`LED_J2JOD_ARCHIVE`) by
+    default: the tool serves only its current release, so the
+    2015Q1-2016Q1 detail window it carries is not re-fetchable in
+    perpetuity and the archive is the durable copy.
+
+    With ``live=True``, re-queries the tool instead — POST the JSON
+    query to ``/j2j/download``; it answers 303 with the encoded query
+    string, and ``/j2j/download.csv?<query>`` serves the extract —
+    and verifies the result against the same content digest. That is
+    the path that detects a genuine LEHD revision.
+    """
+    if not live:
+        if not LED_J2JOD_ARCHIVE.exists():
+            raise FileNotFoundError(
+                f"Archived LED J2JOD response missing at "
+                f"{LED_J2JOD_ARCHIVE}; re-fetch with live=True only "
+                "if the tool still serves the detail window."
+            )
+        return _verify_led_j2jod(LED_J2JOD_ARCHIVE)
+
     path = cache_dir / "led_j2jod_us_fsfs_2015on.csv"
     if not path.exists():
         print("querying the LED Extraction Tool (J2JOD firm-size cross)")
@@ -278,15 +365,7 @@ def fetch_led_j2jod(cache_dir: Path) -> Path:
         with urllib.request.urlopen(csv_req, timeout=300) as resp:
             tmp.write_bytes(resp.read())
         tmp.replace(path)
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    if digest != LED_J2JOD_SHA256:
-        raise RuntimeError(
-            f"LED J2JOD extract: sha256 {digest} != pinned "
-            f"{LED_J2JOD_SHA256}. The LED Extraction Tool serves the "
-            "current release; if LEHD rotated releases, re-pin "
-            "deliberately and update the provenance note."
-        )
-    return path
+    return _verify_led_j2jod(path)
 
 
 def fetch(name: str, cache_dir: Path) -> Path:

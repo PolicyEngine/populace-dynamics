@@ -136,17 +136,44 @@ flagged in PR #223's method findings; same fetch script).
   is not in any flat file — and the Census data API
   (`api.census.gov`) still requires a key (probed 2026-07-17), so
   the LED Extraction Tool is the pinned keyless source.
-- **Release:** R2026Q1, V4.14.0 (the tool's `/j2j/schema` reports
-  V4.14.0; matches `version_j2jod.txt` for R2026Q1: J2JOD US
-  2000:2-2025:1, `j2jodpu_us_20260312_1118`); national, all
-  industries, not
-  seasonally adjusted, ownership A00 (state/local government plus
-  private — the tool's reported `ownercode`; equivalent to `oslp`)
-- **Fetched-CSV sha256:** `adbd16e2c23ee3a87a22c5f6520eca37b09f8036131d4147c081c89d6a5a867f`
-  (the query was repeated at fetch time and is byte-stable). The
-  tool serves the *current* release only, so this pin breaks loudly
-  when LEHD rotates to R2026Q2; re-pin deliberately and update this
-  entry.
+- **Release: not reported by the tool; inferred.** The extraction
+  tool exposes no release identifier. Its `/j2j/schema` reports
+  `V4.14.0`, which is the *software* version and is **identical for
+  R2026Q1 and R2026Q2** (`version_j2jod.txt`: R2026Q1 =
+  `j2jodpu_us_20260312_1118`, 2000:2-2025:1; R2026Q2 =
+  `j2jodpu_us_20260618_1116`, 2000:2-2025:2), so it cannot
+  distinguish them. An earlier revision of this entry claimed the
+  schema version "matches R2026Q1" and therefore pinned the release;
+  that inference does not hold. What is verified: the values served
+  for 2015Q1-2025Q1 are unchanged across the R2026Q1 → R2026Q2
+  rotation (checked 2026-07-23, all 1,476 rows), so the extract is
+  release-stable over its own window whichever release served it.
+  National, all industries, not seasonally adjusted, ownership A00
+  (state/local government plus private — the tool's reported
+  `ownercode`; equivalent to `oslp`).
+- **Archived response:** `raw/led_j2jod_us_fsfs_2015on.csv.gz`
+  (gzip of the tool's CSV as served 2026-07-23; raw sha256
+  `7afad9f408319c54e7e7d802b068723e346f49c840d4fe861e7e55d9528d3944`).
+  Committed because the tool re-runs the query against whatever
+  release is current, so the 2015Q1-2016Q1 detail window — the only
+  window in which this cross is published at all (next bullet but
+  one) — is not re-fetchable in perpetuity. The archive is the
+  builder's default input; a live re-query is the verification path.
+- **Integrity pin: content, not bytes.** `LED_J2JOD_CONTENT_SHA256`
+  = `c52ec512bc3f478d6426efb7b03cccbe1edc952309214030ed53eb42f7a83354`,
+  taken over the response canonicalised (columns sorted, rows sorted
+  by year/quarter/firmsize_orig/firmsize, fixed float format). The
+  byte digest is recorded but **not** enforced.
+
+  Why: the byte digest originally pinned here
+  (`adbd16e2...`, fetched 2026-07-17) stopped matching on
+  2026-07-23 while every one of the 1,476 rows was unchanged, value
+  for value. The tool had reordered its measure columns —
+  `EE,AQHire,EES,AQHireS,J2J,J2JS` where it previously emitted
+  `EE,AQHire,J2J,EES,AQHireS,J2JS`. A pin that fires on cosmetic
+  reordering trains the maintainer to re-pin on sight, which is
+  exactly how a genuine revision would slip through; so byte drift
+  is now reported and tolerated, and content drift raises.
 - **Transformation:** column subset and sort only, no
   re-aggregation: the full 6 x 6 firm-size grid (codes 0-5 on both
   origin and destination sides), 2015Q1-2025Q1 (ordinal quarters
@@ -164,12 +191,34 @@ flagged in PR #223's method findings; same fetch script).
   margins (code 0 on either axis) remain published through 2025Q1.
   E11's origin x destination shape reference is therefore the
   2015Q1-2016Q1 window; later quarters constrain the margins only.
-- **Margin caveat:** the code-0 margins are the tool's aggregates of
-  the firm-size-coded tabulation (status flag 10/12), so they sit
-  slightly below the flat-file `d_fs` margins, which include
-  public-sector flows (firm size "N"): e.g. 2015Q1 all-size EE is
-  3,985,308 here versus 3,988,566 in `j2jod_us_d_fs_gn_n_oslp_u`.
-  Detail cells that fail publication standards (status flag 11)
+- **Margin caveat (corrected 2026-07-23; the earlier version of this
+  bullet was directionally wrong).** The code-0 margins are the
+  tool's aggregates of the firm-size-coded tabulation (status flag
+  10/12) and they do **not** sit systematically below the flat-file
+  `d_fs` margins. Checked against
+  `j2jod_us_d_fs_gn_ns_oslp_u` (R2026Q1) across all 41 quarters, on
+  the all-demographics / all-industry / all-firm-age national cell:
+
+  | comparison | quarters tool > flat | deviation range | mean |
+  |---|---|---|---|
+  | all-size EE margin | 37 / 41 | −1.00% to +2.02% | +0.75% |
+  | per-size margins (orig and dest, sizes 1-5) | — | −3.20% to +3.67% | — |
+
+  The single 2015Q1 figure previously quoted (3,985,308 here versus
+  3,988,566 in the flat file, −0.08%) is real but unrepresentative,
+  and the explanation attached to it — the flat file's inclusion of
+  public-sector "N" flows — is not what drives the gap: a
+  size-N exclusion would bias the tool's margin *downward* in every
+  quarter, and it is above in 37 of 41. The deviations run both ways
+  and are dominated by independent noise infusion applied to the two
+  tabulations.
+
+  **This matters at floor scale.** E11's post-2016Q1 constraints are
+  margins-only, so a ±2-3% cross-source wobble on the quantity being
+  gated is itself an empirical noise datum for the E11 floor build,
+  not a footnote. Reproduce with
+  `scripts/check_j2jod_margin_agreement.py`.
+- Detail cells that fail publication standards (status flag 11)
   load as NaN — common in the small-x-large corners.
 - **Unit caveat:** job counts, as for QWI/J2J; firm size is
   administrative national March employment on both sides.

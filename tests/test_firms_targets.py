@@ -10,6 +10,8 @@ banding mappings.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -393,3 +395,99 @@ def test_lehd_labels_match_banding_intervals(qwi, j2j):
                 assert label.startswith(f"{lo}+") or "500+" in label
             else:
                 assert str(int(hi)) in label
+
+
+# ---------------------------------------------------------------
+# The archived LED response and the content-based integrity pin
+# ---------------------------------------------------------------
+
+
+def _fetch_module():
+    """Import the fetch script (scripts/ is not an installed package)."""
+    import importlib.util
+
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "fetch_employer_firm_targets.py"
+    )
+    spec = importlib.util.spec_from_file_location("_fetch_eft", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_led_j2jod_archive_is_committed():
+    """The only-ever detail window must not depend on the live tool.
+
+    The LED Extraction Tool re-runs the query against whatever
+    release is current, and the 2015Q1-2016Q1 origin x destination
+    detail is the only window in which this cross is published at
+    all. If the archive goes missing, that window is unrecoverable.
+    """
+    fetch = _fetch_module()
+    assert fetch.LED_J2JOD_ARCHIVE.exists()
+
+
+def test_led_j2jod_content_digest_matches_the_pin():
+    fetch = _fetch_module()
+    digest = fetch.led_j2jod_content_digest(fetch.LED_J2JOD_ARCHIVE)
+    assert digest == fetch.LED_J2JOD_CONTENT_SHA256
+
+
+def test_content_digest_ignores_column_order_but_not_values(tmp_path):
+    """The property that makes the pin worth having.
+
+    The byte digest originally pinned on this extract broke within
+    six days purely because the tool reordered its measure columns,
+    with all 1,476 values unchanged. A pin that fires on cosmetic
+    reordering trains the maintainer to re-pin on sight, so a real
+    revision arrives indistinguishable from the false alarms.
+    """
+    import pandas as pd
+
+    fetch = _fetch_module()
+    frame = pd.read_csv(fetch.LED_J2JOD_ARCHIVE, low_memory=False)
+
+    shuffled = tmp_path / "shuffled.csv"
+    frame[list(reversed(frame.columns))].to_csv(shuffled, index=False)
+    assert (
+        fetch.led_j2jod_content_digest(shuffled)
+        == fetch.LED_J2JOD_CONTENT_SHA256
+    )
+
+    revised = tmp_path / "revised.csv"
+    bumped = frame.copy()
+    bumped.loc[bumped.index[0], "EE"] += 1
+    bumped.to_csv(revised, index=False)
+    assert (
+        fetch.led_j2jod_content_digest(revised)
+        != fetch.LED_J2JOD_CONTENT_SHA256
+    )
+
+
+def test_committed_extract_rebuilds_from_the_archive(tmp_path):
+    """Byte-equality of the committed extract from the archived raw."""
+    import pandas as pd
+
+    fetch = _fetch_module()
+    raw = pd.read_csv(fetch.fetch_led_j2jod(tmp_path), low_memory=False)
+    keep = raw[raw["year"] >= fetch.LEHD_START_YEAR].copy()
+    id_cols = ["year", "quarter", "firmsize_orig", "firmsize"]
+    flag_cols = [f"s{m}" for m in fetch.J2JOD_MEASURES]
+    out = keep[id_cols + fetch.J2JOD_MEASURES + flag_cols].copy()
+    out.insert(
+        4, "firmsize_orig_label", fetch._firmsize_label(out["firmsize_orig"])
+    )
+    out.insert(5, "firmsize_label", fetch._firmsize_label(out["firmsize"]))
+    out = out.sort_values(id_cols).reset_index(drop=True)
+
+    rebuilt = tmp_path / "rebuilt.csv"
+    out.to_csv(rebuilt, index=False, float_format="%.10g")
+    committed = (
+        Path(__file__).resolve().parents[1]
+        / "data"
+        / "external"
+        / "j2jod_us_firmsize_od_2015on.csv"
+    )
+    assert rebuilt.read_text() == committed.read_text()
