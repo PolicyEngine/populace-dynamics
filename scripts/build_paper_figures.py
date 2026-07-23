@@ -464,10 +464,203 @@ def build_scorecard(artifacts: list[dict]) -> str:
     return svg(W, H, body)
 
 
+# --------------------------------------------------------------------------
+# Figure 4: the M6 candidate scorecard (candidates 1 and 2, per seed)
+# --------------------------------------------------------------------------
+def build_m6_scorecard() -> str:
+    d1 = json.loads((ROOT / "runs/gate_m6_candidate1_v1.json").read_text())
+    d2 = json.loads((ROOT / "runs/gate_m6_candidate2_v1.json").read_text())
+    tol = {c["cell"]: c["tolerance"] for c in d1["gate"]["cells"]}
+
+    def norm(per_seed: list[dict]) -> dict[str, list[float]]:
+        out: dict[str, list[float]] = {c: [] for c in tol}
+        for s in per_seed:
+            for c in tol:
+                out[c].append(s["gated_cells"][c]["score"] / tol[c])
+        return out
+
+    s1 = norm(d1["family_a"]["per_seed"])
+    s2 = norm(d2["candidate2_acceptance"]["gate_contract_result"]["per_seed"])
+    order = sorted(tol, key=lambda c: sum(s2[c]) / len(s2[c]))
+    x_max = max(max(v) for v in s1.values()) * 1.05
+
+    W, H = 760, 470
+    L, R, T, B = 214, 24, 54, 56
+    row_h = (H - T - B) / len(order)
+
+    def xs(v: float) -> float:
+        return L + v / x_max * (W - L - R)
+
+    body: list[str] = []
+    body.append(
+        text(
+            L,
+            22,
+            "Two registered candidates against the locked " "gate_m6 holdout",
+            14,
+            INK,
+            weight="bold",
+        )
+    )
+    body.append(
+        text(
+            L,
+            40,
+            "fit \u2264 2014, scored on held-out 2015\u20132022; "
+            "holdout error / locked tolerance, five seeds each",
+            11,
+            MUTED,
+        )
+    )
+    for gx in (0.0, 1.0, 2.0, 3.0, 4.0):
+        if gx > x_max:
+            continue
+        body.append(
+            f"<line x1='{xs(gx):.1f}' y1='{T}' x2='{xs(gx):.1f}' "
+            f"y2='{H - B}' stroke='{GRID}' stroke-width='1'/>"
+        )
+        body.append(text(xs(gx), H - B + 16, f"{gx:.0f}", 10, MUTED, "middle"))
+    body.append(
+        f"<line x1='{xs(1.0):.1f}' y1='{T - 6}' x2='{xs(1.0):.1f}' "
+        f"y2='{H - B}' stroke='{INK}' stroke-width='1.6'/>"
+    )
+    body.append(text(xs(1.0) + 5, T + 6, "locked tolerance", 10, INK))
+    for i, c in enumerate(order):
+        cy = T + (i + 0.5) * row_h
+        body.append(text(L - 8, cy + 4, c, 11, INK, "end"))
+        for v in s1[c]:
+            body.append(
+                f"<circle cx='{xs(v):.1f}' cy='{cy - 4:.1f}' r='4.6' "
+                f"fill='{ORANGE}' fill-opacity='0.9' stroke='#ffffff' "
+                f"stroke-width='1.2'/>"
+            )
+        for v in s2[c]:
+            body.append(
+                f"<circle cx='{xs(v):.1f}' cy='{cy + 5:.1f}' r='4.6' "
+                f"fill='{BLUE}' fill-opacity='0.92' stroke='#ffffff' "
+                f"stroke-width='1.2'/>"
+            )
+    ly = H - B + 34
+    body.append(
+        f"<circle cx='{L + 6}' cy='{ly - 4}' r='4.6' fill='{ORANGE}'/>"
+    )
+    body.append(text(L + 16, ly, "candidate 1 (FAIL, 6 of 11 cells)", 11, INK))
+    body.append(
+        f"<circle cx='{L + 256}' cy='{ly - 4}' r='4.6' fill='{BLUE}'/>"
+    )
+    body.append(text(L + 266, ly, "candidate 2 (FAIL, 3 of 5 seeds)", 11, INK))
+    return svg(W, H, body)
+
+
+# --------------------------------------------------------------------------
+# Figure 5: the train-only persistence-mobility frontier (q ladder)
+# --------------------------------------------------------------------------
+def build_m6_q_frontier() -> str:
+    led = json.loads(
+        (
+            ROOT / "docs/analysis/m6_qstar_train_only_selection_results.json"
+        ).read_text()
+    )
+    qs: list[float] = []
+    auto: list[float] = []
+    mob: list[float] = []
+    for q in sorted(led["rungs"], key=float):
+        a = m = 0.0
+        for b in ("2006", "2008", "2010"):
+            oc = led["rungs"][q]["boundaries"][b]["aggregates"]["all_20"][
+                "objective_contributions"
+            ]
+            a += oc["earn_autocorr_lag2"]
+            m += oc["earn_mob_h1_diag"]
+        qs.append(float(q))
+        auto.append(a)
+        mob.append(m)
+    y_max = max(max(auto), max(mob)) * 1.06
+
+    W, H = 760, 430
+    L, R, T, B = 64, 172, 54, 46
+
+    def xf(q: float) -> float:
+        return L + q * (W - L - R)
+
+    def yf(v: float) -> float:
+        return T + (1 - v / y_max) * (H - T - B)
+
+    def path(vals: list[float]) -> str:
+        return " ".join(
+            f"{'M' if i == 0 else 'L'}{xf(q):.1f},{yf(v):.1f}"
+            for i, (q, v) in enumerate(zip(qs, vals, strict=True))
+        )
+
+    body: list[str] = []
+    body.append(
+        text(
+            L,
+            22,
+            "The train-only persistence\u2013mobility frontier "
+            "behind candidate 3",
+            14,
+            INK,
+            weight="bold",
+        )
+    )
+    body.append(
+        text(
+            L,
+            40,
+            "standardized objective contribution by refresh "
+            "share q, summed over the three pseudo-boundaries",
+            11,
+            MUTED,
+        )
+    )
+    for gy in range(0, int(y_max) + 1, 100):
+        body.append(
+            f"<line x1='{L}' y1='{yf(gy):.1f}' x2='{W - R}' "
+            f"y2='{yf(gy):.1f}' stroke='{GRID}' stroke-width='1'/>"
+        )
+        body.append(text(L - 8, yf(gy) + 4, str(gy), 10, MUTED, "end"))
+    for gx in (0.0, 0.2, 0.4, 0.6, 0.8, 1.0):
+        body.append(text(xf(gx), H - B + 16, f"{gx:.1f}", 10, MUTED, "middle"))
+    body.append(
+        f"<line x1='{xf(0.55):.1f}' y1='{T}' x2='{xf(0.55):.1f}' "
+        f"y2='{H - B}' stroke='{INK}' stroke-width='1.2' "
+        f"stroke-dasharray='5 4'/>"
+    )
+    body.append(text(xf(0.55) + 5, T + 14, "selected q* = 0.55", 10, INK))
+    body.append(
+        f"<path d='{path(auto)}' fill='none' stroke='{BLUE}' "
+        f"stroke-width='2.4'/>"
+    )
+    body.append(
+        f"<path d='{path(mob)}' fill='none' stroke='{ORANGE}' "
+        f"stroke-width='2.4'/>"
+    )
+    body.append(
+        text(xf(1.0) + 8, yf(auto[-1]) + 4, "lag-2 autocorrelation", 11, BLUE)
+    )
+    body.append(
+        text(xf(1.0) + 8, yf(mob[-1]) + 4, "rank mobility", 11, ORANGE)
+    )
+    body.append(
+        text(
+            W - R,
+            H - B + 32,
+            "refresh share q (train-only ladder)",
+            10,
+            MUTED,
+            "end",
+        )
+    )
+    return svg(W, H, body)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "autocorr_ladder.svg").write_text(build_ladder(load_artifacts()))
     (OUT / "c2st_noise.svg").write_text(build_c2st_noise())
+    (OUT / "m6_candidate_scorecard.svg").write_text(build_m6_scorecard())
+    (OUT / "m6_q_frontier.svg").write_text(build_m6_q_frontier())
     (OUT / "gate_scorecard.svg").write_text(
         build_scorecard(load_artifacts(SCORECARD_RUNS))
     )
