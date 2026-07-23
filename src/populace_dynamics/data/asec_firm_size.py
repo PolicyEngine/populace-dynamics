@@ -22,7 +22,7 @@ corroborates: code 3's ~7% share matches SUSB's 50-99 employment
 share (~7.5%), while a true 25-99 band carries ~15%. This reader
 therefore uses the 10-49 / 50-99 reading for all years and records
 the dictionary conflict here rather than silently following the
-2019+ label text into a factor-two mis-band. Consequence for C2:
+2019+ label text into a factor-two mis-band. Consequence for IC2:
 the 50-employee edge (ACA and state mandates) is directly observed
 in every supported year — the "post-2019 label cannot resolve the
 50 cut" problem stated in earlier drafts dissolves.
@@ -374,7 +374,7 @@ def firm_size_tabulation(
         "class_of_worker",
     ),
 ) -> pd.DataFrame:
-    """Weighted firm-size tabulation — the C2 evidence artifact.
+    """Weighted firm-size tabulation — the IC2 evidence artifact.
 
     Args:
         records: Output of :func:`read_asec_firm_size` (one or more

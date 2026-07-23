@@ -1,4 +1,4 @@
-"""Canonical firm-size banding — interface contract C2.
+"""Canonical firm-size banding — interface contract IC2.
 
 **Semantics (review finding F5).** The canonical variable means
 *administrative enterprise size*: the total employment of the legal
@@ -26,7 +26,7 @@ measure* of that quantity, not an alternative definition of it:
 Bands are **headcount** bands. Policy thresholds stated in FTEs (the
 ACA applicable-large-employer cut is 50 *full-time equivalents* at 30
 hours/week, not headcount) are handled by a person-side hours join and
-are out of C2 scope.
+are out of IC2 scope.
 
 **Canonical bands.** Five bands with edges at 10 / 50 / 100 / 500::
 

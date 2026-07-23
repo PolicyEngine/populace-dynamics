@@ -3,7 +3,7 @@
 REPORTED ANCHOR, NOT A GATE RUN. Like the mortality/claiming/
 disability floors, this reads no gate and decides nothing on its
 own; it is committed evidence pinned by a reproduction test. It
-records the empirical basis for the C2 banding decision's treatment
+records the empirical basis for the IC2 banding decision's treatment
 of CPS ASEC firm size: **the 2019+ data dictionaries' relabeling of
 NOEMP codes 2/3 (from 10-49 / 50-99 to 10-24 / 25-99) never
 happened in the instrument.**
