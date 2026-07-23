@@ -258,10 +258,10 @@ Per-gate detail follows.
   first lock (floors-before-thresholds).
 - Note the j2j cell counts 545 unweighted pairs — above the thin
   flag but the thinnest gated cell in the block; recorded.
-- **Prerequisite**: §9 (E9 consumes transition classification;
-  phase-1 imputed-band adjudicability is an open referee item for
-  its firm-size-conditional variants, which are **not** in the first
-  lock).
+- **Prerequisite**: §9 (E9 consumes transition classification).
+  Its firm-size-conditional variants are **not** in the first lock
+  are **permanently report-only** under §9.1 Tier 0 (no admissible
+  truth frame — permanent, not awaiting ratification).
 
 ### E10 — regression gate (locked PSID gates)
 
@@ -293,6 +293,15 @@ must not gate on directly:
 4. **E11 detail cells**: no floor derivable (five-quarter published
    window, no YoY pair structure) → report-only (#228, §7).
 5. **E12**: no reference extract at all → deferred (#223, §8).
+
+Distinct from all five, and not a floor degeneracy: **E9/E11
+firm-size-conditional cells** have no admissible *truth frame*
+(§9.1). The five above are cells whose floor cannot be measured;
+those are cells whose target quantity has no per-record referent at
+all. They are **permanently** report-only — the status must carry
+that permanence explicitly, since "report-only" elsewhere in this
+block means "unratified pending evidence", which these can never
+become.
 
 ## 5. Views and cell registration (schema sketch)
 
@@ -417,15 +426,16 @@ review** (PR #224 review comment), which this block operationalizes:
    in behind it; a gate promoted later (e.g. E11 detail) must clear
    its ADR 0004 audit at promotion time, never inherit the E4/E5
    pass.
-2. **Phase-1 imputed-band adjudicability is an open referee item**
-   (blocking, §13 item 6). QRF-imputed firm-size bands on CPS hosts
-   may have no defined "adjudicated true class" (SIPP measures
-   establishment size; NOEMP is a noisy self-report; no
-   representative source observes the joint — ADR 0003). C3 must
-   record what E9/E11 firm-size-conditional cells degrade to if no
-   admissible truth frame exists. First lock avoids the question by
-   scoping those conditional cells out (§3-E9, §7); it must not be
-   left implicit.
+2. **Phase-1 imputed-band adjudicability — answered in §9.1, not
+   left to the round.** The draft previously carried this as a
+   blocking open item (§13 item 6). It is now answered, because the
+   answer determines what the referee is being asked to ratify: no
+   admissible per-record truth frame exists, and per-record
+   adjudication is not a well-posed question for a draw-based
+   imputation at all. The degradation ladder for E9/E11
+   firm-size-conditional cells is registered in §9.1. First lock
+   still scopes those conditional cells out (§3-E9, §7) — but now
+   for a stated reason rather than by avoidance.
 3. **Named owners.** Workstream B (@vahid-ahmadi) owns the
    **firm-side sidecar specification** (schema, versioning; sidecars
    join C1 on `person_id`/`spell_id`, never amend C1) and the
@@ -438,6 +448,123 @@ Unchanged ADR 0004 rules restated as binding on this block: audit
 precedes the one-shot run; passing uses the one-sided confidence
 bound, not the observed proportion; a failed floor invalidates the
 cell (no threshold shopping); linkage failure never weakens E10.
+
+### 9.1 Imputed firm-size bands: no admissible truth frame
+
+**The finding.** There is no admissible per-record truth frame for a
+QRF-imputed firm-size band on a CPS host, and the deeper problem is
+that ADR 0004's machinery presupposes something the imputation does
+not produce.
+
+**Why no candidate source qualifies.** Four exist and each fails on
+its own terms:
+
+| candidate | why it cannot serve as truth |
+|---|---|
+| CPS ASEC `NOEMP` | it **is** the training label. Scoring an imputation against its own label measures fit, not accuracy — and `NOEMP` describes the *preceding calendar year's longest job*, not the spell being scored (ADR 0003 reference-period mismatch), so it is not even a description of the right object |
+| SIPP `EJB{n}_EMPSIZE` | measures **establishment** size, not enterprise size (#192 finding 1) — a different quantity, not a noisier reading of the same one. Also a different sample: SIPP persons are not the CPS hosts being scored |
+| LEHD / SUSB administrative firm size | the true quantity, but there is no public linkage from an administrative employer record to a public-use CPS person. This is the same wall E12 hits (§8) |
+| pre-redesign SIPP (2008 panel) | worker-reported all-locations firm size, representative and jointly observed with tenure — the ADR 0003 conditioning bridge. Still a *self-report* (a noisy measure), aged to 2008-2013, and again a different sample from the CPS hosts |
+
+**Why the question is ill-posed, not merely unanswerable.** ADR 0004
+is written for an *assignment*: a matcher claims that this record and
+that record are the same employer, and a coder can in principle
+adjudicate whether they are. Precision and recall are defined
+because each unit has a true class.
+
+A QRF imputation makes no such claim. It draws a band from a
+conditional distribution given the host's covariates. The draw is not
+an assertion that this person worked at a firm of that size; it is a
+realization chosen so that the *population* carries the right joint
+distribution. There is no fact of the matter about an individual
+draw to be right or wrong about, so "precision of the imputed band"
+has no referent — even with perfect administrative data in hand, a
+correctly specified imputation would score arbitrarily badly per
+record, and a degenerate one that always emitted the modal band
+would score better.
+
+Reporting a per-record precision for imputed bands would therefore
+be worse than reporting nothing: it would be a number that improves
+as the model gets worse.
+
+**The consequence that actually binds.** A gate on a
+firm-size-conditional cell, where the conditioning band is imputed
+and the reference margin is one the model was calibrated to, tests
+the **calibration**, not the model. It passes by construction. This
+is the trap the ladder below exists to prevent, and it is a
+different failure from the E12 identification gap: E12 lacks a
+reference; this lacks an *independent* one.
+
+**Registered degradation ladder.** What E9/E11 firm-size-conditional
+cells degrade to, in force from first lock:
+
+- **Tier 0 — permanent report-only, per the round-1 disposition.**
+  The rule below is carried **verbatim** from Workstream A's §13
+  item 6 response, per the referee's round-1 disposition
+  ("Workstream A's permanent-report-only-with-degradation-rule is
+  the right shape; carry the rule verbatim into the draft YAML, not
+  the comment thread"):
+
+  > "Cells conditioning on imputed firm-size bands are validated
+  > distributionally (calibration fit to SUSB margins plus
+  > held-out-axis stability) and are report-only in every phase;
+  > they gate only if an external person-level truth source
+  > materializes, at which point they enter through the standard
+  > promotion ceremony (new floor + ADR 0004 audit)."
+
+  The word doing the work is **permanent**: report-only here does
+  not mean "awaiting ratification", it means the cell has no
+  admissible referent and no amount of further evidence of the
+  present kind changes that. The status label must say so, or a
+  later reader will mistake it for the ordinary unratified case.
+
+  *(Drafting note, for the referee: an earlier revision of this
+  section proposed excluding these cells under a distinct
+  `no_admissible_truth_frame` status rather than publishing them
+  report-only, on the reasoning that report-only implies a
+  measurement whose status is merely unratified. That is a labelling
+  disagreement, not a substantive one, and the round-1 disposition
+  settles it toward report-only. It is recorded here rather than
+  dropped because the concern it encodes — that "report-only" reads
+  as provisional — is exactly what the permanence wording above
+  must defeat.)*
+- **Tier 1 — calibration identity, never called validation.** The
+  imputed band marginal must reproduce its SUSB/QWI calibration
+  target. This is a build check: it is near-tautological, it is
+  registered as such, and it may not be cited as evidence the band
+  imputation is correct.
+- **Tier 2 — promotion on a genuinely disjoint margin.** A
+  firm-size-conditional cell becomes gate-eligible only against a
+  reference margin **not used in calibration**, per the ADR 0003
+  disjoint partition already registered in §10. E11's origin ×
+  destination ladder is the live example: the size *margins* are
+  calibration targets, so the ladder's off-diagonal structure is the
+  only part carrying independent information. Promotion also
+  requires a committed floor first (floors-before-thresholds), which
+  §7 shows the five-quarter detail window does not currently
+  support.
+- **Tier 3 — full per-record adjudication: only with a linked
+  reference.** Gated on the same condition as E12 (§8). If a linked
+  employer-employee reference ever becomes available, ADR 0004's
+  audit machinery becomes applicable *and required* at promotion
+  time; a cell promoted then never inherits the E4/E5 pass (§9 item
+  1).
+
+**Scope note.** This section is about *imputed* bands only. E4/E5
+SIPP-internal employer attachment is unaffected: that is a genuine
+assignment with hand-adjudicable truth, which is exactly why §9 item
+1 scopes the first-lock audit to it.
+
+**What the referee is asked to ratify** (replacing the old §13 item
+6): the ill-posedness finding, the four-source refutation, and the
+four-tier ladder. The ladder's Tier 0 carries Workstream A's rule
+verbatim per the round-1 disposition; what is newly asked of the
+round is (a) the ill-posedness argument as the *stated basis* for
+that rule — round 1 accepted the shape without one on the record —
+and (b) Tier 2's rule that a calibrated margin can never serve as
+the reference for a cell conditioned on it, which is the same
+partition-integrity principle as blocking item B1 applied to
+conditioning variables rather than to gated statistics.
 
 ## 10. Calibration/gate cell partition (explicit lists)
 
@@ -538,10 +665,16 @@ Every decision this draft leaves to the referee, enumerated:
 5. **E9 stay formulation**: IQR-only gate (recommended) vs a
    distributional distance (would require a new floor build before
    it could gate).
-6. **Phase-1 imputed-band adjudicability** (blocking, from the #224
-   review): does an admissible truth frame exist for QRF-imputed
-   firm-size bands, and what do E9/E11 firm-size-conditional cells
-   degrade to if not?
+6. **Phase-1 imputed-band adjudicability** — **ANSWERED in §9.1,
+   no longer an open item.** No admissible per-record truth frame
+   exists, and per-record adjudication is ill-posed for a
+   draw-based imputation: a correctly specified imputation scores
+   arbitrarily badly per record while a degenerate modal-band one
+   scores better, so the metric improves as the model worsens. The
+   referee is asked to ratify the finding and the four-tier
+   degradation ladder in §9.1 — not to answer the question. Kept in
+   this list, renumbered nowhere, so the #224 review item remains
+   traceable to its answer.
 7. **Linkage-QC numerics** (ADR 0004 §6.1): `P_floor`, `P_design`,
    α, power, multiplicity, and whether recall gates; plus
    ratification of the E4/E5-first minimal audit scope (§9).
