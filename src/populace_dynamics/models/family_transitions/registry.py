@@ -74,6 +74,7 @@ from populace_dynamics.models.family_transitions.fitted import (
 __all__ = [
     "CANDIDATE_16",
     "M6_CANDIDATE_2",
+    "M6_CANDIDATE_3",
     "M6_CANDIDATE_2_PREFREEZE",
     "REGISTRY",
     "CandidateSpec",
@@ -673,6 +674,12 @@ M6_CANDIDATE_2 = CandidateSpec(
         for component in M6_CANDIDATE_2_PREFREEZE.components
     ),
 )
+
+# Amendment 6 changes only the forward-earnings refresh law.  Candidate 3
+# therefore binds the exact same frozen family specification, including its
+# canonical candidate identity and SHA, rather than manufacturing a renamed
+# copy whose metadata alone would change the registered bytes.
+M6_CANDIDATE_3 = M6_CANDIDATE_2
 
 
 CANDIDATE_16 = CandidateSpec(

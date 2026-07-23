@@ -29,6 +29,8 @@ from scipy.optimize import nnls
 from scipy.special import ndtr, ndtri
 
 from populace_dynamics.engine.candidates import (
+    CORRELATED_REFRESH_OPERATION_ID,
+    CORRELATED_REFRESH_OPERATION_KIND,
     RANK_REFRESH_OPERATION_ID,
     RANK_REFRESH_OPERATION_KIND,
     CandidateSpec,
@@ -329,6 +331,35 @@ def _rank_refresh_probability(
     if not np.isfinite(q) or not 0.0 <= q <= 1.0:
         raise ValueError("rank-refresh q must lie in [0, 1]")
     return q
+
+
+def _rank_refresh_correlation(
+    candidate_spec: CandidateSpec | None,
+) -> float | None:
+    """Resolve the additive correlated-refresh operation, when registered."""
+    if candidate_spec is None:
+        return None
+    operation = candidate_spec.operation(CORRELATED_REFRESH_OPERATION_KIND)
+    if operation is None:
+        return None
+    if operation.implementation_id != CORRELATED_REFRESH_OPERATION_ID:
+        raise ValueError(
+            "candidate selects an unregistered forward-earnings correlated "
+            f"refresh: {operation.implementation_id!r}"
+        )
+    if candidate_spec.operation(RANK_REFRESH_OPERATION_KIND) is None:
+        raise ValueError(
+            "correlated refresh requires the registered rank-refresh operation"
+        )
+    params = dict(operation.params)
+    if set(params) != {"rho"}:
+        raise ValueError(
+            "correlated-refresh operation parameters must be exactly rho"
+        )
+    rho = float(params["rho"])
+    if not np.isfinite(rho):
+        raise ValueError("rank-refresh rho must be finite")
+    return rho
 
 
 class CellMarginal:
@@ -981,6 +1012,7 @@ def fit_forward_earnings(
 ) -> ForwardEarningsFit:
     """Fit the pinned forward gates, rank pools, marginals, and frame state."""
     rank_refresh_q = _rank_refresh_probability(candidate_spec)
+    rank_refresh_rho = _rank_refresh_correlation(candidate_spec)
     _require_columns(
         panel,
         ("person_id", "period", "earnings", "age", "weight"),
@@ -1096,6 +1128,7 @@ def fit_forward_earnings(
         rank_refresh_q=rank_refresh_q,
         stable_pools=stable_pools,
         rank_refresh_fit_audit=refresh_audit,
+        rank_refresh_rho=rank_refresh_rho,
     )
     fit_signature = (
         None

@@ -10,10 +10,11 @@ import pandas as pd
 import pytest
 
 import populace_dynamics.engine.forward_earnings as fe
-from populace_dynamics.engine.candidates import CANDIDATE_2
+from populace_dynamics.engine.candidates import CANDIDATE_2, CANDIDATE_3
 from populace_dynamics.engine.earnings_domain import (
     EARNINGS_CHAIN_STATE_COLUMNS,
 )
+from populace_dynamics.engine.refit import refit_earnings_chained_generator
 from tests.test_m6_engine_forward_earnings import (
     FRAME_COLUMNS,
     _fit_panel,
@@ -153,6 +154,66 @@ def test_threshold_law_uses_null_one_and_zero_states_with_strict_inequality():
     )
     assert refreshed.tolist() == [False, False, True]
     assert output.tolist() == [0.81, 0.82, 0.2]
+
+
+def test_registered_candidate3_refit_engages_rho_law_not_iid():
+    nawi = {year: 100.0 for year in range(2002, 2019)}
+    fitted = refit_earnings_chained_generator(
+        _fit_panel(),
+        nawi,
+        seed=17,
+        qrf_factory=_RecordingQRFFactory(),
+        candidate_spec=CANDIDATE_3,
+    )
+    generator = fitted.generator
+
+    assert fitted.engine_candidate_id == CANDIDATE_3.candidate_id
+    assert fitted.engine_candidate_spec_sha256 == CANDIDATE_3.sha256
+    assert generator.rank_refresh_q == 0.55
+    assert generator.rank_refresh_rho == -0.60
+    assert generator.rank_refresh_fit_audit is not None
+    assert fitted.rank_refresh_fit_audit == (
+        generator.rank_refresh_fit_audit.as_dict()
+    )
+    assert generator.earnings_frame_update_columns == (
+        fe.REFRESH_STATE_COLUMN,
+    )
+
+    # With previous state 0, q=.55 and rho=-.60 raise the registered
+    # threshold to .88.  The same code-4 draw (.70) therefore refreshes under
+    # candidate 3 but not under the rho=0 iid control built from the exact
+    # same fitted objects.
+    iid = replace(generator, rank_refresh_rho=0.0)
+    indices = np.asarray([0], dtype=np.int64)
+    q0 = np.asarray([False])
+    anchor_rank = np.asarray([0.5])
+    target_age = np.asarray([32.0])
+    previous_state = np.asarray([0.0])
+    correlated_output = np.asarray([0.9])
+    iid_output = correlated_output.copy()
+    correlated_refresh = generator._draw_correlated_rank_refresh(
+        indices,
+        q0,
+        anchor_rank,
+        target_age,
+        previous_state,
+        _FixedStream(0.70),
+        _FixedStream(0.0),
+        correlated_output,
+    )
+    iid_refresh = iid._draw_correlated_rank_refresh(
+        indices,
+        q0,
+        anchor_rank,
+        target_age,
+        previous_state,
+        _FixedStream(0.70),
+        _FixedStream(0.0),
+        iid_output,
+    )
+    assert correlated_refresh.tolist() == [True]
+    assert iid_refresh.tolist() == [False]
+    assert correlated_output.tolist() != iid_output.tolist()
 
 
 def test_rho_zero_matches_candidate2_levels_parent_and_streams_one_to_five(

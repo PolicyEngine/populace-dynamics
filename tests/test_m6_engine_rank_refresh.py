@@ -15,10 +15,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import populace_dynamics.engine as engine
 import populace_dynamics.engine.forward_earnings as fe
 import populace_dynamics.harness.m6_runner as m6_runner
 from populace_dynamics.engine.candidates import (
     CANDIDATE_2,
+    CANDIDATE_3,
+    CORRELATED_REFRESH_OPERATION_ID,
+    CORRELATED_REFRESH_OPERATION_KIND,
     RANK_REFRESH_OPERATION_ID,
     RANK_REFRESH_OPERATION_KIND,
     REGISTRY,
@@ -184,8 +188,9 @@ def _projection_bytes(result) -> bytes:
     return bytes(payload)
 
 
-def test_candidate2_registry_binds_ratified_q_without_changing_candidate1():
-    assert dict(REGISTRY) == {2: CANDIDATE_2}
+def test_engine_registry_binds_additive_candidate3_without_changing_prior_laws():
+    assert dict(REGISTRY) == {2: CANDIDATE_2, 3: CANDIDATE_3}
+    assert engine.CANDIDATE_3 is CANDIDATE_3
     operation = CANDIDATE_2.operation(RANK_REFRESH_OPERATION_KIND)
     assert operation is not None
     assert operation.implementation_id == RANK_REFRESH_OPERATION_ID
@@ -194,10 +199,31 @@ def test_candidate2_registry_binds_ratified_q_without_changing_candidate1():
         "memory-refresh-gate": 4,
         "memory-refresh-rank": 5,
     }
+    assert CANDIDATE_2.sha256 == (
+        "8fbfcf4130fd9051aa063061bf7b2d8514773fc6a900c900caab18717ad8e14c"
+    )
+
+    # Candidate 3 byte-carries candidate 2's complete operation as its exact
+    # prefix, then adds only the ratified correlated-refresh state law.
+    assert len(CANDIDATE_3.operations) == len(CANDIDATE_2.operations) + 1
+    assert CANDIDATE_3.operations[:-1] == CANDIDATE_2.operations
+    assert CANDIDATE_3.operations[0] is CANDIDATE_2.operations[0]
+    correlated = CANDIDATE_3.operations[-1]
+    assert correlated.kind == CORRELATED_REFRESH_OPERATION_KIND
+    assert correlated.implementation_id == CORRELATED_REFRESH_OPERATION_ID
+    assert dict(correlated.params) == {"rho": -0.60}
+    assert CANDIDATE_3.canonical_dict()["operations"][:-1] == (
+        CANDIDATE_2.canonical_dict()["operations"]
+    )
+    assert CANDIDATE_3.sha256 == (
+        "c9be28a28d6fcc3911723872386906af559f6d0e0d5c89a87f741a5b2c3eacd6"
+    )
+
     assert ft.CANDIDATE_16.sha256 == (
         "6d4d2b2beadc87d17404a3deb64a272c2456d7471b3ad6f1cef779d807765aa1"
     )
     assert "0.55" not in inspect.getsource(fe)
+    assert "-0.60" not in inspect.getsource(fe)
 
 
 def test_candidate_and_audit_inputs_are_immutable_snapshots():
@@ -241,6 +267,14 @@ def test_candidate_and_audit_inputs_are_immutable_snapshots():
     assert audit.checksums_by_bin["0"] == "synthetic-0"
     with pytest.raises(TypeError):
         audit.counts_by_bin["0"] = 2  # type: ignore[index]
+
+    assert "__reduce__" in type(audit).__dict__
+    restored_audit = pickle.loads(pickle.dumps(audit, protocol=5))
+    assert restored_audit.as_dict() == audit.as_dict()
+    with pytest.raises(TypeError):
+        restored_audit.counts_by_bin["0"] = 2  # type: ignore[index]
+    with pytest.raises(TypeError):
+        restored_audit.checksums_by_bin["0"] = "changed"  # type: ignore[index]
 
 
 def test_substream_registry_appends_four_and_five_without_renumbering():
