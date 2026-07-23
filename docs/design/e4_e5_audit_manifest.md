@@ -24,6 +24,15 @@ arrangement, establishment-size code, monthly earnings, and the
 `BMONTH`/`EMONTH` spell edges. This is the "hand-adjudicable truth
 demonstrably exists" claim of #230 §9.1, made concrete.
 
+**Scope mapping (registered)**: the pair-level arms (a)/(b) certify
+**E4** — retention is a pair-level assignment. **E5** consumes
+*runs* — maximal chains of pair-links — where error compounds with
+length and enters as **false continuation** (a wrong link extends a
+run) or **false break** (a missed link splits one). E5 is certified
+by the run arm (c) below, at run level; pair precision alone does
+not license E5 and is never composed into a run claim by an
+independence assumption.
+
 ## 2. Frame and the two arms (ADR 0004 §2.1)
 
 - **Eligible universe**: all ordered adjacent-month pairs
@@ -49,10 +58,30 @@ demonstrably exists" claim of #230 §9.1, made concrete.
   attachments are exactly #235's re-key class; its signature rate,
   17.5% at the seam vs 2.4% within-wave, is the prevalence prior for
   powering this arm).
+- **Run arm (c)** (E5): the unit is the **run** — a maximal chain of
+  same-ID adjacent-month pair-links. A sampled run is coded in full:
+  every internal pair-link (the arm-(a) task) plus both terminal
+  transitions (the arm-(b) task, searching beyond each end for a
+  true counterpart). The run label then derives deterministically
+  from its link labels: `correctly_delimited`, `over_extended` (≥1
+  internal false continuation), `truncated` (≥1 terminal false
+  break), or `both`; `insufficient_evidence` on any constituent link
+  makes the run indeterminate (conservative, per §5). Run-level
+  error is thus measured **directly**, with the
+  false-continuation/false-break decomposition the ADR 0004 §4 E5
+  row requires — the composition from links to runs is observed, not
+  assumed independent. Cost accounting: a run of length *L* costs
+  *L*−1 internal + ≤2 terminal codings, so this arm's budget is set
+  in link-codings, not runs.
 - **Dual-frame overlap**: a person-pair can contribute a stay job to
   arm (a) and a separated job to arm (b); the unit of audit is the
   **job-pair**, not the person-pair, so the arms partition job-pairs
   and no combined-inclusion estimator is needed. Registered as such.
+  Arm (c) samples runs, whose constituent links are coded under the
+  same protocol but enter **only** the arm-(c) estimator — link
+  codings are not recycled into arms (a)/(b) (a deliberate
+  efficiency loss that keeps every estimator's inclusion
+  probabilities single-frame).
 
 ## 3. Stratification (ADR 0004 §2.2, scoped per #230 §9.1)
 
@@ -71,8 +100,21 @@ Operative strata:
   `scripts/build_crosswave_jobid_check.py` before any label exists)
   concentrates the plausible false negatives, so signature-present
   strata are oversampled.
-- Any pooling of sparse strata is published in the draw artifact
-  before adjudication; every inclusion probability is retained.
+- **Arm (c)** (run level): {run length 2–3, 4–11, full-year 12} ×
+  {seam-adjacent, not} — 6 strata, where *seam-adjacent* means the
+  run contains or terminates at the Dec→Jan cross-file pair.
+  Full-year and seam-adjacent strata are oversampled: full-year runs
+  carry the E5 gate quantity (`full_year_run_share`), and the seam
+  is where #235 locates the false-break risk.
+- **Pooling (rule registered now, not at draw time)**: a stratum
+  pools only when its **frame count** — known before any label
+  exists — cannot meet its powered target at sampling fraction ≤ 1.
+  Pooling collapses axes in this fixed order: the age split (arm a),
+  the signature split (arm b), length band 2–3 into 4–11 (arm c) —
+  and **never across the within-wave/seam axis**, the registered
+  risk axis. The draw artifact publishes each applied pooling with
+  the triggering frame count; every inclusion probability is
+  retained; no pooling decision may follow first sight of any label.
 
 ## 4. Power and target sizes (ADR 0004 §2.3)
 
@@ -86,23 +128,50 @@ Registered parameters — `REFEREE` slots per ADR 0004 §6.1:
 | `1 - beta` | REFEREE |
 | Multiplicity rule | REFEREE (recommended: intersection-union across the 4 arm-(a) strata with joint power computed by simulation) |
 | Recall: gates or reported-with-bound | REFEREE |
+| `P_floor_run` (share of runs correctly delimited, one-sided lower bound) | REFEREE |
+| Run-arm link-coding budget ceiling | REFEREE |
+| False-continuation / false-break decomposition | registered: always reported separately, each with its own bound |
+
+**No-revisit clause (registered)**: every `REFEREE` slot in this
+table — including whether arm-(b) recall gates or is
+reported-with-bound — must be filled **before the sample is
+drawn**. After the draw no slot may be revised, and in particular
+the gating status of arm (b) may not change once any arm-(b) label
+exists. A revision proposed after labels exist is void and triggers
+the §7 retire-and-reissue remedy.
+
+**Power procedure (registered)**: power is computed by simulation
+that resamples **workers** — the registered clustering unit — from
+the *actual frame*, which exists before the draw (#235 sizes it).
+The design effect is therefore **measured from the frame's
+cluster-size distribution, not assumed**. The indeterminate/unusable
+inflation is a named parameter: prior 10%, superseded by the
+calibration round's measured rate if that is larger.
 
 **Worked example** (illustrative only, not a proposal): for a
 simple-random operative stratum, `P_floor = 0.95`,
 `P_design = 0.99`, `alpha = 0.05`, `1 − beta = 0.80` gives
 `n = 124`, critical count `c = 122` (smallest binomial solution);
-(0.90, 0.97) gives `n = 76, c = 73`. Per ADR 0004, job-pairs
-cluster within worker: the draw script computes design-based
-power by simulation with **worker** as the registered clustering
-unit and applies the anticipated design effect, and targets are
-inflated for indeterminate/unusable rates (assumed 10% until the
-calibration round measures them). Four strata at the example
+(0.90, 0.97) gives `n = 76, c = 73`. These independent-Bernoulli
+`n` are floor illustrations only; registered targets come from the
+worker-resampling simulation above. Four strata at the example
 numbers imply an arm-(a) total near 550 adjudications before
 inflation — feasible for a two-coder panel.
 
-**Arm (b) target**: based on expected true-counterpart prevalence
-per stratum (prior: the #235 signature rates), powered for the
-registered recall-bound width or floor, per the same machinery.
+**Arm (b) target (registered formula)**: per stratum, the
+true-counterpart prevalence prior `π` is the #235 excess rate for
+that stratum (E→E-conditional 15.1% at the seam; 2.4% within-wave
+baseline). If the referee rules reported-with-bound, `n` solves
+`z_{1−α} · sqrt(π(1−π)/n) · sqrt(deff) ≤ w` for the registered
+half-width `w`; if recall gates, the same binomial floor machinery
+as arm (a) applies with the registered `R_floor`. Illustration:
+`π = 0.15`, `w = 0.05`, one-sided `α = 0.05`, `deff = 1` gives
+`n ≈ 138` before inflation.
+
+**Arm (c) target**: powered for `P_floor_run` by the same
+worker-resampling simulation, with the budget expressed in
+link-codings (a full-year run costs 11 internal + ≤2 terminal
+codings) and capped by the registered ceiling above.
 
 ## 5. Coding protocol (ADR 0004 §2.4)
 
@@ -162,8 +231,10 @@ freezes are registered so audit labels cannot leak backward:
    20260717 → `runs/e4_e5_audit_draw_v1.json` + the blinded evidence
    sheets.
 4. Coding manual v1 commits; calibration round runs; panel codes.
-5. `runs/e4_e5_audit_v1.json` reports precision/recall with
-   confidence bounds, agreement, dispositions. **Sequence (pinned
+5. `runs/e4_e5_audit_v1.json` reports arm-(a) precision, arm-(b)
+   recall, and arm-(c) run-delimitation rates (with the
+   false-continuation/false-break decomposition) with confidence
+   bounds, agreement, dispositions. **Sequence (pinned
    per the #230 round-1 referee review, S4, matching ADR 0004
    §1.5)**: this manifest is the pre-lock artifact; the C3 block
    may lock with the audit *designed but undrawn*; the audit
