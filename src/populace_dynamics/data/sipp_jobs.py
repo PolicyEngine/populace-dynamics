@@ -270,9 +270,13 @@ def read_sipp_job_months(
         self-employment/other arrangements whose establishment size
         is structurally NIU; ``firms/banding.py`` expects that mix),
         ``estab_size_band``/``estab_size_band_exact`` (the canonical
-        C2 span for that code, from ``firms/banding.py`` — NaN
-        wherever ``empsize_code`` is; **establishment** size, so not
-        interchangeable with the ASEC reader's ``canonical_band``),
+        C2 span for that code, from ``firms/banding.py`` — NaN both
+        wherever ``empsize_code`` is NaN *and* at the -9 item-
+        nonresponse sentinel, which has no band; **establishment**
+        size, so not interchangeable with the ASEC reader's
+        ``canonical_band``. ``estab_size_band_exact`` is object-dtype
+        True/False/NaN, so ``~df[...]`` and truthiness tests mask the
+        NaNs as if they were straddles — compare explicitly),
         ``industry``
         (string, passed through **unvalidated** — a full
         Census-industry allow-list is impractical, so sentinels can
@@ -550,7 +554,9 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
         ``end_year``/``end_month``, ``n_months``, ``job_id``,
         ``industry``/``empsize_code``/``class_of_worker`` (modal),
         ``estab_size_band`` (the canonical span of the modal
-        ``empsize_code``),
+        ``empsize_code``; no ``_exact`` companion is emitted here, so
+        a spell consumer must detect a straddle by looking for the
+        ``"|"`` separator in the label),
         ``attributes_constant`` (False when any of the three varied
         within the spell — surfaced, never silently averaged),
         ``total_earnings``, ``earnings_share`` (spell earnings over

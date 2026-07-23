@@ -128,11 +128,16 @@ class CanonicalBand(Enum):
 
     @property
     def label(self) -> str:
-        """Stable wire label for the band (the C2 column vocabulary).
+        """Stable display label for the band (reader-level vocabulary).
 
         Readers emit this string, never a reader-local band name, so
-        that person-side and target-side band columns share one
-        vocabulary (#192 step 2; the seam #208 left latent).
+        that person-side and target-side *reader* band columns share
+        one vocabulary (#192 step 2; the seam #208 left latent).
+
+        This is a reader/display-level convention, **not** the frozen
+        contract's wire type: the contract defines ``firm_size_band``
+        as the :class:`CanonicalBand` enum, and only an ADR 0003
+        amendment can make the string the wire format.
         """
         return CANONICAL_BAND_LABELS[self]
 
@@ -140,7 +145,10 @@ class CanonicalBand(Enum):
 CANONICAL_BANDS: tuple[CanonicalBand, ...] = tuple(CanonicalBand)
 
 #: The canonical band vocabulary. These strings — not any reader's
-#: local band names — are what every C1-conforming column carries.
+#: local band names — are what every **reader band column** carries.
+#: The frozen contract's ``firm_size_band`` remains the
+#: :class:`CanonicalBand` enum; these labels are the display/reader
+#: rendering of it, and are not an alternative wire type.
 CANONICAL_BAND_LABELS: dict[CanonicalBand, str] = {
     CanonicalBand.LT10: "1-9",
     CanonicalBand.B10_49: "10-49",

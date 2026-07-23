@@ -37,6 +37,8 @@ from populace_dynamics.firms.banding import (
     sipp_empsize_to_canonical,
 )
 
+from .test_sipp_jobs import _write_pu_file
+
 # The intended bands, stated here independently of the mapper's
 # tables so that editing one of them cannot silently move the other.
 # Codes 5 (500-999) and 6 (1000+) both land in B500_PLUS: canonical
@@ -197,11 +199,26 @@ class TestOneVocabulary:
             label = sipp_jobs.EMPSIZE_CANONICAL_SPANS[code]
             assert (label in vocabulary) is exact
 
-    def test_establishment_and_firm_columns_are_named_apart(self):
+    def test_establishment_and_firm_columns_are_named_apart(self, tmp_path):
         # SIPP measures establishment size (#192 finding 1). If both
         # readers emitted "canonical_band", a join would silently
         # treat a location headcount as an enterprise headcount.
-        assert "canonical_band" not in sipp_jobs.__all__
+        #
+        # Pinned on a synthetic fixture rather than on ``__all__``
+        # (which never carries column names) so the separation is
+        # enforced in CI, not only by the real-data test that skips
+        # wherever the pu files are not staged.
+        path = _write_pu_file(
+            tmp_path, 2023, [{"month": m, "job1": {}} for m in (1, 2)]
+        )
+        months = sipp_jobs.read_sipp_job_months(2023, path=path)
+        assert "estab_size_band" in months.columns
+        assert "canonical_band" not in months.columns
+
+        spells = sipp_jobs.job_spells(months)
+        assert "estab_size_band" in spells.columns
+        assert "canonical_band" not in spells.columns
+
         assert hasattr(asec_firm_size, "noemp_canonical_map")
 
 
