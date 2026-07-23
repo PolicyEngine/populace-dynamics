@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -15,6 +16,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import reduce_m6_rhostar_selection as reducer  # noqa: E402
 import select_m6_rhostar_train_only as selector  # noqa: E402
+
+FINDINGS_PATH = (
+    ROOT / "docs/analysis/m6_rhostar_train_only_selection_results.json"
+)
+FINDINGS_SHA256 = (
+    "db7fe83547cad6a4ea477bac9f71f11279e9f21c8399b60d8f77a5ca14d463ff"
+)
 
 
 def _transition_chain() -> dict[str, object]:
@@ -381,3 +389,668 @@ def test_reducer_rejects_preflight_support_and_transition_drift():
     fence["fences"]["no_gate_score"] = False
     with pytest.raises(ValueError, match="fence fields"):
         reducer.reduce(json.dumps(fence).encode())
+
+
+def test_findings_whole_file_pin_reproduces_exact_selection_trace():
+    raw = FINDINGS_PATH.read_bytes()
+    findings = json.loads(raw)
+    canonical = (
+        json.dumps(
+            findings,
+            indent=2,
+            sort_keys=True,
+            allow_nan=False,
+        )
+        + "\n"
+    ).encode()
+
+    assert raw == canonical
+    assert hashlib.sha256(raw).hexdigest() == FINDINGS_SHA256
+    assert findings["schema"] == reducer.FINDINGS_SCHEMA
+
+    rho_grid = tuple(round(-0.80 + 0.05 * index, 2) for index in range(17))
+    boundaries = (2006, 2008, 2010)
+    draw_seeds = tuple(range(6200, 6220))
+    first_half = tuple(range(6200, 6210))
+    second_half = tuple(range(6210, 6220))
+    selected_cells = (
+        "earn_p10.prime",
+        "earn_dlog_mean.prime",
+        "earn_dlog_sd.older",
+        "earn_mob_h1_diag",
+        "earn_autocorr_lag2",
+        "earn_zero_rate.older",
+    )
+    objective_cells = (
+        "earn_p10.prime",
+        "earn_dlog_mean.prime",
+        "earn_mob_h1_diag",
+        "earn_autocorr_lag2",
+    )
+    feasibility_cells = (
+        "earn_dlog_sd.older",
+        "earn_zero_rate.older",
+    )
+    block_seeds = {
+        "all_20": draw_seeds,
+        "first_10": first_half,
+        "second_10": second_half,
+    }
+    labels = tuple(f"{rho:.2f}" for rho in rho_grid)
+
+    protocol = findings["protocol"]
+    assert protocol["fixed_q"] == 0.55
+    assert protocol["rho_grid"] == list(rho_grid)
+    assert protocol["pseudo_boundaries"] == list(boundaries)
+    assert protocol["selection_draw_seeds"] == list(draw_seeds)
+    assert protocol["fixed_halves"] == [
+        list(first_half),
+        list(second_half),
+    ]
+    assert protocol["selected_cells"] == list(selected_cells)
+    assert protocol["objective_cells"] == list(objective_cells)
+    assert protocol["feasibility_cells"] == list(feasibility_cells)
+    assert set(findings["rungs"]) == set(labels)
+
+    required_fences = {
+        "no_candidate_1_or_candidate_2_artifact_read": True,
+        "no_gate_score": True,
+        "no_runs_write": True,
+    }
+    assert findings["fences"] == required_fences
+    assert {
+        name: protocol[name] for name in required_fences
+    } == required_fences
+
+    preflights = findings["preflights"]
+    assert preflights["all_passed"] is True
+    assert preflights["ladder_values_computed_before_pass"] is False
+    assert preflights["failure_disposition"] == "STOP_AND_INVALIDATE_MECHANISM"
+    records = preflights["records"]
+    assert set(records) == {
+        "rho_zero_candidate2_equivalence",
+        "reset_law_discriminating_fixture",
+        "endogenous_participation_feedback",
+        "object_level_unchanged",
+    }
+    assert all(record["passed"] is True for record in records.values())
+
+    stationary_keys = ("empty_to_0", "empty_to_1")
+    pair_keys = ("0_to_0", "0_to_1", "1_to_0", "1_to_1")
+    reset_keys = (
+        "nonparticipation",
+        "zero_earnings",
+        "stream3_reentry",
+        "support_exit",
+    )
+
+    def exact_count(value):
+        assert type(value) is int
+        assert value >= 0
+        return value
+
+    def chain_conservation(chain):
+        assert set(chain["stationary_entries"]) == set(stationary_keys)
+        assert set(chain["consecutive_pairs"]) == set(pair_keys)
+        assert set(chain["resets"]) == set(reset_keys)
+        entries = sum(
+            exact_count(chain["stationary_entries"][key])
+            for key in stationary_keys
+        )
+        pairs = sum(
+            exact_count(chain["consecutive_pairs"][key]) for key in pair_keys
+        )
+        resets = sum(exact_count(chain["resets"][key]) for key in reset_keys)
+        eligible = exact_count(chain["eligible_transitions"])
+        even_call_count = exact_count(chain["even_calls"])
+        decomposition = entries + pairs == eligible
+        even_calls = eligible + resets == even_call_count
+        return decomposition, even_calls
+
+    equivalence = records["rho_zero_candidate2_equivalence"]
+    assert equivalence["n_boundary_draw_equivalence_cells"] == 60
+    required_equivalence_checks = (
+        "person_period_keys_equal",
+        "level_bytes_equal",
+        "participation_states_equal",
+        "all_six_moments_equal",
+        "streams_1_5_final_states_equal",
+        "truth_projection_support_equal",
+        "chain_count_conservation",
+        "passed",
+    )
+    for boundary in boundaries:
+        boundary_equivalence = equivalence["boundaries"][str(boundary)]
+        assert boundary_equivalence["passed"] is True
+        rows = boundary_equivalence["per_draw"]
+        assert [row["draw_seed"] for row in rows] == list(draw_seeds)
+        for row in rows:
+            assert all(
+                row[name] is True for name in required_equivalence_checks
+            )
+            decomposition, even_calls = chain_conservation(
+                row["transition_chain"]
+            )
+            assert decomposition is True
+            assert even_calls is True
+
+    def truth_value(record):
+        raw = record.get("rate", record.get("value"))
+        if raw is None or isinstance(raw, bool):
+            return None
+        value = float(raw)
+        if not math.isfinite(value):
+            return None
+        metric = str(record.get("metric", "log_ratio"))
+        if (metric == "log_ratio" or "rate" in record) and value <= 0:
+            return None
+        return value
+
+    def registered_score(projected, truth_record):
+        expected = truth_value(truth_record)
+        if (
+            projected is None
+            or expected is None
+            or isinstance(projected, bool)
+        ):
+            return None
+        projected_value = float(projected)
+        if not math.isfinite(projected_value):
+            return None
+        metric = str(truth_record.get("metric", "log_ratio"))
+        if metric == "log_ratio" or "rate" in truth_record:
+            if projected_value <= 0:
+                return None
+            return abs(math.log(projected_value / expected))
+        return abs(projected_value - expected)
+
+    numeric_objectives = {}
+    delete_one_totals = {}
+    standardized_by_label = {}
+    valid_by_label = {}
+    invalid_reasons_by_label = {}
+
+    for rho, label in zip(rho_grid, labels, strict=True):
+        rung = findings["rungs"][label]
+        assert float(rung["rho"]) == rho
+        assert float(rung["fixed_q"]) == 0.55
+        invalid_reasons = []
+        by_block = {name: {} for name in block_seeds}
+        standardized_by_label[label] = {}
+
+        for boundary in boundaries:
+            boundary_label = str(boundary)
+            record = rung["boundaries"][boundary_label]
+            standardized_by_label[label][boundary_label] = {}
+            summary = record["per_draw_summary"]
+            undefined = summary["undefined_draw_seeds_by_cell"]
+            ranges = summary["moment_range"]
+            truth = record["truth_moments"]
+            assert set(truth) == set(selected_cells)
+            assert all(
+                truth_value(truth[cell]) is not None for cell in selected_cells
+            )
+            standardizers = record["standardizers"]
+            assert set(standardizers) == set(selected_cells)
+            assert all(
+                not isinstance(standardizers[cell], bool)
+                and math.isfinite(float(standardizers[cell]))
+                and float(standardizers[cell]) > 0
+                for cell in selected_cells
+            )
+            fit = record["fit"]
+            assert fit["empty_pool_check_passed"] is True
+            stable_pools = fit["stable_pools"]
+            assert stable_pools["empty_pool_check_passed"] is True
+            stable_pool_counts = stable_pools["counts_by_bin"]
+            assert set(stable_pool_counts) == {
+                str(index) for index in range(8)
+            }
+            assert all(
+                exact_count(count) > 0 for count in stable_pool_counts.values()
+            )
+            assert set(fit["donor_pools"]) == {
+                "pairs",
+                "triples",
+                "reentry",
+            }
+            assert all(
+                exact_count(pool["n_rows"]) > 0
+                for pool in fit["donor_pools"].values()
+            )
+            all_cells_defined = all(
+                not undefined[cell]
+                and ranges[cell]["min"] is not None
+                and ranges[cell]["max"] is not None
+                and np.isfinite(float(ranges[cell]["min"]))
+                and np.isfinite(float(ranges[cell]["max"]))
+                for cell in selected_cells
+            )
+            regenerated = {
+                cell: (
+                    not undefined[cell]
+                    and ranges[cell]["min"] is not None
+                    and ranges[cell]["max"] is not None
+                    and float(ranges[cell]["min"])
+                    != float(ranges[cell]["max"])
+                )
+                for cell in selected_cells
+            }
+            assert summary["n_draws"] == 20
+            assert summary["draw_seeds"] == list(draw_seeds)
+            assert summary["all_cells_defined"] is all_cells_defined
+            assert summary["all_fresh_initial_state"] is True
+            assert summary["distinct_annual_level_surfaces"] == 20
+            assert summary["distinct_annual_participation_surfaces"] == 20
+            assert record["regeneration"]["by_cell"] == regenerated
+            assert record["regeneration"]["all_six_cells_regenerated"] is all(
+                regenerated.values()
+            )
+            for cell, did_regenerate in regenerated.items():
+                if not did_regenerate:
+                    invalid_reasons.append(
+                        f"boundary {boundary} cell {cell} not regenerated"
+                    )
+
+            support_sha = record["support"]["truth_support_ids_sha256"]
+            assert summary["projected_support_ids_sha256"] == support_sha
+            assert summary["truth_projection_support_equal_all_draws"] is True
+
+            transitions = record["transition_pair_counts"]
+            transition_rows = transitions["per_draw"]
+            assert [row["draw_seed"] for row in transition_rows] == list(
+                draw_seeds
+            )
+            all_rows_conserve = True
+            for row in transition_rows:
+                decomposition, even_calls = chain_conservation(row)
+                assert row["eligible_decomposition_conserves"] is decomposition
+                assert row["even_call_conservation_passed"] is even_calls
+                all_rows_conserve &= decomposition and even_calls
+
+            aggregate_chain = {
+                "even_calls": sum(
+                    exact_count(row["even_calls"]) for row in transition_rows
+                ),
+                "eligible_transitions": sum(
+                    exact_count(row["eligible_transitions"])
+                    for row in transition_rows
+                ),
+                "stationary_entries": {
+                    key: sum(
+                        exact_count(row["stationary_entries"][key])
+                        for row in transition_rows
+                    )
+                    for key in stationary_keys
+                },
+                "consecutive_pairs": {
+                    key: sum(
+                        exact_count(row["consecutive_pairs"][key])
+                        for row in transition_rows
+                    )
+                    for key in pair_keys
+                },
+                "resets": {
+                    key: sum(
+                        exact_count(row["resets"][key])
+                        for row in transition_rows
+                    )
+                    for key in reset_keys
+                },
+            }
+            decomposition, even_calls = chain_conservation(aggregate_chain)
+            aggregate_chain["eligible_decomposition_conserves"] = decomposition
+            aggregate_chain["even_call_conservation_passed"] = even_calls
+            assert transitions["all_20"] == aggregate_chain
+            aggregate_conserves = (
+                all_rows_conserve and decomposition and even_calls
+            )
+            assert transitions["all_draws_conserve"] is aggregate_conserves
+            if not aggregate_conserves:
+                invalid_reasons.append(
+                    f"boundary {boundary} transition counts do not conserve"
+                )
+
+            chain_payload = [
+                {
+                    key: value
+                    for key, value in row.items()
+                    if key != "draw_seed"
+                }
+                for row in transition_rows
+            ]
+            chain_bytes = json.dumps(
+                chain_payload,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+            assert summary["transition_chain_records_sha256"] == (
+                hashlib.sha256(chain_bytes).hexdigest()
+            )
+
+            for block, expected_seeds in block_seeds.items():
+                aggregate = record["aggregates"][block]
+                assert aggregate["draw_seeds"] == list(expected_seeds)
+                projected = aggregate["projected_moments"]
+                assert set(projected) == set(selected_cells)
+                scores = {
+                    cell: registered_score(projected[cell], truth[cell])
+                    for cell in selected_cells
+                }
+                standardized = {
+                    cell: (
+                        None
+                        if scores[cell] is None
+                        else float(scores[cell]) / float(standardizers[cell])
+                    )
+                    for cell in selected_cells
+                }
+                contributions = {
+                    cell: (
+                        None
+                        if standardized[cell] is None
+                        else float(standardized[cell]) ** 2
+                    )
+                    for cell in objective_cells
+                }
+                assert aggregate["scores"] == scores
+                assert aggregate["standardized_scores"] == standardized
+                assert aggregate["objective_contributions"] == contributions
+                assert all(
+                    contributions[cell] is not None for cell in objective_cells
+                )
+                for cell in objective_cells:
+                    assert contributions[cell] == standardized[cell] ** 2
+                objective = float(
+                    sum(float(contributions[cell]) for cell in objective_cells)
+                )
+                assert aggregate["objective"] == objective
+                by_block[block][boundary_label] = objective
+                standardized_by_label[label][boundary_label][
+                    block
+                ] = standardized
+
+        numeric_objectives[label] = {}
+        for block, expected_seeds in block_seeds.items():
+            objective = rung["objectives"][block]
+            assert objective["draw_seeds"] == list(expected_seeds)
+            assert objective["by_boundary"] == by_block[block]
+            total = float(
+                sum(by_block[block][str(boundary)] for boundary in boundaries)
+            )
+            assert objective["total"] == total
+            numeric_objectives[label][block] = total
+
+        if any(
+            numeric_objectives[label][block] is None for block in block_seeds
+        ):
+            invalid_reasons.append(
+                "one or more fixed-block objectives undefined"
+            )
+        valid_by_label[label] = not invalid_reasons
+        invalid_reasons_by_label[label] = invalid_reasons
+
+        delete_records = rung["objectives"]["delete_one"]
+        assert [
+            record["omitted_draw_seed"] for record in delete_records
+        ] == list(draw_seeds)
+        totals = []
+        for omitted, record in zip(
+            draw_seeds,
+            delete_records,
+            strict=True,
+        ):
+            expected_seeds = [seed for seed in draw_seeds if seed != omitted]
+            assert record["draw_seeds"] == expected_seeds
+            total = float(
+                sum(
+                    float(record["by_boundary"][str(boundary)])
+                    for boundary in boundaries
+                )
+            )
+            assert record["total"] == total
+            totals.append(total)
+        delete_one_totals[label] = totals
+
+    baseline_label = "0.00"
+    assert valid_by_label[baseline_label] is True
+    feasible_by_label = {}
+    guards_by_label = {}
+    improvements_by_label = {}
+    retained_by_label = {}
+
+    for rho, label in zip(rho_grid, labels, strict=True):
+        feasible = valid_by_label[label]
+        guards = {}
+        for boundary in boundaries:
+            boundary_label = str(boundary)
+            candidate_scores = standardized_by_label[label][boundary_label][
+                "all_20"
+            ]
+            baseline_scores = standardized_by_label[baseline_label][
+                boundary_label
+            ]["all_20"]
+            cell_guards = {}
+            for cell in feasibility_cells:
+                candidate = float(candidate_scores[cell])
+                baseline = float(baseline_scores[cell])
+                limit = baseline + 1.0
+                passed = candidate <= limit
+                cell_guards[cell] = {
+                    "candidate_standardized_score": candidate,
+                    "rho0_standardized_score": baseline,
+                    "limit": limit,
+                    "passed": passed,
+                }
+                feasible &= passed
+            guards[boundary_label] = cell_guards
+        guards_by_label[label] = guards
+        feasible_by_label[label] = feasible
+
+        if rho == 0.0:
+            improvements = {
+                "all_20": True,
+                "first_10": True,
+                "second_10": True,
+            }
+            retained = True
+        else:
+            improvements = {
+                block: (
+                    numeric_objectives[label][block]
+                    < numeric_objectives[baseline_label][block]
+                )
+                for block in block_seeds
+            }
+            retained = feasible and all(improvements.values())
+        improvements_by_label[label] = improvements
+        retained_by_label[label] = retained
+
+    retained_labels = [label for label in labels if retained_by_label[label]]
+    rho_min_label = min(
+        retained_labels,
+        key=lambda label: (
+            numeric_objectives[label]["all_20"],
+            abs(float(label)),
+        ),
+    )
+    deletes = np.asarray(
+        delete_one_totals[rho_min_label],
+        dtype=np.float64,
+    )
+    delete_mean = float(deletes.mean())
+    standard_error = float(
+        np.sqrt((19.0 / 20.0) * np.sum((deletes - delete_mean) ** 2))
+    )
+    rho_min_objective = numeric_objectives[rho_min_label]["all_20"]
+    cutoff = rho_min_objective + standard_error
+    within_one_se = [
+        label
+        for label in retained_labels
+        if numeric_objectives[label]["all_20"] <= cutoff
+    ]
+    selected_label = min(
+        within_one_se,
+        key=lambda label: abs(float(label)),
+    )
+    selected_rho = float(selected_label)
+    disposition = (
+        "DESIGNED_PAUSE" if selected_rho == 0.0 else "LOCK_ADDENDUM_ELIGIBLE"
+    )
+
+    weak_retained_labels = [baseline_label]
+    for rho, label in zip(rho_grid, labels, strict=True):
+        if rho == 0.0 or not feasible_by_label[label]:
+            continue
+        weak_improves = (
+            numeric_objectives[label]["all_20"]
+            <= numeric_objectives[baseline_label]["all_20"]
+            and numeric_objectives[label]["first_10"]
+            < numeric_objectives[baseline_label]["first_10"]
+            and numeric_objectives[label]["second_10"]
+            < numeric_objectives[baseline_label]["second_10"]
+        )
+        if weak_improves:
+            weak_retained_labels.append(label)
+    weak_min_label = min(
+        weak_retained_labels,
+        key=lambda label: (
+            numeric_objectives[label]["all_20"],
+            abs(float(label)),
+        ),
+    )
+    weak_deletes = np.asarray(
+        delete_one_totals[weak_min_label],
+        dtype=np.float64,
+    )
+    weak_standard_error = float(
+        np.sqrt(
+            (19.0 / 20.0) * np.sum((weak_deletes - weak_deletes.mean()) ** 2)
+        )
+    )
+    weak_cutoff = (
+        numeric_objectives[weak_min_label]["all_20"] + weak_standard_error
+    )
+    weak_within_one_se = [
+        label
+        for label in weak_retained_labels
+        if numeric_objectives[label]["all_20"] <= weak_cutoff
+    ]
+    weak_selected_label = min(
+        weak_within_one_se,
+        key=lambda label: abs(float(label)),
+    )
+
+    rung_trace = {
+        label: {
+            "objectives": numeric_objectives[label],
+            "valid": valid_by_label[label],
+            "feasible": feasible_by_label[label],
+            "strict_improvement_vs_rho0": improvements_by_label[label],
+            "retained": retained_by_label[label],
+        }
+        for label in labels
+    }
+    tie_break_trace = {
+        "rungs": rung_trace,
+        "retained_pool": [float(label) for label in retained_labels],
+        "argmin_order": [
+            float(label)
+            for label in sorted(
+                retained_labels,
+                key=lambda label: (
+                    numeric_objectives[label]["all_20"],
+                    abs(float(label)),
+                ),
+            )
+        ],
+        "rho_min": float(rho_min_label),
+        "rho_min_delete_one": delete_one_totals[rho_min_label],
+        "rho_min_delete_one_mean": delete_mean,
+        "rho_min_jackknife_standard_error": standard_error,
+        "one_se_cutoff": cutoff,
+        "within_one_se": [float(label) for label in within_one_se],
+        "closest_to_zero_order": [
+            float(label)
+            for label in sorted(
+                within_one_se,
+                key=lambda label: abs(float(label)),
+            )
+        ],
+        "selected_rho": selected_rho,
+        "disposition": disposition,
+        "weak_counterfactual": {
+            "retained_pool": [float(label) for label in weak_retained_labels],
+            "rho_min": float(weak_min_label),
+            "one_se_cutoff": weak_cutoff,
+            "within_one_se": [float(label) for label in weak_within_one_se],
+            "selected_rho": float(weak_selected_label),
+        },
+    }
+    trace_message = json.dumps(
+        tie_break_trace,
+        indent=2,
+        sort_keys=True,
+    )
+
+    for label in labels:
+        rung = findings["rungs"][label]
+        assert (
+            rung["invalid_reasons"] == invalid_reasons_by_label[label]
+        ), trace_message
+        assert rung["valid"] is valid_by_label[label], trace_message
+        assert (
+            rung["feasibility_guards"] == guards_by_label[label]
+        ), trace_message
+        assert rung["feasible"] is feasible_by_label[label], trace_message
+        assert (
+            rung["strict_improvement_vs_rho0"] == improvements_by_label[label]
+        ), trace_message
+        assert (
+            rung["retained_for_one_se"] is retained_by_label[label]
+        ), trace_message
+        assert rung["within_one_se_cutoff"] is (
+            label in within_one_se
+        ), trace_message
+        assert rung["selected"] is (label == selected_label), trace_message
+        assert (
+            rung["train_f1_analog_disclosure"]["adds_no_selection_criterion"]
+            is True
+        )
+
+    expected_selector = {
+        "baseline_rho_retained": True,
+        "effective_search_size": {
+            "grid_rungs": len(labels),
+            "valid_rungs": sum(valid_by_label.values()),
+            "feasible_rungs_including_rho0": sum(feasible_by_label.values()),
+            "retained_rungs_including_rho0": len(retained_labels),
+            "retained_nonzero_rungs": sum(
+                float(label) != 0.0 for label in retained_labels
+            ),
+        },
+        "retained_rho": [float(label) for label in retained_labels],
+        "rho_min": float(rho_min_label),
+        "rho_min_objective": rho_min_objective,
+        "rho_min_delete_one_mean": delete_mean,
+        "rho_min_jackknife_standard_error": standard_error,
+        "one_se_cutoff": cutoff,
+        "rho_within_one_se": [float(label) for label in within_one_se],
+        "selected_rho": selected_rho,
+        "selected_rho_label": selected_label,
+        "disposition": disposition,
+        "closest_to_zero_tie_break_applied": True,
+        "strict_vs_weak_improvement_outcome_invariant": (
+            weak_selected_label == selected_label
+        ),
+        "weak_improvement_counterfactual": {
+            "weakened_comparison": ("all_20 only; fixed halves remain strict"),
+            "retained_rho": [float(label) for label in weak_retained_labels],
+            "rho_min": float(weak_min_label),
+            "jackknife_standard_error": weak_standard_error,
+            "one_se_cutoff": weak_cutoff,
+            "selected_rho": float(weak_selected_label),
+        },
+    }
+    assert findings["selector"] == expected_selector, trace_message
