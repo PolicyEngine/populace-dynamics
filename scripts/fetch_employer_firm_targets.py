@@ -301,12 +301,24 @@ def _verify_led_j2jod(path: Path) -> Path:
             "re-pin only after diffing the cells and updating the "
             "provenance note with the new release."
         )
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    # LED_J2JOD_SHA256 pins the *uncompressed* response bytes, so the
+    # archive path must be decompressed before hashing. Hashing the
+    # .gz container against it made this note fire on every default
+    # run — a permanently-lit byte-drift channel is one nobody reads,
+    # which is exactly how a real byte-only change goes unnoticed.
+    raw = path.read_bytes()
+    if path.suffix == ".gz":
+        raw = gzip.decompress(raw)
+    digest = hashlib.sha256(raw).hexdigest()
     if digest != LED_J2JOD_SHA256:
+        # Cause unknown by construction: the content pin above has
+        # already passed, so the values are identical and the change
+        # is in the layout (column order, quoting, line endings, ...).
+        # Naming one cause here would be a guess.
         print(
             f"note: LED J2JOD response bytes changed ({digest[:12]} != "
-            f"{LED_J2JOD_SHA256[:12]}) but every value is unchanged; "
-            "the tool reordered columns. Not an error."
+            f"{LED_J2JOD_SHA256[:12]}) while every value is unchanged; "
+            "a layout-only difference. Not an error."
         )
     return path
 
@@ -562,8 +574,14 @@ def build_j2jod_firmsize(cache_dir: Path) -> None:
     status flag 10/12). Column subset and sort only, no
     re-aggregation. Suppressed cells (status flag 11) load as NaN.
     NOTE: the tool's margins are aggregates of the firm-size-coded
-    tabulation, so they sit slightly below the flat-file ``d_fs``
-    margins, which include public-sector (firm size "N") flows.
+    tabulation and do **not** sit systematically below the flat-file
+    ``d_fs`` margins: checked across all 41 quarters the tool is
+    *above* in 37, deviating −1.00% to +2.02% (mean +0.75%). The
+    public-sector (firm size "N") explanation is refuted by that
+    direction — excluding size N could only bias the tool downward.
+    The gap is dominated by independent noise infusion applied to the
+    two tabulations; see the provenance note and
+    ``scripts/check_j2jod_margin_agreement.py``.
     """
     raw = pd.read_csv(fetch_led_j2jod(cache_dir), low_memory=False)
     keep = raw[raw["year"] >= LEHD_START_YEAR].copy()
