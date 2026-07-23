@@ -232,7 +232,65 @@ def apply_earnings(
             )
     else:
         domain = np.ones(len(frame), dtype=bool)
-    if context.rng_registry is None and not domain_restricted:
+    update_columns = tuple(getattr(model, "earnings_frame_update_columns", ()))
+    frame_updates: dict[str, np.ndarray] = {}
+
+    def stateful_draw(
+        selected: pd.DataFrame, selected_rng: np.random.Generator
+    ) -> tuple[np.ndarray, Mapping[str, np.ndarray]]:
+        method = getattr(model, "generate_with_frame_updates", None)
+        if method is None:
+            raise TypeError("stateful earnings model lacks its update method")
+        result = method(selected, context.year, selected_rng)
+        if hasattr(result, "earnings") and hasattr(result, "frame_updates"):
+            return np.asarray(result.earnings), result.frame_updates
+        generated_values, updates = result
+        return np.asarray(generated_values), updates
+
+    if update_columns:
+        if context.rng_registry is None and not domain_restricted:
+            generated, updates = stateful_draw(frame, rng)
+            frame_updates = {
+                column: np.asarray(updates[column], dtype=np.float64)
+                for column in update_columns
+            }
+        else:
+            generated = np.zeros(len(frame), dtype=np.float64)
+            frame_updates = {
+                column: np.full(len(frame), np.nan, dtype=np.float64)
+                for column in update_columns
+            }
+            eligible = (
+                frame.get("age", pd.Series(18, index=frame.index)).to_numpy()
+                >= 15
+            ) & domain
+            for index in np.flatnonzero(eligible):
+                person_id = frame.iloc[index]["person_id"]
+                person_rng = (
+                    context.person_generator(
+                        ProjectionModule.EARNINGS, person_id
+                    )
+                    if context.rng_registry is not None
+                    else rng
+                )
+                draw, updates = stateful_draw(frame.iloc[[index]], person_rng)
+                if draw.shape != (1,):
+                    raise ValueError(
+                        "earnings generator returned the wrong row shape"
+                    )
+                generated[index] = float(draw[0])
+                if set(updates) != set(update_columns):
+                    raise ValueError(
+                        "earnings generator returned the wrong update columns"
+                    )
+                for column in update_columns:
+                    values = np.asarray(updates[column], dtype=np.float64)
+                    if values.shape != (1,):
+                        raise ValueError(
+                            "earnings frame update returned the wrong shape"
+                        )
+                    frame_updates[column][index] = float(values[0])
+    elif context.rng_registry is None and not domain_restricted:
         generated = np.asarray(model.generate(frame, context.year, rng))
     else:
         generated = np.zeros(len(frame), dtype=np.float64)
@@ -258,12 +316,24 @@ def apply_earnings(
         raise ValueError("earnings generator returned the wrong row shape")
     if not np.isfinite(generated).all() or (generated < 0).any():
         raise ValueError("earnings generator returned invalid earnings")
+    for _column, values in frame_updates.items():
+        if values.shape != (len(frame),):
+            raise ValueError("earnings frame update returned the wrong shape")
+        valid = np.isnan(values) | (values == 0.0) | (values == 1.0)
+        if not valid.all():
+            raise ValueError(
+                "earnings refresh state must be null, zero, or one"
+            )
     out = frame.copy()
+    for column, values in frame_updates.items():
+        out[column] = values
     if domain_restricted:
         out[EARNINGS_DOMAIN_COLUMN] = domain
         for column in EARNINGS_CHAIN_STATE_COLUMNS:
             if column in out:
                 out.loc[~domain, column] = np.nan
+        for column in frame_updates:
+            out.loc[~domain, column] = np.nan
     if (
         context.year % 2 == 0
         and "gen_earn_w2" in frame
