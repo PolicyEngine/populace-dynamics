@@ -564,6 +564,28 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
             return abs(math.log(projected_value / expected))
         return abs(projected_value - expected)
 
+    def assert_ulps_equal(actual, expected, *, max_ulps=8):
+        """Compare a rebuilt float across supported Python/libm versions."""
+        if actual is None or expected is None:
+            assert actual is expected
+            return
+        assert not isinstance(actual, bool)
+        assert not isinstance(expected, bool)
+        actual_float = float(actual)
+        expected_float = float(expected)
+        assert math.isfinite(actual_float)
+        assert math.isfinite(expected_float)
+        tolerance = max_ulps * max(
+            math.ulp(actual_float),
+            math.ulp(expected_float),
+        )
+        assert abs(actual_float - expected_float) <= tolerance
+
+    def assert_numeric_mapping(actual, expected):
+        assert set(actual) == set(expected)
+        for key in expected:
+            assert_ulps_equal(actual[key], expected[key])
+
     numeric_objectives = {}
     delete_one_totals = {}
     standardized_by_label = {}
@@ -754,18 +776,24 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
                     )
                     for cell in objective_cells
                 }
-                assert aggregate["scores"] == scores
-                assert aggregate["standardized_scores"] == standardized
-                assert aggregate["objective_contributions"] == contributions
+                assert_numeric_mapping(aggregate["scores"], scores)
+                assert_numeric_mapping(
+                    aggregate["standardized_scores"], standardized
+                )
+                assert_numeric_mapping(
+                    aggregate["objective_contributions"], contributions
+                )
                 assert all(
                     contributions[cell] is not None for cell in objective_cells
                 )
                 for cell in objective_cells:
                     assert contributions[cell] == standardized[cell] ** 2
                 objective = float(
-                    sum(float(contributions[cell]) for cell in objective_cells)
+                    math.fsum(
+                        float(contributions[cell]) for cell in objective_cells
+                    )
                 )
-                assert aggregate["objective"] == objective
+                assert_ulps_equal(aggregate["objective"], objective)
                 by_block[block][boundary_label] = objective
                 standardized_by_label[label][boundary_label][
                     block
@@ -775,11 +803,13 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
         for block, expected_seeds in block_seeds.items():
             objective = rung["objectives"][block]
             assert objective["draw_seeds"] == list(expected_seeds)
-            assert objective["by_boundary"] == by_block[block]
+            assert_numeric_mapping(objective["by_boundary"], by_block[block])
             total = float(
-                sum(by_block[block][str(boundary)] for boundary in boundaries)
+                math.fsum(
+                    by_block[block][str(boundary)] for boundary in boundaries
+                )
             )
-            assert objective["total"] == total
+            assert_ulps_equal(objective["total"], total)
             numeric_objectives[label][block] = total
 
         if any(
@@ -804,12 +834,12 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
             expected_seeds = [seed for seed in draw_seeds if seed != omitted]
             assert record["draw_seeds"] == expected_seeds
             total = float(
-                sum(
+                math.fsum(
                     float(record["by_boundary"][str(boundary)])
                     for boundary in boundaries
                 )
             )
-            assert record["total"] == total
+            assert_ulps_equal(record["total"], total)
             totals.append(total)
         delete_one_totals[label] = totals
 
@@ -1000,9 +1030,29 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
             rung["invalid_reasons"] == invalid_reasons_by_label[label]
         ), trace_message
         assert rung["valid"] is valid_by_label[label], trace_message
-        assert (
-            rung["feasibility_guards"] == guards_by_label[label]
-        ), trace_message
+        published_guards = rung["feasibility_guards"]
+        expected_guards = guards_by_label[label]
+        assert set(published_guards) == set(expected_guards), trace_message
+        for boundary_label in expected_guards:
+            assert set(published_guards[boundary_label]) == set(
+                expected_guards[boundary_label]
+            ), trace_message
+            for cell in expected_guards[boundary_label]:
+                published_guard = published_guards[boundary_label][cell]
+                expected_guard = expected_guards[boundary_label][cell]
+                assert set(published_guard) == set(
+                    expected_guard
+                ), trace_message
+                for field in (
+                    "candidate_standardized_score",
+                    "rho0_standardized_score",
+                    "limit",
+                ):
+                    assert_ulps_equal(
+                        published_guard[field],
+                        expected_guard[field],
+                    )
+                assert published_guard["passed"] is expected_guard["passed"]
         assert rung["feasible"] is feasible_by_label[label], trace_message
         assert (
             rung["strict_improvement_vs_rho0"] == improvements_by_label[label]
@@ -1053,4 +1103,42 @@ def test_findings_whole_file_pin_reproduces_exact_selection_trace():
             "selected_rho": float(weak_selected_label),
         },
     }
-    assert findings["selector"] == expected_selector, trace_message
+    published_selector = findings["selector"]
+    assert set(published_selector) == set(expected_selector), trace_message
+    for field in (
+        "baseline_rho_retained",
+        "effective_search_size",
+        "retained_rho",
+        "rho_min",
+        "rho_within_one_se",
+        "selected_rho",
+        "selected_rho_label",
+        "disposition",
+        "closest_to_zero_tie_break_applied",
+        "strict_vs_weak_improvement_outcome_invariant",
+    ):
+        assert (
+            published_selector[field] == expected_selector[field]
+        ), trace_message
+    for field in (
+        "rho_min_objective",
+        "rho_min_delete_one_mean",
+        "rho_min_jackknife_standard_error",
+        "one_se_cutoff",
+    ):
+        assert_ulps_equal(
+            published_selector[field],
+            expected_selector[field],
+        )
+    published_weak = published_selector["weak_improvement_counterfactual"]
+    expected_weak = expected_selector["weak_improvement_counterfactual"]
+    assert set(published_weak) == set(expected_weak), trace_message
+    for field in (
+        "weakened_comparison",
+        "retained_rho",
+        "rho_min",
+        "selected_rho",
+    ):
+        assert published_weak[field] == expected_weak[field], trace_message
+    for field in ("jackknife_standard_error", "one_se_cutoff"):
+        assert_ulps_equal(published_weak[field], expected_weak[field])
