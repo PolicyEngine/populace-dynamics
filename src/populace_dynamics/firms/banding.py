@@ -87,6 +87,8 @@ __all__ = [
     "CanonicalBand",
     "BandSpan",
     "CANONICAL_BANDS",
+    "CANONICAL_BAND_LABELS",
+    "SPAN_LABEL_SEPARATOR",
     "band_of_count",
     "cps_firmsize_to_canonical",
     "noemp_to_canonical",
@@ -124,8 +126,39 @@ class CanonicalBand(Enum):
     def hi(self) -> float:
         return self.value[1]
 
+    @property
+    def label(self) -> str:
+        """Stable display label for the band (reader-level vocabulary).
+
+        Readers emit this string, never a reader-local band name, so
+        that person-side and target-side *reader* band columns share
+        one vocabulary (#192 step 2; the seam #208 left latent).
+
+        This is a reader/display-level convention, **not** the frozen
+        contract's wire type: the contract defines ``firm_size_band``
+        as the :class:`CanonicalBand` enum, and only an ADR 0003
+        amendment can make the string the wire format.
+        """
+        return CANONICAL_BAND_LABELS[self]
+
 
 CANONICAL_BANDS: tuple[CanonicalBand, ...] = tuple(CanonicalBand)
+
+#: The canonical band vocabulary. These strings — not any reader's
+#: local band names — are what every **reader band column** carries.
+#: The frozen contract's ``firm_size_band`` remains the
+#: :class:`CanonicalBand` enum; these labels are the display/reader
+#: rendering of it, and are not an alternative wire type.
+CANONICAL_BAND_LABELS: dict[CanonicalBand, str] = {
+    CanonicalBand.LT10: "1-9",
+    CanonicalBand.B10_49: "10-49",
+    CanonicalBand.B50_99: "50-99",
+    CanonicalBand.B100_499: "100-499",
+    CanonicalBand.B500_PLUS: "500+",
+}
+
+#: Separator joining the band labels of an inexact (straddling) span.
+SPAN_LABEL_SEPARATOR = "|"
 
 
 @dataclass(frozen=True)
@@ -152,6 +185,17 @@ class BandSpan:
                 "band. Handle the ambiguity explicitly."
             )
         return self.bands[0]
+
+    @property
+    def label(self) -> str:
+        """Wire label: the band label, or the straddled run joined.
+
+        An inexact span renders as e.g. ``"10-49|50-99"`` rather than
+        collapsing to one band, so a consumer that silently treats it
+        as exact produces an unmatchable category instead of a
+        plausible wrong one.
+        """
+        return SPAN_LABEL_SEPARATOR.join(b.label for b in self.bands)
 
 
 def band_of_count(n: int) -> CanonicalBand:

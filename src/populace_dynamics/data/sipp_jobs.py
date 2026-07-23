@@ -49,11 +49,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from populace_dynamics.firms.banding import sipp_empsize_to_canonical
+
 __all__ = [
     "SIPP_JOB_YEARS",
     "MAX_JOB_SLOTS",
     "CLWRK_LABELS",
     "JBORSE_LABELS",
+    "EMPSIZE_CANONICAL_SPANS",
+    "EMPSIZE_CANONICAL_EXACT",
     "read_sipp_job_months",
     "job_spells",
 ]
@@ -86,6 +90,32 @@ JBORSE_LABELS: dict[int, str] = {
 #: EJB{n}_EMPSIZE valid codes (establishment size; banding semantics
 #: live in firms/banding.py, verified on #195).
 _EMPSIZE_CODES = frozenset(range(1, 9))
+
+#: EMPSIZE code -> canonical band-span label, straight from
+#: :func:`populace_dynamics.firms.banding.sipp_empsize_to_canonical`
+#: (the C2 seam, #192 step 2 / #208). **This is establishment size,
+#: not firm size** (#192 finding 1): SIPP's redesign dropped the
+#: all-locations question, so these labels describe the worker's
+#: location and are a proxy-chain input to firm size, never a
+#: substitute for it. The column is named accordingly.
+#:
+#: SIPP's inclusive upper bounds ("10 to 25", "26 to 50", ...)
+#: straddle the canonical 10/50/100/500 edges, so most codes yield an
+#: *inexact* span rendered as e.g. ``"10-49|50-99"``. That is the
+#: contract: an ambiguous source band surfaces as an unmatchable
+#: category rather than being collapsed to a plausible wrong band.
+EMPSIZE_CANONICAL_SPANS: dict[int, str] = {
+    code: span.label
+    for code in sorted(_EMPSIZE_CODES)
+    if (span := sipp_empsize_to_canonical(code)) is not None
+}
+
+#: EMPSIZE code -> whether its canonical span is a single band.
+EMPSIZE_CANONICAL_EXACT: dict[int, bool] = {
+    code: span.exact
+    for code in sorted(_EMPSIZE_CODES)
+    if (span := sipp_empsize_to_canonical(code)) is not None
+}
 
 _MISSING = -9
 _MISSING_ID = -999
@@ -238,8 +268,16 @@ def read_sipp_job_months(
         size — passed through **raw**: valid codes 1-8, the -9
         sentinel for item nonresponse on employer jobs, and NaN for
         self-employment/other arrangements whose establishment size
-        is structurally NIU; downstream consumers such as
-        ``firms/banding.py`` must expect that mix), ``industry``
+        is structurally NIU; ``firms/banding.py`` expects that mix),
+        ``estab_size_band``/``estab_size_band_exact`` (the canonical
+        C2 span for that code, from ``firms/banding.py`` — NaN both
+        wherever ``empsize_code`` is NaN *and* at the -9 item-
+        nonresponse sentinel, which has no band; **establishment**
+        size, so not interchangeable with the ASEC reader's
+        ``canonical_band``. ``estab_size_band_exact`` is object-dtype
+        True/False/NaN, so ``~df[...]`` and truthiness tests mask the
+        NaNs as if they were straddles — compare explicitly),
+        ``industry``
         (string, passed through **unvalidated** — a full
         Census-industry allow-list is impractical, so sentinels can
         appear here and flow into ``job_spells``'s modal logic),
@@ -432,6 +470,11 @@ def read_sipp_job_months(
                 "clwrk": clwrk,
                 "jborse": jborse,
                 "empsize_code": empsize,
+                # The C2 seam. Establishment size, not firm size —
+                # see EMPSIZE_CANONICAL_SPANS. NaN where EMPSIZE is
+                # missing or the slot has no establishment.
+                "estab_size_band": empsize.map(EMPSIZE_CANONICAL_SPANS),
+                "estab_size_band_exact": empsize.map(EMPSIZE_CANONICAL_EXACT),
                 "industry": raw[f"TJB{n}_IND"],
                 "earnings": earnings.where(earnings != _MISSING_ID),
                 "age": raw["TAGE"],
@@ -510,6 +553,10 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
         within person), ``start_year``/``start_month``,
         ``end_year``/``end_month``, ``n_months``, ``job_id``,
         ``industry``/``empsize_code``/``class_of_worker`` (modal),
+        ``estab_size_band`` (the canonical span of the modal
+        ``empsize_code``; no ``_exact`` companion is emitted here, so
+        a spell consumer must detect a straddle by looking for the
+        ``"|"`` separator in the label),
         ``attributes_constant`` (False when any of the three varied
         within the spell — surfaced, never silently averaged),
         ``total_earnings``, ``earnings_share`` (spell earnings over
@@ -551,6 +598,7 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
                 "job_id",
                 "industry",
                 "empsize_code",
+                "estab_size_band",
                 "class_of_worker",
                 "attributes_constant",
                 "total_earnings",
@@ -631,6 +679,12 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
                 "job_id": int(job_id),
                 "industry": modal["industry"],
                 "empsize_code": modal["empsize_code"],
+                # Derived from the *modal code*, not by taking a mode
+                # of labels: one source (firms/banding.py), and the
+                # band can never disagree with the code beside it.
+                "estab_size_band": EMPSIZE_CANONICAL_SPANS.get(
+                    modal["empsize_code"]
+                ),
                 "class_of_worker": modal["class_of_worker"],
                 "attributes_constant": bool(constant),
                 "total_earnings": (
