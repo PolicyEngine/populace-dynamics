@@ -112,3 +112,6 @@ paper/paper_files/
 .vercel/
 scratch/
 *.pkl
+
+# Claude Code local state (agent worktrees are not repo content)
+.claude/
