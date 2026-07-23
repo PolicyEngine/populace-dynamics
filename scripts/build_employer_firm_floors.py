@@ -121,12 +121,24 @@ def _gap_summary(gaps: list[tuple[int, float]]) -> dict:
         for y, g in gaps
         if y not in PANDEMIC_YEARS and (y - 1) not in PANDEMIC_YEARS
     ]
+    # ddof=1. n is 8-11 pairs here, where the population sd
+    # understates by ~5% -- and these sds feed a `mean + k * sd`
+    # threshold policy, so understating them biases thresholds tight
+    # (against the model) rather than harmlessly. It also matches the
+    # A-side batteries' across-seed sds, which the referee round will
+    # read alongside these. A single-pair cell has no dispersion and
+    # yields None rather than 0.0, which would read as a perfect
+    # floor (see the E11 detail window).
     out = {
         "floor_abs_log_ratio_mean": _round(np.mean(full)) if full else None,
-        "floor_abs_log_ratio_sd": _round(np.std(full)) if full else None,
+        "floor_abs_log_ratio_sd": (
+            _round(np.std(full, ddof=1)) if len(full) > 1 else None
+        ),
         "n_pairs": len(full),
         "ex_pandemic_mean": _round(np.mean(ex)) if ex else None,
-        "ex_pandemic_sd": _round(np.std(ex)) if ex else None,
+        "ex_pandemic_sd": (
+            _round(np.std(ex, ddof=1)) if len(ex) > 1 else None
+        ),
         "n_pairs_ex_pandemic": len(ex),
     }
     return out
@@ -325,23 +337,184 @@ def e2_e11_block() -> tuple[dict, dict]:
         },
         "MainB",
     )
-    e2 = {"by_firmsize_all_industry": detail, "sector_cells": summary}
-    e11 = {
-        "status": "floor not derivable from committed extracts",
-        "margin_proxy": (
-            "the ee_hire_rate / ee_separation_rate floors in the E2 "
-            "block are the destination- and origin-size margins of "
-            "the E11 origin x destination matrix"
+    e2 = {
+        "by_firmsize_all_industry": detail,
+        "sector_cells": summary,
+        "by_sex_age": e2_sexage_block(),
+    }
+    e11 = e11_block()
+    return e2, e11
+
+
+#: The rate families carried on the sex x age axis. Same |log YoY
+#: ratio| machinery as the firm-size axis, so the two E2 axes are on
+#: one footing for the referee round.
+SEXAGE_RATE_COLS = {
+    "hire_rate": "hire_rate",
+    "separation_rate": "separation_rate",
+    "j2j_hire_rate": "j2j_hire_rate",
+    "j2j_separation_rate": "j2j_separation_rate",
+}
+
+
+def e2_sexage_block() -> dict:
+    """E2's registered sex x age gate axis (#192; the #228 extract).
+
+    The floor the earlier draft deferred: E2 is registered by sex x
+    age, and until the ``sa`` extract landed the committed
+    tabulations carried no such axis. Cells are the 3 x 9 sex x age
+    grid at the all-industry margin (margins included, so the
+    all-sexes and all-ages rows are floorable too), 2015Q1-2025Q1.
+    """
+    frame = targets.load_j2j_sexage()
+    cells: dict = {}
+    for (sex, agegrp), cell in frame.groupby(["sex", "agegrp"]):
+        min_denom = int(cell["MainB"].min())
+        rec: dict = {
+            "sex": int(sex),
+            "sex_label": cell["sex_label"].iloc[0],
+            "agegrp": agegrp,
+            "agegrp_label": cell["agegrp_label"].iloc[0],
+            "min_denominator_jobs": min_denom,
+            "thin": min_denom < THIN_JOBS,
+        }
+        for name, col in SEXAGE_RATE_COLS.items():
+            rec[name] = {
+                "level_mean": _round(cell[col].mean()),
+                **_gap_summary(_yoy_gaps(cell, col)),
+            }
+        cells[f"sex{int(sex)}_{agegrp}"] = rec
+
+    # Cross-cell summary over the 2 x 8 non-margin cells only: the
+    # margins are aggregates of them, so pooling both would double
+    # count and pull the median toward the (much more stable)
+    # aggregate rows.
+    detail_cells = frame[(frame["sex"] != 0) & (frame["agegrp"] != "A00")]
+    summary: dict = {
+        "n_cells": int(detail_cells.groupby(["sex", "agegrp"]).ngroups),
+        "note": (
+            "non-margin cells only (sex in 1,2 x agegrp A01-A08); the "
+            "all-sexes / all-ages rows are aggregates of these and "
+            "are reported per-cell above, not pooled here"
         ),
     }
-    return e2, e11
+    for name, col in SEXAGE_RATE_COLS.items():
+        means = []
+        n_thin = 0
+        for _, cell in detail_cells.groupby(["sex", "agegrp"]):
+            gaps = _yoy_gaps(cell, col)
+            if not gaps:
+                continue
+            means.append(float(np.mean([g for _, g in gaps])))
+            if int(cell["MainB"].min()) < THIN_JOBS:
+                n_thin += 1
+        summary[name] = {
+            "cell_floor_median": _round(np.median(means)),
+            "cell_floor_p90": _round(np.quantile(means, 0.9)),
+            "cell_floor_max": _round(np.max(means)),
+            "n_cells_with_pairs": len(means),
+            "n_thin_cells": n_thin,
+        }
+    return {"cells": cells, "cross_cell": summary}
+
+
+def e11_block() -> dict:
+    """E11's disposition, restated now that the OD extract exists.
+
+    Not "no extract" any more (#228 commits the full 6 x 6 origin x
+    destination grid) but still not a floorable cross: the national
+    detail is published only for 2015Q1-2016Q1, which yields exactly
+    one same-quarter year-over-year pair per detail cell (2016Q1 vs
+    2015Q1). One pair gives a gap but no dispersion, so no
+    ``mean + k * sd`` floor exists on the detail. The margins run
+    through 2025Q1 and are floorable.
+    """
+    od = targets.load_j2jod_firmsize()
+    detail = od[(od["firmsize"] > 0) & (od["firmsize_orig"] > 0)]
+    observed = detail.dropna(subset=["EE"])
+    quarters = (
+        observed[["year", "quarter"]]
+        .drop_duplicates()
+        .sort_values(["year", "quarter"])
+    )
+    periods = [(int(y), int(q)) for y, q in quarters.to_numpy()]
+    pairs_per_cell = {
+        f"{int(o)}to{int(d)}": len(_yoy_gaps(cell, "EE"))
+        for (o, d), cell in observed.groupby(["firmsize_orig", "firmsize"])
+    }
+    max_pairs = max(pairs_per_cell.values()) if pairs_per_cell else 0
+
+    # EE margins are counts, so their YoY variation carries aggregate
+    # flow growth (a trend, not noise) exactly as raw EarnS carries
+    # nominal wage growth. Both variants are committed, matching the
+    # e7_nominal_trend treatment: `ee` is the raw count and `ee_rel`
+    # is the share of that quarter's all-size EE total, which divides
+    # the common trend out.
+    total = (
+        od[(od["firmsize_orig"] == 0) & (od["firmsize"] == 0)]
+        .set_index(["year", "quarter"])["EE"]
+        .rename("ee_total")
+    )
+    margin = od[(od["firmsize_orig"] == 0) & (od["firmsize"] > 0)].copy()
+    margin = margin.join(total, on=["year", "quarter"])
+    margin["ee_rel"] = margin["EE"] / margin["ee_total"].where(
+        margin["ee_total"] > 0
+    )
+    margin_gaps: dict = {}
+    for code, cell in margin.groupby("firmsize"):
+        observed_cell = cell.dropna(subset=["EE"])
+        margin_gaps[f"firmsize{int(code)}"] = {
+            "firmsize_label": cell["firmsize_label"].iloc[0],
+            "ee": _gap_summary(_yoy_gaps(observed_cell, "EE")),
+            "ee_rel": _gap_summary(_yoy_gaps(observed_cell, "ee_rel")),
+        }
+
+    return {
+        "status": (
+            "detail floor NOT derivable (one YoY pair per cell); "
+            "destination-size margin floor derivable"
+        ),
+        "detail_window": {
+            "observed_quarters": [f"{y}Q{q}" for y, q in periods],
+            "n_quarters": len(periods),
+            "max_yoy_pairs_per_cell": max_pairs,
+            "why_not_floorable": (
+                "the national origin x destination cross is published "
+                "only for 2015Q1-2016Q1 (from 2016Q2 every detail "
+                "cell carries status flag 11); same-quarter "
+                "year-over-year pairing therefore yields at most one "
+                "pair per detail cell, which gives a gap but no "
+                "dispersion, so no mean + k*sd floor exists on the "
+                "cross. This is a different disposition from the "
+                "earlier draft's 'no extract committed': the extract "
+                "exists (#228), the temporal replicate does not"
+            ),
+        },
+        "destination_size_margin": margin_gaps,
+        "cross_source_margin_disagreement": {
+            "all_size_ee_tool_above_flat_file": "37 of 41 quarters",
+            "all_size_ee_deviation_range_pct": [-1.00, 2.02],
+            "per_size_deviation_range_pct": [-3.20, 3.67],
+            "note": (
+                "the LED Extraction Tool's margins and the LEHD flat "
+                "file's d_fs margins are independent publications of "
+                "the same quantity and disagree by up to ~3% in "
+                "either direction (provenance entry 6; reproduce with "
+                "scripts/check_j2jod_margin_agreement.py). Since "
+                "E11's post-2016Q1 constraints are margins-only, this "
+                "cross-source wobble bounds how tight any E11 margin "
+                "threshold can be, independently of the temporal "
+                "floor above"
+            ),
+        },
+    }
 
 
 def build() -> dict:
     e2, e11 = e2_e11_block()
     return {
         "artifact": "employer_firm_floors",
-        "version": "draft_v0",
+        "version": "draft_v0.1",
         "status": "DRAFT - NOT RATIFIED; C3 not locked; no thresholds",
         "issue": "192",
         "workstream": "B",
@@ -350,6 +523,8 @@ def build() -> dict:
             "bds": "data/external/bds_us_firm_size_1978_2022.csv",
             "qwi": "data/external/qwi_us_firmsize_sector_2015on.csv",
             "j2j": "data/external/j2j_us_firmsize_sector_2015on.csv",
+            "j2j_sexage": "data/external/j2j_us_sexage_2015on.csv",
+            "j2jod": "data/external/j2jod_us_firmsize_od_2015on.csv",
             "provenance": ("data/external/employer_firm_target_sources.md"),
         },
         "method": (
@@ -397,23 +572,55 @@ def build() -> dict:
                 "coarsened partition (20_99 kept whole), not on the "
                 "five canonical bands"
             ),
-            "e2_no_age_sex_axis": (
-                "E2 is registered by age x sex, but the committed "
-                "J2J extract is the demographic-free 'd' tabulation "
-                "(and the QWI extract is the all-sex all-age "
-                "margin), matching the ADR 0003 partition rule that "
-                "reserves the sex/age axes for gate cells. The "
-                "floors here are aggregate-side (firm-size x sector) "
-                "stability references only; the age x sex floor "
-                "needs a J2J 'se' tabulation extract and is deferred "
-                "to that extract's commit, before C3 locks"
+            "e2_sex_age_axis_built": (
+                "SUPERSEDES draft_v0's 'e2_no_age_sex_axis'. E2's "
+                "registered sex x age axis is now floored from the "
+                "committed J2J sex x age extract (#228): the full "
+                "3 x 9 grid at the all-industry margin, 2015Q1-"
+                "2025Q1, same |log YoY ratio| machinery as the "
+                "firm-size axis, reported per cell and pooled over "
+                "the 2 x 8 non-margin cells. The firm-size x sector "
+                "floors remain the aggregate-side references they "
+                "always were; the two E2 axes are now on one "
+                "footing. Naming correction carried from the earlier "
+                "draft: LEHD's sex x age tabulation is 'sa'; 'se' is "
+                "sex x EDUCATION, and the draft_v0 finding named the "
+                "wrong one"
             ),
-            "e11_no_od_extract": (
-                "E11's origin x destination firm-size flow reference "
-                "(J2JOD) is not committed (provenance note: 'a "
-                "later, separate extract'), so no E11 floor is "
-                "derivable; the EE hire/separation margins of the "
-                "committed extract are recorded as partial proxies"
+            "e11_extract_committed_but_no_temporal_replicate": (
+                "SUPERSEDES draft_v0's 'e11_no_od_extract', which is "
+                "now factually stale: the origin x destination "
+                "firm-size cross IS committed (#228, the full 6 x 6 "
+                "grid). The obstacle is temporal, not availability. "
+                "The national detail is published only for "
+                "2015Q1-2016Q1 (status flag 11 from 2016Q2), so "
+                "same-quarter year-over-year pairing yields at most "
+                "ONE pair per detail cell — a gap with no "
+                "dispersion, hence no mean + k*sd floor on the "
+                "cross. The destination-size margins run through "
+                "2025Q1 and are floored in the e11 block. A second, "
+                "independent bound on any margin threshold comes "
+                "from cross-source disagreement: the LED tool's "
+                "margins and the LEHD flat file's differ by up to "
+                "~3% in either direction (e11.cross_source_margin_"
+                "disagreement)"
+            ),
+            "release_revision_noise_unfloored": (
+                "a third floorable concept, recorded and NOT built: "
+                "vintage-to-vintage revision noise. LEHD revises "
+                "across releases, and none of the floors here see "
+                "that — every extract is a single release (R2026Q1). "
+                "Observed during the #228 review: LEHD rotated to "
+                "R2026Q2 mid-round and the J2JOD values for "
+                "2015Q1-2025Q1 were unchanged across the rotation "
+                "(all 1,476 rows), which is one datum, on one "
+                "series, over one rotation — suggestive that "
+                "revision noise is small for these aggregates, not "
+                "evidence that it is zero. Building it needs two "
+                "release-stamped vintages of the same series "
+                "committed; the C3 referee round should decide "
+                "whether E1/E2/E6/E7/E11 thresholds must carry a "
+                "revision allowance on top of the temporal floor"
             ),
             "e12_deferred": (
                 "E12 (AKM moments) has no committed extract: AKM "
@@ -432,6 +639,35 @@ def build() -> dict:
                 "full-sample and ex-pandemic figures are committed "
                 "rather than choosing one — the C3 referee round "
                 "picks the formulation with both on the record"
+            ),
+            "floors_not_monotone_in_disaggregation": (
+                "an empirical finding from the sex x age build, and "
+                "a trap for the threshold policy: the temporal "
+                "floor is NOT monotone in disaggregation. Of the 26 "
+                "non-aggregate sex x age cells, the number whose "
+                "ex-pandemic floor is TIGHTER than the all-sexes "
+                "all-ages cell is 13 (hire), 10 (separation), 6 "
+                "(j2j hire), 7 (j2j separation). The pattern is "
+                "interpretable -- the 45-99 age cells are the most "
+                "stable and the 19-34 cells the least, while the "
+                "aggregate carries compositional shift the older "
+                "cells do not -- but the consequence is procedural: "
+                "a floor measured on a margin CANNOT be used as a "
+                "conservative bound for the cells beneath it. Every "
+                "gated cell needs its own floor, or the threshold "
+                "policy must say explicitly which cell's floor "
+                "governs (C3 open question 1)"
+            ),
+            "e11_margin_trend": (
+                "the E11 destination-size margins are EE flow "
+                "COUNTS, so their year-over-year variation carries "
+                "aggregate flow growth (a trend, not noise) exactly "
+                "as raw EarnS carries nominal wage growth. Both are "
+                "committed: 'ee' (raw counts) and 'ee_rel' (share of "
+                "the quarter's all-size EE total, which divides the "
+                "common trend out). The relative variant runs roughly "
+                "half the raw one; the C3 referee round picks the "
+                "formulation, as for E7"
             ),
             "e7_nominal_trend": (
                 "raw EarnS YoY variation embeds aggregate nominal "

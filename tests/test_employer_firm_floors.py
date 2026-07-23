@@ -32,7 +32,7 @@ def artifact() -> dict:
 
 def test_artifact_is_a_draft_with_no_thresholds(artifact):
     assert artifact["artifact"] == "employer_firm_floors"
-    assert artifact["version"] == "draft_v0"
+    assert artifact["version"] == "draft_v0.1"
     assert "DRAFT" in artifact["status"]
     assert "NOT RATIFIED" in artifact["status"]
 
@@ -128,12 +128,28 @@ def test_method_findings_are_recorded(artifact):
         findings["e1_no_sector_replicate"]
     )
     assert "straddles the canonical 50 edge" in findings["e1_bds_straddle"]
-    assert "demographic-free" in findings["e2_no_age_sex_axis"]
-    assert "not committed" in findings["e11_no_od_extract"]
+    # The two findings draft_v0 deferred, now superseded rather than
+    # silently dropped: #228 landed the extracts each one blamed.
+    assert "e2_no_age_sex_axis" not in findings
+    assert "e11_no_od_extract" not in findings
+    assert "SUPERSEDES" in findings["e2_sex_age_axis_built"]
+    assert "'sa'" in findings["e2_sex_age_axis_built"]
+    assert "sex x EDUCATION" in findings["e2_sex_age_axis_built"]
+    assert "SUPERSEDES" in (
+        findings["e11_extract_committed_but_no_temporal_replicate"]
+    )
+    assert "ONE pair per detail cell" in (
+        findings["e11_extract_committed_but_no_temporal_replicate"]
+    )
+    assert "revision" in findings["release_revision_noise_unfloored"]
+    assert "not evidence that it is zero" in (
+        findings["release_revision_noise_unfloored"]
+    )
+    assert "trend, not noise" in findings["e11_margin_trend"]
     assert "must not lock with C3" in findings["e12_deferred"]
     assert "business-cycle" in findings["cycle_signal_in_floors"]
     assert "nominal wage growth" in findings["e7_nominal_trend"]
-    assert artifact["e11"]["status"].startswith("floor not derivable")
+    assert artifact["e11"]["status"].startswith("detail floor NOT")
     assert artifact["e12"]["status"].startswith("deferred")
 
 
@@ -142,3 +158,109 @@ def test_reproduces_from_committed_extracts(artifact):
     from build_employer_firm_floors import build
 
     assert json.loads(json.dumps(build())) == artifact
+
+
+def test_e2_sex_age_axis_is_built(artifact):
+    """E2's registered gate axis has a floor, not a deferral."""
+    block = artifact["e2"]["by_sex_age"]
+    # Full 3 sexes x 9 age groups, margins included.
+    assert len(block["cells"]) == 27
+    for cell in block["cells"].values():
+        for name in (
+            "hire_rate",
+            "separation_rate",
+            "j2j_hire_rate",
+            "j2j_separation_rate",
+        ):
+            floor = cell[name]
+            assert floor["n_pairs"] > 0
+            assert floor["floor_abs_log_ratio_mean"] > 0
+            assert floor["floor_abs_log_ratio_sd"] is not None
+            # Ex-pandemic is a strict subset of the full sample.
+            assert floor["n_pairs_ex_pandemic"] < floor["n_pairs"]
+
+
+def test_e2_sex_age_cross_cell_excludes_the_margins(artifact):
+    """Pooling margins with the cells they aggregate would double count."""
+    summary = artifact["e2"]["by_sex_age"]["cross_cell"]
+    # 2 sexes x 8 age groups; the all-sexes / all-ages rows are out.
+    assert summary["n_cells"] == 16
+    assert "non-margin cells only" in summary["note"]
+
+
+def test_e2_sex_age_floors_are_not_monotone_in_disaggregation(artifact):
+    """A margin's floor does not bound the floors beneath it.
+
+    The intuition that disaggregating can only add noise is wrong
+    here, and the threshold policy depends on knowing that: the
+    45-99 age cells are more temporally stable than the all-sexes
+    all-ages cell, which carries compositional shift they do not.
+    So a floor measured on a margin cannot stand in as a
+    conservative bound for its constituent cells.
+    """
+    cells = artifact["e2"]["by_sex_age"]["cells"]
+    tighter = {
+        family: sum(
+            1
+            for key, cell in cells.items()
+            if key != "sex0_A00"
+            and cell[family]["ex_pandemic_mean"]
+            < cells["sex0_A00"][family]["ex_pandemic_mean"]
+        )
+        for family in (
+            "hire_rate",
+            "separation_rate",
+            "j2j_hire_rate",
+            "j2j_separation_rate",
+        )
+    }
+    assert tighter == {
+        "hire_rate": 13,
+        "separation_rate": 10,
+        "j2j_hire_rate": 6,
+        "j2j_separation_rate": 7,
+    }
+    # And the direction of the pattern: oldest tighter than youngest.
+    assert (
+        cells["sex1_A08"]["separation_rate"]["ex_pandemic_mean"]
+        < cells["sex1_A04"]["separation_rate"]["ex_pandemic_mean"]
+    )
+
+
+def test_non_monotonicity_is_recorded_as_a_finding(artifact):
+    finding = artifact["method_findings"][
+        "floors_not_monotone_in_disaggregation"
+    ]
+    assert "CANNOT be used as a conservative bound" in finding
+
+
+def test_e11_detail_window_gives_one_pair_per_cell(artifact):
+    """The reason the E11 cross has no floor, pinned as a number.
+
+    Not availability -- the extract is committed (#228). The national
+    origin x destination detail is published for 2015Q1-2016Q1 only,
+    so same-quarter YoY pairing yields one pair per cell: a gap with
+    no dispersion, hence no mean + k*sd floor.
+    """
+    window = artifact["e11"]["detail_window"]
+    assert window["n_quarters"] == 5
+    assert window["observed_quarters"][0] == "2015Q1"
+    assert window["observed_quarters"][-1] == "2016Q1"
+    assert window["max_yoy_pairs_per_cell"] == 1
+
+
+def test_e11_margin_relative_floor_is_tighter_than_raw(artifact):
+    """EE counts carry aggregate flow growth, as EarnS carries wages."""
+    for cell in artifact["e11"]["destination_size_margin"].values():
+        assert cell["ee_rel"]["floor_abs_log_ratio_mean"] < (
+            cell["ee"]["floor_abs_log_ratio_mean"]
+        )
+
+
+def test_e11_records_the_cross_source_margin_disagreement(artifact):
+    """The margins-only bound that survives the missing detail."""
+    note = artifact["e11"]["cross_source_margin_disagreement"]
+    assert note["all_size_ee_tool_above_flat_file"] == "37 of 41 quarters"
+    lo, hi = note["per_size_deviation_range_pct"]
+    assert lo < 0 < hi
+    assert "margins-only" in note["note"]
