@@ -1,7 +1,14 @@
 # C3 employer gate block — thresholds, partitions, and rulings
 
 - **Design id**: `2026-07-17-c3-employer-gate-block`
-- **Status**: **DRAFT FOR REFEREE — NOT RATIFIED.** Nothing in this
+- **Status**: **DRAFT FOR REFEREE — NOT RATIFIED. Revision 2**,
+  responding to the round-1 adversarial review of 2026-07-17
+  (verdict: NOT RATIFIABLE AS DRAFTED — 5 blocking, 6 should-fix).
+  Blocking items B1, B3, B4, B5 and should-fix S1 are addressed in
+  this revision; **B2 remains open** — the refereed block YAML is
+  registered as a required pre-lock artifact (§12.2a) and is
+  authored next, after the IC-rename (#277) lands so it is written
+  once under final names. §13 item 6 is answered (§9.1). Nothing in this
   document binds until the lock ceremony flips it (§12). This document
   edits no `gates.yaml` cell, moves no threshold, builds no floor, and
   writes no test. Every number labelled PROPOSED is a proposal to the
@@ -60,11 +67,21 @@ threshold_cell = max( floor_mean_cell + k × floor_sd_cell,
                       substantive_tolerance_gate )
 ```
 
-- `k = 4` PROPOSED, matching the gate-1 precedent band (locked gate-1
-  rules use k in 4.2–8 against seed-level floor sds; the employer
-  floors aggregate 5 seeds or 24–36 year-pairs, so k = 4 on the
-  aggregated sd is the conservative end). The referee round may set k
-  per-gate.
+- `k = 4` PROPOSED **as a policy choice, not as precedent-following**
+  (corrects S1). The locked band is **1.8–8**, not 4.2–8: `gates.yaml`
+  carries k = 4.2 (`:221`), 8 (`:297`), **1.8** (`:327`), **1.9**
+  (`:333`) and 4 (`:493`), plus negative/band ks for minima and
+  two-sided metrics. **Two locked ks sit below the proposed 4**, so
+  precedent does not support 4 as conservative — it brackets it.
+  The argument that does survive is the aggregated-sd one, and only
+  partially: the B-side floors aggregate 24–36 year-pairs, but the
+  SIPP-side floors aggregate 5 seeds *exactly as gate-1's did*, so
+  for E3/E4/E5/E8/E9 there is no aggregation distinction from
+  gate-1 at all and k = 4 is a bare policy choice against a band
+  that reaches 1.8. Recorded as such. The referee round may set k
+  per-gate; the Workstream A response of 2026-07-17 repeated the
+  4.2–8 misquote and is corrected by the same edit (acknowledged
+  2026-07-22).
 - The `substantive_tolerance` term prevents degenerate-floor cells
   (several tenure quantile-gap floors and the E9-stay median floor are
   exactly 0.0 — see §4) from imposing a zero tolerance no model can
@@ -83,15 +100,15 @@ statistic the threshold derives from):
 
 | Gate | Moment | Reference | Floor artifact | Recommended floor basis | First-lock status |
 |---|---|---|---|---|---|
-| E1 | employment share by firm-size band (× sector) | SUSB 2022 | #223 `e1` | SUSB noise-flag CV bounds + BDS YoY margin floor (coarsened `20_99`) | **gated** on the national size margin; sector cross **report-only** (no sector floor) |
+| E1 | employment share by firm-size band (× sector) | SUSB 2022 | #223 `e1` | SUSB noise-flag CV bounds + BDS YoY margin floor (coarsened `20_99`) | **report-only** — B1: every SUSB-derived margin is a deterministic function of a calibration target |
 | E2 | hire/sep/J2J rates by sex × age | LEHD J2J `sa` (#228) | #223 `e2` (aggregate-side); sex×age floor to be built on the #228 extract | ex-pandemic YoY \|log ratio\| | **gated** (after the sex×age floor build) |
 | E3 | tenure quantiles by age | CPS tenure supplement 2020/22/24 | #212 `tenure_floors` | **ECDF max-gap** (heaping-robust) | **gated** |
 | E4 | employer-retention pairs by age × sex | SIPP holdout | #212 `e4_retention_by_age_sex` | \|log rate ratio\| | **gated** (linkage-QC prerequisite, §9) |
 | E5 | multi-window attachment runs by age | SIPP holdout | #212 `e5_runs_by_age` | \|log share ratio\| | **gated** (linkage-QC prerequisite, §9) |
-| E6 | hire/sep flow rates by firm-size (× sector) | QWI | #223 `e6_e7` | ex-pandemic YoY \|log ratio\| | **gated** on size margin; sector cells report-only |
+| E6 | hire/sep flow rates by firm-size (× sector) | QWI | #223 `e6_e7` | ex-pandemic YoY \|log ratio\| | **report-only** — B1: the size margin is a linear functional of the calibrated size × sector cells |
 | E7 | mean earnings (`EarnS`) by firm-size | QWI | #223 `e6_e7` | **aggregate-relative** EarnS floor | **gated** |
 | E8 | nonemployment incidence/duration by age | SIPP holdout | #212 `e8_nonemployment_by_age` | \|log share ratio\| (any/long) | **gated** |
-| E9 | earnings-change dist. by transition type | SIPP holdout | #212 `e9_transitions` | j2j: median + IQR gaps; stay: **IQR only** | **gated** (stay-median report-only) |
+| E9 | earnings-change dist. by transition type | SIPP holdout | #212 `e9_transitions` | j2j: median + IQR gaps; stay: none (both floors degenerate) | **j2j gated; whole stay cell report-only** (B5) |
 | E10 | regression gate: locked PSID gates still pass | existing `gates.yaml` | existing gate-1/2 floors | unchanged | **gated** (always) |
 | E11 | J2J flows origin × destination firm size | LEHD J2JOD (#228) | #228 extract; margins floored via #223 `e2` ee\_\* | margins: ex-pandemic YoY; detail: none derivable | **margins gated; 5-quarter detail report-only** (§7) |
 | E12 | within/between-firm variance, coworker corr. | AKM (Song et al.; KSS) | none | none buildable | **deferred — cannot lock** (§8) |
@@ -113,13 +130,27 @@ Per-gate detail follows.
   coarsened partition keeping `20_99` whole
   (`method_findings.e1_bds_straddle`; `bds_fsize_to_canonical` is
   inexact across the 50 edge).
-- **Recommendation**: gate the **national size margin** on the
-  BDS-stability + CV composite; carry the size × sector cross
-  **report-only** until a sector-axis floor source is committed.
-  Cells with noise flag J (unbounded CV) are report-only.
-- **Alternative for the referee**: gate size × sector using the CV
-  bounds alone as the floor term (pure published-noise basis, no
-  temporal term). Weaker provenance; on the record.
+- **Recommendation (revised under B1): E1 does not gate at first
+  lock.** The previous draft gated the national size margin on the
+  BDS-stability + CV composite, on the reasoning that the coarsened
+  BDS partition "is not something calibration targets". It is —
+  exactly, not approximately: per #223's committed groups `1_9` =
+  LT10 and `10_19` + `20_99` = B10_49 + B50_99 once `20_99` is kept
+  whole, so the coarsened margin is a **merge** of the SUSB margins
+  calibration consumes. Scoring it measures source agreement and
+  calibration convergence, neither of which a candidate can move.
+  House precedent is directly on point: `gates.yaml`
+  `not_certified.stock_margins` — "the trivially-passable-stock
+  problem". Both the margin and the size × sector cross publish
+  report-only, with the CV/BDS composite floor retained as the
+  published diagnostic; noise-flag-J cells stay excluded.
+- **What would make E1 gate**, registered for the referee (§10.6):
+  either calibration stops consuming SUSB size × sector margins (a
+  joint-PR change to frozen ADR 0003, trading calibration fit for
+  gate power), or a genuinely held-out firm-side axis is committed
+  with a floor. The old "CV bounds alone as the floor term"
+  alternative does not help — it changes the floor, not the fact
+  that the statistic is a function of the targets.
 - **Substantive tolerance**: 5% relative share error PROPOSED
   (ECPS-convention "±5% of administrative statistics").
 
@@ -200,10 +231,15 @@ Per-gate detail follows.
   `firms/banding.py`; `firmsize1` "0–19" is an inexact
   `LT10+B10_49` span, recorded) × sector, hire and separation rates
   (#223 `e6_e7`; 36 YoY pairs, full and ex-pandemic committed).
-- **Recommendation**: **ex-pandemic** floors, same rationale and
-  same referee alternative as E2. Gate the size margin; sector cells
-  report-only at first lock (the sector × size axis is close to the
-  calibration margin — §10 keeps gated cells strictly disjoint).
+- **Recommendation (revised under B1): E6 does not gate at first
+  lock.** The previous draft had the reasoning inverted: it demoted
+  the sector × size cells for being "close to the calibration
+  margin" when those cells **are** the calibration targets, and
+  gated their job-weighted aggregate — the size margin — where the
+  per-cell miss terms average out. Under calibration convergence
+  that aggregate passes by construction; under non-convergence it
+  reports calibration residual. Both publish report-only with
+  ex-pandemic floors retained as diagnostics.
 - **Substantive tolerance**: 10% relative rate error PROPOSED.
 
 ### E7 — mean earnings by firm-size (QWI `EarnS`)
@@ -246,11 +282,24 @@ Per-gate detail follows.
   interviewing, so the stay median log-change heaps at exactly 0 and
   its floor is degenerate (0.0/0.0) — same failure class as the E3
   integer heaping.
-- **Recommendation**: gate **stay on the IQR only**
-  (0.0656, floor 0.0 — substantive tolerance operative, PROPOSED
-  0.02 absolute IQR gap in log points); stay-median becomes a
-  report-only identity check (a model reporting a nonzero stay
-  median is informative, not gated). Gate **j2j on both** median
+- **Recommendation (revised under B5): the stay cell does not gate
+  at first lock — both its statistics are report-only.** The
+  previous draft gated stay on the IQR, presenting it as the
+  non-degenerate escape from the median's 0.0/0.0 floor. It is not:
+  `sipp_e8_e9_floors_draft_v0.json`
+  `e9_transitions.earnings_change.stay.floor_abs_iqr_gap` is
+  **also** `{mean: 0.0, sd: 0.0}`, so the "IQR-only" gate was 100%
+  the hand-set 0.02 with no stated basis — a hand-set number
+  gating alone, which the campaign rule forbids. Both stay
+  statistics publish as report-only identity checks (a model
+  reporting a nonzero stay median or a non-degenerate stay IQR is
+  informative, and worth seeing, but neither can gate against a
+  degenerate floor). The referee's alternative — defend 0.02 —
+  was available and is declined: the honest defence would have to
+  be a substantive claim about how much within-job earnings
+  variation a model may invent, and SIPP cannot measure that
+  quantity at all under dependent interviewing, so any number
+  would be invented rather than derived. Gate **j2j on both** median
   (0.2264, floor 0.0766 ± 0.0345) and IQR (1.069, floor
   0.0842 ± 0.0522). Referee alternative for stay: a full
   distributional distance (e.g. the harness energy-distance block)
@@ -286,8 +335,12 @@ must not gate on directly:
 
 1. **E3 tenure quantile gaps**: exactly 0.0 in 36/63 cells (integer
    heaping) → ECDF max-gap recommended (#212).
-2. **E9 stay median**: floor exactly 0.0/0.0 (wave-constant
-   reporting) → IQR recommended (#212).
+2. **E9 stay median AND stay IQR**: *both* floors exactly 0.0/0.0
+   (wave-constant reporting under dependent interviewing) → the
+   whole stay cell is report-only (#212; corrected under B5 — the
+   previous version of this register listed only the median and
+   presented the IQR as the non-degenerate escape, which it is
+   not).
 3. **E1 sector axis**: no floor derivable from committed extracts
    (single-vintage SUSB) → report-only (#223).
 4. **E11 detail cells**: no floor derivable (five-quarter published
@@ -449,6 +502,52 @@ precedes the one-shot run; passing uses the one-sided confidence
 bound, not the observed proportion; a failed floor invalidates the
 cell (no threshold shopping); linkage failure never weakens E10.
 
+### 9.0 Linkage-bias reweighting (ADR 0004 §3)
+
+**Closes blocking item B4.** #224 is three-part by its own title —
+precision floors, adjudication samples, **linkage-bias
+reweighting** — and the previous draft operationalized the first
+two and silently dropped the third, while §13 claimed to enumerate
+"every decision this draft leaves to the referee". First-lock
+scoping to E4/E5 narrows the strata; it does not repeal §3. E4 and
+E5 are link-consuming gated cells, so ADR 0004 §3.4 binds them:
+every link-consuming cell publishes **weighted and unweighted**,
+with the operative version chosen **before candidate results are
+seen**.
+
+Instantiated at first-lock scope, from Workstream A's offer
+(2026-07-22) with the B-side registrations added:
+
+- **Analysis unit**: the adjacent-month job-pair. **Clustering**:
+  worker (a person contributes many pairs; they are not
+  independent).
+- **Target reference population**: all adjacent-month job-pairs in
+  the #235 within-wave frame (384,747 job-holdings), *not* the
+  adjudicated subsample — the reweighting exists to carry audit
+  results from the sample to the frame.
+- **Candidate observables `X`**: age band, sex, industry section,
+  establishment-size code (IC2 span, inexactness carried), earnings
+  tercile, multi-job flag, and the **seam-vs-within indicator** —
+  the last is load-bearing, since #214/#235 establish the seam as
+  the dimension along which attachment behaviour differs most.
+- **Weight construction**: inverse of a registered logistic
+  adjudication-inclusion propensity over `X`, trimmed at a
+  registered percentile.
+- **Overlap/balance tolerances, trimming percentile, propensity
+  specification**: REFEREE (ADR 0004 §6.4) — added to §13 as item
+  16.
+- **Operative version** (weighted vs unweighted) for E4, E5 and —
+  when they promote — E9, E11, E12: REFEREE, registered **before**
+  any candidate scores exist, per §3.4. Added to §13 as item 17.
+- **Publication rule**: both versions publish for every
+  link-consuming cell regardless of which is operative; a divergence
+  between them is itself a reportable finding, not a nuisance to be
+  resolved silently.
+
+Not in first-lock scope but registered so promotion cannot skip it:
+E9, E11 and E12 acquire their own §3 instantiation at promotion
+time, never inheriting this one (the §9 no-inheritance rule).
+
 ### 9.1 Imputed firm-size bands: no admissible truth frame
 
 **The finding.** There is no admissible per-record truth frame for a
@@ -566,39 +665,169 @@ the reference for a cell conditioned on it, which is the same
 partition-integrity principle as blocking item B1 applied to
 conditioning variables rather than to gated statistics.
 
-## 10. Calibration/gate cell partition (explicit lists)
+## 10. Calibration/gate cell partition (exhaustive, E1-E12)
 
-Per ADR 0003's partition rule, registered here as the explicit lists
-that lock with C3:
+**Re-issued in full to close blocking item B1(ii).** The previous
+version listed two calibration families and four gate axes and
+omitted E6 and E7 on both sides — an enumeration that cannot
+support a mutation test, because a gate with no registered cells
+has nothing to mutate. This version enumerates every gate, its
+disposition, and the reason it is or is not disjoint from fitting.
 
-**Calibration cells (consumed by `microcalibrate`; never gated):**
+### 10.1 The ONLY quantifier (binds every fitting stage)
 
-- SUSB employment margins: canonical size band × NAICS sector
-  (`susb_us_sector_size_2022.csv`), SUSB universe (private,
-  excluding NAICS 92, crop/animal production, non-employers —
-  `class_of_worker` scoping per C1).
-- QWI flow margins: firm-size × sector hire and separation rates
+Registered as binding, not as description:
+
+> **No stage that fits, calibrates, reweights, or tunes any part of
+> the employer layer may consume any statistic listed in §10.3, on
+> any source, at any aggregation, in any phase.** "Stage" means
+> `microcalibrate` reweighting, phase-1 transition-hazard
+> calibration, QRF hyperparameter selection, and any post-hoc
+> alignment or raking step, whether or not it is called
+> calibration.
+
+The old §10 constrained `microcalibrate` alone. #192 phase 1 has
+hazards "calibrated to QWI/J2J", so hazard calibration was an
+unregistered consumer — which left the E2 sex × age and E11-margin
+holdouts unenforceable exactly where they matter. The quantifier
+above closes that; the draft YAML (B2) carries the §10.3 list in
+machine-checkable form so a dropped, added, or renamed cell fails a
+test.
+
+**Corollary, registered explicitly** (§9.1): a statistic is not
+held out merely because calibration did not target it *by name*. A
+deterministic function of calibration targets — a margin, a merge,
+a coarsening, any linear functional — is a calibration target. This
+is the test B1 applied to E1 and E6, and it is the test §10.3 must
+be read under.
+
+### 10.2 Calibration inputs (consumed by fitting; never gated)
+
+- **SUSB employment margins**: canonical size band × NAICS sector
+  (`susb_us_sector_size_2022.csv`), SUSB universe (private, ex
+  NAICS 92, crop/animal production, non-employers; `class_of_worker`
+  scoping per IC1).
+- **QWI flow margins**: firm-size × sector hire and separation rates
   (`qwi_us_firmsize_sector_2015on.csv`, ownership `op`).
+- **Every deterministic function of the above**, per §10.1's
+  corollary — including the national size margins of both, and the
+  BDS coarsened partition (`1_9` = LT10 exact; `10_19` + `20_99` =
+  B10_49 + B50_99 exact once `20_99` is kept whole), which is a
+  merge of the SUSB margins calibration consumes.
+- **Phase-1 hazard-calibration references**: the J2J/QWI *national
+  flow levels* used to set hazard rates per the #214 seam ruling
+  (J2J for levels). Registered here as a fitting input so §10.1
+  binds it.
 
-**Gate cells (held-out axes; calibration never touches):**
+### 10.3 Gated cells (held out from every fitting stage)
 
-- E2: **sex × age** hire/sep/J2J rates (#228
-  `j2j_us_sexage_2015on.csv`).
-- E11 margins: origin-/destination-size EE flow margins (J2JOD).
-- **Firm-age axis** (QWI/BDS firm-age): registered as a held-out
-  gate axis; report-only at first lock pending a committed firm-age
-  extract and floor.
-- **State axis** (QWI state-level): registered held-out; report-only
-  at first lock, same condition.
-- E1's gated national size margin is scored against BDS/SUSB
-  *stability*, with the calibration consuming the SUSB level margins
-  — the referee round must confirm this E1 treatment (gating a
-  margin whose level is calibrated is only meaningful on held-out
-  structure; the recommended E1 gate is therefore the coarsened
-  BDS-partition margin, which calibration does not target, plus the
-  report-only sector cross). This is §13 item 3.
-- The SIPP-side gates (E3/E4/E5/E8/E9) and E10 are disjoint from
-  calibration by construction (different sources).
+| gate | gated cell family | disjointness basis |
+|---|---|---|
+| E2 | sex × age hire/sep/J2J rates (#228 `sa` extract) | demographic axes; no fitting stage consumes a sex- or age-crossed statistic |
+| E3 | tenure ECDF max-gap by age (CPS supplement) | different source; not a calibration input |
+| E4 | employer-retention pairs by age × sex (SIPP holdout) | different source, held-out persons |
+| E5 | multi-window attachment runs by age (SIPP holdout) | different source, held-out persons |
+| E7 | **aggregate-relative** `EarnS` gradient by firm size | calibration consumes QWI *flow* margins (hire/sep), never `EarnS`; earnings is an untouched axis of the same file |
+| E8 | nonemployment incidence/duration by age (SIPP holdout) | different source, held-out persons |
+| E9 | j2j earnings-change median + IQR (SIPP holdout) | different source, held-out persons |
+| E10 | the locked PSID gates, re-scored | PSID; disjoint by construction |
+| E11 | destination-size EE flow **margins** (J2JOD) | J2JOD is not a calibration input; see the caveat below |
+
+**E11 caveat, registered rather than assumed.** J2JOD margins are
+not consumed by fitting *as committed*, but they are close kin to
+the QWI/J2J flow margins that are. They stay gate-eligible on the
+condition that §10.2's hazard-calibration references are pinned to
+the QWI/J2J extracts and never extended to J2JOD. If a future
+phase calibrates to J2JOD, E11 margins move to §10.4 by this
+rule, without a further referee round.
+
+### 10.4 Report-only at first lock (not gated)
+
+| gate | cell family | why not gated |
+|---|---|---|
+| **E1** | national size margin **and** size × sector cross | **B1**: both are deterministic functions of the SUSB margins calibration consumes. The coarsened BDS partition is an exact merge of them, so scoring it tests source agreement and calibration convergence — neither of which a candidate can influence. House precedent: `gates.yaml` `not_certified.stock_margins`, "the trivially-passable-stock problem". The CV/BDS composite floor is retained as a published diagnostic |
+| **E6** | size margin **and** size × sector cells | **B1**: the size margin is a job-weighted aggregate of the calibrated size × sector cells — a linear functional of calibration targets. Under convergence it passes by construction; under non-convergence it measures calibration residual. The old draft had this inverted, demoting the sector cells (the literal targets) while gating their aggregate, where miss terms average out. Floors retained as diagnostics |
+| E7 | raw `EarnS` levels | nominal trend, not noise (#223); the gradient carries the signal |
+| E9 | stay median **and** stay IQR | both floors degenerate — see §4 and §11.4 (B5) |
+| E11 | 5-quarter origin × destination detail | no temporal replicate: one YoY pair per cell (#223 v1 `e11.detail_window`) |
+| E9/E11 | any firm-size-**conditional** cell | §9.1 Tier 0 — no admissible truth frame, **permanently** report-only |
+| — | firm-age axis (QWI/BDS) | held-out axis registered, but no committed extract or floor |
+| — | state axis (QWI state-level) | held-out axis registered, no committed extract or floor |
+
+### 10.5 Deferred (cannot lock)
+
+| gate | status |
+|---|---|
+| E12 | no adjudicable reference exists (§8); phase-2 no-go rule attaches |
+
+### 10.6 What B1 costs, stated plainly
+
+Demoting E1 and E6 leaves the first lock gating **E2, E3, E4, E5,
+E7, E8, E9(j2j), E10, E11(margins)** — nine gates, of which only
+E2, E7 and E11-margins are firm-side. The employer block's
+firm-side gating power at first lock is therefore thinner than the
+#192 plan implied, and this document should not disguise that: the
+alternative on offer is not a stronger block but a block whose
+firm-side gates pass by construction.
+
+Two routes exist to restore firm-side power, both out of scope for
+first lock and both registered here as the honest options: (a) stop
+calibrating to QWI flow margins and gate them instead — a joint-PR
+change to the frozen IC2/ADR 0003 partition, trading calibration
+fit for gate power; (b) commit a genuinely held-out firm-side
+reference (firm-age or state axis) with a floor, promoting through
+the standard ceremony.
+
+## 10A. Substantive-tolerance basis register (B5)
+
+Under `threshold = max(floor mean + 4·sd, substantive_tolerance)`
+the hand-set term **is the operative threshold** wherever the floor
+is small or degenerate. Round 1 found seven tolerances with no
+stated basis. The campaign rule is that a hand-set number may gate
+only as an explicitly disclosed policy choice **with a rationale**,
+so each is given one here or the cell stops gating.
+
+| tolerance | value | operative? | basis |
+|---|---|---|---|
+| E1 | 5% relative share | n/a — report-only under B1 | ECPS convention ("±5% of administrative statistics"). Retained for the published diagnostic |
+| E2 | 10% relative rate | rarely (floors 0.055–0.097 dominate) | a 10% error in a demographic-specific hire/separation rate changes the implied annual turnover of that group by ~1pp at observed levels — below the smallest published J2J demographic gradient the model is meant to reproduce. Disclosed policy choice |
+| E3 | 0.02 ECDF gap | often | largest adult-band ECDF floors (#212); a 2pp shift in the tenure CDF at any point is ~0.4 years at observed density — within the CPS supplement's own rounding |
+| E4 | 0.005 \|log ratio\| | most cells (floors 0.0003–0.0020) | anti-**understatement** posture, stated: the E4 floors are so tight that floor+4·sd would gate on differences no consumer could act on. 0.005 is ~0.5% relative retention error. Deliberately the binding term |
+| E5 | 0.05 \|log share ratio\| | sometimes (floors 0.011–0.049) | one order of magnitude above the E4 bound, reflecting that multi-window run shares compound single-window error over the window length (ADR 0004 §4's compounding argument, applied to tolerance rather than to audit) |
+| E6 | 10% relative rate | n/a — report-only under B1 | as E2. Retained for the diagnostic |
+| E7 | 5% relative gradient | sometimes (floors 0.005–0.012 relative) | the firm-size earnings gradient is the quantity firm-size policy reads; 5% of the observed large-vs-small gradient is smaller than the gap between adjacent canonical bands, so a passing model preserves band ordering |
+| E8 | 0.10 \|log share ratio\| | sometimes (floors 0.05–0.20) | nonemployment incidence drives benefit-eligibility spells; 10% relative error on an age-band incidence is ~1pp at observed levels, below the ASEC-vs-SIPP level disagreement for the same concept |
+| E9 j2j | none set | no (floors 0.0766 / 0.0842 dominate) | not needed; floors are non-degenerate |
+| E9 stay | **withdrawn** | — | was 100% operative against a degenerate floor with no basis; cell demoted to report-only (§3-E9, B5) |
+| B-side thin flag | 10,000 jobs | — | below |
+
+**The 10,000-job thin flag** (§13 item 14's B side, previously "a
+draft choice"). Reference calculation: treat a cell's YoY \|log
+ratio\| as if the flow count were binomial in the denominator —
+`sd ≈ sqrt(2(1-p)/(Np))`. At a typical p ≈ 0.10 separation rate:
+
+| N (jobs) | implied \|log ratio\| sd |
+|---|---|
+| 2,000 | 0.095 |
+| 5,000 | 0.060 |
+| **10,000** | **0.042** |
+| 20,000 | 0.030 |
+| 50,000 | 0.019 |
+
+The measured B-side floors run 0.035–0.097. So at N = 10,000 the
+pure count-noise term (0.042) is already the same size as the
+smallest floors we measure, and below 10,000 it exceeds them —
+meaning the "floor" would be measuring the denominator rather than
+the source's temporal stability, which is what it is for.
+
+**Stated honestly**: LEHD cells are noise-infused population
+counts, not samples, so this is an order-of-magnitude analogy and
+not a derivation. It is offered as the *disclosed basis for a
+policy choice*, which is what the campaign rule requires — not as a
+sampling result. The A-side 200-person rule has a directly
+comparable rationale on the record (Workstream A, 2026-07-17: at
+p ≈ 0.5 a 200-person half gives a half-vs-half \|log ratio\| sd
+near 0.14).
 
 ## 11. The three unit rules (ADR 0003) — C3 dispositions
 
@@ -632,10 +861,51 @@ in `docs/design/m6_projection_engine.md`):
 
 1. This document circulates for the **referee round** (adversarial
    review; every §13 item answered on the record).
-2. Required pre-lock artifacts land: the E2 sex×age floor build
-   (§3-E2), the cross-wave job-ID check (§6), the E4/E5 minimal
-   audit manifest (§9), and promotion of the four draft floor
-   artifacts to sha256-pinned `v1` with reproduction tests.
+2. Required pre-lock artifacts land **and are immutable**
+   (closes blocking item B3):
+   - The E2 sex×age floor build (§3-E2) — **delivered**, #223
+     `draft_v0.1` → `employer_firm_floors_v1.json`.
+   - The cross-wave job-ID check (§6) — #235.
+   - The E4/E5 minimal audit manifest (§9) — #236.
+   - Promotion of the four draft floor artifacts to sha256-pinned
+     `v1` with reproduction tests, meeting the M6 byte-reproduction
+     standard (pinned builder → byte-identical artifact, zero hand
+     edits, reproduction test covering metadata keys) — S5.
+   - **#224 merged to master, with the three adopted changes folded
+     into `docs/adr/0004-linkage-qc.md`'s text.** A locked block
+     whose normative ADR exists only as a branch file amended by
+     comment thread is not a locked contract.
+   - **Every cited evidence PR merged to master** (#212, #223,
+     #228, #235, #236, #274) and **every consumed artifact
+     sha256-pinned at its merge commit**. The draft's evidence base
+     is currently "cited by branch pending merge" over force-pushable
+     refs; the round-1 as-reviewed pin list is the record of what
+     round 1 saw, and the amendment PR must pin what the *lock*
+     sees.
+   - The IC1/IC2/IC3 rename (#277) merged, so the block YAML is
+     authored once under its final names rather than renamed after
+     being refereed.
+2a. **The refereed block YAML** (closes blocking item B2, part 1).
+   A committed `docs/design/c3_employer_gate_block_draft.yaml` —
+   enumerated cells for every gate, `derivations` blocks in the
+   `tests/test_gates_derivations.py` pattern, the §10.3/§10.4
+   partition in machine-checkable form, `locked: false` — is a
+   pre-lock artifact, refereed in this round's continuation and
+   carried **verbatim with exactly the lock-time deltas** at the
+   flip (the gate_m6 precedent, `gates.yaml:5327-5332`). Prose plus
+   PROPOSED numbers is not a refereeable block: transcription
+   errors, silent cell additions and derivation drift would first
+   appear in the amendment PR, unrefereed.
+
+2b. **Referee verification before merge** (B2, part 2). The
+   campaign ceremony is draft → adversarial referee → fixes →
+   **verification** → ratify-by-merge. M6 ran an explicit referee
+   re-check before its flip. §12.3's cross-workstream approval is a
+   party check and does not substitute. The amendment PR carries an
+   M6-style lock table: builder script commits, artifact sha256s,
+   the complete authorized edit surface, and guard tests including
+   cell-count mutation pins.
+
 3. A single **amendment PR to `gates.yaml`** adds the employer block
    with referee-resolved numbers, machine-checkable derivations
    (`tests/test_gates_derivations.py` pattern), and `locked: true`;
@@ -697,3 +967,17 @@ Every decision this draft leaves to the referee, enumerated:
 15. **ASEC reference-period mismatch** (ADR 0003 conditioning DAG):
     confirm its carriage as a known label-misalignment note on the
     affected gate cells.
+16. **Linkage-bias reweighting numerics** (ADR 0004 §6.4, added
+    under B4, §9.0): propensity specification, overlap/balance
+    tolerances, and the trimming percentile.
+17. **Operative weighting version** (ADR 0004 §3.4, added under
+    B4): weighted or unweighted as operative for E4/E5 — and for
+    E9/E11/E12 at promotion — registered **before** any candidate
+    scores exist.
+18. **E9-stay disposition** (B5): confirm the withdrawal of the
+    0.02 stay tolerance and the demotion of both stay statistics
+    to report-only, or supply a defended substantive basis for a
+    stay gate against a degenerate floor.
+19. **B1's cost** (§10.6): confirm that first-lock firm-side
+    gating rests on E2, E7 and E11-margins only, or direct one of
+    the two registered routes to restore firm-side power.
