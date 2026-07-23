@@ -17,6 +17,9 @@ from typing import Any
 
 __all__ = [
     "CANDIDATE_2",
+    "CANDIDATE_3",
+    "CORRELATED_REFRESH_OPERATION_ID",
+    "CORRELATED_REFRESH_OPERATION_KIND",
     "RANK_REFRESH_OPERATION_ID",
     "RANK_REFRESH_OPERATION_KIND",
     "REGISTRY",
@@ -26,6 +29,8 @@ __all__ = [
 
 RANK_REFRESH_OPERATION_KIND = "forward_earnings.rank_refresh"
 RANK_REFRESH_OPERATION_ID = "stable_coordinate_exact_age_weighted_knn.v1"
+CORRELATED_REFRESH_OPERATION_KIND = "forward_earnings.correlated_refresh"
+CORRELATED_REFRESH_OPERATION_ID = "stationary_markov_reset_on_gap.v1"
 
 
 def _freeze(value: Any) -> Any:
@@ -132,6 +137,21 @@ CANDIDATE_2 = CandidateSpec(
     ),
 )
 
+CANDIDATE_3 = CandidateSpec(
+    candidate_id="m6_candidate3_engine_v1",
+    contract_revision="m6_amendment_6_rhostar_lock_2026_07_23",
+    operations=(
+        *CANDIDATE_2.operations,
+        OperationSpec(
+            kind=CORRELATED_REFRESH_OPERATION_KIND,
+            implementation_id=CORRELATED_REFRESH_OPERATION_ID,
+            params={"rho": -0.60},
+        ),
+    ),
+)
+
 # Candidate 1 has no additive engine operation and deliberately has no entry.
 # Its existing family and earnings specs remain the only incumbent authority.
-REGISTRY: Mapping[int, CandidateSpec] = MappingProxyType({2: CANDIDATE_2})
+REGISTRY: Mapping[int, CandidateSpec] = MappingProxyType(
+    {2: CANDIDATE_2, 3: CANDIDATE_3}
+)

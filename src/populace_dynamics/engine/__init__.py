@@ -6,6 +6,7 @@ from populace_dynamics.engine.assembly import (
 )
 from populace_dynamics.engine.candidates import (
     CANDIDATE_2,
+    CANDIDATE_3,
     CandidateSpec,
     OperationSpec,
 )
@@ -68,6 +69,7 @@ from populace_dynamics.engine.support import (
 __all__ = [
     "BOUNDARY_YEAR",
     "CANDIDATE_2",
+    "CANDIDATE_3",
     "AgeSexMortalityModel",
     "CertifiedEngineInputs",
     "ClaimingSchedule",

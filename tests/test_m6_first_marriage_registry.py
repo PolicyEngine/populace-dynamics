@@ -450,6 +450,20 @@ def test_prefreeze_and_frozen_specs_are_first_marriage_only_siblings(
     assert sibling_definition.fitter(context, {}) is fitted
 
 
+def test_candidate3_reuses_exact_candidate2_frozen_family_spec():
+    candidate2 = ft_registry.M6_CANDIDATE_2
+    candidate3 = ft_registry.M6_CANDIDATE_3
+
+    assert candidate3 is candidate2
+    assert candidate3.canonical_dict() == candidate2.canonical_dict()
+    assert candidate3.components is candidate2.components
+    assert candidate3.candidate_id == "m6_candidate2_registry_v1"
+    assert candidate3.sha256 == candidate2.sha256
+    assert candidate3.sha256 == (
+        "734a5b04f347c5d4904bbc6d5ab9a1c2876272d35284eedd2f450518acf1cec5"
+    )
+
+
 def test_prefreeze_reference_is_not_a_live_component_definition():
     reference = next(
         component
@@ -667,6 +681,7 @@ def test_fit_audit_and_model_pickle_round_trip():
     audit = model.fit_audit
     assert audit is not None
 
+    assert "__reduce__" in type(audit).__dict__
     restored_audit = pickle.loads(pickle.dumps(audit, protocol=5))
     assert restored_audit.canonical_dict() == audit.canonical_dict()
     with pytest.raises(TypeError):
