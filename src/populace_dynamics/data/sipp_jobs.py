@@ -503,8 +503,10 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
 
     A spell is a maximal run of consecutive reference months for one
     (person, job id). The output mirrors the IC1 spell schema of ADR
-    0003 (Proposed — this is a preview, not the frozen contract) and
-    doubles as Workstream B's generator for IC1-conforming fixtures.
+    0003, which is **Accepted and frozen**; what remains preview-grade
+    is this collapse's own coverage (single ``ref_year`` only — see
+    below), not the schema's status. It doubles as Workstream B's
+    generator for IC1-conforming fixtures.
 
     Args:
         job_months: Output of :func:`read_sipp_job_months`.

@@ -255,11 +255,11 @@
 <div class="card" style="margin-top:14px">
   <span class="tag" style="color:#ffb74d">INTERFACE CONTRACTS — frozen week 1, changed only by joint PR</span>
   <ul class="muted">
-    <li><b>C1 · Spell schema.</b> One table: <code>person_id, spell_id, start_period, end_period, industry (major), firm_size_band, earnings_share, primary_job</code>. A writes it, B reads it. Firm-size bands use the canonical banding B defines (C2). Multi-job resolved primary-job-only in phase 0.</li>
-    <li><b>C2 · Canonical firm-size banding + semantics.</b> B proposes the band set reconcilable across NOEMP / SIPP-establishment / SUSB-enterprise, and the decision of what the variable <i>means</i> (administrative firm size, per review F5). A trains to it; documented in the ADR.</li>
-    <li><b>C3 · Gate pre-registration.</b> Jointly authored employer gate block (E1–E12 thresholds after floor runs), split ownership as above, one referee round, locked before any candidate runs. Neither side's model work may start a one-shot run until C3 locks.</li>
+    <li><b>IC1 · Spell schema.</b> One table: <code>person_id, spell_id, start_period, end_period, industry (major), firm_size_band, earnings_share, primary_job</code>. A writes it, B reads it. Firm-size bands use the canonical banding B defines (IC2). Multi-job resolved primary-job-only in phase 0.</li>
+    <li><b>IC2 · Canonical firm-size banding + semantics.</b> B proposes the band set reconcilable across NOEMP / SIPP-establishment / SUSB-enterprise, and the decision of what the variable <i>means</i> (administrative firm size, per review F5). A trains to it; documented in the ADR.</li>
+    <li><b>IC3 · Gate pre-registration.</b> Jointly authored employer gate block (E1–E12 thresholds after floor runs), split ownership as above, one referee round, locked before any candidate runs. Neither side's model work may start a one-shot run until IC3 locks.</li>
   </ul>
-  <p class="muted" style="margin-top:6px"><b>Sync points</b>: week 1 (freeze C1/C2), week 4 (lock C3), week 10 (joint phase-2 go/no-go with Max). Everything else is asynchronous — A can build readers/imputation against fixture spells; B can build the target pipeline and register against a synthetic spell file conforming to C1.</p>
+  <p class="muted" style="margin-top:6px"><b>Sync points</b>: week 1 (freeze IC1/IC2), week 4 (lock IC3), week 10 (joint phase-2 go/no-go with Max). Everything else is asynchronous — A can build readers/imputation against fixture spells; B can build the target pipeline and register against a synthetic spell file conforming to IC1.</p>
 </div>
 
 <h2>Precedents — what similar projects did</h2>
@@ -277,8 +277,8 @@
 <h2>Milestones</h2>
 <div class="tbl-scroll"><table>
   <tr><th>Workstream A — Daphne (person side)</th><th>Workstream B — Vahid (firm side)</th></tr>
-  <tr><td>SIPP job-level reader (label-verified, <code>family.py</code> pattern); CPS NOEMP/tenure loaders; ADR drafted jointly · <b>freeze C1/C2</b></td><td>Target pipeline: SUSB/BDS/QWI/J2J/JOLTS extracts committed with provenance notes; canonical banding proposal (C2)</td></tr>
-  <tr><td>SIPP noise-floor runs; seam-vs-J2J reconciliation run; draft E3–E5/E8–E10 thresholds</td><td>Aggregate-side floor studies; target/gate partition; draft E1/E2/E6/E7/E11 thresholds · <b>joint: referee round, lock C3</b></td></tr>
+  <tr><td>SIPP job-level reader (label-verified, <code>family.py</code> pattern); CPS NOEMP/tenure loaders; ADR drafted jointly · <b>freeze IC1/IC2</b></td><td>Target pipeline: SUSB/BDS/QWI/J2J/JOLTS extracts committed with provenance notes; canonical banding proposal (IC2)</td></tr>
+  <tr><td>SIPP noise-floor runs; seam-vs-J2J reconciliation run; draft E3–E5/E8–E10 thresholds</td><td>Aggregate-side floor studies; target/gate partition; draft E1/E2/E6/E7/E11 thresholds · <b>joint: referee round, lock IC3</b></td></tr>
   <tr><td>Phase-0 QRF imputation of spells + attributes onto CPS</td><td>Calibration of the imputed file to partitioned QWI/SUSB cells; E1/E7 evidence artifacts</td></tr>
   <tr><td>Phase-1 transition candidates registered; one-shot runs against locked gates</td><td>BLM firm-type register prototype; E12 feasibility study (are published AKM/coworker moments sufficient targets?)</td></tr>
   <tr><td colspan="2"><b>Joint</b>: phase-2 go/no-go review with Max, based on committed gate evidence + the E12 identification story</td></tr>

@@ -34,6 +34,14 @@ fingerprint side already carries.
 Prior discussion (issue #192, the ADR history, merged PR bodies)
 uses the old names and is not rewritten; this note is the mapping.
 
+**Boundary: history keeps the old names, live documents are
+renamed.** The plan (`docs/plans/employer-firm-plan.html`), cited by
+the Context section below as the operative split, is a live document
+and is renamed with this amendment, so a referee following the ADR's
+own link does not meet unmapped names. The unrenamed senses in the
+table above (the locked `gates.yaml` fingerprints, the SSA table
+labels, the RNG substream) remain as they are, by the reasons given.
+
 **Sign-off:** @vahid-ahmadi (Workstream B, author) ·
 @daphnehanse11 (Workstream A) — the joint sign-off is recorded by
 the merge of the freeze PR: authorship by one workstream owner plus
