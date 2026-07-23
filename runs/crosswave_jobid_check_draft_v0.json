@@ -1,0 +1,68 @@
+{
+  "artifact": "crosswave_jobid_check",
+  "version": "draft_v1",
+  "status": "DRAFT - pre-lock artifact for the #230 section-6 seam ruling. DISCLOSED RE-ANALYSIS, not pre-registration: the first committed estimator (inner-join population, conditioned 6.06% seam rate) returned PASS_WITH_CORRECTION_BAND; a population defect (exits to nonemployment silently dropped, contradicting the documented design) was found and fixed, and the corrected estimator re-ran. Both runs are disclosed here; the 15/30 bands are author-proposed and UNRATIFIED (referee item), as is the operative scoring population.",
+  "issue": "230",
+  "inputs": {
+    "pu2022.csv.gz": {
+      "sha256": "5e0ec8a992f8f0a1dce6024c89c3230cb679f25f38fb2d5c6b5714ba03f08ba6",
+      "bytes": 116680931
+    },
+    "pu2023.csv": {
+      "sha256": "5c30439e365fc26483318ef61d1d8f4bb2f0e9d6bb47c22c06756a7698733ee2",
+      "bytes": 3726010471
+    }
+  },
+  "sipp_jobs_reader_commit": "a059193e4fad80ceb1c2e1f4177aa5c69abb1048",
+  "question": "are EJB job IDs longitudinally consistent across the pu2022->pu2023 boundary, or is part of the 9.45% seam separation rate a re-keying (linkage) artifact?",
+  "within_wave_baseline": {
+    "jobs_held": 384747,
+    "separations": 6800,
+    "to_nonemployment": 3276,
+    "to_employment": 3524,
+    "rekey_signature": 85,
+    "rekey_signature_strict": 78,
+    "sep_rate": 0.0177,
+    "rekey_signature_share_of_seps": 0.0125
+  },
+  "across_wave_seam": {
+    "jobs_held": 10828,
+    "separations": 1023,
+    "sep_rate": 0.0945,
+    "to_nonemployment": 390,
+    "to_employment": 633,
+    "rekey_signature": 111,
+    "rekey_signature_strict": 92,
+    "rekey_signature_share_of_seps": 0.1085
+  },
+  "rekey_signature_definition": "a vanished job whose person holds a next-month job matching it on industry code, class of worker, and earnings within 20% (|log ratio| < 0.1823); computed identically at the seam and within-wave. The excess is computed on the E->E-CONDITIONAL baseline (signature count / separations-to-employment on each side), then optionally scaled by the seam E->E share for the all-separations population \u2014 the per-all-seps rekey_signature_share_of_seps fields are descriptive only (referee note, #230 round 1 S3)",
+  "bounds": {
+    "gross_id_survival_identity": {
+      "value": 0.9055,
+      "note": "definitional identity (1 - seam sep rate), NOT evidence \u2014 it would be unchanged if every seam separation were a re-key; retained only as context"
+    },
+    "excess_rekey_share_ee_population": 0.1512,
+    "excess_rekey_share_all_separations": 0.0936,
+    "one_sided_95_upper_ee_population": 0.1765,
+    "one_sided_95_upper_all_separations": 0.1092,
+    "structural_ee_cap_share_of_seam_seps": 0.6188
+  },
+  "verdict_rule": "author-proposed, UNRATIFIED (referee item): PASS if excess re-key share < 15%; PASS_WITH_CORRECTION_BAND if 15-30%; REFER_BACK if >30%. The operative scoring population (E->E separations only, arguably the conservative reading since re-keying is a within-continuing-employment phenomenon, vs all seam separations, since E->N separations cannot be ID artifacts) is ALSO a referee item \u2014 the verdict differs between them.",
+  "verdict_by_population": {
+    "ee_population": "PASS_WITH_CORRECTION_BAND",
+    "all_separations": "PASS",
+    "operative": "REFEREE"
+  },
+  "caveats": {
+    "composition_mismatch": "the within-wave coincidence baseline has a different separation mix (E->N share 0.482 within-wave vs 0.381 at the seam)",
+    "nan_matching": "the re-key signature treats missing industry/class/earnings as matching (pd.notna guards), biasing the signature upward where item nonresponse differs across the boundary; the strict variant below treats missing as mismatch",
+    "seam_denominator": "person presence at the seam is keyed on SSUID+PNUM - the same cross-file linkage under test; a person whose ID re-keyed would leave the denominator as a sample leaver rather than appear as a separation, so person-level re-keying is NOT bounded by this artifact (jobs_held 10,828 at the seam vs ~17,500 per within-wave pair reflects sample rotation plus any such loss)"
+  },
+  "strict_nan_variant": {
+    "note": "missing industry/class/earnings treated as MISMATCH (main variant treats missing as compatible)",
+    "seam_signature_share": 0.1453,
+    "within_signature_share": 0.0221,
+    "excess_ee_population": 0.1232,
+    "excess_all_separations": 0.0762
+  }
+}
