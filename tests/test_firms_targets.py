@@ -10,6 +10,8 @@ banding mappings.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -228,6 +230,136 @@ def test_j2j_flows_are_subsets_of_market_flows(j2j):
     assert (ok["EESep"] <= ok["J2JSep"]).all()
 
 
+# ---------------------------------------------------------------
+# J2J sex x age (gate E2 reference)
+# ---------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def j2j_sexage():
+    return targets.load_j2j_sexage()
+
+
+def test_j2j_sexage_schema_and_coverage(j2j_sexage):
+    assert set(j2j_sexage["sex"]) == {0, 1, 2}
+    assert set(j2j_sexage["agegrp"]) == {f"A0{i}" for i in range(9)}
+    assert j2j_sexage["year"].min() == 2015
+    assert j2j_sexage["year"].max() >= 2024
+    # Full grid: one row per quarter x sex x age group.
+    quarters = j2j_sexage[["year", "quarter"]].drop_duplicates()
+    assert len(j2j_sexage) == len(quarters) * 3 * 9
+
+
+def test_j2j_sexage_rates_bounded(j2j_sexage):
+    for col in (
+        "hire_rate",
+        "separation_rate",
+        "j2j_hire_rate",
+        "j2j_separation_rate",
+    ):
+        observed = j2j_sexage[col].dropna()
+        assert ((observed >= 0) & (observed <= 1)).all()
+        assert observed.median() > 0.01
+
+
+def test_j2j_sexage_margins_stack(j2j_sexage):
+    """Detail sex and age cells stack to the published margins
+    (exactly: LEHD margins here are published, not derived)."""
+    cell = j2j_sexage.set_index(["year", "quarter", "sex", "agegrp"])["MainB"]
+    total = cell.loc[2019, 1, 0, "A00"]
+    by_sex = sum(cell.loc[2019, 1, s, "A00"] for s in (1, 2))
+    by_age = sum(cell.loc[2019, 1, 0, f"A0{i}"] for i in range(1, 9))
+    # LEHD noise infusion rounds each published cell independently,
+    # so margins agree only to a few jobs out of ~130 million.
+    assert abs(by_sex - total) <= 5
+    assert abs(by_age - total) <= 5
+
+
+def test_j2j_sexage_age_gradient(j2j_sexage):
+    """E2's sign: young workers churn faster -- the 19-21 group's
+    J2J hire rate exceeds the 55-64 group's, both sexes pooled."""
+    us = j2j_sexage[j2j_sexage["sex"] == 0]
+    young = us.loc[us["agegrp"] == "A02", "j2j_hire_rate"].mean()
+    older = us.loc[us["agegrp"] == "A07", "j2j_hire_rate"].mean()
+    assert young > 2 * older
+
+
+# ---------------------------------------------------------------
+# J2JOD origin x destination firm size (gate E11 reference)
+# ---------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def j2jod():
+    return targets.load_j2jod_firmsize()
+
+
+def test_j2jod_schema_and_coverage(j2jod):
+    assert set(j2jod["firmsize"]) == {0, 1, 2, 3, 4, 5}
+    assert set(j2jod["firmsize_orig"]) == {0, 1, 2, 3, 4, 5}
+    assert j2jod["year"].min() == 2015
+    assert j2jod["year"].max() >= 2024
+    # Full 6 x 6 grid per quarter.
+    quarters = j2jod[["year", "quarter"]].drop_duplicates()
+    assert len(j2jod) == len(quarters) * 36
+
+
+def test_j2jod_identity_j2j_is_ee_plus_aqhire(j2jod):
+    ok = j2jod.dropna(subset=["EE", "AQHire", "J2J"])
+    assert (ok["J2J"] == ok["EE"] + ok["AQHire"]).all()
+    ok = j2jod.dropna(subset=["EES", "AQHireS", "J2JS"])
+    assert (ok["J2JS"] == ok["EES"] + ok["AQHireS"]).all()
+
+
+def test_j2jod_detail_window(j2jod):
+    """The full national origin x destination detail is published
+    only for 2015Q1-2016Q1 (later quarters carry status flag 11: a
+    state coverage gap blocks the national aggregate; provenance
+    note entry 6). Pin the window so a re-fetch that changes it
+    fails loudly."""
+    detail = j2jod[(j2jod["firmsize"] > 0) & (j2jod["firmsize_orig"] > 0)]
+    published = detail[detail["EE"].notna()]
+    assert set(zip(published["year"], published["quarter"], strict=True)) == {
+        (2015, 1),
+        (2015, 2),
+        (2015, 3),
+        (2015, 4),
+        (2016, 1),
+    }
+    assert detail.loc[detail["EE"].isna(), "sEE"].isin([11]).all()
+    # The margins stay published for every quarter.
+    margin = j2jod[(j2jod["firmsize"] == 0) & (j2jod["firmsize_orig"] == 0)]
+    assert margin["EE"].notna().all()
+
+
+def test_j2jod_detail_cells_below_margins(j2jod):
+    """Each detail origin x destination cell is bounded by both of
+    its one-sided margins (the margins aggregate the detail)."""
+    cell = j2jod.set_index(["year", "quarter", "firmsize_orig", "firmsize"])[
+        "EE"
+    ]
+    for o in range(1, 6):
+        for d in range(1, 6):
+            detail = cell.loc[2015, 3, o, d]
+            if np.isnan(detail):
+                continue
+            assert detail <= cell.loc[2015, 3, o, 0]
+            assert detail <= cell.loc[2015, 3, 0, d]
+
+
+def test_j2jod_large_firms_dominate_flows(j2jod):
+    """E11's sign: the 500+ x 500+ corner carries the largest
+    detail flow (large firms dominate both ends of the ladder)."""
+    us = j2jod[
+        (j2jod["year"] == 2015)
+        & (j2jod["quarter"] == 3)
+        & (j2jod["firmsize"] > 0)
+        & (j2jod["firmsize_orig"] > 0)
+    ]
+    top = us.loc[us["EE"].idxmax()]
+    assert top["firmsize"] == 5 and top["firmsize_orig"] == 5
+
+
 @pytest.mark.parametrize(
     "loader",
     [
@@ -235,6 +367,8 @@ def test_j2j_flows_are_subsets_of_market_flows(j2j):
         targets.load_bds_firm_size,
         targets.load_qwi_firmsize_sector,
         targets.load_j2j_firmsize_sector,
+        targets.load_j2j_sexage,
+        targets.load_j2jod_firmsize,
     ],
 )
 def test_loaders_return_independent_copies(loader):
@@ -261,3 +395,99 @@ def test_lehd_labels_match_banding_intervals(qwi, j2j):
                 assert label.startswith(f"{lo}+") or "500+" in label
             else:
                 assert str(int(hi)) in label
+
+
+# ---------------------------------------------------------------
+# The archived LED response and the content-based integrity pin
+# ---------------------------------------------------------------
+
+
+def _fetch_module():
+    """Import the fetch script (scripts/ is not an installed package)."""
+    import importlib.util
+
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "fetch_employer_firm_targets.py"
+    )
+    spec = importlib.util.spec_from_file_location("_fetch_eft", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_led_j2jod_archive_is_committed():
+    """The only-ever detail window must not depend on the live tool.
+
+    The LED Extraction Tool re-runs the query against whatever
+    release is current, and the 2015Q1-2016Q1 origin x destination
+    detail is the only window in which this cross is published at
+    all. If the archive goes missing, that window is unrecoverable.
+    """
+    fetch = _fetch_module()
+    assert fetch.LED_J2JOD_ARCHIVE.exists()
+
+
+def test_led_j2jod_content_digest_matches_the_pin():
+    fetch = _fetch_module()
+    digest = fetch.led_j2jod_content_digest(fetch.LED_J2JOD_ARCHIVE)
+    assert digest == fetch.LED_J2JOD_CONTENT_SHA256
+
+
+def test_content_digest_ignores_column_order_but_not_values(tmp_path):
+    """The property that makes the pin worth having.
+
+    The byte digest originally pinned on this extract broke within
+    six days purely because the tool reordered its measure columns,
+    with all 1,476 values unchanged. A pin that fires on cosmetic
+    reordering trains the maintainer to re-pin on sight, so a real
+    revision arrives indistinguishable from the false alarms.
+    """
+    import pandas as pd
+
+    fetch = _fetch_module()
+    frame = pd.read_csv(fetch.LED_J2JOD_ARCHIVE, low_memory=False)
+
+    shuffled = tmp_path / "shuffled.csv"
+    frame[list(reversed(frame.columns))].to_csv(shuffled, index=False)
+    assert (
+        fetch.led_j2jod_content_digest(shuffled)
+        == fetch.LED_J2JOD_CONTENT_SHA256
+    )
+
+    revised = tmp_path / "revised.csv"
+    bumped = frame.copy()
+    bumped.loc[bumped.index[0], "EE"] += 1
+    bumped.to_csv(revised, index=False)
+    assert (
+        fetch.led_j2jod_content_digest(revised)
+        != fetch.LED_J2JOD_CONTENT_SHA256
+    )
+
+
+def test_committed_extract_rebuilds_from_the_archive(tmp_path):
+    """Byte-equality of the committed extract from the archived raw."""
+    import pandas as pd
+
+    fetch = _fetch_module()
+    raw = pd.read_csv(fetch.fetch_led_j2jod(tmp_path), low_memory=False)
+    keep = raw[raw["year"] >= fetch.LEHD_START_YEAR].copy()
+    id_cols = ["year", "quarter", "firmsize_orig", "firmsize"]
+    flag_cols = [f"s{m}" for m in fetch.J2JOD_MEASURES]
+    out = keep[id_cols + fetch.J2JOD_MEASURES + flag_cols].copy()
+    out.insert(
+        4, "firmsize_orig_label", fetch._firmsize_label(out["firmsize_orig"])
+    )
+    out.insert(5, "firmsize_label", fetch._firmsize_label(out["firmsize"]))
+    out = out.sort_values(id_cols).reset_index(drop=True)
+
+    rebuilt = tmp_path / "rebuilt.csv"
+    out.to_csv(rebuilt, index=False, float_format="%.10g")
+    committed = (
+        Path(__file__).resolve().parents[1]
+        / "data"
+        / "external"
+        / "j2jod_us_firmsize_od_2015on.csv"
+    )
+    assert rebuilt.read_text() == committed.read_text()
