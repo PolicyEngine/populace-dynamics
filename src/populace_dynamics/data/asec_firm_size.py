@@ -55,12 +55,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from populace_dynamics.firms.banding import noemp_to_canonical
+
 __all__ = [
     "ASEC_FIRM_SIZE_YEARS",
     "CLASS_OF_WORKER_LABELS",
     "NOEMP_BANDS",
     "firm_size_tabulation",
     "noemp_band_map",
+    "noemp_canonical_map",
     "read_asec_firm_size",
 ]
 
@@ -144,6 +147,42 @@ def noemp_band_map(year: int) -> dict[int, str]:
     return dict(NOEMP_BANDS)
 
 
+def noemp_canonical_map(year: int) -> dict[int, str]:
+    """Return the NOEMP code -> canonical C2 band-label map.
+
+    The C2 seam (#192 step 2; #208). Bands are **not** re-derived
+    here: every label comes from
+    :func:`populace_dynamics.firms.banding.noemp_to_canonical`, so
+    the person side and the target side share one vocabulary and one
+    definition of the 50 edge. :data:`NOEMP_BANDS` is retained as the
+    source-resolution label (it splits 500-999 from 1000+, a
+    distinction canonical C2 does not carry); ``firm_size_band`` and
+    ``canonical_band`` are therefore both emitted, at different
+    coarseness, rather than one being derived from the other's
+    string.
+
+    Raises:
+        ValueError: If ``year`` is outside the verified range.
+    """
+    _check_supported_year(year)
+    labels: dict[int, str] = {}
+    for code in NOEMP_BANDS:
+        span = noemp_to_canonical(code, year)
+        # Total by construction: NOEMP 1-6 are firm-size reports in
+        # every supported vintage, so the NIU ``None`` branch is
+        # unreachable here and an inexact span would be a C2 defect
+        # (every NOEMP band nests a canonical band) — assert rather
+        # than silently emitting a straddle label.
+        if span is None or not span.exact:
+            raise AssertionError(
+                f"NOEMP {code} in ASEC {year} did not resolve to a "
+                f"single canonical band (got {span!r}); the C2 "
+                "mapping and this reader have diverged."
+            )
+        labels[code] = span.label
+    return labels
+
+
 def _resolve_data_dir(data_dir: Path | None) -> Path:
     """Resolve the ASEC data directory from arg, env var, default."""
     if data_dir is not None:
@@ -216,7 +255,9 @@ def read_asec_firm_size(
         One row per person in the NOEMP universe (``WKSWORK > 0``,
         i.e. worked last calendar year), with columns ``person_id``,
         ``year``, ``income_year``, ``noemp``,
-        ``firm_size_band``, ``noemp_allocated``, ``ljcw``,
+        ``firm_size_band`` (source-resolution label),
+        ``canonical_band`` (the C2 vocabulary, via
+        ``firms/banding.py``), ``noemp_allocated``, ``ljcw``,
         ``class_of_worker``, ``industry_major``,
         ``industry_detailed``, ``wkswork``, and ``weight``
         (``MARSUPWT / 100`` — the raw column carries two implied
@@ -236,6 +277,7 @@ def read_asec_firm_size(
         FileNotFoundError: If no staged person file can be found.
     """
     bands = noemp_band_map(year)
+    canonical = noemp_canonical_map(year)
     if path is not None:
         person_path = Path(path).expanduser()
         if not person_path.exists():
@@ -352,6 +394,9 @@ def read_asec_firm_size(
             # Total mappings: the domain + universe checks guarantee
             # NOEMP in 1-6 and LJCW in 1-7 here, so no fallback.
             "firm_size_band": universe["NOEMP"].map(bands),
+            # The C2 seam: canonical labels straight from
+            # firms/banding.py, never re-derived here (#208).
+            "canonical_band": universe["NOEMP"].map(canonical),
             "noemp_allocated": universe["I_NOEMP"] > 0,
             "ljcw": universe["LJCW"],
             "class_of_worker": universe["LJCW"].map(CLASS_OF_WORKER_LABELS),
