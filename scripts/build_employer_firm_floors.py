@@ -697,9 +697,15 @@ def build() -> dict:
                 "as raw EarnS carries nominal wage growth. Both are "
                 "committed: 'ee' (raw counts) and 'ee_rel' (share of "
                 "the quarter's all-size EE total, which divides the "
-                "common trend out). The relative variant runs roughly "
-                "half the raw one; the C3 referee round picks the "
-                "formulation, as for E7"
+                "common trend out). The relative variant is far "
+                "TIGHTER than the raw one: across the five "
+                "destination bands its floor mean is 4.5x to "
+                "9.5x smaller (e.g. firmsize1 0.1054 raw vs 0.0233 "
+                "relative), and 3.4x to 6.6x smaller on the "
+                "ex-pandemic window. Most of the raw floor is the "
+                "aggregate flow trend, which is exactly what the "
+                "relative variant removes; the C3 referee round picks "
+                "the formulation, as for E7"
             ),
             "e7_nominal_trend": (
                 "raw EarnS YoY variation embeds aggregate nominal "

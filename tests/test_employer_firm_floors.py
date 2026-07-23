@@ -36,10 +36,10 @@ ARTIFACT = ROOT / "runs/employer_firm_floors_v1.json"
 BUILDER = ROOT / "scripts/build_employer_firm_floors.py"
 
 ARTIFACT_SHA256 = (
-    "c9c50b7521b1df3ee0c9ffc942a3aa8593fc89c0eec8d1cc1682ce3a426716ed"
+    "78918b15ba21c58cb179e6f40668a4db052136e426e1e71a7beecb384baa18da"
 )
 BUILDER_SHA256 = (
-    "b85c2234289c99e166f9343a69a1bb14417b98bb77351b9ba9ca4131f3625677"
+    "fac6c6be6d185fee704661b4d3338639fd8957ca9fd52308f4cab78a25ffa263"
 )
 
 CANONICAL_NAMES = {band.name for band in banding.CANONICAL_BANDS}
@@ -278,6 +278,27 @@ def test_e11_margin_relative_floor_is_tighter_than_raw(artifact):
         assert cell["ee_rel"]["floor_abs_log_ratio_mean"] < (
             cell["ee"]["floor_abs_log_ratio_mean"]
         )
+
+
+def test_e11_margin_trend_note_states_the_measured_magnitude(artifact):
+    """`rel < raw` alone let a wrong magnitude ride inside the pin.
+
+    The note said the relative variant "runs roughly half the raw
+    one" while the committed numbers make it 4.5x to 9.5x tighter —
+    a factual error inside a sha256-pinned artifact, caught by
+    review rather than by a test. This pins the claim against the
+    numbers it describes, so the next drift fails here.
+    """
+    cells = artifact["e11"]["destination_size_margin"].values()
+    ratios = [
+        cell["ee"]["floor_abs_log_ratio_mean"]
+        / cell["ee_rel"]["floor_abs_log_ratio_mean"]
+        for cell in cells
+    ]
+    assert 4.5 <= min(ratios) < max(ratios) <= 9.5
+    note = artifact["method_findings"]["e11_margin_trend"]
+    assert "4.5x to 9.5x smaller" in note
+    assert "roughly half" not in note
 
 
 def test_e11_records_the_cross_source_margin_disagreement(artifact):
