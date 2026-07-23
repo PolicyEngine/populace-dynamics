@@ -1,4 +1,4 @@
-# C3 employer gate block — thresholds, partitions, and rulings
+# IC3 employer gate block — thresholds, partitions, and rulings
 
 - **Design id**: `2026-07-17-c3-employer-gate-block`
 - **Status**: **DRAFT FOR REFEREE — NOT RATIFIED. Revision 2**,
@@ -15,9 +15,9 @@
   referee round, not a lock.
 - **Plan**: issue #192 (E1–E12 battery, two-workstream split, protocol
   rules: disjoint calibration/gate cells, floors before thresholds, no
-  one-shot candidate runs before C3 locks).
+  one-shot candidate runs before IC3 locks).
 - **Contracts**: ADR 0003 (`docs/adr/0003-employer-firm-extension.md`,
-  C1 spell schema and C2 banding, **frozen**); ADR 0004
+  IC1 spell schema and IC2 banding, **frozen**); ADR 0004
   (`docs/adr/0004-linkage-qc.md`, linkage QC, adopted-with-changes per
   the Workstream B review on PR #224).
 - **Evidence base** (all DRAFT — NOT RATIFIED artifacts, cited by
@@ -35,7 +35,7 @@
     `data/external/j2jod_us_firmsize_od_2015on.csv` (E11), with the
     test-pinned detail-window finding.
 - **Authors**: joint Workstream A (@daphnehanse11) / Workstream B
-  (@vahid-ahmadi) per the #192 interface-contract schedule (C3 is the
+  (@vahid-ahmadi) per the #192 interface-contract schedule (IC3 is the
   jointly-authored employer gate block).
 
 ## 1. Scope and shape of the block
@@ -54,7 +54,7 @@ Two structural rules carry over from #192 and ADR 0003 unchanged:
 1. **Floors before thresholds.** Every gated cell cites a committed
    floor artifact; cells with no derivable floor cannot gate
    (consequences for E1-sector, E11-detail, E12 below).
-2. **No one-shot candidate runs before C3 locks.** Registration of
+2. **No one-shot candidate runs before IC3 locks.** Registration of
    employer-block candidates (issue #42 convention) opens only after
    the amendment PR merges with `locked: true`.
 
@@ -117,7 +117,7 @@ Per-gate detail follows.
 
 ### E1 — employment share by firm-size × sector (SUSB)
 
-- **Cells**: five canonical C2 bands (`LT10`…`B500_PLUS`) × NAICS
+- **Cells**: five canonical IC2 bands (`LT10`…`B500_PLUS`) × NAICS
   sector, from `data/external/susb_us_sector_size_2022.csv`;
   calibration consumes the same source's *margins*, so the E1 gate
   axis must be the residual structure (see §10).
@@ -193,6 +193,16 @@ Per-gate detail follows.
   0.018 ± 0.0059). The quantile-gap formulation stays committed as
   the referee alternative, but adopting it would require an
   arbitrary substantive tolerance to paper over the zeros.
+- **Floor rule across years** (registered in the block YAML as
+  `year_rule` / `derivations.floor_selection: per_cell_own_year`):
+  the cells are the full 3 × 7 = **21** (year, band) pairs, and each
+  cell's threshold derives from **its own year's** floor
+  (`by_year.<year>.<age_band>.floor_ecdf_max_gap`). Floors are not
+  pooled, averaged, or worst-of'd across years — #212 floors each
+  supplement year separately, so per-year is the only rule its
+  evidence base supports. Stated here because a bare cell-count pin
+  with a free `<year>` placeholder would harden the ambiguity rather
+  than resolve it.
 - **Substantive tolerance**: ECDF max-gap 0.02 PROPOSED (comparable
   to the largest observed adult-band floor means).
 
@@ -452,7 +462,7 @@ and referee item 2, E12 additionally needs an **adjudicable truth
 source** for the worker-to-firm-type assignment at the exact
 co-assignment unit the estimand uses.
 
-**Proposal**: E12 is registered in the C3 block as **deferred** —
+**Proposal**: E12 is registered in the IC3 block as **deferred** —
 definition and estimand-candidates recorded, no threshold, no floor,
 `locked: false` permanently until both (i) a committed
 provenance-pinned reference extract and (ii) an admissible
@@ -491,7 +501,7 @@ review** (PR #224 review comment), which this block operationalizes:
    for a stated reason rather than by avoidance.
 3. **Named owners.** Workstream B (@vahid-ahmadi) owns the
    **firm-side sidecar specification** (schema, versioning; sidecars
-   join C1 on `person_id`/`spell_id`, never amend C1) and the
+   join IC1 on `person_id`/`spell_id`, never amend IC1) and the
    firm-side audit artifacts. Workstream A (@daphnehanse11) owns the
    E4/E5 SIPP-internal adjudication frame and coder-panel operation.
    Numeric `P_floor`, `P_design`, α, power, and the recall-gating
@@ -829,7 +839,7 @@ comparable rationale on the record (Workstream A, 2026-07-17: at
 p ≈ 0.5 a 200-person half gives a half-vs-half \|log ratio\| sd
 near 0.14).
 
-## 11. The three unit rules (ADR 0003) — C3 dispositions
+## 11. The three unit rules (ADR 0003) — IC3 dispositions
 
 1. **QWI/J2J cells count jobs, not persons.** Phase 0 is
    primary-job-only, so person-spells vs job-count cells carry a
@@ -886,7 +896,7 @@ in `docs/design/m6_projection_engine.md`):
      authored once under its final names rather than renamed after
      being refereed.
 2a. **The refereed block YAML** (closes blocking item B2, part 1).
-   A committed `docs/design/c3_employer_gate_block_draft.yaml` —
+   A committed `docs/design/ic3_employer_gate_block_draft.yaml` —
    enumerated cells for every gate, `derivations` blocks in the
    `tests/test_gates_derivations.py` pattern, the §10.3/§10.4
    partition in machine-checkable form, `locked: false` — is a
