@@ -1,0 +1,510 @@
+# IC3 employer gate block draft — v1, post-round-1 (lock flip PENDING).
+#
+# The full `gates.employer` block EXACTLY as the lock flip will add it
+# under the top-level `gates:` key of gates.yaml, carried here as a
+# draft and bound to its floor artifacts by
+# tests/test_ic3_block_draft.py.
+#
+# Closes blocking item B2 of the 2026-07-17 adversarial round-1
+# review, which found that the ceremony asked the referee to ratify
+# prose plus PROPOSED numbers while the actual block text would first
+# appear — unrefereed — in the amendment PR. Per the gate_m6
+# precedent (gates.yaml:5327-5332) this file is carried VERBATIM with
+# exactly the lock-time deltas at the flip.
+#
+# It also closes S2 (scoring frame and floor scale) and carries the
+# §10 partition in machine-checkable form so a dropped, added, or
+# renamed cell fails a test rather than passing silently.
+#
+# Ceremony history:
+#   round 1 (2026-07-17): NOT RATIFIABLE AS DRAFTED — 5 blocking, 6
+#     should-fix. The evidence base reproduced exactly; the blocks
+#     were structural (partition integrity, ceremony mechanics,
+#     contract provenance, unbased hand-set numbers).
+#   revision 2 (design doc): B1, B3, B4, B5, S1 addressed. E1 and E6
+#     demoted to report-only — both were deterministic functions of
+#     calibration targets. E9-stay withdrawn: its IQR floor is
+#     degenerate like its median, so the "IQR-only" gate was 100% a
+#     hand-set number with no basis.
+#   this file: B2. Round 1 continues on this YAML.
+#
+# NAMING. The interface contracts are IC1/IC2/IC3 (ADR 0003 amendment
+# 1, PR #277). A bare "C1"/"C2" in gates.yaml means the gate_w1
+# FINGERPRINTS (fingerprints.c1, fingerprints.c2) — a different,
+# locked thing. This block never uses the bare forms.
+
+gates:
+  employer:
+    id: employer_firm_attachment_block
+    status: draft_round_1_continuing
+    locked: false
+    kind: employer_attachment
+    design: docs/design/c3_employer_gate_block.md
+    design_pr: "230"
+    design_commit: PENDING  # squash-merge commit, set at the flip
+    plan: issue #192
+    contracts:
+      ic1_spell_schema: docs/adr/0003-employer-firm-extension.md
+      ic2_banding: src/populace_dynamics/firms/banding.py
+      linkage_qc: docs/adr/0004-linkage-qc.md  # PENDING merge (B3)
+
+    covers: >-
+      the employer-attachment layer imputed onto the Populace person
+      panel: job spells with employer attributes (IC1), canonical
+      firm-size bands (IC2), and — at phase 1 — job-spell transition
+      hazards. Person-side gates score against held-out SIPP/CPS;
+      firm-side gates score against published LEHD/Census aggregates
+      NOT consumed by any fitting stage (see partition below).
+
+    not_certified:
+      firm_side_gating_is_thin: >-
+        after B1, first-lock firm-side gating rests on E2, E7 and
+        E11-margins ONLY. E1 and E6 cannot gate because every
+        SUSB/QWI margin available to them is a deterministic
+        function of a calibration target — the same
+        trivially-passable-stock problem gate_m6 records. This block
+        does not claim firm-side gating power it does not have.
+      imputed_band_conditioned_cells: >-
+        cells conditioning on imputed firm-size bands have no
+        admissible per-record truth frame and are PERMANENTLY
+        report-only (design §9.1). Per-record adjudication is
+        ill-posed for a draw-based imputation, not merely
+        unavailable.
+      e12_not_gated: >-
+        within/between-firm earnings variance and coworker
+        correlation — the moments that distinguish a two-sided model
+        from a size-label imputation — cannot be gated: no
+        adjudicable reference exists. Phase-2 no-go rule attaches.
+      no_hours_granularity: >-
+        IC1 carries no hours column at freeze, so no cell here
+        certifies monthly-hours consumers (e.g. SNAP ABAWD
+        80-hours/month). Registered deferral, ADR 0003.
+
+    # ---------------------------------------------------------------
+    # Scoring frame and floor scale (closes S2)
+    # ---------------------------------------------------------------
+    scoring_frame:
+      sipp_holdout:
+        split_unit: person
+        split_machine: >-
+          hash of SSUID-PNUM under a pinned salt; deterministic,
+          reproducible without storing an id list, and stable as
+          files are restaged.
+        salt: employer_ic3_holdout_v1
+        holdout_fraction: 0.20
+        seed: 20260717  # same seed as the #236 audit draw, by design
+        leakage_rule: >-
+          phase-1 training and every fitting stage in
+          partition.fitting_consumes may read ONLY the holdout's
+          complement. A leakage guard test asserts the training
+          person set and the scoring person set are disjoint.
+      floor_scale_assertion:
+        rule: >-
+          for every gated family, the scoring population size must
+          match the scale at which its floor was measured, within a
+          registered tolerance. Gate-1's round-1 amendment was
+          exactly this defect caught pre-lock (gates.yaml:127-133 —
+          floor at ~51k windows/side vs ~20k-window scoring).
+        status: RECORDED_NOT_SATISFIED
+        note: >-
+          the A-side artifacts record the gap (deployment_scale_note,
+          sqrt(2) ratio, three resolution options) but do not close
+          it. The referee treats this as lock-blocking if still open
+          at verification; resolution is one of the three recorded
+          options, chosen on the record before any candidate runs.
+        tolerance: REFEREE
+
+    # ---------------------------------------------------------------
+    # Threshold policy (S1: honest restatement)
+    # ---------------------------------------------------------------
+    threshold_policy:
+      rule: max(floor_mean + k * floor_sd, substantive_tolerance)
+      k: 4
+      k_basis: >-
+        POLICY CHOICE, not precedent-following. The locked band in
+        gates.yaml is 1.8-8 (k=4.2 :221, 8 :297, 1.8 :327, 1.9 :333,
+        4 :493), so two locked ks sit BELOW 4 and precedent brackets
+        rather than supports it. The aggregated-sd argument holds
+        only for the B-side (24-36 year-pairs); the SIPP-side floors
+        aggregate 5 seeds exactly as gate-1's did, so for
+        E3/E4/E5/E8/E9 k=4 is a bare policy choice.
+      substantive_tolerance_basis: docs/design/c3_employer_gate_block.md#10A
+      verdict_rule: >-
+        a gated gate passes iff ALL its non-thin cells pass;
+        report-only gates publish per-cell pass/fail but never block.
+      thin_rules:
+        sipp_side_min_persons: 200
+        firm_side_min_denominator_jobs: 10000
+        thin_disposition: report_only
+
+    # ---------------------------------------------------------------
+    # Calibration/gate partition (B1(ii)/(iii)) — machine-checkable
+    # ---------------------------------------------------------------
+    partition:
+      only_quantifier: >-
+        NO stage that fits, calibrates, reweights, or tunes any part
+        of the employer layer may consume any statistic listed in
+        partition.gate_cells, on any source, at any aggregation, in
+        any phase. "Stage" means microcalibrate reweighting, phase-1
+        transition-hazard calibration, QRF hyperparameter selection,
+        and any post-hoc alignment or raking step, whether or not it
+        is called calibration.
+      deterministic_function_corollary: >-
+        a statistic is not held out merely because calibration did
+        not target it BY NAME. Any deterministic function of
+        calibration targets — margin, merge, coarsening, any linear
+        functional — IS a calibration target. This is the test that
+        demoted E1 and E6.
+      fitting_consumes:
+        - susb_employment_margins_size_x_sector
+        - qwi_flow_margins_size_x_sector_hire_sep
+        - bds_coarsened_size_margin  # exact merge of the SUSB margins
+        - j2j_qwi_national_flow_levels_for_hazard_calibration
+      gate_cells:
+        - e2_sexage_rates
+        - e3_tenure_ecdf_by_age
+        - e4_retention_by_age_sex
+        - e5_runs_by_age
+        - e7_earns_relative_gradient_by_size
+        - e8_nonemployment_by_age
+        - e9_j2j_earnings_change
+        - e10_locked_psid_gates
+        - e11_destination_size_margins
+      e11_condition: >-
+        E11 margins are gate-eligible ONLY while
+        fitting_consumes stays pinned to the QWI/J2J extracts. If any
+        phase calibrates to J2JOD, e11_destination_size_margins moves
+        to report_only by this rule, with no further referee round.
+      report_only:
+        - e1_size_margin_and_sector_cross      # B1
+        - e6_size_margin_and_sector_cells      # B1
+        - e7_raw_earns_levels                  # nominal trend
+        - e9_stay_median                       # degenerate floor
+        - e9_stay_iqr                          # degenerate floor (B5)
+        - e11_origin_x_destination_detail      # 1 YoY pair per cell
+        - firm_size_conditional_cells          # §9.1, PERMANENT
+        - firm_age_axis                        # no extract/floor
+        - state_axis                           # no extract/floor
+      deferred:
+        - e12_akm_variance_and_coworker_correlation
+
+    # ---------------------------------------------------------------
+    # Gated cell families
+    # ---------------------------------------------------------------
+    families:
+
+      e2_sexage_rates:
+        quantity_type: flow
+        split_unit: job
+        reference: data/external/j2j_us_sexage_2015on.csv
+        statistic: >-
+          hire / separation / j2j-hire / j2j-separation rates per
+          MainB job, sex x age group, |ln(model/reference)|
+        floor_run: runs/employer_firm_floors_v1.json
+        floor_basis: ex_pandemic
+        floor_path: e2.by_sex_age.cells
+        substantive_tolerance: 0.10
+        cells:  # 2 sexes x 8 age groups; margins report-only
+          - sex1_A01
+          - sex1_A02
+          - sex1_A03
+          - sex1_A04
+          - sex1_A05
+          - sex1_A06
+          - sex1_A07
+          - sex1_A08
+          - sex2_A01
+          - sex2_A02
+          - sex2_A03
+          - sex2_A04
+          - sex2_A05
+          - sex2_A06
+          - sex2_A07
+          - sex2_A08
+        non_monotonicity_note: >-
+          floors are NOT monotone in disaggregation (#223 finding):
+          of 26 non-aggregate cells, 13 (hire) / 10 (separation) / 6
+          (j2j hire) / 7 (j2j separation) have TIGHTER ex-pandemic
+          floors than the all-sexes all-ages cell. A margin's floor
+          therefore cannot bound the cells beneath it, which is why
+          every cell above carries its own floor rather than
+          inheriting one.
+        derivations:
+          floor_run: runs/employer_firm_floors_v1.json
+          k: 4
+          rounding: 3
+          metric: log_ratio
+          sd_key: ex_pandemic_sd
+          mean_key: ex_pandemic_mean
+
+      e3_tenure_ecdf_by_age:
+        quantity_type: stock
+        split_unit: person
+        reference: CPS January tenure supplement (2020/2022/2024)
+        statistic: ECDF max-gap of the tenure distribution by age band
+        floor_run: runs/tenure_floors_v1.json
+        floor_path: by_year.<year>.<age_band>.floor_ecdf_max_gap
+        substantive_tolerance: 0.02
+        formulation_note: >-
+          ECDF max-gap, not quantile gaps: 36 of 63 quantile-gap
+          floors are exactly 0.0 from integer heaping. The quantile
+          gaps are retained report-only as the interpretable-in-years
+          view.
+        cells:
+          - "16_19"
+          - "20_24"
+          - "25_34"
+          - "35_44"
+          - "45_54"
+          - "55_64"
+          - "65_200"
+        derivations: { k: 4, rounding: 3, metric: ecdf_max_gap }
+
+      e4_retention_by_age_sex:
+        quantity_type: flow
+        split_unit: person
+        reference: SIPP holdout
+        statistic: employer-retention pair rate, |ln(model/truth)|
+        floor_run: runs/sipp_spell_floors_v1.json
+        floor_path: e4_retention_by_age_sex
+        substantive_tolerance: 0.005
+        tolerance_note: >-
+          deliberately the binding term in most cells (floors
+          0.0003-0.0020). Anti-understatement posture: floor+4sd
+          would gate on differences no consumer could act on.
+        linkage_prerequisite: true
+        cells:
+          - "16_24|sex1"
+          - "16_24|sex2"
+          - "25_34|sex1"
+          - "25_34|sex2"
+          - "35_44|sex1"
+          - "35_44|sex2"
+          - "45_54|sex1"
+          - "45_54|sex2"
+          - "55_64|sex1"
+          - "55_64|sex2"
+          - "65_99|sex1"
+          - "65_99|sex2"
+        derivations: { k: 4, rounding: 4, metric: log_ratio }
+
+      e5_runs_by_age:
+        quantity_type: flow
+        split_unit: person
+        reference: SIPP holdout
+        statistic: multi-window attachment run share, |ln(model/truth)|
+        floor_run: runs/sipp_spell_floors_v1.json
+        floor_path: e5_runs_by_age
+        substantive_tolerance: 0.05
+        linkage_prerequisite: true
+        cells:
+          - "16_24"
+          - "25_34"
+          - "35_44"
+          - "45_54"
+          - "55_64"
+          - "65_99"
+        derivations: { k: 4, rounding: 3, metric: log_ratio }
+
+      e7_earns_relative_gradient_by_size:
+        quantity_type: stock
+        split_unit: job
+        reference: data/external/qwi_us_firmsize_sector_2015on.csv
+        statistic: >-
+          QWI EarnS (a MEAN, never a median — ADR 0003 unit rule)
+          relative to the all-size aggregate, by firm-size band
+        floor_run: runs/employer_firm_floors_v1.json
+        floor_basis: ex_pandemic
+        floor_path: e6_e7.by_firmsize_all_industry.<cell>.e7_earns_rel_to_aggregate
+        substantive_tolerance: 0.05
+        disjointness: >-
+          calibration consumes QWI FLOW margins (hire/sep), never
+          EarnS. Earnings is an untouched axis of the same file.
+        cells:
+          - firmsize1
+          - firmsize2
+          - firmsize3
+          - firmsize4
+          - firmsize5
+        derivations: { k: 4, rounding: 3, metric: log_ratio }
+
+      e8_nonemployment_by_age:
+        quantity_type: flow
+        split_unit: person
+        reference: SIPP holdout
+        statistic: >-
+          any- and long-nonemployment shares by age band,
+          |ln(model/truth)|, censoring-free 12-month-observed
+          restriction carried from the floor artifact
+        floor_run: runs/sipp_e8_e9_floors_v1.json
+        floor_path: e8_nonemployment_by_age
+        substantive_tolerance: 0.10
+        linkage_prerequisite: false  # needs no worker-to-firm link
+        cells:
+          - "16_24|any_nonemp"
+          - "16_24|long_nonemp"
+          - "25_34|any_nonemp"
+          - "25_34|long_nonemp"
+          - "35_44|any_nonemp"
+          - "35_44|long_nonemp"
+          - "45_54|any_nonemp"
+          - "45_54|long_nonemp"
+          - "55_64|any_nonemp"
+          - "55_64|long_nonemp"
+          - "65_99|any_nonemp"
+          - "65_99|long_nonemp"
+        derivations: { k: 4, rounding: 3, metric: log_ratio }
+
+      e9_j2j_earnings_change:
+        quantity_type: flow
+        split_unit: person
+        reference: SIPP holdout
+        statistic: >-
+          median and IQR of log earnings change across j2j
+          transitions, absolute gap
+        floor_run: runs/sipp_e8_e9_floors_v1.json
+        floor_path: e9_transitions.earnings_change.j2j
+        substantive_tolerance: null  # floors non-degenerate; not needed
+        thinnest_gated_cell_note: >-
+          545 unweighted pairs — above the 200 thin flag but the
+          thinnest gated cell in the block. Recorded, not hidden.
+        cells:
+          - median_log_change
+          - iqr_log_change
+        derivations:
+          k: 4
+          rounding: 3
+          metric: absolute_gap
+          rules:
+            median_log_change: { key: floor_abs_median_gap }
+            iqr_log_change: { key: floor_abs_iqr_gap }
+
+      e10_locked_psid_gates:
+        quantity_type: regression
+        split_unit: person
+        reference: gates.yaml (gate_1 and successors)
+        statistic: >-
+          every already-locked PSID earnings gate, re-scored under
+          its EXISTING thresholds and floors, unchanged
+        floor_run: null  # no new floor; re-scores locked cells
+        substantive_tolerance: null
+        hard_rule: >-
+          LINKAGE FAILURE NEVER WEAKENS E10 (ADR 0004 §4). An invalid
+          or failed employer-side cell cannot be traded against, or
+          used to reinterpret, any PSID threshold. Gated from first
+          lock and in every subsequent phase.
+        cells: [inherits_locked_gate_1_cells]
+        derivations: null
+
+      e11_destination_size_margins:
+        quantity_type: flow
+        split_unit: job
+        reference: data/external/j2jod_us_firmsize_od_2015on.csv
+        statistic: >-
+          destination-size EE flow margin as a share of the
+          quarter's all-size EE total (aggregate-relative: raw
+          counts carry aggregate flow growth, a trend not noise —
+          same treatment as E7)
+        floor_run: runs/employer_firm_floors_v1.json
+        floor_basis: ex_pandemic
+        floor_path: e11.destination_size_margin.<cell>.ee_rel
+        substantive_tolerance: 0.05
+        cross_source_bound: >-
+          the LED tool's margins and the LEHD flat file's disagree by
+          -3.20% to +3.67% (tool above flat in 37/41 quarters). Since
+          post-2016Q1 constraints are margins-only, this bounds how
+          tight any E11 threshold can be, independently of the
+          temporal floor.
+        cells:
+          - firmsize1
+          - firmsize2
+          - firmsize3
+          - firmsize4
+          - firmsize5
+        derivations: { k: 4, rounding: 3, metric: log_ratio }
+
+    # ---------------------------------------------------------------
+    # Linkage QC (ADR 0004; B4 instantiation)
+    # ---------------------------------------------------------------
+    linkage_qc:
+      adr: docs/adr/0004-linkage-qc.md
+      first_lock_scope: e4_e5_sipp_internal_only
+      audit_manifest: docs/design/e4_e5_audit_manifest.md
+      audit_artifact: runs/e4_e5_audit_v1.json
+      sequence: >-
+        manifest pre-lock; the block MAY lock with the audit designed
+        but undrawn; audit RESULTS must exist before the first
+        one-shot candidate run scoring any E4/E5 cell. A failed floor
+        invalidates the E4/E5 cells — no candidate can then pass the
+        block — and the artifact publishes regardless: a designed
+        stop is a graded, publishable outcome, not a re-scoping
+        event.
+      passing_uses: one_sided_confidence_bound  # never the observed proportion
+      no_inheritance: >-
+        a gate promoted later (E9 transition classes, E11 detail)
+        must clear its own ADR 0004 audit at promotion time and
+        never inherits the E4/E5 pass.
+      reweighting:  # ADR 0004 §3 — B4
+        analysis_unit: adjacent_month_job_pair
+        clustering: worker
+        target_reference_population: >-
+          all adjacent-month job-pairs in the #235 within-wave frame
+          (384,747 job-holdings) — NOT the adjudicated subsample.
+        observables:
+          - age_band
+          - sex
+          - industry_section
+          - establishment_size_code  # IC2 span, inexactness carried
+          - earnings_tercile
+          - multi_job_flag
+          - seam_vs_within_indicator
+        weight_construction: >-
+          inverse of a registered logistic adjudication-inclusion
+          propensity over observables, trimmed at a registered
+          percentile.
+        propensity_spec: REFEREE
+        overlap_balance_tolerance: REFEREE
+        trimming_percentile: REFEREE
+        operative_version: REFEREE  # registered BEFORE candidate scores
+        publication_rule: >-
+          every link-consuming cell publishes weighted AND unweighted
+          regardless of which is operative; divergence between them
+          is itself a reportable finding.
+
+    # ---------------------------------------------------------------
+    # Lock ceremony
+    # ---------------------------------------------------------------
+    ceremony:
+      pre_lock_artifacts_required:
+        - runs/employer_firm_floors_v1.json          # DELIVERED (#223)
+        - runs/crosswave_jobid_check_v1.json         # #235
+        - docs/design/e4_e5_audit_manifest.md        # #236
+        - runs/sipp_spell_floors_v1.json             # #212
+        - runs/sipp_e8_e9_floors_v1.json             # #212
+        - runs/tenure_floors_v1.json                 # #212
+        - runs/seam_reconciliation_v1.json           # #274
+      merges_required_before_amendment:  # B3
+        - "#224 (ADR 0004 text carries its three adopted changes)"
+        - "#212"
+        - "#223"
+        - "#228"
+        - "#235"
+        - "#236"
+        - "#274"
+        - "#277 (IC rename, so this file needs no rename pass)"
+      artifact_pinning: >-
+        every consumed artifact sha256-pinned AT ITS MERGE COMMIT in
+        the amendment PR. Branch refs are force-pushable; the round-1
+        as-reviewed pin list records what round 1 saw, not what the
+        lock sees.
+      verbatim_carry: >-
+        this file is carried into gates.yaml VERBATIM with exactly
+        the lock-time deltas (design_commit concretized, locked flips
+        true, status set). Any other delta is a ceremony violation.
+      referee_verification_required: true  # B2 part 2
+      lock_table_required: >-
+        the amendment PR carries an M6-style lock table: builder
+        script commits, artifact sha256s, the complete authorized
+        edit surface, and guard tests including cell-count mutation
+        pins.
+      no_candidate_runs_before_lock: true
