@@ -1,4 +1,4 @@
-"""Tests for the canonical firm-size banding (contract C2).
+"""Tests for the canonical firm-size banding (contract IC2).
 
 Checks the properties the contract promises: canonical bands
 partition the positive integers; every raw source code maps to

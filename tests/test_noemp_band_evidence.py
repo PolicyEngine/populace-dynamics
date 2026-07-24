@@ -1,7 +1,7 @@
 """Pin the NOEMP band-label evidence artifact (issue #192).
 
 The committed ``runs/noemp_band_evidence_v1.json`` records the
-discontinuity test behind the C2 decision to read ASEC NOEMP codes
+discontinuity test behind the IC2 decision to read ASEC NOEMP codes
 2/3 as 10-49 / 50-99 in every year. These tests pin the artifact's
 internal consistency, and — when the ASEC files are staged —
 reproduce it from the raw data.

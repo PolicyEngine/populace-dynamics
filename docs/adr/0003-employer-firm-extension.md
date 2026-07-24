@@ -1,15 +1,53 @@
-# ADR 0003: Employer-firm extension — C1 spell schema and C2 canonical firm-size banding
+# ADR 0003: Employer-firm extension — IC1 spell schema and IC2 canonical firm-size banding
 
-**Status:** Accepted — C1 and C2 frozen 2026-07-16. From this
+**Status:** Accepted — IC1 and IC2 frozen 2026-07-16. From this
 point the contracts change only by joint PR between workstreams A
 and B ([populace-dynamics#192](https://github.com/PolicyEngine/populace-dynamics/issues/192)).
+
+**Amendment 1 (naming, no semantic change).** The interface
+contracts were originally named `C1`/`C2`/`C3`. They are renamed
+`IC1`/`IC2`/`IC3` — *interface contract* — with no change to any
+column, band, code mapping, or gate definition. This is a
+joint-PR change because it edits frozen contract text, not because
+anything in the contracts moved; the numbering is preserved 1:1, so
+every prior reference maps by prefixing `I`.
+
+**Why, and why this side moves.** In this repository a bare "C1"
+already meant four different things:
+
+| sense | example | can it be renamed? |
+|---|---|---|
+| gate_w1 **fingerprints** `c1`/`c2` | `gates.yaml` `fingerprints.c1` (PPI↔NRA) | **No** — inside `gate_w1`, which is `locked: true`. Renaming needs a public amendment plus a fresh referee round |
+| SSA Trustees **table** II.C1 | `data/external/ssa_tr_2014_ii_c1.*` | No — an external publisher's table label |
+| RNG **substream** C3 | household-composition `nonfamily_bridge` | Unrelated component; renaming is churn for no gain |
+| **interface contracts** C1/C2/C3 | this ADR | **Yes** — the only set that is repo-internal, pre-lock, and ours |
+
+The collision was flagged on #192 before the C3 referee round with
+the note that it would confuse referees. It is fixed now rather
+than later for one reason: `IC3` (the employer gate block) is
+about to be written into `gates.yaml`, which already contains
+`fingerprints.c1` and `fingerprints.c2`. Once a block named `C3`
+locks alongside them, renaming either set costs an amendment and a
+fresh referee round — the exact cost this table shows the
+fingerprint side already carries.
+
+Prior discussion (issue #192, the ADR history, merged PR bodies)
+uses the old names and is not rewritten; this note is the mapping.
+
+**Boundary: history keeps the old names, live documents are
+renamed.** The plan (`docs/plans/employer-firm-plan.html`), cited by
+the Context section below as the operative split, is a live document
+and is renamed with this amendment, so a referee following the ADR's
+own link does not meet unmapped names. The unrenamed senses in the
+table above (the locked `gates.yaml` fingerprints, the SSA table
+labels, the RNG substream) remain as they are, by the reasons given.
 
 **Sign-off:** @vahid-ahmadi (Workstream B, author) ·
 @daphnehanse11 (Workstream A) — the joint sign-off is recorded by
 the merge of the freeze PR: authorship by one workstream owner plus
 approval by the other. First scheduled amendment (pre-registered
 below):
-the C1 ``hours_band``/monthly-hours column once phase-1 establishes
+the IC1 ``hours_band``/monthly-hours column once phase-1 establishes
 SIPP's supportable hours granularity.
 
 ## Context
@@ -17,15 +55,15 @@ SIPP's supportable hours granularity.
 The employer-firm plan (`docs/plans/employer-firm-plan.html`) splits
 the extension into workstream A (person side: SIPP spells, CPS hosts,
 imputation) and workstream B (firm side: external targets, banding,
-calibration, register), meeting at three interface contracts. C1 (the
-spell schema) and C2 (canonical firm-size banding and its semantics)
+calibration, register), meeting at three interface contracts. IC1 (the
+spell schema) and IC2 (canonical firm-size banding and its semantics)
 freeze in week 1. This ADR records both, plus the target/gate
 partition rule, folding in the four contract-affecting findings from
 the week-1 review on issue #192.
 
 ## Decision
 
-### C2 — canonical firm-size banding
+### IC2 — canonical firm-size banding
 
 1. **Semantics (review finding F5).** The canonical firm-size
    variable means **administrative enterprise size**: total
@@ -33,7 +71,7 @@ the week-1 review on issue #192.
    counts it. Survey labels are noisy measures of that quantity —
    CPS ASEC firm size (worker-reported, all locations, previous
    calendar year's longest job — under either the raw Census `NOEMP`
-   or the IPUMS `FIRMSIZE` coding; see C2.5) is the primary training
+   or the IPUMS `FIRMSIZE` coding; see IC2.5) is the primary training
    label; SIPP 2014+ `EJB1_EMPSIZE` (establishment size) is a proxy
    chain. SUSB is therefore the correct E1 reference.
 2. **Bands are headcount bands.** Five canonical bands with edges at
@@ -43,7 +81,7 @@ the week-1 review on issue #192.
    both QWI (20-49 / 50-249) and the detailed SUSB classes (40-49 /
    50-74) support it. FTE-denominated thresholds (the ACA cut is 50
    full-time equivalents at 30 hours/week, not headcount) are
-   resolved by a person-side hours join — out of C2 scope.
+   resolved by a person-side hours join — out of IC2 scope.
 3. **Mappings are total but explicitly ambiguous where the source is
    coarse.** Every raw code from every source maps to exactly one
    `BandSpan` (a contiguous run of canonical bands with an `exact`
@@ -65,7 +103,7 @@ the week-1 review on issue #192.
    replication (weighted code shares by year vs. SUSB) is committed
    as `runs/noemp_band_evidence_v1.json` with its build script and
    pinning tests (#211) — the reported-anchor convention, since it
-   is derived evidence rather than a source extract — for the C3
+   is derived evidence rather than a source extract — for the IC3
    record.
 5. **The person-side coding is explicit, not inferred (seam with
    #194).** The raw Census ASEC person file carries `NOEMP`
@@ -85,7 +123,7 @@ the week-1 review on issue #192.
    emit `CanonicalBand` directly), never feed `NOEMP` integers to the
    `ipums_firmsize` route.
 
-### C1 — job-spell schema
+### IC1 — job-spell schema
 
 One tidy table, written by workstream A, read by workstream B:
 
@@ -96,7 +134,7 @@ One tidy table, written by workstream A, read by workstream B:
 | `start_period` | period | first period of the spell |
 | `end_period` | period | last period; open spells use a sentinel |
 | `industry` | str | NAICS major (sector) group |
-| `firm_size_band` | enum | canonical band per C2 (`CanonicalBand`) |
+| `firm_size_band` | enum | canonical band per IC2 (`CanonicalBand`) |
 | `class_of_worker` | enum | private / federal / state-local government / self-employed / unpaid family |
 | `earnings_share` | float | share of the person's period earnings from this job |
 | `primary_job` | bool | phase 0 is primary-job-only |
@@ -111,7 +149,7 @@ One tidy table, written by workstream A, read by workstream B:
   from the SUSB/QWI calibration universe; self-employed spells have
   no defined `firm_size_band`.
 - **Geography joins from the person table.** QWI/J2J targets are
-  state-level; C1 deliberately carries no geography column. The
+  state-level; IC1 deliberately carries no geography column. The
   state of a spell is the host person's state at `start_period`,
   joined on `person_id` — the join key lives on the person table,
   not the spell table.
@@ -122,9 +160,9 @@ One tidy table, written by workstream A, read by workstream B:
   compliance, issue #192 — the 80-hours-per-month test of
   7 CFR 273.24 and the 3-in-36 countable-month clock need
   month-resolved hours, not spell start/end plus annual earnings).
-  C1 as frozen carries no hours column, so it **cannot yet serve
+  IC1 as frozen carries no hours column, so it **cannot yet serve
   monthly-hours consumers**; a `hours_band` (or monthly hours)
-  column is the first scheduled C1 amendment, to be added by joint
+  column is the first scheduled IC1 amendment, to be added by joint
   PR once workstream A's phase-1 spell imputation establishes what
   hours granularity SIPP can support. Consumers must not proxy
   monthly compliance from annual quantities in the meantime.
@@ -146,10 +184,10 @@ phase-0 QRF therefore comes from a named bridge, not an implicit one:
    bridge, aged forward.
 2. **Proxy chain:** SIPP 2014+ establishment size x tenure, mapped
    through the establishment-to-enterprise noise model implied by
-   the C2 semantics.
+   the IC2 semantics.
 3. **Pre-registered caveat:** the ASEC reference-period mismatch
    (`FIRMSIZE` = last calendar year's longest job; tenure supplement
-   = current job) is carried into the C3 gate notes as a known
+   = current job) is carried into the IC3 gate notes as a known
    label-misalignment term.
 
 ### Target/gate partition rule
@@ -161,7 +199,7 @@ firm-size x sector flow margins committed under `data/external/`;
 gates E1/E2/E7/E11 score on held-out dimensions of the same sources
 (the sex/age demographic axes of QWI, the firm-age axis, and the
 state axis) that calibration never touches. The exact cell lists lock
-with C3 after the floor runs.
+with IC3 after the floor runs.
 
 Three unit rules recorded now (issue #192 review, point 4; branch
 review finding 3):
@@ -171,7 +209,7 @@ review finding 3):
   so calibrating person-spells to QWI cells carries a wedge on the
   order of the multiple-jobholding rate (~5%, time-varying). A
   job-count -> person-count adjustment is an explicit pre-registered
-  C3 item, not a footnote.
+  IC3 item, not a footnote.
 - **QWI publishes mean earnings (`EarnS`), never medians**; E7 is
   stated on means.
 - **J2J's employer universe is broader than SUSB/QWI's.** The
@@ -182,7 +220,7 @@ review finding 3):
   sectors (notably 61 Educational Services and 62 Health Care). Any
   E11 cell definition must either restate J2J on a private-comparable
   basis or carry this scope difference as a pre-registered caveat;
-  the choice locks with C3.
+  the choice locks with IC3.
 
 ## Consequences
 
@@ -193,8 +231,8 @@ review finding 3):
   workstreams push directly to each other's branches when useful
   (reader fixes, rebases, contract-text corrections — this has run
   in both directions and worked). The norm the freeze makes
-  explicit: a change that touches contract semantics (C1 columns,
-  C2 bands/codings, gate definitions) requires the *other*
+  explicit: a change that touches contract semantics (IC1 columns,
+  IC2 bands/codings, gate definitions) requires the *other*
   workstream owner's approval on the PR even when the commit was
   pushed directly, so pre-registration always records who decided,
   not just who typed.
@@ -204,6 +242,6 @@ review finding 3):
   references, analogous to the NCHS/Census/ONS files — never scored
   model output. Raw microdata is never committed.
 - No change to `gates.yaml`. Employer gates E1-E12 lock as a new
-  block (C3) after noise-floor runs and a referee round, via the
-  standard amendment process; no one-shot candidate runs before C3
+  block (IC3) after noise-floor runs and a referee round, via the
+  standard amendment process; no one-shot candidate runs before IC3
   locks.

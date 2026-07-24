@@ -1,4 +1,4 @@
-"""SIPP job-level monthly records and C1-preview spells (issue #200).
+"""SIPP job-level monthly records and IC1-preview spells (issue #200).
 
 The 2014-redesign SIPP public-use files are the employer-firm plan's
 primary label panel (#192): one row per person-month (``SSUID`` x
@@ -8,7 +8,7 @@ identifier for a job which is consistent across waves" — the
 within-panel employer-attachment key that phase-1 transition hazards
 rest on. ``EJB{n}_EMPSIZE`` measures **establishment** size at the
 worker's location (the redesign dropped the all-locations question),
-so it is the C2 proxy-chain input, never firm size (ADR 0003;
+so it is the IC2 proxy-chain input, never firm size (ADR 0003;
 ``firms/banding.py``).
 
 Every variable this reader touches was verified against the Census
@@ -28,10 +28,14 @@ scrambled composite identifier and reads as a **string** (the ASEC
 string-typed in the API schema.
 
 ``job_spells`` collapses maximal consecutive-month runs per
-(person, job id) into spell rows whose shape mirrors the C1 spell
-schema. It is labeled **C1-preview**: ADR 0003 is Proposed, not
-frozen, and this output also serves as Workstream B's generator for
-C1-conforming fixture files. Attribute changes inside a spell
+(person, job id) into spell rows whose shape mirrors the IC1 spell
+schema. It is still labeled **IC1-preview**, but for a narrower
+reason than when it was written: ADR 0003 is now Accepted and IC1
+is frozen, so what remains preview-grade is this collapse's own
+coverage (single ``ref_year`` only — cross-year spell linkage
+raises rather than guessing), not the schema's status. The output
+also serves as Workstream B's generator for IC1-conforming fixture
+files. Attribute changes inside a spell
 (class of worker, industry, establishment size) are surfaced via
 ``attributes_constant`` — never silently averaged.
 
@@ -495,12 +499,14 @@ def read_sipp_job_months(
 
 
 def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
-    """Collapse job-months into C1-preview spell rows.
+    """Collapse job-months into IC1-preview spell rows.
 
     A spell is a maximal run of consecutive reference months for one
-    (person, job id). The output mirrors the C1 spell schema of ADR
-    0003 (Proposed — this is a preview, not the frozen contract) and
-    doubles as Workstream B's generator for C1-conforming fixtures.
+    (person, job id). The output mirrors the IC1 spell schema of ADR
+    0003, which is **Accepted and frozen**; what remains preview-grade
+    is this collapse's own coverage (single ``ref_year`` only — see
+    below), not the schema's status. It doubles as Workstream B's
+    generator for IC1-conforming fixtures.
 
     Args:
         job_months: Output of :func:`read_sipp_job_months`.
@@ -560,7 +566,7 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
             ]
         )
 
-    # Cross-year spell linkage is undefined in this C1 preview: the
+    # Cross-year spell linkage is undefined in this IC1 preview: the
     # break/run detection, the person-month earnings lookup, and the
     # spell edges all key on the calendar ``month`` (1-12) alone, so two
     # different reference years sharing a month would collapse into one
@@ -575,7 +581,7 @@ def job_spells(job_months: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(
             "job_spells received job-months spanning multiple ref_years "
             f"({sorted(int(y) for y in ref_years)}); cross-year spell "
-            "linkage is undefined in this C1 preview. Collapse one SIPP "
+            "linkage is undefined in this IC1 preview. Collapse one SIPP "
             "file's months at a time."
         )
 
