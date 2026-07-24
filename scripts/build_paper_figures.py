@@ -53,7 +53,6 @@ HORIZONS = (2, 4, 10)
 # greys for context, status green/red for verdict glyphs.
 BLUE = "#2a78d6"
 ORANGE = "#eb6834"
-GREEN = "#1f9d69"
 GOOD = "#0ca30c"
 BAD = "#e34948"
 INK = "#0b0b0b"
@@ -547,7 +546,7 @@ def build_m6_scorecard() -> str:
         for v in s3[c]:
             body.append(
                 f"<circle cx='{xs(v):.1f}' cy='{cy + 7.5:.1f}' r='4.2' "
-                f"fill='{GREEN}' fill-opacity='0.95' stroke='#ffffff' "
+                f"fill='{GOOD}' fill-opacity='0.95' stroke='#ffffff' "
                 f"stroke-width='1.2'/>"
             )
     ly = H - B + 34
@@ -560,7 +559,7 @@ def build_m6_scorecard() -> str:
     )
     body.append(text(L + 210, ly, "candidate 2 (FAIL, 3 of 5 seeds)", 11, INK))
     body.append(
-        f"<circle cx='{L + 388}' cy='{ly - 4}' r='4.2' fill='{GREEN}'/>"
+        f"<circle cx='{L + 388}' cy='{ly - 4}' r='4.2' fill='{GOOD}'/>"
     )
     body.append(text(L + 398, ly, "candidate 3 (PASS, 4 of 5 seeds)", 11, INK))
     return svg(W, H, body)
