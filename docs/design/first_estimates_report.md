@@ -1,10 +1,9 @@
 # The first estimates report: statutory-formula benefit and revenue estimates on the candidate-3 reproduction panel
 
-- **Status:** `DRAFT_NOT_OPERATIVE`, revision 4 — hardened through
-  three adversarial referee rounds (PR #285 record: round 1 ten
-  findings, round 2 eight fresh findings and a ceremony prescription,
-  round 3 eight fresh findings and an implementability judgment — all
-  accepted). Submitted for round 4. Nothing here authorizes a run.
+- **Status:** `DRAFT_NOT_OPERATIVE`, revision 5 — hardened through
+  four adversarial referee rounds (PR #285 record: rounds 1-4, every
+  finding accepted). Submitted for round 5. Nothing here authorizes a
+  run.
 - **Resolves:** forecast ledger entry 8 — "end-to-end benefit and
   revenue estimates computed on projected earnings/demographic histories
   from the certified engine, published in-repo with disclosed gaps (no
@@ -133,8 +132,31 @@ Nominal labor income by calendar year assembled as:
 ### 3.3 Zero semantics and the coverage rule
 
 `ss.benefits.aime` treats absent years as zero and makes coverage the
-caller's responsibility (`ss/benefits.py:100-117`). The registered
-inclusion rule for benefit tables: a person is included iff
+caller's responsibility (`ss/benefits.py:100-117`). Two ordering and
+domain laws frozen per round 4:
+
+- **Cutoff before imputation** (the information-as-of principle
+  extends to imputation itself): the as-of restriction to income years
+  ≤ the claim year is applied FIRST; the gap law then runs on the
+  restricted series only, so a gap year at the restricted edge carries
+  its observed earlier neighbor and no post-claim year ever influences
+  an imputed value.
+- **The eligibility-era bound**: benefit tables include only persons
+  with eligibility year (birth + 62) **≥ 1979** — the statutory era
+  the oracle implements (its bend-point computation is the
+  post-1977-amendments 1979-base formula, `ss/params.py:138`; the
+  frame contains cohorts eligible as early as the 1970s, which the
+  formula does not cover). Earlier-eligibility persons are
+  excluded-and-counted. This bound also fixes the §7.4 COLA coverage
+  span at 1979-2022.
+- **Empty-span disposition**: a person whose coverage span is empty
+  (claim year before the 1968 series start) is excluded-and-counted —
+  a defined exclusion reason, not an abort. (The eligibility-era bound
+  makes this vacuous for included persons; the rule exists as a
+  fail-safe.)
+
+The registered inclusion rule for benefit tables: a person is included
+iff
 
 - their earnings-domain state is complete (the no-earnings-state
   persons are excluded-and-counted; **one entrant law** per round 3:
@@ -184,12 +206,16 @@ claim age with the person's age in that slice:
   the engine's stamped claim year is fabricated. These persons join
   the opening stock only, with claim age AND claim year re-imputed
   under §6; both engine-stamped values are discarded.
-- **`di_conversion`**: any person conversion-classified under §5.
-  Excluded from both tables.
+- **DI-excluded persons carry no origin** (round-4 consistency fix):
+  the §5 precedence law runs FIRST; `di_conversion` and `di_unknown`
+  persons are excluded before origin assignment. They may carry engine
+  claim state (a `di_unknown` person can still be stamped claimed,
+  `steps.py:433`); that state is never consumed. The origin partition
+  is asserted complete over **non-DI claimed persons only**.
 
-The artifact asserts and publishes cohort disjointness: every claimed
-person appears in exactly one origin class; the flow and stock tables
-share no person.
+The artifact asserts and publishes cohort disjointness: every non-DI
+claimed person appears in exactly one origin class; the flow and stock
+tables share no person.
 
 ## 5. DI conversions (round-1 finding 5)
 
@@ -283,8 +309,8 @@ Per included claimant, the ledger is year-by-year:
    through the year before the payment year, rounding down to the next
    lower dime at each step; the implementation PR's referee verifies
    this convention against 42 USC 415(i) before ratifying. Coverage is
-   asserted from the earliest included eligibility year (opening-stock
-   cohorts reach back well before 2015) through 2022; preparation
+   asserted for 1979-2022 exactly (the §3.3 eligibility-era bound
+   fixes the earliest included eligibility year at 1979); preparation
    aborts if any required COLA year is absent — no silent skip, no
    fallback constant.
 5. **No recomputation (registered simplification)**: post-claim
@@ -373,22 +399,22 @@ promised for later), with each item's classification:
 |---|---|
 | Scheduled realized 2017/2019 openers condition the object | material — the reproduction panel is anchored, not forward |
 | Widowhood limitations | material — survivor composition affects presence |
-| Open additions / immigration absent | material |
+| Open additions dormant (certified: open additions have no PSID truth and are report-only; the immigrant path is dormant, zero immigrant cohorts recorded; synthetic births ARE report-only additions) | material — restated in the certified wording |
 | Lag-5 persistence unscored | material context for earnings paths |
 | Stock margins unscored | material context |
 | 65+ remarriage tail limitation | material context — presence of older married persons |
-| Earnings survivorship | material — earnings-conditioned mortality untested |
+| Earnings survivorship (restated in the certified record's own wording at the artifact's not_certified entry, quoted verbatim in the artifact gap block) | material |
 | Full-window model selection | material context |
 | Redrawn-seed comparison unavailable | material context |
-| No gate-1 backward-law transfer | restated verbatim |
+| "No gate_1 backward-law certificate transfers" (the artifact's earnings-certification string, quoted exactly) | restated verbatim |
 | F4 — partial overlay: `_merge_period_columns` drops named columns before left-merging, so unmatched live state becomes `NaN` (pinned: carried `di_converted=True` read as no-conversion) | **material** — directly motivates the §5 precedence law and the `di_unknown` class |
-| F5 — exact-anchor household seed gap (minors reaching 15 later and source-gap adults never enter the household domain) | material — household-domain coverage affects who is present in slices |
+| F5 — exact-anchor household seed gap (minors reaching 15 later and source-gap adults never enter the household domain) | inapplicable to presence (certified: household fields feed no locked cell and are not serialized; roster presence is unaffected) — material only if household-domain counts are quoted, and then the certified excluded/domain counts publish first |
 | F6 — closed "85+" band (nominal 85+ ends at 120; uncovered ages get p=0) | material context — oldest-old presence in benefit-years |
 | F8 — entrant classification (`anchor_wave > 2015 & ~domain` treated as row existence) | **material** — the reason §3.3/§10 re-derive the entrant count from explicit earnings rows |
 | F9 — candidate-9/live-roster reconciliation (household fields do not reconcile mortality-thinned members or newborns) | inapplicable — household composition fields are not consumed by this report |
 | F9 sub-item — `coresident_spouse` carried for a person whose spouse was removed by simulated mortality | inapplicable here (household column unconsumed), listed by name as the certified record requires |
-| F10 — entrant schema NAs (`synthetic_entry=NA` inheritance) | material — the pipeline identifies synthetic persons by ID-set difference, never by this field |
-| F11 — fertility-domain coverage (births draw over `state.marital_ids` only) | inapplicable to benefit tables (no in-window newborn claims); material context for revenue person-years |
+| F10 — entrant schema NAs (`synthetic_entry=NA` inheritance; certified surface: future panel/schema consumers) | this report is such a consumer — it identifies synthetic persons by ID-set difference per the certified mechanism and never reads this field; classified handled-by-construction, listed |
+| F11 — fertility-domain coverage (births draw over `state.marital_ids` only; certified surface: family-B birth counts, no gated cell) | inapplicable to benefit tables (no in-window newborn claims); for revenue person-years the certified fertility-domain denominator disclosure is restated, not extended |
 | Certified `forward_projection_2100_extrapolation` limitation | material — restated: nothing here extends past 2022, and nothing certifies any longer horizon |
 | Mortality drift uncertified | material |
 | Families B/C ungated | material |
@@ -431,22 +457,35 @@ overlap, stated).
   same-ceremony v2 path. Any other clause in this document or the
   eventual registration that appears to describe execution defers to
   this paragraph.
-- **The INVALID/incident record** (round-3 completion): a preparation,
-  invariant, or compute abort publishes an append-only record at
-  `runs/first_estimates_incident_<n>.json` (n = 1, 2, … in order)
-  containing the timestamp, phase, machine reason, and full
-  configuration echo — and **no estimate-bearing value of any kind**.
-  Incident records never occupy the `v1` path and are cross-referenced
-  by any later artifact or fresh registration.
-- **Execution topology** (round-3 correction — the design previously
-  named the superseded incident-5028176439 procedure): the compute
-  runs under the **launchd user-domain topology** as adjudicated and
-  verified on the candidate-3 record (issue #42 comments 5065343857
-  and 5065367143): a one-shot LaunchAgent with `ProcessType=Interactive`
-  and no KeepAlive spawns the detached runner and is removed after
-  verification; the runner holds its own `caffeinate` sleep assertion;
-  no network-dependent parent; publication is performed by the
-  coordinator after exit.
+- **The INVALID/incident record** (schema frozen per round 4): a
+  preparation, invariant, or compute abort publishes an append-only
+  record at `runs/first_estimates_incident_<n>.json` (n = 1, 2, … in
+  order) with exactly these keys —
+  `schema_version` (the string `"first_estimates_incident.v1"`),
+  `incident_index` (integer n), `timestamp_utc` (ISO-8601 with `Z`),
+  `phase` (one of `"preparation" | "invariant" | "compute" |
+  "publication"`), `reason` (a machine string), `reason_detail` (free
+  text), `registration_reference` (issue/comment id), and
+  `configuration_echo` (the same object the artifact would carry) —
+  and **no estimate-bearing value of any kind**; a schema-validation
+  test enforces both the key set and the absence of numeric estimate
+  tables. Incident records never occupy the `v1` path and are
+  cross-referenced by any later artifact or fresh registration.
+- **Execution topology — the complete launcher contract** (round-4
+  completion; the launchd user-domain lineage adjudicated and verified
+  on the candidate-3 record, issue #42 comments 5065343857 and
+  5065367143): a one-shot LaunchAgent with `RunAtLoad=true`,
+  `AbandonProcessGroup=true`, `ProcessType=Interactive`, and **no
+  KeepAlive of any kind**, whose program is a launcher script that
+  `nohup`-spawns the runner and **exits** (the spawned process must not
+  be the agent's main process, or agent removal kills it); the runner
+  command wraps itself in `caffeinate -sim` so the sleep assertion
+  belongs to the runner's own lifetime; the agent is bootstrapped once,
+  the runner verified healthy, and the agent booted out with its plist
+  deleted — persistence-object lifetime under two minutes; the runner
+  ends as a launchd-domain orphan (parent pid 1) in no application
+  coalition; no network-dependent parent; publication is performed by
+  the coordinator after exit.
 - Tests: schema/invariant validation plus a committed-fixture rebuild
   test of the join, origin classification, and ledger arithmetic
   without re-running the projection (new work modeled on, not copied
