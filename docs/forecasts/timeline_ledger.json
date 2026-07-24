@@ -143,10 +143,16 @@
       "resolution_criterion": "A scored verdict artifact in runs/ for a registered candidate, published via merged PR, with overall PASS under the live gate_m6 contract.",
       "p50": "2026-07-26",
       "p80": "2026-07-30",
-      "status": "open",
+      "status": "resolved",
       "supersedes": 7,
       "revision_reason": "The candidate-3 pipeline advanced far faster than the entry-7 modal path assumed (program #270, diagnostic #271, amendment 6 #272 all ratified within ~30h of the candidate-2 verdict; prototype #273 implemented with all preflights green), but the rho-selection ladder consumed the schedule margin: measured pace is ~2h/rung x 17 rungs (~36h sealed run) vs the ~7h q*-ladder precedent, and the first attempt livelocked after 7h39m in an OpenMP join barrier (stack-sampled; permanent), with the restart then catching a fitting-stack HEAD drift from a concurrent lane (guard worked; resolved by a lane-local clone pinned at ee8f7fc1). Hardened attempt 2 launched 2026-07-22 ~12:20 ET puts the ledger at ~00:30 7/24, registration + 23h run on 7/24, verdict ~7/25, and refereed certification 7/25 only if every remaining step lands first-try. With ladder-recurrence risk and the amendment's F1-unresolved-by-design uncertainty, the median certification lands 7/26. p50 7/25 -> 7/26; p80 7/29 -> 7/30.",
-      "resolution": null
+      "resolution": {
+        "resolved_at": "2026-07-24T11:25:00Z",
+        "evidence": "https://github.com/PolicyEngine/populace-dynamics/pull/283 (merged 65d151b0937c200f9bc86fae4a3856a1f04b6fbe); ratification note https://github.com/PolicyEngine/populace-dynamics/issues/42#issuecomment-5069537907",
+        "error_days_p50": -2,
+        "within_p50": true,
+        "within_p80": true
+      }
     }
   ]
 }

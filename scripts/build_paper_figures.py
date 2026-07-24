@@ -470,6 +470,7 @@ def build_scorecard(artifacts: list[dict]) -> str:
 def build_m6_scorecard() -> str:
     d1 = json.loads((ROOT / "runs/gate_m6_candidate1_v1.json").read_text())
     d2 = json.loads((ROOT / "runs/gate_m6_candidate2_v1.json").read_text())
+    d3 = json.loads((ROOT / "runs/gate_m6_candidate3_v1.json").read_text())
     tol = {c["cell"]: c["tolerance"] for c in d1["gate"]["cells"]}
 
     def norm(per_seed: list[dict]) -> dict[str, list[float]]:
@@ -481,7 +482,8 @@ def build_m6_scorecard() -> str:
 
     s1 = norm(d1["family_a"]["per_seed"])
     s2 = norm(d2["candidate2_acceptance"]["gate_contract_result"]["per_seed"])
-    order = sorted(tol, key=lambda c: sum(s2[c]) / len(s2[c]))
+    s3 = norm(d3["gate_contract_result"]["per_seed"])
+    order = sorted(tol, key=lambda c: sum(s3[c]) / len(s3[c]))
     x_max = max(max(v) for v in s1.values()) * 1.05
 
     W, H = 760, 470
@@ -496,7 +498,8 @@ def build_m6_scorecard() -> str:
         text(
             L,
             22,
-            "Two registered candidates against the locked " "gate_m6 holdout",
+            "Three registered candidates against the locked "
+            "gate_m6 holdout",
             14,
             INK,
             weight="bold",
@@ -530,25 +533,35 @@ def build_m6_scorecard() -> str:
         body.append(text(L - 8, cy + 4, c, 11, INK, "end"))
         for v in s1[c]:
             body.append(
-                f"<circle cx='{xs(v):.1f}' cy='{cy - 4:.1f}' r='4.6' "
+                f"<circle cx='{xs(v):.1f}' cy='{cy - 7.5:.1f}' r='4.2' "
                 f"fill='{ORANGE}' fill-opacity='0.9' stroke='#ffffff' "
                 f"stroke-width='1.2'/>"
             )
         for v in s2[c]:
             body.append(
-                f"<circle cx='{xs(v):.1f}' cy='{cy + 5:.1f}' r='4.6' "
+                f"<circle cx='{xs(v):.1f}' cy='{cy:.1f}' r='4.2' "
                 f"fill='{BLUE}' fill-opacity='0.92' stroke='#ffffff' "
+                f"stroke-width='1.2'/>"
+            )
+        for v in s3[c]:
+            body.append(
+                f"<circle cx='{xs(v):.1f}' cy='{cy + 7.5:.1f}' r='4.2' "
+                f"fill='{GOOD}' fill-opacity='0.95' stroke='#ffffff' "
                 f"stroke-width='1.2'/>"
             )
     ly = H - B + 34
     body.append(
-        f"<circle cx='{L + 6}' cy='{ly - 4}' r='4.6' fill='{ORANGE}'/>"
+        f"<circle cx='{L + 6}' cy='{ly - 4}' r='4.2' fill='{ORANGE}'/>"
     )
     body.append(text(L + 16, ly, "candidate 1 (FAIL, 6 of 11 cells)", 11, INK))
     body.append(
-        f"<circle cx='{L + 256}' cy='{ly - 4}' r='4.6' fill='{BLUE}'/>"
+        f"<circle cx='{L + 200}' cy='{ly - 4}' r='4.2' fill='{BLUE}'/>"
     )
-    body.append(text(L + 266, ly, "candidate 2 (FAIL, 3 of 5 seeds)", 11, INK))
+    body.append(text(L + 210, ly, "candidate 2 (FAIL, 3 of 5 seeds)", 11, INK))
+    body.append(
+        f"<circle cx='{L + 388}' cy='{ly - 4}' r='4.2' fill='{GOOD}'/>"
+    )
+    body.append(text(L + 398, ly, "candidate 3 (PASS, 4 of 5 seeds)", 11, INK))
     return svg(W, H, body)
 
 
