@@ -1,8 +1,10 @@
 # The first estimates report: statutory-formula benefit and revenue estimates on the candidate-3 reproduction panel
 
-- **Status:** `DRAFT_NOT_OPERATIVE`, revision 2 — rewritten against the
-  round-1 adversarial referee review (PR #285 record, ten findings, all
-  accepted). Submitted for round 2. Nothing here authorizes a run.
+- **Status:** `DRAFT_NOT_OPERATIVE`, revision 4 — hardened through
+  three adversarial referee rounds (PR #285 record: round 1 ten
+  findings, round 2 eight fresh findings and a ceremony prescription,
+  round 3 eight fresh findings and an implementability judgment — all
+  accepted). Submitted for round 4. Nothing here authorizes a run.
 - **Resolves:** forecast ledger entry 8 — "end-to-end benefit and
   revenue estimates computed on projected earnings/demographic histories
   from the certified engine, published in-repo with disclosed gaps (no
@@ -11,10 +13,10 @@
 - **Class:** **registered estimates report** — a class this document
   charters (round-1 finding 10: the M2/W2 precedents are similar but
   not identical, so the class is defined here rather than claimed by
-  reference): registered configuration before execution; one run; one
-  disclosed re-execution; append-only publication regardless of
-  results; no gates.yaml surface, no floors, no verdict; every output
-  labeled with its evidential status.
+  reference): registered configuration before execution; execution
+  governed solely by §11's canonical rule; append-only publication
+  regardless of results; no gates.yaml surface, no floors, no verdict;
+  every output labeled with its evidential status.
 - **Evidence base:** the machinery survey and the round-1 review
   (PR #285 record), both verified against master `65695bb`. File:line
   citations are to that commit.
@@ -100,14 +102,21 @@ Nominal labor income by calendar year assembled as:
   one observed year only (edge), it carries that neighbor. Imputed
   years are flagged; the artifact publishes the imputed-year share of
   each included career.
-- **The 2013/2014 seam** (corrected per round 2): the 2014 value is the
-  engine's initialized state, which the registered inputs seed from the
-  realized 2014 boundary anchor
+- **The 2013/2014 seam** (corrected per rounds 2-3): the 2014 value is
+  the engine's initialized state, which the registered inputs seed from
+  the realized 2014 boundary anchor
   (`registered_m6_candidate2_inputs.py:9-17,235-236`;
-  `forward_earnings.py:1411-1463`). Income year 2013 follows the gap
-  law bracketed by observed 2012 and that 2014 value; where 2012 is
-  itself unobserved, 2013 carries the 2014 neighbor and both years'
-  imputation flags are set.
+  `forward_earnings.py:1411-1463`); its provenance class is
+  `boundary_2014`. Income year 2013 follows the gap law bracketed by
+  observed 2012 and that 2014 value. **Missing-2012 disposition
+  (round-3 completion)**: where 2012 is unobserved, 2012 remains
+  `unknown` (no value is invented for it) and 2013 carries the 2014
+  neighbor with its imputation flag set.
+- **Per-year provenance enum (round-3 completion)**: every career year
+  carries exactly one class — `observed`, `gap_imputed`,
+  `boundary_2014`, `projected`, or `unknown` — and the artifact
+  publishes the class mix per included career. `unknown` years inside
+  an included career contribute zero to AIME, disclosed.
 - **Projected 2015-2022** from the projection slices, **with the
   odd-year carry law disclosed** (round-2 fresh finding 5): the engine
   draws even-year earnings and carries the prior even year into odd
@@ -127,14 +136,17 @@ Nominal labor income by calendar year assembled as:
 caller's responsibility (`ss/benefits.py:100-117`). The registered
 inclusion rule for benefit tables: a person is included iff
 
-- their earnings-domain state is complete (the 16,231 no-state and
-  6,698 later-entrant persons of
-  `gate_m6_candidate3_v1.json:5430-5441` are excluded-and-counted), and
-- their career **coverage ratio** — (observed + gap-law-imputed +
-  projected years) / (span from max(1968, birth+22) through
-  min(claim year, 2022)) — is **≥ 0.80** (frozen prospectively here;
-  the numerator includes projected years per round-2 fresh finding 3,
-  so a career is penalized only for genuinely unknown spans).
+- their earnings-domain state is complete (the no-earnings-state
+  persons are excluded-and-counted; **one entrant law** per round 3:
+  the operative counts are the §10 re-derived explicit-row counts —
+  the candidate-3 artifact's 6,698 figure is cited as context only,
+  never as an operative rule), and
+- their career **coverage ratio** — years classed `observed`,
+  `gap_imputed`, `boundary_2014`, or `projected` within the inclusive
+  span, divided by the span from max(1968, birth+22) through
+  min(claim year, 2022) — is **≥ 0.80** (frozen prospectively;
+  numerator years are counted only inside the denominator interval,
+  and the implementation asserts 0 ≤ ratio ≤ 1).
 
 Excluded persons are published as weighted and unweighted counts by
 exclusion reason. Revenue tables include every person with projected
@@ -190,19 +202,25 @@ a blanket "True or NaN anywhere" rule would empty the benefit universe:
 the published 2014 starting slice carries no `di_converted` field at
 all, so every bulk incumbent has a structural `NaN`
 (`m6_population.py:32-49,264-350`; `loop.py:218`). The registered rule
-is therefore a **three-way classification** computed per person over
-the trajectory, with the pipeline persisting an `ever_di_converted`
-derivation:
+is therefore a **precedence law over the whole trajectory** (round-3
+completion — exhaustive and mutually exclusive, since partial left
+overlays can also produce a post-start `NaN` for a person who never
+carried a concrete value, `assembly.py:174-192,380-388`):
 
-- **structural not-applicable**: `NaN` only in slices where the field
-  is structurally absent (the 2014 seed), with no later True and no
-  later degradation — treated as not converted; counted.
-- **overlay-unknown**: a `NaN` appearing after the person has carried a
-  concrete value (the disclosed overlay degradation) — excluded from
-  benefit tables and counted separately.
-- **confirmed conversion**: True in any slice — excluded and counted.
+1. **`di_conversion`**: True in any slice — excluded and counted.
+   (Ever-True takes precedence; a later True→NaN degradation does not
+   demote a confirmed conversion.)
+2. **`di_unknown`**: otherwise, any **post-start** missing observation
+   — whether after a concrete value (overlay degradation) or without
+   one ever appearing — excluded from benefit tables and counted
+   separately. Excluded persons need no `claim_origin`.
+3. **non-DI**: otherwise (including 2014-seed structural absence with
+   concrete non-True values throughout the projection) — included.
 
-DI benefit dollars remain out of scope entirely.
+The implementation asserts that this partition is complete: every
+person maps to exactly one class, and every benefit-table person is
+non-DI with exactly one §4 origin. DI benefit dollars remain out of
+scope entirely.
 
 ## 6. The opening-stock imputation (round-1 finding 7; report-only table)
 
@@ -217,10 +235,15 @@ deliberate proxy for actual entitlement year, disclosed as such;
 round-2 correction) clamped to the table's 1998-2013 coverage. Two
 round-2 coherence fixes are law:
 
-- **The PMF is truncated and renormalized to ages ≤ the person's age
-  at first exposure** before drawing — an opening-stock member cannot
-  be imputed a claim age later than the age at which the engine
-  observed them unclaimed-then-backfilled; the imputed claim year is
+- **The PMF is truncated and renormalized to ages strictly below the
+  person's age at first exposure** before drawing (round-3 correction:
+  `<` not `≤` — equality is a §4 modeled award, so an equality
+  imputation would collide with the origin law). Opening-stock
+  membership itself proves the original draw was strictly below the
+  exposure age, and exposure is therefore at least 63 against a table
+  whose support starts at 62 with positive age-62 mass in every pinned
+  sex/year row — but the implementation still **fails closed** if the
+  truncated mass is empty for any person. The imputed claim year is
   `birth_year + imputed_age`.
 - **A dedicated deterministic RNG namespace**, keyed by person
   identifier under a registered stock-imputation root seed (disjoint
@@ -246,15 +269,22 @@ Per included claimant, the ledger is year-by-year:
    `benefit_factor(claim_age × 12, birth_year, params)` — months, not
    the engine's integer years (`claiming.py:338-376`).
 4. **COLA**: the eligibility-year PIA is stepped to each payment year
-   by the statutory COLA series. **Round-2 correction: no COLA series
-   exists in the current loader** (`ss/params.py:65-85,206-355`
-   exposes NAWI, wage base, bend factors, FRA, and reduction/credit
-   rates only). The implementation PR therefore adds a **pinned COLA
-   loader** (extending `SSAParameters` or a sibling loader) reading
-   the named COLA parameter path in the pinned policyengine-us 1.752.2
-   tree, source/path/hash recorded, with tests — and with **coverage
+   by the statutory COLA series. **Round-3 correction: the pinned
+   PE-US 1.752.2 tree cannot supply this** — its only SSA uprating
+   file begins at 2022 and is a CPI-W level series, not historical
+   COLAs. The COLA source is therefore a **new committed extraction**:
+   `data/external/ssa_cola_history.json`, transcribed from SSA's
+   published automatic-determination COLA history, with provenance
+   (URL, retrieval date, vintage), content hash, and a
+   transcription-validating test — the Table 6.B5.1 committed-anchor
+   pattern. Frozen application semantics: each COLA is the
+   December-effective percentage of its determination year; the PIA at
+   eligibility is compounded by the COLAs of the eligibility year
+   through the year before the payment year, rounding down to the next
+   lower dime at each step; the implementation PR's referee verifies
+   this convention against 42 USC 415(i) before ratifying. Coverage is
    asserted from the earliest included eligibility year (opening-stock
-   cohorts reach back well before 2015) through 2022**. Preparation
+   cohorts reach back well before 2015) through 2022; preparation
    aborts if any required COLA year is absent — no silent skip, no
    fallback constant.
 5. **No recomputation (registered simplification)**: post-claim
@@ -292,13 +322,13 @@ a **second, independent parameter load**:
 - `ss.params.load_ssa_parameters` (the full loader,
   `ss/params.py:196-227`) against the pinned policyengine-us 1.752.2
   checkout, path recorded and content hash-verified;
-- **round-2 correction — `SSAParameters` exposes neither payroll-rate
-  legs nor COLA** (`ss/params.py:65-85`): the implementation PR adds
-  **two pinned parameter-tree loaders** — the employee and employer
-  OASDI rate legs, and the COLA series of §7.4 — each reading a named
-  path in the pinned 1.752.2 tree, path and content-hash recorded in
-  the artifact, with tests; exact path selection is an implementation
-  matter gated by that PR's own referee round;
+- **rate legs named** (round-3 completion): the implementation PR adds
+  a pinned loader for the employee and employer OASDI rate legs at
+  `gov/irs/payroll/social_security/rate/employee.yaml` and
+  `gov/irs/payroll/social_security/rate/employer.yaml` in the pinned
+  1.752.2 tree, path and content-hash recorded in the artifact, with
+  tests. The COLA series comes from the §7.4 committed extraction, not
+  the tree;
 - preparation-time assertions: actual NAWI present through 2020,
   actual wage bases through 2022, both rate legs equal to 6.2% and the
   combined rate 12.4% as read from the tree — **no fallback constant
@@ -351,7 +381,15 @@ promised for later), with each item's classification:
 | Full-window model selection | material context |
 | Redrawn-seed comparison unavailable | material context |
 | No gate-1 backward-law transfer | restated verbatim |
-| F4-F11 live-consumer ledger (`m6_projection_engine.md:2337-2353`) | each item listed; the claiming- and benefit-touching items material, others classified inapplicable with reasons |
+| F4 — partial overlay: `_merge_period_columns` drops named columns before left-merging, so unmatched live state becomes `NaN` (pinned: carried `di_converted=True` read as no-conversion) | **material** — directly motivates the §5 precedence law and the `di_unknown` class |
+| F5 — exact-anchor household seed gap (minors reaching 15 later and source-gap adults never enter the household domain) | material — household-domain coverage affects who is present in slices |
+| F6 — closed "85+" band (nominal 85+ ends at 120; uncovered ages get p=0) | material context — oldest-old presence in benefit-years |
+| F8 — entrant classification (`anchor_wave > 2015 & ~domain` treated as row existence) | **material** — the reason §3.3/§10 re-derive the entrant count from explicit earnings rows |
+| F9 — candidate-9/live-roster reconciliation (household fields do not reconcile mortality-thinned members or newborns) | inapplicable — household composition fields are not consumed by this report |
+| F9 sub-item — `coresident_spouse` carried for a person whose spouse was removed by simulated mortality | inapplicable here (household column unconsumed), listed by name as the certified record requires |
+| F10 — entrant schema NAs (`synthetic_entry=NA` inheritance) | material — the pipeline identifies synthetic persons by ID-set difference, never by this field |
+| F11 — fertility-domain coverage (births draw over `state.marital_ids` only) | inapplicable to benefit tables (no in-window newborn claims); material context for revenue person-years |
+| Certified `forward_projection_2100_extrapolation` limitation | material — restated: nothing here extends past 2022, and nothing certifies any longer horizon |
 | Mortality drift uncertified | material |
 | Families B/C ungated | material |
 | 2020-2022 shock window report-only | material — in-window years |
@@ -383,28 +421,44 @@ overlap, stated).
   shas, seeds, draw indices, parameter-bundle hashes), per-draw and
   aggregate tables, origin-class and exclusion counts, endpoint-snap
   counts, the §10 gap block, and `certifies_nothing` scope statements.
-- **The canonical execution rule** (round-2 prescription, adopted): one
-  registered run; `publishes_regardless`; `no_self_rescue`; at most
-  one coordinator-adjudicated, report-first retry **solely for an
-  external pre-output failure yielding no estimate-bearing
-  information**. A published `v1`, any changed configuration byte, or
-  a second failure of any kind requires **fresh registration** — there
-  is no same-ceremony v2 path. Preparation, invariant, or compute
-  aborts publish an append-only INVALID/incident record before any
-  further step.
+- **The canonical execution rule — the sole normative wording,
+  document-wide** (round-3 unification): one registered run;
+  `publishes_regardless`; `no_self_rescue`; at most one
+  coordinator-adjudicated, report-first retry **solely for an external
+  pre-output failure yielding no estimate-bearing information**. A
+  published `v1`, any changed configuration byte, or a second failure
+  of any kind requires **fresh registration** — there is no
+  same-ceremony v2 path. Any other clause in this document or the
+  eventual registration that appears to describe execution defers to
+  this paragraph.
+- **The INVALID/incident record** (round-3 completion): a preparation,
+  invariant, or compute abort publishes an append-only record at
+  `runs/first_estimates_incident_<n>.json` (n = 1, 2, … in order)
+  containing the timestamp, phase, machine reason, and full
+  configuration echo — and **no estimate-bearing value of any kind**.
+  Incident records never occupy the `v1` path and are cross-referenced
+  by any later artifact or fresh registration.
+- **Execution topology** (round-3 correction — the design previously
+  named the superseded incident-5028176439 procedure): the compute
+  runs under the **launchd user-domain topology** as adjudicated and
+  verified on the candidate-3 record (issue #42 comments 5065343857
+  and 5065367143): a one-shot LaunchAgent with `ProcessType=Interactive`
+  and no KeepAlive spawns the detached runner and is removed after
+  verification; the runner holds its own `caffeinate` sleep assertion;
+  no network-dependent parent; publication is performed by the
+  coordinator after exit.
 - Tests: schema/invariant validation plus a committed-fixture rebuild
   test of the join, origin classification, and ledger arithmetic
   without re-running the projection (new work modeled on, not copied
   from, the W2 tests).
 - Paper: a "First estimates" section after the artifact merges,
   narrating the registered procedure, the labels, and the gap block.
-- Ceremony: this design ratified (round 2 → fixes → verify → merge) →
-  implementation PR (referee-gated; no run) → registration on a fresh
-  issue (configuration frozen; one-run + one-disclosed-re-execution
-  terms restated verbatim; the incident-5028176439 execution topology
-  mandatory) → one registered run (hours-scale: twenty draws of a
-  2014→2022 projection) → publication regardless → entry 8 resolves at
-  the publication PR's merge.
+- Ceremony: this design ratified (referee rounds → fixes → verify →
+  merge) → implementation PR (referee-gated; no run) → registration on
+  a fresh issue (configuration frozen; §11's canonical execution rule
+  restated verbatim) → one registered run (hours-scale: twenty draws
+  of a 2014→2022 projection) → publication regardless → entry 8
+  resolves at the publication PR's merge.
 
 ## 12. What this unlocks
 
