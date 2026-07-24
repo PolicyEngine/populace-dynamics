@@ -110,7 +110,11 @@ Nominal labor income by calendar year assembled as:
   observed 2012 and that 2014 value. **Missing-2012 disposition
   (round-3 completion)**: where 2012 is unobserved, 2012 remains
   `unknown` (no value is invented for it) and 2013 carries the 2014
-  neighbor with its imputation flag set.
+  neighbor with its imputation flag set. **Cutoff override (round-5)**:
+  for a claim year of 2013, the §3.3 cutoff-before-imputation law
+  governs — the 2014 value is outside the as-of set, so with 2012
+  unobserved, 2013 is `unknown` (zero contribution, flagged); the seam
+  carry applies only when 2014 is inside the as-of restriction.
 - **Per-year provenance enum (round-3 completion)**: every career year
   carries exactly one class — `observed`, `gap_imputed`,
   `boundary_2014`, `projected`, or `unknown` — and the artifact
@@ -149,14 +153,31 @@ domain laws frozen per round 4:
   formula does not cover). Earlier-eligibility persons are
   excluded-and-counted. This bound also fixes the §7.4 COLA coverage
   span at 1979-2022.
-- **Empty-span disposition**: a person whose coverage span is empty
-  (claim year before the 1968 series start) is excluded-and-counted —
-  a defined exclusion reason, not an abort. (The eligibility-era bound
-  makes this vacuous for included persons; the rule exists as a
-  fail-safe.)
+- **Empty-span disposition**: a person whose coverage span is empty —
+  the exact predicate is max(1968, birth + 22) > min(claim year, 2022)
+  — is excluded-and-counted, a defined exclusion reason, not an abort.
+  (The eligibility-era bound makes this vacuous for included persons;
+  the rule exists as a fail-safe and sits at precedence position 4 of
+  the canonical inclusion law.)
 
-The registered inclusion rule for benefit tables: a person is included
-iff
+**The canonical inclusion law** (round-5 consolidation — one rule, all
+predicates, evaluated in this precedence order; the FIRST failing
+predicate is the person's single published exclusion reason):
+
+1. non-DI under §5 (else excluded as `di_conversion` / `di_unknown`);
+2. earnings-domain state complete;
+3. eligibility era: birth + 62 ≥ 1979;
+4. nonempty span: max(1968, birth + 22) ≤ min(claim year, 2022);
+5. **chronology invariant** (round-5 fresh finding 1): birth + 62 ≤
+   claim year, asserted with the report's own §3.1 birth year against
+   the operative claim year (engine-stamped for modeled awards, imputed
+   for opening stock) — violations excluded-and-counted as
+   `chronology_inconsistent`, which also closes the COLA span at
+   1979-2022 from both ends;
+6. coverage ratio ≥ 0.80.
+
+Restated for clarity, the earlier prose predicates are subsumed: a
+person is included iff
 
 - their earnings-domain state is complete (the no-earnings-state
   persons are excluded-and-counted; **one entrant law** per round 3:
@@ -320,8 +341,12 @@ Per included claimant, the ledger is year-by-year:
    in the gap block.
 6. **Payment-year convention (registered simplification)**: an
    included claimant contributes 12 × the COLA-stepped adjusted PIA
-   for each calendar year from the claim year through the last year
-   they are present in the survivor panel (deaths are realized
+   for each calendar year in the intersection of [claim year,
+   last-present year], [2015, 2022], and the person's actual presence
+   years (round-5 fresh finding 2: scheduled 2017/2019 openers pay
+   nothing before first presence; the imputed or stamped claim year
+   sets the benefit LEVEL through the claim-age adjustment, never a
+   payment year outside the window or before presence; deaths are realized
    removals; no survival expectation is applied — the double-counting
    rule the round-1 review verified complete). Partial first/last-year
    months are not modeled; the convention is disclosed. Output is
@@ -399,14 +424,14 @@ promised for later), with each item's classification:
 |---|---|
 | Scheduled realized 2017/2019 openers condition the object | material — the reproduction panel is anchored, not forward |
 | Widowhood limitations | material — survivor composition affects presence |
-| Open additions dormant (certified: open additions have no PSID truth and are report-only; the immigrant path is dormant, zero immigrant cohorts recorded; synthetic births ARE report-only additions) | material — restated in the certified wording |
+| Open additions — certified sentence quoted exactly: "The gate covers the closed panel only; synthetic births, immigrant cohorts, and other open additions remain report-only." | material |
 | Lag-5 persistence unscored | material context for earnings paths |
 | Stock margins unscored | material context |
 | 65+ remarriage tail limitation | material context — presence of older married persons |
-| Earnings survivorship (restated in the certified record's own wording at the artifact's not_certified entry, quoted verbatim in the artifact gap block) | material |
+| Earnings survivorship — certified sentence quoted exactly: "Gated earnings use realized support and do not certify mortality's effect on the earnings composition through survivorship." | material |
 | Full-window model selection | material context |
 | Redrawn-seed comparison unavailable | material context |
-| "No gate_1 backward-law certificate transfers" (the artifact's earnings-certification string, quoted exactly) | restated verbatim |
+| The artifact's earnings-certification string quoted exactly: "M6-first-certified forward earnings law; no gate_1 backward-law certificate transfers" | restated verbatim |
 | F4 — partial overlay: `_merge_period_columns` drops named columns before left-merging, so unmatched live state becomes `NaN` (pinned: carried `di_converted=True` read as no-conversion) | **material** — directly motivates the §5 precedence law and the `di_unknown` class |
 | F5 — exact-anchor household seed gap (minors reaching 15 later and source-gap adults never enter the household domain) | inapplicable to presence (certified: household fields feed no locked cell and are not serialized; roster presence is unaffected) — material only if household-domain counts are quoted, and then the certified excluded/domain counts publish first |
 | F6 — closed "85+" band (nominal 85+ ends at 120; uncovered ages get p=0) | material context — oldest-old presence in benefit-years |
@@ -466,10 +491,14 @@ overlap, stated).
   `phase` (one of `"preparation" | "invariant" | "compute" |
   "publication"`), `reason` (a machine string), `reason_detail` (free
   text), `registration_reference` (issue/comment id), and
-  `configuration_echo` (the same object the artifact would carry) —
-  and **no estimate-bearing value of any kind**; a schema-validation
-  test enforces both the key set and the absence of numeric estimate
-  tables. Incident records never occupy the `v1` path and are
+  `configuration_echo` (the same object the artifact would carry);
+  `registration_reference` is a JSON string. A **publication abort**
+  (failure after compute, before or during artifact write) also
+  triggers an incident record, with `phase: "publication"` and, if a
+  partial artifact exists, its path referenced. The record carries
+  **no estimate-bearing value of any kind**; the schema-validation
+  test enforces the exact key set, the types, and that no key outside
+  the schema and no numeric array or table of any kind is present. Incident records never occupy the `v1` path and are
   cross-referenced by any later artifact or fresh registration.
 - **Execution topology — the complete launcher contract** (round-4
   completion; the launchd user-domain lineage adjudicated and verified
